@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         applicationId = "com.flxrs.dankchat"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 31110
         versionName = "3.11.10"
