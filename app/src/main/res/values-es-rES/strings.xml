@@ -401,4 +401,5 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_streaminfo_category_title">Mostrar categoría del stream</string>
     <string name="preference_streaminfo_category_summary">Muestra también la categoría del stream</string>
     <string name="toggle_input">Alternar entrada</string>
+    <string name="badge_tooltip_lead_moderator">Moderador principal</string>
 </resources>

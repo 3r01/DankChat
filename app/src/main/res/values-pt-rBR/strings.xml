@@ -394,4 +394,5 @@
     <string name="preference_streaminfo_category_title">Mostrar categoria da transmissão</string>
     <string name="preference_streaminfo_category_summary">Também exibir categoria da transmissão</string>
     <string name="toggle_input">Alternar entrada</string>
+    <string name="badge_tooltip_lead_moderator">Moderador principal</string>
 </resources>

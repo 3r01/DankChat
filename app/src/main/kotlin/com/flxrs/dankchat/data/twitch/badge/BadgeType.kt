@@ -14,7 +14,7 @@ enum class BadgeType {
         fun parseFromBadgeId(id: String): BadgeType = when (id) {
             "staff", "admin", "global_admin"  -> Authority
             "predictions"                     -> Predictions
-            "moderator", "vip", "broadcaster" -> Channel
+            "lead_moderator", "moderator", "vip", "broadcaster" -> Channel
             "subscriber", "founder"           -> Subscriber
             else                              -> Vanity
         }

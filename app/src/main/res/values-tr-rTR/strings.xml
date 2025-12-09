@@ -401,4 +401,5 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_streaminfo_category_title">Yayın kategorisini göster</string>
     <string name="preference_streaminfo_category_summary">Yayın kategorisini de göster</string>
     <string name="toggle_input">Girişi Değiştir</string>
+    <string name="badge_tooltip_lead_moderator">Baş moderatör</string>
 </resources>

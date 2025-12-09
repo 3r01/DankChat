@@ -394,4 +394,5 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
         <item quantity="many">%d miesięcy</item>
         <item quantity="other">%d miesięcy</item>
     </plurals>
+    <string name="badge_tooltip_lead_moderator">Główny moderator</string>
 </resources>

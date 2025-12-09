@@ -401,4 +401,5 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_streaminfo_category_title">Zobrazit kategorii vysílání</string>
     <string name="preference_streaminfo_category_summary">Zobrazit také kategorii vysílání</string>
     <string name="toggle_input">Přepnout vstup</string>
+    <string name="badge_tooltip_lead_moderator">Hlavní moderátor</string>
 </resources>

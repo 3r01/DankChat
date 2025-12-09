@@ -385,4 +385,5 @@
         <item quantity="one">%d hónap</item>
         <item quantity="other">%d hónap</item>
     </plurals>
+    <string name="badge_tooltip_lead_moderator">Vezető moderátor</string>
 </resources>

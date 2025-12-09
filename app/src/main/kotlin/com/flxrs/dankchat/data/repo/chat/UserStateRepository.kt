@@ -63,7 +63,8 @@ class UserStateRepository(private val preferenceStore: DankChatPreferenceStore) 
         val color = msg.tags["color"]?.ifBlank { null }
         val name = msg.tags["display-name"]?.toDisplayName()
         val badges = msg.tags["badges"]?.split(",")
-        val hasModeration = badges?.any { it.contains("broadcaster") || it.contains("moderator") } == true
+        val userType = msg.tags["user-type"]
+        val hasModeration = (badges?.any { it.contains("broadcaster") || it.contains("moderator") } == true) || userType == "mod"
         preferenceStore.displayName = name
         _userState.update { current ->
             val followerEmotes = when {

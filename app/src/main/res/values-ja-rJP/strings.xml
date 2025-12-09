@@ -381,4 +381,5 @@
     <plurals name="months">
         <item quantity="other">%dヶ月</item>
     </plurals>
+    <string name="badge_tooltip_lead_moderator">モデレーター責任者</string>
 </resources>

@@ -385,4 +385,5 @@
         <item quantity="one">%d mês</item>
         <item quantity="other">%d meses</item>
     </plurals>
+    <string name="badge_tooltip_lead_moderator">Moderador principal</string>
 </resources>

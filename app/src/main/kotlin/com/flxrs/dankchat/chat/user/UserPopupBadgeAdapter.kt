@@ -53,6 +53,7 @@ class UserPopupBadgeAdapter : ListAdapter<Badge, UserPopupBadgeAdapter.BadgeView
         return when (key) {
             "bits"                  -> context.getString(R.string.badge_tooltip_bits, value)
             "moderator"             -> context.getString(R.string.badge_tooltip_moderator)
+            "lead_moderator"        -> context.getString(R.string.badge_tooltip_lead_moderator)
             "vip"                   -> context.getString(R.string.badge_tooltip_vip)
             "predictions"           -> {
                 val info = badgeInfo ?: return title.orEmpty()

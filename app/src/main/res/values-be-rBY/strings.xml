@@ -400,4 +400,5 @@
     <string name="preference_streaminfo_category_title">Паказваць катэгорыю трансляцыі</string>
     <string name="preference_streaminfo_category_summary">Таксама паказваць катэгорыю трансляцыі</string>
     <string name="toggle_input">Пераключыць радок уводу</string>
+    <string name="badge_tooltip_lead_moderator">Вядучы мадэратар</string>
 </resources>
