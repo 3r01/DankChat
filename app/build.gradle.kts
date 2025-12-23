@@ -14,7 +14,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.nav.safeargs.kotlin)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.about.libraries)
+    alias(libs.plugins.about.libraries.android)
 }
 
 android {

@@ -129,7 +129,12 @@ class AboutFragment : Fragment() {
                                 AlertDialog(
                                     onDismissRequest = { selectedLibrary = null },
                                     title = { Text(text = library.name) },
-                                    confirmButton = { TextButton(onClick = { selectedLibrary = null }) { Text(stringResource(R.string.dialog_ok)) } },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = { selectedLibrary = null },
+                                            content = { Text(stringResource(R.string.dialog_ok)) },
+                                        )
+                                    },
                                     text = {
                                         Text(
                                             text = license,
