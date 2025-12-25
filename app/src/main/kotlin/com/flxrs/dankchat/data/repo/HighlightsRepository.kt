@@ -5,9 +5,11 @@ package com.flxrs.dankchat.data.repo
 import android.util.Log
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.database.dao.BadgeHighlightDao
 import com.flxrs.dankchat.data.database.dao.BlacklistedUserDao
 import com.flxrs.dankchat.data.database.dao.MessageHighlightDao
 import com.flxrs.dankchat.data.database.dao.UserHighlightDao
+import com.flxrs.dankchat.data.database.entity.BadgeHighlightEntity
 import com.flxrs.dankchat.data.database.entity.BlacklistedUserEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntityType
@@ -40,6 +42,7 @@ import org.koin.core.annotation.Single
 class HighlightsRepository(
     private val messageHighlightDao: MessageHighlightDao,
     private val userHighlightDao: UserHighlightDao,
+    private val badgeHighlightDao: BadgeHighlightDao,
     private val blacklistedUserDao: BlacklistedUserDao,
     private val preferences: DankChatPreferenceStore,
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
@@ -57,6 +60,8 @@ class HighlightsRepository(
         .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
     val userHighlights = userHighlightDao.getUserHighlightsFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    val badgeHighlights = badgeHighlightDao.getBadgeHighlightsFlow()
+        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val blacklistedUsers = blacklistedUserDao.getBlacklistedUserFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
     private val validMessageHighlights = messageHighlights
@@ -64,6 +69,9 @@ class HighlightsRepository(
         .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     private val validUserHighlights = userHighlights
         .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
+        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val validBadgeHighlights = badgeHighlights
+        .map { highlights -> highlights.filter { it.enabled && it.badgeName.isNotBlank() } }
         .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     private val validBlacklistedUsers = blacklistedUsers
         .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
@@ -81,20 +89,24 @@ class HighlightsRepository(
 
     fun runMigrationsIfNeeded() = coroutineScope.launch {
         runCatching {
-            if (messageHighlightDao.getMessageHighlights().isNotEmpty()) {
-                return@launch
+            if (messageHighlightDao.getMessageHighlights().isEmpty()) {
+                Log.d(TAG, "Running message highlights migration...")
+                messageHighlightDao.addHighlights(DEFAULT_MESSAGE_HIGHLIGHTS)
+                val totalMessageHighlights = DEFAULT_MESSAGE_HIGHLIGHTS.size
+                Log.d(TAG, "Message highlights migration completed, added $totalMessageHighlights entries.")
             }
-
-            Log.d(TAG, "Running highlights migration...")
-            messageHighlightDao.addHighlights(DEFAULT_HIGHLIGHTS)
-
-            val totalHighlights = DEFAULT_HIGHLIGHTS.size
-            Log.d(TAG, "Highlights migration completed, added $totalHighlights entries.")
+            if (badgeHighlightDao.getBadgeHighlights().isEmpty()) {
+                Log.d(TAG, "Running badge highlights migration...")
+                badgeHighlightDao.addHighlights(DEFAULT_BADGE_HIGHLIGHTS)
+                val totalBadgeHighlights =  + DEFAULT_BADGE_HIGHLIGHTS.size
+                Log.d(TAG, "Badge highlights migration completed, added $totalBadgeHighlights entries.")
+            }
         }.getOrElse {
             Log.e(TAG, "Failed to run highlights migration", it)
             runCatching {
                 messageHighlightDao.deleteAllHighlights()
                 userHighlightDao.deleteAllHighlights()
+                badgeHighlightDao.deleteAllHighlights()
                 return@launch
             }
         }
@@ -143,6 +155,29 @@ class HighlightsRepository(
 
     suspend fun updateUserHighlights(entities: List<UserHighlightEntity>) {
         userHighlightDao.addHighlights(entities)
+    }
+
+    suspend fun addBadgeHighlight(): BadgeHighlightEntity {
+        val entity = BadgeHighlightEntity(
+            id = 0,
+            enabled = true,
+            badgeName = "",
+            isCustom = true,
+        )
+        val id = badgeHighlightDao.addHighlight(entity)
+        return entity.copy(id = id)
+    }
+
+    suspend fun updateBadgeHighlight(entity: BadgeHighlightEntity) {
+        badgeHighlightDao.addHighlight(entity)
+    }
+
+    suspend fun removeBadgeHighlight(entity: BadgeHighlightEntity) {
+        badgeHighlightDao.deleteHighlight(entity)
+    }
+
+    suspend fun updateBadgeHighlights(entities: List<BadgeHighlightEntity>) {
+        badgeHighlightDao.addHighlights(entities)
     }
 
     suspend fun addBlacklistedUser(): BlacklistedUserEntity {
@@ -209,6 +244,7 @@ class HighlightsRepository(
         }
 
         val userHighlights = validUserHighlights.value
+        val badgeHighlights = validBadgeHighlights.value
         val messageHighlights = validMessageHighlights.value
         val highlights = buildSet {
             if (isSub && messageHighlights.areSubsEnabled) {
@@ -264,6 +300,22 @@ class HighlightsRepository(
                     addNotificationHighlightIfEnabled(it)
                 }
             }
+            badgeHighlights.forEach { highlight ->
+                badges.forEach { badge ->
+                    val tag = badge.badgeTag ?: return@forEach
+                    if (tag.isNotBlank()) {
+                        val match = if (highlight.badgeName.contains("/")) {
+                            tag == highlight.badgeName
+                        } else {
+                            tag.startsWith(highlight.badgeName + "/")
+                        }
+                        if (match) {
+                            add(Highlight(HighlightType.Badge, highlight.customColor))
+                            addNotificationHighlightIfEnabled(highlight)
+                        }
+                    }
+                }
+            }
         }
 
         return copy(highlights = highlights)
@@ -311,6 +363,12 @@ class HighlightsRepository(
         }
     }
 
+    private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(highlightEntity: BadgeHighlightEntity) {
+        if (highlightEntity.createNotification) {
+            add(Highlight(HighlightType.Notification))
+        }
+    }
+
     private val PrivMessage.containsCurrentUserName: Boolean
         get() {
             val currentUser = currentUserAndDisplay.value?.first ?: return false
@@ -351,7 +409,7 @@ class HighlightsRepository(
     }
 
     private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> {
-        return (this + DEFAULT_HIGHLIGHTS).distinctBy {
+        return (this + DEFAULT_MESSAGE_HIGHLIGHTS).distinctBy {
             when (it.type) {
                 MessageHighlightEntityType.Custom -> it.id
                 else                              -> it.type
@@ -361,7 +419,7 @@ class HighlightsRepository(
 
     companion object {
         private val TAG = HighlightsRepository::class.java.simpleName
-        private val DEFAULT_HIGHLIGHTS = listOf(
+        private val DEFAULT_MESSAGE_HIGHLIGHTS = listOf(
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Username, pattern = ""),
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Subscription, pattern = "", createNotification = false),
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Announcement, pattern = "", createNotification = false),
@@ -369,6 +427,17 @@ class HighlightsRepository(
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.FirstMessage, pattern = "", createNotification = false),
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ElevatedMessage, pattern = "", createNotification = false),
             MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Reply, pattern = ""),
+        )
+        private val DEFAULT_BADGE_HIGHLIGHTS = listOf(
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "broadcaster", isCustom = false, customColor = 0x7f7f3f49.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "admin", isCustom = false, customColor = 0x7f8f3018.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "staff", isCustom = false, customColor = 0x7f8f3018.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "lead_moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "partner", isCustom = false, customColor = 0x64c466ff.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "vip", isCustom = false, customColor = 0x7fc12ea9.toInt()),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "founder", isCustom = false),
+            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "subscriber", isCustom = false),
         )
     }
 }
