@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.domain
 
+import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
@@ -46,7 +47,14 @@ class GlobalDataLoader(
     suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
     /**
-     * Load user-specific global emotes (requires login)
+     * Load user-specific global emotes via Helix API (requires login + user:read:emotes scope)
+     */
+    suspend fun loadUserEmotes(userId: UserId) {
+        dataRepository.loadUserEmotes(userId)
+    }
+
+    /**
+     * Load user-specific global emotes via DankChat API (legacy fallback)
      */
     suspend fun loadUserStateEmotes(
         globalEmoteSets: List<String>,

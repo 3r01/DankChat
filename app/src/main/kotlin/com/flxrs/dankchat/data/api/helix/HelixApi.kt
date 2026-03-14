@@ -267,4 +267,19 @@ class HelixApi(private val ktorClient: HttpClient, private val dankChatPreferenc
         bearerAuth(oAuth)
         parameter("id", id)
     }
+
+    suspend fun getUserEmotes(userId: UserId, after: String? = null): HttpResponse? = ktorClient.get("chat/emotes/user") {
+        val oAuth = dankChatPreferenceStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        parameter("user_id", userId)
+        if (after != null) {
+            parameter("after", after)
+        }
+    }
+
+    suspend fun getChannelEmotes(broadcasterId: UserId): HttpResponse? = ktorClient.get("chat/emotes") {
+        val oAuth = dankChatPreferenceStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterId)
+    }
 }

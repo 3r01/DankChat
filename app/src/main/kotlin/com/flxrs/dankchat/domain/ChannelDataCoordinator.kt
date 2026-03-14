@@ -104,13 +104,8 @@ class ChannelDataCoordinator(
      * Load user-specific emotes after global data is loaded
      */
     private suspend fun loadUserStateEmotesIfAvailable() {
-        val channels = preferenceStore.channels
-        if (channels.isEmpty()) return
-
-        val userState = userStateRepository.tryGetUserStateOrFallback(minChannelsSize = channels.size)
-        userState?.let {
-            globalDataLoader.loadUserStateEmotes(it.globalEmoteSets, it.followerEmoteSets)
-        }
+        val userId = preferenceStore.userIdString ?: return
+        globalDataLoader.loadUserEmotes(userId)
     }
 
     /**

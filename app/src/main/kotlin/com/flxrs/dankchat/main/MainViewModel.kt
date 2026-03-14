@@ -470,9 +470,9 @@ class MainViewModel(
                 return@launch
             }
 
-            val userState = userStateRepository.tryGetUserStateOrFallback(minChannelsSize = channelList.size)
-            userState?.let {
-                dataRepository.loadUserStateEmotes(userState.globalEmoteSets, userState.followerEmoteSets)
+            val userId = dankChatPreferenceStore.userIdString
+            if (userId != null) {
+                dataRepository.loadUserEmotes(userId)
             }
 
             checkFailuresAndEmitState()
@@ -647,12 +647,6 @@ class MainViewModel(
         dataLoadingStateChannel.send(DataLoadingState.Loading)
         isDataLoading.update { true }
 
-        if (isLoggedIn) {
-            // reconnect to retrieve an an up-to-date GLOBALUSERSTATE
-            userStateRepository.clearUserStateEmotes()
-            chatRepository.reconnect(reconnectPubsub = false)
-        }
-
         val channel = channelRepository.getChannel(channelName)
 
         buildList {
@@ -675,10 +669,9 @@ class MainViewModel(
             return@launch
         }
 
-        val channels = channels.value ?: listOf(channel)
-        val userState = userStateRepository.tryGetUserStateOrFallback(minChannelsSize = channels.size)
-        userState?.let {
-            dataRepository.loadUserStateEmotes(userState.globalEmoteSets, userState.followerEmoteSets)
+        val userId = dankChatPreferenceStore.userIdString
+        if (userId != null) {
+            dataRepository.loadUserEmotes(userId)
         }
 
         checkFailuresAndEmitState()

@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.util.LruCache
@@ -14,6 +15,10 @@ import com.flxrs.dankchat.data.api.bttv.dto.BTTVGlobalEmoteDto
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatBadgeDto
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatEmoteDto
+import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.HelixApiException
+import com.flxrs.dankchat.data.api.helix.HelixError
+import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
@@ -26,7 +31,9 @@ import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeSet
 import com.flxrs.dankchat.data.twitch.badge.BadgeType
@@ -59,6 +66,7 @@ import java.util.concurrent.CopyOnWriteArrayList
 @Single
 class EmoteRepository(
     private val dankChatApiClient: DankChatApiClient,
+    private val helixApiClient: HelixApiClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val channelRepository: ChannelRepository,
 ) {
@@ -311,6 +319,82 @@ class EmoteRepository(
 
     fun getSevenTVUserDetails(channel: UserName): SevenTVUserDetails? = sevenTvChannelDetails[channel]
 
+    suspend fun loadUserEmotes(userId: UserId) {
+        try {
+            loadUserEmotesViaHelix(userId)
+        } catch (e: HelixApiException) {
+            if (e.error is HelixError.MissingScopes) {
+                // Fallback to old path if the user hasn't re-logged with the new scope
+                return
+            }
+            throw e
+        }
+    }
+
+    private suspend fun loadUserEmotesViaHelix(userId: UserId) = withContext(Dispatchers.Default) {
+        val seenIds = HashSet<String>()
+        val allEmotes = mutableListOf<GenericEmote>()
+        var totalCount = 0
+
+        helixApiClient.getUserEmotesFlow(userId).collect { page ->
+            totalCount += page.size
+
+            val newGlobalEmotes = mutableListOf<GenericEmote>()
+            val newChannelDtos = mutableListOf<UserEmoteDto>()
+
+            for (emote in page) {
+                if (!seenIds.add(emote.id)) continue
+
+                if (emote.emoteType in CHANNEL_EMOTE_TYPES) {
+                    newChannelDtos.add(emote)
+                } else {
+                    newGlobalEmotes.add(emote.toGenericEmote(EmoteType.GlobalTwitchEmote))
+                }
+            }
+
+            // Resolve channel emotes from this page — getChannelsByIds caches results,
+            // so repeated owner IDs across pages are cheap lookups
+            if (newChannelDtos.isNotEmpty()) {
+                val ownerIds = newChannelDtos
+                    .filter { it.ownerId.isNotBlank() }
+                    .map { it.ownerId.toUserId() }
+                    .distinct()
+
+                val channelsByIdMap = channelRepository.getChannelsByIds(ownerIds)
+                    .associateBy { it.id }
+
+                for (emote in newChannelDtos) {
+                    val type = when (emote.emoteType) {
+                        "subscriptions" -> {
+                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                            channel?.name?.let { EmoteType.ChannelTwitchEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                        }
+
+                        "bitstier"      -> {
+                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                            channel?.name?.let { EmoteType.ChannelTwitchBitEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                        }
+
+                        "follower"      -> {
+                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                            channel?.name?.let { EmoteType.ChannelTwitchFollowerEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                        }
+
+                        else            -> EmoteType.GlobalTwitchEmote
+                    }
+                    newGlobalEmotes.add(emote.toGenericEmote(type))
+                }
+            }
+
+            if (newGlobalEmotes.isNotEmpty()) {
+                allEmotes.addAll(newGlobalEmotes)
+                globalEmoteState.update { it.copy(twitchEmotes = allEmotes.toList()) }
+            }
+        }
+
+        Log.d(TAG, "Helix getUserEmotes: $totalCount total, ${seenIds.size} unique, ${allEmotes.size} resolved")
+    }
+
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) = withContext(Dispatchers.Default) {
         val sets = (globalEmoteSetIds + followerEmoteSetIds.values.flatten())
             .distinct()
@@ -479,6 +563,21 @@ class EmoteRepository(
 
     private val UserName.isGlobalTwitchChannel: Boolean
         get() = value.equals("qa_TW_Partner", ignoreCase = true) || value.equals("Twitch", ignoreCase = true)
+
+    private fun UserEmoteDto.toGenericEmote(type: EmoteType): GenericEmote {
+        val code = when (type) {
+            is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
+            else                           -> name
+        }
+        return GenericEmote(
+            code = code,
+            url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
+            lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
+            id = id,
+            scale = 1,
+            emoteType = type
+        )
+    }
 
     private fun List<DankChatEmoteDto>?.mapToGenericEmotes(type: EmoteType): List<GenericEmote> = this?.map { (name, id) ->
         val code = when (type) {
@@ -693,11 +792,13 @@ class EmoteRepository(
         }
 
     companion object {
+        private val TAG = EmoteRepository::class.java.simpleName
         private val SUPPORTS_WEBP = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         fun Badge.cacheKey(baseHeight: Int): String = "$url-$baseHeight"
         fun List<ChatMessageEmote>.cacheKey(baseHeight: Int): String = joinToString(separator = "-") { it.id } + "-$baseHeight"
 
         private const val MAX_PARAMS_LENGTH = 2000
+        private val CHANNEL_EMOTE_TYPES = setOf("subscriptions", "bitstier", "follower")
 
         private const val TWITCH_EMOTE_TEMPLATE = "https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/%s"
         private const val TWITCH_EMOTE_SIZE = "3.0"

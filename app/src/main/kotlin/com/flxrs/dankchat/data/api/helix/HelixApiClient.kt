@@ -21,8 +21,10 @@ import com.flxrs.dankchat.data.api.helix.dto.RaidDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeStatusDto
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
+import com.flxrs.dankchat.data.api.helix.dto.ChannelEmoteDto
 import com.flxrs.dankchat.data.api.helix.dto.UserBlockDto
 import com.flxrs.dankchat.data.api.helix.dto.UserDto
+import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.helix.dto.UserFollowsDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
@@ -32,6 +34,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
@@ -241,6 +245,34 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
             .throwHelixApiErrorOnFailure()
     }
 
+    fun getUserEmotesFlow(userId: UserId): Flow<List<UserEmoteDto>> = pageAsFlow(MAX_USER_EMOTES) { cursor ->
+        helixApi.getUserEmotes(userId, cursor)
+    }
+
+    suspend fun getChannelEmotes(broadcasterId: UserId): Result<List<ChannelEmoteDto>> = runCatching {
+        helixApi.getChannelEmotes(broadcasterId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ChannelEmoteDto>>()
+            .data
+    }
+
+    private inline fun <reified T> pageAsFlow(amountToFetch: Int, crossinline request: suspend (cursor: String?) -> HttpResponse?): Flow<List<T>> = flow {
+        val initialPage = request(null)
+            .throwHelixApiErrorOnFailure()
+            .body<PagedDto<T>>()
+        emit(initialPage.data)
+        var cursor = initialPage.pagination.cursor
+        var count = initialPage.data.size
+        while (cursor != null && count < amountToFetch) {
+            val result = request(cursor)
+                .throwHelixApiErrorOnFailure()
+                .body<PagedDto<T>>()
+            emit(result.data)
+            count += result.data.size
+            cursor = result.pagination.cursor
+        }
+    }
+
     private suspend inline fun <reified T> pageUntil(amountToFetch: Int, request: (cursor: String?) -> HttpResponse?): List<T> {
         val initialPage = request(null)
             .throwHelixApiErrorOnFailure()
@@ -341,6 +373,7 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     companion object {
         private val TAG = HelixApiClient::class.java.simpleName
         private const val DEFAULT_PAGE_SIZE = 100
+        private const val MAX_USER_EMOTES = 5000
         private const val WHISPER_SELF_ERROR = "A user cannot whisper themself"
         private const val MISSING_SCOPE_ERROR = "Missing scope"
         private const val NO_VERIFIED_PHONE_ERROR = "the sender does not have a verified phone number"

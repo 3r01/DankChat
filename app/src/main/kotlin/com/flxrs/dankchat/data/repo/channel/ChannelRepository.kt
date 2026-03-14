@@ -100,6 +100,23 @@ class ChannelRepository(
         flow.tryEmit(state)
     }
 
+    suspend fun getChannelsByIds(ids: Collection<UserId>): List<Channel> = withContext(Dispatchers.IO) {
+        val cached = ids.mapNotNull { getCachedChannelByIdOrNull(it) }
+        val cachedIds = cached.mapTo(mutableSetOf(), Channel::id)
+        val remaining = ids.filterNot { it in cachedIds }
+        if (remaining.isEmpty() || !dankChatPreferenceStore.isLoggedIn) {
+            return@withContext cached
+        }
+
+        val channels = helixApiClient.getUsersByIds(remaining)
+            .getOrNull()
+            .orEmpty()
+            .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+
+        channels.forEach { channelCache[it.name] = it }
+        return@withContext cached + channels
+    }
+
     suspend fun getChannels(names: Collection<UserName>): List<Channel> = withContext(Dispatchers.IO) {
         val cached = names.mapNotNull { channelCache[it] }
         val cachedNames = cached.mapTo(mutableSetOf(), Channel::name)

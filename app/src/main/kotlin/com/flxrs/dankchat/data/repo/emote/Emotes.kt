@@ -16,8 +16,12 @@ data class ChannelEmoteState(
     val sevenTvEmotes: List<GenericEmote> = emptyList(),
 )
 
-fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes = Emotes(
-    twitchEmotes = global.twitchEmotes + channel.twitchEmotes,
+fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes {
+    // Deduplicate twitch emotes by ID — channel (follower) emotes take precedence
+    val channelEmoteIds = channel.twitchEmotes.mapTo(HashSet()) { it.id }
+    val deduplicatedGlobalTwitchEmotes = global.twitchEmotes.filterNot { it.id in channelEmoteIds }
+    return Emotes(
+        twitchEmotes = deduplicatedGlobalTwitchEmotes + channel.twitchEmotes,
     ffzChannelEmotes = channel.ffzEmotes,
     ffzGlobalEmotes = global.ffzEmotes,
     bttvChannelEmotes = channel.bttvEmotes,
@@ -25,6 +29,7 @@ fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes = 
     sevenTvChannelEmotes = channel.sevenTvEmotes,
     sevenTvGlobalEmotes = global.sevenTvEmotes,
 )
+}
 
 data class Emotes(
     val twitchEmotes: List<GenericEmote> = emptyList(),

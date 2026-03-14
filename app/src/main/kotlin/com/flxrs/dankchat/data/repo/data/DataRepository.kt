@@ -147,6 +147,10 @@ class DataRepository(
         }
     }
 
+    suspend fun loadUserEmotes(userId: UserId) {
+        emoteRepository.loadUserEmotes(userId)
+    }
+
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {
         emoteRepository.loadUserStateEmotes(globalEmoteSetIds, followerEmoteSetIds)
     }

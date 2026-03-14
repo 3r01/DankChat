@@ -119,7 +119,6 @@ class ChannelDataLoader(
                     onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) }
                 )
             }
-
             listOfNotNull(
                 bttvResult.await(),
                 ffzResult.await(),
