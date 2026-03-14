@@ -4,33 +4,41 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.theme.LocalAdaptiveColors
 import com.flxrs.dankchat.utils.extensions.normalizeColor
 import com.google.android.material.color.MaterialColors
 
 /**
+ * Resolves the effective opaque background for contrast calculations.
+ * Semi-transparent colors are composited over the surface color.
+ */
+@Composable
+private fun resolveEffectiveBackground(backgroundColor: Color): Color {
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    return when {
+        backgroundColor == Color.Transparent -> surfaceColor
+        backgroundColor.alpha < 1f           -> backgroundColor.compositeOver(surfaceColor)
+        else                                 -> backgroundColor
+    }
+}
+
+/**
  * Returns appropriate text color (light or dark) based on background brightness.
  * Uses MaterialColors.isColorLight() to determine if background is light,
  * then selects dark text for light backgrounds and vice versa.
- * 
+ *
  * For transparent backgrounds, uses the surface color for brightness calculation
  * since that's what will be visible behind the text.
  */
 @Composable
 fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
     val adaptiveColors = LocalAdaptiveColors.current
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    
-    // For transparent backgrounds, use surface color for calculation
-    val effectiveBackground = if (backgroundColor == Color.Transparent) {
-        surfaceColor
-    } else {
-        backgroundColor
-    }
-    
+    val effectiveBackground = resolveEffectiveBackground(backgroundColor)
+
     val isLightBackground = MaterialColors.isColorLight(effectiveBackground.toArgb())
-    
+
     return if (isLightBackground) {
         adaptiveColors.onSurfaceLight
     } else {
@@ -40,12 +48,12 @@ fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
 
 /**
  * Normalizes a raw color int for readable contrast against the effective background.
- * Uses [MaterialTheme.colorScheme.surface] when the background is transparent.
+ * Semi-transparent backgrounds are composited over [MaterialTheme.colorScheme.surface]
+ * to produce an opaque color for accurate contrast calculation.
  */
 @Composable
 fun rememberNormalizedColor(rawColor: Int, backgroundColor: Color): Color {
-    val surfaceColor = MaterialTheme.colorScheme.surface
-    val effectiveBg = if (backgroundColor == Color.Transparent) surfaceColor else backgroundColor
+    val effectiveBg = resolveEffectiveBackground(backgroundColor)
     val effectiveBgArgb = effectiveBg.toArgb()
 
     return remember(rawColor, effectiveBgArgb) {
