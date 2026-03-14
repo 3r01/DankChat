@@ -461,23 +461,8 @@ fun InlineOverflowMenu(
     isStreamActive: Boolean = false,
     hasStreamData: Boolean = false,
     onDismiss: () -> Unit,
-    onLogin: () -> Unit,
-    onRelogin: () -> Unit,
-    onLogout: () -> Unit,
-    onManageChannels: () -> Unit,
-    onOpenChannel: () -> Unit,
-    onRemoveChannel: () -> Unit,
-    onReportChannel: () -> Unit,
-    onBlockChannel: () -> Unit,
-    onCaptureImage: () -> Unit,
-    onCaptureVideo: () -> Unit,
-    onChooseMedia: () -> Unit,
-    onReloadEmotes: () -> Unit,
-    onReconnect: () -> Unit,
-    onClearChat: () -> Unit,
-    onToggleStream: () -> Unit = {},
-    onOpenSettings: () -> Unit,
     initialMenu: AppBarMenu = AppBarMenu.Main,
+    onAction: (ToolbarAction) -> Unit,
 ) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
 
@@ -496,44 +481,44 @@ fun InlineOverflowMenu(
             when (menu) {
                 AppBarMenu.Main -> {
                     if (!isLoggedIn) {
-                        InlineMenuItem(text = stringResource(R.string.login)) { onLogin(); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.login)) { onAction(ToolbarAction.Login); onDismiss() }
                     } else {
                         InlineMenuItem(text = stringResource(R.string.account), hasSubMenu = true) { currentMenu = AppBarMenu.Account }
                     }
-                    InlineMenuItem(text = stringResource(R.string.manage_channels)) { onManageChannels(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.manage_channels)) { onAction(ToolbarAction.ManageChannels); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.channel), hasSubMenu = true) { currentMenu = AppBarMenu.Channel }
                     InlineMenuItem(text = stringResource(R.string.upload_media), hasSubMenu = true) { currentMenu = AppBarMenu.Upload }
                     InlineMenuItem(text = stringResource(R.string.more), hasSubMenu = true) { currentMenu = AppBarMenu.More }
-                    InlineMenuItem(text = stringResource(R.string.settings)) { onOpenSettings(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.settings)) { onAction(ToolbarAction.OpenSettings); onDismiss() }
                 }
                 AppBarMenu.Account -> {
                     InlineSubMenuHeader(title = stringResource(R.string.account), onBack = { currentMenu = AppBarMenu.Main })
-                    InlineMenuItem(text = stringResource(R.string.relogin)) { onRelogin(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.logout)) { onLogout(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.relogin)) { onAction(ToolbarAction.Relogin); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.logout)) { onAction(ToolbarAction.Logout); onDismiss() }
                 }
                 AppBarMenu.Channel -> {
                     InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
                     if (hasStreamData || isStreamActive) {
-                        InlineMenuItem(text = stringResource(if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream)) { onToggleStream(); onDismiss() }
+                        InlineMenuItem(text = stringResource(if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream)) { onAction(ToolbarAction.ToggleStream); onDismiss() }
                     }
-                    InlineMenuItem(text = stringResource(R.string.open_channel)) { onOpenChannel(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.remove_channel)) { onRemoveChannel(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.report_channel)) { onReportChannel(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.open_channel)) { onAction(ToolbarAction.OpenChannel); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.remove_channel)) { onAction(ToolbarAction.RemoveChannel); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.report_channel)) { onAction(ToolbarAction.ReportChannel); onDismiss() }
                     if (isLoggedIn) {
-                        InlineMenuItem(text = stringResource(R.string.block_channel)) { onBlockChannel(); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.block_channel)) { onAction(ToolbarAction.BlockChannel); onDismiss() }
                     }
                 }
                 AppBarMenu.Upload -> {
                     InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
-                    InlineMenuItem(text = stringResource(R.string.take_picture)) { onCaptureImage(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.record_video)) { onCaptureVideo(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.choose_media)) { onChooseMedia(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.take_picture)) { onAction(ToolbarAction.CaptureImage); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.record_video)) { onAction(ToolbarAction.CaptureVideo); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.choose_media)) { onAction(ToolbarAction.ChooseMedia); onDismiss() }
                 }
                 AppBarMenu.More -> {
                     InlineSubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
-                    InlineMenuItem(text = stringResource(R.string.reload_emotes)) { onReloadEmotes(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.reconnect)) { onReconnect(); onDismiss() }
-                    InlineMenuItem(text = stringResource(R.string.clear_chat)) { onClearChat(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.reload_emotes)) { onAction(ToolbarAction.ReloadEmotes); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.reconnect)) { onAction(ToolbarAction.Reconnect); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.clear_chat)) { onAction(ToolbarAction.ClearChat); onDismiss() }
                 }
             }
         }

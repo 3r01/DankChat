@@ -18,6 +18,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -87,11 +88,18 @@ class ChannelDataCoordinator(
             // Reparse after global emotes load so 3rd party globals are visible immediately
             chatRepository.reparseAllEmotesAndBadges()
 
-            // Load user state emotes if logged in (slow, paginated)
+            // Load user emotes if logged in — only block on first page, rest loads async
             if (preferenceStore.isLoggedIn) {
-                loadUserStateEmotesIfAvailable()
-                // Reparse again after user emotes finish so they become visible
-                chatRepository.reparseAllEmotesAndBadges()
+                val userId = preferenceStore.userIdString
+                if (userId != null) {
+                    val firstPageLoaded = CompletableDeferred<Unit>()
+                    launch {
+                        globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
+                        chatRepository.reparseAllEmotesAndBadges()
+                    }
+                    firstPageLoaded.await()
+                    chatRepository.reparseAllEmotesAndBadges()
+                }
             }
 
             val failures = dataRepository.dataLoadingFailures.value
@@ -103,14 +111,6 @@ class ChannelDataCoordinator(
                 )
             }
         }
-    }
-
-    /**
-     * Load user-specific emotes after global data is loaded
-     */
-    private suspend fun loadUserStateEmotesIfAvailable() {
-        val userId = preferenceStore.userIdString ?: return
-        globalDataLoader.loadUserEmotes(userId)
     }
 
     /**

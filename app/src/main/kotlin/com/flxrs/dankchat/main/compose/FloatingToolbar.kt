@@ -53,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
@@ -75,6 +76,29 @@ import androidx.compose.ui.layout.onSizeChanged
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
+sealed interface ToolbarAction {
+    data class SelectTab(val index: Int) : ToolbarAction
+    data class LongClickTab(val index: Int) : ToolbarAction
+    data object AddChannel : ToolbarAction
+    data object OpenMentions : ToolbarAction
+    data object Login : ToolbarAction
+    data object Relogin : ToolbarAction
+    data object Logout : ToolbarAction
+    data object ManageChannels : ToolbarAction
+    data object OpenChannel : ToolbarAction
+    data object RemoveChannel : ToolbarAction
+    data object ReportChannel : ToolbarAction
+    data object BlockChannel : ToolbarAction
+    data object CaptureImage : ToolbarAction
+    data object CaptureVideo : ToolbarAction
+    data object ChooseMedia : ToolbarAction
+    data object ReloadEmotes : ToolbarAction
+    data object Reconnect : ToolbarAction
+    data object ClearChat : ToolbarAction
+    data object ToggleStream : ToolbarAction
+    data object OpenSettings : ToolbarAction
+}
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FloatingToolbar(
@@ -87,29 +111,10 @@ fun FloatingToolbar(
     hasStreamData: Boolean,
     streamHeightDp: Dp,
     totalMentionCount: Int,
-    onTabSelected: (Int) -> Unit,
-    onTabLongClick: (Int) -> Unit,
-    onAddChannel: () -> Unit,
-    onOpenMentions: () -> Unit,
-    // Overflow menu callbacks
-    onLogin: () -> Unit,
-    onRelogin: () -> Unit,
-    onLogout: () -> Unit,
-    onManageChannels: () -> Unit,
-    onOpenChannel: () -> Unit,
-    onRemoveChannel: () -> Unit,
-    onReportChannel: () -> Unit,
-    onBlockChannel: () -> Unit,
-    onCaptureImage: () -> Unit,
-    onCaptureVideo: () -> Unit,
-    onChooseMedia: () -> Unit,
-    onReloadEmotes: () -> Unit,
-    onReconnect: () -> Unit,
-    onClearChat: () -> Unit,
-    onToggleStream: () -> Unit,
-    onOpenSettings: () -> Unit,
+    onAction: (ToolbarAction) -> Unit,
     endAligned: Boolean = false,
     showTabs: Boolean = true,
+    streamToolbarAlpha: Float = 1f,
     modifier: Modifier = Modifier,
 ) {
     if (tabState.tabs.isEmpty()) return
@@ -172,15 +177,17 @@ fun FloatingToolbar(
         )
     }
 
+    val hasStream = currentStream != null && streamHeightDp > 0.dp
+
     AnimatedVisibility(
         visible = showAppBar && !isFullscreen,
         enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
         exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = if (currentStream != null && streamHeightDp > 0.dp) streamHeightDp + 8.dp else 0.dp)
+            .padding(top = if (hasStream) streamHeightDp + 8.dp else 0.dp)
+            .graphicsLayer { alpha = streamToolbarAlpha }
     ) {
-        val hasStream = currentStream != null && streamHeightDp > 0.dp
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
         var toolbarRowHeight by remember { mutableStateOf(0f) }
@@ -312,9 +319,9 @@ fun FloatingToolbar(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
                                 .combinedClickable(
-                                    onClick = { onTabSelected(index) },
+                                    onClick = { onAction(ToolbarAction.SelectTab(index)) },
                                     onLongClick = {
-                                        onTabLongClick(index)
+                                        onAction(ToolbarAction.LongClickTab(index))
                                         overflowInitialMenu = AppBarMenu.Channel
                                         showOverflowMenu = true
                                     }
@@ -370,13 +377,13 @@ fun FloatingToolbar(
                             color = MaterialTheme.colorScheme.surfaceContainer,
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(onClick = onAddChannel) {
+                                IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
                                     Icon(
                                         imageVector = Icons.Default.Add,
                                         contentDescription = stringResource(R.string.add_channel)
                                     )
                                 }
-                                IconButton(onClick = onOpenMentions) {
+                                IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
                                     Icon(
                                         imageVector = Icons.Default.Notifications,
                                         contentDescription = stringResource(R.string.mentions_title),
@@ -421,22 +428,7 @@ fun FloatingToolbar(
                                         overflowInitialMenu = AppBarMenu.Main
                                     },
                                     initialMenu = overflowInitialMenu,
-                                    onLogin = onLogin,
-                                    onRelogin = onRelogin,
-                                    onLogout = onLogout,
-                                    onManageChannels = onManageChannels,
-                                    onOpenChannel = onOpenChannel,
-                                    onRemoveChannel = onRemoveChannel,
-                                    onReportChannel = onReportChannel,
-                                    onBlockChannel = onBlockChannel,
-                                    onCaptureImage = onCaptureImage,
-                                    onCaptureVideo = onCaptureVideo,
-                                    onChooseMedia = onChooseMedia,
-                                    onReloadEmotes = onReloadEmotes,
-                                    onReconnect = onReconnect,
-                                    onClearChat = onClearChat,
-                                    onToggleStream = onToggleStream,
-                                    onOpenSettings = onOpenSettings
+                                    onAction = onAction,
                                 )
                             }
                         }

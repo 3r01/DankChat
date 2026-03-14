@@ -113,6 +113,12 @@ class ChannelManagementViewModel(
         }
     }
 
+    fun selectChannel(channel: UserName) {
+        chatRepository.setActiveChannel(channel)
+        chatRepository.clearUnreadMessage(channel)
+        chatRepository.clearMentionCount(channel)
+    }
+
     fun applyChanges(updatedChannels: List<ChannelWithRename>) {
         val currentChannels = preferenceStore.channels
         val newChannelNames = updatedChannels.map { it.channel }

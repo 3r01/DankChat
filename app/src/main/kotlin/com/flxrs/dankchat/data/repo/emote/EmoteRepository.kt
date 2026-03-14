@@ -319,9 +319,9 @@ class EmoteRepository(
 
     fun getSevenTVUserDetails(channel: UserName): SevenTVUserDetails? = sevenTvChannelDetails[channel]
 
-    suspend fun loadUserEmotes(userId: UserId) {
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
         try {
-            loadUserEmotesViaHelix(userId)
+            loadUserEmotesViaHelix(userId, onFirstPageLoaded)
         } catch (e: HelixApiException) {
             if (e.error is HelixError.MissingScopes) {
                 // Fallback to old path if the user hasn't re-logged with the new scope
@@ -331,10 +331,14 @@ class EmoteRepository(
         }
     }
 
-    private suspend fun loadUserEmotesViaHelix(userId: UserId) = withContext(Dispatchers.Default) {
+    private suspend fun loadUserEmotesViaHelix(
+        userId: UserId,
+        onFirstPageLoaded: (() -> Unit)? = null
+    ) = withContext(Dispatchers.Default) {
         val seenIds = HashSet<String>()
         val allEmotes = mutableListOf<GenericEmote>()
         var totalCount = 0
+        var isFirstPage = true
 
         helixApiClient.getUserEmotesFlow(userId).collect { page ->
             totalCount += page.size
@@ -389,6 +393,11 @@ class EmoteRepository(
             if (newGlobalEmotes.isNotEmpty()) {
                 allEmotes.addAll(newGlobalEmotes)
                 globalEmoteState.update { it.copy(twitchEmotes = allEmotes.toList()) }
+            }
+
+            if (isFirstPage) {
+                isFirstPage = false
+                onFirstPageLoaded?.invoke()
             }
         }
 

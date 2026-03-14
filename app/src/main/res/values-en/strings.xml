@@ -54,6 +54,7 @@
     <string name="snackbar_login">Logging in as %1$s</string>
     <string name="snackbar_login_failed">Failed to login</string>
     <string name="snackbar_image_uploaded">Copied: %1$s</string>
+    <string name="system_message_upload_complete">Upload complete: %1$s</string>
     <string name="snackbar_upload_failed">Error during upload</string>
     <string name="snackbar_upload_failed_cause">Error during upload: %1$s</string>
     <string name="snackbar_retry">Retry</string>
@@ -412,4 +413,11 @@
     <string name="choose_highlight_color">Choose Color</string>
     <string name="toggle_app_bar">Toggle App Bar</string>
     <string name="error_with_message">Error: %s</string>
+    <string name="confirm_logout_question">Log out?</string>
+    <string name="confirm_channel_removal_question">Remove this channel?</string>
+    <string name="confirm_channel_removal_question_named">Remove channel \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Block channel \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Ban this user?</string>
+    <string name="confirm_user_delete_question">Delete this message?</string>
+    <string name="confirm_clear_chat_question">Clear chat?</string>
 </resources>

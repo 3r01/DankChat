@@ -53,6 +53,7 @@
     <string name="snackbar_login">Accedendo come %1$s</string>
     <string name="snackbar_login_failed">Impossibile accedere</string>
     <string name="snackbar_image_uploaded">Copiato: %1$s</string>
+    <string name="system_message_upload_complete">Caricamento completato: %1$s</string>
     <string name="snackbar_upload_failed">Errore durante il caricamento</string>
     <string name="snackbar_upload_failed_cause">Errore durante il caricamento: %1$s</string>
     <string name="snackbar_retry">Riprova</string>
@@ -386,4 +387,11 @@
     </plurals>
     <string name="toggle_app_bar">Mostra/nascondi barra app</string>
     <string name="error_with_message">Errore: %s</string>
+    <string name="confirm_logout_question">Disconnettersi?</string>
+    <string name="confirm_channel_removal_question">Rimuovere questo canale?</string>
+    <string name="confirm_channel_removal_question_named">Rimuovere il canale \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Bloccare il canale \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Bannare questo utente?</string>
+    <string name="confirm_user_delete_question">Eliminare questo messaggio?</string>
+    <string name="confirm_clear_chat_question">Cancellare la chat?</string>
 </resources>

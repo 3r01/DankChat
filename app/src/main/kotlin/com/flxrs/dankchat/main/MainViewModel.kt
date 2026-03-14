@@ -707,6 +707,11 @@ class MainViewModel(
         }
     }
 
+    fun postSystemMessage(message: String) {
+        val channel = activeChannel.value ?: return
+        chatRepository.makeAndPostCustomSystemMessage(message, channel)
+    }
+
     fun fetchStreamData(channels: List<UserName>? = this.channels.value) {
         cancelStreamData()
         channels?.ifEmpty { null } ?: return

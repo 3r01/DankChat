@@ -74,6 +74,8 @@ fun ChatScreen(
     hasHelperText: Boolean = false,
     onRecover: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
+    scrollModifier: Modifier = Modifier,
+    onScrollToBottom: () -> Unit = {},
     onScrollDirectionChanged: (isScrollingUp: Boolean) -> Unit = {},
 ) {
     val listState = rememberLazyListState()
@@ -89,10 +91,13 @@ fun ChatScreen(
         }
     }
 
-    // Disable auto-scroll when user scrolls forward (up in chat)
+    // Disable auto-scroll when user scrolls up, re-enable when they return to bottom
     LaunchedEffect(listState.isScrollInProgress) {
         if (listState.lastScrolledForward && shouldAutoScroll) {
             shouldAutoScroll = false
+        }
+        if (!listState.isScrollInProgress && isAtBottom && !shouldAutoScroll) {
+            shouldAutoScroll = true
         }
         onScrollDirectionChanged(listState.lastScrolledForward)
     }
@@ -115,7 +120,7 @@ fun ChatScreen(
                 state = listState,
                 reverseLayout = true,
                 contentPadding = contentPadding,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().then(scrollModifier)
             ) {
                 items(
                     items = reversedMessages,
@@ -156,9 +161,9 @@ fun ChatScreen(
             val bottomContentPadding = contentPadding.calculateBottomPadding()
             val fabBottomPadding by animateDpAsState(
                 targetValue = when {
-                    showInput -> bottomContentPadding
-                    hasHelperText -> 48.dp
-                    else -> 24.dp
+                    showInput      -> bottomContentPadding
+                    hasHelperText  -> maxOf(bottomContentPadding, 48.dp)
+                    else           -> maxOf(bottomContentPadding, 24.dp)
                 },
                 animationSpec = if (showInput) snap() else spring(),
                 label = "fabBottomPadding"
@@ -189,6 +194,7 @@ fun ChatScreen(
                         onClick = {
                             shouldAutoScroll = true
                             onScrollDirectionChanged(false)
+                            onScrollToBottom()
                         },
                     ) {
                         Icon(

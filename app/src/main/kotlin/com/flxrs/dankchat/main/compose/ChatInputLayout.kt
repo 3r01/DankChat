@@ -31,7 +31,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.MoreVert
@@ -51,6 +51,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -86,6 +88,7 @@ fun ChatInputLayout(
     isEmoteMenuOpen: Boolean,
     helperText: String?,
     isUploading: Boolean,
+    isLoading: Boolean,
     isFullscreen: Boolean,
     isModerator: Boolean,
     isStreamActive: Boolean,
@@ -106,6 +109,7 @@ fun ChatInputLayout(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
+    var maxTextFieldHeight by remember { mutableIntStateOf(0) }
     val hint = when (inputState) {
         InputState.Default -> stringResource(R.string.hint_connected)
         InputState.Replying -> stringResource(R.string.hint_replying)
@@ -230,6 +234,14 @@ fun ChatInputLayout(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            val height = maxOf(placeable.height, maxTextFieldHeight)
+                            maxTextFieldHeight = height
+                            layout(placeable.width, height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        }
                         .padding(bottom = 0.dp), // Reduce bottom padding as actions are below
                     label = { Text(hint) },
                     colors = textFieldColors,
@@ -262,9 +274,9 @@ fun ChatInputLayout(
                     )
                 }
 
-                // Upload progress indicator
+                // Progress indicator for uploads and data loading
                 AnimatedVisibility(
-                    visible = isUploading,
+                    visible = isUploading || isLoading,
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
@@ -329,7 +341,7 @@ fun ChatInputLayout(
                             modifier = Modifier.size(40.dp)
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Add,
+                                imageVector = Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.whisper_new),
                             )
                         }

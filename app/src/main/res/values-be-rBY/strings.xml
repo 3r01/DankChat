@@ -54,6 +54,7 @@
     <string name="snackbar_login">Вы ўвайшлі як %1$s</string>
     <string name="snackbar_login_failed">Памылка ўваходу</string>
     <string name="snackbar_image_uploaded">Скапіявана: %1$s</string>
+    <string name="system_message_upload_complete">Загрузка завершана: %1$s</string>
     <string name="snackbar_upload_failed">Памылка пры загрузцы</string>
     <string name="snackbar_upload_failed_cause">Памылка пры загрузцы: %1$s</string>
     <string name="snackbar_retry">Паўтарыць</string>
@@ -403,4 +404,11 @@
     <string name="toggle_input">Пераключыць радок уводу</string>
     <string name="toggle_app_bar">Пераключыць панэль праграмы</string>
     <string name="error_with_message">Памылка: %s</string>
+    <string name="confirm_logout_question">Выйсці?</string>
+    <string name="confirm_channel_removal_question">Выдаліць гэты канал?</string>
+    <string name="confirm_channel_removal_question_named">Выдаліць канал \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Заблакаваць канал \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Забаніць гэтага карыстальніка?</string>
+    <string name="confirm_user_delete_question">Выдаліць гэтае паведамленне?</string>
+    <string name="confirm_clear_chat_question">Ачысціць чат?</string>
 </resources>

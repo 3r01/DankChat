@@ -54,6 +54,7 @@
     <string name="snackbar_login">Bejelentkezve mint %1$s</string>
     <string name="snackbar_login_failed">Nem sikerült bejelentkezni</string>
     <string name="snackbar_image_uploaded">Másolva: %1$s</string>
+    <string name="system_message_upload_complete">Feltöltés kész: %1$s</string>
     <string name="snackbar_upload_failed">Hiba a feltöltés során</string>
     <string name="snackbar_upload_failed_cause">Hiba a feltöltés során: %1$s</string>
     <string name="snackbar_retry">Újrapróbálkozás</string>
@@ -397,4 +398,11 @@
     <string name="toggle_input">Beviteli mező kapcsolása</string>
     <string name="toggle_app_bar">Alkalmazássáv kapcsolása</string>
     <string name="error_with_message">Hiba: %s</string>
+    <string name="confirm_logout_question">Kijelentkezés?</string>
+    <string name="confirm_channel_removal_question">Eltávolítod ezt a csatornát?</string>
+    <string name="confirm_channel_removal_question_named">Eltávolítod a(z) \"%1$s\" csatornát?</string>
+    <string name="confirm_channel_block_question_named">Letiltod a(z) \"%1$s\" csatornát?</string>
+    <string name="confirm_user_ban_question">Kitiltod ezt a felhasználót?</string>
+    <string name="confirm_user_delete_question">Törlöd ezt az üzenetet?</string>
+    <string name="confirm_clear_chat_question">Chat törlése?</string>
 </resources>

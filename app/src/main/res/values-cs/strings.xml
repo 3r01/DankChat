@@ -54,6 +54,7 @@
     <string name="snackbar_login">Přihlašování jako %1$s</string>
     <string name="snackbar_login_failed">Přihlášení se nezdařilo</string>
     <string name="snackbar_image_uploaded">Zkopírováno: %1$s</string>
+    <string name="system_message_upload_complete">Nahrávání dokončeno: %1$s</string>
     <string name="snackbar_upload_failed">Chyba při nahrávání</string>
     <string name="snackbar_upload_failed_cause">Chyba při nahrávání: %1$s</string>
     <string name="snackbar_retry">Opakovat</string>
@@ -404,4 +405,11 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="toggle_input">Přepnout vstup</string>
     <string name="toggle_app_bar">Přepnout panel aplikace</string>
     <string name="error_with_message">Chyba: %s</string>
+    <string name="confirm_logout_question">Odhlásit se?</string>
+    <string name="confirm_channel_removal_question">Odebrat tento kanál?</string>
+    <string name="confirm_channel_removal_question_named">Odebrat kanál \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Zablokovat kanál \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Zabanovat tohoto uživatele?</string>
+    <string name="confirm_user_delete_question">Smazat tuto zprávu?</string>
+    <string name="confirm_clear_chat_question">Vymazat chat?</string>
 </resources>

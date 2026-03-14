@@ -53,6 +53,7 @@
     <string name="snackbar_login">Sisäänkirjautuminen nimellä %1$s</string>
     <string name="snackbar_login_failed">Sisäänkirjautuminen epäonnistui</string>
     <string name="snackbar_image_uploaded">Kopioitu: %1$s</string>
+    <string name="system_message_upload_complete">Lataus valmis: %1$s</string>
     <string name="snackbar_upload_failed">Virhe lähetyksen aikana</string>
     <string name="snackbar_upload_failed_cause">Virhe lähetyksen aikana: %1$s</string>
     <string name="snackbar_retry">Yritä uudelleen</string>
@@ -257,4 +258,11 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="custom_user_display_summary">Lisää mukautettu nimi ja väri käyttäjille</string>
     <string name="toggle_app_bar">Näytä/piilota sovelluspalkki</string>
     <string name="error_with_message">Virhe: %s</string>
+    <string name="confirm_logout_question">Kirjaudutaanko ulos?</string>
+    <string name="confirm_channel_removal_question">Poistetaanko tämä kanava?</string>
+    <string name="confirm_channel_removal_question_named">Poistetaanko kanava \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Estetäänkö kanava \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Estetäänkö tämä käyttäjä?</string>
+    <string name="confirm_user_delete_question">Poistetaanko tämä viesti?</string>
+    <string name="confirm_clear_chat_question">Tyhjennetäänkö chat?</string>
 </resources>

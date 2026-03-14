@@ -53,6 +53,7 @@
     <string name="snackbar_login">%1$sとしてログイン</string>
     <string name="snackbar_login_failed">ログインに失敗しました</string>
     <string name="snackbar_image_uploaded">コピーしました：%1$s</string>
+    <string name="system_message_upload_complete">アップロード完了：%1$s</string>
     <string name="snackbar_upload_failed">アップロード中にエラー</string>
     <string name="snackbar_upload_failed_cause">アップロード中にエラー：%1$s</string>
     <string name="snackbar_retry">再試行</string>
@@ -384,4 +385,11 @@
     </plurals>
     <string name="toggle_app_bar">アプリバーの切り替え</string>
     <string name="error_with_message">エラー: %s</string>
+    <string name="confirm_logout_question">ログアウトしますか？</string>
+    <string name="confirm_channel_removal_question">このチャンネルを削除しますか？</string>
+    <string name="confirm_channel_removal_question_named">チャンネル「%1$s」を削除しますか？</string>
+    <string name="confirm_channel_block_question_named">チャンネル「%1$s」をブロックしますか？</string>
+    <string name="confirm_user_ban_question">このユーザーをBANしますか？</string>
+    <string name="confirm_user_delete_question">このメッセージを削除しますか？</string>
+    <string name="confirm_clear_chat_question">チャットをクリアしますか？</string>
 </resources>

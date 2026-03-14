@@ -54,6 +54,7 @@
     <string name="snackbar_login">Ви увійшли під ім\'ям %1$s</string>
     <string name="snackbar_login_failed">Помилка входу</string>
     <string name="snackbar_image_uploaded">Скопійовано: %1$s</string>
+    <string name="system_message_upload_complete">Завантаження завершено: %1$s</string>
     <string name="snackbar_upload_failed">Помилка при завантаженні</string>
     <string name="snackbar_upload_failed_cause">Помилка при завантаженні: %1$s</string>
     <string name="snackbar_retry">Повторити</string>
@@ -405,4 +406,11 @@
     </plurals>
     <string name="toggle_app_bar">Перемкнути панель додатку</string>
     <string name="error_with_message">Помилка: %s</string>
+    <string name="confirm_logout_question">Вийти?</string>
+    <string name="confirm_channel_removal_question">Видалити цей канал?</string>
+    <string name="confirm_channel_removal_question_named">Видалити канал \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Заблокувати канал \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Забанити цього користувача?</string>
+    <string name="confirm_user_delete_question">Видалити це повідомлення?</string>
+    <string name="confirm_clear_chat_question">Очистити чат?</string>
 </resources>

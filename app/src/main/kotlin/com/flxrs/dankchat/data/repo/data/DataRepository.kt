@@ -147,8 +147,8 @@ class DataRepository(
         }
     }
 
-    suspend fun loadUserEmotes(userId: UserId) {
-        emoteRepository.loadUserEmotes(userId)
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
+        emoteRepository.loadUserEmotes(userId, onFirstPageLoaded)
     }
 
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {

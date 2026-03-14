@@ -419,4 +419,11 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="choose_highlight_color">Elegir color</string>
     <string name="toggle_app_bar">Alternar barra de aplicación</string>
     <string name="error_with_message">Error: %s</string>
+    <string name="confirm_logout_question">¿Cerrar sesión?</string>
+    <string name="confirm_channel_removal_question">¿Eliminar este canal?</string>
+    <string name="confirm_channel_removal_question_named">¿Eliminar el canal \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">¿Bloquear el canal \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">¿Banear este usuario?</string>
+    <string name="confirm_user_delete_question">¿Eliminar este mensaje?</string>
+    <string name="confirm_clear_chat_question">¿Limpiar chat?</string>
 </resources>

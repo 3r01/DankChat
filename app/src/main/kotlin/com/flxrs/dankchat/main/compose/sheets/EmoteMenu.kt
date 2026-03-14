@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,6 +24,7 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -55,6 +57,13 @@ fun EmoteMenu(
         initialPage = 0,
         pageCount = { tabItems.size }
     )
+    val subsGridState = rememberLazyGridState()
+    val subsFirstHeader = tabItems.getOrNull(EmoteMenuTab.SUBS.ordinal)
+        ?.items?.firstOrNull()?.let { (it as? EmoteItem.Header)?.title }
+
+    LaunchedEffect(subsFirstHeader) {
+        subsGridState.scrollToItem(0)
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -83,6 +92,9 @@ fun EmoteMenu(
                 }
             }
 
+            val navBarBottom = WindowInsets.navigationBars.getBottom(LocalDensity.current)
+            val navBarBottomDp = with(LocalDensity.current) { navBarBottom.toDp() }
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
@@ -90,7 +102,7 @@ fun EmoteMenu(
             ) { page ->
                 val tab = tabItems[page]
                 val items = tab.items
-                
+
                 if (tab.type == EmoteMenuTab.RECENT && items.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         DankBackground(visible = true)
@@ -102,10 +114,10 @@ fun EmoteMenu(
                         )
                     }
                 } else {
-                    val navBarBottom = WindowInsets.navigationBars.getBottom(LocalDensity.current)
-                    val navBarBottomDp = with(LocalDensity.current) { navBarBottom.toDp() }
+                    val gridState = if (tab.type == EmoteMenuTab.SUBS) subsGridState else rememberLazyGridState()
                     LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 40.dp),
+                        state = gridState,
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp + navBarBottomDp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),

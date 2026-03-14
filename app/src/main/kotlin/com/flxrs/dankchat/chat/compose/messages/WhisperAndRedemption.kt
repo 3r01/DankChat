@@ -75,7 +75,7 @@ fun WhisperMessageComposable(
             .wrapContentHeight()
             .background(backgroundColor)
             .indication(interactionSource, ripple())
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
     ) {
         Box(modifier = Modifier.weight(1f)) {
@@ -83,6 +83,7 @@ fun WhisperMessageComposable(
                 message = message,
                 fontSize = fontSize,
                 animateGifs = animateGifs,
+                backgroundColor = backgroundColor,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = onEmoteClick
@@ -109,13 +110,13 @@ private fun WhisperMessageText(
     message: ChatMessageUiState.WhisperMessageUi,
     fontSize: Float,
     animateGifs: Boolean,
+    backgroundColor: Color,
     onUserClick: (userId: String?, userName: String, displayName: String, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current
-    val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val senderColor = rememberNormalizedColor(message.rawSenderColor, backgroundColor)
     val recipientColor = rememberNormalizedColor(message.rawRecipientColor, backgroundColor)
@@ -324,7 +325,7 @@ fun PointRedemptionMessageComposable(
             .fillMaxWidth()
             .wrapContentHeight()
             .background(backgroundColor)
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
     ) {
         Row(

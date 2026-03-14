@@ -60,7 +60,7 @@ fun RoomStateDialog(
             )
         }
 
-        var inputValue by remember { mutableStateOf(defaultValue as String) }
+        var inputValue by remember(type) { mutableStateOf(defaultValue as String) }
 
         AlertDialog(
             onDismissRequest = { parameterDialog = null },

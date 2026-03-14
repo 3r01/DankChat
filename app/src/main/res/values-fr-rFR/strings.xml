@@ -54,6 +54,7 @@
     <string name="snackbar_login">Authentification en tant que %1$s</string>
     <string name="snackbar_login_failed">Echec de l\'authentification</string>
     <string name="snackbar_image_uploaded">Copié: %1$s</string>
+    <string name="system_message_upload_complete">Téléversement terminé : %1$s</string>
     <string name="snackbar_upload_failed">Erreur pendant l\'envoi</string>
     <string name="snackbar_upload_failed_cause">Erreur pendant l\'envoi: %1$s</string>
     <string name="snackbar_retry">Réessayer</string>
@@ -402,4 +403,11 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="toggle_input">Activer/désactiver la saisie</string>
     <string name="toggle_app_bar">Activer/désactiver la barre d\'application</string>
     <string name="error_with_message">Erreur : %s</string>
+    <string name="confirm_logout_question">Se déconnecter ?</string>
+    <string name="confirm_channel_removal_question">Supprimer cette chaîne ?</string>
+    <string name="confirm_channel_removal_question_named">Supprimer la chaîne \"%1$s\" ?</string>
+    <string name="confirm_channel_block_question_named">Bloquer la chaîne \"%1$s\" ?</string>
+    <string name="confirm_user_ban_question">Bannir cet utilisateur ?</string>
+    <string name="confirm_user_delete_question">Supprimer ce message ?</string>
+    <string name="confirm_clear_chat_question">Effacer le chat ?</string>
 </resources>

@@ -54,6 +54,7 @@
     <string name="snackbar_login">Anmelden als %1$s</string>
     <string name="snackbar_login_failed">Anmelden fehlgeschlagen</string>
     <string name="snackbar_image_uploaded">Kopiert: %1$s</string>
+    <string name="system_message_upload_complete">Upload abgeschlossen: %1$s</string>
     <string name="snackbar_upload_failed">Fehler beim Hochladen</string>
     <string name="snackbar_upload_failed_cause">Fehler beim Hochladen: %1$s</string>
     <string name="snackbar_retry">Wiederholen</string>
@@ -419,4 +420,11 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="choose_highlight_color">Farbe wählen</string>
     <string name="toggle_app_bar">App-Leiste umschalten</string>
     <string name="error_with_message">Fehler: %s</string>
+    <string name="confirm_logout_question">Abmelden?</string>
+    <string name="confirm_channel_removal_question">Diesen Kanal entfernen?</string>
+    <string name="confirm_channel_removal_question_named">Kanal \"%1$s\" entfernen?</string>
+    <string name="confirm_channel_block_question_named">Kanal \"%1$s\" blockieren?</string>
+    <string name="confirm_user_ban_question">Diesen Nutzer bannen?</string>
+    <string name="confirm_user_delete_question">Diese Nachricht löschen?</string>
+    <string name="confirm_clear_chat_question">Chat löschen?</string>
 </resources>

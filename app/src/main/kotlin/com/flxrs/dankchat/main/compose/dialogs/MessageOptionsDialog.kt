@@ -163,46 +163,28 @@ fun MessageOptionsDialog(
     }
 
     if (showBanDialog) {
-        AlertDialog(
-            onDismissRequest = { showBanDialog = false },
-            title = { Text(stringResource(R.string.confirm_user_ban_title)) },
-            text = { Text(stringResource(R.string.confirm_user_ban_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    onBan()
-                    showBanDialog = false
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.confirm_user_ban_positive_button))
-                }
+        ConfirmationDialog(
+            title = stringResource(R.string.confirm_user_ban_question),
+            confirmText = stringResource(R.string.confirm_user_ban_positive_button),
+            onConfirm = {
+                onBan()
+                showBanDialog = false
+                onDismiss()
             },
-            dismissButton = {
-                TextButton(onClick = { showBanDialog = false }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
+            onDismiss = { showBanDialog = false },
         )
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.confirm_user_delete_title)) },
-            text = { Text(stringResource(R.string.confirm_user_delete_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDelete()
-                    showDeleteDialog = false
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.confirm_user_delete_positive_button))
-                }
+        ConfirmationDialog(
+            title = stringResource(R.string.confirm_user_delete_question),
+            confirmText = stringResource(R.string.confirm_user_delete_positive_button),
+            onConfirm = {
+                onDelete()
+                showDeleteDialog = false
+                onDismiss()
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
+            onDismiss = { showDeleteDialog = false },
         )
     }
 }

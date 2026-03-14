@@ -3,6 +3,7 @@ package com.flxrs.dankchat.main.compose
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.placeCursorAtEnd
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,9 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -128,14 +132,6 @@ class ChatInputViewModel(
     }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    val hasStreamData: StateFlow<Boolean> = combine(
-        chatRepository.activeChannel,
-        streamDataRepository.streamData
-    ) { activeChannel, streamData ->
-        activeChannel != null && streamData.any { it.channel == activeChannel }
-    }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
     private var _uiState: StateFlow<ChatInputUiState>? = null
 
     init {
@@ -171,19 +167,6 @@ class ChatInputViewModel(
             }
         }
 
-        // Trigger stream data fetching whenever channels change
-        viewModelScope.launch {
-            chatRepository.channels.collect { channels ->
-                if (channels != null) {
-                    streamDataRepository.fetchStreamData(channels)
-                }
-            }
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        streamDataRepository.cancelStreamData()
     }
 
     private data class UiDependencies(
@@ -205,8 +188,18 @@ class ChatInputViewModel(
         val whisperTarget: UserName?
     )
 
-    fun uiState(fullScreenSheetState: StateFlow<FullScreenSheetState>, mentionSheetTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
+    fun uiState(externalSheetState: StateFlow<FullScreenSheetState>, externalMentionTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
         if (_uiState != null) return _uiState!!
+
+        // Wire up external sheet state for whisper clearing
+        viewModelScope.launch {
+            combine(externalSheetState, externalMentionTab) { sheetState, tab ->
+                sheetState to tab
+            }.collect { (sheetState, tab) ->
+                fullScreenSheetState.value = sheetState
+                mentionSheetTab.value = tab
+            }
+        }
 
         val baseFlow = combine(
             textFlow,
@@ -230,8 +223,8 @@ class ChatInputViewModel(
         }
 
         val inputOverlayFlow = combine(
-            fullScreenSheetState,
-            mentionSheetTab,
+            externalSheetState,
+            externalMentionTab,
             replyStateFlow,
             _isEmoteMenuOpen,
             _whisperTarget
@@ -245,9 +238,6 @@ class ChatInputViewModel(
             inputOverlayFlow,
             helperText
         ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText ->
-            this.fullScreenSheetState.value = sheetState
-            this.mentionSheetTab.value = tab
-
             val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
             val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
             val isInReplyThread = sheetState is FullScreenSheetState.Replies
@@ -280,7 +270,7 @@ class ChatInputViewModel(
                 text = text,
                 canSend = canSend,
                 enabled = enabled,
-                suggestions = suggestions,
+                suggestions = suggestions.toImmutableList(),
                 activeChannel = activeChannel,
                 connectionState = connectionState,
                 isLoggedIn = isLoggedIn,
@@ -409,6 +399,11 @@ class ChatInputViewModel(
         }
     }
 
+    fun postSystemMessage(message: String) {
+        val channel = chatRepository.activeChannel.value ?: return
+        chatRepository.makeAndPostCustomSystemMessage(message, channel)
+    }
+
     fun updateInputText(text: String) {
         textFieldState.edit {
             replace(0, length, text)
@@ -457,11 +452,12 @@ class ChatInputViewModel(
     }
 }
 
+@Immutable
 data class ChatInputUiState(
     val text: String = "",
     val canSend: Boolean = false,
     val enabled: Boolean = false,
-    val suggestions: List<Suggestion> = emptyList(),
+    val suggestions: ImmutableList<Suggestion> = persistentListOf(),
     val activeChannel: UserName? = null,
     val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
     val isLoggedIn: Boolean = false,

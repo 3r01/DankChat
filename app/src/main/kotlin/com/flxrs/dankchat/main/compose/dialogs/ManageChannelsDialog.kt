@@ -9,7 +9,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -18,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,6 +47,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 fun ManageChannelsDialog(
     channels: List<ChannelWithRename>,
     onApplyChanges: (List<ChannelWithRename>) -> Unit,
+    onChannelSelected: (UserName) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
@@ -96,6 +97,11 @@ fun ManageChannelsDialog(
                                     onDragStarted = { /* Optional haptic feedback here */ },
                                     onDragStopped = { /* Optional haptic feedback here */ }
                                 ),
+                                onNavigate = {
+                                    onApplyChanges(localChannels.toList())
+                                    onChannelSelected(channelWithRename.channel)
+                                    onDismiss()
+                                },
                                 onEdit = { channelToEdit = channelWithRename },
                                 onDelete = { channelToDelete = channelWithRename.channel }
                             )
@@ -123,28 +129,17 @@ fun ManageChannelsDialog(
     }
 
     if (channelToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { channelToDelete = null },
-            title = { Text(stringResource(R.string.confirm_channel_removal_title)) },
-            text = { Text(stringResource(R.string.confirm_channel_removal_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val channel = channelToDelete
-                        if (channel != null) {
-                            localChannels.removeIf { it.channel == channel }
-                        }
-                        channelToDelete = null
-                    }
-                ) {
-                    Text(stringResource(R.string.confirm_channel_removal_positive_button))
+        ConfirmationDialog(
+            title = stringResource(R.string.confirm_channel_removal_question),
+            confirmText = stringResource(R.string.confirm_channel_removal_positive_button),
+            onConfirm = {
+                val channel = channelToDelete
+                if (channel != null) {
+                    localChannels.removeIf { it.channel == channel }
                 }
+                channelToDelete = null
             },
-            dismissButton = {
-                TextButton(onClick = { channelToDelete = null }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
+            onDismiss = { channelToDelete = null },
         )
     }
 
@@ -167,6 +162,7 @@ fun ManageChannelsDialog(
 private fun ChannelItem(
     channelWithRename: ChannelWithRename,
     modifier: Modifier = Modifier, // This modifier will carry the drag handle semantics
+    onNavigate: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
@@ -198,6 +194,13 @@ private fun ChannelItem(
                 .weight(1f)
                 .padding(horizontal = 8.dp)
         )
+
+        IconButton(onClick = onNavigate) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = stringResource(R.string.open_channel)
+            )
+        }
 
         IconButton(onClick = onEdit) {
             Icon(

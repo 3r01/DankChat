@@ -49,8 +49,8 @@ class GlobalDataLoader(
     /**
      * Load user-specific global emotes via Helix API (requires login + user:read:emotes scope)
      */
-    suspend fun loadUserEmotes(userId: UserId) {
-        dataRepository.loadUserEmotes(userId)
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
+        dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
     }
 
     /**

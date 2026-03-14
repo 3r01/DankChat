@@ -18,9 +18,29 @@ import kotlinx.serialization.json.Json
 
 fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> = this
     ?.groupBy { it.emoteType.title }
+    ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
     ?.mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
     ?.flatMap { it.value }
     .orEmpty()
+
+fun List<GenericEmote>?.toEmoteItemsWithFront(channel: UserName?): List<EmoteItem> {
+    if (this == null) return emptyList()
+    val grouped = groupBy { it.emoteType.title }
+    val frontKey = grouped.keys.find { it.equals(channel?.value, ignoreCase = true) }
+    val sorted = grouped.toSortedMap(String.CASE_INSENSITIVE_ORDER)
+    val ordered = if (frontKey != null) {
+        val frontEntry = sorted.remove(frontKey)
+        buildMap {
+            if (frontEntry != null) put(frontKey, frontEntry)
+            putAll(sorted)
+        }
+    } else {
+        sorted
+    }
+    return ordered
+        .mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
+        .flatMap { it.value }
+}
 
 fun List<GenericEmote>.moveToFront(channel: UserName?): List<GenericEmote> = this
     .partition { it.emoteType.title.equals(channel?.value, ignoreCase = true) }

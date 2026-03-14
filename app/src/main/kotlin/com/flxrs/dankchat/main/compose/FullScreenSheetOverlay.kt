@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.chat.compose.BadgeUi
@@ -38,10 +39,11 @@ fun FullScreenSheetOverlay(
     bottomContentPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
 ) {
+    val bottomContentPaddingPx = with(LocalDensity.current) { bottomContentPadding.roundToPx() }
     AnimatedVisibility(
         visible = sheetState !is FullScreenSheetState.Closed,
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+        enter = slideInVertically(initialOffsetY = { it - bottomContentPaddingPx }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { it - bottomContentPaddingPx }) + fadeOut(),
         modifier = modifier.fillMaxSize()
     ) {
         Box(

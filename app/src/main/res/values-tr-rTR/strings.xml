@@ -419,4 +419,11 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="choose_highlight_color">Renk Seç</string>
     <string name="toggle_app_bar">Uygulama Çubuğunu Aç/Kapat</string>
     <string name="error_with_message">Hata: %s</string>
+    <string name="confirm_logout_question">Çıkış yapılsın mı?</string>
+    <string name="confirm_channel_removal_question">Bu kanal kaldırılsın mı?</string>
+    <string name="confirm_channel_removal_question_named">\"%1$s\" kanalı kaldırılsın mı?</string>
+    <string name="confirm_channel_block_question_named">\"%1$s\" kanalı engellensin mi?</string>
+    <string name="confirm_user_ban_question">Bu kullanıcı banlansın mı?</string>
+    <string name="confirm_user_delete_question">Bu mesaj silinsin mi?</string>
+    <string name="confirm_clear_chat_question">Sohbet temizlensin mi?</string>
 </resources>

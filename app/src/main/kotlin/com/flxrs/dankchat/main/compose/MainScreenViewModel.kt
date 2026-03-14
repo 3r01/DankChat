@@ -46,6 +46,20 @@ class MainScreenViewModel(
     private val _showAppBar = MutableStateFlow(true)
     val showAppBar: StateFlow<Boolean> = _showAppBar.asStateFlow()
 
+    private val _gestureInputHidden = MutableStateFlow(false)
+    val gestureInputHidden: StateFlow<Boolean> = _gestureInputHidden.asStateFlow()
+
+    private val _gestureToolbarHidden = MutableStateFlow(false)
+    val gestureToolbarHidden: StateFlow<Boolean> = _gestureToolbarHidden.asStateFlow()
+
+    fun setGestureInputHidden(hidden: Boolean) { _gestureInputHidden.value = hidden }
+    fun setGestureToolbarHidden(hidden: Boolean) { _gestureToolbarHidden.value = hidden }
+
+    fun resetGestureState() {
+        _gestureInputHidden.value = false
+        _gestureToolbarHidden.value = false
+    }
+
     init {
         // Load global data once at startup
         channelDataCoordinator.loadGlobalData()

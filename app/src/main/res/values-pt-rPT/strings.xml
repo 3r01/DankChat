@@ -54,6 +54,7 @@
     <string name="snackbar_login">A iniciar sessão como %1$s</string>
     <string name="snackbar_login_failed">Falha ao iniciar sessão</string>
     <string name="snackbar_image_uploaded">Copiado: %1$s</string>
+    <string name="system_message_upload_complete">Upload concluído: %1$s</string>
     <string name="snackbar_upload_failed">Erro durante o envio</string>
     <string name="snackbar_upload_failed_cause">Erro durante o envio: %1$s</string>
     <string name="snackbar_retry">Tentaa novamente</string>
@@ -388,4 +389,11 @@
     </plurals>
     <string name="toggle_app_bar">Alternar barra da aplicação</string>
     <string name="error_with_message">Erro: %s</string>
+    <string name="confirm_logout_question">Terminar sessão?</string>
+    <string name="confirm_channel_removal_question">Remover este canal?</string>
+    <string name="confirm_channel_removal_question_named">Remover o canal \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Bloquear o canal \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Banir este utilizador?</string>
+    <string name="confirm_user_delete_question">Eliminar esta mensagem?</string>
+    <string name="confirm_clear_chat_question">Limpar chat?</string>
 </resources>

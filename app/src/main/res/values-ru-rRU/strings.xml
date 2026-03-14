@@ -54,6 +54,7 @@
     <string name="snackbar_login">Вы вошли как %1$s</string>
     <string name="snackbar_login_failed">Ошибка входа</string>
     <string name="snackbar_image_uploaded">Скопировано: %1$s</string>
+    <string name="system_message_upload_complete">Загрузка завершена: %1$s</string>
     <string name="snackbar_upload_failed">Ошибка при загрузке</string>
     <string name="snackbar_upload_failed_cause">Ошибка при загрузке: %1$s</string>
     <string name="snackbar_retry">Повторить</string>
@@ -408,4 +409,11 @@
     <string name="toggle_input">Переключить строку ввода</string>
     <string name="toggle_app_bar">Переключить панель приложения</string>
     <string name="error_with_message">Ошибка: %s</string>
+    <string name="confirm_logout_question">Выйти?</string>
+    <string name="confirm_channel_removal_question">Удалить этот канал?</string>
+    <string name="confirm_channel_removal_question_named">Удалить канал \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Заблокировать канал \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Забанить этого пользователя?</string>
+    <string name="confirm_user_delete_question">Удалить это сообщение?</string>
+    <string name="confirm_clear_chat_question">Очистить чат?</string>
 </resources>

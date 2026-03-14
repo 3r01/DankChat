@@ -1,7 +1,9 @@
 package com.flxrs.dankchat.chat.emotemenu
 
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 
+@Immutable
 sealed class EmoteItem {
     data class Emote(val emote: GenericEmote) : EmoteItem(), Comparable<Emote> {
         override fun compareTo(other: Emote): Int {

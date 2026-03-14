@@ -2,11 +2,16 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
+import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -36,8 +41,9 @@ class ChannelTabViewModel(
                 chatRepository.activeChannel,
                 chatRepository.unreadMessagesMap,
                 chatRepository.channelMentionCount,
-                combine(loadingFlows) { it.toList() }
-            ) { active, unread, mentions, loadingStates ->
+                combine(loadingFlows) { it.toList() },
+                channelDataCoordinator.globalLoadingState
+            ) { active, unread, mentions, loadingStates, globalState ->
                 val tabs = channels.mapIndexed { index, channelWithRename ->
                     ChannelTabItem(
                         channel = channelWithRename.channel,
@@ -50,11 +56,12 @@ class ChannelTabViewModel(
                     )
                 }
                 ChannelTabUiState(
-                    tabs = tabs,
+                    tabs = tabs.toImmutableList(),
                     selectedIndex = channels
                         .indexOfFirst { it.channel == active }
                         .coerceAtLeast(0),
-                    loading = tabs.any { it.loadingState == ChannelLoadingState.Loading },
+                    loading = globalState == GlobalLoadingState.Loading
+                        || tabs.any { it.loadingState == ChannelLoadingState.Loading },
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
@@ -70,12 +77,14 @@ class ChannelTabViewModel(
     }
 }
 
+@Immutable
 data class ChannelTabUiState(
-    val tabs: List<ChannelTabItem> = emptyList(),
+    val tabs: ImmutableList<ChannelTabItem> = persistentListOf(),
     val selectedIndex: Int = 0,
     val loading: Boolean = true,
 )
 
+@Immutable
 data class ChannelTabItem(
     val channel: UserName,
     val displayName: String,

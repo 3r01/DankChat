@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -100,6 +102,34 @@ fun Modifier.avoidRoundedCorners(fallback: PaddingValues): Modifier = composed {
             end = paddingEnd,
             bottom = paddingBottom
         )
+}
+
+/**
+ * Returns the bottom padding needed to avoid rounded display corners.
+ * Useful for [contentPadding][androidx.compose.foundation.lazy.LazyColumn] where a modifier
+ * would shrink the scrollable area instead of adding inset space.
+ *
+ * On API < 31 returns [fallback].
+ */
+@Composable
+fun rememberRoundedCornerBottomPadding(fallback: Dp = 0.dp): Dp {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        return fallback
+    }
+
+    val view = LocalView.current
+    val density = LocalDensity.current
+    val compatInsets = ViewCompat.getRootWindowInsets(view)
+        ?: return fallback
+    val windowInsets = compatInsets.toWindowInsets()
+        ?: return fallback
+
+    val bottomLeft = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)
+    val bottomRight = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)
+    val maxRadius = maxOf(bottomLeft?.radius ?: 0, bottomRight?.radius ?: 0)
+    if (maxRadius == 0) return fallback
+
+    return with(density) { maxRadius.toDp() }
 }
 
 @RequiresApi(api = 31)

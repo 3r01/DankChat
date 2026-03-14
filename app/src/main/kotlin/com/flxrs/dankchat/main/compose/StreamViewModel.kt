@@ -5,6 +5,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.main.stream.StreamWebView
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
@@ -13,13 +14,16 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class StreamViewModel(
     application: Application,
+    private val chatRepository: ChatRepository,
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
 ) : AndroidViewModel(application) {
@@ -33,6 +37,24 @@ class StreamViewModel(
     ) { currentStream, pipEnabled ->
         currentStream != null && pipEnabled
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val hasStreamData: StateFlow<Boolean> = combine(
+        chatRepository.activeChannel,
+        streamDataRepository.streamData
+    ) { activeChannel, streamData ->
+        activeChannel != null && streamData.any { it.channel == activeChannel }
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    init {
+        viewModelScope.launch {
+            chatRepository.channels.collect { channels ->
+                if (channels != null) {
+                    streamDataRepository.fetchStreamData(channels)
+                }
+            }
+        }
+    }
 
     private var lastStreamedChannel: UserName? = null
     var hasWebViewBeenAttached: Boolean = false
@@ -80,6 +102,7 @@ class StreamViewModel(
     }
 
     override fun onCleared() {
+        streamDataRepository.cancelStreamData()
         cachedWebView?.destroy()
         cachedWebView = null
         lastStreamedChannel = null

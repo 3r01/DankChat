@@ -91,7 +91,7 @@ fun ChatMessageText(
         }
     }
 
-    Box(modifier = modifier.padding(horizontal = 8.dp)) {
+    Box(modifier = modifier) {
         BasicText(
             text = annotatedString,
             modifier = Modifier.fillMaxWidth(),

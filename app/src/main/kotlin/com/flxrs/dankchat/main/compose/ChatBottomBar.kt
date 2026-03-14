@@ -1,0 +1,111 @@
+package com.flxrs.dankchat.main.compose
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ChatBottomBar(
+    showInput: Boolean,
+    textFieldState: TextFieldState,
+    inputState: ChatInputUiState,
+    isUploading: Boolean,
+    isLoading: Boolean,
+    isFullscreen: Boolean,
+    isModerator: Boolean,
+    isStreamActive: Boolean,
+    hasStreamData: Boolean,
+    isSheetOpen: Boolean,
+    onSend: () -> Unit,
+    onLastMessageClick: () -> Unit,
+    onEmoteClick: () -> Unit,
+    onWhisperDismiss: () -> Unit,
+    onReplyDismiss: () -> Unit,
+    onToggleFullscreen: () -> Unit,
+    onToggleInput: () -> Unit,
+    onToggleStream: () -> Unit,
+    onChangeRoomState: () -> Unit,
+    onNewWhisper: (() -> Unit)?,
+    onInputHeightChanged: (Int) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        AnimatedVisibility(
+            visible = showInput,
+            enter = EnterTransition.None,
+            exit = slideOutVertically(targetOffsetY = { it }),
+        ) {
+            ChatInputLayout(
+                textFieldState = textFieldState,
+                inputState = inputState.inputState,
+                enabled = inputState.enabled,
+                canSend = inputState.canSend,
+                showReplyOverlay = inputState.showReplyOverlay,
+                replyName = inputState.replyName,
+                isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                helperText = inputState.helperText,
+                isUploading = isUploading,
+                isLoading = isLoading,
+                isFullscreen = isFullscreen,
+                isModerator = isModerator,
+                isStreamActive = isStreamActive,
+                hasStreamData = hasStreamData,
+                onSend = onSend,
+                onLastMessageClick = onLastMessageClick,
+                onEmoteClick = onEmoteClick,
+                showWhisperOverlay = inputState.showWhisperOverlay,
+                whisperTarget = inputState.whisperTarget,
+                onWhisperDismiss = onWhisperDismiss,
+                onReplyDismiss = onReplyDismiss,
+                onToggleFullscreen = onToggleFullscreen,
+                onToggleInput = onToggleInput,
+                onToggleStream = onToggleStream,
+                onChangeRoomState = onChangeRoomState,
+                onNewWhisper = onNewWhisper,
+                showQuickActions = !isSheetOpen,
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    onInputHeightChanged(coordinates.size.height)
+                }
+            )
+        }
+
+        // Sticky helper text + nav bar spacer when input is hidden
+        if (!showInput) {
+            val helperText = inputState.helperText
+            if (!helperText.isNullOrEmpty()) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = helperText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        modifier = Modifier
+                            .navigationBarsPadding()
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .basicMarquee(),
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+        }
+    }
+}

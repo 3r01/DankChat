@@ -81,7 +81,7 @@ fun PrivMessageComposable(
             .wrapContentHeight()
             .background(backgroundColor)
             .indication(interactionSource, ripple())
-            .padding(horizontal = 8.dp, vertical = 2.dp)
+            .padding(vertical = 2.dp)
     ) {
         // Reply thread header
         if (message.thread != null) {
@@ -116,6 +116,7 @@ fun PrivMessageComposable(
             showChannelPrefix = showChannelPrefix,
             animateGifs = animateGifs,
             interactionSource = interactionSource,
+            backgroundColor = backgroundColor,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
             onEmoteClick = onEmoteClick
@@ -130,13 +131,13 @@ private fun PrivMessageText(
     showChannelPrefix: Boolean,
     animateGifs: Boolean,
     interactionSource: MutableInteractionSource,
+    backgroundColor: Color,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current
-    val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
     val linkColor = MaterialTheme.colorScheme.primary

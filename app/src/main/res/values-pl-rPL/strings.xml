@@ -423,4 +423,11 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="choose_highlight_color">Wybierz Kolor</string>
     <string name="toggle_app_bar">Przełącz pasek aplikacji</string>
     <string name="error_with_message">Błąd: %s</string>
+    <string name="confirm_logout_question">Wylogować się?</string>
+    <string name="confirm_channel_removal_question">Usunąć ten kanał?</string>
+    <string name="confirm_channel_removal_question_named">Usunąć kanał \"%1$s\"?</string>
+    <string name="confirm_channel_block_question_named">Zablokować kanał \"%1$s\"?</string>
+    <string name="confirm_user_ban_question">Zbanować tego użytkownika?</string>
+    <string name="confirm_user_delete_question">Usunąć tę wiadomość?</string>
+    <string name="confirm_clear_chat_question">Wyczyścić czat?</string>
 </resources>

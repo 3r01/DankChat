@@ -2,7 +2,6 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.chat.emotemenu.EmoteItem
 import com.flxrs.dankchat.chat.emotemenu.EmoteMenuTab
 import com.flxrs.dankchat.chat.emotemenu.EmoteMenuTabItem
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
@@ -11,8 +10,8 @@ import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
 import com.flxrs.dankchat.data.twitch.emote.EmoteType
 import com.flxrs.dankchat.utils.extensions.flatMapLatestOrDefault
-import com.flxrs.dankchat.utils.extensions.moveToFront
 import com.flxrs.dankchat.utils.extensions.toEmoteItems
+import com.flxrs.dankchat.utils.extensions.toEmoteItemsWithFront
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +66,7 @@ class EmoteMenuViewModel(
             }
             listOf(
                 async { EmoteMenuTabItem(EmoteMenuTab.RECENT, availableRecents.toEmoteItems()) },
-                async { EmoteMenuTabItem(EmoteMenuTab.SUBS, (groupedByType[EmoteMenuTab.SUBS] ?: emptyList()).moveToFront(channel).toEmoteItems()) },
+                async { EmoteMenuTabItem(EmoteMenuTab.SUBS, groupedByType[EmoteMenuTab.SUBS].toEmoteItemsWithFront(channel)) },
                 async { EmoteMenuTabItem(EmoteMenuTab.CHANNEL, (groupedByType[EmoteMenuTab.CHANNEL] ?: emptyList()).toEmoteItems()) },
                 async { EmoteMenuTabItem(EmoteMenuTab.GLOBAL, (groupedByType[EmoteMenuTab.GLOBAL] ?: emptyList()).toEmoteItems()) }
             ).awaitAll().toImmutableList()

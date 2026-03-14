@@ -40,6 +40,8 @@ fun ChatComposable(
     hasHelperText: Boolean = false,
     onRecover: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
+    scrollModifier: Modifier = Modifier,
+    onScrollToBottom: () -> Unit = {},
     onScrollDirectionChanged: (Boolean) -> Unit = {},
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping
@@ -75,6 +77,8 @@ fun ChatComposable(
         hasHelperText = hasHelperText,
         onRecover = onRecover,
         contentPadding = contentPadding,
+        scrollModifier = scrollModifier,
+        onScrollToBottom = onScrollToBottom,
         onScrollDirectionChanged = onScrollDirectionChanged
     )
     } // CompositionLocalProvider
