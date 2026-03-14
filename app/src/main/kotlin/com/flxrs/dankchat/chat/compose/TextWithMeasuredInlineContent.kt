@@ -19,6 +19,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -59,6 +60,7 @@ fun TextWithMeasuredInlineContent(
     text: AnnotatedString,
     inlineContentProviders: Map<String, @Composable () -> Unit>,
     modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
     knownDimensions: Map<String, EmoteDimensions> = emptyMap(),
     onTextClick: ((Int) -> Unit)? = null,
     onTextLongClick: (() -> Unit)? = null,
@@ -116,6 +118,7 @@ fun TextWithMeasuredInlineContent(
         val textMeasurables = subcompose("text") {
             BasicText(
                 text = text,
+                style = style,
                 inlineContent = inlineContent,
                 modifier = Modifier.pointerInput(text, interactionSource) {
                     detectTapGestures(

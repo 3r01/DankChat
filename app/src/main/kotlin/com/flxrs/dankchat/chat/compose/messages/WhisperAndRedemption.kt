@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -274,6 +275,7 @@ private fun WhisperMessageText(
     TextWithMeasuredInlineContent(
         text = annotatedString,
         inlineContentProviders = inlineContentProviders,
+        style = TextStyle(fontSize = fontSize.sp),
         knownDimensions = knownDimensions,
         modifier = Modifier.fillMaxWidth(),
         onTextClick = { offset ->
@@ -372,6 +374,7 @@ fun PointRedemptionMessageComposable(
 
             BasicText(
                 text = annotatedString,
+                style = TextStyle(fontSize = fontSize.sp),
                 modifier = Modifier.weight(1f)
             )
 
@@ -383,6 +386,7 @@ fun PointRedemptionMessageComposable(
 
             BasicText(
                 text = " ${message.cost}",
+                style = TextStyle(fontSize = fontSize.sp),
                 modifier = Modifier.padding(start = 4.dp)
             )
         }

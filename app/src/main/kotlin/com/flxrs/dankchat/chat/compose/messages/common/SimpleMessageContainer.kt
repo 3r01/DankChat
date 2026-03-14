@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -80,6 +81,7 @@ fun SimpleMessageContainer(
     ) {
         ClickableText(
             text = annotatedString,
+            style = TextStyle(fontSize = fontSize),
             modifier = Modifier.fillMaxWidth(),
             onClick = { offset ->
                 annotatedString.getStringAnnotations("URL", offset, offset)
