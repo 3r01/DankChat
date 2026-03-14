@@ -1,11 +1,16 @@
 package com.flxrs.dankchat.chat.mention.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.LocalPlatformContext
+import coil3.imageLoader
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
+import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
+import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
@@ -33,7 +38,11 @@ fun MentionComposable(
         isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
         else         -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     }
-    
+
+    val context = LocalPlatformContext.current
+    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
+
+    CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
     ChatScreen(
         messages = messages,
         fontSize = appearanceSettings.fontSize.toFloat(),
@@ -43,4 +52,5 @@ fun MentionComposable(
         onMessageLongClick = onMessageLongClick,
         onEmoteClick = onEmoteClick
     )
+    } // CompositionLocalProvider
 }

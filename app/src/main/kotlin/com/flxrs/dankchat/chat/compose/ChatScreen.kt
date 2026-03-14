@@ -107,6 +107,8 @@ fun ChatScreen(
         }
     }
 
+    val reversedMessages = remember(messages) { messages.asReversed() }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -125,7 +127,7 @@ fun ChatScreen(
                 }
 
                 items(
-                    items = messages.asReversed(),
+                    items = reversedMessages,
                     key = { message -> "${message.id}-${message.tag}" },
                     contentType = { message ->
                         when (message) {
