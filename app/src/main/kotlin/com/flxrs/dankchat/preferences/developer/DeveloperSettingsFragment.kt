@@ -196,6 +196,12 @@ private fun DeveloperSettings(
                 isChecked = settings.bypassCommandHandling,
                 onClick = { onInteraction(DeveloperSettingsInteraction.BypassCommandHandling(it)) },
             )
+            SwitchPreferenceItem(
+                title = "Use Compose Chat UI",
+                summary = "Enable new Compose-based chat interface (experimental)",
+                isChecked = settings.useComposeChatUi,
+                onClick = { onInteraction(DeveloperSettingsInteraction.UseComposeChatUi(it)) },
+            )
             ExpandablePreferenceItem(title = stringResource(R.string.preference_custom_login_title)) {
                 CustomLoginBottomSheet(
                     onDismissRequested = ::dismiss,

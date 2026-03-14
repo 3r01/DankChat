@@ -36,6 +36,7 @@ class DeveloperSettingsViewModel(
                 is DeveloperSettingsInteraction.DebugMode                -> developerSettingsDataStore.update { it.copy(debugMode = interaction.value) }
                 is DeveloperSettingsInteraction.RepeatedSending          -> developerSettingsDataStore.update { it.copy(repeatedSending = interaction.value) }
                 is DeveloperSettingsInteraction.BypassCommandHandling    -> developerSettingsDataStore.update { it.copy(bypassCommandHandling = interaction.value) }
+                is DeveloperSettingsInteraction.UseComposeChatUi         -> developerSettingsDataStore.update { it.copy(useComposeChatUi = interaction.value) }
                 is DeveloperSettingsInteraction.CustomRecentMessagesHost -> {
                     val withSlash = interaction.host
                         .ifBlank { DeveloperSettings.RM_HOST_DEFAULT }
@@ -67,6 +68,7 @@ sealed interface DeveloperSettingsInteraction {
     data class DebugMode(val value: Boolean) : DeveloperSettingsInteraction
     data class RepeatedSending(val value: Boolean) : DeveloperSettingsInteraction
     data class BypassCommandHandling(val value: Boolean) : DeveloperSettingsInteraction
+    data class UseComposeChatUi(val value: Boolean) : DeveloperSettingsInteraction
     data class CustomRecentMessagesHost(val host: String) : DeveloperSettingsInteraction
     data class EventSubEnabled(val value: Boolean) : DeveloperSettingsInteraction
     data class EventSubDebugOutput(val value: Boolean) : DeveloperSettingsInteraction
