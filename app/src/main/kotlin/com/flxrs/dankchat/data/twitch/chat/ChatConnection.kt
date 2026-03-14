@@ -5,8 +5,8 @@ import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.utils.extensions.timer
 import io.ktor.http.HttpHeaders
 import io.ktor.util.collections.ConcurrentSet
@@ -52,7 +52,7 @@ sealed interface ChatEvent {
 class ChatConnection(
     private val chatConnectionType: ChatConnectionType,
     private val client: OkHttpClient,
-    private val preferences: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -148,8 +148,8 @@ class ChatConnection(
     fun connect() {
         if (connected || connecting) return
 
-        currentUserName = preferences.userName
-        currentOAuth = preferences.oAuthKey
+        currentUserName = authDataStore.userName
+        currentOAuth = authDataStore.oAuthKey
         awaitingPong = false
         connecting = true
         socket = client.newWebSocket(request, TwitchWebSocketListener())

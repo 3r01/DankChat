@@ -1,52 +1,50 @@
 package com.flxrs.dankchat
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.data.api.ApiException
-import com.flxrs.dankchat.data.api.auth.AuthApiClient
+import com.flxrs.dankchat.auth.AuthDataStore
+import com.flxrs.dankchat.auth.AuthEvent
+import com.flxrs.dankchat.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
-import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
-import android.webkit.CookieManager
-import android.webkit.WebStorage
-import com.flxrs.dankchat.data.repo.IgnoresRepository
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
-import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
-
 @KoinViewModel
 class DankChatViewModel(
     private val chatRepository: ChatRepository,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val authApiClient: AuthApiClient,
     private val dataRepository: DataRepository,
-    private val ignoresRepository: IgnoresRepository,
-    private val userStateRepository: UserStateRepository,
-    private val emoteUsageRepository: EmoteUsageRepository,
+    private val authStateCoordinator: AuthStateCoordinator,
 ) : ViewModel() {
 
     val serviceEvents = dataRepository.serviceEvents
     private var initialConnectionStarted = false
 
     val activeChannel = chatRepository.activeChannel
-    val isLoggedIn = dankChatPreferenceStore.isLoggedInFlow
+    val isLoggedIn: Flow<Boolean> = authDataStore.settings
+        .map { it.isLoggedIn }
+        .distinctUntilChanged()
 
-    private val _validationResult = Channel<ValidationResult>(Channel.BUFFERED)
-    val validationResult get() = _validationResult.receiveAsFlow()
+    // Legacy compatibility for MainFragment — maps AuthEvent to ValidationResult.
+    // Remove when fragments are deleted.
+    val validationResult: Flow<ValidationResult> = authStateCoordinator.events.map { event ->
+        when (event) {
+            is AuthEvent.LoggedIn       -> ValidationResult.User(event.userName)
+            is AuthEvent.ScopesOutdated -> ValidationResult.IncompleteScopes(event.userName)
+            AuthEvent.TokenInvalid      -> ValidationResult.TokenInvalid
+            AuthEvent.ValidationFailed  -> ValidationResult.Failure
+        }
+    }
 
     val isTrueDarkModeEnabled get() = appearanceSettingsDataStore.current().trueDarkTheme
     val keepScreenOn = appearanceSettingsDataStore.settings
@@ -59,9 +57,7 @@ class DankChatViewModel(
 
     init {
         viewModelScope.launch {
-            if (dankChatPreferenceStore.isLoggedIn) {
-                validateUser()
-            }
+            authStateCoordinator.validateOnStartup()
             initialConnectionStarted = true
             chatRepository.connectAndJoin()
         }
@@ -77,55 +73,12 @@ class DankChatViewModel(
     }
 
     fun checkLogin() {
-        if (dankChatPreferenceStore.isLoggedIn && dankChatPreferenceStore.oAuthKey.isNullOrBlank()) {
-            dankChatPreferenceStore.clearLogin()
+        if (authDataStore.isLoggedIn && authDataStore.oAuthKey.isNullOrBlank()) {
+            authStateCoordinator.logout()
         }
     }
 
     fun clearDataForLogout() {
-        CookieManager.getInstance().removeAllCookies(null)
-        WebStorage.getInstance().deleteAllData()
-
-        dankChatPreferenceStore.clearLogin()
-        userStateRepository.clear()
-
-        chatRepository.closeAndReconnect()
-        ignoresRepository.clearIgnores()
-        viewModelScope.launch {
-            emoteUsageRepository.clearUsages()
-        }
-    }
-
-    private suspend fun validateUser() {
-        // no token = nothing to validate 4head
-        val token = dankChatPreferenceStore.oAuthKey?.withoutOAuthPrefix ?: return
-        val result = authApiClient.validateUser(token)
-            .fold(
-                onSuccess = { result ->
-                    dankChatPreferenceStore.userName = result.login
-                    when {
-                        authApiClient.validateScopes(result.scopes.orEmpty()) -> ValidationResult.User(result.login)
-                        else                                                  -> ValidationResult.IncompleteScopes(result.login)
-                    }
-                },
-                onFailure = { it.handleValidationError() }
-            )
-        _validationResult.send(result)
-    }
-
-    private fun Throwable.handleValidationError() = when {
-        this is ApiException && status == HttpStatusCode.Unauthorized -> {
-            dankChatPreferenceStore.clearLogin()
-            ValidationResult.TokenInvalid
-        }
-
-        else                                                          -> {
-            Log.e(TAG, "Failed to validate token: $message")
-            ValidationResult.Failure
-        }
-    }
-
-    companion object {
-        private val TAG = DankChatViewModel::class.java.simpleName
+        authStateCoordinator.logout()
     }
 }

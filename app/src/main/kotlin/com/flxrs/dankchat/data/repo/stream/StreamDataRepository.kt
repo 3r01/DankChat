@@ -4,6 +4,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.main.StreamData
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
@@ -22,6 +23,7 @@ import kotlin.time.Duration.Companion.seconds
 @Single
 class StreamDataRepository(
     private val dataRepository: DataRepository,
+    private val authDataStore: AuthDataStore,
     private val dankChatPreferenceStore: DankChatPreferenceStore,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
@@ -37,7 +39,7 @@ class StreamDataRepository(
 
         scope.launch {
             val settings = streamsSettingsDataStore.settings.first()
-            if (!dankChatPreferenceStore.isLoggedIn || !settings.fetchStreams) {
+            if (!authDataStore.isLoggedIn || !settings.fetchStreams) {
                 return@launch
             }
 

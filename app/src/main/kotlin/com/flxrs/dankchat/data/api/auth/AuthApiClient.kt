@@ -3,7 +3,7 @@ package com.flxrs.dankchat.data.api.auth
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
 import com.flxrs.dankchat.data.api.auth.dto.ValidateErrorDto
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthSettings
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText
@@ -69,6 +69,6 @@ class AuthApiClient(private val authApi: AuthApi, private val json: Json) {
             "whispers:edit",
             "whispers:read",
         )
-        val LOGIN_URL = "$BASE_LOGIN_URL&client_id=${DankChatPreferenceStore.DEFAULT_CLIENT_ID}&redirect_uri=$REDIRECT_URL&scope=${SCOPES.joinToString(separator = "+")}"
+        val LOGIN_URL = "$BASE_LOGIN_URL&client_id=${AuthSettings.DEFAULT_CLIENT_ID}&redirect_uri=$REDIRECT_URL&scope=${SCOPES.joinToString(separator = "+")}"
     }
 }

@@ -42,6 +42,7 @@ import com.flxrs.dankchat.data.twitch.pubsub.PubSubMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.ReadConnection
 import com.flxrs.dankchat.di.WriteConnection
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.INVISIBLE_CHAR
@@ -95,6 +96,7 @@ class ChatRepository(
     private val repliesRepository: RepliesRepository,
     private val userStateRepository: UserStateRepository,
     private val usersRepository: UsersRepository,
+    private val authDataStore: AuthDataStore,
     private val dankChatPreferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val pubSubManager: PubSubManager,
@@ -374,7 +376,7 @@ class ChatRepository(
             val message = input.substring(4 + split[1].length)
             val emotes = emoteRepository.parse3rdPartyEmotes(message, WhisperMessage.WHISPER_CHANNEL, withTwitch = true)
             val userState = userStateRepository.userState.value
-            val name = dankChatPreferenceStore.userName ?: return
+            val name = authDataStore.userName ?: return
             val displayName = userState.displayName ?: return
             val fakeMessage = WhisperMessage(
                 userId = userState.userId,
@@ -695,7 +697,7 @@ class ChatRepository(
         }
 
         if (message is PrivMessage) {
-            if (message.name == dankChatPreferenceStore.userName) {
+            if (message.name == authDataStore.userName) {
                 val previousLastMessage = lastMessage[message.channel].orEmpty()
                 val lastMessageWasCommand = previousLastMessage.startsWith('.') || previousLastMessage.startsWith('/')
                 if (!lastMessageWasCommand && previousLastMessage.withoutInvisibleChar != message.originalMessage.withoutInvisibleChar) {

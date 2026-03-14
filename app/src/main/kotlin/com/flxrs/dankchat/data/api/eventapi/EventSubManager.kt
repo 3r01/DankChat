@@ -4,7 +4,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -18,7 +18,7 @@ class EventSubManager(
     private val eventSubClient: EventSubClient,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
-    private val preferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     developerSettingsDataStore: DeveloperSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -36,7 +36,7 @@ class EventSubManager(
             }
 
             userStateRepository.userState.map { it.moderationChannels }.collect {
-                val userId = preferenceStore.userIdString ?: return@collect
+                val userId = authDataStore.userIdString ?: return@collect
                 val channels = channelRepository.getChannels(it)
                 channels.forEach {
                     val topic = EventSubTopic.ChannelModerate(channel = it.name, broadcasterId = it.id, moderatorId = userId)

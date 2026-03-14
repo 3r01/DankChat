@@ -21,7 +21,7 @@ import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
 import com.flxrs.dankchat.data.twitch.badge.toBadgeSets
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.utils.extensions.measureTimeAndLog
@@ -54,7 +54,7 @@ class DataRepository(
     private val uploadClient: UploadClient,
     private val emoteRepository: EmoteRepository,
     private val recentUploadsRepository: RecentUploadsRepository,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -130,7 +130,7 @@ class DataRepository(
     suspend fun loadGlobalBadges(): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "global badges") {
             val result = when {
-                dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                authDataStore.isLoggedIn                -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
                 else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
@@ -162,7 +162,7 @@ class DataRepository(
     suspend fun loadChannelBadges(channel: UserName, id: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "channel badges for #$id") {
             val result = when {
-                dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                authDataStore.isLoggedIn                -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
                 else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }

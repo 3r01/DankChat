@@ -3,9 +3,9 @@ package com.flxrs.dankchat.login
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -14,7 +14,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class LoginViewModel(
     private val authApiClient: AuthApiClient,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
 ) : ViewModel() {
 
     data class TokenParseEvent(val successful: Boolean)
@@ -44,15 +44,13 @@ class LoginViewModel(
         eventChannel.send(result)
     }
 
-    private fun saveLoginDetails(oAuth: String, validateDto: ValidateDto): TokenParseEvent {
-        dankChatPreferenceStore.apply {
-            oAuthKey = "oauth:$oAuth"
-            userName = validateDto.login.lowercase()
-            userIdString = validateDto.userId
-            clientId = validateDto.clientId
-            isLoggedIn = true
-        }
-
+    private suspend fun saveLoginDetails(oAuth: String, validateDto: ValidateDto): TokenParseEvent {
+        authDataStore.login(
+            oAuthKey = oAuth,
+            userName = validateDto.login.value.lowercase(),
+            userId = validateDto.userId.value,
+            clientId = validateDto.clientId,
+        )
         return TokenParseEvent(successful = true)
     }
 

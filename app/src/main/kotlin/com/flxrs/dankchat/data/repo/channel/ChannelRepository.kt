@@ -9,7 +9,7 @@ import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.firstValueOrNull
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap
 class ChannelRepository(
     private val usersRepository: UsersRepository,
     private val helixApiClient: HelixApiClient,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
 ) {
 
     private val channelCache = ConcurrentHashMap<UserName, Channel>()
@@ -38,7 +38,7 @@ class ChannelRepository(
         }
 
         val channel = when {
-            dankChatPreferenceStore.isLoggedIn -> helixApiClient.getUserByName(name)
+            authDataStore.isLoggedIn -> helixApiClient.getUserByName(name)
                 .getOrNull()
                 ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
@@ -58,7 +58,7 @@ class ChannelRepository(
             return cached
         }
 
-        if (!dankChatPreferenceStore.isLoggedIn) {
+        if (!authDataStore.isLoggedIn) {
             return null
         }
 
@@ -104,7 +104,7 @@ class ChannelRepository(
         val cached = ids.mapNotNull { getCachedChannelByIdOrNull(it) }
         val cachedIds = cached.mapTo(mutableSetOf(), Channel::id)
         val remaining = ids.filterNot { it in cachedIds }
-        if (remaining.isEmpty() || !dankChatPreferenceStore.isLoggedIn) {
+        if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
             return@withContext cached
         }
 
@@ -121,7 +121,7 @@ class ChannelRepository(
         val cached = names.mapNotNull { channelCache[it] }
         val cachedNames = cached.mapTo(mutableSetOf(), Channel::name)
         val remaining = names - cachedNames
-        if (remaining.isEmpty() || !dankChatPreferenceStore.isLoggedIn) {
+        if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
             return@withContext cached
         }
 

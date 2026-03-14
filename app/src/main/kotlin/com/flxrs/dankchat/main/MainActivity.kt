@@ -51,7 +51,7 @@ import androidx.navigation.toRoute
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.ValidationResult
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
@@ -222,16 +222,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupComposeUi() {
-        lifecycleScope.launch {
-            viewModel.validationResult.collect { result ->
-                when (result) {
-                    is ValidationResult.User -> mainEventBus.emitEvent(MainEvent.LoginValidated(result.username))
-                    is ValidationResult.IncompleteScopes -> mainEventBus.emitEvent(MainEvent.LoginOutdated(result.username))
-                    ValidationResult.TokenInvalid -> mainEventBus.emitEvent(MainEvent.LoginTokenInvalid)
-                    ValidationResult.Failure -> mainEventBus.emitEvent(MainEvent.LoginValidationFailed)
-                }
-            }
-        }
         setContent {
             DankChatTheme {
                 val navController = rememberNavController()
@@ -253,11 +243,7 @@ class MainActivity : AppCompatActivity() {
                         exitTransition = { fadeOut(animationSpec = tween(90)) },
                         popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
                         popExitTransition = { fadeOut(animationSpec = tween(90)) }
-                    ) { backStackEntry ->
-                        val loginSuccess = backStackEntry
-                            .savedStateHandle
-                            .get<Boolean>("login_success") == true
-
+                    ) {
                         OnboardingScreen(
                             onNavigateToLogin = {
                                 navController.navigate(Login)
@@ -267,7 +253,6 @@ class MainActivity : AppCompatActivity() {
                                     popUpTo(Onboarding) { inclusive = true }
                                 }
                             },
-                            loginSuccess = loginSuccess,
                         )
                     }
                     composable<Main>(

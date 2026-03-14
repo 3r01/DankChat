@@ -288,14 +288,12 @@ fun MainScreen(
     val inputSheetState by sheetNavigationViewModel.inputSheetState.collectAsStateWithLifecycle()
 
     MainScreenEventHandler(
-        navController = navController,
         resources = resources,
         snackbarHostState = snackbarHostState,
         mainEventBus = mainEventBus,
         dialogViewModel = dialogViewModel,
         chatInputViewModel = chatInputViewModel,
         channelTabViewModel = channelTabViewModel,
-        channelManagementViewModel = channelManagementViewModel,
         mainScreenViewModel = mainScreenViewModel,
         preferenceStore = preferenceStore,
     )

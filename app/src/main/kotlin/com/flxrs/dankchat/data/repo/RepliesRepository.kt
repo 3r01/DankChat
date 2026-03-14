@@ -9,7 +9,7 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThread
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.extensions.replaceIf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +20,7 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
 @Single
-class RepliesRepository(private val dankChatPreferenceStore: DankChatPreferenceStore) {
+class RepliesRepository(private val authDataStore: AuthDataStore) {
 
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
@@ -137,7 +137,7 @@ class RepliesRepository(private val dankChatPreferenceStore: DankChatPreferenceS
     }
 
     private fun PrivMessage.isParticipating(): Boolean {
-        return name == dankChatPreferenceStore.userName || (PARENT_MESSAGE_LOGIN_TAG in tags && tags[PARENT_MESSAGE_LOGIN_TAG] == dankChatPreferenceStore.userName?.value)
+        return name == authDataStore.userName || (PARENT_MESSAGE_LOGIN_TAG in tags && tags[PARENT_MESSAGE_LOGIN_TAG] == authDataStore.userName?.value)
     }
 
     private fun PrivMessage.stripLeadingReplyMention(): PrivMessage {

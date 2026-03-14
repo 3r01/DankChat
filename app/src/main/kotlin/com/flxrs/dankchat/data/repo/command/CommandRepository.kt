@@ -13,7 +13,7 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommandRepository
 import com.flxrs.dankchat.data.twitch.message.RoomState
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
@@ -45,7 +45,7 @@ class CommandRepository(
     private val supibotApiClient: SupibotApiClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
-    private val preferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
 
@@ -82,7 +82,7 @@ class CommandRepository(
     fun getSupibotCommands(channel: UserName): StateFlow<List<String>> = supibotCommands.getOrPut(channel) { MutableStateFlow(emptyList()) }
 
     suspend fun checkForCommands(message: String, channel: UserName, roomState: RoomState, userState: UserState, skipSuspendingCommands: Boolean = false): CommandResult {
-        if (!preferenceStore.isLoggedIn) {
+        if (!authDataStore.isLoggedIn) {
             return CommandResult.NotFound
         }
 
@@ -130,8 +130,8 @@ class CommandRepository(
         val (trigger, args) = triggerAndArgsOrNull(message) ?: return CommandResult.NotFound
         return when (val twitchCommand = twitchCommandRepository.findTwitchCommand(trigger)) {
             TwitchCommand.Whisper -> {
-                val currentUserId = preferenceStore.userIdString
-                    ?.takeIf { preferenceStore.isLoggedIn }
+                val currentUserId = authDataStore.userIdString
+                    ?.takeIf { authDataStore.isLoggedIn }
                     ?: return CommandResult.AcceptedTwitchCommand(
                         command = twitchCommand,
                         response = "You must be logged in to use the $trigger command"
@@ -144,7 +144,7 @@ class CommandRepository(
     }
 
     suspend fun loadSupibotCommands() = withContext(Dispatchers.Default) {
-        if (!preferenceStore.isLoggedIn || !chatSettingsDataStore.settings.first().supibotSuggestions) {
+        if (!authDataStore.isLoggedIn || !chatSettingsDataStore.settings.first().supibotSuggestions) {
             return@withContext
         }
 
@@ -198,7 +198,7 @@ class CommandRepository(
     }
 
     private suspend fun getSupibotUserAliases(): List<String> {
-        val user = preferenceStore.userName ?: return emptyList()
+        val user = authDataStore.userName ?: return emptyList()
         return supibotApiClient.getSupibotUserAliases(user)
             .getOrNull()
             ?.let { (data) ->

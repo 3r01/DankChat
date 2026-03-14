@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -25,6 +26,7 @@ import org.koin.core.annotation.Single
 class PubSubManager(
     private val channelRepository: ChannelRepository,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
+    private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
     @Named(type = WebSocketOkHttpClient::class) private val client: OkHttpClient,
     private val json: Json,
@@ -43,11 +45,11 @@ class PubSubManager(
         get() = connections.any { it.connected && it.hasWhisperTopic }
 
     fun start() {
-        if (!preferenceStore.isLoggedIn) {
+        if (!authDataStore.isLoggedIn) {
             return
         }
 
-        val userId = preferenceStore.userIdString ?: return
+        val userId = authDataStore.userIdString ?: return
         val channels = preferenceStore.channels
 
         scope.launch {
@@ -86,11 +88,11 @@ class PubSubManager(
     }
 
     fun addChannel(channel: UserName) = scope.launch {
-        if (!preferenceStore.isLoggedIn) {
+        if (!authDataStore.isLoggedIn) {
             return@launch
         }
 
-        val userId = preferenceStore.userIdString ?: return@launch
+        val userId = authDataStore.userIdString ?: return@launch
         val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
         val usePubsub = developerSettingsDataStore.settings.first().shouldUsePubSub
 
@@ -119,7 +121,7 @@ class PubSubManager(
     }
 
     private fun listen(topics: Set<PubSubTopic>) {
-        val oAuth = preferenceStore.oAuthKey?.withoutOAuthPrefix ?: return
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return
         val remainingTopics = connections.fold(topics) { acc, conn ->
             conn.listen(acc)
         }

@@ -73,7 +73,6 @@ private const val PAGE_COUNT = 4
 fun OnboardingScreen(
     onNavigateToLogin: () -> Unit,
     onComplete: () -> Unit,
-    loginSuccess: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: OnboardingViewModel = koinViewModel()
@@ -83,18 +82,14 @@ fun OnboardingScreen(
         initialPage = state.initialPage,
         pageCount = { PAGE_COUNT },
     )
-
     LaunchedEffect(pagerState.currentPage) {
         viewModel.setCurrentPage(pagerState.currentPage)
     }
 
-    LaunchedEffect(loginSuccess) {
-        if (loginSuccess) {
-            viewModel.onLoginCompleted()
-            // Auto-advance past login page
-            if (pagerState.currentPage == 1) {
-                pagerState.animateScrollToPage(2)
-            }
+    // Auto-advance past login page when login is detected by the ViewModel
+    LaunchedEffect(state.loginCompleted) {
+        if (state.loginCompleted && pagerState.currentPage == 1) {
+            pagerState.animateScrollToPage(2)
         }
     }
 

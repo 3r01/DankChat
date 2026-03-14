@@ -19,7 +19,7 @@ import com.flxrs.dankchat.data.repo.chat.UserState
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import org.koin.core.annotation.Single
 import java.util.UUID
@@ -27,13 +27,13 @@ import java.util.UUID
 @Single
 class TwitchCommandRepository(
     private val helixApiClient: HelixApiClient,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
 ) {
 
     fun isIrcCommand(trigger: String): Boolean = trigger in ALLOWED_IRC_COMMAND_TRIGGERS
 
     fun getAvailableCommandTriggers(room: RoomState, userState: UserState): List<String> {
-        val currentUserId = dankChatPreferenceStore.userIdString ?: return emptyList()
+        val currentUserId = authDataStore.userIdString ?: return emptyList()
         return when {
             room.channelId == currentUserId              -> TwitchCommand.ALL_COMMANDS
             room.channel in userState.moderationChannels -> TwitchCommand.MODERATOR_COMMANDS
@@ -53,7 +53,7 @@ class TwitchCommandRepository(
     }
 
     suspend fun handleTwitchCommand(command: TwitchCommand, context: CommandContext): CommandResult {
-        val currentUserId = dankChatPreferenceStore.userIdString ?: return CommandResult.AcceptedTwitchCommand(
+        val currentUserId = authDataStore.userIdString ?: return CommandResult.AcceptedTwitchCommand(
             command = command,
             response = "You must be logged in to use the ${context.trigger} command"
         )

@@ -56,7 +56,6 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             if (event.successful) {
-                navController.previousBackStackEntry?.savedStateHandle?.set("login_success", true)
                 onLoginSuccess()
             }
         }

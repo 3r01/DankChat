@@ -97,6 +97,14 @@ class EmoteRepository(
         channelEmoteStates.remove(channel)
     }
 
+    /** Clears user-specific Twitch emotes (subscriber, bit, follower) from global state. */
+    fun clearTwitchEmotes() {
+        globalEmoteState.update { it.copy(twitchEmotes = emptyList()) }
+        channelEmoteStates.values.forEach { state ->
+            state.update { it.copy(twitchEmotes = emptyList()) }
+        }
+    }
+
     fun parse3rdPartyEmotes(message: String, channel: UserName, withTwitch: Boolean = false): List<ChatMessageEmote> {
         val globalState = globalEmoteState.value
         val channelState = channelEmoteStates[channel]?.value ?: ChannelEmoteState()

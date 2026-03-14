@@ -6,6 +6,7 @@ import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
@@ -32,6 +33,7 @@ class ChannelDataCoordinator(
     private val chatRepository: ChatRepository,
     private val dataRepository: DataRepository,
     private val userStateRepository: UserStateRepository,
+    private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
     dispatchersProvider: DispatchersProvider
 ) {
@@ -89,8 +91,8 @@ class ChannelDataCoordinator(
             chatRepository.reparseAllEmotesAndBadges()
 
             // Load user emotes if logged in — only block on first page, rest loads async
-            if (preferenceStore.isLoggedIn) {
-                val userId = preferenceStore.userIdString
+            if (authDataStore.isLoggedIn) {
+                val userId = authDataStore.userIdString
                 if (userId != null) {
                     val firstPageLoaded = CompletableDeferred<Unit>()
                     launch {
