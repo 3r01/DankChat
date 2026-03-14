@@ -6,7 +6,6 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
-import com.flxrs.dankchat.chat.mention.MentionViewModel
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
@@ -15,13 +14,13 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
  * Extracted from MentionChatFragment to enable pure Compose integration.
  * 
  * This composable:
- * - Collects mentions or whispers from MentionViewModel based on isWhisperTab
+ * - Collects mentions or whispers from MentionComposeViewModel based on isWhisperTab
  * - Collects appearance settings
  * - Renders ChatScreen with channel prefix for mentions only
  */
 @Composable
 fun MentionComposable(
-    mentionViewModel: MentionViewModel,
+    mentionViewModel: MentionComposeViewModel,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     isWhisperTab: Boolean,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,

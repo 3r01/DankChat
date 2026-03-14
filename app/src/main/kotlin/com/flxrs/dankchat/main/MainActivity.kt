@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -20,12 +19,13 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.WindowInsetsControllerCompat
@@ -39,7 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.findNavController
-import androidx.core.net.toUri
+import androidx.navigation.toRoute
 import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
@@ -51,6 +51,7 @@ import com.flxrs.dankchat.main.compose.MainScreen
 import com.flxrs.dankchat.main.compose.MainEventBus
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.about.AboutScreen
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsScreen
 import com.flxrs.dankchat.preferences.chat.ChatSettingsScreen
 import com.flxrs.dankchat.preferences.chat.commands.CustomCommandsScreen
@@ -78,6 +79,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -188,12 +190,6 @@ class MainActivity : AppCompatActivity() {
                             onNavigateToSettings = {
                                 navController.navigate(Settings)
                             },
-                            onMessageLongClick = { messageId, channel, fullMessage ->
-                                // Handled in MainScreen with state
-                            },
-                            onEmoteClick = { emotes ->
-                                // Handled in MainScreen with state
-                            },
                             onLogin = {
                                 navController.navigate(Login)
                             },
@@ -219,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                                     startActivity(it)
                                 }
                             },
-                            onOpenUrl = { url ->
+                            onOpenUrl = { url: String ->
                                 Intent(Intent.ACTION_VIEW).also {
                                     it.data = url.toUri()
                                     startActivity(it)
@@ -243,12 +239,13 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     composable<Login>(
-                        enterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)) },
+                        enterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
                         exitTransition = { fadeOut(animationSpec = tween(90)) },
-                        popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) + scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90)) },
+                        popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
                         popExitTransition = { fadeOut(animationSpec = tween(90)) }
                     ) {
                         LoginScreen(
+                            navController = navController,
                             onLoginSuccess = { navController.popBackStack() },
                             onCancel = { navController.popBackStack() }
                         )
@@ -258,8 +255,7 @@ class MainActivity : AppCompatActivity() {
                             if (initialState.destination.route?.contains("Main") == true) {
                                 slideInHorizontally(initialOffsetX = { it })
                             } else {
-                                fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
+                                fadeIn(animationSpec = tween(220, delayMillis = 90))
                             }
                         },
                         exitTransition = {
@@ -273,8 +269,7 @@ class MainActivity : AppCompatActivity() {
                             if (initialState.destination.route?.contains("Main") == true) {
                                 slideInHorizontally(initialOffsetX = { it })
                             } else {
-                                fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                                        scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
+                                fadeIn(animationSpec = tween(220, delayMillis = 90))
                             }
                         },
                         popExitTransition = {
@@ -297,22 +292,21 @@ class MainActivity : AppCompatActivity() {
                             },
                             onNavigateRequested = { destinationId ->
                                 when (destinationId) {
-                                    R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment    -> navController.navigate(AppearanceSettings)
+                                    R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment -> navController.navigate(AppearanceSettings)
                                     R.id.action_overviewSettingsFragment_to_notificationsSettingsFragment -> navController.navigate(NotificationsSettings)
-                                    R.id.action_overviewSettingsFragment_to_chatSettingsFragment          -> navController.navigate(ChatSettings)
-                                    R.id.action_overviewSettingsFragment_to_streamsSettingsFragment       -> navController.navigate(StreamsSettings)
-                                    R.id.action_overviewSettingsFragment_to_toolsSettingsFragment         -> navController.navigate(ToolsSettings)
-                                    R.id.action_overviewSettingsFragment_to_developerSettingsFragment     -> navController.navigate(DeveloperSettings)
-                                    R.id.action_overviewSettingsFragment_to_changelogSheetFragment        -> navController.navigate(ChangelogSettings)
-                                    R.id.action_overviewSettingsFragment_to_aboutFragment                 -> navController.navigate(AboutSettings)
+                                    R.id.action_overviewSettingsFragment_to_chatSettingsFragment -> navController.navigate(ChatSettings)
+                                    R.id.action_overviewSettingsFragment_to_streamsSettingsFragment -> navController.navigate(StreamsSettings)
+                                    R.id.action_overviewSettingsFragment_to_toolsSettingsFragment -> navController.navigate(ToolsSettings)
+                                    R.id.action_overviewSettingsFragment_to_developerSettingsFragment -> navController.navigate(DeveloperSettings)
+                                    R.id.action_overviewSettingsFragment_to_changelogSheetFragment -> navController.navigate(ChangelogSettings)
+                                    R.id.action_overviewSettingsFragment_to_aboutFragment -> navController.navigate(AboutSettings)
                                 }
                             }
                         )
                     }
-                    
+
                     val settingsEnterTransition: AnimatedContentTransitionScope<androidx.navigation.NavBackStackEntry>.() -> EnterTransition = {
-                        fadeIn(animationSpec = tween(220, delayMillis = 90)) +
-                                scaleIn(initialScale = 0.92f, animationSpec = tween(220, delayMillis = 90))
+                        fadeIn(animationSpec = tween(220, delayMillis = 90))
                     }
                     val settingsExitTransition: AnimatedContentTransitionScope<androidx.navigation.NavBackStackEntry>.() -> ExitTransition = {
                         fadeOut(animationSpec = tween(90))

@@ -51,4 +51,7 @@ object ChangelogSettings
 object AboutSettings
 
 @Serializable
+object EmoteMenu
+
+@Serializable
 object Login

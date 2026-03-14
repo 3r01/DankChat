@@ -32,6 +32,7 @@ import com.flxrs.dankchat.chat.compose.messages.PrivMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.SystemMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.WhisperMessageComposable
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
 /**
@@ -54,7 +55,7 @@ fun ChatScreen(
     showLineSeparator: Boolean = false,
     animateGifs: Boolean = true,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
-    onReplyClick: (rootMessageId: String) -> Unit = {},
+    onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -160,7 +161,7 @@ private fun ChatMessageItem(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
-    onReplyClick: (rootMessageId: String) -> Unit,
+    onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
 ) {
     when (message) {
         is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(

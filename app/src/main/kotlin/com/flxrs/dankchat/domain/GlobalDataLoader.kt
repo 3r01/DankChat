@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
@@ -25,17 +24,25 @@ class GlobalDataLoader(
     suspend fun loadGlobalData(): Result<Unit> = withContext(dispatchersProvider.io) {
         runCatching {
             awaitAll(
-                async { dataRepository.loadDankChatBadges() },
-                async { dataRepository.loadGlobalBadges() },
-                async { dataRepository.loadGlobalBTTVEmotes() },
-                async { dataRepository.loadGlobalFFZEmotes() },
-                async { dataRepository.loadGlobalSevenTVEmotes() },
-                async { commandRepository.loadSupibotCommands() },
-                async { ignoresRepository.loadUserBlocks() }
+                async { loadDankChatBadges() },
+                async { loadGlobalBadges() },
+                async { loadGlobalBTTVEmotes() },
+                async { loadGlobalFFZEmotes() },
+                async { loadGlobalSevenTVEmotes() },
+                async { loadSupibotCommands() },
+                async { loadUserBlocks() }
             )
             Unit
         }
     }
+
+    suspend fun loadDankChatBadges() = dataRepository.loadDankChatBadges()
+    suspend fun loadGlobalBadges() = dataRepository.loadGlobalBadges()
+    suspend fun loadGlobalBTTVEmotes() = dataRepository.loadGlobalBTTVEmotes()
+    suspend fun loadGlobalFFZEmotes() = dataRepository.loadGlobalFFZEmotes()
+    suspend fun loadGlobalSevenTVEmotes() = dataRepository.loadGlobalSevenTVEmotes()
+    suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
+    suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
     /**
      * Load user-specific global emotes (requires login)

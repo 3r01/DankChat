@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -24,18 +25,22 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
@@ -44,15 +49,22 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -61,6 +73,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
@@ -69,6 +83,7 @@ import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceTabRow
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
+import com.rarepebble.colorpicker.ColorPickerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
@@ -88,6 +103,7 @@ fun HighlightsScreen(onNavBack: () -> Unit) {
         currentTab = currentTab,
         messageHighlights = viewModel.messageHighlights,
         userHighlights = viewModel.userHighlights,
+        badgeHighlights = viewModel.badgeHighlights,
         blacklistedUsers = viewModel.blacklistedUsers,
         eventsWrapper = events,
         onSave = viewModel::updateHighlights,
@@ -104,9 +120,10 @@ private fun HighlightsScreen(
     currentTab: HighlightsTab,
     messageHighlights: SnapshotStateList<MessageHighlightItem>,
     userHighlights: SnapshotStateList<UserHighlightItem>,
+    badgeHighlights: SnapshotStateList<BadgeHighlightItem>,
     blacklistedUsers: SnapshotStateList<BlacklistedUserItem>,
     eventsWrapper: HighlightEventsWrapper,
-    onSave: (List<MessageHighlightItem>, List<UserHighlightItem>, List<BlacklistedUserItem>) -> Unit,
+    onSave: (List<MessageHighlightItem>, List<UserHighlightItem>, List<BlacklistedUserItem>, List<BadgeHighlightItem>) -> Unit,
     onRemove: (HighlightItem) -> Unit,
     onAddNew: () -> Unit,
     onAdd: (HighlightItem, Int) -> Unit,
@@ -159,7 +176,7 @@ private fun HighlightsScreen(
 
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
-            onSave(messageHighlights, userHighlights, blacklistedUsers)
+            onSave(messageHighlights, userHighlights, blacklistedUsers, badgeHighlights)
         }
     }
 
@@ -176,7 +193,7 @@ private fun HighlightsScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            onSave(messageHighlights, userHighlights, blacklistedUsers)
+                            onSave(messageHighlights, userHighlights, blacklistedUsers, badgeHighlights)
                             onNavBack()
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
@@ -207,6 +224,7 @@ private fun HighlightsScreen(
                 val subtitle = when (currentTab) {
                     HighlightsTab.Messages         -> stringResource(R.string.highlights_messages_title)
                     HighlightsTab.Users            -> stringResource(R.string.highlights_users_title)
+                    HighlightsTab.Badges           -> stringResource(R.string.highlights_badges_title)
                     HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
                 }
                 Text(
@@ -225,6 +243,7 @@ private fun HighlightsScreen(
                         when (HighlightsTab.entries[it]) {
                             HighlightsTab.Messages         -> stringResource(R.string.tab_messages)
                             HighlightsTab.Users            -> stringResource(R.string.tab_users)
+                            HighlightsTab.Badges           -> stringResource(R.string.tab_badges)
                             HighlightsTab.BlacklistedUsers -> stringResource(R.string.tab_blacklisted_users)
                         }
                     }
@@ -262,6 +281,21 @@ private fun HighlightsScreen(
                             item = item,
                             onChanged = { userHighlights[idx] = it },
                             onRemove = { onRemove(userHighlights[idx]) },
+                            modifier = Modifier.animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
+                        )
+                    }
+
+                    HighlightsTab.Badges           -> HighlightsList(
+                        highlights = badgeHighlights,
+                        listState = listState,
+                    ) { idx, item ->
+                        BadgeHighlightItem(
+                            item = item,
+                            onChanged = { badgeHighlights[idx] = it },
+                            onRemove = { onRemove(badgeHighlights[idx]) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
                                 fadeOutSpec = null,
@@ -410,6 +444,78 @@ private fun MessageHighlightItem(
                 )
             }
         }
+        val defaultColor = when(item.type) {
+            MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
+            MessageHighlightItem.Type.ChannelPointRedemption                               -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
+            MessageHighlightItem.Type.ElevatedMessage                                      -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
+            MessageHighlightItem.Type.FirstMessage                                         -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
+            MessageHighlightItem.Type.Username                                             -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+            MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom              -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+        }
+        val color = item.customColor ?: defaultColor
+        var showColorPicker by remember { mutableStateOf(false) }
+        var selectedColor by remember(color) { mutableIntStateOf(color) }
+        OutlinedButton(
+            onClick = { showColorPicker = true },
+            enabled = item.enabled,
+            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+            content = {
+                Spacer(
+                    Modifier
+                        .size(ButtonDefaults.IconSize)
+                        .background(color = Color(color), shape = CircleShape)
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text(text = stringResource(R.string.choose_highlight_color))
+            },
+            modifier = Modifier.padding(12.dp)
+        )
+        if (showColorPicker) {
+            ModalBottomSheet(
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                onDismissRequest = {
+                    onChanged(item.copy(customColor = selectedColor))
+                    showColorPicker = false
+                },
+            ) {
+                Text(
+                    text = stringResource(R.string.pick_highlight_color_title),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                )
+                Row (
+                    modifier = modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    TextButton(
+                        onClick = { selectedColor = defaultColor },
+                        content = { Text(stringResource(R.string.reset_default_highlight_color)) },
+                    )
+                    TextButton(
+                        onClick = { selectedColor = color },
+                        content = { Text(stringResource(R.string.reset)) },
+                    )
+                }
+                AndroidView(
+                    factory = { context ->
+                        ColorPickerView(context).apply {
+                            showAlpha(true)
+                            setOriginalColor(color)
+                            setCurrentColor(selectedColor)
+                            addColorObserver {
+                                selectedColor = it.color
+                            }
+                        }
+                    },
+                    update = {
+                        it.setCurrentColor(selectedColor)
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -452,11 +558,217 @@ private fun UserHighlightItem(
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
+                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                val color = item.customColor ?: defaultColor
+                var showColorPicker by remember { mutableStateOf(false) }
+                var selectedColor by remember(color) { mutableIntStateOf(color) }
+                OutlinedButton(
+                    onClick = { showColorPicker = true },
+                    enabled = item.enabled,
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    content = {
+                        Spacer(
+                            Modifier
+                                .size(ButtonDefaults.IconSize)
+                                .background(color = Color(color), shape = CircleShape)
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(text = stringResource(R.string.choose_highlight_color))
+                    },
+                    modifier = Modifier.padding(12.dp)
+                )
+                if (showColorPicker) {
+                    ModalBottomSheet(
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                        onDismissRequest = {
+                            onChanged(item.copy(customColor = selectedColor))
+                            showColorPicker = false
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(R.string.pick_highlight_color_title),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        )
+                        Row (
+                            modifier = modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TextButton(
+                                onClick = { selectedColor = defaultColor },
+                                content = { Text(stringResource(R.string.reset_default_highlight_color)) },
+                            )
+                            TextButton(
+                                onClick = { selectedColor = color },
+                                content = { Text(stringResource(R.string.reset)) },
+                            )
+                        }
+                        AndroidView(
+                            factory = { context ->
+                                ColorPickerView(context).apply {
+                                    showAlpha(true)
+                                    setOriginalColor(color)
+                                    setCurrentColor(selectedColor)
+                                    addColorObserver {
+                                        selectedColor = it.color
+                                    }
+                                }
+                            },
+                            update = {
+                                it.setCurrentColor(selectedColor)
+                            }
+                        )
+                    }
+                }
             }
             IconButton(
                 onClick = onRemove,
                 content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear)) },
             )
+        }
+    }
+}
+
+@Composable
+private fun BadgeHighlightItem(
+    item: BadgeHighlightItem,
+    onChanged: (BadgeHighlightItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ElevatedCard(modifier) {
+        Row {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(8.dp),
+            ) {
+                if (item.isCustom) {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = item.badgeName,
+                        onValueChange = { onChanged(item.copy(badgeName = it)) },
+                        label = { Text(stringResource(R.string.badge)) },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        maxLines = 1,
+                    )
+                } else {
+                    var name = ""
+                    when (item.badgeName) {
+                        "broadcaster"-> name = stringResource(R.string.badge_broadcaster)
+                        "admin"-> name = stringResource(R.string.badge_admin)
+                        "staff"-> name = stringResource(R.string.badge_staff)
+                        "moderator"-> name = stringResource(R.string.badge_moderator)
+                        "lead_moderator"-> name = stringResource(R.string.badge_lead_moderator)
+                        "partner"-> name = stringResource(R.string.badge_verified)
+                        "vip"-> name = stringResource(R.string.badge_vip)
+                        "founder"-> name = stringResource(R.string.badge_founder)
+                        "subscriber"-> name = stringResource(R.string.badge_subscriber)
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
+                }
+                FlowRow(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    CheckboxWithText(
+                        text = stringResource(R.string.enabled),
+                        checked = item.enabled,
+                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
+                        modifier = modifier.padding(end = 8.dp),
+                    )
+                    CheckboxWithText(
+                        text = stringResource(R.string.create_notification),
+                        checked = item.createNotification,
+                        onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                        enabled = item.enabled && item.notificationsEnabled,
+                    )
+                }
+                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                val color = item.customColor ?: defaultColor
+                var showColorPicker by remember { mutableStateOf(false) }
+                var selectedColor by remember(color) { mutableIntStateOf(color) }
+                OutlinedButton(
+                    onClick = { showColorPicker = true },
+                    enabled = item.enabled,
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    content = {
+                        Spacer(
+                            Modifier
+                                .size(ButtonDefaults.IconSize)
+                                .background(color = Color(color), shape = CircleShape)
+                        )
+                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(text = stringResource(R.string.choose_highlight_color))
+                    },
+                    modifier = Modifier.padding(12.dp)
+                )
+                if (showColorPicker) {
+                    ModalBottomSheet(
+                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                        onDismissRequest = {
+                            onChanged(item.copy(customColor = selectedColor))
+                            showColorPicker = false
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(R.string.pick_highlight_color_title),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        )
+                        Row (
+                            modifier = modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TextButton(
+                                onClick = { selectedColor = defaultColor },
+                                content = { Text(stringResource(R.string.reset_default_highlight_color)) },
+                            )
+                            TextButton(
+                                onClick = { selectedColor = color },
+                                content = { Text(stringResource(R.string.reset)) },
+                            )
+                        }
+                        AndroidView(
+                            factory = { context ->
+                                ColorPickerView(context).apply {
+                                    showAlpha(true)
+                                    setOriginalColor(color)
+                                    setCurrentColor(selectedColor)
+                                    addColorObserver {
+                                        selectedColor = it.color
+                                    }
+                                }
+                            },
+                            update = {
+                                it.setCurrentColor(selectedColor)
+                            }
+                        )
+                    }
+                }
+            }
+            if (item.isCustom) {
+                IconButton(
+                    onClick = onRemove,
+                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear)) },
+                )
+            }
         }
     }
 }

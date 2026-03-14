@@ -24,6 +24,7 @@ import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.recipientColorOnBackground
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.senderColorOnBackground
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.utils.DateTimeUtils
@@ -31,7 +32,7 @@ import com.google.android.material.color.MaterialColors
 
 /**
  * Maps domain Message objects to Compose UI state objects.
- * Pre-computes all rendering decisions to minimize work during composition.
+ * Pre-computed all rendering decisions to minimize work during composition.
  */
 object ChatMessageMapper {
 
@@ -67,6 +68,7 @@ object ChatMessageMapper {
         context: Context,
         appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
+        preferenceStore: DankChatPreferenceStore,
         isAlternateBackground: Boolean,
     ): ChatMessageUiState {
         val textAlpha = when (importance) {
@@ -115,6 +117,7 @@ object ChatMessageMapper {
                 tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
+                preferenceStore = preferenceStore,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
@@ -247,6 +250,7 @@ object ChatMessageMapper {
         tag: Int,
         context: Context,
         chatSettings: ChatSettings,
+        preferenceStore: DankChatPreferenceStore,
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.ModerationMessageUi {
@@ -262,7 +266,7 @@ object ChatMessageMapper {
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
-            message = "" // Moderation messages don't need text - they're action notifications
+            message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages)
         )
     }
 
@@ -522,6 +526,7 @@ object ChatMessageMapper {
             HighlightType.Username,
             HighlightType.Custom,
             HighlightType.Reply,
+            HighlightType.Badge,
             HighlightType.Notification           -> BackgroundColors(
                 light = COLOR_MENTION_HIGHLIGHT_LIGHT,
                 dark = COLOR_MENTION_HIGHLIGHT_DARK,
@@ -532,6 +537,12 @@ object ChatMessageMapper {
     private fun Set<Highlight>.toBackgroundColors(): BackgroundColors {
         val highlight = this.maxByOrNull { it.type.priority.value }
             ?: return BackgroundColors(Color.Transparent, Color.Transparent)
+
+        if (highlight.customColor != null) {
+            val color = Color(highlight.customColor)
+            return BackgroundColors(color, color)
+        }
+
         return getHighlightColors(highlight.type)
     }
 }

@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.login.LoginViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -42,6 +42,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
+    navController: NavController,
     onLoginSuccess: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -51,10 +52,8 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             if (event.successful) {
+                navController.previousBackStackEntry?.savedStateHandle?.set("login_success", true)
                 onLoginSuccess()
-            } else {
-                // TODO: Show error? Legacy just navigates up mostly.
-                // onCancel() 
             }
         }
     }

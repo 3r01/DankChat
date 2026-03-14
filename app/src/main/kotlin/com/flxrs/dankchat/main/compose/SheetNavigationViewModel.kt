@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.main.compose
 
 import androidx.lifecycle.ViewModel
+import com.flxrs.dankchat.data.UserName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,8 +16,8 @@ class SheetNavigationViewModel : ViewModel() {
     private val _inputSheetState = MutableStateFlow<InputSheetState>(InputSheetState.Closed)
     val inputSheetState: StateFlow<InputSheetState> = _inputSheetState.asStateFlow()
 
-    fun openReplies(rootMessageId: String) {
-        _fullScreenSheetState.value = FullScreenSheetState.Replies(rootMessageId)
+    fun openReplies(rootMessageId: String, replyName: UserName) {
+        _fullScreenSheetState.value = FullScreenSheetState.Replies(rootMessageId, replyName)
     }
 
     fun openMentions() {
@@ -33,6 +34,10 @@ class SheetNavigationViewModel : ViewModel() {
 
     fun openEmoteSheet() {
         _inputSheetState.value = InputSheetState.EmoteMenu
+    }
+
+    fun openMoreActions(messageId: String, fullMessage: String) {
+        _inputSheetState.value = InputSheetState.MoreActions(messageId, fullMessage)
     }
 
     fun closeInputSheet() {
@@ -56,7 +61,7 @@ class SheetNavigationViewModel : ViewModel() {
 
 sealed interface FullScreenSheetState {
     data object Closed : FullScreenSheetState
-    data class Replies(val replyMessageId: String) : FullScreenSheetState
+    data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
     data object Mention : FullScreenSheetState
     data object Whisper : FullScreenSheetState
 }
@@ -64,4 +69,5 @@ sealed interface FullScreenSheetState {
 sealed interface InputSheetState {
     data object Closed : InputSheetState
     data object EmoteMenu : InputSheetState
+    data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
 }

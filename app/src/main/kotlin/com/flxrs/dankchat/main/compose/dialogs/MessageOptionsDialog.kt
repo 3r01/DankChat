@@ -21,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
@@ -34,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,6 +49,7 @@ fun MessageOptionsDialog(
     fullMessage: String,
     canModerate: Boolean,
     canReply: Boolean,
+    canCopy: Boolean,
     hasReplyThread: Boolean,
     onReply: () -> Unit,
     onViewThread: () -> Unit,
@@ -89,23 +92,28 @@ fun MessageOptionsDialog(
                 )
             }
             
-            MessageOptionItem(
-                icon = Icons.Default.ContentCopy,
-                text = stringResource(R.string.message_copy),
-                onClick = {
-                    onCopy()
-                    onDismiss()
-                }
-            )
-            
-            MessageOptionItem(
-                icon = Icons.Default.MoreVert,
-                text = stringResource(R.string.message_more_actions),
-                onClick = {
-                    onMoreActions()
-                    onDismiss()
-                }
-            )
+            if (canCopy) {
+                MessageOptionItem(
+                    icon = Icons.Default.ContentCopy,
+                    text = stringResource(R.string.message_copy),
+                    onClick = {
+                        onCopy()
+                        onDismiss()
+                    }
+                )
+
+                MessageOptionItem(
+                    icon = Icons.Default.MoreVert,
+                    text = stringResource(R.string.message_more_actions),
+                    onClick = {
+                        onMoreActions()
+                        // Don't call onDismiss() here if the state management in MainScreen
+                        // handles switching sheets, but the user said "it closes the current sheet"
+                        // If we are using ModalBottomSheet, opening another one usually dismisses the first.
+                        onDismiss()
+                    }
+                )
+            }
 
             if (canModerate) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
@@ -205,7 +213,8 @@ private fun MessageOptionItem(
     ListItem(
         headlineContent = { Text(text) },
         leadingContent = { Icon(icon, contentDescription = null) },
-        modifier = Modifier.clickable(onClick = onClick)
+        modifier = Modifier.clickable(onClick = onClick),
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
     )
 }
 

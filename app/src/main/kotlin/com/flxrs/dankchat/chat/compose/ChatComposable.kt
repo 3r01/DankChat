@@ -29,7 +29,7 @@ fun ChatComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
-    onReplyClick: (String) -> Unit,
+    onReplyClick: (String, UserName) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping

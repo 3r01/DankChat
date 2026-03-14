@@ -38,6 +38,7 @@ import androidx.core.net.toUri
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.StackedEmote
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
@@ -45,6 +46,7 @@ import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
 /**
@@ -65,7 +67,7 @@ fun PrivMessageComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
-    onReplyClick: (rootMessageId: String) -> Unit,
+    onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
@@ -83,7 +85,7 @@ fun PrivMessageComposable(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onReplyClick(message.thread.rootId) }
+                    .clickable { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) }
                     .padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

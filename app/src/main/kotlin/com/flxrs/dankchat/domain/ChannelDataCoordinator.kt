@@ -6,12 +6,18 @@ import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
+import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
+import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
+import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
@@ -115,5 +121,44 @@ class ChannelDataCoordinator(
      */
     fun reloadGlobalData() {
         loadGlobalData()
+    }
+
+    /**
+     * Retry specific failed data and chat steps
+     */
+    fun retryDataLoading(dataFailures: Set<DataLoadingFailure>, chatFailures: Set<ChatLoadingFailure>) {
+        scope.launch {
+            _globalLoadingState.value = GlobalLoadingState.Loading
+            
+            // Collect channels that need retry
+            val channelsToRetry = mutableSetOf<UserName>()
+            
+            val dataResults = dataFailures.map { failure ->
+                async {
+                    when (val step = failure.step) {
+                        is DataLoadingStep.GlobalSevenTVEmotes  -> globalDataLoader.loadGlobalSevenTVEmotes()
+                        is DataLoadingStep.GlobalBTTVEmotes     -> globalDataLoader.loadGlobalBTTVEmotes()
+                        is DataLoadingStep.GlobalFFZEmotes      -> globalDataLoader.loadGlobalFFZEmotes()
+                        is DataLoadingStep.GlobalBadges         -> globalDataLoader.loadGlobalBadges()
+                        is DataLoadingStep.DankChatBadges       -> globalDataLoader.loadDankChatBadges()
+                        is DataLoadingStep.ChannelBadges        -> channelsToRetry.add(step.channel)
+                        is DataLoadingStep.ChannelSevenTVEmotes -> channelsToRetry.add(step.channel)
+                        is DataLoadingStep.ChannelFFZEmotes     -> channelsToRetry.add(step.channel)
+                        is DataLoadingStep.ChannelBTTVEmotes    -> channelsToRetry.add(step.channel)
+                    }
+                }
+            }
+
+            chatFailures.forEach { failure ->
+                when (val step = failure.step) {
+                    is ChatLoadingStep.RecentMessages -> channelsToRetry.add(step.channel)
+                }
+            }
+
+            dataResults.awaitAll()
+            channelsToRetry.forEach { loadChannelData(it) }
+
+            _globalLoadingState.value = GlobalLoadingState.Loaded
+        }
     }
 }

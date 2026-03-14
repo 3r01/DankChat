@@ -2,12 +2,15 @@ package com.flxrs.dankchat.domain
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.UserId
+import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.state.ChannelLoadingFailure
 import com.flxrs.dankchat.data.state.ChannelLoadingState
+import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -43,17 +46,42 @@ class ChannelDataLoader(
             dataRepository.createFlowsIfNecessary(listOf(channel))
             chatRepository.createFlowsIfNecessary(channel)
 
-            // Load in parallel and collect all failures
+            // Load recent message history first with priority
+            val messagesResult = runCatching {
+                chatRepository.loadRecentMessagesIfEnabled(channel)
+            }.fold(
+                onSuccess = { null },
+                onFailure = { ChannelLoadingFailure.RecentMessages(channel, it) }
+            )
+
+            // Load other data in parallel
             val failures = withContext(dispatchersProvider.io) {
                 val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
                 val emotesResults = async { loadChannelEmotes(channel, channelInfo) }
-                val messagesResult = async { loadRecentMessages(channel) }
 
-                listOfNotNull(
+                val otherFailures = listOfNotNull(
                     badgesResult.await(),
                     *emotesResults.await().toTypedArray(),
-                    messagesResult.await()
                 )
+                if (messagesResult != null) {
+                    otherFailures + messagesResult
+                } else {
+                    otherFailures
+                }
+            }
+
+            // Report failures as system messages like legacy implementation
+            failures.forEach { failure ->
+                val status = (failure.error as? ApiException)?.status?.value?.toString() ?: "0"
+                val systemMessageType = when (failure) {
+                    is ChannelLoadingFailure.SevenTVEmotes -> SystemMessageType.ChannelSevenTVEmotesFailed(status)
+                    is ChannelLoadingFailure.BTTVEmotes    -> SystemMessageType.ChannelBTTVEmotesFailed(status)
+                    is ChannelLoadingFailure.FFZEmotes     -> SystemMessageType.ChannelFFZEmotesFailed(status)
+                    else -> null
+                }
+                systemMessageType?.let {
+                    chatRepository.makeAndPostSystemMessage(it, channel)
+                }
             }
 
             // Reparse emotes/badges - this updates the tag which triggers LazyColumn recomposition
@@ -68,7 +96,7 @@ class ChannelDataLoader(
         }
     }
 
-    private suspend fun loadChannelBadges(
+    suspend fun loadChannelBadges(
         channel: UserName,
         channelId: UserId
     ): ChannelLoadingFailure.Badges? {
@@ -80,7 +108,7 @@ class ChannelDataLoader(
         )
     }
 
-    private suspend fun loadChannelEmotes(
+    suspend fun loadChannelEmotes(
         channel: UserName,
         channelInfo: Channel
     ): List<ChannelLoadingFailure> {
@@ -118,7 +146,7 @@ class ChannelDataLoader(
         }
     }
 
-    private suspend fun loadRecentMessages(
+    suspend fun loadRecentMessages(
         channel: UserName
     ): ChannelLoadingFailure.RecentMessages? {
         return runCatching {

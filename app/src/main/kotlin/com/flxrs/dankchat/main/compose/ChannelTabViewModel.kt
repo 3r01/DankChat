@@ -10,6 +10,8 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
@@ -20,32 +22,42 @@ class ChannelTabViewModel(
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
 
-    val uiState: StateFlow<ChannelTabUiState> = combine(
-        preferenceStore.getChannelsWithRenamesFlow(),
-        chatRepository.activeChannel,
-        chatRepository.unreadMessagesMap,
-        chatRepository.channelMentionCount,
-    ) { channels, active, unread, mentions ->
-        ChannelTabUiState(
-            tabs = channels.map { channelWithRename ->
-                ChannelTabItem(
-                    channel = channelWithRename.channel,
-                    displayName = channelWithRename.rename?.value 
-                        ?: channelWithRename.channel.value,
-                    isSelected = channelWithRename.channel == active,
-                    hasUnread = unread[channelWithRename.channel] ?: false,
-                    mentionCount = mentions[channelWithRename.channel] ?: 0,
-                    loadingState = channelDataCoordinator.getChannelLoadingState(
-                        channelWithRename.channel
-                    ).value
+    val uiState: StateFlow<ChannelTabUiState> = preferenceStore.getChannelsWithRenamesFlow()
+        .flatMapLatest { channels ->
+            if (channels.isEmpty()) {
+                return@flatMapLatest flowOf(ChannelTabUiState(loading = false))
+            }
+
+            val loadingFlows = channels.map {
+                channelDataCoordinator.getChannelLoadingState(it.channel)
+            }
+
+            combine(
+                chatRepository.activeChannel,
+                chatRepository.unreadMessagesMap,
+                chatRepository.channelMentionCount,
+                combine(loadingFlows) { it.toList() }
+            ) { active, unread, mentions, loadingStates ->
+                val tabs = channels.mapIndexed { index, channelWithRename ->
+                    ChannelTabItem(
+                        channel = channelWithRename.channel,
+                        displayName = channelWithRename.rename?.value
+                            ?: channelWithRename.channel.value,
+                        isSelected = channelWithRename.channel == active,
+                        hasUnread = unread[channelWithRename.channel] ?: false,
+                        mentionCount = mentions[channelWithRename.channel] ?: 0,
+                        loadingState = loadingStates[index]
+                    )
+                }
+                ChannelTabUiState(
+                    tabs = tabs,
+                    selectedIndex = channels
+                        .indexOfFirst { it.channel == active }
+                        .coerceAtLeast(0),
+                    loading = tabs.any { it.loadingState == ChannelLoadingState.Loading },
                 )
-            },
-            selectedIndex = channels
-                .indexOfFirst { it.channel == active }
-                .coerceAtLeast(0),
-            loading = false,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
 
     fun selectTab(index: Int) {
         val channels = preferenceStore.channels

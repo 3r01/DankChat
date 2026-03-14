@@ -9,19 +9,33 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.UserStateRepository
+import com.flxrs.dankchat.data.repo.command.CommandRepository
+import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
+import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.main.InputState
+import com.flxrs.dankchat.main.MainEvent
+import com.flxrs.dankchat.main.RepeatedSendData
+import com.flxrs.dankchat.main.compose.FullScreenSheetState
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -29,14 +43,25 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class ChatInputViewModel(
     private val chatRepository: ChatRepository,
+    private val commandRepository: CommandRepository,
+    private val channelRepository: ChannelRepository,
+    private val userStateRepository: UserStateRepository,
     private val suggestionProvider: SuggestionProvider,
     private val preferenceStore: DankChatPreferenceStore,
+    private val developerSettingsDataStore: DeveloperSettingsDataStore,
+    private val mainEventBus: MainEventBus,
 ) : ViewModel() {
 
     val textFieldState = TextFieldState()
 
     private val _isReplying = MutableStateFlow(false)
     val isReplying: StateFlow<Boolean> = _isReplying
+
+    private val _replyMessageId = MutableStateFlow<String?>(null)
+    private val _replyName = MutableStateFlow<UserName?>(null)
+    private val repeatedSend = MutableStateFlow(RepeatedSendData(enabled = false, message = ""))
+    private val fullScreenSheetState = MutableStateFlow<FullScreenSheetState>(FullScreenSheetState.Closed)
+    private val mentionSheetTab = MutableStateFlow(0)
 
     // Create flow from TextFieldState
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
@@ -54,53 +79,195 @@ class ChatInputViewModel(
         suggestionProvider.getSuggestions(text, channel)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val uiState: StateFlow<ChatInputUiState> = combine(
-        textFlow,
-        suggestions,
-        chatRepository.activeChannel,
-        chatRepository.activeChannel.flatMapLatest { channel ->
-            if (channel == null) flowOf(ConnectionState.DISCONNECTED)
-            else chatRepository.getConnectionState(channel)
-        },
-        combine(preferenceStore.isLoggedInFlow, isReplying) { loggedIn, replying -> loggedIn to replying }
-    ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, isReplying) ->
-        val inputState = when (connectionState) {
-            ConnectionState.CONNECTED -> when {
-                isReplying -> InputState.Replying
-                else -> InputState.Default
+    private var _uiState: StateFlow<ChatInputUiState>? = null
+
+    init {
+        viewModelScope.launch {
+            chatRepository.activeChannel.collect {
+                repeatedSend.update { it.copy(enabled = false) }
             }
-            ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
-            ConnectionState.DISCONNECTED -> InputState.Disconnected
         }
 
-        val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn
-        val enabled = isLoggedIn && connectionState == ConnectionState.CONNECTED
-
-        ChatInputUiState(
-            text = text,
-            canSend = canSend,
-            enabled = enabled,
-            suggestions = suggestions,
-            activeChannel = activeChannel,
-            connectionState = connectionState,
-            isLoggedIn = isLoggedIn,
-            inputState = inputState
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
-
-    fun sendMessage() {
-        val text = textFieldState.text.toString()
-        val channel = uiState.value.activeChannel
-        if (text.isNotBlank() && channel != null) {
-            viewModelScope.launch {
-                chatRepository.sendMessage(channel.value, text)
-                textFieldState.clearText()
+        viewModelScope.launch {
+            repeatedSend.collectLatest {
+                if (it.enabled && it.message.isNotBlank()) {
+                    while (isActive) {
+                        val activeChannel = chatRepository.activeChannel.value ?: break
+                        val delay = userStateRepository.getSendDelay(activeChannel)
+                        trySendMessageOrCommand(it.message, skipSuspendingCommands = true)
+                        delay(delay)
+                    }
+                }
             }
         }
     }
 
-    fun setReplying(replying: Boolean) {
-        _isReplying.value = replying
+    private data class UiDependencies(
+        val text: String,
+        val suggestions: List<Suggestion>,
+        val activeChannel: UserName?,
+        val connectionState: ConnectionState,
+        val isLoggedIn: Boolean
+    )
+
+    private data class SheetAndReplyState(
+        val sheetState: FullScreenSheetState,
+        val tab: Int,
+        val isReplying: Boolean,
+        val replyName: UserName?,
+        val replyMessageId: String?
+    )
+
+    fun uiState(fullScreenSheetState: StateFlow<FullScreenSheetState>, mentionSheetTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
+        if (_uiState != null) return _uiState!!
+
+        val baseFlow = combine(
+            textFlow,
+            suggestions,
+            chatRepository.activeChannel,
+            chatRepository.activeChannel.flatMapLatest { channel ->
+                if (channel == null) flowOf(ConnectionState.DISCONNECTED)
+                else chatRepository.getConnectionState(channel)
+            },
+            preferenceStore.isLoggedInFlow
+        ) { text, suggestions, activeChannel, connectionState, isLoggedIn ->
+            UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn)
+        }
+
+        val sheetAndReplyFlow = combine(
+            fullScreenSheetState,
+            mentionSheetTab,
+            _isReplying,
+            _replyName,
+            _replyMessageId
+        ) { sheetState, tab, isReplying, replyName, replyMessageId ->
+            SheetAndReplyState(sheetState, tab, isReplying, replyName, replyMessageId)
+        }
+
+        _uiState = combine(
+            baseFlow,
+            sheetAndReplyFlow
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId) ->
+            this.fullScreenSheetState.value = sheetState
+            this.mentionSheetTab.value = tab
+
+            val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
+            val isInReplyThread = sheetState is FullScreenSheetState.Replies
+            val effectiveIsReplying = isReplying || isInReplyThread
+
+            val inputState = when (connectionState) {
+                ConnectionState.CONNECTED -> when {
+                    effectiveIsReplying -> InputState.Replying
+                    else -> InputState.Default
+                }
+                ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
+                ConnectionState.DISCONNECTED -> InputState.Disconnected
+            }
+
+            val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && !isMentionsTabActive
+            val enabled = isLoggedIn && connectionState == ConnectionState.CONNECTED && !isMentionsTabActive
+
+            val showReplyOverlay = isReplying && !isInReplyThread
+            val effectiveReplyName = replyName ?: (sheetState as? FullScreenSheetState.Replies)?.replyName
+
+            ChatInputUiState(
+                text = text,
+                canSend = canSend,
+                enabled = enabled,
+                suggestions = suggestions,
+                activeChannel = activeChannel,
+                connectionState = connectionState,
+                isLoggedIn = isLoggedIn,
+                inputState = inputState,
+                showReplyOverlay = showReplyOverlay,
+                replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
+                replyName = effectiveReplyName
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
+
+        return _uiState!!
+    }
+
+    fun sendMessage() {
+        val text = textFieldState.text.toString()
+        if (text.isNotBlank()) {
+            trySendMessageOrCommand(text)
+            textFieldState.clearText()
+        }
+    }
+
+    fun trySendMessageOrCommand(message: String, skipSuspendingCommands: Boolean = false) = viewModelScope.launch {
+        val channel = chatRepository.activeChannel.value ?: return@launch
+        val chatState = fullScreenSheetState.value
+        val replyIdOrNull = when {
+            chatState is FullScreenSheetState.Replies -> chatState.replyMessageId
+            _isReplying.value -> _replyMessageId.value
+            else -> null
+        }
+
+        val commandResult = runCatching {
+            when (chatState) {
+                FullScreenSheetState.Whisper -> commandRepository.checkForWhisperCommand(message, skipSuspendingCommands)
+                else                         -> {
+                    val roomState = channelRepository.getRoomState(channel) ?: return@launch
+                    val userState = userStateRepository.userState.value
+                    val shouldSkip = skipSuspendingCommands || chatState is FullScreenSheetState.Replies
+                    commandRepository.checkForCommands(message, channel, roomState, userState, shouldSkip)
+                }
+            }
+        }.getOrElse {
+            mainEventBus.emitEvent(MainEvent.Error(it))
+            return@launch
+        }
+
+        when (commandResult) {
+            is CommandResult.Accepted,
+            is CommandResult.Blocked               -> Unit
+
+            is CommandResult.IrcCommand,
+            is CommandResult.NotFound              -> chatRepository.sendMessage(message, replyIdOrNull)
+
+            is CommandResult.AcceptedTwitchCommand -> {
+                if (commandResult.command == TwitchCommand.Whisper) {
+                    chatRepository.fakeWhisperIfNecessary(message)
+                }
+                if (commandResult.response != null) {
+                    chatRepository.makeAndPostCustomSystemMessage(commandResult.response, channel)
+                }
+            }
+
+            is CommandResult.AcceptedWithResponse  -> chatRepository.makeAndPostCustomSystemMessage(commandResult.response, channel)
+            is CommandResult.Message               -> chatRepository.sendMessage(commandResult.message, replyIdOrNull)
+        }
+
+        if (commandResult != CommandResult.NotFound && commandResult != CommandResult.IrcCommand) {
+            chatRepository.appendLastMessage(channel, message)
+        }
+    }
+
+    fun getLastMessage() {
+        if (textFieldState.text.isNotBlank()) {
+            return
+        }
+
+        val lastMessage = chatRepository.getLastMessage() ?: return
+        textFieldState.edit {
+            replace(0, length, lastMessage)
+            placeCursorAtEnd()
+        }
+    }
+
+    fun setRepeatedSend(enabled: Boolean) {
+        val message = textFieldState.text.toString()
+        repeatedSend.update {
+            RepeatedSendData(enabled, message)
+        }
+    }
+
+    fun setReplying(replying: Boolean, replyMessageId: String? = null, replyName: UserName? = null) {
+        _isReplying.value = replying || replyMessageId != null
+        _replyMessageId.value = replyMessageId
+        _replyName.value = replyName
     }
 
     fun insertText(text: String) {
@@ -158,5 +325,8 @@ data class ChatInputUiState(
     val activeChannel: UserName? = null,
     val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
     val isLoggedIn: Boolean = false,
-    val inputState: InputState = InputState.Disconnected
+    val inputState: InputState = InputState.Disconnected,
+    val showReplyOverlay: Boolean = false,
+    val replyMessageId: String? = null,
+    val replyName: UserName? = null,
 )

@@ -7,13 +7,16 @@ import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.isEven
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
@@ -33,11 +36,12 @@ class ChatComposeViewModel(
     private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
 
     private val chat: StateFlow<List<ChatItem>> = repository
         .getChat(channel)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeout = 5.seconds), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 
     val chatUiStates: StateFlow<List<ChatMessageUiState>> = combine(
         chat,
@@ -55,8 +59,10 @@ class ChatComposeViewModel(
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
+                preferenceStore = preferenceStore,
                 isAlternateBackground = isAlternateBackground && appearanceSettings.checkeredMessages
             )
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeout = 5.seconds), emptyList())
+    }.flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 }

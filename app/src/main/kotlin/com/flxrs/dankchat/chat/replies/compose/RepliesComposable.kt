@@ -8,7 +8,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.replies.RepliesUiState
-import com.flxrs.dankchat.chat.replies.RepliesViewModel
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
 /**
@@ -16,14 +15,14 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
  * Extracted from RepliesChatFragment to enable pure Compose integration.
  * 
  * This composable:
- * - Collects reply thread state from RepliesViewModel
+ * - Collects reply thread state from RepliesComposeViewModel
  * - Collects appearance settings
  * - Handles NotFound state via onNotFound callback
  * - Renders ChatScreen for Found state
  */
 @Composable
 fun RepliesComposable(
-    repliesViewModel: RepliesViewModel,
+    repliesViewModel: RepliesComposeViewModel,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,

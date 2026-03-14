@@ -46,6 +46,7 @@ fun MainAppBar(
     totalMentionCount: Int,
     onAddChannel: () -> Unit,
     onOpenMentions: () -> Unit,
+    onOpenWhispers: () -> Unit,
     onLogin: () -> Unit,
     onRelogin: () -> Unit,
     onLogout: () -> Unit,
@@ -57,17 +58,13 @@ fun MainAppBar(
     onReloadEmotes: () -> Unit,
     onReconnect: () -> Unit,
     onClearChat: () -> Unit,
-    onCaptureImage: () -> Unit,
-    onCaptureVideo: () -> Unit,
-    onChooseMedia: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var currentMenu by remember { mutableStateOf<AppBarMenu?>(null) }
 
-    TopAppBar(
-        title = { Text("DankChat") },
-        actions = {
+        TopAppBar(
+            title = { Text(stringResource(R.string.app_name)) },        actions = {
             // Add channel button (always visible)
             IconButton(onClick = onAddChannel) {
                 Icon(
@@ -126,6 +123,13 @@ fun MainAppBar(
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.account)) },
                                         onClick = { currentMenu = AppBarMenu.Account }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.whispers)) },
+                                        onClick = {
+                                            onOpenWhispers()
+                                            currentMenu = null
+                                        }
                                     )
                                 }
 
@@ -215,27 +219,6 @@ fun MainAppBar(
 
                             AppBarMenu.Upload -> {
                                 SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.take_picture)) },
-                                    onClick = {
-                                        onCaptureImage()
-                                        currentMenu = null
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.record_video)) },
-                                    onClick = {
-                                        onCaptureVideo()
-                                        currentMenu = null
-                                    }
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.choose_media)) },
-                                    onClick = {
-                                        onChooseMedia()
-                                        currentMenu = null
-                                    }
-                                )
                             }
 
                             AppBarMenu.More -> {
