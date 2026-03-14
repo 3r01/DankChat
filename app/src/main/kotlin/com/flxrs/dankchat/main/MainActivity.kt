@@ -175,6 +175,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         enableEdgeToEdge()
+        window.isNavigationBarContrastEnforced = false
 
         super.onCreate(savedInstanceState)
 
