@@ -31,7 +31,10 @@ class ChannelPagerViewModel(
     fun onPageChanged(page: Int) {
         val channels = preferenceStore.channels
         if (page in channels.indices) {
-            chatRepository.setActiveChannel(channels[page])
+            val channel = channels[page]
+            chatRepository.setActiveChannel(channel)
+            chatRepository.clearUnreadMessage(channel)
+            chatRepository.clearMentionCount(channel)
         }
     }
 }

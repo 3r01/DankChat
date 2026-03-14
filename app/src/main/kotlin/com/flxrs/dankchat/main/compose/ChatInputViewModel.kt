@@ -69,7 +69,21 @@ class ChatInputViewModel(
         }
     }
 
-    fun clearText() {
+    fun insertText(text: String) {
+        textFieldState.edit {
+            append(text)
+            placeCursorAtEnd()
+        }
+    }
+
+    fun updateInputText(text: String) {
+        textFieldState.edit {
+            replace(0, length, text)
+            placeCursorAtEnd()
+        }
+    }
+
+    fun clearInput() {
         textFieldState.clearText()
     }
 

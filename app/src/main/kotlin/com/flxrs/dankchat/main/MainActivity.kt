@@ -25,6 +25,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.findNavController
 import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
@@ -33,7 +36,22 @@ import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
 import com.flxrs.dankchat.databinding.MainActivityBinding
 import com.flxrs.dankchat.main.compose.MainScreen
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.about.AboutScreen
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsScreen
+import com.flxrs.dankchat.preferences.chat.ChatSettingsScreen
+import com.flxrs.dankchat.preferences.chat.commands.CustomCommandsScreen
+import com.flxrs.dankchat.preferences.chat.userdisplay.UserDisplayScreen
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsScreen
+import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsScreen
+import com.flxrs.dankchat.preferences.notifications.highlights.HighlightsScreen
+import com.flxrs.dankchat.preferences.notifications.ignores.IgnoresScreen
+import com.flxrs.dankchat.preferences.overview.OverviewSettingsScreen
+import com.flxrs.dankchat.preferences.stream.StreamsSettingsScreen
+import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
+import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
+import com.flxrs.dankchat.preferences.tools.upload.ImageUploaderScreen
 import com.flxrs.dankchat.theme.DankChatTheme
 import com.flxrs.dankchat.utils.extensions.hasPermission
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
@@ -51,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: DankChatViewModel by viewModel()
     private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
-    private val dankChatPreferenceStore: com.flxrs.dankchat.preferences.DankChatPreferenceStore by inject()
+    private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
     private var navController: NavController? = null
     private var bindingRef: MainActivityBinding? = null
@@ -92,8 +110,9 @@ class MainActivity : AppCompatActivity() {
             else                                             -> DynamicColors.applyToActivityIfAvailable(this)
         }
 
-        super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        super.onCreate(savedInstanceState)
 
         // Check if we should use Compose UI
         val useComposeUi = developerSettingsDataStore.current().useComposeChatUi
@@ -133,70 +152,171 @@ class MainActivity : AppCompatActivity() {
     private fun setupComposeUi() {
         setContent {
             DankChatTheme {
+                val navController = rememberNavController()
                 val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(
                     initialValue = developerSettingsDataStore.current()
                 )
 
-                MainScreen(
-                    isLoggedIn = isLoggedIn,
-                    onNavigateToSettings = {
-                        // TODO: Navigate to settings (need to implement Compose settings or use dialog)
-                    },
-                    onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
-                        // TODO: Show user popup dialog
-                    },
-                    onMessageLongClick = { messageId, channel, fullMessage ->
-                        // TODO: Show message options dialog
-                    },
-                    onEmoteClick = { emotes ->
-                        // TODO: Show emote overlay/fullscreen
-                    },
-                    onLogin = {
-                        // TODO: Navigate to login
-                    },
-                    onRelogin = {
-                        // TODO: Navigate to login
-                    },
-                    onLogout = {
-                        // TODO: Show logout confirmation
-                    },
-                    onManageChannels = {
-                        // TODO: Show manage channels dialog
-                    },
-                    onOpenChannel = {
-                        // TODO: Open channel in browser
-                    },
-                    onRemoveChannel = {
-                        // TODO: Remove active channel
-                    },
-                    onReportChannel = {
-                        // TODO: Report channel
-                    },
-                    onBlockChannel = {
-                        // TODO: Block channel
-                    },
-                    onReloadEmotes = {
-                        // TODO: Reload emotes
-                    },
-                    onReconnect = {
-                        // TODO: Reconnect to chat
-                    },
-                    onClearChat = {
-                        // TODO: Clear chat messages
-                    },
-                    onCaptureImage = {
-                        // TODO: Capture image
-                    },
-                    onCaptureVideo = {
-                        // TODO: Capture video
-                    },
-                    onChooseMedia = {
-                        // TODO: Choose media
-                    },
-                    onAddChannel = {
-                        // TODO: Show add channel dialog
+                NavHost(navController = navController, startDestination = "main") {
+                    composable("main") {
+                        MainScreen(
+                            isLoggedIn = isLoggedIn,
+                            onNavigateToSettings = {
+                                navController.navigate("settings")
+                            },
+                            onMessageLongClick = { messageId, channel, fullMessage ->
+                                // TODO: Show message options dialog
+                            },
+                            onEmoteClick = { emotes ->
+                                // TODO: Show emote overlay/fullscreen
+                            },
+                            onLogin = {
+                                // TODO: Navigate to login
+                            },
+                            onRelogin = {
+                                // TODO: Navigate to login
+                            },
+                            onLogout = {
+                                // TODO: Show logout confirmation
+                            },
+                            onManageChannels = {
+                                // TODO: Show manage channels dialog
+                            },
+                            onOpenChannel = {
+                                // TODO: Open channel in browser
+                            },
+                            onRemoveChannel = {
+                                // TODO: Remove active channel
+                            },
+                            onReportChannel = {
+                                // TODO: Report channel
+                            },
+                            onBlockChannel = {
+                                // TODO: Block channel
+                            },
+                            onReloadEmotes = {
+                                // TODO: Reload emotes
+                            },
+                            onReconnect = {
+                                // TODO: Reconnect to chat
+                            },
+                            onClearChat = {
+                                // TODO: Clear chat messages
+                            },
+                            onCaptureImage = {
+                                // TODO: Capture image
+                            },
+                            onCaptureVideo = {
+                                // TODO: Capture video
+                            },
+                            onChooseMedia = {
+                                // TODO: Choose media
+                            },
+                            onAddChannel = {
+                                // TODO: Show add channel dialog
+                            }
+                        )
                     }
-                )
+                    composable("settings") {
+                        OverviewSettingsScreen(
+                            isLoggedIn = isLoggedIn,
+                            hasChangelog = com.flxrs.dankchat.changelog.DankChatVersion.HAS_CHANGELOG,
+                            onBackPressed = { navController.popBackStack() },
+                            onLogoutRequested = {
+                                viewModel.clearDataForLogout()
+                                navController.popBackStack()
+                            },
+                            onNavigateRequested = { destinationId ->
+                                when (destinationId) {
+                                    R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment    -> navController.navigate("appearance")
+                                    R.id.action_overviewSettingsFragment_to_notificationsSettingsFragment -> navController.navigate("notifications")
+                                    R.id.action_overviewSettingsFragment_to_chatSettingsFragment          -> navController.navigate("chat")
+                                    R.id.action_overviewSettingsFragment_to_streamsSettingsFragment       -> navController.navigate("streams")
+                                    R.id.action_overviewSettingsFragment_to_toolsSettingsFragment         -> navController.navigate("tools")
+                                    R.id.action_overviewSettingsFragment_to_developerSettingsFragment     -> navController.navigate("developer")
+                                    R.id.action_overviewSettingsFragment_to_changelogSheetFragment        -> navController.navigate("changelog")
+                                    R.id.action_overviewSettingsFragment_to_aboutFragment                -> navController.navigate("about")
+                                }
+                            }
+                        )
+                    }
+                    composable("appearance") {
+                        AppearanceSettingsScreen(
+                            onBackPressed = { navController.popBackStack() }
+                        )
+                    }
+                    composable("notifications") {
+                        NotificationsSettingsScreen(
+                            onNavToHighlights = { navController.navigate("highlights") },
+                            onNavToIgnores = { navController.navigate("ignores") },
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("highlights") {
+                        HighlightsScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("ignores") {
+                        IgnoresScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("chat") {
+                        ChatSettingsScreen(
+                            onNavToCommands = { navController.navigate("commands") },
+                            onNavToUserDisplays = { navController.navigate("user_display") },
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("commands") {
+                        CustomCommandsScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("user_display") {
+                        UserDisplayScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("streams") {
+                        StreamsSettingsScreen(
+                            onBackPressed = { navController.popBackStack() }
+                        )
+                    }
+                    composable("tools") {
+                        ToolsSettingsScreen(
+                            onNavToImageUploader = { navController.navigate("image_uploader") },
+                            onNavToTTSUserIgnoreList = { navController.navigate("tts_ignore_list") },
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("image_uploader") {
+                        ImageUploaderScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("tts_ignore_list") {
+                        TTSUserIgnoreListScreen(
+                            onNavBack = { navController.popBackStack() }
+                        )
+                    }
+                    composable("developer") {
+                        DeveloperSettingsScreen(
+                            onBackPressed = { navController.popBackStack() }
+                        )
+                    }
+                    composable("changelog") {
+                        com.flxrs.dankchat.changelog.ChangelogScreen(
+                            onBackPressed = { navController.popBackStack() }
+                        )
+                    }
+                    composable("about") {
+                        AboutScreen(
+                            onBackPressed = { navController.popBackStack() }
+                        )
+                    }
+                }
             }
         }
     }

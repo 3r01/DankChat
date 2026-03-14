@@ -39,7 +39,7 @@ class SuggestionProvider(
 
         // Extract the current word being typed
         val currentWord = extractCurrentWord(inputText)
-        if (currentWord.isBlank()) {
+        if (currentWord.isBlank() || currentWord.length < MIN_SUGGESTION_CHARS) {
             return flowOf(emptyList())
         }
 
@@ -142,5 +142,6 @@ class SuggestionProvider(
 
     companion object {
         private const val MAX_SUGGESTIONS = 50
+        private const val MIN_SUGGESTION_CHARS = 2
     }
 }

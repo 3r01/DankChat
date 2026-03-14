@@ -2,6 +2,7 @@ package com.flxrs.dankchat.utils.compose
 
 import android.os.Build
 import android.view.RoundedCorner
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -101,6 +102,7 @@ fun Modifier.avoidRoundedCorners(fallback: PaddingValues): Modifier = composed {
         )
 }
 
+@RequiresApi(api = 31)
 private fun RoundedCorner.calculateTopPaddingForComponent(
     componentX: Int,
     componentTop: Int
@@ -117,6 +119,7 @@ private fun RoundedCorner.calculateTopPaddingForComponent(
     return max(0, topBoundary - componentTop)
 }
 
+@RequiresApi(api = 31)
 private fun RoundedCorner.calculateBottomPaddingForComponent(
     componentX: Int,
     componentBottom: Int
@@ -133,6 +136,7 @@ private fun RoundedCorner.calculateBottomPaddingForComponent(
     return max(0, componentBottom - bottomBoundary)
 }
 
+@RequiresApi(api = 31)
 private fun RoundedCorner.calculateStartPaddingForComponent(
     componentLeft: Int,
     componentY: Int
@@ -149,6 +153,7 @@ private fun RoundedCorner.calculateStartPaddingForComponent(
     return max(0, leftBoundary - componentLeft)
 }
 
+@RequiresApi(api = 31)
 private fun RoundedCorner.calculateEndPaddingForComponent(
     componentRight: Int,
     componentY: Int

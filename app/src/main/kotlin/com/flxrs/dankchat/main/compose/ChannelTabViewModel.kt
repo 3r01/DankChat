@@ -40,8 +40,10 @@ class ChannelTabViewModel(
                     ).value
                 )
             },
-            selectedIndex = channels.indexOfFirst { it.channel == active }
-                .coerceAtLeast(0)
+            selectedIndex = channels
+                .indexOfFirst { it.channel == active }
+                .coerceAtLeast(0),
+            loading = false,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
 
@@ -58,7 +60,8 @@ class ChannelTabViewModel(
 
 data class ChannelTabUiState(
     val tabs: List<ChannelTabItem> = emptyList(),
-    val selectedIndex: Int = 0
+    val selectedIndex: Int = 0,
+    val loading: Boolean = true,
 )
 
 data class ChannelTabItem(

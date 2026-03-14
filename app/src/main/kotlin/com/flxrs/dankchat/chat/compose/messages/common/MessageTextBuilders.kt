@@ -71,7 +71,7 @@ fun AnnotatedString.Builder.appendMessageWithEmotes(
             }
 
             // Emote inline content
-            appendInlineContent("EMOTE_${emote.code}", "[${emote.code}]")
+            appendInlineContent("EMOTE_${emote.code}", emote.code)
 
             // Add space after emote if next character exists and is not whitespace
             val nextPos = emote.position.last + 1

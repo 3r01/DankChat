@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.main.compose
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.input.TextFieldState
@@ -9,6 +8,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +27,7 @@ fun ChatInputLayout(
 ) {
     // Input field with TextFieldState
     OutlinedTextField(
+        shape = MaterialTheme.shapes.extraLarge,
         state = textFieldState,
         leadingIcon = {
             IconButton(onClick = onEmoteClick) {

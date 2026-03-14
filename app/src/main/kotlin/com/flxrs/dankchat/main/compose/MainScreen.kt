@@ -4,29 +4,15 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imeAnimationSource
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.PrimaryScrollableTabRow
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,20 +23,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatComposable
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.preferences.components.DankBackground
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
+
+import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
+
+import com.flxrs.dankchat.chat.user.compose.UserPopupDialog
+import com.flxrs.dankchat.chat.user.UserPopupStateParams
+import com.flxrs.dankchat.data.UserId
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.DisplayName
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     isLoggedIn: Boolean,
     onNavigateToSettings: () -> Unit,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onLogin: () -> Unit,
@@ -77,9 +74,40 @@ fun MainScreen(
     val channelPagerViewModel: ChannelPagerViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
+    val scope = rememberCoroutineScope()
 
-    // Single state collection per ViewModel
-    val tabState by channelTabViewModel.uiState.collectAsStateWithLifecycle()
+    var showAddChannelDialog by remember { mutableStateOf(false) }
+    var userPopupParams by remember { mutableStateOf<UserPopupStateParams?>(null) }
+
+    if (showAddChannelDialog) {
+        AddChannelDialog(
+            onDismiss = { showAddChannelDialog = false },
+            onAddChannel = { 
+                channelManagementViewModel.addChannel(it)
+                showAddChannelDialog = false
+            }
+        )
+    }
+
+    if (userPopupParams != null) {
+        UserPopupDialog(
+            params = userPopupParams!!,
+            onDismiss = { userPopupParams = null },
+            onMention = { name, _ -> 
+                chatInputViewModel.insertText("@$name ") 
+            },
+            onWhisper = { name ->
+                sheetNavigationViewModel.openWhispers()
+                chatInputViewModel.updateInputText("/w $name ")
+            },
+            onOpenChannel = { _ -> onOpenChannel() },
+            onReport = { _ ->
+                onReportChannel() 
+            }
+        )
+    }
+
+    val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
     val inputState by chatInputViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -87,19 +115,26 @@ fun MainScreen(
         initialPage = pagerState.currentPage,
         pageCount = { pagerState.channels.size }
     )
-    val coroutineScope = rememberCoroutineScope()
-    val density = androidx.compose.ui.platform.LocalDensity.current
+    val density = LocalDensity.current
     var inputHeight by remember { mutableStateOf(0.dp) }
 
     // Track keyboard visibility - hide immediately when closing animation starts
+    val focusManager = LocalFocusManager.current
     val imeAnimationTarget = WindowInsets.imeAnimationTarget
     val isKeyboardVisible = WindowInsets.isImeVisible &&
-        imeAnimationTarget.getBottom(density) > 0  // Target open = keyboard will be visible
+            imeAnimationTarget.getBottom(density) > 0  // Target open = keyboard will be visible
+
+    LaunchedEffect(isKeyboardVisible) {
+        if (!isKeyboardVisible) {
+            focusManager.clearFocus()
+        }
+    }
 
     // Sync Compose pager with ViewModel state
     LaunchedEffect(pagerState.currentPage) {
         if (composePagerState.currentPage != pagerState.currentPage &&
-            pagerState.currentPage < pagerState.channels.size) {
+            pagerState.currentPage < pagerState.channels.size
+        ) {
             composePagerState.animateScrollToPage(pagerState.currentPage)
         }
     }
@@ -113,11 +148,14 @@ fun MainScreen(
 
     Scaffold(
         topBar = {
+            if (tabState.tabs.isEmpty()) {
+                return@Scaffold
+            }
+
             MainAppBar(
                 isLoggedIn = isLoggedIn,
-                hasChannels = tabState.tabs.isNotEmpty(),
                 totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
-                onAddChannel = onAddChannel,
+                onAddChannel = { showAddChannelDialog = true },
                 onOpenMentions = { sheetNavigationViewModel.openMentions() },
                 onLogin = onLogin,
                 onRelogin = onRelogin,
@@ -141,11 +179,18 @@ fun MainScreen(
             .imePadding(),
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
+            DankBackground(visible = tabState.loading)
+            if (tabState.loading) {
+                return@Scaffold
+            }
             if (tabState.tabs.isEmpty()) {
                 EmptyStateContent(
                     isLoggedIn = isLoggedIn,
-                    onAddChannel = onAddChannel,
+                    onAddChannel = { showAddChannelDialog = true },
                     onLogin = onLogin,
+                    onToggleAppBar = { /* TODO */ },
+                    onToggleFullscreen = { /* TODO */ },
+                    onToggleInput = { /* TODO */ },
                     modifier = Modifier.padding(paddingValues)
                 )
             } else {
@@ -155,32 +200,16 @@ fun MainScreen(
                         .padding(paddingValues)
                 ) {
                     // Tabs - Single state from ChannelTabViewModel
-                    PrimaryScrollableTabRow(
-                        selectedTabIndex = tabState.selectedIndex,
-                    ) {
-                        tabState.tabs.forEachIndexed { index, tab ->
-                            Tab(
-                                selected = tab.isSelected,
-                                onClick = {
-                                    channelTabViewModel.selectTab(index)
-                                    coroutineScope.launch {
-                                        composePagerState.animateScrollToPage(index)
-                                    }
-                                },
-                                text = {
-                                    BadgedBox(
-                                        badge = {
-                                            if (tab.mentionCount > 0) {
-                                                Badge { Text("${tab.mentionCount}") }
-                                            }
-                                        }
-                                    ) {
-                                        Text(text = tab.displayName)
-                                    }
-                                }
-                            )
+                    ChannelTabRow(
+                        tabs = tabState.tabs,
+                        selectedIndex = tabState.selectedIndex,
+                        onTabSelected = {
+                            channelTabViewModel.selectTab(it)
+                            scope.launch {
+                                composePagerState.animateScrollToPage(it)
+                            }
                         }
-                    }
+                    )
 
                     // Chat pager - State from ChannelPagerViewModel
                     HorizontalPager(
@@ -191,7 +220,16 @@ fun MainScreen(
                             val channel = pagerState.channels[page]
                             ChatComposable(
                                 channel = channel,
-                                onUserClick = onUserClick,
+                                onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                                    // Always open popup for now (long press handled same as click)
+                                    userPopupParams = UserPopupStateParams(
+                                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                        targetUserName = UserName(userName),
+                                        targetDisplayName = DisplayName(displayName),
+                                        channel = channel?.let { UserName(it) },
+                                        badges = badges.map { it.badge }
+                                    )
+                                },
                                 onMessageLongClick = onMessageLongClick,
                                 onEmoteClick = onEmoteClick,
                                 onReplyClick = { replyMessageId ->

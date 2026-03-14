@@ -9,6 +9,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -24,7 +26,6 @@ import com.flxrs.dankchat.R
 @Composable
 fun MainAppBar(
     isLoggedIn: Boolean,
-    hasChannels: Boolean,
     totalMentionCount: Int,
     onAddChannel: () -> Unit,
     onOpenMentions: () -> Unit,
@@ -62,15 +63,16 @@ fun MainAppBar(
                 )
             }
 
-            // Mentions button (visible if channels exist)
-            if (hasChannels) {
-                IconButton(onClick = onOpenMentions) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = stringResource(R.string.mentions_title)
-                    )
-                    // TODO: Apply color tint for mentions indicator
-                }
+            IconButton(onClick = onOpenMentions) {
+                Icon(
+                    imageVector = Icons.Default.Notifications,
+                    contentDescription = stringResource(R.string.mentions_title),
+                    tint = if (totalMentionCount > 0) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        LocalContentColor.current
+                    }
+                )
             }
 
             // Overflow menu
@@ -101,7 +103,7 @@ fun MainAppBar(
                             showAccountMenu = true
                         }
                     )
-                    
+
                     DropdownMenu(
                         expanded = showAccountMenu,
                         onDismissRequest = { showAccountMenu = false }
@@ -126,61 +128,59 @@ fun MainAppBar(
                 }
 
                 // Manage channels
-                if (hasChannels) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.manage_channels)) },
+                    onClick = {
+                        onManageChannels()
+                        showMenu = false
+                    }
+                )
+
+                // Channel submenu
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.channel)) },
+                    onClick = {
+                        showChannelMenu = true
+                    }
+                )
+
+                DropdownMenu(
+                    expanded = showChannelMenu,
+                    onDismissRequest = { showChannelMenu = false }
+                ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.manage_channels)) },
+                        text = { Text(stringResource(R.string.open_channel)) },
                         onClick = {
-                            onManageChannels()
+                            onOpenChannel()
+                            showChannelMenu = false
                             showMenu = false
                         }
                     )
-
-                    // Channel submenu
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.channel)) },
+                        text = { Text(stringResource(R.string.remove_channel)) },
                         onClick = {
-                            showChannelMenu = true
+                            onRemoveChannel()
+                            showChannelMenu = false
+                            showMenu = false
                         }
                     )
-                    
-                    DropdownMenu(
-                        expanded = showChannelMenu,
-                        onDismissRequest = { showChannelMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.open_channel)) },
-                            onClick = {
-                                onOpenChannel()
-                                showChannelMenu = false
-                                showMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.remove_channel)) },
-                            onClick = {
-                                onRemoveChannel()
-                                showChannelMenu = false
-                                showMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.report_channel)) },
-                            onClick = {
-                                onReportChannel()
-                                showChannelMenu = false
-                                showMenu = false
-                            }
-                        )
-                        if (isLoggedIn) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.block_channel)) },
-                                onClick = {
-                                    onBlockChannel()
-                                    showChannelMenu = false
-                                    showMenu = false
-                                }
-                            )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.report_channel)) },
+                        onClick = {
+                            onReportChannel()
+                            showChannelMenu = false
+                            showMenu = false
                         }
+                    )
+                    if (isLoggedIn) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.block_channel)) },
+                            onClick = {
+                                onBlockChannel()
+                                showChannelMenu = false
+                                showMenu = false
+                            }
+                        )
                     }
                 }
 
@@ -191,7 +191,7 @@ fun MainAppBar(
                         showUploadMenu = true
                     }
                 )
-                
+
                 DropdownMenu(
                     expanded = showUploadMenu,
                     onDismissRequest = { showUploadMenu = false }
@@ -229,7 +229,7 @@ fun MainAppBar(
                         showMoreMenu = true
                     }
                 )
-                
+
                 DropdownMenu(
                     expanded = showMoreMenu,
                     onDismissRequest = { showMoreMenu = false }

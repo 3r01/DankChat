@@ -326,7 +326,6 @@ object ChatMessageMapper {
                 emotes = emoteGroup
             )
         }
-        Log.d("XXX", "emotes: $emoteUis")
 
         val threadUi = if (thread != null && !isInReplies) {
             thread.toThreadUi()

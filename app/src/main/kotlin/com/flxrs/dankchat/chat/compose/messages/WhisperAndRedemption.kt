@@ -1,5 +1,7 @@
 package com.flxrs.dankchat.chat.compose.messages
 
+import android.util.Log
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.chat.compose.BadgeUi
@@ -33,6 +36,7 @@ import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.StackedEmote
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
+import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
@@ -89,9 +93,10 @@ private fun WhisperMessageText(
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val senderColor = rememberBackgroundColor(message.lightSenderColor, message.darkSenderColor)
     val recipientColor = rememberBackgroundColor(message.lightRecipientColor, message.darkRecipientColor)
+    val linkColor = MaterialTheme.colorScheme.primary
 
     // Build annotated string with text content
-    val annotatedString = remember(message, defaultTextColor, senderColor, recipientColor) {
+    val annotatedString = remember(message, defaultTextColor, senderColor, recipientColor, linkColor) {
         buildAnnotatedString {
             // Timestamp
             if (message.timestamp.isNotEmpty()) {
@@ -153,11 +158,13 @@ private fun WhisperMessageText(
                 message.emotes.sortedBy { it.position.first }.forEach { emote ->
                     // Text before emote
                     if (currentPos < emote.position.first) {
-                        append(message.message.substring(currentPos, emote.position.first))
+                        val segment = message.message.substring(currentPos, emote.position.first)
+                        val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
+                        appendWithLinks(segment, linkColor, prevChar)
                     }
 
                     // Emote inline content
-                    appendInlineContent("EMOTE_${emote.code}", "[${emote.code}]")
+                    appendInlineContent("EMOTE_${emote.code}", emote.code)
 
                     // Add space after emote if next character exists and is not whitespace
                     val nextPos = emote.position.last + 1
@@ -170,7 +177,9 @@ private fun WhisperMessageText(
 
                 // Remaining text
                 if (currentPos < message.message.length) {
-                    append(message.message.substring(currentPos))
+                    val segment = message.message.substring(currentPos)
+                    val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
+                    appendWithLinks(segment, linkColor, prevChar)
                 }
             }
         }
@@ -222,6 +231,19 @@ private fun WhisperMessageText(
                         val userName = parts[1]
                         val displayName = parts[2]
                         onUserClick(userId, userName, displayName, message.badges, false)
+                    }
+                }
+            
+            // Handle URL clicks
+            annotatedString.getStringAnnotations("URL", offset, offset)
+                .firstOrNull()?.let { annotation ->
+                    try {
+                        CustomTabsIntent.Builder()
+                            .setShowTitle(true)
+                            .build()
+                            .launchUrl(context, annotation.item.toUri())
+                    } catch (e: Exception) {
+                        Log.e("WhisperMessage", "Error launching URL", e)
                     }
                 }
         },
