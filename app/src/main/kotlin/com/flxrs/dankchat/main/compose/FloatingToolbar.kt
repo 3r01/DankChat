@@ -97,6 +97,7 @@ sealed interface ToolbarAction {
     data object ClearChat : ToolbarAction
     data object ToggleStream : ToolbarAction
     data object OpenSettings : ToolbarAction
+    data object MessageHistory : ToolbarAction
 }
 
 @OptIn(ExperimentalFoundationApi::class)

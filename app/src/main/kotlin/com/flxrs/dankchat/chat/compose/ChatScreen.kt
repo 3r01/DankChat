@@ -122,10 +122,13 @@ fun ChatScreen(
 
     val reversedMessages = remember(messages) { messages.asReversed() }
 
-    // Handle scroll-to-message requests
+    // Handle scroll-to-message requests — keyed on both scrollToMessageId and whether messages
+    // are available, so the scroll retries after ViewModel recreation (which briefly empties messages).
+    val hasMessages = reversedMessages.isNotEmpty()
     val density = LocalDensity.current
-    LaunchedEffect(scrollToMessageId) {
+    LaunchedEffect(scrollToMessageId, hasMessages) {
         val targetId = scrollToMessageId ?: return@LaunchedEffect
+        if (!hasMessages) return@LaunchedEffect
         val index = reversedMessages.indexOfFirst { it.id == targetId }
         if (index >= 0) {
             shouldAutoScroll = false
@@ -184,7 +187,7 @@ fun ChatScreen(
             }
 
             // FABs at bottom-end with coordinated position animation
-            val showScrollFab = !isAtBottom && messages.isNotEmpty()
+            val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
             val bottomContentPadding = contentPadding.calculateBottomPadding()
             val fabBottomPadding by animateDpAsState(
                 targetValue = when {

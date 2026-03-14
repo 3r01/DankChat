@@ -241,4 +241,6 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="confirm_clear_chat_question">Clear chat?</string>
     <string name="message_jump_to">Jump to message</string>
     <string name="message_not_in_history">Message no longer in chat history</string>
-</resources>
+    <string name="message_history">Message history</string>
+    <string name="message_history_title">History: %1$s</string>
+    <string name="search_messages_hint">Search messages…</string></resources>

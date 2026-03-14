@@ -9,14 +9,10 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -36,9 +32,6 @@ class ChannelPagerViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
 
-    private val _scrollToMessage = MutableSharedFlow<ScrollToMessageEvent>()
-    val scrollToMessage: SharedFlow<ScrollToMessageEvent> = _scrollToMessage.asSharedFlow()
-
     fun onPageChanged(page: Int) {
         val channels = preferenceStore.channels
         if (page in channels.indices) {
@@ -49,18 +42,21 @@ class ChannelPagerViewModel(
         }
     }
 
-    fun jumpToMessage(channel: UserName, messageId: String): Boolean {
+    /**
+     * Validates that the message exists in the channel's chat and returns the jump target,
+     * or null if the message can't be found.
+     */
+    fun resolveJumpTarget(channel: UserName, messageId: String): JumpTarget? {
         val channels = preferenceStore.channels
         val index = channels.indexOfFirst { it == channel }
-        if (index < 0) return false
-        if (chatRepository.getChat(channel).value.none { it.message.id == messageId }) return false
+        if (index < 0) return null
+        if (chatRepository.getChat(channel).value.none { it.message.id == messageId }) return null
         onPageChanged(index)
-        viewModelScope.launch { _scrollToMessage.emit(ScrollToMessageEvent(index, messageId)) }
-        return true
+        return JumpTarget(channelIndex = index, channel = channel, messageId = messageId)
     }
 }
 
-data class ScrollToMessageEvent(val channelIndex: Int, val messageId: String)
+data class JumpTarget(val channelIndex: Int, val channel: UserName, val messageId: String)
 
 @Immutable
 data class ChannelPagerUiState(

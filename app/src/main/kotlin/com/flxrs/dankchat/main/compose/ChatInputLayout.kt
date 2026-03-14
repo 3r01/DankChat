@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
@@ -104,6 +105,7 @@ fun ChatInputLayout(
     whisperTarget: UserName?,
     onWhisperDismiss: () -> Unit,
     onChangeRoomState: () -> Unit,
+    onSearchClick: () -> Unit = {},
     onNewWhisper: (() -> Unit)? = null,
     showQuickActions: Boolean = true,
     modifier: Modifier = Modifier
@@ -345,6 +347,18 @@ fun ChatInputLayout(
                                 contentDescription = stringResource(R.string.whisper_new),
                             )
                         }
+                    }
+
+                    // Search Button
+                    IconButton(
+                        onClick = onSearchClick,
+                        enabled = enabled,
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = stringResource(R.string.message_history),
+                        )
                     }
 
                     // History Button (Always visible)

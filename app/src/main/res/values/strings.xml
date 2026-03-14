@@ -439,6 +439,9 @@
     <string name="message_more_actions">More…</string>
     <string name="message_jump_to">Jump to message</string>
     <string name="message_not_in_history">Message no longer in chat history</string>
+    <string name="message_history">Message history</string>
+    <string name="message_history_title">History: %1$s</string>
+    <string name="search_messages_hint">Search messages…</string>
     <string name="reply_header">Replying to @%1$s</string>
     <string name="whisper_header">Whispering @%1$s</string>
     <string name="hint_whispering">Send a whisper</string>

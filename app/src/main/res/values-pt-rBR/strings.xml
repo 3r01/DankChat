@@ -354,6 +354,9 @@
     <string name="message_more_actions">Mais…</string>
     <string name="message_jump_to">Ir para a mensagem</string>
     <string name="message_not_in_history">Mensagem não está mais no histórico do chat</string>
+    <string name="message_history">Histórico de mensagens</string>
+    <string name="message_history_title">Histórico: %1$s</string>
+    <string name="search_messages_hint">Pesquisar mensagens…</string>
     <string name="reply_header">Respondendo a @%1$s</string>
     <string name="reply_thread_not_found">Tópico não encontrado</string>
     <string name="message_not_found">Mensagem não encontrada</string>

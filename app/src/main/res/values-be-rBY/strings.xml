@@ -354,6 +354,9 @@
     <string name="message_more_actions">Больш…</string>
     <string name="message_jump_to">Перайсці да паведамлення</string>
     <string name="message_not_in_history">Паведамленне больш не ў гісторыі чата</string>
+    <string name="message_history">Гісторыя паведамленняў</string>
+    <string name="message_history_title">Гісторыя: %1$s</string>
+    <string name="search_messages_hint">Пошук паведамленняў…</string>
     <string name="reply_header">У адказ @%1$s</string>
     <string name="reply_thread_not_found">Галіна адказаў не знойдзена</string>
     <string name="message_not_found">Паведамленне не знойдзена</string>

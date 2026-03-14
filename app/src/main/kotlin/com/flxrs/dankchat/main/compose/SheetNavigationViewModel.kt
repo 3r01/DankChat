@@ -28,6 +28,10 @@ class SheetNavigationViewModel : ViewModel() {
         _fullScreenSheetState.value = FullScreenSheetState.Whisper
     }
 
+    fun openHistory(channel: UserName, initialFilter: String = "") {
+        _fullScreenSheetState.value = FullScreenSheetState.History(channel, initialFilter)
+    }
+
     fun closeFullScreenSheet() {
         _fullScreenSheetState.value = FullScreenSheetState.Closed
     }
@@ -64,6 +68,7 @@ sealed interface FullScreenSheetState {
     data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
     data object Mention : FullScreenSheetState
     data object Whisper : FullScreenSheetState
+    data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
 }
 
 sealed interface InputSheetState {

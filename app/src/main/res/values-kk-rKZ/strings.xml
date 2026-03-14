@@ -319,4 +319,5 @@
         <item quantity="one">Жанды вит %1$d қарау құралы үшін %2$s</item>
         <item quantity="other">Жанды вит %1$d қарау құралы үшін %2$s</item>
     </plurals>
+    <string name="message_history_title">Тарих: %1$s</string>
 </resources>

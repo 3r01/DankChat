@@ -273,7 +273,13 @@ fun MainScreenDialogs(
             onOpenChannel = { _ -> onOpenChannel() },
             onReport = { _ ->
                 onReportChannel()
-            }
+            },
+            onMessageHistory = { userName ->
+                params.channel?.let { channel ->
+                    sheetNavigationViewModel.openHistory(channel, "from:$userName")
+                }
+                dialogViewModel.dismissUserPopup()
+            },
         )
     }
 

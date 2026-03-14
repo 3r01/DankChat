@@ -66,6 +66,7 @@ fun MainAppBar(
     onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onBlockChannel: () -> Unit,
+    onMessageHistory: () -> Unit,
     onCaptureImage: () -> Unit,
     onCaptureVideo: () -> Unit,
     onChooseMedia: () -> Unit,
@@ -201,6 +202,13 @@ fun MainAppBar(
                                     }
                                 )
                                 DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.message_history)) },
+                                    onClick = {
+                                        onMessageHistory()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
                                     text = { Text(stringResource(R.string.remove_channel)) },
                                     onClick = {
                                         onRemoveChannel()
@@ -298,6 +306,7 @@ fun ToolbarOverflowMenu(
     onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onBlockChannel: () -> Unit,
+    onMessageHistory: () -> Unit,
     onCaptureImage: () -> Unit,
     onCaptureVideo: () -> Unit,
     onChooseMedia: () -> Unit,
@@ -381,6 +390,10 @@ fun ToolbarOverflowMenu(
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.open_channel)) },
                             onClick = { onOpenChannel(); onDismiss() }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.message_history)) },
+                            onClick = { onMessageHistory(); onDismiss() }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.remove_channel)) },
@@ -502,6 +515,7 @@ fun InlineOverflowMenu(
                         InlineMenuItem(text = stringResource(if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream)) { onAction(ToolbarAction.ToggleStream); onDismiss() }
                     }
                     InlineMenuItem(text = stringResource(R.string.open_channel)) { onAction(ToolbarAction.OpenChannel); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.message_history)) { onAction(ToolbarAction.MessageHistory); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.remove_channel)) { onAction(ToolbarAction.RemoveChannel); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.report_channel)) { onAction(ToolbarAction.ReportChannel); onDismiss() }
                     if (isLoggedIn) {

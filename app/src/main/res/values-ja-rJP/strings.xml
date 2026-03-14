@@ -353,6 +353,9 @@
     <string name="message_more_actions">もっとみる…</string>
     <string name="message_jump_to">メッセージに移動</string>
     <string name="message_not_in_history">メッセージはチャット履歴にありません</string>
+    <string name="message_history">メッセージ履歴</string>
+    <string name="message_history_title">履歴：%1$s</string>
+    <string name="search_messages_hint">メッセージを検索…</string>
     <string name="reply_header">\@%1$sに返信</string>
     <string name="reply_thread_not_found">返信スレッドが見つかりません</string>
     <string name="message_not_found">メッセージが見つかりません</string>

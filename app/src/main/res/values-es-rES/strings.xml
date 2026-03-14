@@ -363,6 +363,9 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="message_more_actions">Ver más…</string>
     <string name="message_jump_to">Ir al mensaje</string>
     <string name="message_not_in_history">El mensaje ya no está en el historial del chat</string>
+    <string name="message_history">Historial de mensajes</string>
+    <string name="message_history_title">Historial: %1$s</string>
+    <string name="search_messages_hint">Buscar mensajes…</string>
     <string name="reply_header">Respondiendo a @%1$s</string>
     <string name="reply_thread_not_found">Respuesta a hilo no encontrada</string>
     <string name="message_not_found">Mensaje no encontrado</string>

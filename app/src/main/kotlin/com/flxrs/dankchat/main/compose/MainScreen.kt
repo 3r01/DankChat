@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
@@ -166,6 +167,9 @@ fun MainScreen(
     val mainEventBus: MainEventBus = koinInject()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val scrollTargets = remember { mutableStateMapOf<UserName, String>() }
+    // Lazy ref for composePagerState, used in jump handlers declared before the pager
+    var composePagerStateRef by remember { mutableStateOf<PagerState?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -345,10 +349,12 @@ fun MainScreen(
         onReportChannel = onReportChannel,
         onOpenUrl = onOpenUrl,
         onJumpToMessage = { messageId, channel ->
-            val jumped = channelPagerViewModel.jumpToMessage(channel, messageId)
-            if (jumped) {
+            val target = channelPagerViewModel.resolveJumpTarget(channel, messageId)
+            if (target != null) {
                 dialogViewModel.dismissMessageOptions()
                 sheetNavigationViewModel.closeFullScreenSheet()
+                scrollTargets[target.channel] = target.messageId
+                scope.launch { composePagerStateRef?.scrollToPage(target.channelIndex) }
             } else {
                 scope.launch {
                     snackbarHostState.showSnackbar(context.getString(R.string.message_not_in_history))
@@ -428,7 +434,8 @@ fun MainScreen(
     val showInputState by mainScreenViewModel.showInput.collectAsStateWithLifecycle()
     val gestureInputHidden by mainScreenViewModel.gestureInputHidden.collectAsStateWithLifecycle()
     val gestureToolbarHidden by mainScreenViewModel.gestureToolbarHidden.collectAsStateWithLifecycle()
-    val effectiveShowInput = showInputState && !gestureInputHidden
+    val isHistorySheetOpen = fullScreenSheetState is FullScreenSheetState.History
+    val effectiveShowInput = showInputState && !gestureInputHidden && !isHistorySheetOpen
     val effectiveShowAppBar = showAppBar && !gestureToolbarHidden
 
     val toolbarTracker = remember {
@@ -476,7 +483,7 @@ fun MainScreen(
     val composePagerState = rememberPagerState(
         initialPage = pagerState.currentPage,
         pageCount = { pagerState.channels.size }
-    )
+    ).also { composePagerStateRef = it }
     var inputHeightPx by remember { mutableIntStateOf(0) }
     if (!effectiveShowInput) inputHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
@@ -513,17 +520,6 @@ fun MainScreen(
     LaunchedEffect(composePagerState.settledPage) {
         if (composePagerState.settledPage != pagerState.currentPage) {
             channelPagerViewModel.onPageChanged(composePagerState.settledPage)
-        }
-    }
-
-    // Jump-to-message: per-channel scroll targets
-    val scrollTargets = remember { mutableStateMapOf<UserName, String?>() }
-
-    LaunchedEffect(Unit) {
-        channelPagerViewModel.scrollToMessage.collect { event ->
-            val channel = pagerState.channels.getOrNull(event.channelIndex) ?: return@collect
-            composePagerState.scrollToPage(event.channelIndex)
-            scrollTargets[channel] = event.messageId
         }
     }
 
@@ -587,6 +583,7 @@ fun MainScreen(
                 onToggleInput = mainScreenViewModel::toggleInput,
                 onToggleStream = { activeChannel?.let { streamViewModel.toggleStream(it) } },
                 onChangeRoomState = dialogViewModel::showRoomState,
+                onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onNewWhisper = if (inputState.isWhisperTabActive) { dialogViewModel::showNewWhisper } else null,
                 onInputHeightChanged = { inputHeightPx = it },
             )
@@ -633,6 +630,7 @@ fun MainScreen(
                 ToolbarAction.ClearChat -> dialogViewModel.showClearChat()
                 ToolbarAction.ToggleStream -> activeChannel?.let { streamViewModel.toggleStream(it) }
                 ToolbarAction.OpenSettings -> onNavigateToSettings()
+                ToolbarAction.MessageHistory -> activeChannel?.let { sheetNavigationViewModel.openHistory(it) }
             }
         }
 
@@ -816,6 +814,10 @@ fun MainScreen(
 
         // Shared fullscreen sheet overlay
         val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
+            val effectiveBottomPadding = when {
+                !effectiveShowInput -> bottomPadding + max(navBarHeightDp, roundedCornerBottomPadding)
+                else -> bottomPadding
+            }
             FullScreenSheetOverlay(
                 sheetState = fullScreenSheetState,
                 isLoggedIn = isLoggedIn,
@@ -831,8 +833,9 @@ fun MainScreen(
                 onEmoteClick = dialogViewModel::showEmoteInfo,
                 onWhisperReply = chatInputViewModel::setWhisperTarget,
                 onJumpToMessage = { messageId, channel ->
-                    val jumped = channelPagerViewModel.jumpToMessage(channel, messageId)
-                    if (jumped) {
+                    val target = channelPagerViewModel.resolveJumpTarget(channel, messageId)
+                    if (target != null) {
+                        scrollTargets[target.channel] = target.messageId
                         sheetNavigationViewModel.closeFullScreenSheet()
                     } else {
                         scope.launch {
@@ -840,7 +843,7 @@ fun MainScreen(
                         }
                     }
                 },
-                bottomContentPadding = bottomPadding,
+                bottomContentPadding = effectiveBottomPadding,
             )
         }
 

@@ -359,6 +359,9 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_more_actions">Plus…</string>
     <string name="message_jump_to">Aller au message</string>
     <string name="message_not_in_history">Le message n\'est plus dans l\'historique du chat</string>
+    <string name="message_history">Historique des messages</string>
+    <string name="message_history_title">Historique : %1$s</string>
+    <string name="search_messages_hint">Rechercher des messages…</string>
     <string name="reply_header">Répondre à @%1$s</string>
     <string name="reply_thread_not_found">Sujet de réponse introuvable</string>
     <string name="message_not_found">Message non trouvé</string>

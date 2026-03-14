@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -71,6 +72,7 @@ fun UserPopupDialog(
     onWhisper: (String) -> Unit,
     onOpenChannel: (String) -> Unit,
     onReport: (String) -> Unit,
+    onMessageHistory: ((String) -> Unit)? = null,
 ) {
     var showBlockConfirmation by remember { mutableStateOf(false) }
 
@@ -205,6 +207,17 @@ fun UserPopupDialog(
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
+                    if (onMessageHistory != null) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.message_history)) },
+                            leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
+                            modifier = Modifier.clickable {
+                                onMessageHistory(s.userName.value)
+                                onDismiss()
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                    }
                     ListItem(
                         headlineContent = { Text(if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
                         leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },

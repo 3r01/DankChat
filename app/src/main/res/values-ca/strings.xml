@@ -303,4 +303,6 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="confirm_clear_chat_question">Netejar el xat?</string>
     <string name="message_jump_to">Anar al missatge</string>
     <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>
-</resources>
+    <string name="message_history">Historial de missatges</string>
+    <string name="message_history_title">Historial: %1$s</string>
+    <string name="search_messages_hint">Cerca missatges…</string></resources>

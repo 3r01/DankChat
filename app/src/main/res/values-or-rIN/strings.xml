@@ -383,4 +383,5 @@
         <item quantity="one">%d ମାସ</item>
         <item quantity="other">%d ମାସ</item>
     </plurals>
+    <string name="message_history_title">ଇତିହାସ: %1$s</string>
 </resources>

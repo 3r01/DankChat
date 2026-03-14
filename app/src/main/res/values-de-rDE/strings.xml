@@ -364,6 +364,9 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="message_more_actions">Mehr…</string>
     <string name="message_jump_to">Zur Nachricht springen</string>
     <string name="message_not_in_history">Nachricht nicht mehr im Chatverlauf</string>
+    <string name="message_history">Nachrichtenhistorie</string>
+    <string name="message_history_title">Verlauf: %1$s</string>
+    <string name="search_messages_hint">Nachrichten suchen…</string>
     <string name="reply_header">Antwort an @%1$s</string>
     <string name="reply_thread_not_found">Antwortverlauf nicht gefunden</string>
     <string name="message_not_found">Nachricht nicht gefunden</string>

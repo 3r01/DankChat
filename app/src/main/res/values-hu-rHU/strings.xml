@@ -354,6 +354,9 @@
     <string name="message_more_actions">Több…</string>
     <string name="message_jump_to">Ugrás az üzenethez</string>
     <string name="message_not_in_history">Az üzenet már nincs a csevegési előzményekben</string>
+    <string name="message_history">Üzenetelőzmények</string>
+    <string name="message_history_title">Előzmények: %1$s</string>
+    <string name="search_messages_hint">Üzenetek keresése…</string>
     <string name="reply_header">Válaszol neki @%1$s</string>
     <string name="reply_thread_not_found">Gondolatmenet nem található</string>
     <string name="message_not_found">Üzenet nem található</string>

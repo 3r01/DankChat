@@ -208,4 +208,6 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="confirm_clear_chat_question">Obrisati čet?</string>
     <string name="message_jump_to">Иди на поруку</string>
     <string name="message_not_in_history">Порука више није у историји ћаскања</string>
-</resources>
+    <string name="message_history">Историја порука</string>
+    <string name="message_history_title">Историја: %1$s</string>
+    <string name="search_messages_hint">Претражи поруке…</string></resources>

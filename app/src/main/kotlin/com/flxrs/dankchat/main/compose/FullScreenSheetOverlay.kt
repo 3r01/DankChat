@@ -21,6 +21,7 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.main.compose.sheets.MentionSheet
+import com.flxrs.dankchat.main.compose.sheets.MessageHistorySheet
 import com.flxrs.dankchat.main.compose.sheets.RepliesSheet
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
@@ -135,6 +136,30 @@ fun FullScreenSheetOverlay(
                             )
                         },
                         bottomContentPadding = bottomContentPadding,
+                    )
+                }
+                is FullScreenSheetState.History -> {
+                    MessageHistorySheet(
+                        channel = sheetState.channel,
+                        initialFilter = sheetState.initialFilter,
+                        appearanceSettingsDataStore = appearanceSettingsDataStore,
+                        onDismiss = onDismiss,
+                        onUserClick = userClickHandler,
+                        onMessageLongClick = { messageId, channel, fullMessage ->
+                            onMessageLongClick(
+                                MessageOptionsParams(
+                                    messageId = messageId,
+                                    channel = channel?.let { UserName(it) },
+                                    fullMessage = fullMessage,
+                                    canModerate = false,
+                                    canReply = false,
+                                    canCopy = true,
+                                    canJump = true,
+                                )
+                            )
+                        },
+                        onEmoteClick = onEmoteClick,
+                        onJumpToMessage = onJumpToMessage,
                     )
                 }
             }

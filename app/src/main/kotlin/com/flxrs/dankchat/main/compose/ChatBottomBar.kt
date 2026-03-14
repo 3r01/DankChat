@@ -41,6 +41,7 @@ fun ChatBottomBar(
     onToggleInput: () -> Unit,
     onToggleStream: () -> Unit,
     onChangeRoomState: () -> Unit,
+    onSearchClick: () -> Unit,
     onNewWhisper: (() -> Unit)?,
     onInputHeightChanged: (Int) -> Unit,
 ) {
@@ -76,6 +77,7 @@ fun ChatBottomBar(
                 onToggleInput = onToggleInput,
                 onToggleStream = onToggleStream,
                 onChangeRoomState = onChangeRoomState,
+                onSearchClick = onSearchClick,
                 onNewWhisper = onNewWhisper,
                 showQuickActions = !isSheetOpen,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
@@ -85,7 +87,7 @@ fun ChatBottomBar(
         }
 
         // Sticky helper text + nav bar spacer when input is hidden
-        if (!showInput) {
+        if (!showInput && !isSheetOpen) {
             val helperText = inputState.helperText
             if (!helperText.isNullOrEmpty()) {
                 Surface(

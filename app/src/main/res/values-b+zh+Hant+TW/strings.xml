@@ -398,4 +398,5 @@
     <string name="preference_streaminfo_category_title">顯示實況類別</string>
     <string name="preference_streaminfo_category_summary">同時也顯示實況類別</string>
     <string name="toggle_input">開關輸入框</string>
+    <string name="message_history_title">歷史紀錄：%1$s</string>
 </resources>

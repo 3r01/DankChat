@@ -361,6 +361,9 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="message_more_actions">Więcej…</string>
     <string name="message_jump_to">Przejdź do wiadomości</string>
     <string name="message_not_in_history">Wiadomość nie jest już w historii czatu</string>
+    <string name="message_history">Historia wiadomości</string>
+    <string name="message_history_title">Historia: %1$s</string>
+    <string name="search_messages_hint">Szukaj wiadomości…</string>
     <string name="reply_header">Odpowiadasz @%1$s</string>
     <string name="reply_thread_not_found">Nie znaleziono wątku</string>
     <string name="message_not_found">Nie znaleziono wiadomości</string>
