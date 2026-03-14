@@ -265,4 +265,6 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="confirm_user_ban_question">Estetäänkö tämä käyttäjä?</string>
     <string name="confirm_user_delete_question">Poistetaanko tämä viesti?</string>
     <string name="confirm_clear_chat_question">Tyhjennetäänkö chat?</string>
+    <string name="message_jump_to">Siirry viestiin</string>
+    <string name="message_not_in_history">Viesti ei ole enää chat-historiassa</string>
 </resources>

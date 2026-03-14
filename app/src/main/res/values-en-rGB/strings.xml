@@ -239,4 +239,6 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="confirm_user_ban_question">Ban this user?</string>
     <string name="confirm_user_delete_question">Delete this message?</string>
     <string name="confirm_clear_chat_question">Clear chat?</string>
+    <string name="message_jump_to">Jump to message</string>
+    <string name="message_not_in_history">Message no longer in chat history</string>
 </resources>

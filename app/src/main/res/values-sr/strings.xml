@@ -206,4 +206,6 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="confirm_user_ban_question">Banovati ovog korisnika?</string>
     <string name="confirm_user_delete_question">Obrisati ovu poruku?</string>
     <string name="confirm_clear_chat_question">Obrisati čet?</string>
+    <string name="message_jump_to">Иди на поруку</string>
+    <string name="message_not_in_history">Порука више није у историји ћаскања</string>
 </resources>

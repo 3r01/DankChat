@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
@@ -50,8 +51,10 @@ fun MessageOptionsDialog(
     canModerate: Boolean,
     canReply: Boolean,
     canCopy: Boolean,
+    canJump: Boolean,
     hasReplyThread: Boolean,
     onReply: () -> Unit,
+    onJumpToMessage: () -> Unit,
     onViewThread: () -> Unit,
     onCopy: () -> Unit,
     onMoreActions: () -> Unit,
@@ -95,6 +98,17 @@ fun MessageOptionsDialog(
                 )
             }
             
+            if (canJump && channel != null) {
+                MessageOptionItem(
+                    icon = Icons.AutoMirrored.Filled.OpenInNew,
+                    text = stringResource(R.string.message_jump_to),
+                    onClick = {
+                        onJumpToMessage()
+                        onDismiss()
+                    }
+                )
+            }
+
             if (canCopy) {
                 MessageOptionItem(
                     icon = Icons.Default.ContentCopy,

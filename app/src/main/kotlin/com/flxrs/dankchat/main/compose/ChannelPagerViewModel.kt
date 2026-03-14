@@ -9,10 +9,14 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -32,6 +36,9 @@ class ChannelPagerViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
 
+    private val _scrollToMessage = MutableSharedFlow<ScrollToMessageEvent>()
+    val scrollToMessage: SharedFlow<ScrollToMessageEvent> = _scrollToMessage.asSharedFlow()
+
     fun onPageChanged(page: Int) {
         val channels = preferenceStore.channels
         if (page in channels.indices) {
@@ -41,7 +48,19 @@ class ChannelPagerViewModel(
             chatRepository.clearMentionCount(channel)
         }
     }
+
+    fun jumpToMessage(channel: UserName, messageId: String): Boolean {
+        val channels = preferenceStore.channels
+        val index = channels.indexOfFirst { it == channel }
+        if (index < 0) return false
+        if (chatRepository.getChat(channel).value.none { it.message.id == messageId }) return false
+        onPageChanged(index)
+        viewModelScope.launch { _scrollToMessage.emit(ScrollToMessageEvent(index, messageId)) }
+        return true
+    }
 }
+
+data class ScrollToMessageEvent(val channelIndex: Int, val messageId: String)
 
 @Immutable
 data class ChannelPagerUiState(

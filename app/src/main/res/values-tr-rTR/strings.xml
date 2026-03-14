@@ -361,6 +361,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="message_view_thread">Akışı görüntüle</string>
     <string name="message_copy_id">Mesaj ID\'sini kopyala</string>
     <string name="message_more_actions">Daha fazlası…</string>
+    <string name="message_jump_to">Mesaja git</string>
+    <string name="message_not_in_history">Mesaj artık sohbet geçmişinde değil</string>
     <string name="reply_header">\@%1$s yanıtlanıyor</string>
     <string name="reply_thread_not_found">Yanıt akışı bulunamadı</string>
     <string name="message_not_found">Mesaj bulunamadı</string>

@@ -51,6 +51,7 @@ fun MainScreenDialogs(
     onOpenChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onOpenUrl: (String) -> Unit,
+    onJumpToMessage: (messageId: String, channel: UserName) -> Unit = { _, _ -> },
 ) {
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -203,7 +204,13 @@ fun MainScreenDialogs(
                 canModerate = s.canModerate,
                 canReply = s.canReply,
                 canCopy = params.canCopy,
+                canJump = params.canJump,
                 hasReplyThread = s.hasReplyThread,
+                onJumpToMessage = {
+                    params.channel?.let { channel ->
+                        onJumpToMessage(params.messageId, channel)
+                    }
+                },
                 onReply = {
                     chatInputViewModel.setReplying(true, s.messageId, s.replyName)
                 },

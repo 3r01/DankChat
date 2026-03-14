@@ -8,19 +8,25 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
@@ -34,9 +40,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.chat.compose.messages.DateSeparatorComposable
 import com.flxrs.dankchat.chat.compose.messages.ModerationMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.NoticeMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.PointRedemptionMessageComposable
@@ -77,6 +85,9 @@ fun ChatScreen(
     scrollModifier: Modifier = Modifier,
     onScrollToBottom: () -> Unit = {},
     onScrollDirectionChanged: (isScrollingUp: Boolean) -> Unit = {},
+    scrollToMessageId: String? = null,
+    onScrollToMessageHandled: () -> Unit = {},
+    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
 
@@ -111,6 +122,20 @@ fun ChatScreen(
 
     val reversedMessages = remember(messages) { messages.asReversed() }
 
+    // Handle scroll-to-message requests
+    val density = LocalDensity.current
+    LaunchedEffect(scrollToMessageId) {
+        val targetId = scrollToMessageId ?: return@LaunchedEffect
+        val index = reversedMessages.indexOfFirst { it.id == targetId }
+        if (index >= 0) {
+            shouldAutoScroll = false
+            val topPaddingPx = with(density) { contentPadding.calculateTopPadding().roundToPx() }
+            val bottomPaddingPx = with(density) { contentPadding.calculateBottomPadding().roundToPx() }
+            listState.scrollToCentered(index, topPaddingPx, bottomPaddingPx)
+        }
+        onScrollToMessageHandled()
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -134,6 +159,7 @@ fun ChatScreen(
                             is ChatMessageUiState.PrivMessageUi            -> "privmsg"
                             is ChatMessageUiState.WhisperMessageUi         -> "whisper"
                             is ChatMessageUiState.PointRedemptionMessageUi -> "redemption"
+                            is ChatMessageUiState.DateSeparatorUi            -> "datesep"
                         }
                     }
                 ) { message ->
@@ -147,6 +173,7 @@ fun ChatScreen(
                         onEmoteClick = onEmoteClick,
                         onReplyClick = onReplyClick,
                         onWhisperReply = onWhisperReply,
+                        onJumpToMessage = onJumpToMessage,
                     )
 
                     // Add divider after each message if enabled
@@ -249,6 +276,7 @@ private fun ChatMessageItem(
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
+    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
 ) {
     when (message) {
         is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
@@ -271,18 +299,57 @@ private fun ChatMessageItem(
             fontSize = fontSize
         )
 
-        is ChatMessageUiState.PrivMessageUi            -> PrivMessageComposable(
-            message = message,
-            fontSize = fontSize,
-            showChannelPrefix = showChannelPrefix,
-            animateGifs = animateGifs,
-            onUserClick = onUserClick,
-            onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick,
-            onReplyClick = onReplyClick
-        )
+        is ChatMessageUiState.PrivMessageUi            -> {
+            if (onJumpToMessage != null) {
+                val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.background(backgroundColor),
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        PrivMessageComposable(
+                            message = message,
+                            fontSize = fontSize,
+                            showChannelPrefix = showChannelPrefix,
+                            animateGifs = animateGifs,
+                            onUserClick = onUserClick,
+                            onMessageLongClick = onMessageLongClick,
+                            onEmoteClick = onEmoteClick,
+                            onReplyClick = onReplyClick
+                        )
+                    }
+                    IconButton(
+                        onClick = { onJumpToMessage(message.id, message.channel) },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                            contentDescription = stringResource(R.string.message_jump_to),
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else {
+                PrivMessageComposable(
+                    message = message,
+                    fontSize = fontSize,
+                    showChannelPrefix = showChannelPrefix,
+                    animateGifs = animateGifs,
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                    onReplyClick = onReplyClick
+                )
+            }
+        }
 
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
+            message = message,
+            fontSize = fontSize
+        )
+
+        is ChatMessageUiState.DateSeparatorUi            -> DateSeparatorComposable(
             message = message,
             fontSize = fontSize
         )
@@ -301,4 +368,19 @@ private fun ChatMessageItem(
             onWhisperReply = onWhisperReply
         )
     }
+}
+
+/**
+ * Scrolls so that [index] is vertically centered in the usable viewport area
+ * (the region between [topPaddingPx] and [bottomPaddingPx]).
+ *
+ * In a reverse-layout LazyColumn, `scrollToItem(index, scrollOffset)` places
+ * the item's bottom edge [scrollOffset] pixels above the viewport's bottom.
+ * We set the offset so the item lands in the middle of the usable area.
+ */
+private suspend fun LazyListState.scrollToCentered(index: Int, topPaddingPx: Int, bottomPaddingPx: Int) {
+    val viewportHeight = layoutInfo.viewportSize.height
+    val usableHeight = viewportHeight - topPaddingPx - bottomPaddingPx
+    val centeringOffset = bottomPaddingPx + usableHeight / 2
+    scrollToItem(index, scrollOffset = centeringOffset)
 }

@@ -59,6 +59,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -343,6 +344,17 @@ fun MainScreen(
         onOpenChannel = onOpenChannel,
         onReportChannel = onReportChannel,
         onOpenUrl = onOpenUrl,
+        onJumpToMessage = { messageId, channel ->
+            val jumped = channelPagerViewModel.jumpToMessage(channel, messageId)
+            if (jumped) {
+                dialogViewModel.dismissMessageOptions()
+                sheetNavigationViewModel.closeFullScreenSheet()
+            } else {
+                scope.launch {
+                    snackbarHostState.showSnackbar(context.getString(R.string.message_not_in_history))
+                }
+            }
+        },
     )
 
     // External hosting upload disclaimer dialog
@@ -501,6 +513,17 @@ fun MainScreen(
     LaunchedEffect(composePagerState.settledPage) {
         if (composePagerState.settledPage != pagerState.currentPage) {
             channelPagerViewModel.onPageChanged(composePagerState.settledPage)
+        }
+    }
+
+    // Jump-to-message: per-channel scroll targets
+    val scrollTargets = remember { mutableStateMapOf<UserName, String?>() }
+
+    LaunchedEffect(Unit) {
+        channelPagerViewModel.scrollToMessage.collect { event ->
+            val channel = pagerState.channels.getOrNull(event.channelIndex) ?: return@collect
+            composePagerState.scrollToPage(event.channelIndex)
+            scrollTargets[channel] = event.messageId
         }
     }
 
@@ -745,7 +768,9 @@ fun MainScreen(
                                         ),
                                         scrollModifier = chatScrollModifier,
                                         onScrollToBottom = { mainScreenViewModel.setGestureToolbarHidden(false) },
-                                        onScrollDirectionChanged = { }
+                                        onScrollDirectionChanged = { },
+                                        scrollToMessageId = scrollTargets[channel],
+                                        onScrollToMessageHandled = { scrollTargets.remove(channel) },
                                     )
                                 }
                             }
@@ -803,6 +828,16 @@ fun MainScreen(
                 onMessageLongClick = dialogViewModel::showMessageOptions,
                 onEmoteClick = dialogViewModel::showEmoteInfo,
                 onWhisperReply = chatInputViewModel::setWhisperTarget,
+                onJumpToMessage = { messageId, channel ->
+                    val jumped = channelPagerViewModel.jumpToMessage(channel, messageId)
+                    if (jumped) {
+                        sheetNavigationViewModel.closeFullScreenSheet()
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(context.getString(R.string.message_not_in_history))
+                        }
+                    }
+                },
                 bottomContentPadding = bottomPadding,
             )
         }

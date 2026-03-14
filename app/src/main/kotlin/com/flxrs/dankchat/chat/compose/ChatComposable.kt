@@ -43,6 +43,8 @@ fun ChatComposable(
     scrollModifier: Modifier = Modifier,
     onScrollToBottom: () -> Unit = {},
     onScrollDirectionChanged: (Boolean) -> Unit = {},
+    scrollToMessageId: String? = null,
+    onScrollToMessageHandled: () -> Unit = {},
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping
     val viewModel: ChatComposeViewModel = koinViewModel(
@@ -79,7 +81,9 @@ fun ChatComposable(
         contentPadding = contentPadding,
         scrollModifier = scrollModifier,
         onScrollToBottom = onScrollToBottom,
-        onScrollDirectionChanged = onScrollDirectionChanged
+        onScrollDirectionChanged = onScrollDirectionChanged,
+        scrollToMessageId = scrollToMessageId,
+        onScrollToMessageHandled = onScrollToMessageHandled,
     )
     } // CompositionLocalProvider
 }

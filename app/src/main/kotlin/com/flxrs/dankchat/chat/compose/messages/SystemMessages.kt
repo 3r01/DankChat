@@ -67,6 +67,26 @@ fun UserNoticeMessageComposable(
 }
 
 /**
+ * Renders a date separator between messages from different days
+ */
+@Composable
+fun DateSeparatorComposable(
+    message: ChatMessageUiState.DateSeparatorUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+) {
+    SimpleMessageContainer(
+        message = message.dateText,
+        timestamp = message.timestamp,
+        fontSize = fontSize.sp,
+        lightBackgroundColor = message.lightBackgroundColor,
+        darkBackgroundColor = message.darkBackgroundColor,
+        textAlpha = message.textAlpha,
+        modifier = modifier,
+    )
+}
+
+/**
  * Renders a moderation message (timeouts, bans, deletions)
  */
 @Composable

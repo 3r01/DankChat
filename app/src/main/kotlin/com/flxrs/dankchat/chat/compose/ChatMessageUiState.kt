@@ -130,6 +130,21 @@ sealed interface ChatMessageUiState {
     ) : ChatMessageUiState
 
     /**
+     * Date separator inserted between messages from different days
+     */
+    @Immutable
+    data class DateSeparatorUi(
+        override val id: String,
+        override val tag: Int = 0,
+        override val timestamp: String,
+        override val lightBackgroundColor: Color = Color.Transparent,
+        override val darkBackgroundColor: Color = Color.Transparent,
+        override val textAlpha: Float = 0.5f,
+        override val enableRipple: Boolean = false,
+        val dateText: String,
+    ) : ChatMessageUiState
+
+    /**
      * Whisper messages
      */
     @Immutable

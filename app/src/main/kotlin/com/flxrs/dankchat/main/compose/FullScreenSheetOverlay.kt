@@ -36,6 +36,7 @@ fun FullScreenSheetOverlay(
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onWhisperReply: (UserName) -> Unit = {},
+    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     bottomContentPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
 ) {
@@ -76,14 +77,16 @@ fun FullScreenSheetOverlay(
                                     messageId = messageId,
                                     channel = channel?.let { UserName(it) },
                                     fullMessage = fullMessage,
-                                    canModerate = isLoggedIn,
-                                    canReply = isLoggedIn,
-                                    canCopy = false
+                                    canModerate = false,
+                                    canReply = false,
+                                    canCopy = true,
+                                    canJump = true,
                                 )
                             )
                         },
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
+                        onJumpToMessage = onJumpToMessage,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
@@ -100,14 +103,16 @@ fun FullScreenSheetOverlay(
                                     messageId = messageId,
                                     channel = channel?.let { UserName(it) },
                                     fullMessage = fullMessage,
-                                    canModerate = isLoggedIn,
-                                    canReply = isLoggedIn,
-                                    canCopy = false
+                                    canModerate = false,
+                                    canReply = false,
+                                    canCopy = true,
+                                    canJump = false,
                                 )
                             )
                         },
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
+                        onJumpToMessage = onJumpToMessage,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }

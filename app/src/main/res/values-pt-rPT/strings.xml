@@ -352,6 +352,8 @@
     <string name="message_view_thread">Vê a thread</string>
     <string name="message_copy_id">Copia o ID da mensagem</string>
     <string name="message_more_actions">Mais…</string>
+    <string name="message_jump_to">Ir para a mensagem</string>
+    <string name="message_not_in_history">Mensagem já não está no histórico do chat</string>
     <string name="reply_header">Responder a @%1$s</string>
     <string name="reply_thread_not_found">Thread de resposta não encontrado</string>
     <string name="message_not_found">Mensagem não encontrada</string>

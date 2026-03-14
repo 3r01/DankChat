@@ -9,4 +9,5 @@ data class MessageOptionsParams(
     val canModerate: Boolean,
     val canReply: Boolean,
     val canCopy: Boolean = true,
+    val canJump: Boolean = false,
 )

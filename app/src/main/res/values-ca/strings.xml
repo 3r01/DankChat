@@ -301,4 +301,6 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="confirm_user_ban_question">Bloquejar aquest usuari?</string>
     <string name="confirm_user_delete_question">Eliminar aquest missatge?</string>
     <string name="confirm_clear_chat_question">Netejar el xat?</string>
+    <string name="message_jump_to">Anar al missatge</string>
+    <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>
 </resources>
