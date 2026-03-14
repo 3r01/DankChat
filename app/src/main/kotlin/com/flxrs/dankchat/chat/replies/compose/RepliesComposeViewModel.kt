@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
+import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.core.annotation.InjectedParam
 import kotlin.time.Duration.Companion.seconds
 
@@ -48,13 +49,14 @@ class RepliesComposeViewModel(
         when (repliesState) {
             is RepliesState.NotFound -> RepliesUiState.NotFound
             is RepliesState.Found -> {
-                val uiMessages = repliesState.items.map { item ->
+                val uiMessages = repliesState.items.mapIndexed { index, item ->
+                    val altBg = index.isEven && appearanceSettings.checkeredMessages
                     item.toChatMessageUiState(
                         context = context,
                         appearanceSettings = appearanceSettings,
                         chatSettings = chatSettings,
                         preferenceStore = preferenceStore,
-                        isAlternateBackground = false
+                        isAlternateBackground = altBg
                     )
                 }
                 RepliesUiState.Found(uiMessages)

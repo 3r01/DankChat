@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
+import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -48,13 +49,14 @@ class MentionComposeViewModel(
         appearanceSettingsDataStore.settings,
         chatSettingsDataStore.settings,
     ) { messages, appearanceSettings, chatSettings ->
-        messages.map { item ->
+        messages.mapIndexed { index, item ->
+            val altBg = index.isEven && appearanceSettings.checkeredMessages
             item.toChatMessageUiState(
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
-                isAlternateBackground = false
+                isAlternateBackground = altBg
             )
         }
     }.flowOn(Dispatchers.Default)
@@ -64,13 +66,14 @@ class MentionComposeViewModel(
         appearanceSettingsDataStore.settings,
         chatSettingsDataStore.settings,
     ) { messages, appearanceSettings, chatSettings ->
-        messages.map { item ->
+        messages.mapIndexed { index, item ->
+            val altBg = index.isEven && appearanceSettings.checkeredMessages
             item.toChatMessageUiState(
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
-                isAlternateBackground = false
+                isAlternateBackground = altBg
             )
         }
     }.flowOn(Dispatchers.Default)

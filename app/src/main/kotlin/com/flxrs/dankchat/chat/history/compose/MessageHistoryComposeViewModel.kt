@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
+import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 
@@ -69,13 +70,14 @@ class MessageHistoryComposeViewModel(
     ) { messages, activeFilters, appearanceSettings, chatSettings ->
         messages
             .filter { ChatItemFilter.matches(it, activeFilters) }
-            .map {
-                it.toChatMessageUiState(
+            .mapIndexed { index, item ->
+                val altBg = index.isEven && appearanceSettings.checkeredMessages
+                item.toChatMessageUiState(
                     context = context,
                     appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,
                     preferenceStore = preferenceStore,
-                    isAlternateBackground = false,
+                    isAlternateBackground = altBg,
                 )
             }
     }.flowOn(Dispatchers.Default)
