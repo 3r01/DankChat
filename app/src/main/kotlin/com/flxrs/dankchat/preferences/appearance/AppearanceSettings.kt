@@ -3,6 +3,11 @@ package com.flxrs.dankchat.preferences.appearance
 import kotlinx.serialization.Serializable
 
 @Serializable
+enum class InputAction {
+    Emotes, Search, History, Stream, RoomState, Fullscreen, HideInput
+}
+
+@Serializable
 data class AppearanceSettings(
     val theme: ThemePreference = ThemePreference.System,
     val trueDarkTheme: Boolean = false,
@@ -14,6 +19,10 @@ data class AppearanceSettings(
     val autoDisableInput: Boolean = true,
     val showChips: Boolean = true,
     val showChangelogs: Boolean = true,
+    val inputActions: Set<InputAction> = setOf(
+        InputAction.Emotes, InputAction.Search, InputAction.History,
+        InputAction.Stream, InputAction.RoomState,
+    ),
 )
 
 enum class ThemePreference { System, Dark, Light }

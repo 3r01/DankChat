@@ -86,6 +86,9 @@ class AppearanceSettingsDataStore(
     val showInput = settings
         .map { it.showInput }
         .distinctUntilChanged()
+    val inputActions = settings
+        .map { it.inputActions }
+        .distinctUntilChanged()
 
     fun current() = currentSettings.value
 

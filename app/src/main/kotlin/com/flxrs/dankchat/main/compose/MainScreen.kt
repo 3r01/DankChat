@@ -114,6 +114,7 @@ import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.preferences.components.DankBackground
@@ -432,6 +433,9 @@ fun MainScreen(
     val isFullscreen by mainScreenViewModel.isFullscreen.collectAsStateWithLifecycle()
     val showAppBar by mainScreenViewModel.showAppBar.collectAsStateWithLifecycle()
     val showInputState by mainScreenViewModel.showInput.collectAsStateWithLifecycle()
+    val inputActions by appearanceSettingsDataStore.inputActions.collectAsStateWithLifecycle(
+        initialValue = appearanceSettingsDataStore.current().inputActions
+    )
     val gestureInputHidden by mainScreenViewModel.gestureInputHidden.collectAsStateWithLifecycle()
     val gestureToolbarHidden by mainScreenViewModel.gestureToolbarHidden.collectAsStateWithLifecycle()
     val isHistorySheetOpen = fullScreenSheetState is FullScreenSheetState.History
@@ -567,6 +571,7 @@ fun MainScreen(
                 isStreamActive = currentStream != null,
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
+                inputActions = inputActions,
                 onSend = chatInputViewModel::sendMessage,
                 onLastMessageClick = chatInputViewModel::getLastMessage,
                 onEmoteClick = {
@@ -585,6 +590,11 @@ fun MainScreen(
                 onChangeRoomState = dialogViewModel::showRoomState,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onNewWhisper = if (inputState.isWhisperTabActive) { dialogViewModel::showNewWhisper } else null,
+                onInputActionsChanged = { newActions ->
+                    scope.launch {
+                        appearanceSettingsDataStore.update { it.copy(inputActions = newActions) }
+                    }
+                },
                 onInputHeightChanged = { inputHeightPx = it },
             )
         }

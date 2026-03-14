@@ -140,6 +140,16 @@
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
 <string name="menu_room_state">Room state</string>
+    <string name="input_actions_title">Input actions</string>
+    <string name="input_actions_max">Maximum of %1$d actions</string>
+    <string name="input_action_emotes">Emote menu</string>
+    <string name="input_action_search">Search messages</string>
+    <string name="input_action_history">Last message</string>
+    <string name="input_action_stream">Toggle stream</string>
+    <string name="input_action_room_state">Room state</string>
+    <string name="input_action_fullscreen">Fullscreen</string>
+    <string name="input_action_hide_input">Hide input</string>
+    <string name="input_action_configure">Configure actions…</string>
     <string name="room_state_emote_only">Emote only</string>
     <string name="room_state_subscriber_only">Subscriber only</string>
     <string name="room_state_slow_mode">Slow mode</string>

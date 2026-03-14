@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.flxrs.dankchat.preferences.appearance.InputAction
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -32,6 +33,7 @@ fun ChatBottomBar(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     isSheetOpen: Boolean,
+    inputActions: Set<InputAction>,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -43,6 +45,7 @@ fun ChatBottomBar(
     onChangeRoomState: () -> Unit,
     onSearchClick: () -> Unit,
     onNewWhisper: (() -> Unit)?,
+    onInputActionsChanged: (Set<InputAction>) -> Unit,
     onInputHeightChanged: (Int) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -66,6 +69,7 @@ fun ChatBottomBar(
                 isModerator = isModerator,
                 isStreamActive = isStreamActive,
                 hasStreamData = hasStreamData,
+                inputActions = inputActions,
                 onSend = onSend,
                 onLastMessageClick = onLastMessageClick,
                 onEmoteClick = onEmoteClick,
@@ -77,6 +81,7 @@ fun ChatBottomBar(
                 onToggleInput = onToggleInput,
                 onToggleStream = onToggleStream,
                 onChangeRoomState = onChangeRoomState,
+                onInputActionsChanged = onInputActionsChanged,
                 onSearchClick = onSearchClick,
                 onNewWhisper = onNewWhisper,
                 showQuickActions = !isSheetOpen,

@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,20 +37,26 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,6 +68,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,6 +85,9 @@ import androidx.compose.ui.window.PopupProperties
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.InputState
+import com.flxrs.dankchat.preferences.appearance.InputAction
+
+private const val MAX_INPUT_ACTIONS = 4
 
 @Composable
 fun ChatInputLayout(
@@ -94,6 +105,7 @@ fun ChatInputLayout(
     isModerator: Boolean,
     isStreamActive: Boolean,
     hasStreamData: Boolean,
+    inputActions: Set<InputAction>,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -105,6 +117,7 @@ fun ChatInputLayout(
     whisperTarget: UserName?,
     onWhisperDismiss: () -> Unit,
     onChangeRoomState: () -> Unit,
+    onInputActionsChanged: (Set<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
     onNewWhisper: (() -> Unit)? = null,
     showQuickActions: Boolean = true,
@@ -137,6 +150,7 @@ fun ChatInputLayout(
     }
 
     var quickActionsExpanded by remember { mutableStateOf(false) }
+    var showConfigSheet by remember { mutableStateOf(false) }
     val topEndRadius by animateDpAsState(
         targetValue = if (quickActionsExpanded) 0.dp else 24.dp,
         label = "topEndCornerRadius"
@@ -296,33 +310,113 @@ fun ChatInputLayout(
                         .fillMaxWidth()
                         .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 ) {
-                    // Emote/Keyboard Button (Left)
-                    IconButton(
-                        onClick = {
-                            if (isEmoteMenuOpen) {
-                                focusRequester.requestFocus()
+                    // Configurable action icons (enum order)
+                    for (action in InputAction.entries) {
+                        if (action !in inputActions) continue
+                        when (action) {
+                            InputAction.Emotes -> {
+                                IconButton(
+                                    onClick = {
+                                        if (isEmoteMenuOpen) {
+                                            focusRequester.requestFocus()
+                                        }
+                                        onEmoteClick()
+                                    },
+                                    enabled = enabled,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
+                                        contentDescription = stringResource(
+                                            if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
+                                        ),
+                                    )
+                                }
                             }
-                            onEmoteClick()
-                        },
-                        enabled = enabled,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        if (isEmoteMenuOpen) {
-                            Icon(
-                                imageVector = Icons.Default.Keyboard,
-                                contentDescription = stringResource(R.string.dialog_dismiss),
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.EmojiEmotions,
-                                contentDescription = stringResource(R.string.emote_menu_hint),
-                            )
+
+                            InputAction.Search -> {
+                                IconButton(
+                                    onClick = onSearchClick,
+                                    enabled = enabled,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Search,
+                                        contentDescription = stringResource(R.string.message_history),
+                                    )
+                                }
+                            }
+
+                            InputAction.History -> {
+                                IconButton(
+                                    onClick = onLastMessageClick,
+                                    enabled = enabled,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.History,
+                                        contentDescription = stringResource(R.string.resume_scroll),
+                                    )
+                                }
+                            }
+
+                            InputAction.Stream -> {
+                                if (hasStreamData || isStreamActive) {
+                                    IconButton(
+                                        onClick = onToggleStream,
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                                            contentDescription = stringResource(R.string.toggle_stream),
+                                        )
+                                    }
+                                }
+                            }
+
+                            InputAction.RoomState -> {
+                                if (isModerator) {
+                                    IconButton(
+                                        onClick = onChangeRoomState,
+                                        modifier = Modifier.size(40.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Shield,
+                                            contentDescription = stringResource(R.string.menu_room_state),
+                                        )
+                                    }
+                                }
+                            }
+
+                            InputAction.Fullscreen -> {
+                                IconButton(
+                                    onClick = onToggleFullscreen,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                                        contentDescription = stringResource(R.string.toggle_fullscreen),
+                                    )
+                                }
+                            }
+
+                            InputAction.HideInput -> {
+                                IconButton(
+                                    onClick = onToggleInput,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.VisibilityOff,
+                                        contentDescription = stringResource(R.string.menu_hide_input),
+                                    )
+                                }
+                            }
                         }
                     }
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    // Quick Actions Button
+                    // Quick Actions / Overflow Button
                     if (showQuickActions) {
                         IconButton(
                             onClick = { quickActionsExpanded = !quickActionsExpanded },
@@ -347,30 +441,6 @@ fun ChatInputLayout(
                                 contentDescription = stringResource(R.string.whisper_new),
                             )
                         }
-                    }
-
-                    // Search Button
-                    IconButton(
-                        onClick = onSearchClick,
-                        enabled = enabled,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = stringResource(R.string.message_history),
-                        )
-                    }
-
-                    // History Button (Always visible)
-                    IconButton(
-                        onClick = onLastMessageClick,
-                        enabled = enabled,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = stringResource(R.string.resume_scroll),
-                        )
                     }
 
                     // Send Button (Right)
@@ -423,69 +493,225 @@ fun ChatInputLayout(
                         color = surfaceColor,
                     ) {
                         Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                            if (hasStreamData || isStreamActive) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream)) },
-                                    onClick = {
-                                        onToggleStream()
-                                        quickActionsExpanded = false
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                                            contentDescription = null
-                                        )
-                                    }
+                            // Overflow items: actions NOT in inputActions (with conditions)
+                            for (action in InputAction.entries) {
+                                if (action in inputActions) continue
+                                val overflowItem = getOverflowItem(
+                                    action = action,
+                                    isStreamActive = isStreamActive,
+                                    hasStreamData = hasStreamData,
+                                    isFullscreen = isFullscreen,
+                                    isModerator = isModerator,
                                 )
+                                if (overflowItem != null) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(overflowItem.labelRes)) },
+                                        onClick = {
+                                            when (action) {
+                                                InputAction.Emotes -> onEmoteClick()
+                                                InputAction.Search -> onSearchClick()
+                                                InputAction.History -> onLastMessageClick()
+                                                InputAction.Stream -> onToggleStream()
+                                                InputAction.RoomState -> onChangeRoomState()
+                                                InputAction.Fullscreen -> onToggleFullscreen()
+                                                InputAction.HideInput -> onToggleInput()
+                                            }
+                                            quickActionsExpanded = false
+                                        },
+                                        leadingIcon = {
+                                            Icon(
+                                                imageVector = overflowItem.icon,
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
+                                }
                             }
+
+                            HorizontalDivider()
+
+                            // Configure actions item
                             DropdownMenuItem(
-                                text = { Text(stringResource(if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen)) },
+                                text = { Text(stringResource(R.string.input_action_configure)) },
                                 onClick = {
-                                    onToggleFullscreen()
                                     quickActionsExpanded = false
+                                    showConfigSheet = true
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                                        imageVector = Icons.Default.Settings,
                                         contentDescription = null
                                     )
                                 }
                             )
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.menu_hide_input)) },
-                                onClick = {
-                                    onToggleInput()
-                                    quickActionsExpanded = false
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.VisibilityOff,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                            if (isModerator) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.menu_room_state)) },
-                                    onClick = {
-                                        onChangeRoomState()
-                                        quickActionsExpanded = false
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Shield,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-                            }
                         }
                     }
                 }
             }
         }
     }
+
+    if (showConfigSheet) {
+        InputActionConfigSheet(
+            inputActions = inputActions,
+            onInputActionsChanged = onInputActionsChanged,
+            onDismiss = { showConfigSheet = false },
+        )
+    }
 }
+
+private data class OverflowItem(
+    val labelRes: Int,
+    val icon: ImageVector,
+)
+
+private fun getOverflowItem(
+    action: InputAction,
+    isStreamActive: Boolean,
+    hasStreamData: Boolean,
+    isFullscreen: Boolean,
+    isModerator: Boolean,
+): OverflowItem? = when (action) {
+    InputAction.Emotes -> OverflowItem(
+        labelRes = R.string.input_action_emotes,
+        icon = Icons.Default.EmojiEmotions,
+    )
+
+    InputAction.Search -> OverflowItem(
+        labelRes = R.string.input_action_search,
+        icon = Icons.Default.Search,
+    )
+
+    InputAction.History -> OverflowItem(
+        labelRes = R.string.input_action_history,
+        icon = Icons.Default.History,
+    )
+
+    InputAction.Stream -> when {
+        hasStreamData || isStreamActive -> OverflowItem(
+            labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
+            icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+        )
+
+        else -> null
+    }
+
+    InputAction.RoomState -> when {
+        isModerator -> OverflowItem(
+            labelRes = R.string.menu_room_state,
+            icon = Icons.Default.Shield,
+        )
+
+        else -> null
+    }
+
+    InputAction.Fullscreen -> OverflowItem(
+        labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
+        icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+    )
+
+    InputAction.HideInput -> OverflowItem(
+        labelRes = R.string.menu_hide_input,
+        icon = Icons.Default.VisibilityOff,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InputActionConfigSheet(
+    inputActions: Set<InputAction>,
+    onInputActionsChanged: (Set<InputAction>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val atLimit = inputActions.size >= MAX_INPUT_ACTIONS
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.input_actions_title),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            if (atLimit) {
+                Text(
+                    text = stringResource(R.string.input_actions_max, MAX_INPUT_ACTIONS),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                )
+            }
+
+            for (action in InputAction.entries) {
+                val checked = action in inputActions
+                val actionEnabled = checked || !atLimit
+
+                ListItem(
+                    headlineContent = { Text(stringResource(action.labelRes)) },
+                    leadingContent = {
+                        Icon(
+                            imageVector = action.icon,
+                            contentDescription = null,
+                        )
+                    },
+                    trailingContent = {
+                        Checkbox(
+                            checked = checked,
+                            onCheckedChange = null, // handled by row click
+                            enabled = actionEnabled,
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(
+                            if (actionEnabled) {
+                                Modifier.clickable {
+                                    val newSet = if (checked) {
+                                        inputActions - action
+                                    } else {
+                                        inputActions + action
+                                    }
+                                    onInputActionsChanged(newSet)
+                                }
+                            } else {
+                                Modifier
+                            }
+                        ),
+                )
+            }
+        }
+    }
+}
+
+private val InputAction.labelRes: Int
+    get() = when (this) {
+        InputAction.Emotes -> R.string.input_action_emotes
+        InputAction.Search -> R.string.input_action_search
+        InputAction.History -> R.string.input_action_history
+        InputAction.Stream -> R.string.input_action_stream
+        InputAction.RoomState -> R.string.input_action_room_state
+        InputAction.Fullscreen -> R.string.input_action_fullscreen
+        InputAction.HideInput -> R.string.input_action_hide_input
+    }
+
+private val InputAction.icon: ImageVector
+    get() = when (this) {
+        InputAction.Emotes -> Icons.Default.EmojiEmotions
+        InputAction.Search -> Icons.Default.Search
+        InputAction.History -> Icons.Default.History
+        InputAction.Stream -> Icons.Default.Videocam
+        InputAction.RoomState -> Icons.Default.Shield
+        InputAction.Fullscreen -> Icons.Default.Fullscreen
+        InputAction.HideInput -> Icons.Default.VisibilityOff
+    }
 
 @Composable
 private fun SendButton(
@@ -498,7 +724,7 @@ private fun SendButton(
     } else {
         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     }
-    
+
     IconButton(
         onClick = onSend,
         enabled = enabled,
