@@ -64,7 +64,9 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.compose.SuggestionDropdown
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import kotlinx.coroutines.CancellationException
+import org.koin.compose.koinInject
 
 @Composable
 fun MessageHistorySheet(
@@ -83,9 +85,11 @@ fun MessageHistorySheet(
         viewModel.setInitialQuery(initialFilter)
     }
 
+    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(
         initialValue = appearanceSettingsDataStore.current()
     )
+    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
     val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
 
@@ -139,6 +143,8 @@ fun MessageHistorySheet(
             ChatScreen(
                 messages = messages,
                 fontSize = appearanceSettings.fontSize.toFloat(),
+                showLineSeparator = appearanceSettings.lineSeparator,
+                animateGifs = chatSettings.animateGifs,
                 modifier = Modifier.fillMaxSize(),
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,

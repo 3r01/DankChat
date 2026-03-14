@@ -16,6 +16,8 @@ import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import org.koin.compose.koinInject
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -40,7 +42,9 @@ fun MentionComposable(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
+    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
+    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
     val messages by when {
         isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
         else         -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -53,6 +57,8 @@ fun MentionComposable(
     ChatScreen(
         messages = messages,
         fontSize = appearanceSettings.fontSize.toFloat(),
+        showLineSeparator = appearanceSettings.lineSeparator,
+        animateGifs = chatSettings.animateGifs,
         showChannelPrefix = !isWhisperTab,
         modifier = modifier,
         onUserClick = onUserClick,

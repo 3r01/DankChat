@@ -16,6 +16,8 @@ import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.replies.RepliesUiState
 import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import org.koin.compose.koinInject
 
 /**
  * Standalone composable for reply thread display.
@@ -38,7 +40,9 @@ fun RepliesComposable(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
+    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
+    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
 
     val context = LocalPlatformContext.current
@@ -50,6 +54,8 @@ fun RepliesComposable(
             ChatScreen(
                 messages = (uiState as RepliesUiState.Found).items,
                 fontSize = appearanceSettings.fontSize.toFloat(),
+                showLineSeparator = appearanceSettings.lineSeparator,
+                animateGifs = chatSettings.animateGifs,
                 modifier = modifier,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
