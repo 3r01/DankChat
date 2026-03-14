@@ -45,7 +45,6 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.C
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FontSize
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowChangelogs
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowChips
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
@@ -66,10 +65,11 @@ fun AppearanceSettingsScreen(
     onBackPressed: () -> Unit,
 ) {
     val viewModel = koinViewModel<AppearanceSettingsViewModel>()
-    val settings = viewModel.settings.collectAsStateWithLifecycle().value
+    val uiState = viewModel.settings.collectAsStateWithLifecycle().value
 
     AppearanceSettingsContent(
-        settings = settings,
+        settings = uiState.settings,
+        useComposeUi = uiState.useComposeUi,
         onInteraction = { viewModel.onInteraction(it) },
         onSuspendingInteraction = { viewModel.onSuspendingInteraction(it) },
         onBackPressed = onBackPressed
@@ -79,6 +79,7 @@ fun AppearanceSettingsScreen(
 @Composable
 private fun AppearanceSettingsContent(
     settings: AppearanceSettings,
+    useComposeUi: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
     onSuspendingInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
     onBackPressed: () -> Unit,
@@ -124,7 +125,7 @@ private fun AppearanceSettingsContent(
                 showInput = settings.showInput,
                 autoDisableInput = settings.autoDisableInput,
                 showChips = settings.showChips,
-                showChangelogs = settings.showChangelogs,
+                showChipsSetting = !useComposeUi,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -137,7 +138,7 @@ private fun ComponentsCategory(
     showInput: Boolean,
     autoDisableInput: Boolean,
     showChips: Boolean,
-    showChangelogs: Boolean,
+    showChipsSetting: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(
@@ -155,17 +156,14 @@ private fun ComponentsCategory(
             isChecked = autoDisableInput,
             onClick = { onInteraction(AutoDisableInput(it)) },
         )
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_show_chip_actions_title),
-            summary = stringResource(R.string.preference_show_chip_actions_summary),
-            isChecked = showChips,
-            onClick = { onInteraction(ShowChips(it)) },
-        )
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_show_changelogs),
-            isChecked = showChangelogs,
-            onClick = { onInteraction(ShowChangelogs(it)) },
-        )
+        if (showChipsSetting) {
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_show_chip_actions_title),
+                summary = stringResource(R.string.preference_show_chip_actions_summary),
+                isChecked = showChips,
+                onClick = { onInteraction(ShowChips(it)) },
+            )
+        }
     }
 }
 

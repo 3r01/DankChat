@@ -2,8 +2,10 @@ package com.flxrs.dankchat.preferences.appearance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -12,13 +14,18 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class AppearanceSettingsViewModel(
     private val dataStore: AppearanceSettingsDataStore,
+    developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : ViewModel() {
 
-    val settings = dataStore.settings.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5.seconds),
-        initialValue = dataStore.current(),
-    )
+    private val useComposeUi = developerSettingsDataStore.current().useComposeChatUi
+
+    val settings = dataStore.settings
+        .map { AppearanceSettingsUiState(settings = it, useComposeUi = useComposeUi) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5.seconds),
+            initialValue = AppearanceSettingsUiState(settings = dataStore.current(), useComposeUi = useComposeUi),
+        )
 
     suspend fun onSuspendingInteraction(interaction: AppearanceSettingsInteraction) {
         runCatching {
@@ -52,3 +59,8 @@ sealed interface AppearanceSettingsInteraction {
     data class ShowChips(val value: Boolean) : AppearanceSettingsInteraction
     data class ShowChangelogs(val value: Boolean) : AppearanceSettingsInteraction
 }
+
+data class AppearanceSettingsUiState(
+    val settings: AppearanceSettings,
+    val useComposeUi: Boolean,
+)
