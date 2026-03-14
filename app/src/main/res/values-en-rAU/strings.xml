@@ -242,4 +242,10 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="message_not_in_history">Message no longer in chat history</string>
     <string name="message_history">Message history</string>
     <string name="message_history_title">History: %1$s</string>
-    <string name="search_messages_hint">Search messages…</string></resources>
+    <string name="search_messages_hint">Search messages…</string>
+    <string name="search_filter_by_username">Filter by username</string>
+    <string name="search_filter_has_link">Messages containing links</string>
+    <string name="search_filter_has_emote">Messages containing emotes</string>
+    <string name="search_filter_by_badge">Filter by badge name</string>
+    <string name="search_filter_user">User</string>
+    <string name="search_filter_badge">Badge</string></resources>

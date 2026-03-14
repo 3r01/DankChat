@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.chat.suggestion
 
+import androidx.annotation.StringRes
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 
@@ -14,5 +15,9 @@ sealed interface Suggestion {
 
     data class CommandSuggestion(val command: String) : Suggestion {
         override fun toString() = command
+    }
+
+    data class FilterSuggestion(val keyword: String, @StringRes val descriptionRes: Int, val displayText: String? = null) : Suggestion {
+        override fun toString() = keyword
     }
 }

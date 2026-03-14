@@ -33,6 +33,7 @@ class SuggestionProvider(
      */
     fun getSuggestions(
         inputText: String,
+        cursorPosition: Int,
         channel: UserName?
     ): Flow<List<Suggestion>> {
         if (inputText.isBlank() || channel == null) {
@@ -40,7 +41,7 @@ class SuggestionProvider(
         }
 
         // Extract the current word being typed
-        val currentWord = extractCurrentWord(inputText)
+        val currentWord = extractCurrentWord(inputText, cursorPosition)
         if (currentWord.isBlank() || currentWord.length < MIN_SUGGESTION_CHARS) {
             return flowOf(emptyList())
         }
@@ -88,21 +89,17 @@ class SuggestionProvider(
 
     /**
      * Extract the current word being typed from the full input text.
-     * Assumes space-separated words.
+     * Only looks backwards from cursor position — returns the text between the last space before cursor and the cursor.
      */
-    private fun extractCurrentWord(text: String): String {
-        val cursorPos = text.length
+    internal fun extractCurrentWord(text: String, cursorPosition: Int): String {
+        val cursorPos = cursorPosition.coerceIn(0, text.length)
         val separator = ' '
-        
-        // Find start of current word
+
+        // Only look backwards from cursor — the word being actively typed
         var start = cursorPos
         while (start > 0 && text[start - 1] != separator) start--
-        
-        // Find end of current word
-        var end = cursorPos
-        while (end < text.length && text[end] != separator) end++
-        
-        return text.substring(start, end)
+
+        return text.substring(start, cursorPos)
     }
 
     /**

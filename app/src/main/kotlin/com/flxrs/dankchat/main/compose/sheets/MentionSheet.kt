@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -71,6 +72,11 @@ fun MentionSheet(
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
     // Toolbar area: status bar + padding + pill height + padding
     val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 16.dp
+    val sheetBackgroundColor = lerp(
+        MaterialTheme.colorScheme.surfaceContainer,
+        MaterialTheme.colorScheme.surfaceContainerHigh,
+        fraction = 0.75f,
+    )
 
     LaunchedEffect(pagerState.currentPage) {
         mentionViewModel.setCurrentTab(pagerState.currentPage)
@@ -90,7 +96,7 @@ fun MentionSheet(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(sheetBackgroundColor)
             .graphicsLayer {
                 val scale = 1f - (backProgress * 0.1f)
                 scaleX = scale
@@ -113,6 +119,7 @@ fun MentionSheet(
                 onEmoteClick = onEmoteClick,
                 onWhisperReply = if (page == 1) onWhisperReply else null,
                 onJumpToMessage = if (page == 0) onJumpToMessage else null,
+                containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             )
         }
@@ -124,9 +131,9 @@ fun MentionSheet(
                 .fillMaxWidth()
                 .background(
                     brush = Brush.verticalGradient(
-                        0f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                        0.75f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                        0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                        0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                        1f to sheetBackgroundColor.copy(alpha = 0f)
                     )
                 )
                 .padding(top = statusBarHeight + 8.dp)

@@ -2,10 +2,12 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
+import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -33,7 +36,7 @@ fun ChatBottomBar(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     isSheetOpen: Boolean,
-    inputActions: Set<InputAction>,
+    inputActions: List<InputAction>,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -45,14 +48,18 @@ fun ChatBottomBar(
     onChangeRoomState: () -> Unit,
     onSearchClick: () -> Unit,
     onNewWhisper: (() -> Unit)?,
-    onInputActionsChanged: (Set<InputAction>) -> Unit,
+    onInputActionsChanged: (List<InputAction>) -> Unit,
     onInputHeightChanged: (Int) -> Unit,
+    instantHide: Boolean = false,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
             visible = showInput,
             enter = EnterTransition.None,
-            exit = slideOutVertically(targetOffsetY = { it }),
+            exit = when {
+                instantHide -> ExitTransition.None
+                else -> slideOutVertically(targetOffsetY = { it })
+            },
         ) {
             ChatInputLayout(
                 textFieldState = textFieldState,
@@ -95,6 +102,10 @@ fun ChatBottomBar(
         if (!showInput && !isSheetOpen) {
             val helperText = inputState.helperText
             if (!helperText.isNullOrEmpty()) {
+                val horizontalPadding = when {
+                    isFullscreen -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+                    else -> PaddingValues(horizontal = 16.dp)
+                }
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier.fillMaxWidth()
@@ -107,7 +118,8 @@ fun ChatBottomBar(
                         modifier = Modifier
                             .navigationBarsPadding()
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 6.dp)
+                            .padding(horizontalPadding)
+                            .padding(vertical = 6.dp)
                             .basicMarquee(),
                         textAlign = TextAlign.Start
                     )

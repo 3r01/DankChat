@@ -360,6 +360,12 @@
     <string name="message_history">Message history</string>
     <string name="message_history_title">History: %1$s</string>
     <string name="search_messages_hint">Search messages…</string>
+    <string name="search_filter_by_username">Filter by username</string>
+    <string name="search_filter_has_link">Messages containing links</string>
+    <string name="search_filter_has_emote">Messages containing emotes</string>
+    <string name="search_filter_by_badge">Filter by badge name</string>
+    <string name="search_filter_user">User</string>
+    <string name="search_filter_badge">Badge</string>
     <string name="reply_header">Replying to @%1$s</string>
     <string name="reply_thread_not_found">Reply thread not found</string>
     <string name="message_not_found">Message not found</string>

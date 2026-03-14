@@ -362,6 +362,12 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_history">Historique des messages</string>
     <string name="message_history_title">Historique : %1$s</string>
     <string name="search_messages_hint">Rechercher des messages…</string>
+    <string name="search_filter_by_username">Filtrer par nom d\'utilisateur</string>
+    <string name="search_filter_has_link">Messages contenant des liens</string>
+    <string name="search_filter_has_emote">Messages contenant des emotes</string>
+    <string name="search_filter_by_badge">Filtrer par nom de badge</string>
+    <string name="search_filter_user">Utilisateur</string>
+    <string name="search_filter_badge">Badge</string>
     <string name="reply_header">Répondre à @%1$s</string>
     <string name="reply_thread_not_found">Sujet de réponse introuvable</string>
     <string name="message_not_found">Message non trouvé</string>

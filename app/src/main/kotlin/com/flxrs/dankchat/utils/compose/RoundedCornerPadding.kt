@@ -132,6 +132,40 @@ fun rememberRoundedCornerBottomPadding(fallback: Dp = 0.dp): Dp {
     return with(density) { maxRadius.toDp() }
 }
 
+/**
+ * Returns horizontal padding needed to avoid the bottom rounded display corners.
+ * Uses [RoundedCorner.center] to determine where content is safe, matching
+ * the approach in MainFragment for fullscreenHintText.
+ *
+ * On API < 31 or when no rounded corners are present, returns [fallback].
+ */
+@Composable
+fun rememberRoundedCornerHorizontalPadding(fallback: Dp = 0.dp): PaddingValues {
+    val fallbackPadding = PaddingValues(horizontal = fallback)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+        return fallbackPadding
+    }
+
+    val view = LocalView.current
+    val density = LocalDensity.current
+    val compatInsets = ViewCompat.getRootWindowInsets(view)
+        ?: return fallbackPadding
+    val windowInsets = compatInsets.toWindowInsets()
+        ?: return fallbackPadding
+
+    val bottomLeft = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)
+    val bottomRight = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)
+    if (bottomLeft == null || bottomRight == null) {
+        return fallbackPadding
+    }
+
+    val screenWidth = view.rootView.width
+    val start = with(density) { bottomLeft.center.x.toDp() }
+    val end = with(density) { (screenWidth - bottomRight.center.x).toDp() }
+
+    return PaddingValues(start = start, end = end)
+}
+
 @RequiresApi(api = 31)
 private fun RoundedCorner.calculateTopPaddingForComponent(
     componentX: Int,

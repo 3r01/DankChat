@@ -305,4 +305,10 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>
     <string name="message_history">Historial de missatges</string>
     <string name="message_history_title">Historial: %1$s</string>
-    <string name="search_messages_hint">Cerca missatges…</string></resources>
+    <string name="search_messages_hint">Cerca missatges…</string>
+    <string name="search_filter_by_username">Filtra per nom d\'usuari</string>
+    <string name="search_filter_has_link">Missatges amb enllaços</string>
+    <string name="search_filter_has_emote">Missatges amb emotes</string>
+    <string name="search_filter_by_badge">Filtra per nom d\'insígnia</string>
+    <string name="search_filter_user">Usuari</string>
+    <string name="search_filter_badge">Insígnia</string></resources>

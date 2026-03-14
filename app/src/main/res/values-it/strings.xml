@@ -356,6 +356,12 @@
     <string name="message_history">Cronologia messaggi</string>
     <string name="message_history_title">Cronologia: %1$s</string>
     <string name="search_messages_hint">Cerca messaggi…</string>
+    <string name="search_filter_by_username">Filtra per nome utente</string>
+    <string name="search_filter_has_link">Messaggi contenenti link</string>
+    <string name="search_filter_has_emote">Messaggi contenenti emote</string>
+    <string name="search_filter_by_badge">Filtra per nome distintivo</string>
+    <string name="search_filter_user">Utente</string>
+    <string name="search_filter_badge">Distintivo</string>
     <string name="reply_header">Stai rispondendo a @%1$s</string>
     <string name="reply_thread_not_found">Thread risposta non trovato</string>
     <string name="message_not_found">Messaggio non trovato</string>

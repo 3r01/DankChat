@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -88,6 +89,8 @@ fun ChatScreen(
     scrollToMessageId: String? = null,
     onScrollToMessageHandled: () -> Unit = {},
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.background,
+    showFabs: Boolean = true,
 ) {
     val listState = rememberLazyListState()
 
@@ -141,7 +144,7 @@ fun ChatScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = containerColor
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -187,50 +190,52 @@ fun ChatScreen(
             }
 
             // FABs at bottom-end with coordinated position animation
-            val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
-            val bottomContentPadding = contentPadding.calculateBottomPadding()
-            val fabBottomPadding by animateDpAsState(
-                targetValue = when {
-                    showInput      -> bottomContentPadding
-                    hasHelperText  -> maxOf(bottomContentPadding, 48.dp)
-                    else           -> maxOf(bottomContentPadding, 24.dp)
-                },
-                animationSpec = if (showInput) snap() else spring(),
-                label = "fabBottomPadding"
-            )
-            val recoveryBottomPadding by animateDpAsState(
-                targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
-                label = "recoveryBottomPadding"
-            )
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + fabBottomPadding),
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                RecoveryFab(
-                    isFullscreen = isFullscreen,
-                    showInput = showInput,
-                    onRecover = onRecover,
-                    modifier = Modifier.padding(bottom = recoveryBottomPadding)
+            if (showFabs) {
+                val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
+                val bottomContentPadding = contentPadding.calculateBottomPadding()
+                val fabBottomPadding by animateDpAsState(
+                    targetValue = when {
+                        showInput      -> bottomContentPadding
+                        hasHelperText  -> maxOf(bottomContentPadding, 48.dp)
+                        else           -> maxOf(bottomContentPadding, 24.dp)
+                    },
+                    animationSpec = if (showInput) snap() else spring(),
+                    label = "fabBottomPadding"
                 )
-                AnimatedVisibility(
-                    visible = showScrollFab,
-                    enter = scaleIn() + fadeIn(),
-                    exit = scaleOut() + fadeOut(),
+                val recoveryBottomPadding by animateDpAsState(
+                    targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
+                    label = "recoveryBottomPadding"
+                )
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + fabBottomPadding),
+                    contentAlignment = Alignment.BottomEnd
                 ) {
-                    FloatingActionButton(
-                        onClick = {
-                            shouldAutoScroll = true
-                            onScrollDirectionChanged(false)
-                            onScrollToBottom()
-                        },
+                    RecoveryFab(
+                        isFullscreen = isFullscreen,
+                        showInput = showInput,
+                        onRecover = onRecover,
+                        modifier = Modifier.padding(bottom = recoveryBottomPadding)
+                    )
+                    AnimatedVisibility(
+                        visible = showScrollFab,
+                        enter = scaleIn() + fadeIn(),
+                        exit = scaleOut() + fadeOut(),
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.KeyboardArrowDown,
-                            contentDescription = "Scroll to bottom"
-                        )
+                        FloatingActionButton(
+                            onClick = {
+                                shouldAutoScroll = true
+                                onScrollDirectionChanged(false)
+                                onScrollToBottom()
+                            },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Scroll to bottom"
+                            )
+                        }
                     }
                 }
             }

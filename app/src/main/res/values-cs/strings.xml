@@ -364,6 +364,12 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="message_history">Historie zpráv</string>
     <string name="message_history_title">Historie: %1$s</string>
     <string name="search_messages_hint">Hledat zprávy…</string>
+    <string name="search_filter_by_username">Filtrovat podle uživatelského jména</string>
+    <string name="search_filter_has_link">Zprávy obsahující odkazy</string>
+    <string name="search_filter_has_emote">Zprávy obsahující emoty</string>
+    <string name="search_filter_by_badge">Filtrovat podle názvu odznaku</string>
+    <string name="search_filter_user">Uživatel</string>
+    <string name="search_filter_badge">Odznak</string>
     <string name="reply_header">Odpověď uživateli @%1$s</string>
     <string name="reply_thread_not_found">Vlákno odpovědí nebylo nalezeno</string>
     <string name="message_not_found">Zpráva nenalezena</string>

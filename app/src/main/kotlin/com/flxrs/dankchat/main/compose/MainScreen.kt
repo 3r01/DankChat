@@ -316,6 +316,7 @@ fun MainScreen(
 
     val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
     val isSheetOpen = fullScreenSheetState !is FullScreenSheetState.Closed
+    val isHistorySheet = fullScreenSheetState is FullScreenSheetState.History
     val inputSheetState by sheetNavigationViewModel.inputSheetState.collectAsStateWithLifecycle()
 
     MainScreenEventHandler(
@@ -438,8 +439,7 @@ fun MainScreen(
     )
     val gestureInputHidden by mainScreenViewModel.gestureInputHidden.collectAsStateWithLifecycle()
     val gestureToolbarHidden by mainScreenViewModel.gestureToolbarHidden.collectAsStateWithLifecycle()
-    val isHistorySheetOpen = fullScreenSheetState is FullScreenSheetState.History
-    val effectiveShowInput = showInputState && !gestureInputHidden && !isHistorySheetOpen
+    val effectiveShowInput = showInputState && !gestureInputHidden
     val effectiveShowAppBar = showAppBar && !gestureToolbarHidden
 
     val toolbarTracker = remember {
@@ -561,7 +561,7 @@ fun MainScreen(
         // Shared bottom bar content
         val bottomBar: @Composable () -> Unit = {
             ChatBottomBar(
-                showInput = effectiveShowInput,
+                showInput = effectiveShowInput && !isHistorySheet,
                 textFieldState = chatInputViewModel.textFieldState,
                 inputState = inputState,
                 isUploading = dialogState.isUploading,
@@ -596,6 +596,7 @@ fun MainScreen(
                     }
                 },
                 onInputHeightChanged = { inputHeightPx = it },
+                instantHide = isHistorySheet,
             )
         }
 
@@ -763,6 +764,7 @@ fun MainScreen(
                                         showInput = effectiveShowInput,
                                         isFullscreen = isFullscreen,
                                         hasHelperText = !inputState.helperText.isNullOrEmpty(),
+                                        showFabs = !isSheetOpen,
                                         onRecover = {
                                             if (isFullscreen) mainScreenViewModel.toggleFullscreen()
                                             if (!showInputState) mainScreenViewModel.toggleInput()

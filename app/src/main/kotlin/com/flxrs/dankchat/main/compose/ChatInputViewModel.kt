@@ -7,6 +7,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.text.TextRange
 import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.data.DisplayName
@@ -88,20 +89,23 @@ class ChatInputViewModel(
     private val _whisperTarget = MutableStateFlow<UserName?>(null)
     val whisperTarget: StateFlow<UserName?> = _whisperTarget.asStateFlow()
 
-    // Create flow from TextFieldState
+    // Create flow from TextFieldState tracking both text and cursor position
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
+    private val textAndCursorFlow = snapshotFlow {
+        textFieldState.text.toString() to textFieldState.selection.start
+    }
 
-    // Debounce text changes for suggestion lookups
-    private val debouncedText = textFlow.debounce(SUGGESTION_DEBOUNCE_MS)
+    // Debounce text/cursor changes for suggestion lookups
+    private val debouncedTextAndCursor = textAndCursorFlow.debounce(SUGGESTION_DEBOUNCE_MS)
 
-    // Get suggestions based on current text and active channel
+    // Get suggestions based on current text, cursor position, and active channel
     private val suggestions: StateFlow<List<Suggestion>> = combine(
-        debouncedText,
+        debouncedTextAndCursor,
         chatRepository.activeChannel
-    ) { text, channel ->
-        text to channel
-    }.flatMapLatest { (text, channel) ->
-        suggestionProvider.getSuggestions(text, channel)
+    ) { (text, cursorPos), channel ->
+        Triple(text, cursorPos, channel)
+    }.flatMapLatest { (text, cursorPos, channel) ->
+        suggestionProvider.getSuggestions(text, cursorPos, channel)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val roomStateDisplayText: StateFlow<String?> = combine(
@@ -437,21 +441,12 @@ class ChatInputViewModel(
      */
     fun applySuggestion(suggestion: Suggestion) {
         val currentText = textFieldState.text.toString()
-        val cursorPos = currentText.length // Assume cursor at end for simplicity
-        val separator = ' '
+        val cursorPos = textFieldState.selection.start
+        val result = computeSuggestionReplacement(currentText, cursorPos, suggestion.toString())
 
-        // Find start of current word
-        var start = cursorPos
-        while (start > 0 && currentText[start - 1] != separator) start--
-
-        // Build new text with replacement
-        val replacement = suggestion.toString() + separator
-        val newText = currentText.substring(0, start) + replacement
-
-        // Replace all text and place cursor at end
         textFieldState.edit {
-            replace(0, length, newText)
-            placeCursorAtEnd()
+            replace(result.replaceStart, result.replaceEnd, result.replacement)
+            selection = TextRange(result.newCursorPos)
         }
 
         if (suggestion is Suggestion.EmoteSuggestion) {
@@ -476,6 +471,29 @@ class ChatInputViewModel(
     companion object {
         private const val SUGGESTION_DEBOUNCE_MS = 20L
     }
+}
+
+internal data class SuggestionReplacementResult(
+    val replaceStart: Int,
+    val replaceEnd: Int,
+    val replacement: String,
+    val newCursorPos: Int,
+)
+
+internal fun computeSuggestionReplacement(text: String, cursorPos: Int, suggestionText: String): SuggestionReplacementResult {
+    val separator = ' '
+
+    // Only look backwards from cursor — match what extractCurrentWord does
+    var start = cursorPos
+    while (start > 0 && text[start - 1] != separator) start--
+
+    val replacement = suggestionText + separator
+    return SuggestionReplacementResult(
+        replaceStart = start,
+        replaceEnd = cursorPos,
+        replacement = replacement,
+        newCursorPos = start + replacement.length,
+    )
 }
 
 @Immutable

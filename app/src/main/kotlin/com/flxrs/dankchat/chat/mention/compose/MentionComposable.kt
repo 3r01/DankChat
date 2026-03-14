@@ -14,6 +14,7 @@ import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
 /**
@@ -35,6 +36,7 @@ fun MentionComposable(
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
+    containerColor: Color,
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
@@ -58,7 +60,8 @@ fun MentionComposable(
         onEmoteClick = onEmoteClick,
         onWhisperReply = if (isWhisperTab) onWhisperReply else null,
         onJumpToMessage = if (!isWhisperTab) onJumpToMessage else null,
-        contentPadding = contentPadding
+        contentPadding = contentPadding,
+        containerColor = containerColor,
     )
     } // CompositionLocalProvider
 }

@@ -57,6 +57,7 @@ class SuggestionsArrayAdapter(
                 }
 
                 is Suggestion.CommandSuggestion -> imageView.setImageDrawable(context.getDrawableAndSetSurfaceTint(R.drawable.ic_android))
+                is Suggestion.FilterSuggestion -> Unit
             }
         }
 

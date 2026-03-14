@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,13 +36,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -56,15 +59,16 @@ import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.history.compose.MessageHistoryComposeViewModel
+import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.main.compose.SuggestionDropdown
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.CancellationException
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MessageHistorySheet(
+    viewModel: MessageHistoryComposeViewModel,
     channel: UserName,
     initialFilter: String,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
@@ -74,23 +78,22 @@ fun MessageHistorySheet(
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
 ) {
-    val viewModel: MessageHistoryComposeViewModel = koinViewModel(
-        key = channel.value,
-        parameters = { parametersOf(channel) },
-    )
 
-    LaunchedEffect(initialFilter) {
-        if (initialFilter.isNotEmpty()) {
-            viewModel.updateSearchQuery(initialFilter)
-        }
+    LaunchedEffect(viewModel, initialFilter) {
+        viewModel.setInitialQuery(initialFilter)
     }
 
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(
         initialValue = appearanceSettingsDataStore.current()
     )
     val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
-    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
+    val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
 
+    val sheetBackgroundColor = lerp(
+        MaterialTheme.colorScheme.surfaceContainer,
+        MaterialTheme.colorScheme.surfaceContainerHigh,
+        fraction = 0.75f,
+    )
     var backProgress by remember { mutableFloatStateOf(0f) }
 
     val density = LocalDensity.current
@@ -123,7 +126,7 @@ fun MessageHistorySheet(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(sheetBackgroundColor)
             .graphicsLayer {
                 val scale = 1f - (backProgress * 0.1f)
                 scaleX = scale
@@ -142,6 +145,7 @@ fun MessageHistorySheet(
                 onEmoteClick = onEmoteClick,
                 onJumpToMessage = onJumpToMessage,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
+                containerColor = sheetBackgroundColor,
             )
         }
 
@@ -152,9 +156,9 @@ fun MessageHistorySheet(
                 .fillMaxWidth()
                 .background(
                     brush = Brush.verticalGradient(
-                        0f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                        0.75f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0f),
+                        0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                        0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                        1f to sheetBackgroundColor.copy(alpha = 0f),
                     )
                 )
                 .padding(top = statusBarHeight + 8.dp)
@@ -199,29 +203,31 @@ fun MessageHistorySheet(
             }
         }
 
-        // Bottom search bar with upward gradient scrim
+        // Filter suggestions above search bar
+        SuggestionDropdown(
+            suggestions = filterSuggestions,
+            onSuggestionClick = { suggestion -> viewModel.applySuggestion(suggestion) },
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(bottom = searchBarHeightDp + navBarHeightDp + currentImeDp + 8.dp)
+                .padding(horizontal = 8.dp),
+        )
+
+        // Floating search bar pill
         Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .padding(bottom = currentImeDp)
-                .background(
-                    brush = Brush.verticalGradient(
-                        0f to MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                        0.25f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-                    )
-                )
                 .navigationBarsPadding()
                 .onGloballyPositioned { coordinates ->
                     searchBarHeightPx = coordinates.size.height
                 }
-                .padding(top = 16.dp, bottom = 8.dp)
+                .padding(bottom = 8.dp)
                 .padding(horizontal = 8.dp),
         ) {
             SearchToolbar(
-                searchQuery = searchQuery,
-                onSearchQueryChange = viewModel::updateSearchQuery,
+                state = viewModel.searchFieldState,
             )
         }
     }
@@ -229,39 +235,30 @@ fun MessageHistorySheet(
 
 @Composable
 private fun SearchToolbar(
-    searchQuery: String,
-    onSearchQueryChange: (String) -> Unit,
+    state: TextFieldState,
 ) {
-    var textState by remember(searchQuery) { mutableStateOf(searchQuery) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    LaunchedEffect(searchQuery) {
-        if (textState != searchQuery) {
-            textState = searchQuery
-        }
-    }
-
     val textFieldColors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
     )
 
     TextField(
-        value = textState,
-        onValueChange = {
-            textState = it
-            onSearchQueryChange(it)
-        },
+        state = state,
         modifier = Modifier.fillMaxWidth(),
         placeholder = { Text(stringResource(R.string.search_messages_hint)) },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+            )
+        },
         trailingIcon = {
-            if (textState.isNotEmpty()) {
-                IconButton(onClick = {
-                    textState = ""
-                    onSearchQueryChange("")
-                }) {
+            if (state.text.isNotEmpty()) {
+                IconButton(onClick = { state.clearText() }) {
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = stringResource(R.string.dialog_dismiss),
@@ -269,9 +266,9 @@ private fun SearchToolbar(
                 }
             }
         },
-        singleLine = true,
+        lineLimits = TextFieldLineLimits.SingleLine,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-        keyboardActions = KeyboardActions(onSearch = { keyboardController?.hide() }),
+        onKeyboardAction = { keyboardController?.hide() },
         shape = MaterialTheme.shapes.extraLarge,
         colors = textFieldColors,
     )

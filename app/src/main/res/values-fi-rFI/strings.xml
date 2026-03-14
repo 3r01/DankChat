@@ -269,4 +269,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="message_not_in_history">Viesti ei ole enää chat-historiassa</string>
     <string name="message_history">Viestihistoria</string>
     <string name="message_history_title">Historia: %1$s</string>
-    <string name="search_messages_hint">Hae viestejä…</string></resources>
+    <string name="search_messages_hint">Hae viestejä…</string>
+    <string name="search_filter_by_username">Suodata käyttäjänimen mukaan</string>
+    <string name="search_filter_has_link">Linkkejä sisältävät viestit</string>
+    <string name="search_filter_has_emote">Emojeja sisältävät viestit</string>
+    <string name="search_filter_by_badge">Suodata merkin nimen mukaan</string>
+    <string name="search_filter_user">Käyttäjä</string>
+    <string name="search_filter_badge">Merkki</string></resources>

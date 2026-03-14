@@ -14,6 +14,7 @@ import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.replies.RepliesUiState
+import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
 /**
@@ -33,6 +34,7 @@ fun RepliesComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onNotFound: () -> Unit,
+    containerColor: Color,
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
@@ -52,7 +54,8 @@ fun RepliesComposable(
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = { /* no-op for replies */ },
-                contentPadding = contentPadding
+                contentPadding = contentPadding,
+                containerColor = containerColor,
             )
         }
         is RepliesUiState.NotFound -> {

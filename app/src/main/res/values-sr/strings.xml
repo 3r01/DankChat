@@ -210,4 +210,10 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="message_not_in_history">Порука више није у историји ћаскања</string>
     <string name="message_history">Историја порука</string>
     <string name="message_history_title">Историја: %1$s</string>
-    <string name="search_messages_hint">Претражи поруке…</string></resources>
+    <string name="search_messages_hint">Претражи поруке…</string>
+    <string name="search_filter_by_username">Филтрирај по корисничком имену</string>
+    <string name="search_filter_has_link">Поруке са линковима</string>
+    <string name="search_filter_has_emote">Поруке са емотима</string>
+    <string name="search_filter_by_badge">Филтрирај по називу значке</string>
+    <string name="search_filter_user">Корисник</string>
+    <string name="search_filter_badge">Значка</string></resources>

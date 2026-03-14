@@ -5,12 +5,16 @@ object ChatSearchFilterParser {
     fun parse(query: String): List<ChatSearchFilter> {
         if (query.isBlank()) return emptyList()
 
-        return query.trim().split("\\s+".toRegex()).mapNotNull { token ->
-            parseToken(token)
+        val tokens = query.trim().split("\\s+".toRegex())
+        val lastTokenIncomplete = !query.endsWith(' ')
+
+        return tokens.mapIndexedNotNull { index, token ->
+            val isBeingTyped = lastTokenIncomplete && index == tokens.lastIndex
+            parseToken(token, isBeingTyped)
         }
     }
 
-    private fun parseToken(token: String): ChatSearchFilter? {
+    private fun parseToken(token: String, isBeingTyped: Boolean): ChatSearchFilter? {
         if (token.isBlank()) return null
 
         val (negate, raw) = extractNegation(token)
@@ -21,28 +25,22 @@ object ChatSearchFilterParser {
             val value = raw.substring(colonIndex + 1)
 
             when (prefix) {
-                "from" -> {
-                    if (value.isNotEmpty()) {
-                        return ChatSearchFilter.Author(name = value, negate = negate)
+                "from" -> return when {
+                    isBeingTyped || value.isEmpty() -> null
+                    else -> ChatSearchFilter.Author(name = value, negate = negate)
+                }
+                "has" -> return when (value.lowercase()) {
+                    "link" -> ChatSearchFilter.HasLink(negate = negate)
+                    "emote" -> ChatSearchFilter.HasEmote(emoteName = null, negate = negate)
+                    "" -> null
+                    else -> when {
+                        isBeingTyped -> null
+                        else -> ChatSearchFilter.HasEmote(emoteName = value, negate = negate)
                     }
                 }
-                "has" -> {
-                    return when (value.lowercase()) {
-                        "link" -> ChatSearchFilter.HasLink(negate = negate)
-                        "emote" -> ChatSearchFilter.HasEmote(emoteName = null, negate = negate)
-                        else -> {
-                            if (value.isNotEmpty()) {
-                                ChatSearchFilter.HasEmote(emoteName = value, negate = negate)
-                            } else {
-                                null
-                            }
-                        }
-                    }
-                }
-                "badge" -> {
-                    if (value.isNotEmpty()) {
-                        return ChatSearchFilter.BadgeFilter(badgeName = value.lowercase(), negate = negate)
-                    }
+                "badge" -> return when {
+                    isBeingTyped || value.isEmpty() -> null
+                    else -> ChatSearchFilter.BadgeFilter(badgeName = value.lowercase(), negate = negate)
                 }
             }
         }

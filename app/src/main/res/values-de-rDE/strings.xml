@@ -367,6 +367,12 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="message_history">Nachrichtenhistorie</string>
     <string name="message_history_title">Verlauf: %1$s</string>
     <string name="search_messages_hint">Nachrichten suchen…</string>
+    <string name="search_filter_by_username">Nach Benutzername filtern</string>
+    <string name="search_filter_has_link">Nachrichten mit Links</string>
+    <string name="search_filter_has_emote">Nachrichten mit Emotes</string>
+    <string name="search_filter_by_badge">Nach Abzeichenname filtern</string>
+    <string name="search_filter_user">Benutzer</string>
+    <string name="search_filter_badge">Abzeichen</string>
     <string name="reply_header">Antwort an @%1$s</string>
     <string name="reply_thread_not_found">Antwortverlauf nicht gefunden</string>
     <string name="message_not_found">Nachricht nicht gefunden</string>

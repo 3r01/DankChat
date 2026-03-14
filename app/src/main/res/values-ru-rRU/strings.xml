@@ -362,6 +362,12 @@
     <string name="message_history">История сообщений</string>
     <string name="message_history_title">История: %1$s</string>
     <string name="search_messages_hint">Поиск сообщений…</string>
+    <string name="search_filter_by_username">Фильтр по имени пользователя</string>
+    <string name="search_filter_has_link">Сообщения со ссылками</string>
+    <string name="search_filter_has_emote">Сообщения с эмоутами</string>
+    <string name="search_filter_by_badge">Фильтр по названию значка</string>
+    <string name="search_filter_user">Пользователь</string>
+    <string name="search_filter_badge">Значок</string>
     <string name="reply_header">В ответ @%1$s</string>
     <string name="reply_thread_not_found">Ветка ответов не найдена</string>
     <string name="message_not_found">Сообщение не найдено</string>

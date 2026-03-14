@@ -1,6 +1,9 @@
 package com.flxrs.dankchat.main.compose
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.res.Resources
+import androidx.core.content.getSystemService
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -43,6 +46,8 @@ fun MainScreenEventHandler(
                 is MainEvent.UploadLoading -> dialogViewModel.setUploading(true)
                 is MainEvent.UploadSuccess -> {
                     dialogViewModel.setUploading(false)
+                    context.getSystemService<ClipboardManager>()
+                        ?.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", event.url))
                     chatInputViewModel.postSystemMessage(resources.getString(R.string.system_message_upload_complete, event.url))
                     val result = snackbarHostState.showSnackbar(
                         message = resources.getString(R.string.snackbar_image_uploaded, event.url),

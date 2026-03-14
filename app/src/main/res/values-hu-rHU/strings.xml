@@ -357,6 +357,12 @@
     <string name="message_history">Üzenetelőzmények</string>
     <string name="message_history_title">Előzmények: %1$s</string>
     <string name="search_messages_hint">Üzenetek keresése…</string>
+    <string name="search_filter_by_username">Szűrés felhasználónév szerint</string>
+    <string name="search_filter_has_link">Linkeket tartalmazó üzenetek</string>
+    <string name="search_filter_has_emote">Emote-okat tartalmazó üzenetek</string>
+    <string name="search_filter_by_badge">Szűrés jelvénynév szerint</string>
+    <string name="search_filter_user">Felhasználó</string>
+    <string name="search_filter_badge">Jelvény</string>
     <string name="reply_header">Válaszol neki @%1$s</string>
     <string name="reply_thread_not_found">Gondolatmenet nem található</string>
     <string name="message_not_found">Üzenet nem található</string>

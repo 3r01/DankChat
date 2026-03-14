@@ -356,6 +356,12 @@
     <string name="message_history">メッセージ履歴</string>
     <string name="message_history_title">履歴：%1$s</string>
     <string name="search_messages_hint">メッセージを検索…</string>
+    <string name="search_filter_by_username">ユーザー名でフィルター</string>
+    <string name="search_filter_has_link">リンクを含むメッセージ</string>
+    <string name="search_filter_has_emote">エモートを含むメッセージ</string>
+    <string name="search_filter_by_badge">バッジ名でフィルター</string>
+    <string name="search_filter_user">ユーザー</string>
+    <string name="search_filter_badge">バッジ</string>
     <string name="reply_header">\@%1$sに返信</string>
     <string name="reply_thread_not_found">返信スレッドが見つかりません</string>
     <string name="message_not_found">メッセージが見つかりません</string>

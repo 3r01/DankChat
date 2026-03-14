@@ -364,6 +364,12 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="message_history">Historia wiadomości</string>
     <string name="message_history_title">Historia: %1$s</string>
     <string name="search_messages_hint">Szukaj wiadomości…</string>
+    <string name="search_filter_by_username">Filtruj po nazwie użytkownika</string>
+    <string name="search_filter_has_link">Wiadomości zawierające linki</string>
+    <string name="search_filter_has_emote">Wiadomości zawierające emotki</string>
+    <string name="search_filter_by_badge">Filtruj po nazwie odznaki</string>
+    <string name="search_filter_user">Użytkownik</string>
+    <string name="search_filter_badge">Odznaka</string>
     <string name="reply_header">Odpowiadasz @%1$s</string>
     <string name="reply_thread_not_found">Nie znaleziono wątku</string>
     <string name="message_not_found">Nie znaleziono wiadomości</string>

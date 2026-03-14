@@ -364,6 +364,12 @@
     <string name="message_history">Історія повідомлень</string>
     <string name="message_history_title">Історія: %1$s</string>
     <string name="search_messages_hint">Пошук повідомлень…</string>
+    <string name="search_filter_by_username">Фільтр за іменем користувача</string>
+    <string name="search_filter_has_link">Повідомлення з посиланнями</string>
+    <string name="search_filter_has_emote">Повідомлення з емоутами</string>
+    <string name="search_filter_by_badge">Фільтр за назвою значка</string>
+    <string name="search_filter_user">Користувач</string>
+    <string name="search_filter_badge">Значок</string>
     <string name="reply_header">Відповісти @%1$s</string>
     <string name="reply_thread_not_found">Тема відповіді не знайдена</string>
     <string name="message_not_found">Повідомлення не знайдено</string>
