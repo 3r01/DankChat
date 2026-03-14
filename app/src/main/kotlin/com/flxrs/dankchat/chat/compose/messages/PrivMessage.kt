@@ -48,6 +48,7 @@ import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
+import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
@@ -137,7 +138,7 @@ private fun PrivMessageText(
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
-    val nameColor = rememberBackgroundColor(message.lightNameColor, message.darkNameColor)
+    val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
     val linkColor = MaterialTheme.colorScheme.primary
 
     // Build annotated string with text content

@@ -2,9 +2,11 @@ package com.flxrs.dankchat.chat.compose
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.theme.LocalAdaptiveColors
+import com.flxrs.dankchat.utils.extensions.normalizeColor
 import com.google.android.material.color.MaterialColors
 
 /**
@@ -33,5 +35,20 @@ fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
         adaptiveColors.onSurfaceLight
     } else {
         adaptiveColors.onSurfaceDark
+    }
+}
+
+/**
+ * Normalizes a raw color int for readable contrast against the effective background.
+ * Uses [MaterialTheme.colorScheme.surface] when the background is transparent.
+ */
+@Composable
+fun rememberNormalizedColor(rawColor: Int, backgroundColor: Color): Color {
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val effectiveBg = if (backgroundColor == Color.Transparent) surfaceColor else backgroundColor
+    val effectiveBgArgb = effectiveBg.toArgb()
+
+    return remember(rawColor, effectiveBgArgb) {
+        Color(rawColor.normalizeColor(effectiveBgArgb))
     }
 }

@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -79,7 +78,7 @@ fun StreamView(
         modifier = modifier
             .then(if (isInPipMode || fillPane) Modifier else Modifier.statusBarsPadding())
             .fillMaxWidth()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         val webViewModifier = when {
             isInPipMode || fillPane -> Modifier.fillMaxSize()
@@ -121,7 +120,7 @@ fun StreamView(
                     .padding(8.dp)
                     .size(36.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f),
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.6f),
                         shape = CircleShape
                     )
             ) {

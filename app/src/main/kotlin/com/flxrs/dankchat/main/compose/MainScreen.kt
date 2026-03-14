@@ -518,10 +518,12 @@ fun MainScreen(
 
     // Clear focus when keyboard fully reaches the bottom, but not when
     // switching to the emote menu. Prevents keyboard from reopening when
-    // returning from background.
+    // returning from background. Debounced to avoid premature focus loss
+    // during heavy recomposition (e.g. emote loading/reparsing).
     val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) {
         snapshotFlow { imeHeightState.value == 0 && !inputState.isEmoteMenuOpen }
+            .debounce(150)
             .distinctUntilChanged()
             .collect { shouldClearFocus ->
                 if (shouldClearFocus) {
@@ -960,14 +962,14 @@ fun MainScreen(
                 )
             }
 
-            // Status bar scrim (hidden in fullscreen and PiP)
-            if (!isFullscreen && !isInPipMode) {
+            // Status bar scrim when stream is active (hidden in fullscreen and PiP)
+            if (currentStream != null && !isFullscreen && !isInPipMode) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .fillMaxWidth()
                         .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
-                        .background(if (currentStream != null) Color.Black else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+                        .background(MaterialTheme.colorScheme.surface)
                 )
             }
 

@@ -2,43 +2,72 @@ package com.flxrs.dankchat.utils.extensions
 
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
-import com.google.android.material.color.MaterialColors
-import kotlin.math.sin
 
+/**
+ * Adjusts this color to ensure readable contrast against [background].
+ *
+ * Uses WCAG contrast ratio (target 4.5:1 for normal text) and shifts
+ * the color's lightness in HSL space until the target is met,
+ * preserving hue and saturation as much as possible.
+ */
 @ColorInt
 fun Int.normalizeColor(@ColorInt background: Int): Int {
+    // calculateContrast requires opaque colors; force full alpha on both
+    val opaqueColor = this or 0xFF000000.toInt()
+    val opaqueBackground = background or 0xFF000000.toInt()
+    val contrast = ColorUtils.calculateContrast(opaqueColor, opaqueBackground)
+    if (contrast >= MIN_CONTRAST_RATIO) return this
 
-    val isLightBackground = MaterialColors.isColorLight(background)
     val hsl = FloatArray(3)
-    ColorUtils.colorToHSL(this, hsl)
-    val huePercentage = hsl[0] / 360f
+    ColorUtils.colorToHSL(opaqueColor, hsl)
 
-    return when {
-        isLightBackground -> {
-            if (hsl[2] > 0.5f) {
-                hsl[2] = 0.5f
-            }
+    val bgLuminance = ColorUtils.calculateLuminance(opaqueBackground)
+    // On dark backgrounds, increase lightness; on light backgrounds, decrease it
+    val shouldLighten = bgLuminance < 0.5
 
-            if (hsl[2] > 0.4f && huePercentage > 0.1f && huePercentage < 0.33333f) {
-                hsl[2] = (hsl[2] - sin((huePercentage - 0.1f) / (0.33333f - 0.1f) * 3.14159f) * hsl[1] * 0.4f)
-            }
+    // Binary search for the minimum lightness adjustment that meets contrast.
+    var low: Float
+    var high: Float
+    if (shouldLighten) {
+        low = hsl[2]   // original lightness
+        high = 1f      // max lightness
+    } else {
+        low = 0f       // min lightness
+        high = hsl[2]  // original lightness
+    }
 
-            ColorUtils.HSLToColor(hsl)
-        }
+    var bestL = hsl[2]
+    var bestContrast = contrast
 
-        else              -> {
-            if (hsl[2] < 0.5f) {
-                hsl[2] = 0.5f
-            }
+    repeat(MAX_ITERATIONS) {
+        val mid = (low + high) / 2f
+        hsl[2] = mid
+        val candidate = ColorUtils.HSLToColor(hsl)
+        val candidateContrast = ColorUtils.calculateContrast(candidate, opaqueBackground)
 
-            if (hsl[2] < 0.6f && huePercentage > 0.54444f && huePercentage < 0.83333f) {
-                hsl[2] = (hsl[2] + sin((huePercentage - 0.54444f) / (0.83333f - 0.54444f) * 3.14159f) * hsl[1] * 0.4f)
-            }
-
-            ColorUtils.HSLToColor(hsl)
+        if (candidateContrast >= MIN_CONTRAST_RATIO) {
+            bestL = mid
+            bestContrast = candidateContrast
+            // Try closer to original (less adjustment)
+            if (shouldLighten) high = mid else low = mid
+        } else {
+            // Need more adjustment (further from original)
+            if (shouldLighten) low = mid else high = mid
         }
     }
+
+    if (bestContrast >= MIN_CONTRAST_RATIO) {
+        hsl[2] = bestL
+        return ColorUtils.HSLToColor(hsl)
+    }
+
+    // Fallback: push to extreme lightness
+    hsl[2] = if (shouldLighten) 0.9f else 0.1f
+    return ColorUtils.HSLToColor(hsl)
 }
+
+private const val MIN_CONTRAST_RATIO = 4.5
+private const val MAX_ITERATIONS = 16
 
 /** convert int to RGB with zero pad */
 val Int.hexCode: String

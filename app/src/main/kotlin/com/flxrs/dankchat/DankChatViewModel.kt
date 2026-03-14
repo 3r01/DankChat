@@ -40,7 +40,7 @@ class DankChatViewModel(
 ) : ViewModel() {
 
     val serviceEvents = dataRepository.serviceEvents
-    private var started = false
+    private var initialConnectionStarted = false
 
     val activeChannel = chatRepository.activeChannel
     val isLoggedIn = dankChatPreferenceStore.isLoggedInFlow
@@ -57,20 +57,22 @@ class DankChatViewModel(
             initialValue = appearanceSettingsDataStore.current().keepScreenOn,
         )
 
-    fun init(tryReconnect: Boolean) {
+    init {
         viewModelScope.launch {
-            if (tryReconnect && started) {
-                chatRepository.reconnectIfNecessary()
-                dataRepository.reconnectIfNecessary()
-            } else {
-                started = true
-
-                if (dankChatPreferenceStore.isLoggedIn) {
-                    validateUser()
-                }
-
-                chatRepository.connectAndJoin()
+            if (dankChatPreferenceStore.isLoggedIn) {
+                validateUser()
             }
+            initialConnectionStarted = true
+            chatRepository.connectAndJoin()
+        }
+    }
+
+    fun reconnectIfNecessary() {
+        if (!initialConnectionStarted) return
+
+        viewModelScope.launch {
+            chatRepository.reconnectIfNecessary()
+            dataRepository.reconnectIfNecessary()
         }
     }
 

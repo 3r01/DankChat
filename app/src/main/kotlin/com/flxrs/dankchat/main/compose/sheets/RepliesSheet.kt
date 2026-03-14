@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
@@ -25,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -56,7 +56,7 @@ fun RepliesSheet(
     var backProgress by remember { mutableFloatStateOf(0f) }
 
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
-    val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 8.dp
+    val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 16.dp
 
     PredictiveBackHandler { progress ->
         try {
@@ -92,21 +92,24 @@ fun RepliesSheet(
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Status bar scrim
+        // Floating toolbar with gradient scrim
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .fillMaxWidth()
-                .height(statusBarHeight)
-                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
-        )
-
-        // Floating toolbar: back pill + title pill
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
+                .background(
+                    brush = Brush.verticalGradient(
+                        0f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                        0.75f to MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                        1f to MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                    )
+                )
                 .padding(top = statusBarHeight + 8.dp)
+                .padding(bottom = 16.dp)
                 .padding(horizontal = 8.dp),
+        ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
             // Back navigation pill
@@ -135,6 +138,7 @@ fun RepliesSheet(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                 )
             }
+        }
         }
     }
 }

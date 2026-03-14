@@ -538,6 +538,11 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("InlinedApi")
     override fun onStart() {
         super.onStart()
+
+        if (!isChangingConfigurations) {
+            viewModel.reconnectIfNecessary()
+        }
+
         val needsNotificationPermission = isAtLeastTiramisu && hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
             needsNotificationPermission -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -710,7 +715,6 @@ class MainActivity : AppCompatActivity() {
                 pendingChannelsToClear.clear()
             }
 
-            viewModel.init(tryReconnect = !isChangingConfigurations)
             binder.service.checkForNotification()
         }
 

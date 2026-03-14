@@ -56,9 +56,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -69,6 +71,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.R
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
@@ -137,9 +140,9 @@ fun FloatingToolbar(
         }
     }
 
-    // Auto-collapse after scroll stops + 2s delay
-    LaunchedEffect(isTabsExpanded, composePagerState.isScrollInProgress) {
-        if (isTabsExpanded && !composePagerState.isScrollInProgress) {
+    // Auto-collapse after all scrolling stops + 2s delay
+    LaunchedEffect(isTabsExpanded, composePagerState.isScrollInProgress, tabListState.isScrollInProgress) {
+        if (isTabsExpanded && !composePagerState.isScrollInProgress && !tabListState.isScrollInProgress) {
             delay(2000)
             isTabsExpanded = false
         }
@@ -175,9 +178,35 @@ fun FloatingToolbar(
         exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = if (currentStream != null && streamHeightDp > 0.dp) streamHeightDp else with(density) { WindowInsets.statusBars.getTop(density).toDp() })
-            .padding(top = 8.dp)
+            .padding(top = if (currentStream != null && streamHeightDp > 0.dp) streamHeightDp + 8.dp else 0.dp)
     ) {
+        val hasStream = currentStream != null && streamHeightDp > 0.dp
+        val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+        val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
+        var toolbarRowHeight by remember { mutableStateOf(0f) }
+        val scrimModifier = if (hasStream) {
+            Modifier.fillMaxWidth()
+        } else {
+            Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    if (toolbarRowHeight > 0f) {
+                        val gradientHeight = statusBarPx + 8.dp.toPx() + toolbarRowHeight + 16.dp.toPx()
+                        drawRect(
+                            brush = Brush.verticalGradient(
+                                0f to scrimColor,
+                                0.75f to scrimColor,
+                                1f to scrimColor.copy(alpha = 0f),
+                                endY = gradientHeight
+                            ),
+                            size = Size(size.width, gradientHeight)
+                        )
+                    }
+                }
+                .padding(top = with(density) { WindowInsets.statusBars.getTop(density).toDp() } + 8.dp)
+        }
+
+        Box(modifier = scrimModifier) {
         // Auto-scroll whenever the selected tab isn't fully visible
         LaunchedEffect(Unit) {
             snapshotFlow {
@@ -209,7 +238,11 @@ fun FloatingToolbar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp)
+                .onSizeChanged {
+                    val h = it.height.toFloat()
+                    if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
+                },
             verticalAlignment = Alignment.Top
         ) {
             // Scrollable tabs pill
@@ -334,7 +367,7 @@ fun FloatingToolbar(
                                 bottomStart = pillCornerRadius,
                                 bottomEnd = pillCornerRadius
                             ),
-                            color = MaterialTheme.colorScheme.surfaceContainer
+                            color = MaterialTheme.colorScheme.surfaceContainer,
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(onClick = onAddChannel) {
@@ -377,7 +410,7 @@ fun FloatingToolbar(
                                     bottomStart = 12.dp,
                                     bottomEnd = 12.dp
                                 ),
-                                color = MaterialTheme.colorScheme.surfaceContainer
+                                color = MaterialTheme.colorScheme.surfaceContainer,
                             ) {
                                 InlineOverflowMenu(
                                     isLoggedIn = isLoggedIn,
@@ -410,6 +443,7 @@ fun FloatingToolbar(
                     }
                 }
             }
+        }
         }
     }
 }

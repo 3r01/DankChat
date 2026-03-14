@@ -1,9 +1,7 @@
 package com.flxrs.dankchat.chat.compose
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
@@ -20,11 +18,8 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.aliasOrFormattedName
-import com.flxrs.dankchat.data.twitch.message.customOrUserColorOn
 import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
-import com.flxrs.dankchat.data.twitch.message.recipientColorOnBackground
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
-import com.flxrs.dankchat.data.twitch.message.senderColorOnBackground
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettings
@@ -348,9 +343,8 @@ object ChatMessageMapper {
             append(message)
         }
 
-        // Compute name colors for both light and dark backgrounds
-        val lightNameColorInt = customOrUserColorOn(backgroundColors.light.toArgb())
-        val darkNameColorInt = customOrUserColorOn(backgroundColors.dark.toArgb())
+        // Store raw color for normalization at render time (needs Compose theme context)
+        val rawNameColor = userDisplay?.color ?: color
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
@@ -365,8 +359,7 @@ object ChatMessageMapper {
             userName = name,
             displayName = displayName,
             badges = badgeUis,
-            lightNameColor = Color(lightNameColorInt),
-            darkNameColor = Color(darkNameColorInt),
+            rawNameColor = rawNameColor,
             nameText = nameText,
             message = message,
             emotes = emoteUis,
@@ -460,11 +453,9 @@ object ChatMessageMapper {
             append(message)
         }
 
-        // Compute colors for both light and dark backgrounds
-        val lightSenderColorInt = senderColorOnBackground(backgroundColors.light.toArgb())
-        val darkSenderColorInt = senderColorOnBackground(backgroundColors.dark.toArgb())
-        val lightRecipientColorInt = recipientColorOnBackground(backgroundColors.light.toArgb())
-        val darkRecipientColorInt = recipientColorOnBackground(backgroundColors.dark.toArgb())
+        // Store raw colors for normalization at render time (needs Compose theme context)
+        val rawSenderColor = userDisplay?.color ?: color
+        val rawRecipientColor = recipientDisplay?.color ?: recipientColor
 
         return ChatMessageUiState.WhisperMessageUi(
             id = id,
@@ -478,10 +469,8 @@ object ChatMessageMapper {
             userName = name,
             displayName = displayName,
             badges = badgeUis,
-            lightSenderColor = Color(lightSenderColorInt),
-            darkSenderColor = Color(darkSenderColorInt),
-            lightRecipientColor = Color(lightRecipientColorInt),
-            darkRecipientColor = Color(darkRecipientColorInt),
+            rawSenderColor = rawSenderColor,
+            rawRecipientColor = rawRecipientColor,
             senderName = senderAliasOrFormattedName,
             recipientName = recipientAliasOrFormattedName,
             message = message,
