@@ -374,13 +374,21 @@ private fun ChatMessageItem(
  * Scrolls so that [index] is vertically centered in the usable viewport area
  * (the region between [topPaddingPx] and [bottomPaddingPx]).
  *
- * In a reverse-layout LazyColumn, `scrollToItem(index, scrollOffset)` places
- * the item's bottom edge [scrollOffset] pixels above the viewport's bottom.
- * We set the offset so the item lands in the middle of the usable area.
+ * Works in two instant steps that coalesce into a single visual frame:
+ * 1. [scrollToItem] ensures the target item is laid out and measurable.
+ * 2. Reads the item's actual position, computes the delta needed to center it,
+ *    and applies the correction via [scroll].
  */
 private suspend fun LazyListState.scrollToCentered(index: Int, topPaddingPx: Int, bottomPaddingPx: Int) {
+    scrollToItem(index)
+
+    val itemInfo = layoutInfo.visibleItemsInfo.firstOrNull { it.index == index } ?: return
     val viewportHeight = layoutInfo.viewportSize.height
-    val usableHeight = viewportHeight - topPaddingPx - bottomPaddingPx
-    val centeringOffset = bottomPaddingPx + usableHeight / 2
-    scrollToItem(index, scrollOffset = centeringOffset)
+    val usableTop = topPaddingPx
+    val usableBottom = viewportHeight - bottomPaddingPx
+    val usableCenter = (usableTop + usableBottom) / 2
+    val itemCenter = itemInfo.offset + itemInfo.size / 2
+    val delta = (itemCenter - usableCenter).toFloat()
+
+    scroll { scrollBy(delta) }
 }

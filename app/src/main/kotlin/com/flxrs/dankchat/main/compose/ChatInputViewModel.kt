@@ -15,6 +15,7 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
+import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
@@ -67,6 +68,7 @@ class ChatInputViewModel(
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
+    private val emoteUsageRepository: EmoteUsageRepository,
     private val mainEventBus: MainEventBus,
 ) : ViewModel() {
 
@@ -399,6 +401,20 @@ class ChatInputViewModel(
         }
     }
 
+    fun deleteLastWord() {
+        val text = textFieldState.text
+        if (text.isEmpty()) return
+        var end = text.length
+        // Skip trailing spaces
+        while (end > 0 && text[end - 1] == ' ') end--
+        // Find start of word
+        var start = end
+        while (start > 0 && text[start - 1] != ' ') start--
+        textFieldState.edit {
+            replace(start, length, "")
+        }
+    }
+
     fun postSystemMessage(message: String) {
         val channel = chatRepository.activeChannel.value ?: return
         chatRepository.makeAndPostCustomSystemMessage(message, channel)
@@ -423,19 +439,29 @@ class ChatInputViewModel(
         val currentText = textFieldState.text.toString()
         val cursorPos = currentText.length // Assume cursor at end for simplicity
         val separator = ' '
-        
+
         // Find start of current word
         var start = cursorPos
         while (start > 0 && currentText[start - 1] != separator) start--
-        
+
         // Build new text with replacement
         val replacement = suggestion.toString() + separator
         val newText = currentText.substring(0, start) + replacement
-        
+
         // Replace all text and place cursor at end
         textFieldState.edit {
             replace(0, length, newText)
             placeCursorAtEnd()
+        }
+
+        if (suggestion is Suggestion.EmoteSuggestion) {
+            addEmoteUsage(suggestion.emote.id)
+        }
+    }
+
+    fun addEmoteUsage(emoteId: String) {
+        viewModelScope.launch {
+            emoteUsageRepository.addEmoteUsage(emoteId)
         }
     }
 

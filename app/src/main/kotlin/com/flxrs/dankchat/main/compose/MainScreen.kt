@@ -678,9 +678,11 @@ fun MainScreen(
                         .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                 ) {
                     EmoteMenu(
-                        onEmoteClick = { code, _ ->
+                        onEmoteClick = { code, id ->
                             chatInputViewModel.insertText("$code ")
+                            chatInputViewModel.addEmoteUsage(id)
                         },
+                        onBackspace = chatInputViewModel::deleteLastWord,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
