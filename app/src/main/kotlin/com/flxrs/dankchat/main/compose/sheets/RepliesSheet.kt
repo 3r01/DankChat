@@ -36,7 +36,6 @@ import org.koin.core.parameter.parametersOf
 fun RepliesSheet(
     rootMessageId: String,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    inputHeight: androidx.compose.ui.unit.Dp,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -88,10 +87,7 @@ fun RepliesSheet(
                 else -> emptyList()
             },
             fontSize = appearanceSettings.fontSize.toFloat(),
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(bottom = inputHeight)
-                .fillMaxSize(),
+            modifier = Modifier.padding(paddingValues).fillMaxSize(),
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
             onEmoteClick = { /* no-op */ }

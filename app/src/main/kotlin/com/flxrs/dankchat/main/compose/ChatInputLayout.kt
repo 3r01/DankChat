@@ -66,9 +66,7 @@ fun ChatInputLayout(
     showReplyOverlay: Boolean,
     replyName: UserName?,
     onSend: () -> Unit,
-    onLongSend: () -> Unit,
-    onSendHold: (Boolean) -> Unit,
-    isRepeatedSendEnabled: Boolean,
+    onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
     onReplyDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -172,34 +170,16 @@ fun ChatInputLayout(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // History Button (Only when empty)
-                AnimatedVisibility(
-                    visible = textFieldState.text.isEmpty(),
-                    enter = scaleIn() + fadeIn(),
-                    exit = scaleOut() + fadeOut()
+                // History Button (Always visible)
+                IconButton(
+                    onClick = onLastMessageClick,
+                    enabled = enabled,
+                    modifier = Modifier.size(40.dp)
                 ) {
-                    IconButton(
-                        onClick = onLongSend,
-                        enabled = enabled,
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.History,
-                            contentDescription = stringResource(R.string.resume_scroll), // Using resume_scroll as a placeholder for "History/Last message" context
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Spam Button (Only when not empty and enabled)
-                AnimatedVisibility(
-                    visible = textFieldState.text.isNotEmpty() && isRepeatedSendEnabled,
-                    enter = scaleIn() + fadeIn(),
-                    exit = scaleOut() + fadeOut()
-                ) {
-                    SpamButton(
-                        enabled = enabled,
-                        onSendHold = onSendHold
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = stringResource(R.string.resume_scroll), // Using resume_scroll as a placeholder for "History/Last message" context
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -211,53 +191,6 @@ fun ChatInputLayout(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun SpamButton(
-    enabled: Boolean,
-    onSendHold: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val scope = rememberCoroutineScope()
-    val interactionSource = remember { MutableInteractionSource() }
-    
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .indication(
-                interactionSource = interactionSource,
-                indication = ripple()
-            )
-            .pointerInput(enabled) {
-                if (!enabled) return@pointerInput
-                
-                awaitEachGesture {
-                    val down = awaitFirstDown()
-                    var isHolding = false
-                    val timerJob = scope.launch {
-                        delay(500L)
-                        isHolding = true
-                        onSendHold(true)
-                    }
-                    
-                    val up = waitForUpOrCancellation()
-                    timerJob.cancel()
-                    
-                    if (up != null || isHolding) {
-                         onSendHold(false)
-                    }
-                }
-            }
-    ) {
-         Icon(
-            imageVector = Icons.Default.Repeat,
-            contentDescription = null, // TODO: Add string for "Spam"
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }
 

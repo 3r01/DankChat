@@ -95,7 +95,8 @@ fun MainAppBar(
 
             DropdownMenu(
                 expanded = currentMenu != null,
-                onDismissRequest = { currentMenu = null }
+                onDismissRequest = { currentMenu = null },
+                shape = MaterialTheme.shapes.medium
             ) {
                 AnimatedContent(
                     targetState = currentMenu,
@@ -123,13 +124,6 @@ fun MainAppBar(
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.account)) },
                                         onClick = { currentMenu = AppBarMenu.Account }
-                                    )
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.whispers)) },
-                                        onClick = {
-                                            onOpenWhispers()
-                                            currentMenu = null
-                                        }
                                     )
                                 }
 

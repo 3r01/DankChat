@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
@@ -439,7 +440,10 @@ fun MainScreen(
     )
     val density = LocalDensity.current
     var inputHeightPx by remember { mutableIntStateOf(0) }
+    var inputTopY by remember { mutableStateOf(0f) }
+    var containerHeight by remember { mutableIntStateOf(0) }
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
+    val sheetBottomPadding = with(density) { (containerHeight - inputTopY).toDp() }
 
     // Track keyboard visibility - clear focus only when keyboard is fully closed
     val focusManager = LocalFocusManager.current
@@ -472,7 +476,10 @@ fun MainScreen(
 
     val systemBarsPaddingModifier = if (isFullscreen) Modifier else Modifier.statusBarsPadding()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .onGloballyPositioned { containerHeight = it.size.height }
+    ) {
         Scaffold(
             modifier = modifier
                 .fillMaxSize()
@@ -531,15 +538,14 @@ fun MainScreen(
                         showReplyOverlay = inputState.showReplyOverlay,
                         replyName = inputState.replyName,
                         onSend = chatInputViewModel::sendMessage,
-                        onLongSend = chatInputViewModel::getLastMessage,
-                        onSendHold = chatInputViewModel::setRepeatedSend,
-                        isRepeatedSendEnabled = isRepeatedSendEnabled,
+                        onLastMessageClick = chatInputViewModel::getLastMessage,
                         onEmoteClick = { sheetNavigationViewModel.openEmoteSheet() },
                         onReplyDismiss = {
                             chatInputViewModel.setReplying(false)
                         },
                         modifier = Modifier.onGloballyPositioned { coordinates ->
                             inputHeightPx = coordinates.size.height
+                            inputTopY = coordinates.positionInRoot().y
                         }
                     )
                 }
@@ -595,7 +601,8 @@ fun MainScreen(
                     }
                     HorizontalPager(
                         state = composePagerState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        key = { index -> pagerState.channels.getOrNull(index)?.value ?: index }
                     ) { page ->
                         if (page in pagerState.channels.indices) {
                             val channel = pagerState.channels[page]
@@ -641,12 +648,10 @@ fun MainScreen(
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
         modifier = Modifier
             .fillMaxSize()
-            .imePadding()
+            .padding(bottom = sheetBottomPadding)
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+            modifier = Modifier.fillMaxSize()
         ) {
             when (val state = fullScreenSheetState) {
                 is FullScreenSheetState.Closed -> Unit
@@ -655,7 +660,6 @@ fun MainScreen(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = false,
                         appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        inputHeight = inputHeightDp,
                         onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
                         onUserClick = { userId, userName, displayName, channel, badges, _ ->
                             userPopupParams = UserPopupStateParams(
@@ -686,7 +690,6 @@ fun MainScreen(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = true,
                         appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        inputHeight = inputHeightDp,
                         onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
                         onUserClick = { userId, userName, displayName, channel, badges, _ ->
                             userPopupParams = UserPopupStateParams(
@@ -717,7 +720,6 @@ fun MainScreen(
                     RepliesSheet(
                         rootMessageId = state.replyMessageId,
                         appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        inputHeight = inputHeightDp,
                         onDismiss = {
                             sheetNavigationViewModel.closeFullScreenSheet()
                             chatInputViewModel.setReplying(false)

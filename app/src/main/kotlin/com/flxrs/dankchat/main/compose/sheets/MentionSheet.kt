@@ -43,7 +43,6 @@ fun MentionSheet(
     mentionViewModel: MentionComposeViewModel,
     initialisWhisperTab: Boolean,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    inputHeight: androidx.compose.ui.unit.Dp,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -110,7 +109,6 @@ fun MentionSheet(
             state = pagerState,
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(bottom = inputHeight)
                 .fillMaxSize()
         ) { page ->
             MentionComposable(

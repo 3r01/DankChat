@@ -225,7 +225,10 @@ class ChatInputViewModel(
             is CommandResult.Blocked               -> Unit
 
             is CommandResult.IrcCommand,
-            is CommandResult.NotFound              -> chatRepository.sendMessage(message, replyIdOrNull)
+            is CommandResult.NotFound              -> {
+                chatRepository.sendMessage(message, replyIdOrNull)
+                setReplying(false)
+            }
 
             is CommandResult.AcceptedTwitchCommand -> {
                 if (commandResult.command == TwitchCommand.Whisper) {
@@ -237,7 +240,10 @@ class ChatInputViewModel(
             }
 
             is CommandResult.AcceptedWithResponse  -> chatRepository.makeAndPostCustomSystemMessage(commandResult.response, channel)
-            is CommandResult.Message               -> chatRepository.sendMessage(commandResult.message, replyIdOrNull)
+            is CommandResult.Message               -> {
+                chatRepository.sendMessage(commandResult.message, replyIdOrNull)
+                setReplying(false)
+            }
         }
 
         if (commandResult != CommandResult.NotFound && commandResult != CommandResult.IrcCommand) {
@@ -246,10 +252,6 @@ class ChatInputViewModel(
     }
 
     fun getLastMessage() {
-        if (textFieldState.text.isNotBlank()) {
-            return
-        }
-
         val lastMessage = chatRepository.getLastMessage() ?: return
         textFieldState.edit {
             replace(0, length, lastMessage)

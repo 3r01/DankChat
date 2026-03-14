@@ -40,10 +40,11 @@ class ChannelManagementViewModel(
             }
         }
         
-        // Auto-load data when channels added
+        // Auto-load data when channels added and join if necessary
         viewModelScope.launch {
             channels.collect { channelList ->
                 channelList.forEach { channelWithRename ->
+                    chatRepository.joinChannel(channelWithRename.channel)
                     channelDataCoordinator.loadChannelData(channelWithRename.channel)
                 }
             }
@@ -54,12 +55,14 @@ class ChannelManagementViewModel(
         val current = preferenceStore.channels
         if (channel !in current) {
             preferenceStore.channels = current + channel
+            chatRepository.joinChannel(channel)
             chatRepository.setActiveChannel(channel)
         }
     }
 
     fun removeChannel(channel: UserName) {
         preferenceStore.removeChannel(channel)
+        chatRepository.updateChannels(preferenceStore.channels)
         channelDataCoordinator.cleanupChannel(channel)
     }
 
