@@ -125,6 +125,7 @@ private fun AppearanceSettingsContent(
                 showInput = settings.showInput,
                 autoDisableInput = settings.autoDisableInput,
                 showChips = settings.showChips,
+                showInputSetting = !useComposeUi,
                 showChipsSetting = !useComposeUi,
                 onInteraction = onInteraction,
             )
@@ -138,21 +139,24 @@ private fun ComponentsCategory(
     showInput: Boolean,
     autoDisableInput: Boolean,
     showChips: Boolean,
+    showInputSetting: Boolean,
     showChipsSetting: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(
         title = stringResource(R.string.preference_components_group_title),
     ) {
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_show_input_title),
-            summary = stringResource(R.string.preference_show_input_summary),
-            isChecked = showInput,
-            onClick = { onInteraction(ShowInput(it)) },
-        )
+        if (showInputSetting) {
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_show_input_title),
+                summary = stringResource(R.string.preference_show_input_summary),
+                isChecked = showInput,
+                onClick = { onInteraction(ShowInput(it)) },
+            )
+        }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_auto_disable_input_title),
-            isEnabled = showInput,
+            isEnabled = !showInputSetting || showInput,
             isChecked = autoDisableInput,
             onClick = { onInteraction(AutoDisableInput(it)) },
         )
