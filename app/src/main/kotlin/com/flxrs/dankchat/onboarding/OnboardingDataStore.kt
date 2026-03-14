@@ -8,6 +8,7 @@ import com.flxrs.dankchat.utils.datastore.createDataStore
 import com.flxrs.dankchat.utils.datastore.safeData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -55,9 +56,16 @@ class OnboardingDataStore(
         initialValue = runBlocking { settings.first() }
     )
 
+    private val persistScope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
+
     fun current() = currentSettings.value
 
     suspend fun update(transform: suspend (OnboardingSettings) -> OnboardingSettings) {
         runCatching { dataStore.updateData(transform) }
+    }
+
+    /** Fire-and-forget update that survives caller cancellation (e.g. config change). */
+    fun updateAsync(transform: suspend (OnboardingSettings) -> OnboardingSettings) {
+        persistScope.launch { update(transform) }
     }
 }

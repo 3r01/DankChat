@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -56,6 +57,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -190,40 +192,23 @@ fun MainScreen(
     val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = developerSettingsDataStore.current())
     val isRepeatedSendEnabled = developerSettings.repeatedSending
 
-    var keyboardHeightPx by remember(isLandscape) {
-        val persisted = if (isLandscape) preferenceStore.keyboardHeightLandscape else preferenceStore.keyboardHeightPortrait
-        mutableIntStateOf(persisted)
-    }
-    
     val ime = WindowInsets.ime
     val navBars = WindowInsets.navigationBars
     val imeTarget = WindowInsets.imeAnimationTarget
     val currentImeHeight = (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
-    
+
     // Target height for stability during opening animation
     val targetImeHeight = (imeTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
     val isImeOpening = targetImeHeight > 0
-    
+
     val imeHeightState = rememberUpdatedState(currentImeHeight)
     val isImeVisible = WindowInsets.isImeVisible
 
-    LaunchedEffect(isLandscape, density) {
-        snapshotFlow { 
-            (imeTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
-        }
-            .debounce(300)
-            .collect { height ->
-                val minHeight = with(density) { 100.dp.toPx() }
-                if (height > minHeight) {
-                    keyboardHeightPx = height
-                    if (isLandscape) {
-                        preferenceStore.keyboardHeightLandscape = height
-                    } else {
-                        preferenceStore.keyboardHeightPortrait = height
-                    }
-                }
-            }
-    }
+    // Keyboard height tracking — VM handles debounce + persistence
+    LaunchedEffect(isLandscape) { mainScreenViewModel.initKeyboardHeight(isLandscape) }
+    val keyboardHeightPx by mainScreenViewModel.keyboardHeightPx.collectAsStateWithLifecycle()
+    val minKeyboardHeightPx = with(density) { 100.dp.toPx() }
+    mainScreenViewModel.trackKeyboardHeight(targetImeHeight, isLandscape, minKeyboardHeightPx)
 
     // Close emote menu when keyboard opens, but wait for keyboard to reach
     // persisted height so scaffold padding doesn't jump during the transition
@@ -244,37 +229,8 @@ fun MainScreen(
     // Stream state
     val currentStream by streamViewModel.currentStreamedChannel.collectAsStateWithLifecycle()
     val hasStreamData by streamViewModel.hasStreamData.collectAsStateWithLifecycle()
-    var streamHeightDp by remember { mutableStateOf(0.dp) }
-    val streamToolbarAlpha = remember { Animatable(0f) }
-    val hasVisibleStream = currentStream != null && streamHeightDp > 0.dp
-    var prevHasVisibleStream by remember { mutableStateOf(false) }
-    // Detect keyboard starting to close while stream exists
     val imeTargetBottom = with(density) { WindowInsets.imeAnimationTarget.getBottom(density) }
-    val isKeyboardClosingWithStream = currentStream != null && isKeyboardVisible && imeTargetBottom == 0
-    // Bridge the gap between keyboard fully closed and stream measured
-    var wasKeyboardClosingWithStream by remember { mutableStateOf(false) }
-    if (isKeyboardClosingWithStream) wasKeyboardClosingWithStream = true
-    if (hasVisibleStream) wasKeyboardClosingWithStream = false
-    // Fade on stream visibility changes (keyboard show/hide in stacked layout)
-    LaunchedEffect(hasVisibleStream, isKeyboardClosingWithStream) {
-        when {
-            isKeyboardClosingWithStream -> {
-                streamToolbarAlpha.animateTo(0f, tween(durationMillis = 150))
-            }
-            hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
-                prevHasVisibleStream = hasVisibleStream
-                streamToolbarAlpha.snapTo(0f)
-                streamToolbarAlpha.animateTo(1f, tween(durationMillis = 350))
-            }
-            !hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
-                prevHasVisibleStream = hasVisibleStream
-                streamToolbarAlpha.snapTo(0f)
-            }
-        }
-    }
-    LaunchedEffect(currentStream) {
-        if (currentStream == null) streamHeightDp = 0.dp
-    }
+    val streamState = rememberStreamToolbarState(currentStream, isKeyboardVisible, imeTargetBottom)
 
     // PiP state — observe via lifecycle since onPause fires when entering PiP
     val activity = context as? Activity
@@ -650,13 +606,15 @@ fun MainScreen(
                 },
                 onInputHeightChanged = { inputHeightPx = it },
                 instantHide = isHistorySheet,
-                inputActionsTooltipState = if (tourController.currentStep == TourStep.InputActions) tourController.inputActionsTooltipState else null,
-                overflowMenuTooltipState = if (tourController.currentStep == TourStep.OverflowMenu) tourController.overflowMenuTooltipState else null,
-                configureActionsTooltipState = if (tourController.currentStep == TourStep.ConfigureActions) tourController.configureActionsTooltipState else null,
-                swipeGestureTooltipState = if (tourController.currentStep == TourStep.SwipeGesture) tourController.swipeGestureTooltipState else null,
-                forceOverflowOpen = tourController.forceOverflowOpen,
-                onTourAdvance = tourController::advance,
-                onTourSkip = tourController::skipTour,
+                tourState = TourOverlayState(
+                    inputActionsTooltipState = if (tourController.currentStep == TourStep.InputActions) tourController.inputActionsTooltipState else null,
+                    overflowMenuTooltipState = if (tourController.currentStep == TourStep.OverflowMenu) tourController.overflowMenuTooltipState else null,
+                    configureActionsTooltipState = if (tourController.currentStep == TourStep.ConfigureActions) tourController.configureActionsTooltipState else null,
+                    swipeGestureTooltipState = if (tourController.currentStep == TourStep.SwipeGesture) tourController.swipeGestureTooltipState else null,
+                    forceOverflowOpen = tourController.forceOverflowOpen,
+                    onAdvance = tourController::advance,
+                    onSkip = tourController::skipTour,
+                ),
             )
         }
 
@@ -718,7 +676,7 @@ fun MainScreen(
                 isLoggedIn = isLoggedIn,
                 currentStream = currentStream,
                 hasStreamData = hasStreamData,
-                streamHeightDp = streamHeightDp,
+                streamHeightDp = streamState.heightDp,
                 totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
                 onAction = handleToolbarAction,
                 endAligned = endAligned,
@@ -726,7 +684,7 @@ fun MainScreen(
                 addChannelTooltipState = if (postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) toolbarAddChannelTooltipState else null,
                 onAddChannelTooltipDismissed = coordinator::onToolbarHintDismissed,
                 onSkipTour = tourController::skipTour,
-                streamToolbarAlpha = if (hasVisibleStream || isKeyboardClosingWithStream || wasKeyboardClosingWithStream) streamToolbarAlpha.value else 1f,
+                streamToolbarAlpha = streamState.effectiveAlpha,
                 modifier = toolbarModifier,
             )
         }
@@ -1059,7 +1017,7 @@ fun MainScreen(
                         )
                     },
                 ) { paddingValues ->
-                    val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamHeightDp * streamToolbarAlpha.value)
+                    val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp * streamState.alpha.value)
                     scaffoldContent(paddingValues, chatTopPadding)
                 }
             } // end !isInPipMode
@@ -1092,15 +1050,15 @@ fun MainScreen(
                             Modifier
                                 .align(Alignment.TopCenter)
                                 .fillMaxWidth()
-                                .graphicsLayer { alpha = streamToolbarAlpha.value }
+                                .graphicsLayer { alpha = streamState.alpha.value }
                                 .onGloballyPositioned { coordinates ->
-                                    streamHeightDp = with(density) { coordinates.size.height.toDp() }
+                                    streamState.heightDp = with(density) { coordinates.size.height.toDp() }
                                 }
                         }
                     )
                 }
                 if (!showStream) {
-                    streamHeightDp = 0.dp
+                    streamState.heightDp = 0.dp
                 }
             }
 
@@ -1132,7 +1090,7 @@ fun MainScreen(
                         .align(Alignment.TopCenter)
                         .fillMaxWidth()
                         .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
-                        .graphicsLayer { alpha = streamToolbarAlpha.value }
+                        .graphicsLayer { alpha = streamState.alpha.value }
                         .background(MaterialTheme.colorScheme.surface)
                 )
             }
@@ -1173,5 +1131,67 @@ fun MainScreen(
             }
         }
     }
+}
+
+@Stable
+private class StreamToolbarState(
+    val alpha: Animatable<Float, AnimationVector1D>,
+) {
+    var heightDp by mutableStateOf(0.dp)
+    private var prevHasVisibleStream by mutableStateOf(false)
+    private var isKeyboardClosingWithStream by mutableStateOf(false)
+    private var wasKeyboardClosingWithStream by mutableStateOf(false)
+
+    val hasVisibleStream: Boolean
+        get() = heightDp > 0.dp
+
+    /**
+     * Returns the effective toolbar alpha, accounting for the bridge state
+     * between keyboard closing and stream becoming visible.
+     */
+    val effectiveAlpha: Float
+        get() = if (hasVisibleStream || isKeyboardClosingWithStream || wasKeyboardClosingWithStream) alpha.value else 1f
+
+    suspend fun updateAnimation(hasVisibleStream: Boolean, keyboardClosingWithStream: Boolean) {
+        isKeyboardClosingWithStream = keyboardClosingWithStream
+        if (keyboardClosingWithStream) wasKeyboardClosingWithStream = true
+        if (hasVisibleStream) wasKeyboardClosingWithStream = false
+
+        when {
+            keyboardClosingWithStream -> {
+                alpha.animateTo(0f, tween(durationMillis = 150))
+            }
+            hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
+                prevHasVisibleStream = hasVisibleStream
+                alpha.snapTo(0f)
+                alpha.animateTo(1f, tween(durationMillis = 350))
+            }
+            !hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
+                prevHasVisibleStream = hasVisibleStream
+                alpha.snapTo(0f)
+            }
+        }
+    }
+}
+
+@Composable
+private fun rememberStreamToolbarState(
+    currentStream: UserName?,
+    isKeyboardVisible: Boolean,
+    imeTargetBottom: Int,
+): StreamToolbarState {
+    val state = remember { StreamToolbarState(alpha = Animatable(0f)) }
+
+    val hasVisibleStream = currentStream != null && state.heightDp > 0.dp
+    val isKeyboardClosingWithStream = currentStream != null && isKeyboardVisible && imeTargetBottom == 0
+
+    LaunchedEffect(hasVisibleStream, isKeyboardClosingWithStream) {
+        state.updateAnimation(hasVisibleStream, isKeyboardClosingWithStream)
+    }
+    LaunchedEffect(currentStream) {
+        if (currentStream == null) state.heightDp = 0.dp
+    }
+
+    return state
 }
 

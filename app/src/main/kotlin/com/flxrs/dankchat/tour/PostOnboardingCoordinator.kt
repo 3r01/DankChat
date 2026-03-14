@@ -6,11 +6,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.flxrs.dankchat.onboarding.OnboardingDataStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Immutable
 sealed interface PostOnboardingStep {
@@ -30,7 +27,6 @@ sealed interface PostOnboardingStep {
 @Stable
 class PostOnboardingCoordinator(
     private val onboardingDataStore: OnboardingDataStore,
-    private val scope: CoroutineScope,
 ) {
     var step by mutableStateOf<PostOnboardingStep>(PostOnboardingStep.Idle)
         private set
@@ -49,13 +45,13 @@ class PostOnboardingCoordinator(
     fun onAddedChannelFromToolbar() {
         if (toolbarHintDone) return
         toolbarHintDone = true
-        scope.launch { onboardingDataStore.update { it.copy(hasShownToolbarHint = true) } }
+        onboardingDataStore.updateAsync { it.copy(hasShownToolbarHint = true) }
     }
 
     fun onToolbarHintDismissed() {
         if (toolbarHintDone) return // idempotent for external-dismiss handler
         toolbarHintDone = true
-        scope.launch { onboardingDataStore.update { it.copy(hasShownToolbarHint = true) } }
+        onboardingDataStore.updateAsync { it.copy(hasShownToolbarHint = true) }
         val settings = onboardingDataStore.current()
         step = when {
             settings.featureTourVersion < CURRENT_TOUR_VERSION && !isEmpty -> PostOnboardingStep.FeatureTour
@@ -84,8 +80,7 @@ class PostOnboardingCoordinator(
 
 @Composable
 fun rememberPostOnboardingCoordinator(onboardingDataStore: OnboardingDataStore): PostOnboardingCoordinator {
-    val scope = rememberCoroutineScope()
     return remember(onboardingDataStore) {
-        PostOnboardingCoordinator(onboardingDataStore, scope)
+        PostOnboardingCoordinator(onboardingDataStore)
     }
 }

@@ -93,7 +93,7 @@ fun MainScreenEventHandler(
         }
     }
 
-    // Handle Login Result
+    // Handle Login Result — from direct login via Settings/Toolbar
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val loginSuccess by navBackStackEntry?.savedStateHandle?.getStateFlow<Boolean?>("login_success", null)?.collectAsStateWithLifecycle() ?: remember { mutableStateOf(null) }
     LaunchedEffect(loginSuccess) {
@@ -110,6 +110,16 @@ fun MainScreenEventHandler(
                 }
                 snackbarHostState.showSnackbar(message)
             }
+        }
+    }
+
+    // Handle login that happened during onboarding — the login_success saved state
+    // is on Onboarding's backstack entry (popped before MainScreen), so we need to
+    // reconnect if credentials exist but the connection is still anonymous.
+    LaunchedEffect(Unit) {
+        if (preferenceStore.isLoggedIn) {
+            channelManagementViewModel.reconnect()
+            mainScreenViewModel.reloadGlobalData()
         }
     }
 

@@ -16,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -53,13 +52,7 @@ fun ChatBottomBar(
     onInputActionsChanged: (List<InputAction>) -> Unit,
     onInputHeightChanged: (Int) -> Unit,
     instantHide: Boolean = false,
-    inputActionsTooltipState: TooltipState? = null,
-    overflowMenuTooltipState: TooltipState? = null,
-    configureActionsTooltipState: TooltipState? = null,
-    swipeGestureTooltipState: TooltipState? = null,
-    forceOverflowOpen: Boolean = false,
-    onTourAdvance: (() -> Unit)? = null,
-    onTourSkip: (() -> Unit)? = null,
+    tourState: TourOverlayState = TourOverlayState(),
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
@@ -101,13 +94,7 @@ fun ChatBottomBar(
                 onSearchClick = onSearchClick,
                 onNewWhisper = onNewWhisper,
                 showQuickActions = !isSheetOpen,
-                inputActionsTooltipState = inputActionsTooltipState,
-                overflowMenuTooltipState = overflowMenuTooltipState,
-                configureActionsTooltipState = configureActionsTooltipState,
-                swipeGestureTooltipState = swipeGestureTooltipState,
-                forceOverflowOpen = forceOverflowOpen,
-                onTourAdvance = onTourAdvance,
-                onTourSkip = onTourSkip,
+                tourState = tourState,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     onInputHeightChanged(coordinates.size.height)
                 }

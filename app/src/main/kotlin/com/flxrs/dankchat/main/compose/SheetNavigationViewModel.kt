@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import com.flxrs.dankchat.data.UserName
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,14 +66,14 @@ class SheetNavigationViewModel : ViewModel() {
 
 sealed interface FullScreenSheetState {
     data object Closed : FullScreenSheetState
-    data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
+    @Immutable data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
     data object Mention : FullScreenSheetState
     data object Whisper : FullScreenSheetState
-    data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
+    @Immutable data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
 }
 
 sealed interface InputSheetState {
     data object Closed : InputSheetState
     data object EmoteMenu : InputSheetState
-    data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
+    @Immutable data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
 }

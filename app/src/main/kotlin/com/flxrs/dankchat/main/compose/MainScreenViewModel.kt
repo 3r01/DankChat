@@ -4,11 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -26,10 +30,12 @@ import org.koin.android.annotation.KoinViewModel
  * 
  * This ViewModel only handles truly global concerns.
  */
+@OptIn(FlowPreview::class)
 @KoinViewModel
 class MainScreenViewModel(
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
 
     // Only expose truly global state
@@ -49,6 +55,12 @@ class MainScreenViewModel(
     private val _gestureToolbarHidden = MutableStateFlow(false)
     val gestureToolbarHidden: StateFlow<Boolean> = _gestureToolbarHidden.asStateFlow()
 
+    // Keyboard height persistence — debounced to avoid thrashing during animation
+    private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1)
+
+    private val _keyboardHeightPx = MutableStateFlow(0)
+    val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
+
     fun setGestureInputHidden(hidden: Boolean) { _gestureInputHidden.value = hidden }
     fun setGestureToolbarHidden(hidden: Boolean) { _gestureToolbarHidden.value = hidden }
 
@@ -58,8 +70,31 @@ class MainScreenViewModel(
     }
 
     init {
-        // Load global data once at startup
         channelDataCoordinator.loadGlobalData()
+
+        viewModelScope.launch {
+            _keyboardHeightUpdates
+                .debounce(300)
+                .collect { (heightPx, isLandscape) ->
+                    _keyboardHeightPx.value = heightPx
+                    if (isLandscape) {
+                        preferenceStore.keyboardHeightLandscape = heightPx
+                    } else {
+                        preferenceStore.keyboardHeightPortrait = heightPx
+                    }
+                }
+        }
+    }
+
+    fun initKeyboardHeight(isLandscape: Boolean) {
+        val persisted = if (isLandscape) preferenceStore.keyboardHeightLandscape else preferenceStore.keyboardHeightPortrait
+        _keyboardHeightPx.value = persisted
+    }
+
+    fun trackKeyboardHeight(heightPx: Int, isLandscape: Boolean, minHeightPx: Float) {
+        if (heightPx > minHeightPx) {
+            _keyboardHeightUpdates.tryEmit(KeyboardHeightUpdate(heightPx, isLandscape))
+        }
     }
 
     fun reloadGlobalData() {
@@ -80,3 +115,5 @@ class MainScreenViewModel(
         channelDataCoordinator.retryDataLoading(dataFailures, chatFailures)
     }
 }
+
+private data class KeyboardHeightUpdate(val heightPx: Int, val isLandscape: Boolean)

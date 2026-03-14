@@ -56,6 +56,7 @@ class ChannelPagerViewModel(
     }
 }
 
+@Immutable
 data class JumpTarget(val channelIndex: Int, val channel: UserName, val messageId: String)
 
 @Immutable

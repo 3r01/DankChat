@@ -160,8 +160,10 @@ fun rememberRoundedCornerHorizontalPadding(fallback: Dp = 0.dp): PaddingValues {
     }
 
     val screenWidth = view.rootView.width
+    if (screenWidth <= 0) return fallbackPadding
     val start = with(density) { bottomLeft.center.x.toDp() }
     val end = with(density) { (screenWidth - bottomRight.center.x).toDp() }
+    if (start < 0.dp || end < 0.dp) return fallbackPadding
 
     return PaddingValues(start = start, end = end)
 }

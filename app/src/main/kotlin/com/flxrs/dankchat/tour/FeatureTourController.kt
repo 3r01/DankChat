@@ -34,6 +34,9 @@ class FeatureTourController(
     var isActive by mutableStateOf(false)
         private set
 
+    /** Set synchronously on completion to prevent restart from stale datastore reads. */
+    private var hasCompleted = false
+
     var currentStepIndex by mutableIntStateOf(0)
         private set
 
@@ -64,7 +67,7 @@ class FeatureTourController(
     val recoveryFabTooltipState = TooltipState(isPersistent = true)
 
     fun start() {
-        if (isActive) return
+        if (isActive || hasCompleted) return
         isActive = true
         val settings = onboardingDataStore.current()
         // Only resume persisted step if it belongs to the current tour (gap == 1).
@@ -93,7 +96,7 @@ class FeatureTourController(
                 return
             }
             else -> {
-                scope.launch { onboardingDataStore.update { it.copy(featureTourStep = currentStepIndex) } }
+                onboardingDataStore.updateAsync { it.copy(featureTourStep = currentStepIndex) }
                 applyStepSideEffects()
             }
         }
@@ -125,11 +128,10 @@ class FeatureTourController(
 
     private fun completeTour() {
         isActive = false
+        hasCompleted = true
         onRestoreInput?.invoke()
         onComplete?.invoke()
-        scope.launch {
-            onboardingDataStore.update { it.copy(featureTourVersion = CURRENT_TOUR_VERSION, featureTourStep = 0) }
-        }
+        onboardingDataStore.updateAsync { it.copy(featureTourVersion = CURRENT_TOUR_VERSION, featureTourStep = 0) }
     }
 
     private fun showCurrentTooltip() {
