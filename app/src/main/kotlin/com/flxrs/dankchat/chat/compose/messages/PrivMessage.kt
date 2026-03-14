@@ -330,23 +330,8 @@ private fun PrivMessageText(
                     }
                 }
         },
-        onTextLongClick = { offset ->
-            // Handle username long-press
-            val userAnnotation = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
-            if (userAnnotation != null) {
-                // Long-press on username
-                val parts = userAnnotation.item.split("|")
-                if (parts.size == 4) {
-                    val userId = parts[0].takeIf { it.isNotEmpty() }
-                    val userName = parts[1]
-                    val displayName = parts[2]
-                    val channel = parts[3]
-                    onUserClick(userId, userName, displayName, channel, message.badges, true)
-                }
-            } else {
-                // Long-press on regular text (not username) - trigger message long-press
-                onMessageLongClick(message.id, message.channel.value, message.fullMessage)
-            }
+        onTextLongClick = {
+            onMessageLongClick(message.id, message.channel.value, message.fullMessage)
         }
     )
 }

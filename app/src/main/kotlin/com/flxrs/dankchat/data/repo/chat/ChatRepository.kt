@@ -513,13 +513,25 @@ class ChatRepository(
         val trimmedMessage = message.trimEnd()
         val replyIdOrBlank = replyId?.let { "@reply-parent-msg-id=$it " }.orEmpty()
 
-        val messageWithSuffix = when (lastMessage[channel].orEmpty()) {
-            trimmedMessage -> when {
-                trimmedMessage.endsWith(INVISIBLE_CHAR) -> trimmedMessage.withoutInvisibleChar
-                else                                    -> "$trimmedMessage $INVISIBLE_CHAR"
+        val messageWithSuffix = if (lastMessage[channel].orEmpty() == trimmedMessage) {
+            // Find first space to double (preferred — Twitch strips extra spaces server-side)
+            // Skip the first space if message starts with / or . (Twitch command prefix)
+            val startIndex = if (trimmedMessage.startsWith('/') || trimmedMessage.startsWith('.')) {
+                trimmedMessage.indexOf(' ').let { if (it == -1) 0 else it + 1 }
+            } else {
+                0
             }
+            val spaceIndex = trimmedMessage.indexOf(' ', startIndex)
 
-            else           -> trimmedMessage
+            if (spaceIndex != -1) {
+                // Double the space — invisible to viewers, different on the wire
+                trimmedMessage.replaceRange(spaceIndex, spaceIndex + 1, "  ")
+            } else {
+                // No space to double, fall back to invisible char suffix
+                "$trimmedMessage $INVISIBLE_CHAR"
+            }
+        } else {
+            trimmedMessage
         }
 
         lastMessage[channel] = messageWithSuffix

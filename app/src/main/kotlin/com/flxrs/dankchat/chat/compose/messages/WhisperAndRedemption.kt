@@ -274,22 +274,8 @@ private fun WhisperMessageText(
                     }
                 }
         },
-        onTextLongClick = { offset ->
-            // Handle username long-press
-            val userAnnotation = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
-            if (userAnnotation != null) {
-                // Long-press on username
-                val parts = userAnnotation.item.split("|")
-                if (parts.size == 3) {
-                    val userId = parts[0].takeIf { it.isNotEmpty() }
-                    val userName = parts[1]
-                    val displayName = parts[2]
-                    onUserClick(userId, userName, displayName, message.badges, true)
-                }
-            } else {
-                // Long-press on regular text (not username) - trigger message long-press
-                onMessageLongClick(message.id, message.fullMessage)
-            }
+        onTextLongClick = {
+            onMessageLongClick(message.id, message.fullMessage)
         }
     )
 }
