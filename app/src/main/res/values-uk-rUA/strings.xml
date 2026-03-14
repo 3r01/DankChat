@@ -403,4 +403,6 @@
         <item quantity="many">%d місяців</item>
         <item quantity="other">%d місяців</item>
     </plurals>
+    <string name="toggle_app_bar">Перемкнути панель додатку</string>
+    <string name="error_with_message">Помилка: %s</string>
 </resources>

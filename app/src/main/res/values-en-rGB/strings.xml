@@ -229,4 +229,6 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_unlisted_emotes_title">Allow unlisted emotes</string>
     <string name="preference_unlisted_emotes_summary">Disables filtering of unapproved or unlisted emotes</string>
     <string name="user_display_custom_color_enable">Custom Colour</string>
+    <string name="toggle_app_bar">Toggle App Bar</string>
+    <string name="error_with_message">Error: %s</string>
 </resources>

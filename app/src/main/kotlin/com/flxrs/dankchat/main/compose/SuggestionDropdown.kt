@@ -116,7 +116,7 @@ private fun SuggestionItem(
             is Suggestion.UserSuggestion -> {
                 Icon(
                     imageVector = Icons.Default.Person,
-                    contentDescription = "User",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)
                         .padding(end = 12.dp)
@@ -130,7 +130,7 @@ private fun SuggestionItem(
             is Suggestion.CommandSuggestion -> {
                 Icon(
                     imageVector = Icons.Default.Android,
-                    contentDescription = "Command",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)
                         .padding(end = 12.dp)

@@ -406,4 +406,6 @@
     <string name="preference_streaminfo_category_title">Отображать категорию стрима</string>
     <string name="preference_streaminfo_category_summary">Также показывать категорию стрима</string>
     <string name="toggle_input">Переключить строку ввода</string>
+    <string name="toggle_app_bar">Переключить панель приложения</string>
+    <string name="error_with_message">Ошибка: %s</string>
 </resources>

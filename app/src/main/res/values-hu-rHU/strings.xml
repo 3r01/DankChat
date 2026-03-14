@@ -395,4 +395,6 @@
     <string name="preference_streaminfo_category_title">Stream kategória mutatása</string>
     <string name="preference_streaminfo_category_summary">Stream kategória megjelenítése</string>
     <string name="toggle_input">Beviteli mező kapcsolása</string>
+    <string name="toggle_app_bar">Alkalmazássáv kapcsolása</string>
+    <string name="error_with_message">Hiba: %s</string>
 </resources>

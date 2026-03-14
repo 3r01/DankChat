@@ -400,4 +400,6 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_streaminfo_category_title">Montrer la catégorie du live</string>
     <string name="preference_streaminfo_category_summary">Montrer également la catégorie du live</string>
     <string name="toggle_input">Activer/désactiver la saisie</string>
+    <string name="toggle_app_bar">Activer/désactiver la barre d\'application</string>
+    <string name="error_with_message">Erreur : %s</string>
 </resources>

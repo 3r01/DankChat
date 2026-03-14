@@ -417,4 +417,6 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="pick_highlight_color_title">Wähle benutzerdefinierte Highlight Farbe</string>
     <string name="reset_default_highlight_color">Standard</string>
     <string name="choose_highlight_color">Farbe wählen</string>
+    <string name="toggle_app_bar">App-Leiste umschalten</string>
+    <string name="error_with_message">Fehler: %s</string>
 </resources>

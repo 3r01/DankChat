@@ -27,6 +27,7 @@ import com.flxrs.dankchat.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.chat.user.compose.UserPopupDialog
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
 import com.flxrs.dankchat.main.compose.dialogs.EmoteInfoDialog
@@ -335,8 +336,11 @@ fun MainScreenDialogs(
             onBlockUser = viewModel::blockUser,
             onUnblockUser = viewModel::unblockUser,
             onDismiss = messageState.onDismissUserPopup,
-            onMention = { name, _ ->
-                chatInputViewModel.insertText("@$name ")
+            onMention = { name, displayName ->
+                chatInputViewModel.mentionUser(
+                    user = UserName(name),
+                    display = DisplayName(displayName),
+                )
             },
             onWhisper = { name ->
                 chatInputViewModel.updateInputText("/w $name ")

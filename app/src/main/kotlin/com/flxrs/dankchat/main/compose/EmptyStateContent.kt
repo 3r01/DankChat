@@ -68,7 +68,7 @@ fun EmptyStateContent(
                 
                 AssistChip(
                     onClick = onToggleAppBar,
-                    label = { Text("Toggle App Bar") }
+                    label = { Text(stringResource(R.string.toggle_app_bar)) }
                 )
             }
         }

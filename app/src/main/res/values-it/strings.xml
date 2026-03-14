@@ -384,4 +384,6 @@
         <item quantity="one">%d mese</item>
         <item quantity="other">%d mesi</item>
     </plurals>
+    <string name="toggle_app_bar">Mostra/nascondi barra app</string>
+    <string name="error_with_message">Errore: %s</string>
 </resources>

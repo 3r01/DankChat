@@ -401,4 +401,6 @@
     <string name="preference_streaminfo_category_title">Паказваць катэгорыю трансляцыі</string>
     <string name="preference_streaminfo_category_summary">Таксама паказваць катэгорыю трансляцыі</string>
     <string name="toggle_input">Пераключыць радок уводу</string>
+    <string name="toggle_app_bar">Пераключыць панэль праграмы</string>
+    <string name="error_with_message">Памылка: %s</string>
 </resources>

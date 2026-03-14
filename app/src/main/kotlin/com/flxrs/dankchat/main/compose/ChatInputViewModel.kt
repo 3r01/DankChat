@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
+import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
@@ -25,6 +26,7 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -60,6 +62,7 @@ class ChatInputViewModel(
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
     private val mainEventBus: MainEventBus,
 ) : ViewModel() {
 
@@ -391,6 +394,12 @@ class ChatInputViewModel(
         if (target == null) {
             textFieldState.clearText()
         }
+    }
+
+    fun mentionUser(user: UserName, display: DisplayName) {
+        val template = notificationsSettingsDataStore.current().mentionFormat.template
+        val mention = "${template.replace("name", user.valueOrDisplayName(display))} "
+        insertText(mention)
     }
 
     fun insertText(text: String) {

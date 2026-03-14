@@ -255,4 +255,6 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="user_display_custom_alias_enable">Mukautettu Alias</string>
     <string name="pick_custom_user_color_title">Valitse käyttäjän mukautettu väri</string>
     <string name="custom_user_display_summary">Lisää mukautettu nimi ja väri käyttäjille</string>
+    <string name="toggle_app_bar">Näytä/piilota sovelluspalkki</string>
+    <string name="error_with_message">Virhe: %s</string>
 </resources>

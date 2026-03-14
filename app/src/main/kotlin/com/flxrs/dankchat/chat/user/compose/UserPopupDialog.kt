@@ -109,7 +109,7 @@ fun UserPopupDialog(
                 }
                 is UserPopupState.Error -> {
                     Text(
-                        text = "Error: ${s.throwable?.message}",
+                        text = stringResource(R.string.error_with_message, s.throwable?.message.orEmpty()),
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
