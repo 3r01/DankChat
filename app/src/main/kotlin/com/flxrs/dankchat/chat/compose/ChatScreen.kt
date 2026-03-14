@@ -97,7 +97,7 @@ fun ChatScreen(
             ) {
                 items(
                     items = messages.asReversed(),
-                    key = { message -> message.id },
+                    key = { message -> "${message.id}-${message.tag}" },
                     contentType = { message ->
                         when (message) {
                             is ChatMessageUiState.SystemMessageUi          -> "system"

@@ -16,6 +16,7 @@ import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 @Immutable
 sealed interface ChatMessageUiState {
     val id: String
+    val tag: Int // Used for invalidating/updating messages when emotes/badges change
     val timestamp: String
     val lightBackgroundColor: Color
     val darkBackgroundColor: Color
@@ -28,6 +29,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class PrivMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -54,6 +56,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class SystemMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -68,6 +71,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class NoticeMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -82,6 +86,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class UserNoticeMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -97,6 +102,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class ModerationMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -111,6 +117,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class PointRedemptionMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,
@@ -129,6 +136,7 @@ sealed interface ChatMessageUiState {
     @Immutable
     data class WhisperMessageUi(
         override val id: String,
+        override val tag: Int,
         override val timestamp: String,
         override val lightBackgroundColor: Color,
         override val darkBackgroundColor: Color,

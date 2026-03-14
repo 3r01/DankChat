@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.chat.compose
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.R
@@ -76,6 +77,7 @@ object ChatMessageMapper {
 
         return when (val msg = message) {
             is SystemMessage          -> msg.toSystemMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -83,6 +85,7 @@ object ChatMessageMapper {
             )
 
             is NoticeMessage          -> msg.toNoticeMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -90,6 +93,7 @@ object ChatMessageMapper {
             )
 
             is UserNoticeMessage      -> msg.toUserNoticeMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -97,6 +101,7 @@ object ChatMessageMapper {
             )
 
             is PrivMessage            -> msg.toPrivMessageUi(
+                tag = this.tag,
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
@@ -107,6 +112,7 @@ object ChatMessageMapper {
             )
 
             is ModerationMessage      -> msg.toModerationMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -114,12 +120,14 @@ object ChatMessageMapper {
             )
 
             is PointRedemptionMessage -> msg.toPointRedemptionMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 textAlpha = textAlpha
             )
 
             is WhisperMessage         -> msg.toWhisperMessageUi(
+                tag = this.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -129,6 +137,7 @@ object ChatMessageMapper {
     }
 
     private fun SystemMessage.toSystemMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -171,6 +180,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.SystemMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -180,6 +190,7 @@ object ChatMessageMapper {
     }
 
     private fun NoticeMessage.toNoticeMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -192,6 +203,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.NoticeMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -201,6 +213,7 @@ object ChatMessageMapper {
     }
 
     private fun UserNoticeMessage.toUserNoticeMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -220,6 +233,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.UserNoticeMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -230,6 +244,7 @@ object ChatMessageMapper {
     }
 
     private fun ModerationMessage.toModerationMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -242,6 +257,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.ModerationMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -251,6 +267,7 @@ object ChatMessageMapper {
     }
 
     private fun PrivMessage.toPrivMessageUi(
+        tag: Int,
         context: Context,
         appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
@@ -309,6 +326,7 @@ object ChatMessageMapper {
                 emotes = emoteGroup
             )
         }
+        Log.d("XXX", "emotes: $emoteUis")
 
         val threadUi = if (thread != null && !isInReplies) {
             thread.toThreadUi()
@@ -331,6 +349,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -353,6 +372,7 @@ object ChatMessageMapper {
     }
 
     private fun PointRedemptionMessage.toPointRedemptionMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         textAlpha: Float,
@@ -366,6 +386,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.PointRedemptionMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
@@ -379,6 +400,7 @@ object ChatMessageMapper {
     }
 
     private fun WhisperMessage.toWhisperMessageUi(
+        tag: Int,
         context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -440,6 +462,7 @@ object ChatMessageMapper {
 
         return ChatMessageUiState.WhisperMessageUi(
             id = id,
+            tag = tag,
             timestamp = timestamp,
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,

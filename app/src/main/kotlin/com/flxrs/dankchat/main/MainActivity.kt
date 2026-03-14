@@ -10,15 +10,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat.Type
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.doOnAttach
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -29,6 +32,9 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
 import com.flxrs.dankchat.databinding.MainActivityBinding
+import com.flxrs.dankchat.main.compose.MainScreen
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.theme.DankChatTheme
 import com.flxrs.dankchat.utils.extensions.hasPermission
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
 import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
@@ -38,15 +44,21 @@ import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: DankChatViewModel by viewModel()
+    private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
+    private val dankChatPreferenceStore: com.flxrs.dankchat.preferences.DankChatPreferenceStore by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
-    private val navController: NavController by lazy { findNavController(R.id.main_content) }
+    private var navController: NavController? = null
     private var bindingRef: MainActivityBinding? = null
-    private val binding get() = bindingRef!!
+    private val binding get() = bindingRef
+
+    private val isLoggedIn: Boolean
+        get() = dankChatPreferenceStore.isLoggedIn
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         // just start the service, we don't care if the permission has been granted or not xd
@@ -82,8 +94,15 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        bindingRef = MainActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+
+        // Check if we should use Compose UI
+        val useComposeUi = developerSettingsDataStore.current().useComposeChatUi
+
+        if (useComposeUi) {
+            setupComposeUi()
+        } else {
+            setupFragmentUi()
+        }
 
         viewModel.checkLogin()
         viewModel.serviceEvents
@@ -103,6 +122,83 @@ class MainActivity : AppCompatActivity() {
                 keepScreenOn(it)
             }
             .launchIn(lifecycleScope)
+    }
+
+    private fun setupFragmentUi() {
+        bindingRef = MainActivityBinding.inflate(layoutInflater)
+        setContentView(binding!!.root)
+        navController = findNavController(R.id.main_content)
+    }
+
+    private fun setupComposeUi() {
+        setContent {
+            DankChatTheme {
+                val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(
+                    initialValue = developerSettingsDataStore.current()
+                )
+
+                MainScreen(
+                    isLoggedIn = isLoggedIn,
+                    onNavigateToSettings = {
+                        // TODO: Navigate to settings (need to implement Compose settings or use dialog)
+                    },
+                    onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
+                        // TODO: Show user popup dialog
+                    },
+                    onMessageLongClick = { messageId, channel, fullMessage ->
+                        // TODO: Show message options dialog
+                    },
+                    onEmoteClick = { emotes ->
+                        // TODO: Show emote overlay/fullscreen
+                    },
+                    onLogin = {
+                        // TODO: Navigate to login
+                    },
+                    onRelogin = {
+                        // TODO: Navigate to login
+                    },
+                    onLogout = {
+                        // TODO: Show logout confirmation
+                    },
+                    onManageChannels = {
+                        // TODO: Show manage channels dialog
+                    },
+                    onOpenChannel = {
+                        // TODO: Open channel in browser
+                    },
+                    onRemoveChannel = {
+                        // TODO: Remove active channel
+                    },
+                    onReportChannel = {
+                        // TODO: Report channel
+                    },
+                    onBlockChannel = {
+                        // TODO: Block channel
+                    },
+                    onReloadEmotes = {
+                        // TODO: Reload emotes
+                    },
+                    onReconnect = {
+                        // TODO: Reconnect to chat
+                    },
+                    onClearChat = {
+                        // TODO: Clear chat messages
+                    },
+                    onCaptureImage = {
+                        // TODO: Capture image
+                    },
+                    onCaptureVideo = {
+                        // TODO: Capture video
+                    },
+                    onChooseMedia = {
+                        // TODO: Choose media
+                    },
+                    onAddChannel = {
+                        // TODO: Show add channel dialog
+                    }
+                )
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -154,7 +250,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp() || super.onSupportNavigateUp()
+        return navController?.navigateUp() ?: false || super.onSupportNavigateUp()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -168,30 +264,33 @@ class MainActivity : AppCompatActivity() {
         else                                   -> pendingChannelsToClear += channel
     }
 
-    fun setFullScreen(enabled: Boolean, changeActionBarVisibility: Boolean = true) = binding.root.doOnAttach {
-        val windowInsetsController = WindowCompat.getInsetsController(window, it)
-        when {
-            enabled -> {
-                // minSdk 30 guarantees multi-window support (API 24+)
-                if (!isInMultiWindowMode) {
-                    with(windowInsetsController) {
-                        systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                        hide(Type.systemBars())
+    fun setFullScreen(enabled: Boolean, changeActionBarVisibility: Boolean = true) {
+        val rootView = binding?.root ?: return
+        rootView.doOnAttach {
+            val windowInsetsController = WindowCompat.getInsetsController(window, it)
+            when {
+                enabled -> {
+                    // minSdk 30 guarantees multi-window support (API 24+)
+                    if (!isInMultiWindowMode) {
+                        with(windowInsetsController) {
+                            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                            hide(Type.systemBars())
+                        }
+                    }
+                    if (changeActionBarVisibility) {
+                        supportActionBar?.hide()
                     }
                 }
-                if (changeActionBarVisibility) {
-                    supportActionBar?.hide()
-                }
-            }
 
-            else    -> {
-                windowInsetsController.show(Type.systemBars())
-                if (changeActionBarVisibility) {
-                    supportActionBar?.show()
+                else    -> {
+                    windowInsetsController.show(Type.systemBars())
+                    if (changeActionBarVisibility) {
+                        supportActionBar?.show()
+                    }
                 }
             }
+            it.requestApplyInsets()
         }
-        it.requestApplyInsets()
     }
 
     private fun handleShutDown() {
