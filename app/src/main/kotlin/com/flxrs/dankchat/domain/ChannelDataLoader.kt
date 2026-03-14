@@ -7,7 +7,6 @@ import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
-import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.state.ChannelLoadingFailure
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
@@ -24,6 +23,7 @@ class ChannelDataLoader(
     private val dataRepository: DataRepository,
     private val chatRepository: ChatRepository,
     private val channelRepository: ChannelRepository,
+    private val getChannelsUseCase: GetChannelsUseCase,
     private val dispatchersProvider: DispatchersProvider
 ) {
 
@@ -35,8 +35,10 @@ class ChannelDataLoader(
         emit(ChannelLoadingState.Loading)
 
         try {
-            // Get channel info
+            // Get channel info - uses GetChannelsUseCase which waits for IRC ROOMSTATE
+            // if not logged in, matching the legacy MainViewModel.loadData behavior
             val channelInfo = channelRepository.getChannel(channel)
+                ?: getChannelsUseCase(listOf(channel)).firstOrNull()
             if (channelInfo == null) {
                 emit(ChannelLoadingState.Failed("Channel not found", emptyList()))
                 return@flow
@@ -47,27 +49,18 @@ class ChannelDataLoader(
             chatRepository.createFlowsIfNecessary(channel)
 
             // Load recent message history first with priority
-            val messagesResult = runCatching {
-                chatRepository.loadRecentMessagesIfEnabled(channel)
-            }.fold(
-                onSuccess = { null },
-                onFailure = { ChannelLoadingFailure.RecentMessages(channel, it) }
-            )
+            // loadRecentMessagesIfEnabled handles errors internally and posts its own system messages
+            chatRepository.loadRecentMessagesIfEnabled(channel)
 
             // Load other data in parallel
             val failures = withContext(dispatchersProvider.io) {
                 val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
                 val emotesResults = async { loadChannelEmotes(channel, channelInfo) }
 
-                val otherFailures = listOfNotNull(
+                listOfNotNull(
                     badgesResult.await(),
                     *emotesResults.await().toTypedArray(),
                 )
-                if (messagesResult != null) {
-                    otherFailures + messagesResult
-                } else {
-                    otherFailures
-                }
             }
 
             // Report failures as system messages like legacy implementation
@@ -84,9 +77,6 @@ class ChannelDataLoader(
                 }
             }
 
-            // Reparse emotes/badges - this updates the tag which triggers LazyColumn recomposition
-            chatRepository.reparseAllEmotesAndBadges()
-
             when {
                 failures.isEmpty() -> emit(ChannelLoadingState.Loaded)
                 else -> emit(ChannelLoadingState.Failed("Some data failed to load", failures))
@@ -100,9 +90,7 @@ class ChannelDataLoader(
         channel: UserName,
         channelId: UserId
     ): ChannelLoadingFailure.Badges? {
-        return runCatching {
-            dataRepository.loadChannelBadges(channel, channelId)
-        }.fold(
+        return dataRepository.loadChannelBadges(channel, channelId).fold(
             onSuccess = { null },
             onFailure = { ChannelLoadingFailure.Badges(channel, channelId, it) }
         )
@@ -114,25 +102,19 @@ class ChannelDataLoader(
     ): List<ChannelLoadingFailure> {
         return withContext(dispatchersProvider.io) {
             val bttvResult = async {
-                runCatching {
-                    dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id)
-                }.fold(
+                dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id).fold(
                     onSuccess = { null },
                     onFailure = { ChannelLoadingFailure.BTTVEmotes(channel, it) }
                 )
             }
             val ffzResult = async {
-                runCatching {
-                    dataRepository.loadChannelFFZEmotes(channel, channelInfo.id)
-                }.fold(
+                dataRepository.loadChannelFFZEmotes(channel, channelInfo.id).fold(
                     onSuccess = { null },
                     onFailure = { ChannelLoadingFailure.FFZEmotes(channel, it) }
                 )
             }
             val sevenTvResult = async {
-                runCatching {
-                    dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id)
-                }.fold(
+                dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id).fold(
                     onSuccess = { null },
                     onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) }
                 )
@@ -146,14 +128,8 @@ class ChannelDataLoader(
         }
     }
 
-    suspend fun loadRecentMessages(
-        channel: UserName
-    ): ChannelLoadingFailure.RecentMessages? {
-        return runCatching {
-            chatRepository.loadRecentMessagesIfEnabled(channel)
-        }.fold(
-            onSuccess = { null },
-            onFailure = { ChannelLoadingFailure.RecentMessages(channel, it) }
-        )
+    suspend fun loadRecentMessages(channel: UserName) {
+        // loadRecentMessagesIfEnabled handles errors internally and posts its own system messages
+        chatRepository.loadRecentMessagesIfEnabled(channel)
     }
 }

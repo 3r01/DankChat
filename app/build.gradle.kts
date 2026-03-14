@@ -186,6 +186,7 @@ dependencies {
     implementation(libs.compose.icons.core)
     implementation(libs.compose.icons.extended)
     implementation(libs.compose.unstyled)
+    implementation(libs.compose.material3.adaptive)
 
 // Material
     implementation(libs.android.material)

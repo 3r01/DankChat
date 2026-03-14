@@ -10,28 +10,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Launch
-import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.PlainTooltip
-import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
@@ -45,9 +41,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -78,143 +76,153 @@ fun UserPopupDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (val s = state) {
                 is UserPopupState.Loading -> {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(modifier = Modifier.padding(horizontal = 16.dp))
                     Text(
                         text = s.userName.formatWithDisplayName(s.displayName),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
                 is UserPopupState.NotLoggedIn -> {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp)
+                        modifier = Modifier
+                            .size(96.dp)
+                            .padding(horizontal = 16.dp)
                     )
                     Text(
                         text = s.userName.formatWithDisplayName(s.displayName),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
                 is UserPopupState.Error -> {
-                    Text("Error: ${s.throwable?.message}")
+                    Text(
+                        text = "Error: ${s.throwable?.message}",
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
                 }
                 is UserPopupState.Success -> {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.Top
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            AsyncImage(
-                                model = s.avatarUrl,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(64.dp)
-                                    .clip(CircleShape)
-                                    .clickable { onOpenChannel(s.userName.value) }
+                        AsyncImage(
+                            model = s.avatarUrl,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(96.dp)
+                                .clip(CircleShape)
+                                .clickable { onOpenChannel(s.userName.value) }
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = s.userName.formatWithDisplayName(s.displayName),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column {
+                            Text(
+                                text = stringResource(R.string.user_popup_created, s.created),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center
+                            )
+                            if (s.showFollowingSince) {
                                 Text(
-                                    text = s.userName.formatWithDisplayName(s.displayName),
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                                    text = s.followingSince?.let {
+                                        stringResource(R.string.user_popup_following_since, it)
+                                    } ?: stringResource(R.string.user_popup_not_following),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    textAlign = TextAlign.Center
                                 )
-                                Text(
-                                    text = stringResource(R.string.user_popup_created, s.created),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                if (s.showFollowingSince) {
-                                    Text(
-                                        text = s.followingSince?.let {
-                                            stringResource(R.string.user_popup_following_since, it)
-                                        } ?: stringResource(R.string.user_popup_not_following),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
                             }
-                        }
-                    }
-
-                    if (badges.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            items(badges) { badge ->
-                                val title = badge.badge.title
-                                if (title != null) {
-                                    TooltipBox(
-                                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                                        tooltip = {
-                                            PlainTooltip {
-                                                Text(title)
+                            if (badges.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                FlowRow(
+                                    horizontalArrangement = Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterHorizontally),
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
+                                    badges.forEach { badge ->
+                                        val title = badge.badge.title
+                                        if (title != null) {
+                                            TooltipBox(
+                                                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                                tooltip = {
+                                                    PlainTooltip {
+                                                        Text(title)
+                                                    }
+                                                },
+                                                state = rememberTooltipState(),
+                                            ) {
+                                                AsyncImage(
+                                                    model = badge.url,
+                                                    contentDescription = title,
+                                                    modifier = Modifier.size(32.dp)
+                                                )
                                             }
-                                        },
-                                        state = rememberTooltipState(),
-                                    ) {
-                                        AsyncImage(
-                                            model = badge.url,
-                                            contentDescription = title,
-                                            modifier = Modifier.size(32.dp)
-                                        )
+                                        } else {
+                                            AsyncImage(
+                                                model = badge.url,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(32.dp)
+                                            )
+                                        }
                                     }
-                                } else {
-                                    AsyncImage(
-                                        model = badge.url,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(32.dp)
-                                    )
                                 }
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        UserPopupButton(
-                            icon = Icons.Default.AlternateEmail,
-                            text = stringResource(R.string.user_popup_mention),
-                            onClick = {
-                                onMention(s.userName.value, s.displayName.value)
-                                onDismiss()
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
+                        leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            onMention(s.userName.value, s.displayName.value)
+                            onDismiss()
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
+                        leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            onWhisper(s.userName.value)
+                            onDismiss()
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                    ListItem(
+                        headlineContent = { Text(if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
+                        leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            if (s.isBlocked) {
+                                onUnblockUser()
+                            } else {
+                                showBlockConfirmation = true
                             }
-                        )
-                        UserPopupButton(
-                            icon = Icons.AutoMirrored.Filled.Chat,
-                            text = stringResource(R.string.user_popup_whisper),
-                            onClick = {
-                                onWhisper(s.userName.value)
-                                onDismiss()
-                            }
-                        )
-                        UserPopupButton(
-                            icon = Icons.Default.Block,
-                            text = if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block),
-                            onClick = {
-                                if (s.isBlocked) {
-                                    onUnblockUser()
-                                } else {
-                                    showBlockConfirmation = true
-                                }
-                            }
-                        )
-                        UserPopupButton(
-                            icon = Icons.Default.Report,
-                            text = stringResource(R.string.user_popup_report),
-                            onClick = { onReport(s.userName.value) }
-                        )
-                    }
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
+                    ListItem(
+                        headlineContent = { Text(stringResource(R.string.user_popup_report)) },
+                        leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
+                        modifier = Modifier.clickable { onReport(s.userName.value) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                    )
                 }
             }
         }
@@ -241,26 +249,5 @@ fun UserPopupDialog(
                 }
             }
         )
-    }
-}
-
-@Composable
-private fun UserPopupButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    text: String,
-    onClick: () -> Unit
-) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(imageVector = icon, contentDescription = null)
-            Spacer(modifier = Modifier.width(32.dp))
-            Text(text = text, style = MaterialTheme.typography.labelLarge)
-        }
     }
 }

@@ -48,5 +48,8 @@ sealed interface GlobalLoadingState {
     data object Idle : GlobalLoadingState
     data object Loading : GlobalLoadingState
     data object Loaded : GlobalLoadingState
-    data class Failed(val message: String) : GlobalLoadingState
+    data class Failed(
+        val message: String,
+        val failures: Set<com.flxrs.dankchat.data.repo.data.DataLoadingFailure> = emptySet()
+    ) : GlobalLoadingState
 }

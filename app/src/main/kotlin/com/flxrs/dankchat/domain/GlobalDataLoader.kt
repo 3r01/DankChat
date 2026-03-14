@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 
@@ -20,27 +21,27 @@ class GlobalDataLoader(
 
     /**
      * Load all global data (badges, emotes, commands, blocks)
+     * Returns the list of Results from each emote/badge provider.
      */
-    suspend fun loadGlobalData(): Result<Unit> = withContext(dispatchersProvider.io) {
-        runCatching {
-            awaitAll(
-                async { loadDankChatBadges() },
-                async { loadGlobalBadges() },
-                async { loadGlobalBTTVEmotes() },
-                async { loadGlobalFFZEmotes() },
-                async { loadGlobalSevenTVEmotes() },
-                async { loadSupibotCommands() },
-                async { loadUserBlocks() }
-            )
-            Unit
-        }
+    suspend fun loadGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
+        val results = awaitAll(
+            async { loadDankChatBadges() },
+            async { loadGlobalBadges() },
+            async { loadGlobalBTTVEmotes() },
+            async { loadGlobalFFZEmotes() },
+            async { loadGlobalSevenTVEmotes() },
+        )
+        // Fire-and-forget tasks that handle their own errors
+        launch { loadSupibotCommands() }
+        launch { loadUserBlocks() }
+        results
     }
 
-    suspend fun loadDankChatBadges() = dataRepository.loadDankChatBadges()
-    suspend fun loadGlobalBadges() = dataRepository.loadGlobalBadges()
-    suspend fun loadGlobalBTTVEmotes() = dataRepository.loadGlobalBTTVEmotes()
-    suspend fun loadGlobalFFZEmotes() = dataRepository.loadGlobalFFZEmotes()
-    suspend fun loadGlobalSevenTVEmotes() = dataRepository.loadGlobalSevenTVEmotes()
+    suspend fun loadDankChatBadges(): Result<Unit> = dataRepository.loadDankChatBadges()
+    suspend fun loadGlobalBadges(): Result<Unit> = dataRepository.loadGlobalBadges()
+    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = dataRepository.loadGlobalBTTVEmotes()
+    suspend fun loadGlobalFFZEmotes(): Result<Unit> = dataRepository.loadGlobalFFZEmotes()
+    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = dataRepository.loadGlobalSevenTVEmotes()
     suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
     suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 

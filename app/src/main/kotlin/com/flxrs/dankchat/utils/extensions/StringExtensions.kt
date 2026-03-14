@@ -38,6 +38,51 @@ fun String.removeDuplicateWhitespace(): Pair<String, List<Int>> {
     return stringBuilder.toString() to removedSpacesPositions
 }
 
+data class CodePointAnalysis(
+    val supplementaryCodePointPositions: List<Int>,
+    val deduplicatedString: String,
+    val removedSpacesPositions: List<Int>,
+)
+
+// Combined single-pass: finds supplementary codepoint positions AND removes duplicate whitespace
+fun String.analyzeCodePoints(): CodePointAnalysis {
+    val supplementaryPositions = mutableListOf<Int>()
+    val stringBuilder = StringBuilder()
+    var previousWhitespace = false
+    val removedSpacesPositions = mutableListOf<Int>()
+    var supplementaryOffset = 0
+    var totalCharCount = 0
+    var charOffset = 0
+
+    while (charOffset < length) {
+        val codePoint = codePointAt(charOffset)
+        val charCount = Character.charCount(codePoint)
+
+        // Track supplementary codepoint positions (pre-dedup, like the original property)
+        if (Character.isSupplementaryCodePoint(codePoint)) {
+            supplementaryPositions += charOffset - supplementaryOffset
+            supplementaryOffset++
+        }
+
+        // Remove duplicate whitespace
+        if (codePoint.isWhitespace) {
+            when {
+                previousWhitespace -> removedSpacesPositions += totalCharCount
+                else               -> stringBuilder.appendCodePoint(codePoint)
+            }
+            previousWhitespace = true
+        } else {
+            previousWhitespace = false
+            stringBuilder.appendCodePoint(codePoint)
+        }
+
+        totalCharCount++
+        charOffset += charCount
+    }
+
+    return CodePointAnalysis(supplementaryPositions, stringBuilder.toString(), removedSpacesPositions)
+}
+
 operator fun MatchResult.component1() = value
 operator fun MatchResult.component2() = range
 
@@ -47,6 +92,9 @@ operator fun MatchResult.component2() = range
 // NaM 🙅🏻‍♂️ NaM Keepo Keepo NaM 🙅🏻‍♂️ NaM Keepo 🙅🏻‍♂️ Keepo NaM 🙅🏻‍♂️ Keepo 🙅🏻‍♂️ NaM Keepo NaM 🙅🏻‍♂️ 🙅🏻‍♂️ 🙅🏻‍♂️NaM
 // NaM🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️NaM Keepo 🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️🙅🏻‍♂️ Keepo
 fun String.appendSpacesBetweenEmojiGroup(): Pair<String, List<Int>> {
+    // Fast path: if no chars at or above the lowest emoji codepoint (© = 0x00A9), skip regex entirely
+    if (all { it.code < 0x00A9 }) return this to emptyList()
+
     val matches = emojiRegex.findAll(this).toList()
     if (matches.isEmpty()) {
         return this to emptyList()

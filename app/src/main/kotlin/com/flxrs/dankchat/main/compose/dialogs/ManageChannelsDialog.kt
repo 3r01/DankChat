@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -62,13 +62,9 @@ fun ManageChannelsDialog(
 
     val lazyListState = rememberLazyListState()
     val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        // Adjust indices because of the header item at index 0
-        val fromIndex = from.index - 1
-        val toIndex = to.index - 1
-        
-        if (fromIndex in localChannels.indices && toIndex in localChannels.indices) {
+        if (from.index in localChannels.indices && to.index in localChannels.indices) {
             localChannels.apply {
-                add(toIndex, removeAt(fromIndex))
+                add(to.index, removeAt(from.index))
             }
         }
     }
@@ -85,15 +81,7 @@ fun ManageChannelsDialog(
                 .padding(bottom = 32.dp),
             state = lazyListState
         ) {
-            item {
-                Text(
-                    text = stringResource(R.string.manage_channels),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            items(localChannels, key = { it.channel.value }) { channelWithRename ->
+            itemsIndexed(localChannels, key = { _, it -> it.channel.value }) { index, channelWithRename ->
                 ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
                     val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
                     
@@ -111,10 +99,12 @@ fun ManageChannelsDialog(
                                 onEdit = { channelToEdit = channelWithRename },
                                 onDelete = { channelToDelete = channelWithRename.channel }
                             )
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                            )
+                            if (index < localChannels.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                )
+                            }
                         }
                     }
                 }

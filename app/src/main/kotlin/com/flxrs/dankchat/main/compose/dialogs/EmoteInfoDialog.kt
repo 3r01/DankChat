@@ -16,12 +16,12 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.InsertEmoticon
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -53,7 +53,10 @@ fun EmoteInfoDialog(
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { items.size })
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             if (items.size > 1) {
                 PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
@@ -103,19 +106,19 @@ private fun EmoteInfoContent(
     onOpenLink: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top
         ) {
             AsyncImage(
                 model = item.imageUrl,
                 contentDescription = stringResource(R.string.emote_sheet_image_description),
-                modifier = Modifier.size(128.dp)
+                modifier = Modifier.size(96.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -144,18 +147,13 @@ private fun EmoteInfoContent(
                         textAlign = TextAlign.Center
                     )
                 }
-                if (item.isZeroWidth) {
-                    Text(
-                        text = stringResource(R.string.emote_sheet_zero_width_emote),
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                Text(
+                    text = if (item.isZeroWidth) stringResource(R.string.emote_sheet_zero_width_emote) else "",
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center
+                )
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-        HorizontalDivider()
 
         ListItem(
             headlineContent = { Text(stringResource(R.string.emote_sheet_use)) },

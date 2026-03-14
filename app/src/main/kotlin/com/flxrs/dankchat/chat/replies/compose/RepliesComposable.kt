@@ -1,12 +1,17 @@
 package com.flxrs.dankchat.chat.replies.compose
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.LocalPlatformContext
+import coil3.imageLoader
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
+import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
+import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.replies.RepliesUiState
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 
@@ -31,7 +36,11 @@ fun RepliesComposable(
 ) {
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
-    
+
+    val context = LocalPlatformContext.current
+    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
+
+    CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
     when (uiState) {
         is RepliesUiState.Found -> {
             ChatScreen(
@@ -49,4 +58,5 @@ fun RepliesComposable(
             }
         }
     }
+    } // CompositionLocalProvider
 }

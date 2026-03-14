@@ -39,8 +39,9 @@ fun AddChannelDialog(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = {
-                    if (channelName.isNotBlank()) {
-                        onAddChannel(UserName(channelName))
+                    val trimmed = channelName.trim()
+                    if (trimmed.isNotBlank()) {
+                        onAddChannel(UserName(trimmed))
                         onDismiss()
                     }
                 }),
@@ -50,7 +51,7 @@ fun AddChannelDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onAddChannel(UserName(channelName))
+                    onAddChannel(UserName(channelName.trim()))
                     onDismiss()
                 },
                 enabled = channelName.isNotBlank()

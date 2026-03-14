@@ -51,7 +51,7 @@ class MessageOptionsComposeViewModel(
                 val asWhisperMessage = message as? WhisperMessage
                 val rootId = asPrivMessage?.thread?.rootId
                 val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
-                val replyName = asPrivMessage?.thread?.name ?: name
+                val replyName = name
                 val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
                 MessageOptionsState.Found(
                     messageId = message.id,

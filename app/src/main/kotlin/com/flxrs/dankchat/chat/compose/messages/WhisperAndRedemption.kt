@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -34,13 +35,14 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
+import com.flxrs.dankchat.chat.compose.EmoteDimensions
 import com.flxrs.dankchat.chat.compose.EmoteScaling
+import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.StackedEmote
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
-import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
 /**
@@ -89,8 +91,7 @@ private fun WhisperMessageText(
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
-    val imageLoader = coil3.ImageLoader.Builder(context).build()
-    val emoteCoordinator = rememberEmoteAnimationCoordinator(imageLoader)
+    val emoteCoordinator = LocalEmoteAnimationCoordinator.current
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val senderColor = rememberBackgroundColor(message.lightSenderColor, message.darkSenderColor)
@@ -213,10 +214,39 @@ private fun WhisperMessageText(
         }
     }
 
+    // Compute known dimensions from dimension cache to skip measurement subcomposition
+    val density = LocalDensity.current
+    val knownDimensions = remember(message.badges, message.emotes, fontSize, emoteCoordinator) {
+        buildMap {
+            val badgeSizePx = with(density) { badgeSize.toPx().toInt() }
+            message.badges.forEach { badge ->
+                put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
+            }
+            val baseHeight = EmoteScaling.getBaseHeight(fontSize)
+            val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
+            message.emotes.forEach { emote ->
+                val id = "EMOTE_${emote.code}"
+                if (emote.urls.size == 1) {
+                    val dims = emoteCoordinator.dimensionCache.get(emote.urls.first())
+                    if (dims != null) {
+                        put(id, EmoteDimensions(id, dims.first, dims.second))
+                    }
+                } else {
+                    val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
+                    val dims = emoteCoordinator.dimensionCache.get(cacheKey)
+                    if (dims != null) {
+                        put(id, EmoteDimensions(id, dims.first, dims.second))
+                    }
+                }
+            }
+        }
+    }
+
     // Use SubcomposeLayout to measure inline content, then render text
     TextWithMeasuredInlineContent(
         text = annotatedString,
         inlineContentProviders = inlineContentProviders,
+        knownDimensions = knownDimensions,
         modifier = Modifier.fillMaxWidth(),
         onTextClick = { offset ->
             // Handle username clicks

@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.domain
 
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
@@ -10,7 +11,9 @@ import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
+import com.flxrs.dankchat.data.repo.data.DataRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,12 +28,15 @@ import java.util.concurrent.ConcurrentHashMap
 class ChannelDataCoordinator(
     private val channelDataLoader: ChannelDataLoader,
     private val globalDataLoader: GlobalDataLoader,
+    private val chatRepository: ChatRepository,
+    private val dataRepository: DataRepository,
     private val userStateRepository: UserStateRepository,
     private val preferenceStore: DankChatPreferenceStore,
     dispatchersProvider: DispatchersProvider
 ) {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
+    private var globalLoadJob: Job? = null
 
     // Track loading state per channel
     private val channelStates = ConcurrentHashMap<UserName, MutableStateFlow<ChannelLoadingState>>()
@@ -61,6 +67,10 @@ class ChannelDataCoordinator(
                 .collect { state ->
                     stateFlow.value = state
                 }
+
+            // After channel data loaded, wait for global data too, then reparse
+            globalLoadJob?.join()
+            chatRepository.reparseAllEmotesAndBadges()
         }
     }
 
@@ -68,20 +78,25 @@ class ChannelDataCoordinator(
      * Load global data (once at startup)
      */
     fun loadGlobalData() {
-        scope.launch {
+        globalLoadJob = scope.launch {
             _globalLoadingState.value = GlobalLoadingState.Loading
+            dataRepository.clearDataLoadingFailures()
 
-            globalDataLoader.loadGlobalData()
-                .onSuccess {
-                    // Load user state emotes if logged in
-                    if (preferenceStore.isLoggedIn) {
-                        loadUserStateEmotesIfAvailable()
-                    }
-                    _globalLoadingState.value = GlobalLoadingState.Loaded
-                }
-                .onFailure { error ->
-                    _globalLoadingState.value = GlobalLoadingState.Failed(error.message ?: "Unknown error")
-                }
+            val results = globalDataLoader.loadGlobalData()
+
+            // Load user state emotes if logged in
+            if (preferenceStore.isLoggedIn) {
+                loadUserStateEmotesIfAvailable()
+            }
+
+            val failures = dataRepository.dataLoadingFailures.value
+            _globalLoadingState.value = when {
+                failures.isEmpty() -> GlobalLoadingState.Loaded
+                else               -> GlobalLoadingState.Failed(
+                    message = "${failures.size} provider(s) failed to load",
+                    failures = failures
+                )
+            }
         }
     }
 

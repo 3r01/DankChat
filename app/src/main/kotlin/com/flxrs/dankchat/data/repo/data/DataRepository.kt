@@ -29,9 +29,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -41,7 +41,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.io.File
-import kotlin.system.measureTimeMillis
 
 @Single
 class DataRepository(
@@ -100,7 +99,7 @@ class DataRepository(
 
     fun clearDataLoadingFailures() = _dataLoadingFailures.update { emptySet() }
 
-    fun getEmotes(channel: UserName): StateFlow<Emotes> = emoteRepository.getEmotes(channel)
+    fun getEmotes(channel: UserName): Flow<Emotes> = emoteRepository.getEmotes(channel)
     fun createFlowsIfNecessary(channels: List<UserName>) = emoteRepository.createFlowsIfNecessary(channels)
 
     suspend fun getUser(userId: UserId): UserDto? = helixApiClient.getUser(userId).getOrNull()
@@ -128,23 +127,24 @@ class DataRepository(
         it.imageLink
     }
 
-    suspend fun loadGlobalBadges() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalBadges(): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "global badges") {
-            val badges = when {
+            val result = when {
                 dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
-                else                                              -> return@withContext
+                else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
-            badges?.also { emoteRepository.setGlobalBadges(it) }
+            result.onSuccess { emoteRepository.setGlobalBadges(it) }.map { }
         }
     }
 
-    suspend fun loadDankChatBadges() = withContext(Dispatchers.IO) {
-        measureTimeMillis {
+    suspend fun loadDankChatBadges(): Result<Unit> = withContext(Dispatchers.IO) {
+        measureTimeAndLog(TAG, "DankChat badges") {
             dankChatApiClient.getDankChatBadges()
                 .getOrEmitFailure { DataLoadingStep.DankChatBadges }
-                ?.let { emoteRepository.setDankChatBadges(it) }
-        }.let { Log.i(TAG, "Loaded DankChat badges in $it ms") }
+                .onSuccess { emoteRepository.setDankChatBadges(it) }
+                .map { }
+        }
     }
 
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {
@@ -155,99 +155,105 @@ class DataRepository(
         serviceEventChannel.send(ServiceEvent.Shutdown)
     }
 
-    suspend fun loadChannelBadges(channel: UserName, id: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelBadges(channel: UserName, id: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "channel badges for #$id") {
-            val badges = when {
+            val result = when {
                 dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
-                else                                              -> return@withContext
+                else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }
-            badges?.also { emoteRepository.setChannelBadges(channel, it) }
+            result.onSuccess { emoteRepository.setChannelBadges(channel, it) }.map { }
         }
     }
 
-    suspend fun loadChannelFFZEmotes(channel: UserName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelFFZEmotes(channel: UserName, channelId: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "FFZ emotes for #$channel") {
             ffzApiClient.getFFZChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
-                ?.let { emoteRepository.setFFZEmotes(channel, it) }
-        }.let { Log.i(TAG, "Loaded FFZ emotes for #$channel in $it ms") }
+                .onSuccess { it?.let { emoteRepository.setFFZEmotes(channel, it) } }
+                .map { }
+        }
     }
 
-    suspend fun loadChannelBTTVEmotes(channel: UserName, channelDisplayName: DisplayName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelBTTVEmotes(channel: UserName, channelDisplayName: DisplayName, channelId: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "BTTV emotes for #$channel") {
             bttvApiClient.getBTTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
-                ?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) }
-        }.let { Log.i(TAG, "Loaded BTTV emotes for #$channel in $it ms") }
+                .onSuccess { it?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) } }
+                .map { }
+        }
     }
 
-    suspend fun loadChannelSevenTVEmotes(channel: UserName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelSevenTVEmotes(channel: UserName, channelId: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "7TV emotes for #$channel") {
             sevenTVApiClient.getSevenTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) }
-                ?.let { result ->
+                .onSuccess { result ->
+                    result ?: return@onSuccess
                     if (result.emoteSet?.id != null) {
                         sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
                     }
                     sevenTVEventApiClient.subscribeUser(result.user.id)
                     emoteRepository.setSevenTVEmotes(channel, result)
                 }
-        }.let { Log.i(TAG, "Loaded 7TV emotes for #$channel in $it ms") }
+                .map { }
+        }
     }
 
-    suspend fun loadGlobalFFZEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalFFZEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "global FFZ emotes") {
             ffzApiClient.getFFZGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes }
-                ?.let { emoteRepository.setFFZGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global FFZ emotes in $it ms") }
+                .onSuccess { emoteRepository.setFFZGlobalEmotes(it) }
+                .map { }
+        }
     }
 
-    suspend fun loadGlobalBTTVEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "global BTTV emotes") {
             bttvApiClient.getBTTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes }
-                ?.let { emoteRepository.setBTTVGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global BTTV emotes in $it ms") }
+                .onSuccess { emoteRepository.setBTTVGlobalEmotes(it) }
+                .map { }
+        }
     }
 
-    suspend fun loadGlobalSevenTVEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
+        measureTimeAndLog(TAG, "global 7TV emotes") {
             sevenTVApiClient.getSevenTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes }
-                ?.let { emoteRepository.setSevenTVGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global 7TV emotes in $it ms") }
+                .onSuccess { emoteRepository.setSevenTVGlobalEmotes(it) }
+                .map { }
+        }
     }
 
-    private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): T? = getOrElse { throwable ->
+    private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): Result<T> = onFailure { throwable ->
         Log.e(TAG, "Data request failed:", throwable)
         _dataLoadingFailures.update { it + DataLoadingFailure(step(), throwable) }
-        null
     }
 
     companion object {

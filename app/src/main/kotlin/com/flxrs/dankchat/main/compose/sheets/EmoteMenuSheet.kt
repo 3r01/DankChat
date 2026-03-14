@@ -84,7 +84,7 @@ fun EmoteMenuSheet(
             ) { page ->
                 val items = tabItems[page].items
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 48.dp),
+                    columns = GridCells.Adaptive(minSize = 40.dp),
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),

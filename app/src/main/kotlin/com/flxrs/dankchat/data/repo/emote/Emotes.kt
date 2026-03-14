@@ -2,6 +2,30 @@ package com.flxrs.dankchat.data.repo.emote
 
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 
+data class GlobalEmoteState(
+    val twitchEmotes: List<GenericEmote> = emptyList(),
+    val ffzEmotes: List<GenericEmote> = emptyList(),
+    val bttvEmotes: List<GenericEmote> = emptyList(),
+    val sevenTvEmotes: List<GenericEmote> = emptyList(),
+)
+
+data class ChannelEmoteState(
+    val twitchEmotes: List<GenericEmote> = emptyList(),
+    val ffzEmotes: List<GenericEmote> = emptyList(),
+    val bttvEmotes: List<GenericEmote> = emptyList(),
+    val sevenTvEmotes: List<GenericEmote> = emptyList(),
+)
+
+fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes = Emotes(
+    twitchEmotes = global.twitchEmotes + channel.twitchEmotes,
+    ffzChannelEmotes = channel.ffzEmotes,
+    ffzGlobalEmotes = global.ffzEmotes,
+    bttvChannelEmotes = channel.bttvEmotes,
+    bttvGlobalEmotes = global.bttvEmotes,
+    sevenTvChannelEmotes = channel.sevenTvEmotes,
+    sevenTvGlobalEmotes = global.sevenTvEmotes,
+)
+
 data class Emotes(
     val twitchEmotes: List<GenericEmote> = emptyList(),
     val ffzChannelEmotes: List<GenericEmote> = emptyList(),

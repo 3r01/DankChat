@@ -7,6 +7,7 @@ import android.util.LruCache
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import coil3.DrawableImage
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -36,9 +37,12 @@ class EmoteAnimationCoordinator(
 ) {
     // LruCache for single emote drawables (like badgeCache in EmoteRepository)
     private val emoteCache = LruCache<String, Drawable>(256)
-    
+
     // LruCache for stacked emote drawables (like layerCache in EmoteRepository)
     private val layerCache = LruCache<String, LayerDrawable>(128)
+
+    // Cache of known emote dimensions (width, height in px) to avoid layout shifts
+    val dimensionCache = LruCache<String, Pair<Int, Int>>(512)
     
     /**
      * Get or load an emote drawable.
@@ -115,12 +119,22 @@ class EmoteAnimationCoordinator(
     fun clear() {
         emoteCache.evictAll()
         layerCache.evictAll()
+        dimensionCache.evictAll()
     }
 }
 
 /**
- * Provides a singleton EmoteAnimationCoordinator for the composition.
- * This ensures all messages share the same coordinator instance.
+ * CompositionLocal providing a shared EmoteAnimationCoordinator.
+ * Must be provided at the chat root (e.g., ChatComposable) so all messages
+ * share the same coordinator and its LruCache.
+ */
+val LocalEmoteAnimationCoordinator = staticCompositionLocalOf<EmoteAnimationCoordinator> {
+    error("No EmoteAnimationCoordinator provided. Wrap your chat composables with CompositionLocalProvider.")
+}
+
+/**
+ * Creates and remembers a singleton EmoteAnimationCoordinator using the given ImageLoader.
+ * Call this once at the chat root, then provide via [LocalEmoteAnimationCoordinator].
  */
 @Composable
 fun rememberEmoteAnimationCoordinator(imageLoader: ImageLoader): EmoteAnimationCoordinator {
