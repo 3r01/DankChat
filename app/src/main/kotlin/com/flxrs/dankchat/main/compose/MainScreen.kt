@@ -1,6 +1,20 @@
 package com.flxrs.dankchat.main.compose
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
@@ -11,13 +25,27 @@ import android.content.ClipData
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,7 +59,15 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingToolbarDefaults
+import androidx.compose.material3.HorizontalFloatingToolbar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -50,6 +86,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -84,10 +121,13 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.main.compose.FullScreenSheetState
 import com.flxrs.dankchat.main.compose.InputSheetState
 import com.flxrs.dankchat.main.MainEvent
+import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
 import com.flxrs.dankchat.main.compose.dialogs.EmoteInfoDialog
 import com.flxrs.dankchat.main.compose.dialogs.ManageChannelsDialog
 import com.flxrs.dankchat.main.compose.dialogs.MessageOptionsDialog
+import com.flxrs.dankchat.main.compose.dialogs.RoomStateDialog
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenuSheet
 import com.flxrs.dankchat.main.compose.sheets.MentionSheet
 import com.flxrs.dankchat.main.compose.sheets.RepliesSheet
@@ -105,6 +145,9 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.ui.input.pointer.pointerInput
@@ -113,10 +156,13 @@ import androidx.compose.ui.unit.sp
 
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainScreen(
     navController: NavController,
@@ -145,6 +191,7 @@ fun MainScreen(
     val channelPagerViewModel: ChannelPagerViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
+    val streamViewModel: StreamViewModel = koinViewModel()
     val mentionViewModel: com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel = koinViewModel()
     val appearanceSettingsDataStore: AppearanceSettingsDataStore = koinInject()
     val developerSettingsDataStore: DeveloperSettingsDataStore = koinInject()
@@ -195,8 +242,14 @@ fun MainScreen(
             }
     }
 
+    // Close emote menu when keyboard opens, but wait for keyboard to reach
+    // persisted height so scaffold padding doesn't jump during the transition
     LaunchedEffect(isImeVisible) {
         if (isImeVisible) {
+            if (keyboardHeightPx > 0) {
+                snapshotFlow { imeHeightState.value }
+                    .first { it >= keyboardHeightPx }
+            }
             chatInputViewModel.setEmoteMenuOpen(false)
         }
     }
@@ -205,8 +258,19 @@ fun MainScreen(
     val isKeyboardVisible = isImeVisible || isImeOpening
     var backProgress by remember { mutableStateOf(0f) }
 
-    // Disable if Keyboard is open or opening to prevent conflict
-    PredictiveBackHandler(enabled = inputState.isEmoteMenuOpen && !isKeyboardVisible) { progress ->
+    // Stream state
+    val currentStream by streamViewModel.currentStreamedChannel.collectAsStateWithLifecycle()
+    val hasStreamData by chatInputViewModel.hasStreamData.collectAsStateWithLifecycle()
+    var streamHeightDp by remember { mutableStateOf(0.dp) }
+    LaunchedEffect(currentStream) {
+        if (currentStream == null) streamHeightDp = 0.dp
+    }
+
+
+
+    // Only intercept when menu is visible AND keyboard is fully GONE
+    // Using currentImeHeight == 0 ensures we don't intercept during system keyboard close gestures
+    PredictiveBackHandler(enabled = inputState.isEmoteMenuOpen && currentImeHeight == 0) { progress ->
         try {
             progress.collect { event ->
                 backProgress = event.progress
@@ -224,9 +288,15 @@ fun MainScreen(
     var showRemoveChannelDialog by remember { mutableStateOf(false) }
     var showBlockChannelDialog by remember { mutableStateOf(false) }
     var showClearChatDialog by remember { mutableStateOf(false) }
+    var showOverflowMenu by remember { mutableStateOf(false) }
+    var overflowInitialMenu by remember { mutableStateOf<AppBarMenu>(AppBarMenu.Main) }
     var userPopupParams by remember { mutableStateOf<UserPopupStateParams?>(null) }
     var messageOptionsParams by remember { mutableStateOf<MessageOptionsParams?>(null) }
     var emoteInfoEmotes by remember { mutableStateOf<List<ChatMessageEmote>?>(null) }
+    var showRoomStateDialog by remember { mutableStateOf(false) }
+
+    val channelRepository: ChannelRepository = koinInject()
+    val userStateRepository: UserStateRepository = koinInject()
 
     val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
     val inputSheetState by sheetNavigationViewModel.inputSheetState.collectAsStateWithLifecycle()
@@ -316,6 +386,17 @@ fun MainScreen(
                     Text(stringResource(R.string.dialog_cancel))
                 }
             }
+        )
+    }
+
+    val roomStateChannel = inputState.activeChannel
+    if (showRoomStateDialog && roomStateChannel != null) {
+        RoomStateDialog(
+            roomState = channelRepository.getRoomState(roomStateChannel),
+            onSendCommand = { command ->
+                chatInputViewModel.trySendMessageOrCommand(command)
+            },
+            onDismiss = { showRoomStateDialog = false }
         )
     }
 
@@ -506,15 +587,18 @@ fun MainScreen(
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     val sheetBottomPadding = with(density) { (containerHeight - inputTopY).toDp() }
 
-    // Track keyboard visibility - clear focus only when keyboard is fully closed
+    // Clear focus when keyboard fully reaches the bottom, but not when
+    // switching to the emote menu. Prevents keyboard from reopening when
+    // returning from background.
     val focusManager = LocalFocusManager.current
-    val imeAnimationTarget = WindowInsets.imeAnimationTarget
-    val isKeyboardAtBottom = imeAnimationTarget.getBottom(density) == 0
-
-    LaunchedEffect(isKeyboardAtBottom) {
-        if (isKeyboardAtBottom) {
-            focusManager.clearFocus()
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { imeHeightState.value == 0 && !inputState.isEmoteMenuOpen }
+            .distinctUntilChanged()
+            .collect { shouldClearFocus ->
+                if (shouldClearFocus) {
+                    focusManager.clearFocus()
+                }
+            }
     }
 
     // Sync Compose pager with ViewModel state
@@ -534,77 +618,36 @@ fun MainScreen(
         }
     }
 
-    val systemBarsPaddingModifier = if (isFullscreen) Modifier else Modifier.statusBarsPadding()
-
     Box(modifier = Modifier
         .fillMaxSize()
         .onGloballyPositioned { containerHeight = it.size.height }
     ) {
-        val currentImeHeightDp = with(density) { currentImeHeight.toDp() }
-        val targetImeHeightDp = with(density) { targetImeHeight.toDp() }
-        
+        // Menu content height matches keyboard content area (above nav bar)
         val targetMenuHeight = if (keyboardHeightPx > 0) {
             with(density) { keyboardHeightPx.toDp() }
         } else {
             if (isLandscape) 200.dp else 350.dp
         }.coerceAtLeast(if (isLandscape) 150.dp else 250.dp)
+
+        // Total menu height includes nav bar so the menu visually matches
+        // the keyboard's full extent. Without this, the menu is shorter than
+        // the keyboard by navBarHeight, causing a visible lag during reveal.
+        val navBarHeightDp = with(density) { navBars.getBottom(density).toDp() }
+        val totalMenuHeight = targetMenuHeight + navBarHeightDp
         
-        val scaffoldBottomPadding = max(
-            targetImeHeightDp, 
-            max(currentImeHeightDp, if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp)
-        )
+        val currentImeDp = with(density) { currentImeHeight.toDp() }
+        val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
+        val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
 
         Scaffold(
             modifier = modifier
                 .fillMaxSize()
-                .then(systemBarsPaddingModifier)
                 .padding(bottom = scaffoldBottomPadding),
-            contentWindowInsets = WindowInsets.statusBars,
-            topBar = {
-                if (tabState.tabs.isEmpty()) {
-                    return@Scaffold
-                }
-
-                AnimatedVisibility(
-                    visible = showAppBar && !isFullscreen,
-                    enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-                    exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-                ) {
-                    MainAppBar(
-                        isLoggedIn = isLoggedIn,
-                        totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
-                        onAddChannel = { showAddChannelDialog = true },
-                        onOpenMentions = { sheetNavigationViewModel.openMentions() },
-                        onOpenWhispers = { sheetNavigationViewModel.openWhispers() },
-                        onLogin = onLogin,
-                        onRelogin = onRelogin,
-                        onLogout = { showLogoutDialog = true },
-                        onManageChannels = { showManageChannelsDialog = true },
-                        onOpenChannel = onOpenChannel,
-                        onRemoveChannel = { showRemoveChannelDialog = true },
-                        onReportChannel = onReportChannel,
-                        onBlockChannel = { showBlockChannelDialog = true },
-                        onReloadEmotes = {
-                            activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
-                            onReloadEmotes()
-                        },
-                        onReconnect = {
-                            channelManagementViewModel.reconnect()
-                            onReconnect()
-                        },
-                        onClearChat = { showClearChatDialog = true },
-                        onOpenSettings = onNavigateToSettings
-                    )
-                }
-            },
+            contentWindowInsets = WindowInsets(0),
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             bottomBar = {
-                AnimatedVisibility(
-                    visible = showInputState && !isFullscreen,
-                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                ) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    if (showInputState) {
                         ChatInputLayout(
                             textFieldState = chatInputViewModel.textFieldState,
                             inputState = inputState.inputState,
@@ -613,6 +656,11 @@ fun MainScreen(
                             showReplyOverlay = inputState.showReplyOverlay,
                             replyName = inputState.replyName,
                             isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                            helperText = inputState.helperText,
+                            isFullscreen = isFullscreen,
+                            isModerator = userStateRepository.isModeratorInChannel(inputState.activeChannel),
+                            isStreamActive = currentStream != null,
+                            hasStreamData = hasStreamData,
                             onSend = chatInputViewModel::sendMessage,
                             onLastMessageClick = chatInputViewModel::getLastMessage,
                             onEmoteClick = {
@@ -626,11 +674,41 @@ fun MainScreen(
                             onReplyDismiss = {
                                 chatInputViewModel.setReplying(false)
                             },
+                            onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
+                            onToggleInput = mainScreenViewModel::toggleInput,
+                            onToggleStream = {
+                                activeChannel?.let { streamViewModel.toggleStream(it) }
+                            },
+                            onChangeRoomState = { showRoomStateDialog = true },
                             modifier = Modifier.onGloballyPositioned { coordinates ->
                                 inputHeightPx = coordinates.size.height
                                 inputTopY = coordinates.positionInRoot().y
                             }
                         )
+                    }
+
+                    // Sticky helper text + nav bar spacer when input is hidden
+                    if (!showInputState) {
+                        val helperText = inputState.helperText
+                        if (!helperText.isNullOrEmpty()) {
+                            Surface(
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = helperText,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                    modifier = Modifier
+                                        .navigationBarsPadding()
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Start
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -653,8 +731,6 @@ fun MainScreen(
                         onAddChannel = { showAddChannelDialog = true },
                         onLogin = onLogin,
                         onToggleAppBar = mainScreenViewModel::toggleAppBar,
-                        onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                        onToggleInput = mainScreenViewModel::toggleInput,
                         modifier = Modifier.padding(paddingValues)
                     )
                 } else {
@@ -663,25 +739,6 @@ fun MainScreen(
                             .fillMaxSize()
                             .padding(paddingValues)
                     ) {
-                        if (tabState.loading) {
-                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        }
-                        AnimatedVisibility(
-                            visible = !isFullscreen,
-                            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-                            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-                        ) {
-                            ChannelTabRow(
-                                tabs = tabState.tabs,
-                                selectedIndex = tabState.selectedIndex,
-                                onTabSelected = {
-                                    channelTabViewModel.selectTab(it)
-                                    scope.launch {
-                                        composePagerState.animateScrollToPage(it)
-                                    }
-                                }
-                            )
-                        }
                         HorizontalPager(
                             state = composePagerState,
                             modifier = Modifier.fillMaxSize(),
@@ -715,7 +772,18 @@ fun MainScreen(
                                     },
                                     onReplyClick = { replyMessageId, replyName ->
                                         sheetNavigationViewModel.openReplies(replyMessageId, replyName)
-                                    }
+                                    },
+                                    showInput = showInputState,
+                                    isFullscreen = isFullscreen,
+                                    hasHelperText = !inputState.helperText.isNullOrEmpty(),
+                                    onRecover = {
+                                        if (isFullscreen) mainScreenViewModel.toggleFullscreen()
+                                        if (!showInputState) mainScreenViewModel.toggleInput()
+                                    },
+                                    contentPadding = PaddingValues(
+                                        top = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamHeightDp) + 56.dp
+                                    ),
+                                    onScrollDirectionChanged = { }
                                 )
                             }
                         }
@@ -724,14 +792,329 @@ fun MainScreen(
             }
         }
 
-        // Emote Menu Layer
-        // Always draw if open OR keyboard is present to be ready underneath
-        if (inputState.isEmoteMenuOpen || isKeyboardVisible) {
+        // Stream View layer
+        currentStream?.let { channel ->
+            StreamView(
+                channel = channel,
+                streamViewModel = streamViewModel,
+                onClose = {
+                    focusManager.clearFocus()
+                    streamViewModel.closeStream()
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        streamHeightDp = with(density) { coordinates.size.height.toDp() }
+                    }
+            )
+        }
+
+        // Status bar scrim
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
+                .background(if (currentStream != null) Color.Black else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+        )
+
+        // Floating Toolbars - collapsible tabs (expand on swipe) + actions
+        if (tabState.tabs.isNotEmpty()) {
+            var isTabsExpanded by remember { mutableStateOf(false) }
+
+            val maxVisibleTabs = 3
+            val totalTabs = tabState.tabs.size
+            val hasOverflow = totalTabs > maxVisibleTabs
+            val selectedIndex = tabState.selectedIndex
+            val visibleStartIndex = when {
+                !hasOverflow -> 0
+                selectedIndex <= 0 -> 0
+                selectedIndex >= totalTabs - 1 -> maxOf(0, totalTabs - maxVisibleTabs)
+                else -> selectedIndex - 1
+            }
+            val visibleEndIndex = minOf(visibleStartIndex + maxVisibleTabs, totalTabs)
+
+            // Expand tabs when pager is swiped in a direction with more channels
+            LaunchedEffect(composePagerState.isScrollInProgress) {
+                if (composePagerState.isScrollInProgress && hasOverflow) {
+                    // Wait for swipe direction to establish
+                    val offset = snapshotFlow { composePagerState.currentPageOffsetFraction }
+                        .first { it != 0f }
+                    val current = composePagerState.currentPage
+                    val swipingForward = offset > 0  // towards higher index
+                    val swipingBackward = offset < 0 // towards lower index
+                    if ((swipingForward && current < totalTabs - 1) || (swipingBackward && current > 0)) {
+                        isTabsExpanded = true
+                    }
+                }
+            }
+
+            // Auto-collapse after scroll stops + 2s delay
+            LaunchedEffect(isTabsExpanded, composePagerState.isScrollInProgress) {
+                if (isTabsExpanded && !composePagerState.isScrollInProgress) {
+                    delay(2000)
+                    isTabsExpanded = false
+                }
+            }
+
+            // Dismiss scrim for inline overflow menu
+            if (showOverflowMenu) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            showOverflowMenu = false
+                            overflowInitialMenu = AppBarMenu.Main
+                        }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = showAppBar && !isFullscreen,
+                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .padding(top = if (currentStream != null) streamHeightDp else with(density) { WindowInsets.statusBars.getTop(density).toDp() })
+                    .padding(top = 8.dp)
+            ) {
+                    val tabListState = rememberLazyListState()
+
+                    // Auto-scroll to keep selected tab visible
+                    LaunchedEffect(selectedIndex) {
+                        tabListState.animateScrollToItem(selectedIndex)
+                    }
+
+                    // Mention indicators based on visibility
+                    val visibleItems = tabListState.layoutInfo.visibleItemsInfo
+                    val firstVisibleIndex = visibleItems.firstOrNull()?.index ?: 0
+                    val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: (totalTabs - 1)
+                    val hasLeftMention = tabState.tabs.take(firstVisibleIndex).any { it.mentionCount > 0 }
+                    val hasRightMention = tabState.tabs.drop(lastVisibleIndex + 1).any { it.mentionCount > 0 }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        // Scrollable tabs pill
+                        Surface(
+                            modifier = Modifier.weight(1f, fill = false),
+                            shape = MaterialTheme.shapes.extraLarge,
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                        ) {
+                            val mentionGradientColor = MaterialTheme.colorScheme.error
+                            LazyRow(
+                                state = tabListState,
+                                contentPadding = PaddingValues(horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .drawWithContent {
+                                    drawContent()
+                                    val gradientWidth = 24.dp.toPx()
+                                    if (hasLeftMention) {
+                                        drawRect(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    mentionGradientColor.copy(alpha = 0.5f),
+                                                    mentionGradientColor.copy(alpha = 0f)
+                                                ),
+                                                endX = gradientWidth
+                                            ),
+                                            size = androidx.compose.ui.geometry.Size(gradientWidth, size.height)
+                                        )
+                                    }
+                                    if (hasRightMention) {
+                                        drawRect(
+                                            brush = Brush.horizontalGradient(
+                                                colors = listOf(
+                                                    mentionGradientColor.copy(alpha = 0f),
+                                                    mentionGradientColor.copy(alpha = 0.5f)
+                                                ),
+                                                startX = size.width - gradientWidth,
+                                                endX = size.width
+                                            ),
+                                            topLeft = androidx.compose.ui.geometry.Offset(size.width - gradientWidth, 0f),
+                                            size = androidx.compose.ui.geometry.Size(gradientWidth, size.height)
+                                        )
+                                    }
+                                }
+                            ) {
+                                itemsIndexed(
+                                    items = tabState.tabs,
+                                    key = { _, tab -> tab.channel.value }
+                                ) { index, tab ->
+                                    val isSelected = tab.isSelected
+                                    val textColor = when {
+                                        isSelected -> MaterialTheme.colorScheme.primary
+                                        tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .combinedClickable(
+                                                onClick = {
+                                                    channelTabViewModel.selectTab(index)
+                                                    scope.launch { composePagerState.scrollToPage(index) }
+                                                },
+                                                onLongClick = {
+                                                    channelTabViewModel.selectTab(index)
+                                                    scope.launch { composePagerState.scrollToPage(index) }
+                                                    overflowInitialMenu = AppBarMenu.Channel
+                                                    showOverflowMenu = true
+                                                }
+                                            )
+                                            .defaultMinSize(minHeight = 48.dp)
+                                            .padding(horizontal = 12.dp)
+                                    ) {
+                                        Text(
+                                            text = tab.displayName,
+                                            color = textColor,
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        )
+                                        if (tab.mentionCount > 0) {
+                                            Spacer(Modifier.width(4.dp))
+                                            Badge()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Action icons + inline overflow menu (animated with expand/collapse)
+                        AnimatedVisibility(
+                            visible = !isTabsExpanded,
+                            enter = expandHorizontally(
+                                expandFrom = Alignment.Start,
+                                animationSpec = tween(350, easing = FastOutSlowInEasing)
+                            ) + fadeIn(tween(200)),
+                            exit = shrinkHorizontally(
+                                shrinkTowards = Alignment.Start,
+                                animationSpec = tween(350, easing = FastOutSlowInEasing)
+                            ) + fadeOut(tween(150))
+                        ) {
+                            Row(verticalAlignment = Alignment.Top) {
+                                Spacer(Modifier.width(8.dp))
+
+                                val pillCornerRadius by animateDpAsState(
+                                    targetValue = if (showOverflowMenu) 0.dp else 28.dp,
+                                    animationSpec = tween(200),
+                                    label = "pillCorner"
+                                )
+                                Column(modifier = Modifier.width(IntrinsicSize.Min)) {
+                                    Surface(
+                                        shape = RoundedCornerShape(
+                                            topStart = 28.dp,
+                                            topEnd = 28.dp,
+                                            bottomStart = pillCornerRadius,
+                                            bottomEnd = pillCornerRadius
+                                        ),
+                                        color = MaterialTheme.colorScheme.surfaceContainer
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            IconButton(onClick = { showAddChannelDialog = true }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Add,
+                                                    contentDescription = stringResource(R.string.add_channel)
+                                                )
+                                            }
+                                            IconButton(onClick = { sheetNavigationViewModel.openMentions() }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Notifications,
+                                                    contentDescription = stringResource(R.string.mentions_title),
+                                                    tint = if (tabState.tabs.sumOf { it.mentionCount } > 0) {
+                                                        MaterialTheme.colorScheme.error
+                                                    } else {
+                                                        LocalContentColor.current
+                                                    }
+                                                )
+                                            }
+                                            IconButton(onClick = {
+                                                overflowInitialMenu = AppBarMenu.Main
+                                                showOverflowMenu = !showOverflowMenu
+                                            }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.MoreVert,
+                                                    contentDescription = stringResource(R.string.more)
+                                                )
+                                            }
+                                        }
+                                    }
+                                    AnimatedVisibility(
+                                        visible = showOverflowMenu,
+                                        enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                                        exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+                                    ) {
+                                        Surface(
+                                            shape = RoundedCornerShape(
+                                                topStart = 0.dp,
+                                                topEnd = 0.dp,
+                                                bottomStart = 12.dp,
+                                                bottomEnd = 12.dp
+                                            ),
+                                            color = MaterialTheme.colorScheme.surfaceContainer
+                                        ) {
+                                            InlineOverflowMenu(
+                                                isLoggedIn = isLoggedIn,
+                                                isStreamActive = currentStream != null,
+                                                hasStreamData = hasStreamData,
+                                                onDismiss = {
+                                                    showOverflowMenu = false
+                                                    overflowInitialMenu = AppBarMenu.Main
+                                                },
+                                                initialMenu = overflowInitialMenu,
+                                                onLogin = onLogin,
+                                                onRelogin = onRelogin,
+                                                onLogout = { showLogoutDialog = true },
+                                                onManageChannels = { showManageChannelsDialog = true },
+                                                onOpenChannel = onOpenChannel,
+                                                onRemoveChannel = { showRemoveChannelDialog = true },
+                                                onReportChannel = onReportChannel,
+                                                onBlockChannel = { showBlockChannelDialog = true },
+                                                onReloadEmotes = {
+                                                    activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
+                                                    onReloadEmotes()
+                                                },
+                                                onReconnect = {
+                                                    channelManagementViewModel.reconnect()
+                                                    onReconnect()
+                                                },
+                                                onClearChat = { showClearChatDialog = true },
+                                                onToggleStream = {
+                                                    activeChannel?.let { streamViewModel.toggleStream(it) }
+                                                },
+                                                onOpenSettings = onNavigateToSettings
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        // Emote Menu Layer - slides up/down independently of keyboard
+        // Fast tween to match system keyboard animation speed
+        AnimatedVisibility(
+            visible = inputState.isEmoteMenuOpen,
+            enter = slideInVertically(animationSpec = tween(durationMillis = 140), initialOffsetY = { it }),
+            exit = slideOutVertically(animationSpec = tween(durationMillis = 140), targetOffsetY = { it }),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(targetMenuHeight)
+                    .height(totalMenuHeight)
                     .graphicsLayer {
                         val scale = 1f - (backProgress * 0.1f)
                         scaleX = scale
@@ -739,12 +1122,13 @@ fun MainScreen(
                         alpha = 1f - backProgress
                         translationY = backProgress * 100f
                     }
-                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 EmoteMenu(
                     onEmoteClick = { code, _ ->
                         chatInputViewModel.insertText("$code ")
-                    }
+                    },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -857,7 +1241,7 @@ fun MainScreen(
             }
         }
 
-        if (showInputState && !isFullscreen && isKeyboardVisible) {
+        if (showInputState && isKeyboardVisible) {
             SuggestionDropdown(
                 suggestions = inputState.suggestions,
                 onSuggestionClick = chatInputViewModel::applySuggestion,
@@ -870,3 +1254,4 @@ fun MainScreen(
         }
     }
 }
+

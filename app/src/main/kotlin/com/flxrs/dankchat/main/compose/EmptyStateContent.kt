@@ -30,8 +30,6 @@ fun EmptyStateContent(
     onAddChannel: () -> Unit,
     onLogin: () -> Unit,
     onToggleAppBar: () -> Unit,
-    onToggleFullscreen: () -> Unit,
-    onToggleInput: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(modifier = modifier) {
@@ -70,17 +68,7 @@ fun EmptyStateContent(
                 
                 AssistChip(
                     onClick = onToggleAppBar,
-                    label = { Text("Toggle App Bar") } // Consider using resources
-                )
-                
-                AssistChip(
-                    onClick = onToggleFullscreen,
-                    label = { Text("Toggle Fullscreen") }
-                )
-                
-                AssistChip(
-                    onClick = onToggleInput,
-                    label = { Text("Toggle Input") }
+                    label = { Text("Toggle App Bar") }
                 )
             }
         }

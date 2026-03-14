@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
+import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.command.TwitchCommand
@@ -21,7 +22,9 @@ import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.main.RepeatedSendData
 import com.flxrs.dankchat.main.compose.FullScreenSheetState
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -32,8 +35,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -49,7 +54,10 @@ class ChatInputViewModel(
     private val userStateRepository: UserStateRepository,
     private val suggestionProvider: SuggestionProvider,
     private val preferenceStore: DankChatPreferenceStore,
+    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
+    private val streamDataRepository: StreamDataRepository,
+    private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val mainEventBus: MainEventBus,
 ) : ViewModel() {
 
@@ -82,6 +90,44 @@ class ChatInputViewModel(
         suggestionProvider.getSuggestions(text, channel)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val roomStateDisplayText: StateFlow<String?> = combine(
+        chatSettingsDataStore.showChatModes,
+        chatRepository.activeChannel
+    ) { showModes, channel ->
+        showModes to channel
+    }.flatMapLatest { (showModes, channel) ->
+        if (!showModes || channel == null) flowOf(null)
+        else channelRepository.getRoomStateFlow(channel).map { it.toDisplayText().ifEmpty { null } }
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    private val currentStreamInfo: StateFlow<String?> = combine(
+        streamsSettingsDataStore.showStreamsInfo,
+        chatRepository.activeChannel,
+        streamDataRepository.streamData
+    ) { streamInfoEnabled, activeChannel, streamData ->
+        streamData.find { it.channel == activeChannel }?.formattedData?.takeIf { streamInfoEnabled }
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    private val helperText: StateFlow<String?> = combine(
+        roomStateDisplayText,
+        currentStreamInfo
+    ) { roomState, streamInfo ->
+        listOfNotNull(roomState, streamInfo)
+            .joinToString(separator = " - ")
+            .ifEmpty { null }
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val hasStreamData: StateFlow<Boolean> = combine(
+        chatRepository.activeChannel,
+        streamDataRepository.streamData
+    ) { activeChannel, streamData ->
+        activeChannel != null && streamData.any { it.channel == activeChannel }
+    }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     private var _uiState: StateFlow<ChatInputUiState>? = null
 
     init {
@@ -103,6 +149,20 @@ class ChatInputViewModel(
                 }
             }
         }
+
+        // Trigger stream data fetching whenever channels change
+        viewModelScope.launch {
+            chatRepository.channels.collect { channels ->
+                if (channels != null) {
+                    streamDataRepository.fetchStreamData(channels)
+                }
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        streamDataRepository.cancelStreamData()
     }
 
     private data class UiDependencies(
@@ -158,8 +218,9 @@ class ChatInputViewModel(
 
         _uiState = combine(
             baseFlow,
-            sheetAndReplyFlow
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen) ->
+            sheetAndReplyFlow,
+            helperText
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen), helperText ->
             this.fullScreenSheetState.value = sheetState
             this.mentionSheetTab.value = tab
 
@@ -194,7 +255,8 @@ class ChatInputViewModel(
                 showReplyOverlay = showReplyOverlay,
                 replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
                 replyName = effectiveReplyName,
-                isEmoteMenuOpen = isEmoteMenuOpen
+                isEmoteMenuOpen = isEmoteMenuOpen,
+                helperText = helperText
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
 
@@ -352,5 +414,6 @@ data class ChatInputUiState(
     val showReplyOverlay: Boolean = false,
     val replyMessageId: String? = null,
     val replyName: UserName? = null,
-    val isEmoteMenuOpen: Boolean = false
+    val isEmoteMenuOpen: Boolean = false,
+    val helperText: String? = null
 )

@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.chat.compose
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +32,12 @@ fun ChatComposable(
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onReplyClick: (String, UserName) -> Unit,
     modifier: Modifier = Modifier,
+    showInput: Boolean = true,
+    isFullscreen: Boolean = false,
+    hasHelperText: Boolean = false,
+    onRecover: () -> Unit = {},
+    contentPadding: PaddingValues = PaddingValues(),
+    onScrollDirectionChanged: (Boolean) -> Unit = {},
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping
     val viewModel: ChatComposeViewModel = koinViewModel(
@@ -54,6 +61,12 @@ fun ChatComposable(
         onUserClick = onUserClick,
         onMessageLongClick = onMessageLongClick,
         onEmoteClick = onEmoteClick,
-        onReplyClick = onReplyClick
+        onReplyClick = onReplyClick,
+        showInput = showInput,
+        isFullscreen = isFullscreen,
+        hasHelperText = hasHelperText,
+        onRecover = onRecover,
+        contentPadding = contentPadding,
+        onScrollDirectionChanged = onScrollDirectionChanged
     )
 }

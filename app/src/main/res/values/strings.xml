@@ -128,6 +128,17 @@
     <string name="uploader_description">You can set a custom host for uploading media, like imgur.com or s-ul.eu. DankChat uses the same configuration format as Chatterino.\nCheck this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="toggle_fullscreen">Toggle fullscreen</string>
     <string name="toggle_stream">Toggle stream</string>
+    <string name="menu_show_stream">Show stream</string>
+    <string name="menu_hide_stream">Hide stream</string>
+    <string name="menu_fullscreen">Fullscreen</string>
+    <string name="menu_exit_fullscreen">Exit fullscreen</string>
+    <string name="menu_hide_input">Hide input</string>
+<string name="menu_room_state">Room state</string>
+    <string name="room_state_emote_only">Emote only</string>
+    <string name="room_state_subscriber_only">Subscriber only</string>
+    <string name="room_state_slow_mode">Slow mode</string>
+    <string name="room_state_unique_chat">Unique chat (R9K)</string>
+    <string name="room_state_follower_only">Follower only</string>
     <string name="account">Account</string>
     <string name="relogin">Login again</string>
     <string name="logout">Logout</string>

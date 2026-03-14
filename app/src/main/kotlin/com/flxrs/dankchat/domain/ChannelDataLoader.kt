@@ -24,6 +24,7 @@ class ChannelDataLoader(
     private val dataRepository: DataRepository,
     private val chatRepository: ChatRepository,
     private val channelRepository: ChannelRepository,
+    private val getChannelsUseCase: GetChannelsUseCase,
     private val dispatchersProvider: DispatchersProvider
 ) {
 
@@ -35,8 +36,10 @@ class ChannelDataLoader(
         emit(ChannelLoadingState.Loading)
 
         try {
-            // Get channel info
+            // Get channel info - uses GetChannelsUseCase which waits for IRC ROOMSTATE
+            // if not logged in, matching the legacy MainViewModel.loadData behavior
             val channelInfo = channelRepository.getChannel(channel)
+                ?: getChannelsUseCase(listOf(channel)).firstOrNull()
             if (channelInfo == null) {
                 emit(ChannelLoadingState.Failed("Channel not found", emptyList()))
                 return@flow
