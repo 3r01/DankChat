@@ -869,9 +869,6 @@ class ChatRepository(
                 .distinctBy { it.message.id }
                 .sortedBy { it.message.timestamp }
         }
-        if (mentions.isNotEmpty()) {
-            _channelMentionCount.increment(channel, mentions.size)
-        }
         usersRepository.updateUsers(channel, userSuggestions)
     }
 

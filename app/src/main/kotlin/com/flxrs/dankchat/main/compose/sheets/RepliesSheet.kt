@@ -2,6 +2,7 @@ package com.flxrs.dankchat.main.compose.sheets
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +70,7 @@ fun RepliesSheet(
                 }
             )
         },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer {

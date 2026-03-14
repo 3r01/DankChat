@@ -28,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -62,6 +63,8 @@ class ChatInputViewModel(
     private val repeatedSend = MutableStateFlow(RepeatedSendData(enabled = false, message = ""))
     private val fullScreenSheetState = MutableStateFlow<FullScreenSheetState>(FullScreenSheetState.Closed)
     private val mentionSheetTab = MutableStateFlow(0)
+    private val _isEmoteMenuOpen = MutableStateFlow(false)
+    val isEmoteMenuOpen = _isEmoteMenuOpen.asStateFlow()
 
     // Create flow from TextFieldState
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
@@ -115,7 +118,8 @@ class ChatInputViewModel(
         val tab: Int,
         val isReplying: Boolean,
         val replyName: UserName?,
-        val replyMessageId: String?
+        val replyMessageId: String?,
+        val isEmoteMenuOpen: Boolean
     )
 
     fun uiState(fullScreenSheetState: StateFlow<FullScreenSheetState>, mentionSheetTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
@@ -134,20 +138,28 @@ class ChatInputViewModel(
             UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn)
         }
 
-        val sheetAndReplyFlow = combine(
-            fullScreenSheetState,
-            mentionSheetTab,
+        val replyStateFlow = combine(
             _isReplying,
             _replyName,
             _replyMessageId
-        ) { sheetState, tab, isReplying, replyName, replyMessageId ->
-            SheetAndReplyState(sheetState, tab, isReplying, replyName, replyMessageId)
+        ) { isReplying, replyName, replyMessageId ->
+            Triple(isReplying, replyName, replyMessageId)
+        }
+
+        val sheetAndReplyFlow = combine(
+            fullScreenSheetState,
+            mentionSheetTab,
+            replyStateFlow,
+            _isEmoteMenuOpen
+        ) { sheetState, tab, replyState, isEmoteMenuOpen ->
+            val (isReplying, replyName, replyMessageId) = replyState
+            SheetAndReplyState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen)
         }
 
         _uiState = combine(
             baseFlow,
             sheetAndReplyFlow
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId) ->
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen) ->
             this.fullScreenSheetState.value = sheetState
             this.mentionSheetTab.value = tab
 
@@ -181,7 +193,8 @@ class ChatInputViewModel(
                 inputState = inputState,
                 showReplyOverlay = showReplyOverlay,
                 replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
-                replyName = effectiveReplyName
+                replyName = effectiveReplyName,
+                isEmoteMenuOpen = isEmoteMenuOpen
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
 
@@ -314,6 +327,14 @@ class ChatInputViewModel(
         }
     }
 
+    fun toggleEmoteMenu() {
+        _isEmoteMenuOpen.update { !it }
+    }
+
+    fun setEmoteMenuOpen(open: Boolean) {
+        _isEmoteMenuOpen.value = open
+    }
+
     companion object {
         private const val SUGGESTION_DEBOUNCE_MS = 20L
     }
@@ -331,4 +352,5 @@ data class ChatInputUiState(
     val showReplyOverlay: Boolean = false,
     val replyMessageId: String? = null,
     val replyName: UserName? = null,
+    val isEmoteMenuOpen: Boolean = false
 )

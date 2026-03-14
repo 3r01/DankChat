@@ -1,37 +1,34 @@
 package com.flxrs.dankchat.main.compose.dialogs
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -39,97 +36,97 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
-import java.util.Collections
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ManageChannelsDialog(
     channels: List<ChannelWithRename>,
-    onRemoveChannel: (UserName) -> Unit,
-    onRenameChannel: (UserName, String?) -> Unit,
-    onReorder: (List<ChannelWithRename>) -> Unit,
+    onApplyChanges: (List<ChannelWithRename>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
     var channelToEdit by remember { mutableStateOf<ChannelWithRename?>(null) }
     
-    // Local state for smooth reordering
+    // Local state for smooth reordering and deferred updates
     val localChannels = remember { mutableStateListOf<ChannelWithRename>() }
-    // Update local channels when external source changes
     LaunchedEffect(channels) {
-        localChannels.clear()
-        localChannels.addAll(channels)
+        if (localChannels.isEmpty() && channels.isNotEmpty()) {
+            localChannels.addAll(channels)
+        }
+    }
+
+    val lazyListState = rememberLazyListState()
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        // Adjust indices because of the header item at index 0
+        val fromIndex = from.index - 1
+        val toIndex = to.index - 1
+        
+        if (fromIndex in localChannels.indices && toIndex in localChannels.indices) {
+            localChannels.apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+        }
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = {
+            onApplyChanges(localChannels.toList())
+            onDismiss()
+        },
     ) {
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 32.dp),
+            state = lazyListState
         ) {
-            Text(
-                text = stringResource(R.string.manage_channels),
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            )
+            item {
+                Text(
+                    text = stringResource(R.string.manage_channels),
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                state = rememberLazyListState()
-            ) {
-                itemsIndexed(localChannels, key = { _, item -> item.channel.value }) { index, channelWithRename ->
-                    var offsetY by remember { mutableFloatStateOf(0f) }
-                    var isDragging by remember { mutableStateOf(false) }
-                    val itemHeight = remember { mutableIntStateOf(0) }
+            items(localChannels, key = { it.channel.value }) { channelWithRename ->
+                ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
+                    val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
                     
-                    ChannelItem(
-                        channelWithRename = channelWithRename,
-                        isDragging = isDragging,
-                        offsetY = offsetY,
-                        onGloballyPositioned = { coordinates ->
-                            itemHeight.intValue = coordinates.size.height
-                        },
-                        onDragStart = { isDragging = true },
-                        onDragEnd = { 
-                            isDragging = false
-                            offsetY = 0f
-                            onReorder(localChannels.toList())
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            offsetY += dragAmount.y
-                            
-                            val height = itemHeight.intValue.toFloat()
-                            if (height > 0) {
-                                val threshold = height * 0.5f // Swap slightly earlier than full height
-                                if (offsetY > threshold && index < localChannels.lastIndex) {
-                                    Collections.swap(localChannels, index, index + 1)
-                                    offsetY -= height
-                                } else if (offsetY < -threshold && index > 0) {
-                                    Collections.swap(localChannels, index, index - 1)
-                                    offsetY += height
-                                }
-                            }
-                        },
-                        onEdit = { channelToEdit = channelWithRename },
-                        onDelete = { channelToDelete = channelWithRename.channel }
-                    )
-                }
-                
-                if (localChannels.isEmpty()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.no_channels_added),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(16.dp)
-                        )
+                    Surface(
+                        shadowElevation = elevation,
+                        color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent
+                    ) {
+                        Column {
+                            ChannelItem(
+                                channelWithRename = channelWithRename,
+                                modifier = Modifier.longPressDraggableHandle(
+                                    onDragStarted = { /* Optional haptic feedback here */ },
+                                    onDragStopped = { /* Optional haptic feedback here */ }
+                                ),
+                                onEdit = { channelToEdit = channelWithRename },
+                                onDelete = { channelToDelete = channelWithRename.channel }
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                            )
+                        }
                     }
+                }
+            }
+            
+            if (localChannels.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.no_channels_added),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
         }
@@ -143,7 +140,10 @@ fun ManageChannelsDialog(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        channelToDelete?.let(onRemoveChannel)
+                        val channel = channelToDelete
+                        if (channel != null) {
+                            localChannels.removeIf { it.channel == channel }
+                        }
                         channelToDelete = null
                     }
                 ) {
@@ -161,7 +161,13 @@ fun ManageChannelsDialog(
     channelToEdit?.let { channel ->
         EditChannelDialog(
             channelWithRename = channel,
-            onRename = onRenameChannel,
+            onRename = { userName, newName -> 
+                val index = localChannels.indexOfFirst { it.channel == userName }
+                if (index != -1) {
+                    val rename = newName?.ifBlank { null }?.let { UserName(it) }
+                    localChannels[index] = localChannels[index].copy(rename = rename)
+                }
+            },
             onDismiss = { channelToEdit = null }
         )
     }
@@ -170,45 +176,21 @@ fun ManageChannelsDialog(
 @Composable
 private fun ChannelItem(
     channelWithRename: ChannelWithRename,
-    isDragging: Boolean,
-    offsetY: Float,
-    onGloballyPositioned: (androidx.compose.ui.layout.LayoutCoordinates) -> Unit,
-    onDragStart: (androidx.compose.ui.geometry.Offset) -> Unit,
-    onDragEnd: () -> Unit,
-    onDrag: (androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.geometry.Offset) -> Unit,
+    modifier: Modifier = Modifier, // This modifier will carry the drag handle semantics
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val density = LocalDensity.current
-    val elevation = if (isDragging) 8.dp else 0.dp
-    
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .zIndex(if (isDragging) 1f else 0f)
-            .graphicsLayer {
-                translationY = offsetY
-                shadowElevation = with(density) { elevation.toPx() }
-            }
-            .background(if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surface)
-            .onGloballyPositioned(onGloballyPositioned)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_drag_handle),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier
-                .pointerInput(Unit) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = onDragStart,
-                        onDragEnd = onDragEnd,
-                        onDragCancel = onDragEnd,
-                        onDrag = onDrag
-                    )
-                }
-                .padding(8.dp)
+            modifier = Modifier.padding(8.dp)
         )
 
         Text(
@@ -222,7 +204,9 @@ private fun ChannelItem(
                 }
             },
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f).padding(8.dp)
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp)
         )
 
         IconButton(onClick = onEdit) {

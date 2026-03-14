@@ -14,9 +14,10 @@ fun ChannelTab(
 ) {
     val tabColor = when {
         tab.isSelected -> MaterialTheme.colorScheme.primary
-        tab.mentionCount > 0 -> MaterialTheme.colorScheme.error
-        tab.hasUnread -> MaterialTheme.colorScheme.secondary
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
+        // Unread or Mentioned -> High visibility (OnSurface)
+        tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+        // Idle -> Lower visibility
+        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
     }
 
     Tab(
@@ -28,7 +29,6 @@ fun ChannelTab(
             BadgedBox(
                 badge = {
                     if (tab.mentionCount > 0) {
-                        // TODO could add mention count as text
                         Badge()
                     }
                 }

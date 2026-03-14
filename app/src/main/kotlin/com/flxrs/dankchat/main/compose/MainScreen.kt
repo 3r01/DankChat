@@ -1,5 +1,12 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
+
 import android.content.ClipData
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -13,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
@@ -42,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.ClipEntry
@@ -53,6 +62,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -91,7 +101,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -101,6 +110,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.Dispatchers
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -122,6 +136,7 @@ fun MainScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
     val clipboardManager = LocalClipboard.current
     // Scoped ViewModels - each handles one concern
     val mainScreenViewModel: MainScreenViewModel = koinViewModel()
@@ -138,9 +153,70 @@ fun MainScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val configuration = androidx.compose.ui.platform.LocalConfiguration.current
+    val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
     val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = developerSettingsDataStore.current())
     val isRepeatedSendEnabled = developerSettings.repeatedSending
+
+    var keyboardHeightPx by remember(isLandscape) {
+        val persisted = if (isLandscape) preferenceStore.keyboardHeightLandscape else preferenceStore.keyboardHeightPortrait
+        mutableIntStateOf(persisted)
+    }
+    
+    val ime = WindowInsets.ime
+    val navBars = WindowInsets.navigationBars
+    val imeTarget = WindowInsets.imeAnimationTarget
+    val currentImeHeight = (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
+    
+    // Target height for stability during opening animation
+    val targetImeHeight = (imeTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
+    val isImeOpening = targetImeHeight > 0
+    
+    val imeHeightState = androidx.compose.runtime.rememberUpdatedState(currentImeHeight)
+    val isImeVisible = WindowInsets.isImeVisible
+
+    LaunchedEffect(isLandscape, density) {
+        snapshotFlow { 
+            (imeTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
+        }
+            .debounce(300)
+            .collect { height ->
+                val minHeight = with(density) { 100.dp.toPx() }
+                if (height > minHeight) {
+                    keyboardHeightPx = height
+                    if (isLandscape) {
+                        preferenceStore.keyboardHeightLandscape = height
+                    } else {
+                        preferenceStore.keyboardHeightPortrait = height
+                    }
+                }
+            }
+    }
+
+    LaunchedEffect(isImeVisible) {
+        if (isImeVisible) {
+            chatInputViewModel.setEmoteMenuOpen(false)
+        }
+    }
+
+    val inputState by chatInputViewModel.uiState(sheetNavigationViewModel.fullScreenSheetState, mentionViewModel.currentTab).collectAsStateWithLifecycle()
+    val isKeyboardVisible = isImeVisible || isImeOpening
+    var backProgress by remember { mutableStateOf(0f) }
+
+    // Disable if Keyboard is open or opening to prevent conflict
+    PredictiveBackHandler(enabled = inputState.isEmoteMenuOpen && !isKeyboardVisible) { progress ->
+        try {
+            progress.collect { event ->
+                backProgress = event.progress
+            }
+            chatInputViewModel.setEmoteMenuOpen(false)
+            backProgress = 0f
+        } catch (e: Exception) {
+            backProgress = 0f
+        }
+    }
 
     var showAddChannelDialog by remember { mutableStateOf(false) }
     var showManageChannelsDialog by remember { mutableStateOf(false) }
@@ -164,7 +240,7 @@ fun MainScreen(
         }
     }
 
-    // Handle Login Result (previously in handleLoginRequest)
+    // Handle Login Result
     val navBackStackEntry = navController.currentBackStackEntry
     val loginSuccess by navBackStackEntry?.savedStateHandle?.getStateFlow<Boolean?>("login_success", null)?.collectAsStateWithLifecycle() ?: remember { mutableStateOf(null) }
     LaunchedEffect(loginSuccess) {
@@ -215,9 +291,7 @@ fun MainScreen(
         val channels by channelManagementViewModel.channels.collectAsStateWithLifecycle()
         ManageChannelsDialog(
             channels = channels,
-            onRemoveChannel = channelManagementViewModel::removeChannel,
-            onRenameChannel = channelManagementViewModel::renameChannel,
-            onReorder = channelManagementViewModel::reorderChannels,
+            onApplyChanges = channelManagementViewModel::applyChanges,
             onDismiss = { showManageChannelsDialog = false }
         )
     }
@@ -392,17 +466,6 @@ fun MainScreen(
         )
     }
 
-    if (inputSheetState is InputSheetState.EmoteMenu) {
-        EmoteMenuSheet(
-            onDismiss = sheetNavigationViewModel::closeInputSheet,
-            onEmoteClick = { code, _ ->
-                chatInputViewModel.insertText("$code ")
-                sheetNavigationViewModel.closeInputSheet()
-            },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        )
-    }
-
     if (inputSheetState is InputSheetState.MoreActions) {
         val state = inputSheetState as InputSheetState.MoreActions
         com.flxrs.dankchat.main.compose.dialogs.MoreActionsSheet(
@@ -432,13 +495,11 @@ fun MainScreen(
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
 
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
-    val inputState by chatInputViewModel.uiState(sheetNavigationViewModel.fullScreenSheetState, mentionViewModel.currentTab).collectAsStateWithLifecycle()
 
     val composePagerState = rememberPagerState(
         initialPage = pagerState.currentPage,
         pageCount = { pagerState.channels.size }
     )
-    val density = LocalDensity.current
     var inputHeightPx by remember { mutableIntStateOf(0) }
     var inputTopY by remember { mutableStateOf(0f) }
     var containerHeight by remember { mutableIntStateOf(0) }
@@ -458,10 +519,11 @@ fun MainScreen(
 
     // Sync Compose pager with ViewModel state
     LaunchedEffect(pagerState.currentPage) {
-        if (composePagerState.currentPage != pagerState.currentPage &&
+        if (!composePagerState.isScrollInProgress &&
+            composePagerState.currentPage != pagerState.currentPage &&
             pagerState.currentPage < pagerState.channels.size
         ) {
-            composePagerState.animateScrollToPage(pagerState.currentPage)
+            composePagerState.scrollToPage(pagerState.currentPage)
         }
     }
 
@@ -472,293 +534,339 @@ fun MainScreen(
         }
     }
 
-    val isKeyboardVisible = WindowInsets.isImeVisible || imeAnimationTarget.getBottom(density) > 0
-
     val systemBarsPaddingModifier = if (isFullscreen) Modifier else Modifier.statusBarsPadding()
 
     Box(modifier = Modifier
         .fillMaxSize()
         .onGloballyPositioned { containerHeight = it.size.height }
     ) {
+        val currentImeHeightDp = with(density) { currentImeHeight.toDp() }
+        val targetImeHeightDp = with(density) { targetImeHeight.toDp() }
+        
+        val targetMenuHeight = if (keyboardHeightPx > 0) {
+            with(density) { keyboardHeightPx.toDp() }
+        } else {
+            if (isLandscape) 200.dp else 350.dp
+        }.coerceAtLeast(if (isLandscape) 150.dp else 250.dp)
+        
+        val scaffoldBottomPadding = max(
+            targetImeHeightDp, 
+            max(currentImeHeightDp, if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp)
+        )
+
         Scaffold(
             modifier = modifier
                 .fillMaxSize()
                 .then(systemBarsPaddingModifier)
-                .imePadding(),
-        topBar = {
-            if (tabState.tabs.isEmpty()) {
-                return@Scaffold
-            }
+                .padding(bottom = scaffoldBottomPadding),
+            contentWindowInsets = WindowInsets.statusBars,
+            topBar = {
+                if (tabState.tabs.isEmpty()) {
+                    return@Scaffold
+                }
 
-            AnimatedVisibility(
-                visible = showAppBar && !isFullscreen,
-                enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-            ) {
-                MainAppBar(
-                    isLoggedIn = isLoggedIn,
-                    totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
-                                        onAddChannel = { showAddChannelDialog = true },
-                                        onOpenMentions = { sheetNavigationViewModel.openMentions() },
-                                        onOpenWhispers = { sheetNavigationViewModel.openWhispers() },
-                                        onLogin = onLogin,
-                                        onRelogin = onRelogin,
-                                        onLogout = { showLogoutDialog = true },
-                    onManageChannels = { showManageChannelsDialog = true },
-                    onOpenChannel = onOpenChannel,
-                    onRemoveChannel = { showRemoveChannelDialog = true },
-                    onReportChannel = onReportChannel,
-                    onBlockChannel = { showBlockChannelDialog = true },
-                    onReloadEmotes = {
-                        activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
-                        onReloadEmotes()
-                    },
-                    onReconnect = {
-                        channelManagementViewModel.reconnect()
-                        onReconnect()
-                    },
-                    onClearChat = { showClearChatDialog = true },
-                    onOpenSettings = onNavigateToSettings
-                )
-            }
-        },
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        bottomBar = {
-            AnimatedVisibility(
-                visible = showInputState && !isFullscreen,
-                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-            ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    ChatInputLayout(
-                        textFieldState = chatInputViewModel.textFieldState,
-                        inputState = inputState.inputState,
-                        enabled = inputState.enabled,
-                        canSend = inputState.canSend,
-                        showReplyOverlay = inputState.showReplyOverlay,
-                        replyName = inputState.replyName,
-                        onSend = chatInputViewModel::sendMessage,
-                        onLastMessageClick = chatInputViewModel::getLastMessage,
-                        onEmoteClick = { sheetNavigationViewModel.openEmoteSheet() },
-                        onReplyDismiss = {
-                            chatInputViewModel.setReplying(false)
+                AnimatedVisibility(
+                    visible = showAppBar && !isFullscreen,
+                    enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                ) {
+                    MainAppBar(
+                        isLoggedIn = isLoggedIn,
+                        totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
+                        onAddChannel = { showAddChannelDialog = true },
+                        onOpenMentions = { sheetNavigationViewModel.openMentions() },
+                        onOpenWhispers = { sheetNavigationViewModel.openWhispers() },
+                        onLogin = onLogin,
+                        onRelogin = onRelogin,
+                        onLogout = { showLogoutDialog = true },
+                        onManageChannels = { showManageChannelsDialog = true },
+                        onOpenChannel = onOpenChannel,
+                        onRemoveChannel = { showRemoveChannelDialog = true },
+                        onReportChannel = onReportChannel,
+                        onBlockChannel = { showBlockChannelDialog = true },
+                        onReloadEmotes = {
+                            activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
+                            onReloadEmotes()
                         },
-                        modifier = Modifier.onGloballyPositioned { coordinates ->
-                            inputHeightPx = coordinates.size.height
-                            inputTopY = coordinates.positionInRoot().y
-                        }
+                        onReconnect = {
+                            channelManagementViewModel.reconnect()
+                            onReconnect()
+                        },
+                        onClearChat = { showClearChatDialog = true },
+                        onOpenSettings = onNavigateToSettings
                     )
                 }
-            }
-        }
-    ) { paddingValues ->
-        // Main content of the chat (tabs, pager, empty state)
-        Box(modifier = Modifier.fillMaxSize()) { // This box gets the Scaffold's content padding
-            val showFullScreenLoading = tabState.loading && tabState.tabs.isEmpty()
-            DankBackground(visible = showFullScreenLoading)
-            if (showFullScreenLoading) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues)
-                )
-                return@Scaffold
-            }
-            if (tabState.tabs.isEmpty() && !tabState.loading) {
-                EmptyStateContent(
-                    isLoggedIn = isLoggedIn,
-                    onAddChannel = { showAddChannelDialog = true },
-                    onLogin = onLogin,
-                    onToggleAppBar = mainScreenViewModel::toggleAppBar,
-                    onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                    onToggleInput = mainScreenViewModel::toggleInput,
-                    modifier = Modifier.padding(paddingValues)
-                )
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
+            },
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            bottomBar = {
+                AnimatedVisibility(
+                    visible = showInputState && !isFullscreen,
+                    enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
                 ) {
-                    if (tabState.loading) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    }
-                    AnimatedVisibility(
-                        visible = !isFullscreen,
-                        enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
-                    ) {
-                        ChannelTabRow(
-                            tabs = tabState.tabs,
-                            selectedIndex = tabState.selectedIndex,
-                            onTabSelected = {
-                                channelTabViewModel.selectTab(it)
-                                scope.launch {
-                                    composePagerState.animateScrollToPage(it)
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        ChatInputLayout(
+                            textFieldState = chatInputViewModel.textFieldState,
+                            inputState = inputState.inputState,
+                            enabled = inputState.enabled,
+                            canSend = inputState.canSend,
+                            showReplyOverlay = inputState.showReplyOverlay,
+                            replyName = inputState.replyName,
+                            isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                            onSend = chatInputViewModel::sendMessage,
+                            onLastMessageClick = chatInputViewModel::getLastMessage,
+                            onEmoteClick = {
+                                if (!inputState.isEmoteMenuOpen) {
+                                    keyboardController?.hide()
+                                    chatInputViewModel.setEmoteMenuOpen(true)
+                                } else {
+                                    keyboardController?.show()
                                 }
+                            },
+                            onReplyDismiss = {
+                                chatInputViewModel.setReplying(false)
+                            },
+                            modifier = Modifier.onGloballyPositioned { coordinates ->
+                                inputHeightPx = coordinates.size.height
+                                inputTopY = coordinates.positionInRoot().y
                             }
                         )
                     }
-                    HorizontalPager(
-                        state = composePagerState,
-                        modifier = Modifier.fillMaxSize(),
-                        key = { index -> pagerState.channels.getOrNull(index)?.value ?: index }
-                    ) { page ->
-                        if (page in pagerState.channels.indices) {
-                            val channel = pagerState.channels[page]
-                            ChatComposable(
-                                channel = channel,
-                                onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                                    userPopupParams = UserPopupStateParams(
-                                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                        targetUserName = UserName(userName),
-                                        targetDisplayName = DisplayName(displayName),
-                                        channel = channel?.let { UserName(it) },
-                                        badges = badges.map { it.badge }
-                                    )
-                                },
-                                onMessageLongClick = { messageId, channel, fullMessage ->
-                                    messageOptionsParams = MessageOptionsParams(
-                                        messageId = messageId,
-                                        channel = channel?.let { UserName(it) },
-                                        fullMessage = fullMessage,
-                                        canModerate = isLoggedIn,
-                                        canReply = isLoggedIn,
-                                        canCopy = true
-                                    )
-                                },
-                                onEmoteClick = { emotes ->
-                                    emoteInfoEmotes = emotes
-                                },
-                                onReplyClick = { replyMessageId, replyName ->
-                                    sheetNavigationViewModel.openReplies(replyMessageId, replyName)
+                }
+            }
+        ) { paddingValues ->
+            // Main content
+            Box(modifier = Modifier.fillMaxSize()) {
+                val showFullScreenLoading = tabState.loading && tabState.tabs.isEmpty()
+                DankBackground(visible = showFullScreenLoading)
+                if (showFullScreenLoading) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(paddingValues)
+                    )
+                    return@Scaffold
+                }
+                if (tabState.tabs.isEmpty() && !tabState.loading) {
+                    EmptyStateContent(
+                        isLoggedIn = isLoggedIn,
+                        onAddChannel = { showAddChannelDialog = true },
+                        onLogin = onLogin,
+                        onToggleAppBar = mainScreenViewModel::toggleAppBar,
+                        onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
+                        onToggleInput = mainScreenViewModel::toggleInput,
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                    ) {
+                        if (tabState.loading) {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        }
+                        AnimatedVisibility(
+                            visible = !isFullscreen,
+                            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+                            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut()
+                        ) {
+                            ChannelTabRow(
+                                tabs = tabState.tabs,
+                                selectedIndex = tabState.selectedIndex,
+                                onTabSelected = {
+                                    channelTabViewModel.selectTab(it)
+                                    scope.launch {
+                                        composePagerState.animateScrollToPage(it)
+                                    }
                                 }
                             )
+                        }
+                        HorizontalPager(
+                            state = composePagerState,
+                            modifier = Modifier.fillMaxSize(),
+                            key = { index -> pagerState.channels.getOrNull(index)?.value ?: index }
+                        ) { page ->
+                            if (page in pagerState.channels.indices) {
+                                val channel = pagerState.channels[page]
+                                ChatComposable(
+                                    channel = channel,
+                                    onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                                        userPopupParams = UserPopupStateParams(
+                                            targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                            targetUserName = UserName(userName),
+                                            targetDisplayName = DisplayName(displayName),
+                                            channel = channel?.let { UserName(it) },
+                                            badges = badges.map { it.badge }
+                                        )
+                                    },
+                                    onMessageLongClick = { messageId, channel, fullMessage ->
+                                        messageOptionsParams = MessageOptionsParams(
+                                            messageId = messageId,
+                                            channel = channel?.let { UserName(it) },
+                                            fullMessage = fullMessage,
+                                            canModerate = isLoggedIn,
+                                            canReply = isLoggedIn,
+                                            canCopy = true
+                                        )
+                                    },
+                                    onEmoteClick = { emotes ->
+                                        emoteInfoEmotes = emotes
+                                    },
+                                    onReplyClick = { replyMessageId, replyName ->
+                                        sheetNavigationViewModel.openReplies(replyMessageId, replyName)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
-    // Fullscreen Overlay Sheets
-    androidx.compose.animation.AnimatedVisibility(
-        visible = fullScreenSheetState !is FullScreenSheetState.Closed,
-        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = sheetBottomPadding)
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
+        // Emote Menu Layer
+        // Always draw if open OR keyboard is present to be ready underneath
+        if (inputState.isEmoteMenuOpen || isKeyboardVisible) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(targetMenuHeight)
+                    .graphicsLayer {
+                        val scale = 1f - (backProgress * 0.1f)
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = 1f - backProgress
+                        translationY = backProgress * 100f
+                    }
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+            ) {
+                EmoteMenu(
+                    onEmoteClick = { code, _ ->
+                        chatInputViewModel.insertText("$code ")
+                    }
+                )
+            }
+        }
+
+        // Fullscreen Overlay Sheets
+        androidx.compose.animation.AnimatedVisibility(
+            visible = fullScreenSheetState !is FullScreenSheetState.Closed,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = sheetBottomPadding)
         ) {
-            when (val state = fullScreenSheetState) {
-                is FullScreenSheetState.Closed -> Unit
-                is FullScreenSheetState.Mention -> {
-                    MentionSheet(
-                        mentionViewModel = mentionViewModel,
-                        initialisWhisperTab = false,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
-                        onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                            userPopupParams = UserPopupStateParams(
-                                targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                targetUserName = UserName(userName),
-                                targetDisplayName = DisplayName(displayName),
-                                channel = channel?.let { UserName(it) },
-                                badges = badges.map { it.badge }
-                            )
-                        },
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            messageOptionsParams = MessageOptionsParams(
-                                messageId = messageId,
-                                channel = channel?.let { UserName(it) },
-                                fullMessage = fullMessage,
-                                canModerate = isLoggedIn,
-                                canReply = isLoggedIn,
-                                canCopy = false
-                            )
-                        },
-                        onEmoteClick = { emotes ->
-                            emoteInfoEmotes = emotes
-                        }
-                    )
-                }
-                is FullScreenSheetState.Whisper -> {
-                    MentionSheet(
-                        mentionViewModel = mentionViewModel,
-                        initialisWhisperTab = true,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
-                        onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                            userPopupParams = UserPopupStateParams(
-                                targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                targetUserName = UserName(userName),
-                                targetDisplayName = DisplayName(displayName),
-                                channel = channel?.let { UserName(it) },
-                                badges = badges.map { it.badge }
-                            )
-                        },
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            messageOptionsParams = MessageOptionsParams(
-                                messageId = messageId,
-                                channel = channel?.let { UserName(it) },
-                                fullMessage = fullMessage,
-                                canModerate = isLoggedIn,
-                                canReply = isLoggedIn,
-                                canCopy = false
-                            )
-                        },
-                        onEmoteClick = { emotes ->
-                            emoteInfoEmotes = emotes
-                        }
-                    )
-                }
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when (val state = fullScreenSheetState) {
+                    is FullScreenSheetState.Closed -> Unit
+                    is FullScreenSheetState.Mention -> {
+                        MentionSheet(
+                            mentionViewModel = mentionViewModel,
+                            initialisWhisperTab = false,
+                            appearanceSettingsDataStore = appearanceSettingsDataStore,
+                            onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                            onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                                userPopupParams = UserPopupStateParams(
+                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                    targetUserName = UserName(userName),
+                                    targetDisplayName = DisplayName(displayName),
+                                    channel = channel?.let { UserName(it) },
+                                    badges = badges.map { it.badge }
+                                )
+                            },
+                            onMessageLongClick = { messageId, channel, fullMessage ->
+                                messageOptionsParams = MessageOptionsParams(
+                                    messageId = messageId,
+                                    channel = channel?.let { UserName(it) },
+                                    fullMessage = fullMessage,
+                                    canModerate = isLoggedIn,
+                                    canReply = isLoggedIn,
+                                    canCopy = false
+                                )
+                            },
+                            onEmoteClick = { emotes ->
+                                emoteInfoEmotes = emotes
+                            }
+                        )
+                    }
+                    is FullScreenSheetState.Whisper -> {
+                        MentionSheet(
+                            mentionViewModel = mentionViewModel,
+                            initialisWhisperTab = true,
+                            appearanceSettingsDataStore = appearanceSettingsDataStore,
+                            onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                            onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                                userPopupParams = UserPopupStateParams(
+                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                    targetUserName = UserName(userName),
+                                    targetDisplayName = DisplayName(displayName),
+                                    channel = channel?.let { UserName(it) },
+                                    badges = badges.map { it.badge }
+                                )
+                            },
+                            onMessageLongClick = { messageId, channel, fullMessage ->
+                                messageOptionsParams = MessageOptionsParams(
+                                    messageId = messageId,
+                                    channel = channel?.let { UserName(it) },
+                                    fullMessage = fullMessage,
+                                    canModerate = isLoggedIn,
+                                    canReply = isLoggedIn,
+                                    canCopy = false
+                                )
+                            },
+                            onEmoteClick = { emotes ->
+                                emoteInfoEmotes = emotes
+                            }
+                        )
+                    }
 
-                is FullScreenSheetState.Replies -> {
-                    RepliesSheet(
-                        rootMessageId = state.replyMessageId,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        onDismiss = {
-                            sheetNavigationViewModel.closeFullScreenSheet()
-                            chatInputViewModel.setReplying(false)
-                        },
-                        onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                            userPopupParams = UserPopupStateParams(
-                                targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                targetUserName = UserName(userName),
-                                targetDisplayName = DisplayName(displayName),
-                                channel = channel?.let { UserName(it) },
-                                badges = badges.map { it.badge }
-                            )
-                        },
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            messageOptionsParams = MessageOptionsParams(
-                                messageId = messageId,
-                                channel = channel?.let { UserName(it) },
-                                fullMessage = fullMessage,
-                                canModerate = isLoggedIn,
-                                canReply = isLoggedIn,
-                                canCopy = true
-                            )
-                        }
-                    )
+                    is FullScreenSheetState.Replies -> {
+                        RepliesSheet(
+                            rootMessageId = state.replyMessageId,
+                            appearanceSettingsDataStore = appearanceSettingsDataStore,
+                            onDismiss = {
+                                sheetNavigationViewModel.closeFullScreenSheet()
+                                chatInputViewModel.setReplying(false)
+                            },
+                            onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                                userPopupParams = UserPopupStateParams(
+                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                    targetUserName = UserName(userName),
+                                    targetDisplayName = DisplayName(displayName),
+                                    channel = channel?.let { UserName(it) },
+                                    badges = badges.map { it.badge }
+                                )
+                            },
+                            onMessageLongClick = { messageId, channel, fullMessage ->
+                                messageOptionsParams = MessageOptionsParams(
+                                    messageId = messageId,
+                                    channel = channel?.let { UserName(it) },
+                                    fullMessage = fullMessage,
+                                    canModerate = isLoggedIn,
+                                    canReply = isLoggedIn,
+                                    canCopy = true
+                                )
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
 
-    if (showInputState && !isFullscreen && isKeyboardVisible) {
-        SuggestionDropdown(
-            suggestions = inputState.suggestions,
-            onSuggestionClick = chatInputViewModel::applySuggestion,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .navigationBarsPadding()
-                .imePadding()
-                .padding(bottom = inputHeightDp + 2.dp)
-        )
+        if (showInputState && !isFullscreen && isKeyboardVisible) {
+            SuggestionDropdown(
+                suggestions = inputState.suggestions,
+                onSuggestionClick = chatInputViewModel::applySuggestion,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(bottom = inputHeightDp + 2.dp)
+            )
+        }
     }
-}
 }

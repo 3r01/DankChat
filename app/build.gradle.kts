@@ -222,6 +222,7 @@ dependencies {
     implementation(libs.process.phoenix)
     implementation(libs.autolinktext)
     implementation(libs.aboutlibraries.compose.m3)
+    implementation(libs.reorderable)
 
 // Test
     testImplementation(libs.junit.jupiter.api)

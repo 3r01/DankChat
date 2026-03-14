@@ -42,11 +42,16 @@ class ChannelManagementViewModel(
         
         // Auto-load data when channels added and join if necessary
         viewModelScope.launch {
+            var previousChannels = emptySet<UserName>()
             channels.collect { channelList ->
-                channelList.forEach { channelWithRename ->
-                    chatRepository.joinChannel(channelWithRename.channel)
-                    channelDataCoordinator.loadChannelData(channelWithRename.channel)
+                val currentChannels = channelList.map { it.channel }.toSet()
+                val newChannels = currentChannels - previousChannels
+                
+                newChannels.forEach { channel ->
+                    chatRepository.joinChannel(channel)
+                    channelDataCoordinator.loadChannelData(channel)
                 }
+                previousChannels = currentChannels
             }
         }
     }
@@ -103,7 +108,36 @@ class ChannelManagementViewModel(
         }
     }
 
-    fun reorderChannels(channels: List<ChannelWithRename>) {
-        preferenceStore.channels = channels.map { it.channel }
+    fun applyChanges(updatedChannels: List<ChannelWithRename>) {
+        val currentChannels = preferenceStore.channels
+        val newChannelNames = updatedChannels.map { it.channel }
+        val removedChannels = currentChannels - newChannelNames.toSet()
+
+        // 1. Cleanup removed channels
+        if (removedChannels.isNotEmpty()) {
+            chatRepository.updateChannels(newChannelNames) // This handles join/part
+            removedChannels.forEach { channel -> 
+                channelDataCoordinator.cleanupChannel(channel)
+                // Remove rename
+                preferenceStore.setRenamedChannel(ChannelWithRename(channel, null))
+            }
+            
+            // 2. Update active channel if removed
+            val activeChannel = chatRepository.activeChannel.value
+            if (activeChannel in removedChannels) {
+                // Determine new active channel (try to keep index or go to first)
+                // For simplicity, pick the first one, or null if empty
+                val newActive = newChannelNames.firstOrNull()
+                chatRepository.setActiveChannel(newActive)
+            }
+        }
+
+        // 3. Update order and list in preferences
+        preferenceStore.channels = newChannelNames
+
+        // 4. Apply renames
+        updatedChannels.forEach {
+            preferenceStore.setRenamedChannel(it)
+        }
     }
 }

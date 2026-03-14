@@ -57,6 +57,12 @@ import com.flxrs.dankchat.main.InputState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.material.icons.filled.Keyboard
+
 @Composable
 fun ChatInputLayout(
     textFieldState: TextFieldState,
@@ -65,12 +71,14 @@ fun ChatInputLayout(
     canSend: Boolean,
     showReplyOverlay: Boolean,
     replyName: UserName?,
+    isEmoteMenuOpen: Boolean,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
     onReplyDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
         InputState.Default -> stringResource(R.string.hint_connected)
         InputState.Replying -> stringResource(R.string.hint_replying)
@@ -131,6 +139,7 @@ fun ChatInputLayout(
                 state = textFieldState,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .focusRequester(focusRequester)
                     .padding(bottom = 0.dp), // Reduce bottom padding as actions are below
                 label = { Text(hint) },
                 colors = TextFieldDefaults.colors(
@@ -145,7 +154,9 @@ fun ChatInputLayout(
                 lineLimits = TextFieldLineLimits.MultiLine(
                     minHeightInLines = 1,
                     maxHeightInLines = 5
-                )
+                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                onKeyboardAction = { if (canSend) onSend() }
             )
 
             // Actions Row
@@ -155,17 +166,30 @@ fun ChatInputLayout(
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
             ) {
-                // Emote Button (Left)
+                // Emote/Keyboard Button (Left)
                 IconButton(
-                    onClick = onEmoteClick,
+                    onClick = {
+                        if (isEmoteMenuOpen) {
+                            focusRequester.requestFocus()
+                        }
+                        onEmoteClick()
+                    },
                     enabled = enabled,
                     modifier = Modifier.size(40.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.EmojiEmotions,
-                        contentDescription = stringResource(R.string.emote_menu_hint),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    if (isEmoteMenuOpen) {
+                        Icon(
+                            imageVector = Icons.Default.Keyboard,
+                            contentDescription = stringResource(R.string.dialog_dismiss),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.EmojiEmotions,
+                            contentDescription = stringResource(R.string.emote_menu_hint),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
