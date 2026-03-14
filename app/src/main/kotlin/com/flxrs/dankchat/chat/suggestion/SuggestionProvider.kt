@@ -2,6 +2,7 @@ package com.flxrs.dankchat.chat.suggestion
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,7 @@ import org.koin.core.annotation.Single
 class SuggestionProvider(
     private val emoteRepository: EmoteRepository,
     private val usersRepository: UsersRepository,
+    private val commandRepository: CommandRepository,
     private val chatSettingsDataStore: ChatSettingsDataStore,
 ) {
 
@@ -75,9 +77,13 @@ class SuggestionProvider(
     }
 
     private fun getCommandSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.CommandSuggestion>> {
-        // TODO: Implement actual command fetching from CommandRepository
-        // For now, return empty list
-        return flowOf(emptyList())
+        return combine(
+            commandRepository.getCommandTriggers(channel),
+            commandRepository.getSupibotCommands(channel)
+        ) { triggers, supibotCommands ->
+            val allCommands = (triggers + supibotCommands).map { Suggestion.CommandSuggestion(it) }
+            filterCommands(allCommands, constraint)
+        }
     }
 
     /**

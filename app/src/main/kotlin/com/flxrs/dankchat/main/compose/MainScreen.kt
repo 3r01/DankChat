@@ -26,13 +26,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +56,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -67,12 +72,12 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.main.MainEvent
-import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.preferences.components.DankBackground
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.debounce
@@ -209,8 +214,12 @@ fun MainScreen(
     var messageOptionsParams by remember { mutableStateOf<MessageOptionsParams?>(null) }
     var emoteInfoEmotes by remember { mutableStateOf<List<ChatMessageEmote>?>(null) }
     var showRoomStateDialog by remember { mutableStateOf(false) }
+    var pendingUploadAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    var isUploading by remember { mutableStateOf(false) }
+    var showLoginOutdatedDialog by remember { mutableStateOf<UserName?>(null) }
+    var showLoginExpiredDialog by remember { mutableStateOf(false) }
 
-    val channelRepository: ChannelRepository = koinInject()
+    val toolsSettingsDataStore: ToolsSettingsDataStore = koinInject()
     val userStateRepository: UserStateRepository = koinInject()
 
     val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
@@ -220,7 +229,43 @@ fun MainScreen(
         mainEventBus.events.collect { event ->
             when (event) {
                 is MainEvent.LogOutRequested -> showLogoutDialog = true
-                else                         -> Unit
+                is MainEvent.UploadLoading -> isUploading = true
+                is MainEvent.UploadSuccess -> {
+                    isUploading = false
+                    val result = snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.snackbar_image_uploaded, event.url),
+                        actionLabel = context.getString(R.string.snackbar_paste),
+                        duration = SnackbarDuration.Long
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        chatInputViewModel.insertText(event.url)
+                    }
+                }
+                is MainEvent.UploadFailed -> {
+                    isUploading = false
+                    val message = event.errorMessage?.let { context.getString(R.string.snackbar_upload_failed_cause, it) }
+                        ?: context.getString(R.string.snackbar_upload_failed)
+                    snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
+                }
+                is MainEvent.LoginValidated -> {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.snackbar_login, event.username),
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                is MainEvent.LoginOutdated -> {
+                    showLoginOutdatedDialog = event.username
+                }
+                MainEvent.LoginTokenInvalid -> {
+                    showLoginExpiredDialog = true
+                }
+                MainEvent.LoginValidationFailed -> {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.oauth_verify_failed),
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                else -> Unit
             }
         }
     }
@@ -253,7 +298,8 @@ fun MainScreen(
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = state.message,
-                    actionLabel = context.getString(R.string.snackbar_retry)
+                    actionLabel = context.getString(R.string.snackbar_retry),
+                    duration = SnackbarDuration.Long
                 )
             }
         }
@@ -263,43 +309,81 @@ fun MainScreen(
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
 
     MainScreenDialogs(
-        showAddChannelDialog = showAddChannelDialog,
-        showManageChannelsDialog = showManageChannelsDialog,
-        showLogoutDialog = showLogoutDialog,
-        showRoomStateDialog = showRoomStateDialog,
-        showRemoveChannelDialog = showRemoveChannelDialog,
-        showBlockChannelDialog = showBlockChannelDialog,
-        showClearChatDialog = showClearChatDialog,
-        activeChannel = activeChannel,
-        roomStateChannel = inputState.activeChannel,
-        messageOptionsParams = messageOptionsParams,
-        emoteInfoEmotes = emoteInfoEmotes,
-        userPopupParams = userPopupParams,
-        inputSheetState = inputSheetState,
-        channelManagementViewModel = channelManagementViewModel,
-        channelRepository = channelRepository,
-        chatInputViewModel = chatInputViewModel,
-        sheetNavigationViewModel = sheetNavigationViewModel,
+        channelState = ChannelDialogState(
+            showAddChannel = showAddChannelDialog,
+            showManageChannels = showManageChannelsDialog,
+            showRemoveChannel = showRemoveChannelDialog,
+            showBlockChannel = showBlockChannelDialog,
+            showClearChat = showClearChatDialog,
+            showRoomState = showRoomStateDialog,
+            activeChannel = activeChannel,
+            roomStateChannel = inputState.activeChannel,
+            onDismissAddChannel = { showAddChannelDialog = false },
+            onDismissManageChannels = { showManageChannelsDialog = false },
+            onDismissRemoveChannel = { showRemoveChannelDialog = false },
+            onDismissBlockChannel = { showBlockChannelDialog = false },
+            onDismissClearChat = { showClearChatDialog = false },
+            onDismissRoomState = { showRoomStateDialog = false },
+            onAddChannel = {
+                channelManagementViewModel.addChannel(it)
+                showAddChannelDialog = false
+            },
+        ),
+        authState = AuthDialogState(
+            showLogout = showLogoutDialog,
+            showLoginOutdated = showLoginOutdatedDialog != null,
+            showLoginExpired = showLoginExpiredDialog,
+            onDismissLogout = { showLogoutDialog = false },
+            onDismissLoginOutdated = { showLoginOutdatedDialog = null },
+            onDismissLoginExpired = { showLoginExpiredDialog = false },
+            onLogout = onLogout,
+            onLogin = onLogin,
+        ),
+        messageState = MessageInteractionState(
+            messageOptionsParams = messageOptionsParams,
+            emoteInfoEmotes = emoteInfoEmotes,
+            userPopupParams = userPopupParams,
+            inputSheetState = inputSheetState,
+            onDismissMessageOptions = { messageOptionsParams = null },
+            onDismissEmoteInfo = { emoteInfoEmotes = null },
+            onDismissUserPopup = { userPopupParams = null },
+            onOpenChannel = onOpenChannel,
+            onReportChannel = onReportChannel,
+            onOpenUrl = onOpenUrl,
+        ),
         snackbarHostState = snackbarHostState,
-        onDismissAddChannel = { showAddChannelDialog = false },
-        onDismissManageChannels = { showManageChannelsDialog = false },
-        onDismissLogout = { showLogoutDialog = false },
-        onDismissRoomState = { showRoomStateDialog = false },
-        onDismissRemoveChannel = { showRemoveChannelDialog = false },
-        onDismissBlockChannel = { showBlockChannelDialog = false },
-        onDismissClearChat = { showClearChatDialog = false },
-        onDismissMessageOptions = { messageOptionsParams = null },
-        onDismissEmoteInfo = { emoteInfoEmotes = null },
-        onDismissUserPopup = { userPopupParams = null },
-        onLogout = onLogout,
-        onOpenChannel = onOpenChannel,
-        onReportChannel = onReportChannel,
-        onOpenUrl = onOpenUrl,
-        onAddChannel = {
-            channelManagementViewModel.addChannel(it)
-            showAddChannelDialog = false
-        },
     )
+
+    // External hosting upload disclaimer dialog
+    if (pendingUploadAction != null) {
+        val uploadHost = remember {
+            runCatching {
+                java.net.URL(toolsSettingsDataStore.current().uploaderConfig.uploadUrl).host
+            }.getOrElse { "" }
+        }
+        AlertDialog(
+            onDismissRequest = { pendingUploadAction = null },
+            title = { Text(stringResource(R.string.nuuls_upload_title)) },
+            text = { Text(stringResource(R.string.external_upload_disclaimer, uploadHost)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        preferenceStore.hasExternalHostingAcknowledged = true
+                        val action = pendingUploadAction
+                        pendingUploadAction = null
+                        action?.invoke()
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingUploadAction = null }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
 
     val isFullscreen by mainScreenViewModel.isFullscreen.collectAsStateWithLifecycle()
     val showAppBar by mainScreenViewModel.showAppBar.collectAsStateWithLifecycle()
@@ -343,10 +427,11 @@ fun MainScreen(
         }
     }
 
-    // Update ViewModel when user swipes
-    LaunchedEffect(composePagerState.currentPage) {
-        if (composePagerState.currentPage != pagerState.currentPage) {
-            channelPagerViewModel.onPageChanged(composePagerState.currentPage)
+    // Update ViewModel when user swipes (use settledPage to avoid clearing
+    // unread/mention indicators for pages scrolled through during programmatic jumps)
+    LaunchedEffect(composePagerState.settledPage) {
+        if (composePagerState.settledPage != pagerState.currentPage) {
+            channelPagerViewModel.onPageChanged(composePagerState.settledPage)
         }
     }
 
@@ -367,7 +452,10 @@ fun MainScreen(
         val navBarHeightDp = with(density) { navBars.getBottom(density).toDp() }
         val totalMenuHeight = targetMenuHeight + navBarHeightDp
         
-        val currentImeDp = with(density) { currentImeHeight.toDp() }
+        // Ignore IME height when a dialog with its own text field is open,
+        // otherwise the scaffold shifts up behind the dialog unnecessarily.
+        val hasDialogWithInput = showAddChannelDialog || showRoomStateDialog || showManageChannelsDialog
+        val currentImeDp = if (hasDialogWithInput) 0.dp else with(density) { currentImeHeight.toDp() }
         val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
         val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
 
@@ -389,6 +477,7 @@ fun MainScreen(
                             replyName = inputState.replyName,
                             isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                             helperText = inputState.helperText,
+                            isUploading = isUploading,
                             isFullscreen = isFullscreen,
                             isModerator = userStateRepository.isModeratorInChannel(inputState.activeChannel),
                             isStreamActive = currentStream != null,
@@ -580,6 +669,15 @@ fun MainScreen(
             onRemoveChannel = { showRemoveChannelDialog = true },
             onReportChannel = onReportChannel,
             onBlockChannel = { showBlockChannelDialog = true },
+            onCaptureImage = {
+                if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else pendingUploadAction = onCaptureImage
+            },
+            onCaptureVideo = {
+                if (preferenceStore.hasExternalHostingAcknowledged) onCaptureVideo() else pendingUploadAction = onCaptureVideo
+            },
+            onChooseMedia = {
+                if (preferenceStore.hasExternalHostingAcknowledged) onChooseMedia() else pendingUploadAction = onChooseMedia
+            },
             onReloadEmotes = {
                 activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
                 onReloadEmotes()

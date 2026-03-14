@@ -40,6 +40,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -79,6 +80,7 @@ fun ChatInputLayout(
     replyName: UserName?,
     isEmoteMenuOpen: Boolean,
     helperText: String?,
+    isUploading: Boolean,
     isFullscreen: Boolean,
     isModerator: Boolean,
     isStreamActive: Boolean,
@@ -208,6 +210,19 @@ fun ChatInputLayout(
                             .padding(horizontal = 16.dp)
                             .padding(bottom = 4.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Start
+                    )
+                }
+
+                // Upload progress indicator
+                AnimatedVisibility(
+                    visible = isUploading,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
                     )
                 }
 

@@ -66,6 +66,9 @@ fun MainAppBar(
     onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onBlockChannel: () -> Unit,
+    onCaptureImage: () -> Unit,
+    onCaptureVideo: () -> Unit,
+    onChooseMedia: () -> Unit,
     onReloadEmotes: () -> Unit,
     onReconnect: () -> Unit,
     onClearChat: () -> Unit,
@@ -224,6 +227,27 @@ fun MainAppBar(
 
                             AppBarMenu.Upload -> {
                                 SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.take_picture)) },
+                                    onClick = {
+                                        onCaptureImage()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.record_video)) },
+                                    onClick = {
+                                        onCaptureVideo()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.choose_media)) },
+                                    onClick = {
+                                        onChooseMedia()
+                                        currentMenu = null
+                                    }
+                                )
                             }
 
                             AppBarMenu.More -> {
@@ -274,6 +298,9 @@ fun ToolbarOverflowMenu(
     onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onBlockChannel: () -> Unit,
+    onCaptureImage: () -> Unit,
+    onCaptureVideo: () -> Unit,
+    onChooseMedia: () -> Unit,
     onReloadEmotes: () -> Unit,
     onReconnect: () -> Unit,
     onClearChat: () -> Unit,
@@ -372,6 +399,18 @@ fun ToolbarOverflowMenu(
                     }
                     AppBarMenu.Upload -> {
                         SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.take_picture)) },
+                            onClick = { onCaptureImage(); onDismiss() }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.record_video)) },
+                            onClick = { onCaptureVideo(); onDismiss() }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.choose_media)) },
+                            onClick = { onChooseMedia(); onDismiss() }
+                        )
                     }
                     AppBarMenu.More -> {
                         SubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
@@ -430,6 +469,9 @@ fun InlineOverflowMenu(
     onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
     onBlockChannel: () -> Unit,
+    onCaptureImage: () -> Unit,
+    onCaptureVideo: () -> Unit,
+    onChooseMedia: () -> Unit,
     onReloadEmotes: () -> Unit,
     onReconnect: () -> Unit,
     onClearChat: () -> Unit,
@@ -483,6 +525,9 @@ fun InlineOverflowMenu(
                 }
                 AppBarMenu.Upload -> {
                     InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
+                    InlineMenuItem(text = stringResource(R.string.take_picture)) { onCaptureImage(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.record_video)) { onCaptureVideo(); onDismiss() }
+                    InlineMenuItem(text = stringResource(R.string.choose_media)) { onChooseMedia(); onDismiss() }
                 }
                 AppBarMenu.More -> {
                     InlineSubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
