@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
@@ -31,7 +34,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.chat.compose.BadgeUi
@@ -65,37 +70,44 @@ fun MainScreen(
     onAddChannel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Scoped ViewModels - each handles one concern
     val mainScreenViewModel: MainScreenViewModel = koinViewModel()
+    val channelManagementViewModel: ChannelManagementViewModel = koinViewModel()
+    val channelTabViewModel: ChannelTabViewModel = koinViewModel()
+    val channelPagerViewModel: ChannelPagerViewModel = koinViewModel()
+    val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
 
-    val channels by mainScreenViewModel.channels.collectAsStateWithLifecycle()
-    val activeChannel by mainScreenViewModel.activeChannel.collectAsStateWithLifecycle()
-    val activeChannelIndex by mainScreenViewModel.activeChannelIndex.collectAsStateWithLifecycle()
-    val unreadMessagesMap by mainScreenViewModel.unreadMessagesMap.collectAsStateWithLifecycle()
-    val channelMentionCount by mainScreenViewModel.channelMentionCount.collectAsStateWithLifecycle()
-    val totalMentionCount by mainScreenViewModel.totalMentionCount.collectAsStateWithLifecycle()
+    // Single state collection per ViewModel
+    val tabState by channelTabViewModel.uiState.collectAsStateWithLifecycle()
+    val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
+    val inputState by chatInputViewModel.uiState.collectAsStateWithLifecycle()
 
-    // Simple local input state (will be replaced with ChatInputViewModel later)
-    var inputText by remember { mutableStateOf("") }
-
-    val pagerState = rememberPagerState(
-        initialPage = activeChannelIndex,
-        pageCount = { channels.size }
+    val composePagerState = rememberPagerState(
+        initialPage = pagerState.currentPage,
+        pageCount = { pagerState.channels.size }
     )
     val coroutineScope = rememberCoroutineScope()
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    var inputHeight by remember { mutableStateOf(0.dp) }
 
-    // Sync pager with active channel
-    LaunchedEffect(activeChannelIndex) {
-        if (pagerState.currentPage != activeChannelIndex && activeChannelIndex < channels.size) {
-            pagerState.animateScrollToPage(activeChannelIndex)
+    // Track keyboard visibility - hide immediately when closing animation starts
+    val imeAnimationTarget = WindowInsets.imeAnimationTarget
+    val isKeyboardVisible = WindowInsets.isImeVisible &&
+        imeAnimationTarget.getBottom(density) > 0  // Target open = keyboard will be visible
+
+    // Sync Compose pager with ViewModel state
+    LaunchedEffect(pagerState.currentPage) {
+        if (composePagerState.currentPage != pagerState.currentPage &&
+            pagerState.currentPage < pagerState.channels.size) {
+            composePagerState.animateScrollToPage(pagerState.currentPage)
         }
     }
 
-    // Update active channel when user swipes
-    LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage < channels.size) {
-            val channel = channels[pagerState.currentPage].channel
-            mainScreenViewModel.setActiveChannel(channel)
+    // Update ViewModel when user swipes
+    LaunchedEffect(composePagerState.currentPage) {
+        if (composePagerState.currentPage != pagerState.currentPage) {
+            channelPagerViewModel.onPageChanged(composePagerState.currentPage)
         }
     }
 
@@ -103,8 +115,8 @@ fun MainScreen(
         topBar = {
             MainAppBar(
                 isLoggedIn = isLoggedIn,
-                hasChannels = channels.isNotEmpty(),
-                totalMentionCount = totalMentionCount,
+                hasChannels = tabState.tabs.isNotEmpty(),
+                totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
                 onAddChannel = onAddChannel,
                 onOpenMentions = { sheetNavigationViewModel.openMentions() },
                 onLogin = onLogin,
@@ -128,82 +140,89 @@ fun MainScreen(
             .fillMaxSize()
             .imePadding(),
     ) { paddingValues ->
-        if (channels.isEmpty()) {
-            EmptyStateContent(
-                isLoggedIn = isLoggedIn,
-                onAddChannel = onAddChannel,
-                onLogin = onLogin,
-                modifier = Modifier.padding(paddingValues)
-            )
-        } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                // Tabs
-                PrimaryScrollableTabRow(
-                    selectedTabIndex = pagerState.currentPage,
-                ) {
-                    channels.forEachIndexed { index, channelWithRename ->
-                        val channel = channelWithRename.channel
-                        val displayName = channelWithRename.rename?.value ?: channel.value
-                        val hasUnread = unreadMessagesMap[channel] == true
-                        val mentionCount = channelMentionCount[channel] ?: 0
-
-                        Tab(
-                            selected = index == pagerState.currentPage,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            text = {
-                                BadgedBox(
-                                    badge = {
-                                        // TODO proper viewmodel state for this
-                                        if (mentionCount > 0) {
-                                            Badge()
-                                        }
-                                    },
-                                    content = {
-                                        Text(text = channel.value)
-                                    }
-                                )
-                            },
-                        )
-                    }
-                }
-
-                // Chat pager
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.weight(1f)
-                ) { page ->
-                    if (page in channels.indices) {
-                        val channel = channels[page].channel
-                        ChatComposable(
-                            channel = channel,
-                            onUserClick = onUserClick,
-                            onMessageLongClick = onMessageLongClick,
-                            onEmoteClick = onEmoteClick,
-                            onReplyClick = { replyMessageId ->
-                                sheetNavigationViewModel.openReplies(replyMessageId)
-                            }
-                        )
-                    }
-                }
-
-                // Input at bottom
-                ChatInputLayout(
-                    inputText = inputText,
-                    onInputChange = { inputText = it },
-                    onSend = {
-                        // TODO: Implement send via ChatRepository
-                        inputText = ""
-                    },
-                    onEmoteClick = { sheetNavigationViewModel.openEmoteSheet() },
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (tabState.tabs.isEmpty()) {
+                EmptyStateContent(
+                    isLoggedIn = isLoggedIn,
+                    onAddChannel = onAddChannel,
+                    onLogin = onLogin,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            } else {
+                Column(
                     modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    // Tabs - Single state from ChannelTabViewModel
+                    PrimaryScrollableTabRow(
+                        selectedTabIndex = tabState.selectedIndex,
+                    ) {
+                        tabState.tabs.forEachIndexed { index, tab ->
+                            Tab(
+                                selected = tab.isSelected,
+                                onClick = {
+                                    channelTabViewModel.selectTab(index)
+                                    coroutineScope.launch {
+                                        composePagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                text = {
+                                    BadgedBox(
+                                        badge = {
+                                            if (tab.mentionCount > 0) {
+                                                Badge { Text("${tab.mentionCount}") }
+                                            }
+                                        }
+                                    ) {
+                                        Text(text = tab.displayName)
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    // Chat pager - State from ChannelPagerViewModel
+                    HorizontalPager(
+                        state = composePagerState,
+                        modifier = Modifier.weight(1f)
+                    ) { page ->
+                        if (page in pagerState.channels.indices) {
+                            val channel = pagerState.channels[page]
+                            ChatComposable(
+                                channel = channel,
+                                onUserClick = onUserClick,
+                                onMessageLongClick = onMessageLongClick,
+                                onEmoteClick = onEmoteClick,
+                                onReplyClick = { replyMessageId ->
+                                    sheetNavigationViewModel.openReplies(replyMessageId)
+                                }
+                            )
+                        }
+                    }
+
+                    // Input - State from ChatInputViewModel
+                    ChatInputLayout(
+                        textFieldState = chatInputViewModel.textFieldState,
+                        canSend = inputState.canSend,
+                        onSend = chatInputViewModel::sendMessage,
+                        onEmoteClick = { sheetNavigationViewModel.openEmoteSheet() },
+                        modifier = Modifier.onGloballyPositioned { coordinates ->
+                            inputHeight = with(density) { coordinates.size.height.toDp() }
+                        }
+                    )
+                }
+            }
+
+            // Suggestion dropdown floats above input field (only when keyboard visible)
+            if (isKeyboardVisible) {
+                SuggestionDropdown(
+                    suggestions = inputState.suggestions,
+                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(paddingValues)
+                        .padding(bottom = inputHeight)
                 )
             }
         }

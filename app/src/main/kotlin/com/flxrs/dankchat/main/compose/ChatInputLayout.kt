@@ -1,8 +1,9 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.EmojiEmotions
@@ -13,19 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.utils.compose.avoidRoundedCorners
 
 @Composable
 fun ChatInputLayout(
-    inputText: String,
-    onInputChange: (String) -> Unit,
+    textFieldState: TextFieldState,
+    canSend: Boolean,
     onSend: () -> Unit,
     onEmoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Input field with TextFieldState
     OutlinedTextField(
+        state = textFieldState,
         leadingIcon = {
             IconButton(onClick = onEmoteClick) {
                 Icon(
@@ -37,7 +39,7 @@ fun ChatInputLayout(
         trailingIcon = {
             IconButton(
                 onClick = onSend,
-                enabled = inputText.isNotBlank()
+                enabled = canSend
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Send,
@@ -45,16 +47,15 @@ fun ChatInputLayout(
                 )
             }
         },
-        value = inputText,
-        onValueChange = onInputChange,
         modifier = modifier
             .fillMaxWidth()
             .avoidRoundedCorners(fallback = PaddingValues()),
         label = {
-            // TODO
-            Text(stringResource(R.string.hint_connected))
+            Text(stringResource(R.string.send_hint))
         },
-        maxLines = 5,
-        singleLine = false
+        lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine(
+            minHeightInLines = 1,
+            maxHeightInLines = 5
+        )
     )
 }
