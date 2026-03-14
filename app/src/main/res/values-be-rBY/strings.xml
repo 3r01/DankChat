@@ -422,4 +422,13 @@
     <string name="confirm_user_ban_question">Забаніць гэтага карыстальніка?</string>
     <string name="confirm_user_delete_question">Выдаліць гэтае паведамленне?</string>
     <string name="confirm_clear_chat_question">Ачысціць чат?</string>
+    <string name="tour_input_actions">Наладжвальныя дзеянні для хуткага доступу да пошуку, трансляцый і іншага</string>
+    <string name="tour_overflow_menu">Націсніце тут для дадатковых дзеянняў і наладкі панэлі дзеянняў</string>
+    <string name="tour_configure_actions">Тут вы можаце наладзіць, якія дзеянні адлюстроўваюцца на панэлі дзеянняў</string>
+    <string name="tour_swipe_gesture">Правядзіце ўніз па полю ўводу, каб хутка схаваць яго</string>
+    <string name="tour_recovery_fab">Націсніце тут, каб вярнуць поле ўводу</string>
+    <string name="tour_next">Далей</string>
+    <string name="tour_got_it">Зразумела</string>
+    <string name="tour_skip">Прапусціць тур</string>
+    <string name="tour_add_more_channels_hint">Тут вы можаце дадаць больш каналаў</string>
 </resources>

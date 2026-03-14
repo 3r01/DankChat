@@ -16,6 +16,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -39,12 +40,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Badge
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
@@ -74,6 +83,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 
 sealed interface ToolbarAction {
@@ -100,7 +110,7 @@ sealed interface ToolbarAction {
     data object MessageHistory : ToolbarAction
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingToolbar(
     tabState: ChannelTabUiState,
@@ -115,10 +125,12 @@ fun FloatingToolbar(
     onAction: (ToolbarAction) -> Unit,
     endAligned: Boolean = false,
     showTabs: Boolean = true,
+    addChannelTooltipState: TooltipState? = null,
+    onAddChannelTooltipDismissed: () -> Unit = {},
+    onSkipTour: () -> Unit = {},
     streamToolbarAlpha: Float = 1f,
     modifier: Modifier = Modifier,
 ) {
-    if (tabState.tabs.isEmpty()) return
 
     val density = LocalDensity.current
     var isTabsExpanded by remember { mutableStateOf(false) }
@@ -253,9 +265,14 @@ fun FloatingToolbar(
                 },
             verticalAlignment = Alignment.Top
         ) {
+            // Push action pill to end when no tabs are shown
+            if (endAligned && (!showTabs || tabState.tabs.isEmpty())) {
+                Spacer(modifier = Modifier.weight(1f))
+            }
+
             // Scrollable tabs pill
             AnimatedVisibility(
-                visible = showTabs,
+                visible = showTabs && tabState.tabs.isNotEmpty(),
                 modifier = Modifier.weight(1f, fill = endAligned),
                 enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
@@ -378,22 +395,70 @@ fun FloatingToolbar(
                             color = MaterialTheme.colorScheme.surfaceContainer,
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = stringResource(R.string.add_channel)
-                                    )
+                                // Reserve space at start when menu is open and not logged in,
+                                // so the pill matches the 3-icon width and icons stay end-aligned
+                                if (!isLoggedIn && showOverflowMenu) {
+                                    Spacer(modifier = Modifier.width(48.dp))
                                 }
-                                IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Notifications,
-                                        contentDescription = stringResource(R.string.mentions_title),
-                                        tint = if (totalMentionCount > 0) {
-                                            MaterialTheme.colorScheme.error
-                                        } else {
-                                            LocalContentColor.current
-                                        }
-                                    )
+                                val addChannelIcon: @Composable () -> Unit = {
+                                    IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(R.string.add_channel)
+                                        )
+                                    }
+                                }
+                                if (addChannelTooltipState != null) {
+                                    LaunchedEffect(Unit) {
+                                        addChannelTooltipState.show()
+                                    }
+                                    LaunchedEffect(Unit) {
+                                        snapshotFlow { addChannelTooltipState.isVisible }
+                                            .dropWhile { !it }  // skip initial false
+                                            .first { !it }      // wait for dismiss (any cause)
+                                        onAddChannelTooltipDismissed()
+                                    }
+                                    TooltipBox(
+                                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                            spacingBetweenTooltipAndAnchor = 8.dp,
+                                        ),
+                                        tooltip = {
+                                            RichTooltip(
+                                                caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
+                                                action = {
+                                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismissed(); onSkipTour() }) {
+                                                            Text(stringResource(R.string.tour_skip))
+                                                        }
+                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismissed() }) {
+                                                            Text(stringResource(R.string.tour_next))
+                                                        }
+                                                    }
+                                                }
+                                            ) {
+                                                Text(stringResource(R.string.tour_add_more_channels_hint))
+                                            }
+                                        },
+                                        state = addChannelTooltipState,
+                                        hasAction = true,
+                                    ) {
+                                        addChannelIcon()
+                                    }
+                                } else {
+                                    addChannelIcon()
+                                }
+                                if (isLoggedIn) {
+                                    IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Notifications,
+                                            contentDescription = stringResource(R.string.mentions_title),
+                                            tint = if (totalMentionCount > 0) {
+                                                MaterialTheme.colorScheme.error
+                                            } else {
+                                                LocalContentColor.current
+                                            }
+                                        )
+                                    }
                                 }
                                 IconButton(onClick = {
                                     overflowInitialMenu = AppBarMenu.Main
@@ -406,6 +471,7 @@ fun FloatingToolbar(
                                 }
                             }
                         }
+
                         AnimatedVisibility(
                             visible = showOverflowMenu,
                             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),

@@ -216,4 +216,13 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="search_filter_has_emote">Поруке са емотима</string>
     <string name="search_filter_by_badge">Филтрирај по називу значке</string>
     <string name="search_filter_user">Корисник</string>
-    <string name="search_filter_badge">Значка</string></resources>
+    <string name="search_filter_badge">Значка</string>    <string name="tour_input_actions">Прилагодљиве акције за брз приступ претрази, стримовима и другом</string>
+    <string name="tour_overflow_menu">Додирните овде за више акција и подешавање траке акција</string>
+    <string name="tour_configure_actions">Овде можете прилагодити које акције се приказују на траци акција</string>
+    <string name="tour_swipe_gesture">Превуците надоле по пољу за унос да бисте га брзо сакрили</string>
+    <string name="tour_recovery_fab">Додирните овде да вратите поље за унос</string>
+    <string name="tour_next">Даље</string>
+    <string name="tour_got_it">Разумем</string>
+    <string name="tour_skip">Прескочи обилазак</string>
+    <string name="tour_add_more_channels_hint">Овде можете додати више канала</string>
+</resources>

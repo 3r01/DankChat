@@ -248,4 +248,13 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="search_filter_has_emote">Messages containing emotes</string>
     <string name="search_filter_by_badge">Filter by badge name</string>
     <string name="search_filter_user">User</string>
-    <string name="search_filter_badge">Badge</string></resources>
+    <string name="search_filter_badge">Badge</string>    <string name="tour_input_actions">Customizable actions for quick access to search, streams, and more</string>
+    <string name="tour_overflow_menu">Tap here for more actions and to configure your action bar</string>
+    <string name="tour_configure_actions">You can customize which actions appear in your action bar here</string>
+    <string name="tour_swipe_gesture">Swipe down on the input to quickly hide it</string>
+    <string name="tour_recovery_fab">Tap here to bring the input back</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_got_it">Got it</string>
+    <string name="tour_skip">Skip tour</string>
+    <string name="tour_add_more_channels_hint">You can add more channels here</string>
+</resources>

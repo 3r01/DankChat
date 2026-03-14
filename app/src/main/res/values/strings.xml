@@ -24,6 +24,7 @@
     <string name="remove_channel">Remove channel</string>
     <string name="channel_blocked_message">Channel blocked</string>
     <string name="no_channels_added">No channels added</string>
+    <string name="no_channels_added_body">Add a channel to start chatting</string>
     <string name="confirm_logout_title">Confirm logout</string>
     <string name="confirm_logout_message">Are you sure you want to logout?</string>
     <string name="confirm_logout_question">Log out?</string>
@@ -521,4 +522,42 @@
     <string name="choose_highlight_color">Choose Color</string>
     <string name="toggle_app_bar">Toggle App Bar</string>
     <string name="error_with_message">Error: %s</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Let\'s get you set up.</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_login_title">Login with Twitch</string>
+    <string name="onboarding_login_body">Log in to send messages, use your emotes, receive whispers, and unlock all features.</string>
+    <string name="onboarding_login_button">Login with Twitch</string>
+    <string name="onboarding_login_success">Login successful</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_history_title">Message History</string>
+    <string name="onboarding_history_body">DankChat loads historical messages from a third-party service on startup.\nTo get the messages, DankChat sends the names of the channels you have open to that service.\nThe service temporarily stores messages for channels you (and others) visit to provide the service.\n\nYou can change this later in the settings or learn more at https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Enable</string>
+    <string name="onboarding_history_disable">Disable</string>
+    <string name="onboarding_notifications_title">Notifications</string>
+    <string name="onboarding_notifications_body">DankChat can notify you when someone mentions you in chat while the app is in the background.</string>
+    <string name="onboarding_notifications_allow">Allow Notifications</string>
+    <string name="onboarding_notifications_rationale">Without notifications, you won\'t know when someone mentions you in chat while the app is in the background.</string>
+    <string name="onboarding_notifications_open_settings">Open Notification Settings</string>
+    <string name="onboarding_battery_title">Battery Optimization</string>
+    <string name="onboarding_battery_body">DankChat runs a background service for notifications. Some devices aggressively kill background apps, which can cause missed notifications.\n\nExcluding DankChat from battery optimization helps keep it running reliably.</string>
+    <string name="onboarding_battery_open_settings">Open Settings</string>
+    <string name="onboarding_battery_granted">Battery optimization disabled</string>
+    <string name="onboarding_done_title">You\'re all set!</string>
+    <string name="onboarding_done_body">Start by adding a Twitch channel to chat in.</string>
+    <string name="onboarding_done_button">Start</string>
+
+    <!-- Feature Tour -->
+    <string name="tour_input_actions">Customizable actions for quick access to search, streams, and more</string>
+    <string name="tour_overflow_menu">Tap here for more actions and to configure your action bar</string>
+    <string name="tour_configure_actions">You can customize which actions appear in your action bar here</string>
+    <string name="tour_swipe_gesture">Swipe down on the input to quickly hide it</string>
+    <string name="tour_recovery_fab">Tap here to bring the input back</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_got_it">Got it</string>
+    <string name="tour_skip">Skip tour</string>
+    <string name="tour_add_more_channels_hint">You can add more channels here</string>
 </resources>

@@ -423,4 +423,13 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="confirm_user_ban_question">Zabanovat tohoto uživatele?</string>
     <string name="confirm_user_delete_question">Smazat tuto zprávu?</string>
     <string name="confirm_clear_chat_question">Vymazat chat?</string>
+    <string name="tour_input_actions">Přizpůsobitelné akce pro rychlý přístup k vyhledávání, streamům a dalším</string>
+    <string name="tour_overflow_menu">Klepněte sem pro další akce a konfiguraci panelu akcí</string>
+    <string name="tour_configure_actions">Zde můžete přizpůsobit, které akce se zobrazí na panelu akcí</string>
+    <string name="tour_swipe_gesture">Přejeďte dolů na vstupu pro jeho rychlé skrytí</string>
+    <string name="tour_recovery_fab">Klepněte sem pro obnovení vstupu</string>
+    <string name="tour_next">Další</string>
+    <string name="tour_got_it">Rozumím</string>
+    <string name="tour_skip">Přeskočit prohlídku</string>
+    <string name="tour_add_more_channels_hint">Zde můžete přidat další kanály</string>
 </resources>

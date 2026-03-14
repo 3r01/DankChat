@@ -43,9 +43,6 @@ class MainScreenViewModel(
     private val _isFullscreen = MutableStateFlow(false)
     val isFullscreen: StateFlow<Boolean> = _isFullscreen.asStateFlow()
 
-    private val _showAppBar = MutableStateFlow(true)
-    val showAppBar: StateFlow<Boolean> = _showAppBar.asStateFlow()
-
     private val _gestureInputHidden = MutableStateFlow(false)
     val gestureInputHidden: StateFlow<Boolean> = _gestureInputHidden.asStateFlow()
 
@@ -77,10 +74,6 @@ class MainScreenViewModel(
 
     fun toggleFullscreen() {
         _isFullscreen.update { !it }
-    }
-
-    fun toggleAppBar() {
-        _showAppBar.update { !it }
     }
 
     fun retryDataLoading(dataFailures: Set<com.flxrs.dankchat.data.repo.data.DataLoadingFailure>, chatFailures: Set<com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure>) {

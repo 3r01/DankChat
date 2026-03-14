@@ -437,4 +437,13 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="confirm_user_ban_question">Bu kullanıcı banlansın mı?</string>
     <string name="confirm_user_delete_question">Bu mesaj silinsin mi?</string>
     <string name="confirm_clear_chat_question">Sohbet temizlensin mi?</string>
+    <string name="tour_input_actions">Arama, yayınlar ve daha fazlasına hızlı erişim için özelleştirilebilir eylemler</string>
+    <string name="tour_overflow_menu">Daha fazla eylem ve eylem çubuğunuzu yapılandırmak için buraya dokunun</string>
+    <string name="tour_configure_actions">Eylem çubuğunuzda hangi eylemlerin görüneceğini buradan özelleştirebilirsiniz</string>
+    <string name="tour_swipe_gesture">Hızlıca gizlemek için giriş alanında aşağı kaydırın</string>
+    <string name="tour_recovery_fab">Giriş alanını geri getirmek için buraya dokunun</string>
+    <string name="tour_next">İleri</string>
+    <string name="tour_got_it">Anladım</string>
+    <string name="tour_skip">Turu atla</string>
+    <string name="tour_add_more_channels_hint">Buradan daha fazla kanal ekleyebilirsiniz</string>
 </resources>

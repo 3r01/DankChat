@@ -421,4 +421,13 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="confirm_user_ban_question">Bannir cet utilisateur ?</string>
     <string name="confirm_user_delete_question">Supprimer ce message ?</string>
     <string name="confirm_clear_chat_question">Effacer le chat ?</string>
+    <string name="tour_input_actions">Actions personnalisables pour un accès rapide à la recherche, aux streams et plus encore</string>
+    <string name="tour_overflow_menu">Appuyez ici pour plus d\'actions et pour configurer votre barre d\'actions</string>
+    <string name="tour_configure_actions">Vous pouvez personnaliser les actions qui apparaissent dans votre barre d\'actions ici</string>
+    <string name="tour_swipe_gesture">Balayez vers le bas sur la saisie pour la masquer rapidement</string>
+    <string name="tour_recovery_fab">Appuyez ici pour récupérer la saisie</string>
+    <string name="tour_next">Suivant</string>
+    <string name="tour_got_it">Compris</string>
+    <string name="tour_skip">Passer la visite</string>
+    <string name="tour_add_more_channels_hint">Vous pouvez ajouter plus de chaînes ici</string>
 </resources>

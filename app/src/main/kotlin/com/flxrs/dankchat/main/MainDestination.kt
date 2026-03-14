@@ -55,3 +55,6 @@ object EmoteMenu
 
 @Serializable
 object Login
+
+@Serializable
+object Onboarding

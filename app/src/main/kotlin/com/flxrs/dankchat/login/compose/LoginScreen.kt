@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +50,8 @@ fun LoginScreen(
 ) {
     val viewModel: LoginViewModel = koinViewModel()
     var isLoading by remember { mutableStateOf(true) }
+    var isZoomedOut by remember { mutableStateOf(false) }
+    var webViewRef by remember { mutableStateOf<WebView?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -66,7 +70,19 @@ fun LoginScreen(
                     IconButton(onClick = onCancel) {
                         Icon(Icons.Default.Close, contentDescription = stringResource(R.string.dialog_cancel))
                     }
-                }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        val newZoom = if (isZoomedOut) 100 else 50
+                        webViewRef?.settings?.textZoom = newZoom
+                        isZoomedOut = !isZoomedOut
+                    }) {
+                        Icon(
+                            imageVector = if (isZoomedOut) Icons.Default.ZoomIn else Icons.Default.ZoomOut,
+                            contentDescription = stringResource(if (isZoomedOut) R.string.login_menu_zoom_in else R.string.login_menu_zoom_out),
+                        )
+                    }
+                },
             )
         }
     ) { paddingValues ->
@@ -77,7 +93,7 @@ fun LoginScreen(
             
             AndroidView(
                 factory = { context ->
-                    WebView(context).apply {
+                    WebView(context).also { webViewRef = it }.apply {
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT

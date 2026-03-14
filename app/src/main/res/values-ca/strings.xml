@@ -311,4 +311,13 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="search_filter_has_emote">Missatges amb emotes</string>
     <string name="search_filter_by_badge">Filtra per nom d\'insígnia</string>
     <string name="search_filter_user">Usuari</string>
-    <string name="search_filter_badge">Insígnia</string></resources>
+    <string name="search_filter_badge">Insígnia</string>    <string name="tour_input_actions">Accions personalitzables per accedir ràpidament a la cerca, les transmissions i més</string>
+    <string name="tour_overflow_menu">Toca aquí per a més accions i per configurar la barra d\'accions</string>
+    <string name="tour_configure_actions">Aquí pots personalitzar quines accions apareixen a la barra d\'accions</string>
+    <string name="tour_swipe_gesture">Llisca cap avall sobre l\'entrada per amagar-la ràpidament</string>
+    <string name="tour_recovery_fab">Toca aquí per recuperar l\'entrada</string>
+    <string name="tour_next">Següent</string>
+    <string name="tour_got_it">Entès</string>
+    <string name="tour_skip">Ometre el tour</string>
+    <string name="tour_add_more_channels_hint">Aquí pots afegir més canals</string>
+</resources>

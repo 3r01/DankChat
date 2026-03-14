@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -23,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ChatBottomBar(
     showInput: Boolean,
@@ -51,6 +53,13 @@ fun ChatBottomBar(
     onInputActionsChanged: (List<InputAction>) -> Unit,
     onInputHeightChanged: (Int) -> Unit,
     instantHide: Boolean = false,
+    inputActionsTooltipState: TooltipState? = null,
+    overflowMenuTooltipState: TooltipState? = null,
+    configureActionsTooltipState: TooltipState? = null,
+    swipeGestureTooltipState: TooltipState? = null,
+    forceOverflowOpen: Boolean = false,
+    onTourAdvance: (() -> Unit)? = null,
+    onTourSkip: (() -> Unit)? = null,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
@@ -92,6 +101,13 @@ fun ChatBottomBar(
                 onSearchClick = onSearchClick,
                 onNewWhisper = onNewWhisper,
                 showQuickActions = !isSheetOpen,
+                inputActionsTooltipState = inputActionsTooltipState,
+                overflowMenuTooltipState = overflowMenuTooltipState,
+                configureActionsTooltipState = configureActionsTooltipState,
+                swipeGestureTooltipState = swipeGestureTooltipState,
+                forceOverflowOpen = forceOverflowOpen,
+                onTourAdvance = onTourAdvance,
+                onTourSkip = onTourSkip,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     onInputHeightChanged(coordinates.size.height)
                 }

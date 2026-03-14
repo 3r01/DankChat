@@ -2,6 +2,8 @@ package com.flxrs.dankchat.chat.compose
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -27,6 +29,7 @@ import org.koin.core.parameter.parametersOf
  * - Collects settings from data stores
  * - Renders ChatScreen with all event handlers
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatComposable(
     channel: UserName,
@@ -46,6 +49,9 @@ fun ChatComposable(
     onScrollDirectionChanged: (Boolean) -> Unit = {},
     scrollToMessageId: String? = null,
     onScrollToMessageHandled: () -> Unit = {},
+    recoveryFabTooltipState: TooltipState? = null,
+    onTourAdvance: (() -> Unit)? = null,
+    onTourSkip: (() -> Unit)? = null,
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping
     val viewModel: ChatComposeViewModel = koinViewModel(
@@ -86,6 +92,9 @@ fun ChatComposable(
         onScrollDirectionChanged = onScrollDirectionChanged,
         scrollToMessageId = scrollToMessageId,
         onScrollToMessageHandled = onScrollToMessageHandled,
+        recoveryFabTooltipState = recoveryFabTooltipState,
+        onTourAdvance = onTourAdvance,
+        onTourSkip = onTourSkip,
     )
     } // CompositionLocalProvider
 }

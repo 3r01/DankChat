@@ -53,8 +53,14 @@ import com.flxrs.dankchat.chat.compose.messages.PrivMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.SystemMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.WhisperMessageComposable
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipState
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.main.compose.TourTooltip
 
 /**
  * Main composable for rendering chat messages in a scrollable list.
@@ -65,6 +71,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
  * - FAB to manually scroll to bottom
  * - Efficient recomposition with stable keys
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     messages: List<ChatMessageUiState>,
@@ -91,6 +98,9 @@ fun ChatScreen(
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.background,
     showFabs: Boolean = true,
+    recoveryFabTooltipState: TooltipState? = null,
+    onTourAdvance: (() -> Unit)? = null,
+    onTourSkip: (() -> Unit)? = null,
 ) {
     val listState = rememberLazyListState()
 
@@ -213,12 +223,35 @@ fun ChatScreen(
                         .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + fabBottomPadding),
                     contentAlignment = Alignment.BottomEnd
                 ) {
-                    RecoveryFab(
-                        isFullscreen = isFullscreen,
-                        showInput = showInput,
-                        onRecover = onRecover,
-                        modifier = Modifier.padding(bottom = recoveryBottomPadding)
-                    )
+                    if (recoveryFabTooltipState != null) {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                            tooltip = {
+                                TourTooltip(
+                                    text = stringResource(R.string.tour_recovery_fab),
+                                    onAction = { onTourAdvance?.invoke() },
+                                    onSkip = { onTourSkip?.invoke() },
+                                    isLast = true,
+                                )
+                            },
+                            state = recoveryFabTooltipState,
+                            hasAction = true,
+                        ) {
+                            RecoveryFab(
+                                isFullscreen = isFullscreen,
+                                showInput = showInput,
+                                onRecover = onRecover,
+                                modifier = Modifier.padding(bottom = recoveryBottomPadding)
+                            )
+                        }
+                    } else {
+                        RecoveryFab(
+                            isFullscreen = isFullscreen,
+                            showInput = showInput,
+                            onRecover = onRecover,
+                            modifier = Modifier.padding(bottom = recoveryBottomPadding)
+                        )
+                    }
                     AnimatedVisibility(
                         visible = showScrollFab,
                         enter = scaleIn() + fadeIn(),

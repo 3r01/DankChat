@@ -59,6 +59,8 @@ import com.flxrs.dankchat.databinding.MainActivityBinding
 import com.flxrs.dankchat.login.compose.LoginScreen
 import com.flxrs.dankchat.main.compose.MainScreen
 import com.flxrs.dankchat.main.compose.MainEventBus
+import com.flxrs.dankchat.onboarding.OnboardingDataStore
+import com.flxrs.dankchat.onboarding.OnboardingScreen
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.about.AboutScreen
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
@@ -104,6 +106,7 @@ class MainActivity : AppCompatActivity() {
     private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
     private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val mainEventBus: MainEventBus by inject()
+    private val onboardingDataStore: OnboardingDataStore by inject()
     private val dataRepository: DataRepository by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
     private var navController: NavController? = null
@@ -179,8 +182,9 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        // Check if we should use Compose UI
-        val useComposeUi = developerSettingsDataStore.current().useComposeChatUi
+        // Check if we should use Compose UI — also force Compose for onboarding
+        val onboardingCompleted = onboardingDataStore.current().hasCompletedOnboarding
+        val useComposeUi = developerSettingsDataStore.current().useComposeChatUi || !onboardingCompleted
 
         if (useComposeUi) {
             setupComposeUi()
@@ -238,10 +242,34 @@ class MainActivity : AppCompatActivity() {
                     initialValue = dankChatPreferenceStore.isLoggedIn
                 )
 
+                val onboardingCompleted = onboardingDataStore.current().hasCompletedOnboarding
+
                 NavHost(
                     navController = navController,
-                    startDestination = Main
+                    startDestination = if (onboardingCompleted) Main else Onboarding,
                 ) {
+                    composable<Onboarding>(
+                        enterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
+                        exitTransition = { fadeOut(animationSpec = tween(90)) },
+                        popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
+                        popExitTransition = { fadeOut(animationSpec = tween(90)) }
+                    ) { backStackEntry ->
+                        val loginSuccess = backStackEntry
+                            .savedStateHandle
+                            .get<Boolean>("login_success") == true
+
+                        OnboardingScreen(
+                            onNavigateToLogin = {
+                                navController.navigate(Login)
+                            },
+                            onComplete = {
+                                navController.navigate(Main) {
+                                    popUpTo(Onboarding) { inclusive = true }
+                                }
+                            },
+                            loginSuccess = loginSuccess,
+                        )
+                    }
                     composable<Main>(
                         enterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
                         exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
@@ -544,7 +572,8 @@ class MainActivity : AppCompatActivity() {
             viewModel.reconnectIfNecessary()
         }
 
-        val needsNotificationPermission = isAtLeastTiramisu && hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+        val hasCompletedOnboarding = onboardingDataStore.current().hasCompletedOnboarding
+        val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
             needsNotificationPermission -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             // start service without notification permission

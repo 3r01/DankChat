@@ -10,7 +10,7 @@ data class DeveloperSettings(
     val customRecentMessagesHost: String = RM_HOST_DEFAULT,
     val eventSubEnabled: Boolean = true,
     val eventSubDebugOutput: Boolean = false,
-    val useComposeChatUi: Boolean = false, // Feature toggle for Compose migration
+    val useComposeChatUi: Boolean = true, // Feature toggle for Compose migration
 ) {
 
     val isPubSubShutdown: Boolean get() = System.currentTimeMillis() > PUBSUB_SHUTDOWN_MILLIS

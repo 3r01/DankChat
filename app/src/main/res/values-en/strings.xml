@@ -431,4 +431,13 @@
     <string name="confirm_user_ban_question">Ban this user?</string>
     <string name="confirm_user_delete_question">Delete this message?</string>
     <string name="confirm_clear_chat_question">Clear chat?</string>
+    <string name="tour_input_actions">Customizable actions for quick access to search, streams, and more</string>
+    <string name="tour_overflow_menu">Tap here for more actions and to configure your action bar</string>
+    <string name="tour_configure_actions">You can customize which actions appear in your action bar here</string>
+    <string name="tour_swipe_gesture">Swipe down on the input to quickly hide it</string>
+    <string name="tour_recovery_fab">Tap here to bring the input back</string>
+    <string name="tour_next">Next</string>
+    <string name="tour_got_it">Got it</string>
+    <string name="tour_skip">Skip tour</string>
+    <string name="tour_add_more_channels_hint">You can add more channels here</string>
 </resources>

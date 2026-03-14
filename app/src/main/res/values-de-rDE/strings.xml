@@ -438,4 +438,13 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="confirm_user_ban_question">Diesen Nutzer bannen?</string>
     <string name="confirm_user_delete_question">Diese Nachricht löschen?</string>
     <string name="confirm_clear_chat_question">Chat löschen?</string>
+    <string name="tour_input_actions">Anpassbare Aktionen für schnellen Zugriff auf Suche, Streams und mehr</string>
+    <string name="tour_overflow_menu">Tippe hier für weitere Aktionen und um deine Aktionsleiste zu konfigurieren</string>
+    <string name="tour_configure_actions">Hier kannst du anpassen, welche Aktionen in deiner Aktionsleiste erscheinen</string>
+    <string name="tour_swipe_gesture">Wische auf der Eingabe nach unten, um sie schnell auszublenden</string>
+    <string name="tour_recovery_fab">Tippe hier, um die Eingabe zurückzuholen</string>
+    <string name="tour_next">Weiter</string>
+    <string name="tour_got_it">Verstanden</string>
+    <string name="tour_skip">Tour überspringen</string>
+    <string name="tour_add_more_channels_hint">Hier kannst du weitere Kanäle hinzufügen</string>
 </resources>

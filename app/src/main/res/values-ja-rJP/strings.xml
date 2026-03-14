@@ -403,4 +403,13 @@
     <string name="confirm_user_ban_question">このユーザーをBANしますか？</string>
     <string name="confirm_user_delete_question">このメッセージを削除しますか？</string>
     <string name="confirm_clear_chat_question">チャットをクリアしますか？</string>
+    <string name="tour_input_actions">検索、配信などへのクイックアクセスのためのカスタマイズ可能なアクション</string>
+    <string name="tour_overflow_menu">ここをタップしてその他のアクションやアクションバーの設定ができます</string>
+    <string name="tour_configure_actions">アクションバーに表示するアクションをここでカスタマイズできます</string>
+    <string name="tour_swipe_gesture">入力欄を下にスワイプすると素早く非表示にできます</string>
+    <string name="tour_recovery_fab">ここをタップして入力欄を元に戻します</string>
+    <string name="tour_next">次へ</string>
+    <string name="tour_got_it">了解</string>
+    <string name="tour_skip">ツアーをスキップ</string>
+    <string name="tour_add_more_channels_hint">ここでチャンネルを追加できます</string>
 </resources>

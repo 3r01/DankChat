@@ -441,4 +441,13 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="confirm_user_ban_question">Zbanować tego użytkownika?</string>
     <string name="confirm_user_delete_question">Usunąć tę wiadomość?</string>
     <string name="confirm_clear_chat_question">Wyczyścić czat?</string>
+    <string name="tour_input_actions">Konfigurowalne akcje szybkiego dostępu do wyszukiwania, streamów i więcej</string>
+    <string name="tour_overflow_menu">Stuknij tutaj, aby uzyskać więcej akcji i skonfigurować pasek akcji</string>
+    <string name="tour_configure_actions">Tutaj możesz dostosować, które akcje pojawiają się na pasku akcji</string>
+    <string name="tour_swipe_gesture">Przesuń w dół na polu wpisywania, aby szybko je ukryć</string>
+    <string name="tour_recovery_fab">Stuknij tutaj, aby przywrócić pole wpisywania</string>
+    <string name="tour_next">Dalej</string>
+    <string name="tour_got_it">Rozumiem</string>
+    <string name="tour_skip">Pomiń przewodnik</string>
+    <string name="tour_add_more_channels_hint">Tutaj możesz dodać więcej kanałów</string>
 </resources>

@@ -407,4 +407,13 @@
     <string name="confirm_user_ban_question">Banir este utilizador?</string>
     <string name="confirm_user_delete_question">Eliminar esta mensagem?</string>
     <string name="confirm_clear_chat_question">Limpar chat?</string>
+    <string name="tour_input_actions">Ações personalizáveis para acesso rápido a pesquisa, transmissões e mais</string>
+    <string name="tour_overflow_menu">Toque aqui para mais ações e para configurar a sua barra de ações</string>
+    <string name="tour_configure_actions">Pode personalizar quais ações aparecem na sua barra de ações aqui</string>
+    <string name="tour_swipe_gesture">Deslize para baixo na entrada para a ocultar rapidamente</string>
+    <string name="tour_recovery_fab">Toque aqui para recuperar a entrada</string>
+    <string name="tour_next">Seguinte</string>
+    <string name="tour_got_it">Entendido</string>
+    <string name="tour_skip">Saltar tour</string>
+    <string name="tour_add_more_channels_hint">Pode adicionar mais canais aqui</string>
 </resources>

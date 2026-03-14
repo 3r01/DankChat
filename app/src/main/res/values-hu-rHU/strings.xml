@@ -416,4 +416,13 @@
     <string name="confirm_user_ban_question">Kitiltod ezt a felhasználót?</string>
     <string name="confirm_user_delete_question">Törlöd ezt az üzenetet?</string>
     <string name="confirm_clear_chat_question">Chat törlése?</string>
+    <string name="tour_input_actions">Testreszabható műveletek a keresés, közvetítések és egyebek gyors eléréséhez</string>
+    <string name="tour_overflow_menu">Koppintson ide további műveletekért és a műveletsáv beállításához</string>
+    <string name="tour_configure_actions">Itt testreszabhatja, mely műveletek jelenjenek meg a műveletsávban</string>
+    <string name="tour_swipe_gesture">Húzzon lefelé a beviteli mezőn a gyors elrejtéshez</string>
+    <string name="tour_recovery_fab">Koppintson ide a beviteli mező visszaállításához</string>
+    <string name="tour_next">Következő</string>
+    <string name="tour_got_it">Értem</string>
+    <string name="tour_skip">Bemutató kihagyása</string>
+    <string name="tour_add_more_channels_hint">Itt adhat hozzá további csatornákat</string>
 </resources>

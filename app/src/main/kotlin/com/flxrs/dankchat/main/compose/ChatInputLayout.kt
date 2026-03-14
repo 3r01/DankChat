@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -48,6 +49,13 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.RichTooltip
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipScope
+import androidx.compose.material3.TooltipState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -60,6 +68,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -81,10 +90,15 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalDensity
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.InputState
@@ -125,6 +139,13 @@ fun ChatInputLayout(
     onSearchClick: () -> Unit = {},
     onNewWhisper: (() -> Unit)? = null,
     showQuickActions: Boolean = true,
+    inputActionsTooltipState: TooltipState? = null,
+    overflowMenuTooltipState: TooltipState? = null,
+    configureActionsTooltipState: TooltipState? = null,
+    swipeGestureTooltipState: TooltipState? = null,
+    forceOverflowOpen: Boolean = false,
+    onTourAdvance: (() -> Unit)? = null,
+    onTourSkip: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -165,14 +186,15 @@ fun ChatInputLayout(
     }
 
     var visibleActions by remember { mutableStateOf(effectiveActions) }
-    var quickActionsExpanded by remember { mutableStateOf(false) }
+    var userExpandedMenu by remember { mutableStateOf(false) }
+    val quickActionsExpanded = userExpandedMenu || forceOverflowOpen
     var showConfigSheet by remember { mutableStateOf(false) }
     val topEndRadius by animateDpAsState(
         targetValue = if (quickActionsExpanded) 0.dp else 24.dp,
         label = "topEndCornerRadius"
     )
 
-    Box(modifier = modifier.fillMaxWidth()) {
+    val inputContent: @Composable () -> Unit = {
         Surface(
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = topEndRadius),
             color = surfaceColor,
@@ -320,94 +342,150 @@ fun ChatInputLayout(
                 }
 
                 // Actions Row — uses BoxWithConstraints to hide actions that don't fit
-                BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                ) {
-                    val iconSize = 40.dp
-                    // Fixed slots: emote + overflow + send (+ whisper if present)
-                    val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
-                    val availableForActions = maxWidth - iconSize * fixedSlots
-                    val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
-                    visibleActions = effectiveActions.take(maxVisibleActions)
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
+                val actionsRowContent: @Composable () -> Unit = {
+                    BoxWithConstraints(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                     ) {
-                        // Emote/Keyboard Button (start-aligned, always visible)
-                        IconButton(
-                            onClick = {
-                                if (isEmoteMenuOpen) {
-                                    focusRequester.requestFocus()
-                                }
-                                onEmoteClick()
-                            },
-                            enabled = enabled,
-                            modifier = Modifier.size(iconSize)
+                        val iconSize = 40.dp
+                        // Fixed slots: emote + overflow + send (+ whisper if present)
+                        val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
+                        val availableForActions = maxWidth - iconSize * fixedSlots
+                        val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
+                        visibleActions = effectiveActions.take(maxVisibleActions)
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(
-                                imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
-                                contentDescription = stringResource(
-                                    if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
-                                ),
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        // Overflow Button (leading the end-aligned group)
-                        if (showQuickActions) {
+                            // Emote/Keyboard Button (start-aligned, always visible)
                             IconButton(
-                                onClick = { quickActionsExpanded = !quickActionsExpanded },
-                                modifier = Modifier.size(iconSize)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = stringResource(R.string.more),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        // Configurable action icons (only those that fit)
-                        for (action in visibleActions) {
-                            InputActionButton(
-                                action = action,
+                                onClick = {
+                                    if (isEmoteMenuOpen) {
+                                        focusRequester.requestFocus()
+                                    }
+                                    onEmoteClick()
+                                },
                                 enabled = enabled,
-                                isStreamActive = isStreamActive,
-                                isFullscreen = isFullscreen,
-                                onSearchClick = onSearchClick,
-                                onLastMessageClick = onLastMessageClick,
-                                onToggleStream = onToggleStream,
-                                onChangeRoomState = onChangeRoomState,
-                                onToggleFullscreen = onToggleFullscreen,
-                                onToggleInput = onToggleInput,
-                                modifier = Modifier.size(iconSize),
-                            )
-                        }
-
-                        // New Whisper Button (only on whisper tab)
-                        if (onNewWhisper != null) {
-                            IconButton(
-                                onClick = onNewWhisper,
                                 modifier = Modifier.size(iconSize)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = stringResource(R.string.whisper_new),
+                                    imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
+                                    contentDescription = stringResource(
+                                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
+                                    ),
                                 )
                             }
-                        }
 
-                        // Send Button (Right)
-                        SendButton(
-                            enabled = canSend,
-                            onSend = onSend,
-                        )
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            // End-aligned group: overflow + actions + whisper + send
+                            val endAlignedContent: @Composable () -> Unit = {
+                                // Overflow Button (leading the end-aligned group)
+                                if (showQuickActions) {
+                                    val overflowButton: @Composable () -> Unit = {
+                                        IconButton(
+                                            onClick = {
+                                                if (overflowMenuTooltipState != null) {
+                                                    onTourAdvance?.invoke()
+                                                } else {
+                                                    userExpandedMenu = !quickActionsExpanded
+                                                }
+                                            },
+                                            modifier = Modifier.size(iconSize)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = stringResource(R.string.more),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                    if (overflowMenuTooltipState != null) {
+                                        TooltipBox(
+                                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                                            tooltip = {
+                                                TourTooltip(
+                                                    text = stringResource(R.string.tour_overflow_menu),
+                                                    onAction = { onTourAdvance?.invoke() },
+                                                    onSkip = { onTourSkip?.invoke() },
+                                                )
+                                            },
+                                            state = overflowMenuTooltipState,
+                                            hasAction = true,
+                                        ) {
+                                            overflowButton()
+                                        }
+                                    } else {
+                                        overflowButton()
+                                    }
+                                }
+
+                                // Configurable action icons (only those that fit)
+                                for (action in visibleActions) {
+                                    InputActionButton(
+                                        action = action,
+                                        enabled = enabled,
+                                        isStreamActive = isStreamActive,
+                                        isFullscreen = isFullscreen,
+                                        onSearchClick = onSearchClick,
+                                        onLastMessageClick = onLastMessageClick,
+                                        onToggleStream = onToggleStream,
+                                        onChangeRoomState = onChangeRoomState,
+                                        onToggleFullscreen = onToggleFullscreen,
+                                        onToggleInput = onToggleInput,
+                                        modifier = Modifier.size(iconSize),
+                                    )
+                                }
+
+                                // New Whisper Button (only on whisper tab)
+                                if (onNewWhisper != null) {
+                                    IconButton(
+                                        onClick = onNewWhisper,
+                                        modifier = Modifier.size(iconSize)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Edit,
+                                            contentDescription = stringResource(R.string.whisper_new),
+                                        )
+                                    }
+                                }
+
+                                // Send Button (Right)
+                                SendButton(
+                                    enabled = canSend,
+                                    onSend = onSend,
+                                )
+                            }
+
+                            if (inputActionsTooltipState != null) {
+                                TooltipBox(
+                                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                                    tooltip = {
+                                        TourTooltip(
+                                            text = stringResource(R.string.tour_input_actions),
+                                            onAction = { onTourAdvance?.invoke() },
+                                            onSkip = { onTourSkip?.invoke() },
+                                        )
+                                    },
+                                    state = inputActionsTooltipState,
+                                    onDismissRequest = {},
+                                    focusable = true,
+                                    hasAction = true,
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        endAlignedContent()
+                                    }
+                                }
+                            } else {
+                                endAlignedContent()
+                            }
                     }
                 }
+                }
+
+                actionsRowContent()
             }
         }
 
@@ -432,7 +510,7 @@ fun ChatInputLayout(
 
             Popup(
                 popupPositionProvider = positionProvider,
-                onDismissRequest = { quickActionsExpanded = false },
+                onDismissRequest = { if (!forceOverflowOpen) userExpandedMenu = false },
                 properties = PopupProperties(focusable = true),
             ) {
                 AnimatedVisibility(
@@ -473,7 +551,7 @@ fun ChatInputLayout(
                                                 InputAction.Fullscreen -> onToggleFullscreen()
                                                 InputAction.HideInput -> onToggleInput()
                                             }
-                                            quickActionsExpanded = false
+                                            userExpandedMenu = false
                                         },
                                         leadingIcon = {
                                             Icon(
@@ -488,23 +566,70 @@ fun ChatInputLayout(
                             HorizontalDivider()
 
                             // Configure actions item
-                            DropdownMenuItem(
-                                text = { Text(stringResource(R.string.input_action_configure)) },
-                                onClick = {
-                                    quickActionsExpanded = false
-                                    showConfigSheet = true
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = null
-                                    )
+                            val configureItem: @Composable () -> Unit = {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.input_action_configure)) },
+                                    onClick = {
+                                        if (configureActionsTooltipState != null) {
+                                            onTourAdvance?.invoke()
+                                        } else {
+                                            userExpandedMenu = false
+                                            showConfigSheet = true
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Settings,
+                                            contentDescription = null
+                                        )
+                                    }
+                                )
+                            }
+                            if (configureActionsTooltipState != null) {
+                                TooltipBox(
+                                    positionProvider = rememberStartAlignedTooltipPositionProvider(),
+                                    tooltip = {
+                                        EndCaretTourTooltip(
+                                            text = stringResource(R.string.tour_configure_actions),
+                                            onAction = { onTourAdvance?.invoke() },
+                                            onSkip = { onTourSkip?.invoke() },
+                                        )
+                                    },
+                                    state = configureActionsTooltipState,
+                                    onDismissRequest = {},
+                                    focusable = true,
+                                    hasAction = true,
+                                ) {
+                                    configureItem()
                                 }
-                            )
+                            } else {
+                                configureItem()
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        if (swipeGestureTooltipState != null) {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    TourTooltip(
+                        text = stringResource(R.string.tour_swipe_gesture),
+                        onAction = { onTourAdvance?.invoke() },
+                        onSkip = { onTourSkip?.invoke() },
+                    )
+                },
+                state = swipeGestureTooltipState,
+                hasAction = true,
+            ) {
+                inputContent()
+            }
+        } else {
+            inputContent()
         }
     }
 
@@ -788,5 +913,123 @@ private fun InputActionButton(
             imageVector = icon,
             contentDescription = stringResource(contentDescription),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun TooltipScope.TourTooltip(
+    text: String,
+    onAction: () -> Unit,
+    onSkip: () -> Unit,
+    isLast: Boolean = false,
+) {
+    RichTooltip(
+        caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
+        action = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                TextButton(onClick = onSkip) {
+                    Text(stringResource(R.string.tour_skip))
+                }
+                TextButton(onClick = onAction) {
+                    Text(stringResource(if (isLast) R.string.tour_got_it else R.string.tour_next))
+                }
+            }
+        }
+    ) {
+        Text(text)
+    }
+}
+
+/**
+ * Tour tooltip positioned to the start of its anchor, with a right-pointing caret on the end side.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EndCaretTourTooltip(
+    text: String,
+    onAction: () -> Unit,
+    onSkip: () -> Unit,
+) {
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Surface(
+            shape = RoundedCornerShape(12.dp),
+            color = containerColor,
+            shadowElevation = 2.dp,
+            tonalElevation = 2.dp,
+            modifier = Modifier.widthIn(max = 220.dp),
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 12.dp, bottom = 8.dp)
+            ) {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    TextButton(onClick = onSkip) {
+                        Text(stringResource(R.string.tour_skip))
+                    }
+                    TextButton(onClick = onAction) {
+                        Text(stringResource(R.string.tour_next))
+                    }
+                }
+            }
+        }
+        Canvas(modifier = Modifier.size(width = 12.dp, height = 24.dp)) {
+            val path = Path().apply {
+                moveTo(0f, 0f)
+                lineTo(size.width, size.height / 2f)
+                lineTo(0f, size.height)
+                close()
+            }
+            drawPath(path, containerColor)
+        }
+    }
+}
+
+/**
+ * Positions the tooltip to the start (left in LTR) of the anchor, vertically centered.
+ * Falls back to above-positioning if there's not enough horizontal space.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun rememberStartAlignedTooltipPositionProvider(
+    spacingBetweenTooltipAndAnchor: Dp = 4.dp,
+): PopupPositionProvider {
+    val spacingPx = with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
+    return remember(spacingPx) {
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize,
+            ): IntOffset {
+                val startX = anchorBounds.left - popupContentSize.width - spacingPx
+                return if (startX >= 0) {
+                    // Fits to the start — vertically center on anchor
+                    val y = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
+                    IntOffset(
+                        startX,
+                        y.coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0)),
+                    )
+                } else {
+                    // Not enough space — fall back to above, horizontally end-aligned with anchor
+                    val x = (anchorBounds.right - popupContentSize.width)
+                        .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
+                    val y = (anchorBounds.top - popupContentSize.height - spacingPx)
+                        .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
+                    IntOffset(x, y)
+                }
+            }
+        }
     }
 }

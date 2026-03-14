@@ -275,4 +275,13 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="search_filter_has_emote">Emojeja sisältävät viestit</string>
     <string name="search_filter_by_badge">Suodata merkin nimen mukaan</string>
     <string name="search_filter_user">Käyttäjä</string>
-    <string name="search_filter_badge">Merkki</string></resources>
+    <string name="search_filter_badge">Merkki</string>    <string name="tour_input_actions">Mukautettavat toiminnot hakuun, suoratoistoihin ja muuhun nopeaan pääsyyn</string>
+    <string name="tour_overflow_menu">Napauta tästä lisätoimintoja ja toimintopalkin määrittämistä varten</string>
+    <string name="tour_configure_actions">Voit mukauttaa mitkä toiminnot näkyvät toimintopalkissasi täältä</string>
+    <string name="tour_swipe_gesture">Pyyhkäise alas syöttökentällä piilottaaksesi sen nopeasti</string>
+    <string name="tour_recovery_fab">Napauta tästä palauttaaksesi syöttökentän</string>
+    <string name="tour_next">Seuraava</string>
+    <string name="tour_got_it">Selvä</string>
+    <string name="tour_skip">Ohita esittely</string>
+    <string name="tour_add_more_channels_hint">Voit lisätä lisää kanavia täältä</string>
+</resources>
