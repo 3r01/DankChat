@@ -302,34 +302,12 @@ data class ThemeState(
 private fun rememberThemeState(theme: ThemePreference, trueDark: Boolean, systemDarkMode: Boolean): ThemeState {
     val context = LocalContext.current
     val defaultEntries = stringArrayResource(R.array.theme_entries).toImmutableList()
+    // minSdk 30 always supports light mode and system dark mode
     val darkThemeTitle = stringResource(R.string.preference_dark_theme_entry_title)
     val lightThemeTitle = stringResource(R.string.preference_light_theme_entry_title)
-    val shouldDisable = remember {
-        val uiModeManager = getSystemService(context, UiModeManager::class.java)
-        val isTv = uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.O_MR1 && !isTv
-    }
-    if (shouldDisable) {
-        return ThemeState(
-            preference = ThemePreference.Dark,
-            summary = darkThemeTitle,
-            trueDarkPreference = trueDark,
-            values = listOf(ThemePreference.Dark).toImmutableList(),
-            entries = listOf(darkThemeTitle).toImmutableList(),
-            themeSwitcherEnabled = false,
-            trueDarkEnabled = true,
-        )
-    }
-
+    
     val (entries, values) = remember {
-        when {
-            Build.VERSION.SDK_INT < Build.VERSION_CODES.Q -> Pair(
-                listOf(darkThemeTitle, lightThemeTitle).toImmutableList(),
-                listOf(ThemePreference.Dark, ThemePreference.Light).toImmutableList(),
-            )
-
-            else                                          -> defaultEntries to ThemePreference.entries.toImmutableList()
-        }
+        defaultEntries to ThemePreference.entries.toImmutableList()
     }
 
     return remember(theme, trueDark) {

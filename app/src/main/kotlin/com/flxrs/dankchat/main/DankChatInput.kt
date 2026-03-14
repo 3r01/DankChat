@@ -15,10 +15,7 @@ class DankChatInput : AppCompatMultiAutoCompleteTextView {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M && event?.keyCode == KeyEvent.KEYCODE_BACK) {
-            clearFocus()
-        }
-
+        // minSdk 30+ doesn't need back button workaround
         return super.onKeyPreIme(keyCode, event)
     }
 

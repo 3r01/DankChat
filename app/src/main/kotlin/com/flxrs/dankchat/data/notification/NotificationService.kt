@@ -62,10 +62,8 @@ class NotificationService : Service(), CoroutineScope {
     private var audioManager: AudioManager? = null
     private var previousTTSUser: UserName? = null
 
-    private val pendingIntentFlag: Int = when {
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        else                                           -> PendingIntent.FLAG_UPDATE_CURRENT
-    }
+    // minSdk 30 guarantees PendingIntent.FLAG_IMMUTABLE support (API 23+)
+    private val pendingIntentFlag: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
     private var activeTTSChannel: UserName? = null
     private var shouldNotifyOnMention = false
@@ -89,19 +87,17 @@ class NotificationService : Service(), CoroutineScope {
 
     override fun onCreate() {
         super.onCreate()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = getString(R.string.app_name)
-            val channel = NotificationChannel(CHANNEL_ID_LOW, name, NotificationManager.IMPORTANCE_LOW).apply {
-                enableVibration(false)
-                enableLights(false)
-                setShowBadge(false)
-            }
-
-            val mentionChannel = NotificationChannel(CHANNEL_ID_DEFAULT, "Mentions", NotificationManager.IMPORTANCE_DEFAULT)
-            manager.createNotificationChannel(mentionChannel)
-            manager.createNotificationChannel(channel)
+        // minSdk 30 guarantees notification channel support (API 26+)
+        val name = getString(R.string.app_name)
+        val channel = NotificationChannel(CHANNEL_ID_LOW, name, NotificationManager.IMPORTANCE_LOW).apply {
+            enableVibration(false)
+            enableLights(false)
+            setShowBadge(false)
         }
 
+        val mentionChannel = NotificationChannel(CHANNEL_ID_DEFAULT, "Mentions", NotificationManager.IMPORTANCE_DEFAULT)
+        manager.createNotificationChannel(mentionChannel)
+        manager.createNotificationChannel(channel)
 
         notificationsSettingsDataStore.showNotifications
             .onEach { notificationsEnabled = it }
@@ -203,11 +199,8 @@ class NotificationService : Service(), CoroutineScope {
             .setVibrate(null)
             .setContentTitle(title)
             .setContentText(message)
-            .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent).apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    setStyle(MediaStyle().setShowActionsInCompactView(0))
-                }
-            }
+            .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent)
+            .setStyle(MediaStyle().setShowActionsInCompactView(0)) // minSdk 30 guarantees MediaStyle support
             .setContentIntent(pendingStartActivityIntent)
             .setSmallIcon(R.drawable.ic_notification_icon)
             .build()

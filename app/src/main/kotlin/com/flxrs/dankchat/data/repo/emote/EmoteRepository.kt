@@ -42,7 +42,6 @@ import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.utils.MultiCallback
 import com.flxrs.dankchat.utils.extensions.appendSpacesBetweenEmojiGroup
 import com.flxrs.dankchat.utils.extensions.chunkedBy
 import com.flxrs.dankchat.utils.extensions.concurrentMap
@@ -76,7 +75,6 @@ class EmoteRepository(
 
     val badgeCache = LruCache<String, Drawable>(64)
     val layerCache = LruCache<String, LayerDrawable>(256)
-    val gifCallback = MultiCallback()
 
     fun getEmotes(channel: UserName): StateFlow<Emotes> = emotes.getOrPut(channel) { MutableStateFlow(Emotes()) }
     fun createFlowsIfNecessary(channels: List<UserName>) {

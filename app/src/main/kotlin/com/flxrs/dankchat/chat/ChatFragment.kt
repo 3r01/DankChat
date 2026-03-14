@@ -8,14 +8,21 @@ import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -47,6 +54,7 @@ open class ChatFragment : Fragment() {
     protected val chatSettingsDataStore: ChatSettingsDataStore by inject()
     protected val dankChatPreferenceStore: DankChatPreferenceStore by inject()
 
+    // Legacy support - will be removed
     protected var bindingRef: ChatFragmentBinding? = null
     protected val binding get() = bindingRef!!
     protected open lateinit var adapter: ChatAdapter
@@ -54,24 +62,55 @@ open class ChatFragment : Fragment() {
 
     // TODO move to viewmodel?
     protected open var isAtBottom = true
+    
+    private var useCompose = true // Feature flag for migration
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        bindingRef = ChatFragmentBinding.inflate(inflater, container, false).apply {
-            chatLayout.layoutTransition?.setAnimateParentHierarchy(false)
-            scrollBottom.setOnClickListener {
-                scrollBottom.visibility = View.GONE
-                mainViewModel.isScrolling(false)
-                isAtBottom = true
-                binding.chat.stopScroll()
-                scrollToPosition(position = adapter.itemCount - 1)
+        return if (useCompose) {
+            ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
+                    val appearanceSettings = appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current()).value
+                    
+                    ChatScreen(
+                        messages = messages,
+                        fontSize = appearanceSettings.fontSize.toFloat(),
+                        modifier = Modifier.fillMaxSize(),
+                        onUserClick = ::onUserClickCompose,
+                        onMessageLongClick = { messageId, channel, fullMessage ->
+                            onMessageClick(messageId, channel?.let { UserName(it) }, fullMessage)
+                        },
+                        onEmoteClick = ::onEmoteClickCompose,
+                        onReplyClick = ::onReplyClick
+                    )
+                }
             }
-        }
+        } else {
+            // Legacy RecyclerView implementation
+            bindingRef = ChatFragmentBinding.inflate(inflater, container, false).apply {
+                chatLayout.layoutTransition?.setAnimateParentHierarchy(false)
+                scrollBottom.setOnClickListener {
+                    scrollBottom.visibility = View.GONE
+                    mainViewModel.isScrolling(false)
+                    isAtBottom = true
+                    binding.chat.stopScroll()
+                    scrollToPosition(position = adapter.itemCount - 1)
+                }
+            }
 
-        collectFlow(viewModel.chat) { adapter.submitList(it) }
-        return binding.root
+            collectFlow(viewModel.chat) { adapter.submitList(it) }
+            binding.root
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (useCompose) {
+            // Compose implementation doesn't need additional setup
+            return
+        }
+        
+        // Legacy setup
         val itemDecoration = DividerItemDecoration(view.context, LinearLayoutManager.VERTICAL)
         manager = LinearLayoutManager(view.context, RecyclerView.VERTICAL, false).apply { stackFromEnd = true }
         adapter = ChatAdapter(
@@ -84,7 +123,9 @@ open class ChatFragment : Fragment() {
             onUserClick = ::onUserClick,
             onMessageLongClick = ::onMessageClick,
             onReplyClick = ::onReplyClick,
-            onEmoteClick = ::onEmoteClick,
+            onEmoteClick = { emotes -> 
+                (parentFragment as? MainFragment)?.openEmoteSheet(emotes)
+            },
         ).apply { stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY }
         binding.chat.setup(adapter, manager)
         ViewCompat.setWindowInsetsAnimationCallback(
@@ -109,45 +150,47 @@ open class ChatFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
-        // Trigger a redraw of last 50 items to start gifs again
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && chatSettingsDataStore.current().animateGifs) {
-            binding.chat.postDelayed(MESSAGES_REDRAW_DELAY_MS) {
-                val start = (adapter.itemCount - MAX_MESSAGES_REDRAW_AMOUNT).coerceAtLeast(minimumValue = 0)
-                val itemCount = MAX_MESSAGES_REDRAW_AMOUNT.coerceAtMost(maximumValue = adapter.itemCount)
-                adapter.notifyItemRangeChanged(start, itemCount)
-            }
-        }
+        // minSdk 30+ handles GIF animations natively
     }
 
     override fun onDestroyView() {
-        binding.chat.adapter = null
-        binding.chat.layoutManager = null
-
-        bindingRef = null
+        if (!useCompose) {
+            binding.chat.adapter = null
+            binding.chat.layoutManager = null
+            bindingRef = null
+        }
         super.onDestroyView()
     }
 
     override fun onStop() {
-        // Stop animated drawables and related invalidation callbacks
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && activity?.isChangingConfigurations == false && ::adapter.isInitialized) {
-            binding.chat.cleanupActiveDrawables(adapter.itemCount)
-        }
-
+        // minSdk 30+ handles animated drawables automatically
         super.onStop()
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        savedInstanceState?.let {
-            isAtBottom = it.getBoolean(AT_BOTTOM_STATE)
-            binding.scrollBottom.isVisible = !isAtBottom
-        }
+    // Compose-specific callbacks
+    private fun onUserClickCompose(
+        targetUserId: String?,
+        targetUserName: String,
+        targetDisplayName: String,
+        channel: String?,
+        badges: List<Any>,
+        isLongPress: Boolean
+    ) {
+        val userId = targetUserId?.let { UserId(it) }
+        val userName = UserName(targetUserName)
+        val displayName = DisplayName(targetDisplayName)
+        val channelName = channel?.let { UserName(it) }
+        onUserClick(userId, userName, displayName, channelName, emptyList(), isLongPress)
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(AT_BOTTOM_STATE, isAtBottom)
+    private fun onEmoteClickCompose(emotes: List<Any>) {
+        // Convert back to ChatMessageEmote if needed
+        val chatEmotes = emotes.filterIsInstance<ChatMessageEmote>()
+        (parentFragment as? MainFragment)?.openEmoteSheet(chatEmotes)
+    }
+
+    private fun onReplyClick(rootMessageId: String) {
+        (parentFragment as? MainFragment)?.openReplies(rootMessageId)
     }
 
     protected open fun onUserClick(
@@ -179,15 +222,26 @@ open class ChatFragment : Fragment() {
         (parentFragment as? MainFragment)?.openMessageSheet(messageId, channel, fullMessage, canReply = true, canModerate = true)
     }
 
-    protected open fun onEmoteClick(emotes: List<ChatMessageEmote>) {
-        (parentFragment as? MainFragment)?.openEmoteSheet(emotes)
+    // Legacy RecyclerView methods
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (!useCompose) {
+            savedInstanceState?.let {
+                isAtBottom = it.getBoolean(AT_BOTTOM_STATE)
+                binding.scrollBottom.isVisible = !isAtBottom
+            }
+        }
     }
 
-    private fun onReplyClick(rootMessageId: String) {
-        (parentFragment as? MainFragment)?.openReplies(rootMessageId)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (!useCompose) {
+            outState.putBoolean(AT_BOTTOM_STATE, isAtBottom)
+        }
     }
 
     protected open fun scrollToPosition(position: Int) {
+        if (useCompose) return
         bindingRef ?: return
         if (position > 0 && isAtBottom) {
             manager.scrollToPositionWithOffset(position, 0)
@@ -219,22 +273,12 @@ open class ChatFragment : Fragment() {
         }
     }
 
-    private fun RecyclerView.cleanupActiveDrawables(itemCount: Int) =
-        forEachViewHolder<ChatAdapter.ViewHolder>(itemCount) { _, holder ->
-            holder.binding.itemText.forEachSpan<ImageSpan> { imageSpan ->
-                (imageSpan.drawable as? LayerDrawable)?.forEachLayer(Animatable::stop)
-            }
-        }
-
     companion object {
         private const val AT_BOTTOM_STATE = "chat_at_bottom_state"
-        private const val MAX_MESSAGES_REDRAW_AMOUNT = 50
-        private const val MESSAGES_REDRAW_DELAY_MS = 100L
         private const val OFFSCREEN_VIEW_CACHE_SIZE = 10
 
         fun newInstance(channel: UserName) = ChatFragment().apply {
             arguments = ChatFragmentArgs(channel).toBundle()
         }
-
     }
 }

@@ -65,8 +65,4 @@ class RepliesChatFragment : ChatFragment() {
     override fun onMessageClick(messageId: String, channel: UserName?, fullMessage: String) {
         (parentFragment?.parentFragment as? MainFragment)?.openMessageSheet(messageId, channel, fullMessage, canReply = false, canModerate = false)
     }
-
-    override fun onEmoteClick(emotes: List<ChatMessageEmote>) {
-        (parentFragment?.parentFragment as? MainFragment)?.openEmoteSheet(emotes)
-    }
 }

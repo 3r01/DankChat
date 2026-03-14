@@ -150,11 +150,6 @@ class ChatAdapter(
     override fun onViewRecycled(holder: ViewHolder) {
         holder.scope.coroutineContext.cancelChildren()
         (holder.binding.itemText.text as? Spannable)?.clearSpans()
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            emoteRepository.gifCallback.removeView(holder.binding.itemText)
-        }
-
         super.onViewRecycled(holder)
     }
 
@@ -162,9 +157,6 @@ class ChatAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.scope.coroutineContext.cancelChildren()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            emoteRepository.gifCallback.removeView(holder.binding.itemText)
-        }
 
         holder.binding.replyGroup.isVisible = false
         holder.binding.itemLayout.setBackgroundColor(Color.TRANSPARENT)
@@ -489,7 +481,6 @@ class ChatAdapter(
 
         // todo extract common badges + emote handling
         val animateGifs = chatSettings.animateGifs
-        var hasAnimatedEmoteOrBadge = false
         holder.scope.launch(holder.coroutineHandler) {
             allowedBadges.forEachIndexed { idx, badge ->
                 ensureActive()
@@ -501,7 +492,6 @@ class ChatAdapter(
                         cached != null -> cached.also {
                             if (it is Animatable) {
                                 it.setRunning(animateGifs)
-                                hasAnimatedEmoteOrBadge = true
                             }
                         }
 
@@ -520,7 +510,6 @@ class ChatAdapter(
                                 if (this is Animatable) {
                                     emoteRepository.badgeCache.put(cacheKey, this)
                                     setRunning(animateGifs)
-                                    hasAnimatedEmoteOrBadge = true
                                 }
                             }
                     }
@@ -550,7 +539,6 @@ class ChatAdapter(
                         val layerDrawable = emoteRepository.layerCache[key] ?: calculateLayerDrawable(context, emotes, key, animateGifs, scaleFactor)
                         if (layerDrawable != null) {
                             layerDrawable.forEachLayer<Animatable> { animatable ->
-                                hasAnimatedEmoteOrBadge = true
                                 animatable.setRunning(animateGifs)
                             }
                             (text as Spannable).setEmoteSpans(emotes, fullPrefix, layerDrawable, onWhisperMessageClick)
@@ -560,10 +548,6 @@ class ChatAdapter(
                 throw t
             } catch (t: Throwable) {
                 handleException(t)
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && animateGifs && hasAnimatedEmoteOrBadge) {
-                emoteRepository.gifCallback.addView(holder.binding.itemText)
             }
 
             ensureActive()
@@ -694,7 +678,6 @@ class ChatAdapter(
         setText(spannableWithEmojis, TextView.BufferType.SPANNABLE)
 
         val animateGifs = chatSettings.animateGifs
-        var hasAnimatedEmoteOrBadge = false
         holder.scope.launch(holder.coroutineHandler) {
             allowedBadges.forEachIndexed { idx, badge ->
                 try {
@@ -706,7 +689,6 @@ class ChatAdapter(
                         cached != null -> cached.also {
                             if (it is Animatable) {
                                 it.setRunning(animateGifs)
-                                hasAnimatedEmoteOrBadge = true
                             }
                         }
 
@@ -735,7 +717,6 @@ class ChatAdapter(
                                     if (this is Animatable && cacheKey != null) {
                                         emoteRepository.badgeCache.put(cacheKey, this)
                                         setRunning(animateGifs)
-                                        hasAnimatedEmoteOrBadge = true
                                     }
                                 }
                         }
@@ -766,7 +747,6 @@ class ChatAdapter(
                         val layerDrawable = emoteRepository.layerCache[key] ?: calculateLayerDrawable(context, emotes, key, animateGifs, scaleFactor)
                         if (layerDrawable != null) {
                             layerDrawable.forEachLayer<Animatable> { animatable ->
-                                hasAnimatedEmoteOrBadge = true
                                 animatable.setRunning(animateGifs)
                             }
                             (text as Spannable).setEmoteSpans(emotes, fullPrefix, layerDrawable, onMessageClick)
@@ -776,10 +756,6 @@ class ChatAdapter(
                 throw t
             } catch (t: Throwable) {
                 handleException(t)
-            }
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && animateGifs && hasAnimatedEmoteOrBadge) {
-                emoteRepository.gifCallback.addView(holder.binding.itemText)
             }
 
             ensureActive()
@@ -809,9 +785,6 @@ class ChatAdapter(
         }
 
         return drawables.toLayerDrawable(bounds, scaleFactor, emotes).also { layerDrawable ->
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && animateGifs && drawables.any { it is Animatable }) {
-                layerDrawable.callback = emoteRepository.gifCallback
-            }
             emoteRepository.layerCache.put(cacheKey, layerDrawable)
         }
     }

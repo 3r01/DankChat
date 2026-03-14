@@ -69,10 +69,6 @@ class MentionChatFragment : ChatFragment() {
         (parentFragment?.parentFragment as? MainFragment)?.openMessageSheet(messageId, channel, fullMessage, canReply = false, canModerate = false)
     }
 
-    override fun onEmoteClick(emotes: List<ChatMessageEmote>) {
-        (parentFragment?.parentFragment as? MainFragment)?.openEmoteSheet(emotes)
-    }
-
     companion object {
         fun newInstance(isWhisperTab: Boolean = false) = MentionChatFragment().apply {
             arguments = MentionChatFragmentArgs(isWhisperTab).toBundle()

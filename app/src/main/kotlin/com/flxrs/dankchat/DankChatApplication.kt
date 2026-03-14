@@ -89,11 +89,8 @@ class DankChatApplication : Application(), SingletonImageLoader.Factory {
                     .build()
             }
             .components {
-                val decoder = when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.P -> AnimatedImageDecoder.Factory()
-                    else                                           -> GifDecoder.Factory() //GifDrawableDecoder.Factory()
-                }
-                add(decoder)
+                // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
+                add(AnimatedImageDecoder.Factory())
                 val client = HttpClient(OkHttp) {
                     install(UserAgent) {
                         agent = "dankchat/${BuildConfig.VERSION_NAME}"

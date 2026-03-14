@@ -172,7 +172,8 @@ class MainActivity : AppCompatActivity() {
         val windowInsetsController = WindowCompat.getInsetsController(window, it)
         when {
             enabled -> {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N || !isInMultiWindowMode) {
+                // minSdk 30 guarantees multi-window support (API 24+)
+                if (!isInMultiWindowMode) {
                     with(windowInsetsController) {
                         systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
                         hide(Type.systemBars())
