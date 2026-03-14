@@ -34,18 +34,40 @@ import com.flxrs.dankchat.preferences.components.DankBackground
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.compose.koinInject
 
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.AlertDialog
+import androidx.compose.ui.res.stringResource
+import com.flxrs.dankchat.R
+import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
-
+import com.flxrs.dankchat.main.compose.dialogs.ManageChannelsDialog
 import com.flxrs.dankchat.chat.user.compose.UserPopupDialog
+import com.flxrs.dankchat.chat.user.UserPopupComposeViewModel
 import com.flxrs.dankchat.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.DisplayName
 
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.navigation.NavController
+import com.flxrs.dankchat.main.compose.dialogs.MessageOptionsDialog
+import com.flxrs.dankchat.main.compose.dialogs.EmoteInfoDialog
+import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
+import com.flxrs.dankchat.chat.message.compose.MessageOptionsComposeViewModel
+import com.flxrs.dankchat.chat.message.compose.MessageOptionsState
+import com.flxrs.dankchat.chat.emote.compose.EmoteInfoComposeViewModel
+import com.flxrs.dankchat.main.compose.sheets.RepliesSheet
+import com.flxrs.dankchat.main.compose.sheets.MentionSheet
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import org.koin.core.parameter.parametersOf
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
+    navController: NavController,
     isLoggedIn: Boolean,
     onNavigateToSettings: () -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -53,18 +75,14 @@ fun MainScreen(
     onLogin: () -> Unit,
     onRelogin: () -> Unit,
     onLogout: () -> Unit,
-    onManageChannels: () -> Unit,
     onOpenChannel: () -> Unit,
-    onRemoveChannel: () -> Unit,
     onReportChannel: () -> Unit,
-    onBlockChannel: () -> Unit,
+    onOpenUrl: (String) -> Unit,
     onReloadEmotes: () -> Unit,
     onReconnect: () -> Unit,
-    onClearChat: () -> Unit,
     onCaptureImage: () -> Unit,
     onCaptureVideo: () -> Unit,
     onChooseMedia: () -> Unit,
-    onAddChannel: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Scoped ViewModels - each handles one concern
@@ -74,10 +92,122 @@ fun MainScreen(
     val channelPagerViewModel: ChannelPagerViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
+    val appearanceSettingsDataStore: AppearanceSettingsDataStore = koinInject()
+    val mainEventBus: MainEventBus = koinInject()
     val scope = rememberCoroutineScope()
+    val uriHandler = LocalUriHandler.current
 
     var showAddChannelDialog by remember { mutableStateOf(false) }
+    var showManageChannelsDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showRemoveChannelDialog by remember { mutableStateOf(false) }
+    var showBlockChannelDialog by remember { mutableStateOf(false) }
+    var showClearChatDialog by remember { mutableStateOf(false) }
     var userPopupParams by remember { mutableStateOf<UserPopupStateParams?>(null) }
+    var messageOptionsParams by remember { mutableStateOf<MessageOptionsParams?>(null) }
+    var emoteInfoEmotes by remember { mutableStateOf<List<ChatMessageEmote>?>(null) }
+
+    val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(fullScreenSheetState) {
+        chatInputViewModel.setReplying(fullScreenSheetState is FullScreenSheetState.Replies)
+    }
+
+    LaunchedEffect(Unit) {
+        mainEventBus.events.collect { event ->
+            if (event is MainEvent.LogOutRequested) {
+                showLogoutDialog = true
+            }
+        }
+    }
+
+    when (val state = fullScreenSheetState) {
+        is FullScreenSheetState.Closed -> Unit
+        is FullScreenSheetState.Mention -> {
+            MentionSheet(
+                initialisWhisperTab = false,
+                appearanceSettingsDataStore = appearanceSettingsDataStore,
+                onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                    userPopupParams = UserPopupStateParams(
+                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                        targetUserName = UserName(userName),
+                        targetDisplayName = DisplayName(displayName),
+                        channel = channel?.let { UserName(it) },
+                        badges = badges.map { it.badge }
+                    )
+                },
+                onMessageLongClick = { messageId, channel, fullMessage ->
+                    messageOptionsParams = MessageOptionsParams(
+                        messageId = messageId,
+                        channel = channel?.let { UserName(it) },
+                        fullMessage = fullMessage,
+                        canModerate = isLoggedIn,
+                        canReply = isLoggedIn
+                    )
+                },
+                onEmoteClick = { emotes ->
+                    emoteInfoEmotes = emotes
+                }
+            )
+        }
+        is FullScreenSheetState.Whisper -> {
+            MentionSheet(
+                initialisWhisperTab = true,
+                appearanceSettingsDataStore = appearanceSettingsDataStore,
+                onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                    userPopupParams = UserPopupStateParams(
+                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                        targetUserName = UserName(userName),
+                        targetDisplayName = DisplayName(displayName),
+                        channel = channel?.let { UserName(it) },
+                        badges = badges.map { it.badge }
+                    )
+                },
+                onMessageLongClick = { messageId, channel, fullMessage ->
+                    messageOptionsParams = MessageOptionsParams(
+                        messageId = messageId,
+                        channel = channel?.let { UserName(it) },
+                        fullMessage = fullMessage,
+                        canModerate = isLoggedIn,
+                        canReply = isLoggedIn
+                    )
+                },
+                onEmoteClick = { emotes ->
+                    emoteInfoEmotes = emotes
+                }
+            )
+        }
+        is FullScreenSheetState.Replies -> {
+            RepliesSheet(
+                rootMessageId = state.replyMessageId,
+                appearanceSettingsDataStore = appearanceSettingsDataStore,
+                onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                onUserClick = { userId, userName, displayName, channel, badges, _ ->
+                    userPopupParams = UserPopupStateParams(
+                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                        targetUserName = UserName(userName),
+                        targetDisplayName = DisplayName(displayName),
+                        channel = channel?.let { UserName(it) },
+                        badges = badges.map { it.badge }
+                    )
+                },
+                onMessageLongClick = { messageId, channel, fullMessage ->
+                    messageOptionsParams = MessageOptionsParams(
+                        messageId = messageId,
+                        channel = channel?.let { UserName(it) },
+                        fullMessage = fullMessage,
+                        canModerate = isLoggedIn,
+                        canReply = isLoggedIn
+                    )
+                }
+            )
+        }
+    }
+
+    val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
+    val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
 
     if (showAddChannelDialog) {
         AddChannelDialog(
@@ -89,9 +219,165 @@ fun MainScreen(
         )
     }
 
-    if (userPopupParams != null) {
+    if (showManageChannelsDialog) {
+        val channels by channelManagementViewModel.channels.collectAsStateWithLifecycle()
+        ManageChannelsDialog(
+            channels = channels,
+            onRemoveChannel = channelManagementViewModel::removeChannel,
+            onRenameChannel = channelManagementViewModel::renameChannel,
+            onReorder = channelManagementViewModel::reorderChannels,
+            onDismiss = { showManageChannelsDialog = false }
+        )
+    }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text(stringResource(R.string.confirm_logout_title)) },
+            text = { Text(stringResource(R.string.confirm_logout_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onLogout()
+                        showLogoutDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_logout_positive_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
+    if (showRemoveChannelDialog && activeChannel != null) {
+        AlertDialog(
+            onDismissRequest = { showRemoveChannelDialog = false },
+            title = { Text(stringResource(R.string.confirm_channel_removal_title)) },
+            text = { Text(stringResource(R.string.confirm_channel_removal_message_named, activeChannel)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        channelManagementViewModel.removeChannel(activeChannel)
+                        showRemoveChannelDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_channel_removal_positive_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRemoveChannelDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
+    if (showBlockChannelDialog && activeChannel != null) {
+        AlertDialog(
+            onDismissRequest = { showBlockChannelDialog = false },
+            title = { Text(stringResource(R.string.confirm_channel_block_title)) },
+            text = { Text(stringResource(R.string.confirm_channel_block_message_named, activeChannel)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        channelManagementViewModel.blockChannel(activeChannel)
+                        showBlockChannelDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.confirm_user_block_positive_button))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBlockChannelDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
+    if (showClearChatDialog && activeChannel != null) {
+        AlertDialog(
+            onDismissRequest = { showClearChatDialog = false },
+            title = { Text(stringResource(R.string.clear_chat)) },
+            text = { Text(stringResource(R.string.confirm_user_delete_message)) }, // Reuse message deletion text or find better one
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        channelManagementViewModel.clearChat(activeChannel)
+                        showClearChatDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearChatDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
+    messageOptionsParams?.let { params ->
+        val viewModel: MessageOptionsComposeViewModel = koinViewModel(
+            key = params.messageId,
+            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        (state as? MessageOptionsState.Found)?.let { s ->
+            MessageOptionsDialog(
+                messageId = s.messageId,
+                channel = params.channel?.value,
+                fullMessage = params.fullMessage,
+                canModerate = s.canModerate,
+                canReply = s.canReply,
+                hasReplyThread = s.hasReplyThread,
+                onReply = { 
+                    sheetNavigationViewModel.openReplies(s.messageId)
+                },
+                onViewThread = { 
+                    sheetNavigationViewModel.openReplies(s.rootThreadId)
+                },
+                onCopy = { /* TODO: Implement copy to clipboard */ },
+                onMoreActions = { /* TODO: Implement more actions */ },
+                onDelete = viewModel::deleteMessage,
+                onTimeout = viewModel::timeoutUser,
+                onBan = viewModel::banUser,
+                onUnban = viewModel::unbanUser,
+                onDismiss = { messageOptionsParams = null }
+            )
+        }
+    }
+
+    emoteInfoEmotes?.let { emotes ->
+        val viewModel: EmoteInfoComposeViewModel = koinViewModel(
+            key = emotes.joinToString { it.id },
+            parameters = { parametersOf(emotes) }
+        )
+        EmoteInfoDialog(
+            items = viewModel.items,
+            onUseEmote = { chatInputViewModel.insertText("$it ") },
+            onCopyEmote = { /* TODO: copy to clipboard */ },
+            onOpenLink = { onOpenUrl(it) },
+            onDismiss = { emoteInfoEmotes = null }
+        )
+    }
+
+    userPopupParams?.let { params ->
+        val viewModel: UserPopupComposeViewModel = koinViewModel(
+            key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
+            parameters = { parametersOf(params) }
+        )
+        val state by viewModel.userPopupState.collectAsStateWithLifecycle()
         UserPopupDialog(
-            params = userPopupParams!!,
+            state = state,
+            badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) },
+            onBlockUser = viewModel::blockUser,
+            onUnblockUser = viewModel::unblockUser,
             onDismiss = { userPopupParams = null },
             onMention = { name, _ -> 
                 chatInputViewModel.insertText("@$name ") 
@@ -107,7 +393,6 @@ fun MainScreen(
         )
     }
 
-    val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
     val inputState by chatInputViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -122,7 +407,7 @@ fun MainScreen(
     val focusManager = LocalFocusManager.current
     val imeAnimationTarget = WindowInsets.imeAnimationTarget
     val isKeyboardVisible = WindowInsets.isImeVisible &&
-            imeAnimationTarget.getBottom(density) > 0  // Target open = keyboard will be visible
+            imeAnimationTarget.getBottom(density) > 0
 
     LaunchedEffect(isKeyboardVisible) {
         if (!isKeyboardVisible) {
@@ -159,15 +444,21 @@ fun MainScreen(
                 onOpenMentions = { sheetNavigationViewModel.openMentions() },
                 onLogin = onLogin,
                 onRelogin = onRelogin,
-                onLogout = onLogout,
-                onManageChannels = onManageChannels,
+                onLogout = { showLogoutDialog = true },
+                onManageChannels = { showManageChannelsDialog = true },
                 onOpenChannel = onOpenChannel,
-                onRemoveChannel = onRemoveChannel,
+                onRemoveChannel = { showRemoveChannelDialog = true },
                 onReportChannel = onReportChannel,
-                onBlockChannel = onBlockChannel,
-                onReloadEmotes = onReloadEmotes,
-                onReconnect = onReconnect,
-                onClearChat = onClearChat,
+                onBlockChannel = { showBlockChannelDialog = true },
+                onReloadEmotes = {
+                    activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
+                    onReloadEmotes()
+                },
+                onReconnect = {
+                    channelManagementViewModel.reconnect()
+                    onReconnect()
+                },
+                onClearChat = { showClearChatDialog = true },
                 onCaptureImage = onCaptureImage,
                 onCaptureVideo = onCaptureVideo,
                 onChooseMedia = onChooseMedia,
@@ -221,7 +512,6 @@ fun MainScreen(
                             ChatComposable(
                                 channel = channel,
                                 onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                                    // Always open popup for now (long press handled same as click)
                                     userPopupParams = UserPopupStateParams(
                                         targetUserId = userId?.let { UserId(it) } ?: UserId(""),
                                         targetUserName = UserName(userName),
@@ -230,8 +520,18 @@ fun MainScreen(
                                         badges = badges.map { it.badge }
                                     )
                                 },
-                                onMessageLongClick = onMessageLongClick,
-                                onEmoteClick = onEmoteClick,
+                                onMessageLongClick = { messageId, channel, fullMessage ->
+                                    messageOptionsParams = MessageOptionsParams(
+                                        messageId = messageId,
+                                        channel = channel?.let { UserName(it) },
+                                        fullMessage = fullMessage,
+                                        canModerate = isLoggedIn,
+                                        canReply = isLoggedIn
+                                    )
+                                },
+                                onEmoteClick = { emotes ->
+                                    emoteInfoEmotes = emotes
+                                },
                                 onReplyClick = { replyMessageId ->
                                     sheetNavigationViewModel.openReplies(replyMessageId)
                                 }
@@ -242,6 +542,8 @@ fun MainScreen(
                     // Input - State from ChatInputViewModel
                     ChatInputLayout(
                         textFieldState = chatInputViewModel.textFieldState,
+                        inputState = inputState.inputState,
+                        enabled = inputState.enabled,
                         canSend = inputState.canSend,
                         onSend = chatInputViewModel::sendMessage,
                         onEmoteClick = { sheetNavigationViewModel.openEmoteSheet() },
@@ -252,7 +554,7 @@ fun MainScreen(
                 }
             }
 
-            // Suggestion dropdown floats above input field (only when keyboard visible)
+            // Suggestion dropdown floats above input field
             if (isKeyboardVisible) {
                 SuggestionDropdown(
                     suggestions = inputState.suggestions,

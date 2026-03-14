@@ -13,11 +13,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
+import com.flxrs.dankchat.data.repo.IgnoresRepository
+import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+
 @KoinViewModel
 class ChannelManagementViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val chatRepository: ChatRepository,
+    private val ignoresRepository: IgnoresRepository,
+    private val channelRepository: ChannelRepository,
 ) : ViewModel() {
 
     val channels: StateFlow<List<ChannelWithRename>> = 
@@ -69,5 +74,33 @@ class ChannelManagementViewModel(
 
     fun reloadAllChannels() {
         channelDataCoordinator.reloadAllChannels()
+    }
+
+    fun reloadEmotes(channel: UserName) {
+        channelDataCoordinator.loadChannelData(channel)
+    }
+
+    fun reconnect() {
+        chatRepository.reconnect()
+    }
+
+    fun clearChat(channel: UserName) {
+        chatRepository.clear(channel)
+    }
+
+    fun blockChannel(channel: UserName) = viewModelScope.launch {
+        runCatching {
+            if (!preferenceStore.isLoggedIn) {
+                return@launch
+            }
+
+            val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
+            ignoresRepository.addUserBlock(channelId, channel)
+            removeChannel(channel)
+        }
+    }
+
+    fun reorderChannels(channels: List<ChannelWithRename>) {
+        preferenceStore.channels = channels.map { it.channel }
     }
 }

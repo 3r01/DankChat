@@ -121,14 +121,30 @@ fun TextWithMeasuredInlineContent(
                         },
                         onTap = { offset ->
                             textLayoutResult?.let { layoutResult ->
-                                val position = layoutResult.getOffsetForPosition(offset)
-                                onTextClick?.invoke(position)
+                                // Precision check: make sure the click is actually on text
+                                val isYWithinBounds = offset.y >= 0 && offset.y <= layoutResult.size.height
+                                if (isYWithinBounds) {
+                                    val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                    val isXWithinBounds = offset.x >= layoutResult.getLineLeft(line) && offset.x <= layoutResult.getLineRight(line)
+                                    if (isXWithinBounds) {
+                                        val position = layoutResult.getOffsetForPosition(offset)
+                                        onTextClick?.invoke(position)
+                                    }
+                                }
                             }
                         },
                         onLongPress = { offset ->
                             textLayoutResult?.let { layoutResult ->
-                                val position = layoutResult.getOffsetForPosition(offset)
-                                onTextLongClick?.invoke(position)
+                                // Precision check: make sure the click is actually on text
+                                val isYWithinBounds = offset.y >= 0 && offset.y <= layoutResult.size.height
+                                if (isYWithinBounds) {
+                                    val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                    val isXWithinBounds = offset.x >= layoutResult.getLineLeft(line) && offset.x <= layoutResult.getLineRight(line)
+                                    if (isXWithinBounds) {
+                                        val position = layoutResult.getOffsetForPosition(offset)
+                                        onTextLongClick?.invoke(position)
+                                    }
+                                }
                             }
                         }
                     )

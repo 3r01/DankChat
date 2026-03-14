@@ -460,6 +460,7 @@ class MainFragment : Fragment() {
             collectFlow(events) {
                 when (it) {
                     is MainEvent.Error -> handleErrorEvent(it)
+                    MainEvent.LogOutRequested -> showLogoutConfirmationDialog()
                 }
             }
             collectFlow(channelMentionCount, ::updateChannelMentionBadges)

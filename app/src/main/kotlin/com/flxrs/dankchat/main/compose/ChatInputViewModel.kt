@@ -10,12 +10,17 @@ import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.twitch.chat.ConnectionState
+import com.flxrs.dankchat.main.InputState
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -25,9 +30,13 @@ import org.koin.android.annotation.KoinViewModel
 class ChatInputViewModel(
     private val chatRepository: ChatRepository,
     private val suggestionProvider: SuggestionProvider,
+    private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
 
     val textFieldState = TextFieldState()
+
+    private val _isReplying = MutableStateFlow(false)
+    val isReplying: StateFlow<Boolean> = _isReplying
 
     // Create flow from TextFieldState
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
@@ -48,13 +57,34 @@ class ChatInputViewModel(
     val uiState: StateFlow<ChatInputUiState> = combine(
         textFlow,
         suggestions,
-        chatRepository.activeChannel
-    ) { text, suggestions, activeChannel ->
+        chatRepository.activeChannel,
+        chatRepository.activeChannel.flatMapLatest { channel ->
+            if (channel == null) flowOf(ConnectionState.DISCONNECTED)
+            else chatRepository.getConnectionState(channel)
+        },
+        combine(preferenceStore.isLoggedInFlow, isReplying) { loggedIn, replying -> loggedIn to replying }
+    ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, isReplying) ->
+        val inputState = when (connectionState) {
+            ConnectionState.CONNECTED -> when {
+                isReplying -> InputState.Replying
+                else -> InputState.Default
+            }
+            ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
+            ConnectionState.DISCONNECTED -> InputState.Disconnected
+        }
+
+        val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn
+        val enabled = isLoggedIn && connectionState == ConnectionState.CONNECTED
+
         ChatInputUiState(
             text = text,
-            canSend = text.isNotBlank() && activeChannel != null,
+            canSend = canSend,
+            enabled = enabled,
             suggestions = suggestions,
-            activeChannel = activeChannel
+            activeChannel = activeChannel,
+            connectionState = connectionState,
+            isLoggedIn = isLoggedIn,
+            inputState = inputState
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
 
@@ -67,6 +97,10 @@ class ChatInputViewModel(
                 textFieldState.clearText()
             }
         }
+    }
+
+    fun setReplying(replying: Boolean) {
+        _isReplying.value = replying
     }
 
     fun insertText(text: String) {
@@ -119,6 +153,10 @@ class ChatInputViewModel(
 data class ChatInputUiState(
     val text: String = "",
     val canSend: Boolean = false,
+    val enabled: Boolean = false,
     val suggestions: List<Suggestion> = emptyList(),
-    val activeChannel: UserName? = null
+    val activeChannel: UserName? = null,
+    val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
+    val isLoggedIn: Boolean = false,
+    val inputState: InputState = InputState.Disconnected
 )

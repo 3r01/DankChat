@@ -87,6 +87,18 @@ class DankChatPreferenceStore(
 
     val secretDankerModeClicks: Int = SECRET_DANKER_MODE_CLICKS
 
+    val isLoggedInFlow: Flow<Boolean> = callbackFlow {
+        send(isLoggedIn)
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+            if (key == LOGGED_IN_KEY) {
+                trySend(isLoggedIn)
+            }
+        }
+
+        dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     val currentUserAndDisplayFlow: Flow<Pair<UserName?, DisplayName?>> = callbackFlow {
         send(userName to displayName)
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->

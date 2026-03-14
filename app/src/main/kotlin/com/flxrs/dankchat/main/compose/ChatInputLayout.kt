@@ -15,22 +15,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.main.InputState
 import com.flxrs.dankchat.utils.compose.avoidRoundedCorners
 
 @Composable
 fun ChatInputLayout(
     textFieldState: TextFieldState,
+    inputState: InputState,
+    enabled: Boolean,
     canSend: Boolean,
     onSend: () -> Unit,
     onEmoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val hint = when (inputState) {
+        InputState.Default -> stringResource(R.string.hint_connected)
+        InputState.Replying -> stringResource(R.string.hint_replying)
+        InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
+        InputState.Disconnected -> stringResource(R.string.hint_disconnected)
+    }
+    
     // Input field with TextFieldState
     OutlinedTextField(
+        enabled = enabled,
         shape = MaterialTheme.shapes.extraLarge,
         state = textFieldState,
         leadingIcon = {
-            IconButton(onClick = onEmoteClick) {
+            IconButton(
+                onClick = onEmoteClick,
+                enabled = enabled
+            ) {
                 Icon(
                     imageVector = Icons.Default.EmojiEmotions,
                     contentDescription = stringResource(R.string.emote_menu_hint)
@@ -52,7 +66,7 @@ fun ChatInputLayout(
             .fillMaxWidth()
             .avoidRoundedCorners(fallback = PaddingValues()),
         label = {
-            Text(stringResource(R.string.send_hint))
+            Text(hint)
         },
         lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine(
             minHeightInLines = 1,

@@ -14,14 +14,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Chat
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Launch
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,8 +30,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.PlainTooltip
+import androidx.compose.material3.RichTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,20 +59,21 @@ import com.flxrs.dankchat.data.twitch.badge.Badge
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
+import com.flxrs.dankchat.chat.compose.BadgeUi
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserPopupDialog(
-    params: UserPopupStateParams,
+    state: UserPopupState,
+    badges: List<BadgeUi>,
+    onBlockUser: () -> Unit,
+    onUnblockUser: () -> Unit,
     onDismiss: () -> Unit,
     onMention: (String, String) -> Unit,
     onWhisper: (String) -> Unit,
     onOpenChannel: (String) -> Unit,
     onReport: (String) -> Unit,
 ) {
-    val viewModel: UserPopupComposeViewModel = koinViewModel(
-        parameters = { parametersOf(params) }
-    )
-    val state by viewModel.userPopupState.collectAsStateWithLifecycle()
     var showBlockConfirmation by remember { mutableStateOf(false) }
 
     ModalBottomSheet(
@@ -138,68 +145,73 @@ fun UserPopupDialog(
                         }
                     }
 
-                    if (params.badges.isNotEmpty()) {
+                    if (badges.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            items(params.badges) { badge ->
-                                AsyncImage(
-                                    model = badge.url,
-                                    contentDescription = badge.title,
-                                    modifier = Modifier.size(32.dp)
-                                )
+                            items(badges) { badge ->
+                                val title = badge.badge.title
+                                if (title != null) {
+                                    TooltipBox(
+                                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                        tooltip = {
+                                            PlainTooltip {
+                                                Text(title)
+                                            }
+                                        },
+                                        state = rememberTooltipState(),
+                                    ) {
+                                        AsyncImage(
+                                            model = badge.url,
+                                            contentDescription = title,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                } else {
+                                    AsyncImage(
+                                        model = badge.url,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
                             }
                         }
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        ActionIconButton(
-                            icon = Icons.Default.Chat,
-                            label = stringResource(R.string.user_popup_mention),
-                            onClick = { 
+                        UserPopupButton(
+                            icon = Icons.Default.AlternateEmail,
+                            text = stringResource(R.string.user_popup_mention),
+                            onClick = {
                                 onMention(s.userName.value, s.displayName.value)
                                 onDismiss()
                             }
                         )
-                        ActionIconButton(
-                            icon = Icons.Default.Message,
-                            label = stringResource(R.string.user_popup_whisper),
-                            onClick = { 
+                        UserPopupButton(
+                            icon = Icons.AutoMirrored.Filled.Chat,
+                            text = stringResource(R.string.user_popup_whisper),
+                            onClick = {
                                 onWhisper(s.userName.value)
                                 onDismiss()
                             }
                         )
-                        ActionIconButton(
+                        UserPopupButton(
                             icon = Icons.Default.Block,
-                            label = if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block),
+                            text = if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block),
                             onClick = {
                                 if (s.isBlocked) {
-                                    viewModel.unblockUser()
+                                    onUnblockUser()
                                 } else {
                                     showBlockConfirmation = true
                                 }
                             }
                         )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        ActionIconButton(
-                            icon = Icons.Default.Launch,
-                            label = stringResource(R.string.open_channel),
-                            onClick = { onOpenChannel(s.userName.value) }
-                        )
-                        ActionIconButton(
-                            icon = Icons.Default.Flag,
-                            label = stringResource(R.string.user_popup_report),
+                        UserPopupButton(
+                            icon = Icons.Default.Report,
+                            text = stringResource(R.string.user_popup_report),
                             onClick = { onReport(s.userName.value) }
                         )
                     }
@@ -216,7 +228,7 @@ fun UserPopupDialog(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.blockUser()
+                        onBlockUser()
                         showBlockConfirmation = false
                     }
                 ) {
@@ -233,16 +245,22 @@ fun UserPopupDialog(
 }
 
 @Composable
-private fun ActionIconButton(
+private fun UserPopupButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
+    text: String,
     onClick: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable(onClick = onClick).padding(8.dp)
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Icon(imageVector = icon, contentDescription = null)
-        Text(text = label, style = MaterialTheme.typography.labelSmall)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(imageVector = icon, contentDescription = null)
+            Spacer(modifier = Modifier.width(32.dp))
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }

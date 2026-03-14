@@ -15,13 +15,15 @@ fun ChannelTab(
     val tabColor = when {
         tab.isSelected -> MaterialTheme.colorScheme.primary
         tab.mentionCount > 0 -> MaterialTheme.colorScheme.error
-        tab.hasUnread -> MaterialTheme.colorScheme.onSurface
-        else -> MaterialTheme.colorScheme.onSurfaceVariant // TODO maybe layer with alpha?
+        tab.hasUnread -> MaterialTheme.colorScheme.secondary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
     Tab(
         selected = tab.isSelected,
         onClick = onClick,
+        selectedContentColor = tabColor,
+        unselectedContentColor = tabColor,
         text = {
             BadgedBox(
                 badge = {

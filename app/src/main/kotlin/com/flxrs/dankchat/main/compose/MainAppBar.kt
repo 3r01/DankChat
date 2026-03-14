@@ -1,6 +1,15 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
@@ -21,6 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.flxrs.dankchat.R
+
+private sealed interface AppBarMenu {
+    data object Main : AppBarMenu
+    data object Account : AppBarMenu
+    data object Channel : AppBarMenu
+    data object Upload : AppBarMenu
+    data object More : AppBarMenu
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,11 +63,7 @@ fun MainAppBar(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showMenu by remember { mutableStateOf(false) }
-    var showChannelMenu by remember { mutableStateOf(false) }
-    var showAccountMenu by remember { mutableStateOf(false) }
-    var showUploadMenu by remember { mutableStateOf(false) }
-    var showMoreMenu by remember { mutableStateOf(false) }
+    var currentMenu by remember { mutableStateOf<AppBarMenu?>(null) }
 
     TopAppBar(
         title = { Text("DankChat") },
@@ -76,7 +89,7 @@ fun MainAppBar(
             }
 
             // Overflow menu
-            IconButton(onClick = { showMenu = true }) {
+            IconButton(onClick = { currentMenu = AppBarMenu.Main }) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = stringResource(R.string.more)
@@ -84,192 +97,199 @@ fun MainAppBar(
             }
 
             DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
+                expanded = currentMenu != null,
+                onDismissRequest = { currentMenu = null }
             ) {
-                // Login/Account section
-                if (!isLoggedIn) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.login)) },
-                        onClick = {
-                            onLogin()
-                            showMenu = false
-                        }
-                    )
-                } else {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.account)) },
-                        onClick = {
-                            showAccountMenu = true
-                        }
-                    )
+                AnimatedContent(
+                    targetState = currentMenu,
+                    transitionSpec = {
+                        if (targetState != AppBarMenu.Main) {
+                            (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+                        } else {
+                            (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
+                        }.using(SizeTransform(clip = false))
+                    },
+                    label = "MenuTransition"
+                ) { menu ->
+                    Column {
+                        when (menu) {
+                            AppBarMenu.Main -> {
+                                if (!isLoggedIn) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.login)) },
+                                        onClick = {
+                                            onLogin()
+                                            currentMenu = null
+                                        }
+                                    )
+                                } else {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.account)) },
+                                        onClick = { currentMenu = AppBarMenu.Account }
+                                    )
+                                }
 
-                    DropdownMenu(
-                        expanded = showAccountMenu,
-                        onDismissRequest = { showAccountMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.relogin)) },
-                            onClick = {
-                                onRelogin()
-                                showAccountMenu = false
-                                showMenu = false
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.manage_channels)) },
+                                    onClick = {
+                                        onManageChannels()
+                                        currentMenu = null
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.channel)) },
+                                    onClick = { currentMenu = AppBarMenu.Channel }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.upload_media)) },
+                                    onClick = { currentMenu = AppBarMenu.Upload }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.more)) },
+                                    onClick = { currentMenu = AppBarMenu.More }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.settings)) },
+                                    onClick = {
+                                        onOpenSettings()
+                                        currentMenu = null
+                                    }
+                                )
                             }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.logout)) },
-                            onClick = {
-                                onLogout()
-                                showAccountMenu = false
-                                showMenu = false
+
+                            AppBarMenu.Account -> {
+                                SubMenuHeader(title = stringResource(R.string.account), onBack = { currentMenu = AppBarMenu.Main })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.relogin)) },
+                                    onClick = {
+                                        onRelogin()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.logout)) },
+                                    onClick = {
+                                        onLogout()
+                                        currentMenu = null
+                                    }
+                                )
                             }
-                        )
-                    }
-                }
 
-                // Manage channels
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.manage_channels)) },
-                    onClick = {
-                        onManageChannels()
-                        showMenu = false
-                    }
-                )
-
-                // Channel submenu
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.channel)) },
-                    onClick = {
-                        showChannelMenu = true
-                    }
-                )
-
-                DropdownMenu(
-                    expanded = showChannelMenu,
-                    onDismissRequest = { showChannelMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.open_channel)) },
-                        onClick = {
-                            onOpenChannel()
-                            showChannelMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.remove_channel)) },
-                        onClick = {
-                            onRemoveChannel()
-                            showChannelMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.report_channel)) },
-                        onClick = {
-                            onReportChannel()
-                            showChannelMenu = false
-                            showMenu = false
-                        }
-                    )
-                    if (isLoggedIn) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.block_channel)) },
-                            onClick = {
-                                onBlockChannel()
-                                showChannelMenu = false
-                                showMenu = false
+                            AppBarMenu.Channel -> {
+                                SubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.open_channel)) },
+                                    onClick = {
+                                        onOpenChannel()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.remove_channel)) },
+                                    onClick = {
+                                        onRemoveChannel()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.report_channel)) },
+                                    onClick = {
+                                        onReportChannel()
+                                        currentMenu = null
+                                    }
+                                )
+                                if (isLoggedIn) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.block_channel)) },
+                                        onClick = {
+                                            onBlockChannel()
+                                            currentMenu = null
+                                        }
+                                    )
+                                }
                             }
-                        )
+
+                            AppBarMenu.Upload -> {
+                                SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.take_picture)) },
+                                    onClick = {
+                                        onCaptureImage()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.record_video)) },
+                                    onClick = {
+                                        onCaptureVideo()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.choose_media)) },
+                                    onClick = {
+                                        onChooseMedia()
+                                        currentMenu = null
+                                    }
+                                )
+                            }
+
+                            AppBarMenu.More -> {
+                                SubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.reload_emotes)) },
+                                    onClick = {
+                                        onReloadEmotes()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.reconnect)) },
+                                    onClick = {
+                                        onReconnect()
+                                        currentMenu = null
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.clear_chat)) },
+                                    onClick = {
+                                        onClearChat()
+                                        currentMenu = null
+                                    }
+                                )
+                            }
+                            
+                            null -> {}
+                        }
                     }
                 }
-
-                // Upload media submenu
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.upload_media)) },
-                    onClick = {
-                        showUploadMenu = true
-                    }
-                )
-
-                DropdownMenu(
-                    expanded = showUploadMenu,
-                    onDismissRequest = { showUploadMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.take_picture)) },
-                        onClick = {
-                            onCaptureImage()
-                            showUploadMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.record_video)) },
-                        onClick = {
-                            onCaptureVideo()
-                            showUploadMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.choose_media)) },
-                        onClick = {
-                            onChooseMedia()
-                            showUploadMenu = false
-                            showMenu = false
-                        }
-                    )
-                }
-
-                // More submenu
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.more)) },
-                    onClick = {
-                        showMoreMenu = true
-                    }
-                )
-
-                DropdownMenu(
-                    expanded = showMoreMenu,
-                    onDismissRequest = { showMoreMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.reload_emotes)) },
-                        onClick = {
-                            onReloadEmotes()
-                            showMoreMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.reconnect)) },
-                        onClick = {
-                            onReconnect()
-                            showMoreMenu = false
-                            showMenu = false
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.clear_chat)) },
-                        onClick = {
-                            onClearChat()
-                            showMoreMenu = false
-                            showMenu = false
-                        }
-                    )
-                }
-
-                // Settings
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.settings)) },
-                    onClick = {
-                        onOpenSettings()
-                        showMenu = false
-                    }
-                )
             }
         },
         modifier = modifier
+    )
+}
+
+@Composable
+private fun SubMenuHeader(title: String, onBack: () -> Unit) {
+    DropdownMenuItem(
+        text = { 
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary
+            ) 
+        },
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        onClick = onBack
     )
 }

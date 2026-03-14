@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.koin.ksp.generated.module
+import org.koin.ksp.generated.*
 
 class DankChatApplication : Application(), SingletonImageLoader.Factory {
 
