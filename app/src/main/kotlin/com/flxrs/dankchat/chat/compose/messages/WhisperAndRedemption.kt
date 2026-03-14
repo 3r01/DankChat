@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -65,6 +66,7 @@ fun WhisperMessageComposable(
             .background(backgroundColor)
             .indication(interactionSource, ripple())
             .padding(horizontal = 8.dp, vertical = 2.dp)
+            .alpha(message.textAlpha)
     ) {
         WhisperMessageText(
             message = message,
@@ -120,11 +122,6 @@ private fun WhisperMessageText(
                 append(" ") // Space between badges
             }
 
-            // Extra space after badges if any badges exist (before sender name)
-            if (message.badges.isNotEmpty()) {
-                // Already added spaces, no need for extra
-            }
-
             // Sender username with click annotation
             withStyle(
                 SpanStyle(
@@ -153,7 +150,7 @@ private fun WhisperMessageText(
             append(": ")
 
             // Message text with emotes
-            withStyle(SpanStyle(color = defaultTextColor.copy(alpha = message.textAlpha))) {
+            withStyle(SpanStyle(color = defaultTextColor)) {
                 var currentPos = 0
                 message.emotes.sortedBy { it.position.first }.forEach { emote ->
                     // Text before emote
@@ -285,6 +282,7 @@ fun PointRedemptionMessageComposable(
             .wrapContentHeight()
             .background(backgroundColor)
             .padding(horizontal = 8.dp, vertical = 2.dp)
+            .alpha(message.textAlpha)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

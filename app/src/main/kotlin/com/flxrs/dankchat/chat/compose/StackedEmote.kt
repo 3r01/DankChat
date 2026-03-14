@@ -42,6 +42,7 @@ fun StackedEmote(
     emoteCoordinator: EmoteAnimationCoordinator,
     modifier: Modifier = Modifier,
     animateGifs: Boolean = true,
+    alpha: Float = 1f,
     onClick: () -> Unit = {},
 ) {
     val context = LocalPlatformContext.current
@@ -58,6 +59,7 @@ fun StackedEmote(
             scaleFactor = scaleFactor,
             emoteCoordinator = emoteCoordinator,
             animateGifs = animateGifs,
+            alpha = alpha,
             modifier = modifier,
             onClick = onClick
         )
@@ -120,6 +122,7 @@ fun StackedEmote(
         Image(
             painter = painter,
             contentDescription = null,
+            alpha = alpha,
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
                 .clickable { onClick() }
@@ -137,6 +140,7 @@ private fun SingleEmoteDrawable(
     scaleFactor: Double,
     emoteCoordinator: EmoteAnimationCoordinator,
     animateGifs: Boolean,
+    alpha: Float = 1f,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
@@ -186,6 +190,7 @@ private fun SingleEmoteDrawable(
         Image(
             painter = painter,
             contentDescription = null,
+            alpha = alpha,
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
                 .clickable { onClick() }

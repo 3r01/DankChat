@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Reply
+import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -87,7 +88,7 @@ fun PrivMessageComposable(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Reply,
+                    imageVector = Icons.AutoMirrored.Filled.Reply,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = Color.Gray
@@ -194,7 +195,7 @@ private fun PrivMessageText(
             val textColor = if (message.isAction) {
                 nameColor
             } else {
-                defaultTextColor.copy(alpha = message.textAlpha)
+                defaultTextColor
             }
 
             withStyle(SpanStyle(color = textColor)) {
@@ -264,7 +265,9 @@ private fun PrivMessageText(
     TextWithMeasuredInlineContent(
         text = annotatedString,
         inlineContentProviders = inlineContentProviders,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(message.textAlpha),
         interactionSource = interactionSource,
         onTextClick = { offset ->
             // Handle username clicks

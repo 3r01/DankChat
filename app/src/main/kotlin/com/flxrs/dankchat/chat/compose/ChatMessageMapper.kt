@@ -70,7 +70,7 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
     ): ChatMessageUiState {
         val textAlpha = when (importance) {
-            ChatImportance.SYSTEM  -> 0.75f
+            ChatImportance.SYSTEM  -> 1f
             ChatImportance.DELETED -> 0.5f
             ChatImportance.REGULAR -> 1f
         }

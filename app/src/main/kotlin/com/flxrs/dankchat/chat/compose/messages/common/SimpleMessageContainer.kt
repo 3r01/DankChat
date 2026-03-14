@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -37,12 +38,13 @@ fun SimpleMessageContainer(
             .wrapContentHeight()
             .background(bgColor)
             .padding(vertical = 2.dp)
+            .alpha(textAlpha)
     ) {
         ChatMessageText(
             text = message,
             timestamp = timestamp,
             fontSize = fontSize,
-            textColor = textColor.copy(alpha = textAlpha),
+            textColor = textColor,
         )
     }
 }
