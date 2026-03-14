@@ -4,18 +4,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -26,6 +32,7 @@ import com.flxrs.dankchat.chat.compose.messages.PrivMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.SystemMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.WhisperMessageComposable
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
 /**
  * Main composable for rendering chat messages in a scrollable list.
@@ -39,65 +46,103 @@ import com.flxrs.dankchat.chat.compose.messages.WhisperMessageComposable
 @Composable
 fun ChatScreen(
     messages: List<ChatMessageUiState>,
-    fontSize: Float = 14f,
+    fontSize: Float,
+    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
+    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     modifier: Modifier = Modifier,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<Any>, isLongPress: Boolean) -> Unit = { _, _, _, _, _, _ -> },
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit = { _, _, _ -> },
-    onEmoteClick: (emotes: List<Any>) -> Unit = {},
+    showChannelPrefix: Boolean = false,
+    showLineSeparator: Boolean = false,
+    animateGifs: Boolean = true,
+    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
     onReplyClick: (rootMessageId: String) -> Unit = {},
 ) {
     val listState = rememberLazyListState()
-    
-    // Track if user is at bottom
+    val scope = rememberCoroutineScope()
+
+    // Track if we should auto-scroll to bottom (sticky state)
+    // Use rememberSaveable to survive configuration changes (like theme switches)
+    var shouldAutoScroll by rememberSaveable { mutableStateOf(true) }
+
+    // Detect if we're showing the newest messages
     val isAtBottom by remember {
         derivedStateOf {
-            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-            lastVisibleItem?.index == listState.layoutInfo.totalItemsCount - 1
+            val firstVisibleItem = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+            firstVisibleItem?.index == 0
         }
     }
 
-    // Auto-scroll to bottom when new messages arrive and user is already at bottom
-    LaunchedEffect(messages.size) {
-        if (isAtBottom && messages.isNotEmpty()) {
-            listState.scrollToItem(messages.size - 1)
+    // Disable auto-scroll when user scrolls forward (up in the chat)
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (listState.lastScrolledForward && shouldAutoScroll) {
+            shouldAutoScroll = false
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        LazyColumn(
-            state = listState,
-            reverseLayout = true,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(
-                items = messages.asReversed(),
-                key = { message -> message.id }
-            ) { message ->
-                ChatMessageItem(
-                    message = message,
-                    fontSize = fontSize,
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                    onReplyClick = onReplyClick,
-                )
-            }
+    // Auto-scroll when new messages arrive or when re-enabled
+    LaunchedEffect(shouldAutoScroll, messages) {
+        if (shouldAutoScroll) {
+            listState.scrollToItem(0)
         }
+    }
 
-        // Scroll to bottom FAB
-        if (!isAtBottom && messages.isNotEmpty()) {
-            FloatingActionButton(
-                onClick = {
-                    // TODO: Smooth scroll
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp)
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                state = listState,
+                reverseLayout = true,
+                modifier = Modifier.fillMaxSize()
             ) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Scroll to bottom"
-                )
+                items(
+                    items = messages.asReversed(),
+                    key = { message -> message.id },
+                    contentType = { message ->
+                        when (message) {
+                            is ChatMessageUiState.SystemMessageUi          -> "system"
+                            is ChatMessageUiState.NoticeMessageUi          -> "notice"
+                            is ChatMessageUiState.UserNoticeMessageUi      -> "usernotice"
+                            is ChatMessageUiState.ModerationMessageUi      -> "moderation"
+                            is ChatMessageUiState.PrivMessageUi            -> "privmsg"
+                            is ChatMessageUiState.WhisperMessageUi         -> "whisper"
+                            is ChatMessageUiState.PointRedemptionMessageUi -> "redemption"
+                        }
+                    }
+                ) { message ->
+                    ChatMessageItem(
+                        message = message,
+                        fontSize = fontSize,
+                        showChannelPrefix = showChannelPrefix,
+                        animateGifs = animateGifs,
+                        onUserClick = onUserClick,
+                        onMessageLongClick = onMessageLongClick,
+                        onEmoteClick = onEmoteClick,
+                        onReplyClick = onReplyClick,
+                    )
+
+                    // Add divider after each message if enabled
+                    if (showLineSeparator) {
+                        HorizontalDivider()
+                    }
+                }
+            }
+
+            // Scroll to bottom FAB (show when not at bottom)
+            if (!isAtBottom && messages.isNotEmpty()) {
+                FloatingActionButton(
+                    onClick = {
+                        shouldAutoScroll = true
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Scroll to bottom"
+                    )
+                }
             }
         }
     }
@@ -110,51 +155,61 @@ fun ChatScreen(
 private fun ChatMessageItem(
     message: ChatMessageUiState,
     fontSize: Float,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<Any>, isLongPress: Boolean) -> Unit,
+    showChannelPrefix: Boolean,
+    animateGifs: Boolean,
+    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<Any>) -> Unit,
+    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
     onReplyClick: (rootMessageId: String) -> Unit,
 ) {
     when (message) {
-        is ChatMessageUiState.SystemMessageUi -> SystemMessageComposable(
+        is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
             message = message,
             fontSize = fontSize
         )
-        is ChatMessageUiState.NoticeMessageUi -> NoticeMessageComposable(
+
+        is ChatMessageUiState.NoticeMessageUi          -> NoticeMessageComposable(
             message = message,
             fontSize = fontSize
         )
-        is ChatMessageUiState.UserNoticeMessageUi -> UserNoticeMessageComposable(
+
+        is ChatMessageUiState.UserNoticeMessageUi      -> UserNoticeMessageComposable(
             message = message,
             fontSize = fontSize
         )
-        is ChatMessageUiState.ModerationMessageUi -> ModerationMessageComposable(
+
+        is ChatMessageUiState.ModerationMessageUi      -> ModerationMessageComposable(
             message = message,
             fontSize = fontSize
         )
-        is ChatMessageUiState.PrivMessageUi -> PrivMessageComposable(
+
+        is ChatMessageUiState.PrivMessageUi            -> PrivMessageComposable(
             message = message,
             fontSize = fontSize,
-            onUserClick = { userId, userName, displayName, channel, isLongPress ->
-                onUserClick(userId, userName, displayName, channel, emptyList(), isLongPress)
-            },
+            showChannelPrefix = showChannelPrefix,
+            animateGifs = animateGifs,
+            onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
             onEmoteClick = onEmoteClick,
             onReplyClick = onReplyClick
         )
+
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
             message = message,
             fontSize = fontSize
         )
-        is ChatMessageUiState.WhisperMessageUi -> WhisperMessageComposable(
+
+        is ChatMessageUiState.WhisperMessageUi         -> WhisperMessageComposable(
             message = message,
             fontSize = fontSize,
-            onUserClick = { userId, userName, displayName, isLongPress ->
-                onUserClick(userId, userName, displayName, null, emptyList(), isLongPress)
+            animateGifs = animateGifs,
+            onUserClick = { userId, userName, displayName, badges, isLongPress ->
+                onUserClick(userId, userName, displayName, null, badges, isLongPress)
             },
             onMessageLongClick = { messageId, fullMessage ->
                 onMessageLongClick(messageId, null, fullMessage)
-            }
+            },
+            onEmoteClick = onEmoteClick
         )
     }
 }

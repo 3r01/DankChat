@@ -8,8 +8,11 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.expressiveLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -23,6 +26,22 @@ private val TrueDarkColorScheme = darkColorScheme(
     onBackground = Color.White,
 )
 
+/**
+ * Additional color values needed for dynamic text color selection
+ * based on background brightness.
+ */
+data class AdaptiveColors(
+    val onSurfaceLight: Color,
+    val onSurfaceDark: Color
+)
+
+val LocalAdaptiveColors = staticCompositionLocalOf {
+    AdaptiveColors(
+        onSurfaceLight = lightColorScheme().onSurface,
+        onSurfaceDark = darkColorScheme().onSurface,
+    )
+}
+
 @Composable
 fun DankChatTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -34,22 +53,36 @@ fun DankChatTheme(
 
     // Dynamic color is available on Android 12+
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val colors = when {
-        dynamicColor && darkTheme && trueDarkTheme -> dynamicDarkColorScheme(LocalContext.current).copy(
+
+    val lightColorScheme = when {
+        dynamicColor -> dynamicLightColorScheme(LocalContext.current)
+        else         -> expressiveLightColorScheme()
+    }
+    val darkColorScheme = when {
+        dynamicColor && trueDarkTheme -> dynamicDarkColorScheme(LocalContext.current).copy(
             surface = TrueDarkColorScheme.surface,
             background = TrueDarkColorScheme.background,
         )
 
-        dynamicColor && darkTheme                  -> dynamicDarkColorScheme(LocalContext.current)
-        dynamicColor                               -> dynamicLightColorScheme(LocalContext.current)
-        darkTheme && trueDarkTheme                 -> TrueDarkColorScheme
-        darkTheme                                  -> darkColorScheme()
-        else                                       -> expressiveLightColorScheme()
+        dynamicColor                  -> dynamicDarkColorScheme(LocalContext.current)
+        else                          -> darkColorScheme()
+    }
+
+    val adaptiveColors = AdaptiveColors(
+        onSurfaceLight = lightColorScheme.onSurface,
+        onSurfaceDark = darkColorScheme.onSurface,
+    )
+    val colors = when {
+        darkTheme -> darkColorScheme
+        else      -> lightColorScheme
     }
 
     MaterialExpressiveTheme(
         motionScheme = MotionScheme.expressive(),
         colorScheme = colors,
-        content = content,
-    )
+    ) {
+        CompositionLocalProvider(LocalAdaptiveColors provides adaptiveColors) {
+            content()
+        }
+    }
 }

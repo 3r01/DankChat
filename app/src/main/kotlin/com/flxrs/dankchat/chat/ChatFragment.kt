@@ -1,10 +1,6 @@
 package com.flxrs.dankchat.chat
 
-import android.graphics.drawable.Animatable
-import android.graphics.drawable.LayerDrawable
-import android.os.Build
 import android.os.Bundle
-import android.text.style.ImageSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,12 +12,12 @@ import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
@@ -37,10 +33,8 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.theme.DankChatTheme
 import com.flxrs.dankchat.utils.extensions.collectFlow
-import com.flxrs.dankchat.utils.extensions.forEachLayer
-import com.flxrs.dankchat.utils.extensions.forEachSpan
-import com.flxrs.dankchat.utils.extensions.forEachViewHolder
 import com.flxrs.dankchat.utils.insets.TranslateDeferringInsetsAnimationCallback
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -62,7 +56,7 @@ open class ChatFragment : Fragment() {
 
     // TODO move to viewmodel?
     protected open var isAtBottom = true
-    
+
     private var useCompose = true // Feature flag for migration
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -72,18 +66,22 @@ open class ChatFragment : Fragment() {
                 setContent {
                     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
                     val appearanceSettings = appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current()).value
-                    
-                    ChatScreen(
-                        messages = messages,
-                        fontSize = appearanceSettings.fontSize.toFloat(),
-                        modifier = Modifier.fillMaxSize(),
-                        onUserClick = ::onUserClickCompose,
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            onMessageClick(messageId, channel?.let { UserName(it) }, fullMessage)
-                        },
-                        onEmoteClick = ::onEmoteClickCompose,
-                        onReplyClick = ::onReplyClick
-                    )
+                    val chatSettings = chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current()).value
+                    DankChatTheme {
+                        ChatScreen(
+                            messages = messages,
+                            fontSize = appearanceSettings.fontSize.toFloat(),
+                            showLineSeparator = appearanceSettings.lineSeparator,
+                            animateGifs = chatSettings.animateGifs,
+                            modifier = Modifier.fillMaxSize(),
+                            onUserClick = ::onUserClickCompose,
+                            onMessageLongClick = { messageId, channel, fullMessage ->
+                                onMessageClick(messageId, channel?.let { UserName(it) }, fullMessage)
+                            },
+                            onEmoteClick = ::onEmoteClickCompose,
+                            onReplyClick = ::onReplyClick
+                        )
+                    }
                 }
             }
         } else {
@@ -109,7 +107,7 @@ open class ChatFragment : Fragment() {
             // Compose implementation doesn't need additional setup
             return
         }
-        
+
         // Legacy setup
         val itemDecoration = DividerItemDecoration(view.context, LinearLayoutManager.VERTICAL)
         manager = LinearLayoutManager(view.context, RecyclerView.VERTICAL, false).apply { stackFromEnd = true }
@@ -123,7 +121,7 @@ open class ChatFragment : Fragment() {
             onUserClick = ::onUserClick,
             onMessageLongClick = ::onMessageClick,
             onReplyClick = ::onReplyClick,
-            onEmoteClick = { emotes -> 
+            onEmoteClick = { emotes ->
                 (parentFragment as? MainFragment)?.openEmoteSheet(emotes)
             },
         ).apply { stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.PREVENT_WHEN_EMPTY }
@@ -173,20 +171,19 @@ open class ChatFragment : Fragment() {
         targetUserName: String,
         targetDisplayName: String,
         channel: String?,
-        badges: List<Any>,
+        badges: List<BadgeUi>,
         isLongPress: Boolean
     ) {
         val userId = targetUserId?.let { UserId(it) }
         val userName = UserName(targetUserName)
         val displayName = DisplayName(targetDisplayName)
         val channelName = channel?.let { UserName(it) }
-        onUserClick(userId, userName, displayName, channelName, emptyList(), isLongPress)
+        val badgeList = badges.map(BadgeUi::badge)
+        onUserClick(userId, userName, displayName, channelName, badgeList, isLongPress)
     }
 
-    private fun onEmoteClickCompose(emotes: List<Any>) {
-        // Convert back to ChatMessageEmote if needed
-        val chatEmotes = emotes.filterIsInstance<ChatMessageEmote>()
-        (parentFragment as? MainFragment)?.openEmoteSheet(chatEmotes)
+    private fun onEmoteClickCompose(emotes: List<ChatMessageEmote>) {
+        (parentFragment as? MainFragment)?.openEmoteSheet(emotes)
     }
 
     private fun onReplyClick(rootMessageId: String) {

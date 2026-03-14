@@ -1,14 +1,14 @@
 package com.flxrs.dankchat.chat.compose
 
 import android.content.Context
-import android.graphics.Color
-import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.data.twitch.message.Highlight
+import com.flxrs.dankchat.data.twitch.message.HighlightType
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
@@ -34,6 +34,34 @@ import com.google.android.material.color.MaterialColors
  */
 object ChatMessageMapper {
 
+    // Highlight colors - Light theme
+    private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFFD1C4E9)
+    private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFEF9A9A)
+    private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF93F1FF)
+    private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFC2F18D)
+    private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFFFE087)
+
+    // Highlight colors - Dark theme
+    private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF543589)
+    private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF773031)
+    private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF004F57)
+    private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF2D5000)
+    private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF574500)
+
+    // Checkered background colors
+    private val CHECKERED_LIGHT = Color(
+        android.graphics.Color.argb(
+            (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
+            0, 0, 0
+        )
+    )
+    private val CHECKERED_DARK = Color(
+        android.graphics.Color.argb(
+            (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
+            255, 255, 255
+        )
+    )
+
     fun ChatItem.toChatMessageUiState(
         context: Context,
         appearanceSettings: AppearanceSettings,
@@ -41,31 +69,34 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
     ): ChatMessageUiState {
         val textAlpha = when (importance) {
-            ChatImportance.SYSTEM -> 0.75f
+            ChatImportance.SYSTEM  -> 0.75f
             ChatImportance.DELETED -> 0.5f
             ChatImportance.REGULAR -> 1f
         }
 
         return when (val msg = message) {
-            is SystemMessage -> msg.toSystemMessageUi(
+            is SystemMessage          -> msg.toSystemMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
-            is NoticeMessage -> msg.toNoticeMessageUi(
+
+            is NoticeMessage          -> msg.toNoticeMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
-            is UserNoticeMessage -> msg.toUserNoticeMessageUi(
+
+            is UserNoticeMessage      -> msg.toUserNoticeMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
-            is PrivMessage -> msg.toPrivMessageUi(
+
+            is PrivMessage            -> msg.toPrivMessageUi(
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
@@ -74,18 +105,21 @@ object ChatMessageMapper {
                 isInReplies = isInReplies,
                 textAlpha = textAlpha
             )
-            is ModerationMessage -> msg.toModerationMessageUi(
+
+            is ModerationMessage      -> msg.toModerationMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
+
             is PointRedemptionMessage -> msg.toPointRedemptionMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 textAlpha = textAlpha
             )
-            is WhisperMessage -> msg.toWhisperMessageUi(
+
+            is WhisperMessage         -> msg.toWhisperMessageUi(
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -100,43 +134,46 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.SystemMessageUi {
-        val backgroundColor = calculateCheckeredBackground(context, isAlternateBackground, false)
+        val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
 
         val message = when (type) {
-            is SystemMessageType.Disconnected -> context.getString(R.string.system_message_disconnected)
-            is SystemMessageType.NoHistoryLoaded -> context.getString(R.string.system_message_no_history)
-            is SystemMessageType.Connected -> context.getString(R.string.system_message_connected)
-            is SystemMessageType.Reconnected -> context.getString(R.string.system_message_reconnected)
-            is SystemMessageType.LoginExpired -> context.getString(R.string.login_expired)
-            is SystemMessageType.ChannelNonExistent -> context.getString(R.string.system_message_channel_non_existent)
-            is SystemMessageType.MessageHistoryIgnored -> context.getString(R.string.system_message_history_ignored)
-            is SystemMessageType.MessageHistoryIncomplete -> context.getString(R.string.system_message_history_recovering)
-            is SystemMessageType.ChannelBTTVEmotesFailed -> context.getString(R.string.system_message_bttv_emotes_failed, type.status)
-            is SystemMessageType.ChannelFFZEmotesFailed -> context.getString(R.string.system_message_ffz_emotes_failed, type.status)
-            is SystemMessageType.ChannelSevenTVEmotesFailed -> context.getString(R.string.system_message_7tv_emotes_failed, type.status)
-            is SystemMessageType.Custom -> type.message
-            is SystemMessageType.MessageHistoryUnavailable -> when (type.status) {
+            is SystemMessageType.Disconnected                  -> context.getString(R.string.system_message_disconnected)
+            is SystemMessageType.NoHistoryLoaded               -> context.getString(R.string.system_message_no_history)
+            is SystemMessageType.Connected                     -> context.getString(R.string.system_message_connected)
+            is SystemMessageType.Reconnected                   -> context.getString(R.string.system_message_reconnected)
+            is SystemMessageType.LoginExpired                  -> context.getString(R.string.login_expired)
+            is SystemMessageType.ChannelNonExistent            -> context.getString(R.string.system_message_channel_non_existent)
+            is SystemMessageType.MessageHistoryIgnored         -> context.getString(R.string.system_message_history_ignored)
+            is SystemMessageType.MessageHistoryIncomplete      -> context.getString(R.string.system_message_history_recovering)
+            is SystemMessageType.ChannelBTTVEmotesFailed       -> context.getString(R.string.system_message_bttv_emotes_failed, type.status)
+            is SystemMessageType.ChannelFFZEmotesFailed        -> context.getString(R.string.system_message_ffz_emotes_failed, type.status)
+            is SystemMessageType.ChannelSevenTVEmotesFailed    -> context.getString(R.string.system_message_7tv_emotes_failed, type.status)
+            is SystemMessageType.Custom                        -> type.message
+            is SystemMessageType.MessageHistoryUnavailable     -> when (type.status) {
                 null -> context.getString(R.string.system_message_history_unavailable)
                 else -> context.getString(R.string.system_message_history_unavailable_detailed, type.status)
             }
-            is SystemMessageType.ChannelSevenTVEmoteAdded -> context.getString(R.string.system_message_7tv_emote_added, type.actorName, type.emoteName)
-            is SystemMessageType.ChannelSevenTVEmoteRemoved -> context.getString(R.string.system_message_7tv_emote_removed, type.actorName, type.emoteName)
-            is SystemMessageType.ChannelSevenTVEmoteRenamed -> context.getString(
+
+            is SystemMessageType.ChannelSevenTVEmoteAdded      -> context.getString(R.string.system_message_7tv_emote_added, type.actorName, type.emoteName)
+            is SystemMessageType.ChannelSevenTVEmoteRemoved    -> context.getString(R.string.system_message_7tv_emote_removed, type.actorName, type.emoteName)
+            is SystemMessageType.ChannelSevenTVEmoteRenamed    -> context.getString(
                 R.string.system_message_7tv_emote_renamed,
                 type.actorName,
                 type.oldEmoteName,
                 type.emoteName
             )
+
             is SystemMessageType.ChannelSevenTVEmoteSetChanged -> context.getString(R.string.system_message_7tv_emote_set_changed, type.actorName, type.newEmoteSetName)
         }
 
         return ChatMessageUiState.SystemMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message
         )
@@ -148,7 +185,7 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.NoticeMessageUi {
-        val backgroundColor = calculateCheckeredBackground(context, isAlternateBackground, false)
+        val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
@@ -156,7 +193,8 @@ object ChatMessageMapper {
         return ChatMessageUiState.NoticeMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message
         )
@@ -168,13 +206,13 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.UserNoticeMessageUi {
-        val shouldHighlight = highlights.any { 
-            it.type == com.flxrs.dankchat.data.twitch.message.HighlightType.Subscription ||
-            it.type == com.flxrs.dankchat.data.twitch.message.HighlightType.Announcement
+        val shouldHighlight = highlights.any {
+            it.type == HighlightType.Subscription ||
+                    it.type == HighlightType.Announcement
         }
-        val backgroundColor = when {
-            shouldHighlight -> ContextCompat.getColor(context, R.color.color_sub_highlight)
-            else -> calculateCheckeredBackground(context, isAlternateBackground, false)
+        val backgroundColors = when {
+            shouldHighlight -> getHighlightColors(HighlightType.Subscription)
+            else            -> calculateCheckeredBackgroundColors(isAlternateBackground, false)
         }
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
@@ -183,7 +221,8 @@ object ChatMessageMapper {
         return ChatMessageUiState.UserNoticeMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message,
             shouldHighlight = shouldHighlight
@@ -196,7 +235,7 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.ModerationMessageUi {
-        val backgroundColor = calculateCheckeredBackground(context, isAlternateBackground, false)
+        val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
@@ -204,9 +243,10 @@ object ChatMessageMapper {
         return ChatMessageUiState.ModerationMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
-            message = "" // TODO: Implement getSystemMessage
+            message = "" // Moderation messages don't need text - they're action notifications
         )
     }
 
@@ -219,10 +259,10 @@ object ChatMessageMapper {
         isInReplies: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.PrivMessageUi {
-        val bgColor = when {
-            timedOut && !chatSettings.showTimedOutMessages -> Color.TRANSPARENT
-            highlights.isNotEmpty() -> highlights.toBackgroundColor(context)
-            else -> calculateCheckeredBackground(context, isAlternateBackground, true)
+        val backgroundColors = when {
+            timedOut && !chatSettings.showTimedOutMessages -> BackgroundColors(Color.Transparent, Color.Transparent)
+            highlights.isNotEmpty()                        -> highlights.toBackgroundColors()
+            else                                           -> calculateCheckeredBackgroundColors(isAlternateBackground, true)
         }
 
         val timestamp = if (chatSettings.showTimestamps) {
@@ -230,10 +270,10 @@ object ChatMessageMapper {
         } else ""
 
         val nameText = when {
-            !chatSettings.showUsernames -> ""
-            isAction -> "$aliasOrFormattedName "
+            !chatSettings.showUsernames    -> ""
+            isAction                       -> "$aliasOrFormattedName "
             aliasOrFormattedName.isBlank() -> ""
-            else -> "$aliasOrFormattedName: "
+            else                           -> "$aliasOrFormattedName: "
         }
 
         val allowedBadges = badges.filter { it.type in chatSettings.visibleBadgeTypes }
@@ -249,16 +289,16 @@ object ChatMessageMapper {
             // Check if any emote in the group is animated - we need to check the type
             val hasAnimated = emoteGroup.any { emote ->
                 when (emote.type) {
-                    is ChatMessageEmoteType.TwitchEmote -> false // Twitch emotes can be animated but we don't have that info here
+                    is ChatMessageEmoteType.TwitchEmote        -> false // Twitch emotes can be animated but we don't have that info here
                     is ChatMessageEmoteType.ChannelFFZEmote,
                     is ChatMessageEmoteType.GlobalFFZEmote,
                     is ChatMessageEmoteType.ChannelBTTVEmote,
-                    is ChatMessageEmoteType.GlobalBTTVEmote -> true // Assume third-party can be animated
+                    is ChatMessageEmoteType.GlobalBTTVEmote    -> true // Assume third-party can be animated
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
                 }
             }
-            
+
             EmoteUi(
                 code = emoteGroup.first().code,
                 urls = emoteGroup.map { it.url },
@@ -285,10 +325,15 @@ object ChatMessageMapper {
             append(message)
         }
 
+        // Compute name colors for both light and dark backgrounds
+        val lightNameColorInt = customOrUserColorOn(backgroundColors.light.toArgb())
+        val darkNameColorInt = customOrUserColorOn(backgroundColors.dark.toArgb())
+
         return ChatMessageUiState.PrivMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = bgColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             enableRipple = true,
             channel = channel,
@@ -296,7 +341,8 @@ object ChatMessageMapper {
             userName = name,
             displayName = displayName,
             badges = badgeUis,
-            nameColor = customOrUserColorOn(bgColor),
+            lightNameColor = Color(lightNameColorInt),
+            darkNameColor = Color(darkNameColorInt),
             nameText = nameText,
             message = message,
             emotes = emoteUis,
@@ -311,7 +357,7 @@ object ChatMessageMapper {
         chatSettings: ChatSettings,
         textAlpha: Float,
     ): ChatMessageUiState.PointRedemptionMessageUi {
-        val backgroundColor = ContextCompat.getColor(context, R.color.color_redemption_highlight)
+        val backgroundColors = getHighlightColors(HighlightType.ChannelPointRedemption)
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
@@ -321,7 +367,8 @@ object ChatMessageMapper {
         return ChatMessageUiState.PointRedemptionMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             nameText = nameText,
             title = title,
@@ -337,7 +384,7 @@ object ChatMessageMapper {
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.WhisperMessageUi {
-        val backgroundColor = calculateCheckeredBackground(context, isAlternateBackground, true)
+        val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, true)
         val timestamp = if (chatSettings.showTimestamps) {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
@@ -355,16 +402,17 @@ object ChatMessageMapper {
             // Check if any emote in the group is animated
             val hasAnimated = emoteGroup.any { emote ->
                 when (emote.type) {
-                    is ChatMessageEmoteType.TwitchEmote -> false
+                    is ChatMessageEmoteType.TwitchEmote        -> false
                     is ChatMessageEmoteType.ChannelFFZEmote,
                     is ChatMessageEmoteType.GlobalFFZEmote,
                     is ChatMessageEmoteType.ChannelBTTVEmote,
-                    is ChatMessageEmoteType.GlobalBTTVEmote -> true
+                    is ChatMessageEmoteType.GlobalBTTVEmote    -> true
+
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
                 }
             }
-            
+
             EmoteUi(
                 code = emoteGroup.first().code,
                 urls = emoteGroup.map { it.url },
@@ -384,18 +432,27 @@ object ChatMessageMapper {
             append(message)
         }
 
+        // Compute colors for both light and dark backgrounds
+        val lightSenderColorInt = senderColorOnBackground(backgroundColors.light.toArgb())
+        val darkSenderColorInt = senderColorOnBackground(backgroundColors.dark.toArgb())
+        val lightRecipientColorInt = recipientColorOnBackground(backgroundColors.light.toArgb())
+        val darkRecipientColorInt = recipientColorOnBackground(backgroundColors.dark.toArgb())
+
         return ChatMessageUiState.WhisperMessageUi(
             id = id,
             timestamp = timestamp,
-            backgroundColor = backgroundColor,
+            lightBackgroundColor = backgroundColors.light,
+            darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             enableRipple = true,
             userId = userId ?: error("Whisper must have userId"),
             userName = name,
             displayName = displayName,
             badges = badgeUis,
-            senderColor = senderColorOnBackground(backgroundColor),
-            recipientColor = recipientColorOnBackground(backgroundColor),
+            lightSenderColor = Color(lightSenderColorInt),
+            darkSenderColor = Color(darkSenderColorInt),
+            lightRecipientColor = Color(lightRecipientColorInt),
+            darkRecipientColor = Color(darkRecipientColorInt),
             senderName = senderAliasOrFormattedName,
             recipientName = recipientAliasOrFormattedName,
             message = message,
@@ -404,42 +461,55 @@ object ChatMessageMapper {
         )
     }
 
-    private fun calculateCheckeredBackground(
-        context: Context,
+    data class BackgroundColors(val light: Color, val dark: Color)
+
+    private fun calculateCheckeredBackgroundColors(
         isAlternateBackground: Boolean,
-        enableCheckered: Boolean, // Will be controlled by settings
-    ): Int {
-        return when {
-            enableCheckered && isAlternateBackground -> {
-                // Manual calculation since we don't have a View
-                val backgroundColor = android.graphics.Color.TRANSPARENT
-                val surfaceInverse = ContextCompat.getColor(context, android.R.color.white)
-                // Use alpha blending for checkered effect
-                android.graphics.Color.argb(
-                    (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
-                    android.graphics.Color.red(surfaceInverse),
-                    android.graphics.Color.green(surfaceInverse),
-                    android.graphics.Color.blue(surfaceInverse)
-                )
-            }
-            else -> ContextCompat.getColor(context, android.R.color.transparent)
+        enableCheckered: Boolean,
+    ): BackgroundColors {
+        return if (enableCheckered && isAlternateBackground) {
+            BackgroundColors(CHECKERED_LIGHT, CHECKERED_DARK)
+        } else {
+            BackgroundColors(Color.Transparent, Color.Transparent)
         }
     }
 
-    @ColorInt
-    private fun Set<com.flxrs.dankchat.data.twitch.message.Highlight>.toBackgroundColor(context: Context): Int {
-        val highlight = this.maxByOrNull { it.type.priority.value }
-            ?: return ContextCompat.getColor(context, android.R.color.transparent)
-        return when (highlight.type) {
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Subscription,
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Announcement -> ContextCompat.getColor(context, R.color.color_sub_highlight)
-            com.flxrs.dankchat.data.twitch.message.HighlightType.ChannelPointRedemption -> ContextCompat.getColor(context, R.color.color_redemption_highlight)
-            com.flxrs.dankchat.data.twitch.message.HighlightType.ElevatedMessage -> ContextCompat.getColor(context, R.color.color_elevated_message_highlight)
-            com.flxrs.dankchat.data.twitch.message.HighlightType.FirstMessage -> ContextCompat.getColor(context, R.color.color_first_message_highlight)
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Username,
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Custom,
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Reply,
-            com.flxrs.dankchat.data.twitch.message.HighlightType.Notification -> ContextCompat.getColor(context, R.color.color_mention_highlight)
+    private fun getHighlightColors(type: HighlightType): BackgroundColors {
+        return when (type) {
+            HighlightType.Subscription,
+            HighlightType.Announcement           -> BackgroundColors(
+                light = COLOR_SUB_HIGHLIGHT_LIGHT,
+                dark = COLOR_SUB_HIGHLIGHT_DARK,
+            )
+
+            HighlightType.ChannelPointRedemption -> BackgroundColors(
+                light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
+                dark = COLOR_REDEMPTION_HIGHLIGHT_DARK,
+            )
+
+            HighlightType.ElevatedMessage        -> BackgroundColors(
+                light = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT,
+                dark = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK,
+            )
+
+            HighlightType.FirstMessage           -> BackgroundColors(
+                light = COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT,
+                dark = COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK,
+            )
+
+            HighlightType.Username,
+            HighlightType.Custom,
+            HighlightType.Reply,
+            HighlightType.Notification           -> BackgroundColors(
+                light = COLOR_MENTION_HIGHLIGHT_LIGHT,
+                dark = COLOR_MENTION_HIGHLIGHT_DARK,
+            )
         }
+    }
+
+    private fun Set<Highlight>.toBackgroundColors(): BackgroundColors {
+        val highlight = this.maxByOrNull { it.type.priority.value }
+            ?: return BackgroundColors(Color.Transparent, Color.Transparent)
+        return getHighlightColors(highlight.type)
     }
 }

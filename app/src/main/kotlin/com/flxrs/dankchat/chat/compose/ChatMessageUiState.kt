@@ -1,7 +1,7 @@
 package com.flxrs.dankchat.chat.compose
 
-import androidx.annotation.ColorInt
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -17,7 +17,8 @@ import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 sealed interface ChatMessageUiState {
     val id: String
     val timestamp: String
-    val backgroundColor: Int
+    val lightBackgroundColor: Color
+    val darkBackgroundColor: Color
     val textAlpha: Float
     val enableRipple: Boolean
 
@@ -28,7 +29,8 @@ sealed interface ChatMessageUiState {
     data class PrivMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean,
         val channel: UserName,
@@ -36,7 +38,8 @@ sealed interface ChatMessageUiState {
         val userName: UserName,
         val displayName: DisplayName,
         val badges: List<BadgeUi>,
-        @ColorInt val nameColor: Int,
+        val lightNameColor: Color,
+        val darkNameColor: Color,
         val nameText: String,
         val message: String,
         val emotes: List<EmoteUi>,
@@ -52,7 +55,8 @@ sealed interface ChatMessageUiState {
     data class SystemMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val message: String,
@@ -65,7 +69,8 @@ sealed interface ChatMessageUiState {
     data class NoticeMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val message: String,
@@ -78,7 +83,8 @@ sealed interface ChatMessageUiState {
     data class UserNoticeMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val message: String,
@@ -92,7 +98,8 @@ sealed interface ChatMessageUiState {
     data class ModerationMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val message: String,
@@ -105,7 +112,8 @@ sealed interface ChatMessageUiState {
     data class PointRedemptionMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val nameText: String?,
@@ -122,15 +130,18 @@ sealed interface ChatMessageUiState {
     data class WhisperMessageUi(
         override val id: String,
         override val timestamp: String,
-        @ColorInt override val backgroundColor: Int,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean,
         val userId: UserId,
         val userName: UserName,
         val displayName: DisplayName,
         val badges: List<BadgeUi>,
-        @ColorInt val senderColor: Int,
-        @ColorInt val recipientColor: Int,
+        val lightSenderColor: Color,
+        val darkSenderColor: Color,
+        val lightRecipientColor: Color,
+        val darkRecipientColor: Color,
         val senderName: String,
         val recipientName: String,
         val message: String,
