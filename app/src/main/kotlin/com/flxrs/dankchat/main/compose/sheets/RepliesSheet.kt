@@ -1,25 +1,35 @@
 package com.flxrs.dankchat.main.compose.sheets
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.replies.compose.RepliesComposable
@@ -29,7 +39,6 @@ import kotlinx.coroutines.CancellationException
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RepliesSheet(
     rootMessageId: String,
@@ -37,12 +46,17 @@ fun RepliesSheet(
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
+    bottomContentPadding: Dp = 0.dp,
 ) {
     val viewModel: RepliesComposeViewModel = koinViewModel(
         key = rootMessageId,
         parameters = { parametersOf(rootMessageId) }
     )
+    val density = LocalDensity.current
     var backProgress by remember { mutableFloatStateOf(0f) }
+
+    val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+    val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 8.dp
 
     PredictiveBackHandler { progress ->
         try {
@@ -55,20 +69,10 @@ fun RepliesSheet(
         }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.replies_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onDismiss) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                    }
-                }
-            )
-        },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .graphicsLayer {
                 val scale = 1f - (backProgress * 0.1f)
                 scaleX = scale
@@ -76,16 +80,61 @@ fun RepliesSheet(
                 alpha = 1f - backProgress
                 translationY = backProgress * 100f
             }
-    ) { paddingValues ->
+    ) {
+        // Chat content - edge to edge
         RepliesComposable(
             repliesViewModel = viewModel,
             appearanceSettingsDataStore = appearanceSettingsDataStore,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
             onNotFound = onDismiss,
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
+            modifier = Modifier.fillMaxSize(),
         )
+
+        // Status bar scrim
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(statusBarHeight)
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+        )
+
+        // Floating toolbar: back pill + title pill
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = statusBarHeight + 8.dp)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Back navigation pill
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+            }
+
+            // Title pill
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.padding(start = 8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.replies_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
+            }
+        }
     }
-
-
 }

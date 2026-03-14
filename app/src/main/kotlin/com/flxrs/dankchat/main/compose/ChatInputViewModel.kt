@@ -22,6 +22,7 @@ import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.main.RepeatedSendData
 import com.flxrs.dankchat.main.compose.FullScreenSheetState
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
@@ -58,6 +59,7 @@ class ChatInputViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
+    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val mainEventBus: MainEventBus,
 ) : ViewModel() {
 
@@ -73,6 +75,9 @@ class ChatInputViewModel(
     private val mentionSheetTab = MutableStateFlow(0)
     private val _isEmoteMenuOpen = MutableStateFlow(false)
     val isEmoteMenuOpen = _isEmoteMenuOpen.asStateFlow()
+
+    private val _whisperTarget = MutableStateFlow<UserName?>(null)
+    val whisperTarget: StateFlow<UserName?> = _whisperTarget.asStateFlow()
 
     // Create flow from TextFieldState
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
@@ -137,6 +142,19 @@ class ChatInputViewModel(
             }
         }
 
+        // Clear whisper target when sheet closes or tab switches away from whispers
+        viewModelScope.launch {
+            combine(fullScreenSheetState, mentionSheetTab) { sheetState, tab ->
+                sheetState to tab
+            }.collect { (sheetState, tab) ->
+                val isWhisperTab = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
+                if (!isWhisperTab && _whisperTarget.value != null) {
+                    _whisperTarget.value = null
+                    textFieldState.clearText()
+                }
+            }
+        }
+
         viewModelScope.launch {
             repeatedSend.collectLatest {
                 if (it.enabled && it.message.isNotBlank()) {
@@ -170,16 +188,18 @@ class ChatInputViewModel(
         val suggestions: List<Suggestion>,
         val activeChannel: UserName?,
         val connectionState: ConnectionState,
-        val isLoggedIn: Boolean
+        val isLoggedIn: Boolean,
+        val autoDisableInput: Boolean
     )
 
-    private data class SheetAndReplyState(
+    private data class InputOverlayState(
         val sheetState: FullScreenSheetState,
         val tab: Int,
         val isReplying: Boolean,
         val replyName: UserName?,
         val replyMessageId: String?,
-        val isEmoteMenuOpen: Boolean
+        val isEmoteMenuOpen: Boolean,
+        val whisperTarget: UserName?
     )
 
     fun uiState(fullScreenSheetState: StateFlow<FullScreenSheetState>, mentionSheetTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
@@ -193,9 +213,9 @@ class ChatInputViewModel(
                 if (channel == null) flowOf(ConnectionState.DISCONNECTED)
                 else chatRepository.getConnectionState(channel)
             },
-            preferenceStore.isLoggedInFlow
-        ) { text, suggestions, activeChannel, connectionState, isLoggedIn ->
-            UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn)
+            combine(preferenceStore.isLoggedInFlow, appearanceSettingsDataStore.settings.map { it.autoDisableInput }) { a, b -> a to b }
+        ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, autoDisableInput) ->
+            UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput)
         }
 
         val replyStateFlow = combine(
@@ -206,30 +226,34 @@ class ChatInputViewModel(
             Triple(isReplying, replyName, replyMessageId)
         }
 
-        val sheetAndReplyFlow = combine(
+        val inputOverlayFlow = combine(
             fullScreenSheetState,
             mentionSheetTab,
             replyStateFlow,
-            _isEmoteMenuOpen
-        ) { sheetState, tab, replyState, isEmoteMenuOpen ->
+            _isEmoteMenuOpen,
+            _whisperTarget
+        ) { sheetState, tab, replyState, isEmoteMenuOpen, whisperTarget ->
             val (isReplying, replyName, replyMessageId) = replyState
-            SheetAndReplyState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen)
+            InputOverlayState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget)
         }
 
         _uiState = combine(
             baseFlow,
-            sheetAndReplyFlow,
+            inputOverlayFlow,
             helperText
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen), helperText ->
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText ->
             this.fullScreenSheetState.value = sheetState
             this.mentionSheetTab.value = tab
 
             val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
+            val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
             val isInReplyThread = sheetState is FullScreenSheetState.Replies
             val effectiveIsReplying = isReplying || isInReplyThread
+            val canTypeInConnectionState = connectionState == ConnectionState.CONNECTED || !autoDisableInput
 
             val inputState = when (connectionState) {
                 ConnectionState.CONNECTED -> when {
+                    isWhisperTabActive && whisperTarget != null -> InputState.Whispering
                     effectiveIsReplying -> InputState.Replying
                     else -> InputState.Default
                 }
@@ -237,10 +261,16 @@ class ChatInputViewModel(
                 ConnectionState.DISCONNECTED -> InputState.Disconnected
             }
 
-            val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && !isMentionsTabActive
-            val enabled = isLoggedIn && connectionState == ConnectionState.CONNECTED && !isMentionsTabActive
+            val enabled = when {
+                isMentionsTabActive -> false
+                isWhisperTabActive -> isLoggedIn && canTypeInConnectionState && whisperTarget != null
+                else -> isLoggedIn && canTypeInConnectionState
+            }
+
+            val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && enabled
 
             val showReplyOverlay = isReplying && !isInReplyThread
+            val showWhisperOverlay = isWhisperTabActive && whisperTarget != null
             val effectiveReplyName = replyName ?: (sheetState as? FullScreenSheetState.Replies)?.replyName
 
             ChatInputUiState(
@@ -256,7 +286,10 @@ class ChatInputViewModel(
                 replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
                 replyName = effectiveReplyName,
                 isEmoteMenuOpen = isEmoteMenuOpen,
-                helperText = helperText
+                helperText = helperText,
+                showWhisperOverlay = showWhisperOverlay,
+                whisperTarget = whisperTarget,
+                isWhisperTabActive = isWhisperTabActive
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
 
@@ -266,7 +299,13 @@ class ChatInputViewModel(
     fun sendMessage() {
         val text = textFieldState.text.toString()
         if (text.isNotBlank()) {
-            trySendMessageOrCommand(text)
+            val whisperTarget = _whisperTarget.value
+            val messageToSend = if (whisperTarget != null) {
+                "/w ${whisperTarget.value} $text"
+            } else {
+                text
+            }
+            trySendMessageOrCommand(messageToSend)
             textFieldState.clearText()
         }
     }
@@ -347,6 +386,13 @@ class ChatInputViewModel(
         _replyName.value = replyName
     }
 
+    fun setWhisperTarget(target: UserName?) {
+        _whisperTarget.value = target
+        if (target == null) {
+            textFieldState.clearText()
+        }
+    }
+
     fun insertText(text: String) {
         textFieldState.edit {
             append(text)
@@ -415,5 +461,8 @@ data class ChatInputUiState(
     val replyMessageId: String? = null,
     val replyName: UserName? = null,
     val isEmoteMenuOpen: Boolean = false,
-    val helperText: String? = null
+    val helperText: String? = null,
+    val showWhisperOverlay: Boolean = false,
+    val whisperTarget: UserName? = null,
+    val isWhisperTabActive: Boolean = false
 )

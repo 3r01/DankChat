@@ -415,6 +415,7 @@ class MainFragment : Fragment() {
                 binding.inputLayout.hint = when (state) {
                     InputState.Default      -> getString(R.string.hint_connected)
                     InputState.Replying     -> getString(R.string.hint_replying)
+                    InputState.Whispering   -> getString(R.string.hint_whispering)
                     InputState.NotLoggedIn  -> getString(R.string.hint_not_logged_int)
                     InputState.Disconnected -> getString(R.string.hint_disconnected)
                 }
@@ -463,6 +464,7 @@ class MainFragment : Fragment() {
                     MainEvent.LogOutRequested -> showLogoutConfirmationDialog()
                     is MainEvent.UploadSuccess, is MainEvent.UploadFailed, MainEvent.UploadLoading -> Unit
                     is MainEvent.LoginValidated, is MainEvent.LoginOutdated, MainEvent.LoginTokenInvalid, MainEvent.LoginValidationFailed -> Unit
+                    is MainEvent.OpenChannel -> Unit
                 }
             }
             collectFlow(channelMentionCount, ::updateChannelMentionBadges)

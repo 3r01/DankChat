@@ -68,6 +68,7 @@ fun ChatScreen(
     animateGifs: Boolean = true,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     hasHelperText: Boolean = false,
@@ -118,7 +119,7 @@ fun ChatScreen(
             ) {
                 items(
                     items = reversedMessages,
-                    key = { message -> "${message.id}-${message.tag}" },
+                    key = { message -> message.id },
                     contentType = { message ->
                         when (message) {
                             is ChatMessageUiState.SystemMessageUi          -> "system"
@@ -140,6 +141,7 @@ fun ChatScreen(
                         onMessageLongClick = onMessageLongClick,
                         onEmoteClick = onEmoteClick,
                         onReplyClick = onReplyClick,
+                        onWhisperReply = onWhisperReply,
                     )
 
                     // Add divider after each message if enabled
@@ -240,6 +242,7 @@ private fun ChatMessageItem(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
 ) {
     when (message) {
         is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
@@ -288,7 +291,8 @@ private fun ChatMessageItem(
             onMessageLongClick = { messageId, fullMessage ->
                 onMessageLongClick(messageId, null, fullMessage)
             },
-            onEmoteClick = onEmoteClick
+            onEmoteClick = onEmoteClick,
+            onWhisperReply = onWhisperReply
         )
     }
 }

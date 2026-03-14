@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.MoreVert
@@ -96,13 +97,19 @@ fun ChatInputLayout(
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
     onToggleStream: () -> Unit,
+    showWhisperOverlay: Boolean,
+    whisperTarget: UserName?,
+    onWhisperDismiss: () -> Unit,
     onChangeRoomState: () -> Unit,
+    onNewWhisper: (() -> Unit)? = null,
+    showQuickActions: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
         InputState.Default -> stringResource(R.string.hint_connected)
         InputState.Replying -> stringResource(R.string.hint_replying)
+        InputState.Whispering -> stringResource(R.string.hint_whispering)
         InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
         InputState.Disconnected -> stringResource(R.string.hint_disconnected)
     }
@@ -162,6 +169,44 @@ fun ChatInputLayout(
                             )
                             IconButton(
                                 onClick = onReplyDismiss,
+                                modifier = Modifier.size(24.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(R.string.dialog_dismiss),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+
+                // Whisper Header
+                AnimatedVisibility(
+                    visible = showWhisperOverlay && whisperTarget != null,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.whisper_header, whisperTarget?.value.orEmpty()),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                            IconButton(
+                                onClick = onWhisperDismiss,
                                 modifier = Modifier.size(24.dp)
                             ) {
                                 Icon(
@@ -252,13 +297,11 @@ fun ChatInputLayout(
                             Icon(
                                 imageVector = Icons.Default.Keyboard,
                                 contentDescription = stringResource(R.string.dialog_dismiss),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Default.EmojiEmotions,
                                 contentDescription = stringResource(R.string.emote_menu_hint),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -266,15 +309,30 @@ fun ChatInputLayout(
                     Spacer(modifier = Modifier.weight(1f))
 
                     // Quick Actions Button
-                    IconButton(
-                        onClick = { quickActionsExpanded = !quickActionsExpanded },
-                        modifier = Modifier.size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = stringResource(R.string.more),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    if (showQuickActions) {
+                        IconButton(
+                            onClick = { quickActionsExpanded = !quickActionsExpanded },
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.more),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    // New Whisper Button (only on whisper tab)
+                    if (onNewWhisper != null) {
+                        IconButton(
+                            onClick = onNewWhisper,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.whisper_new),
+                            )
+                        }
                     }
 
                     // History Button (Always visible)
@@ -286,7 +344,6 @@ fun ChatInputLayout(
                         Icon(
                             imageVector = Icons.Default.History,
                             contentDescription = stringResource(R.string.resume_scroll),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 

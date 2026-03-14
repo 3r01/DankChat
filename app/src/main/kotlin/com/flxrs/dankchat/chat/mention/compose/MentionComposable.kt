@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.chat.mention.compose
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -7,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
@@ -31,6 +33,8 @@ fun MentionComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
@@ -50,7 +54,9 @@ fun MentionComposable(
         modifier = modifier,
         onUserClick = onUserClick,
         onMessageLongClick = onMessageLongClick,
-        onEmoteClick = onEmoteClick
+        onEmoteClick = onEmoteClick,
+        onWhisperReply = if (isWhisperTab) onWhisperReply else null,
+        contentPadding = contentPadding
     )
     } // CompositionLocalProvider
 }

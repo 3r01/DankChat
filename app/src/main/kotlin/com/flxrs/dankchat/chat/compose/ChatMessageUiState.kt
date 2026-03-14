@@ -155,6 +155,7 @@ sealed interface ChatMessageUiState {
         val message: String,
         val emotes: List<EmoteUi>,
         val fullMessage: String,
+        val replyTargetName: UserName,
     ) : ChatMessageUiState
 }
 

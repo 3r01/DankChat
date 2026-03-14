@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
@@ -91,6 +92,7 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.main.MainActivity
 import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
@@ -104,6 +106,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.ui.platform.LocalResources
 import androidx.window.core.layout.WindowSizeClass
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -127,6 +130,7 @@ fun MainScreen(
     onChooseMedia: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val resources = LocalResources.current
     val context = LocalContext.current
     val density = LocalDensity.current
     // Scoped ViewModels - each handles one concern
@@ -269,11 +273,13 @@ fun MainScreen(
     var isUploading by remember { mutableStateOf(false) }
     var showLoginOutdatedDialog by remember { mutableStateOf<UserName?>(null) }
     var showLoginExpiredDialog by remember { mutableStateOf(false) }
+    var showNewWhisperDialog by remember { mutableStateOf(false) }
 
     val toolsSettingsDataStore: ToolsSettingsDataStore = koinInject()
     val userStateRepository: UserStateRepository = koinInject()
 
     val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+    val isSheetOpen = fullScreenSheetState !is FullScreenSheetState.Closed
     val inputSheetState by sheetNavigationViewModel.inputSheetState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -284,8 +290,8 @@ fun MainScreen(
                 is MainEvent.UploadSuccess -> {
                     isUploading = false
                     val result = snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.snackbar_image_uploaded, event.url),
-                        actionLabel = context.getString(R.string.snackbar_paste),
+                        message = resources.getString(R.string.snackbar_image_uploaded, event.url),
+                        actionLabel = resources.getString(R.string.snackbar_paste),
                         duration = SnackbarDuration.Long
                     )
                     if (result == SnackbarResult.ActionPerformed) {
@@ -294,13 +300,13 @@ fun MainScreen(
                 }
                 is MainEvent.UploadFailed -> {
                     isUploading = false
-                    val message = event.errorMessage?.let { context.getString(R.string.snackbar_upload_failed_cause, it) }
-                        ?: context.getString(R.string.snackbar_upload_failed)
+                    val message = event.errorMessage?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
+                        ?: resources.getString(R.string.snackbar_upload_failed)
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
                 }
                 is MainEvent.LoginValidated -> {
                     snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.snackbar_login, event.username),
+                        message = resources.getString(R.string.snackbar_login, event.username),
                         duration = SnackbarDuration.Short
                     )
                 }
@@ -312,9 +318,15 @@ fun MainScreen(
                 }
                 MainEvent.LoginValidationFailed -> {
                     snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.oauth_verify_failed),
+                        message = resources.getString(R.string.oauth_verify_failed),
                         duration = SnackbarDuration.Short
                     )
+                }
+                is MainEvent.OpenChannel -> {
+                    channelTabViewModel.selectTab(
+                        preferenceStore.channels.indexOf(event.channel)
+                    )
+                    (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
                 else -> Unit
             }
@@ -332,9 +344,9 @@ fun MainScreen(
             scope.launch {
                 val name = preferenceStore.userName
                 val message = if (name != null) {
-                    context.getString(R.string.snackbar_login, name)
+                    resources.getString(R.string.snackbar_login, name)
                 } else {
-                    context.getString(R.string.login) // Fallback
+                    resources.getString(R.string.login) // Fallback
                 }
                 snackbarHostState.showSnackbar(message)
             }
@@ -349,7 +361,7 @@ fun MainScreen(
             scope.launch {
                 snackbarHostState.showSnackbar(
                     message = state.message,
-                    actionLabel = context.getString(R.string.snackbar_retry),
+                    actionLabel = resources.getString(R.string.snackbar_retry),
                     duration = SnackbarDuration.Long
                 )
             }
@@ -436,12 +448,47 @@ fun MainScreen(
         )
     }
 
+    // New Whisper dialog
+    if (showNewWhisperDialog) {
+        var whisperUsername by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showNewWhisperDialog = false },
+            title = { Text(stringResource(R.string.whisper_new_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = whisperUsername,
+                    onValueChange = { whisperUsername = it },
+                    label = { Text(stringResource(R.string.whisper_new_dialog_hint)) },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val username = whisperUsername.trim()
+                        if (username.isNotBlank()) {
+                            chatInputViewModel.setWhisperTarget(UserName(username))
+                            showNewWhisperDialog = false
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.whisper_new_dialog_start))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNewWhisperDialog = false }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
     val isFullscreen by mainScreenViewModel.isFullscreen.collectAsStateWithLifecycle()
     val showAppBar by mainScreenViewModel.showAppBar.collectAsStateWithLifecycle()
     val showInputState by mainScreenViewModel.showInput.collectAsStateWithLifecycle()
 
     // Hide/show system bars when fullscreen toggles
-    val window = (LocalContext.current as? Activity)?.window
+    val window = (context as? Activity)?.window
     val view = LocalView.current
     DisposableEffect(isFullscreen, window, view) {
         if (window == null) return@DisposableEffect onDispose { }
@@ -467,10 +514,7 @@ fun MainScreen(
         pageCount = { pagerState.channels.size }
     )
     var inputHeightPx by remember { mutableIntStateOf(0) }
-    var inputTopY by remember { mutableStateOf(0f) }
-    var containerHeight by remember { mutableIntStateOf(0) }
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
-    val sheetBottomPadding = with(density) { (containerHeight - inputTopY).toDp() }
 
     // Clear focus when keyboard fully reaches the bottom, but not when
     // switching to the emote menu. Prevents keyboard from reopening when
@@ -487,10 +531,10 @@ fun MainScreen(
     }
 
     // Sync Compose pager with ViewModel state
-    LaunchedEffect(pagerState.currentPage) {
+    LaunchedEffect(pagerState.currentPage, pagerState.channels.size) {
         if (!composePagerState.isScrollInProgress &&
             composePagerState.currentPage != pagerState.currentPage &&
-            pagerState.currentPage < pagerState.channels.size
+            pagerState.currentPage in 0 until composePagerState.pageCount
         ) {
             composePagerState.scrollToPage(pagerState.currentPage)
         }
@@ -507,7 +551,6 @@ fun MainScreen(
     Box(modifier = Modifier
         .fillMaxSize()
         .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier)
-        .onGloballyPositioned { containerHeight = it.size.height }
     ) {
         // Menu content height matches keyboard content area (above nav bar)
         val targetMenuHeight = if (keyboardHeightPx > 0) {
@@ -523,7 +566,7 @@ fun MainScreen(
         val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
         // Shared scaffold bottom padding calculation
-        val hasDialogWithInput = showAddChannelDialog || showRoomStateDialog || showManageChannelsDialog
+        val hasDialogWithInput = showAddChannelDialog || showRoomStateDialog || showManageChannelsDialog || showNewWhisperDialog
         val currentImeDp = if (hasDialogWithInput) 0.dp else with(density) { currentImeHeight.toDp() }
         val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
         val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
@@ -556,6 +599,11 @@ fun MainScreen(
                                 keyboardController?.show()
                             }
                         },
+                        showWhisperOverlay = inputState.showWhisperOverlay,
+                        whisperTarget = inputState.whisperTarget,
+                        onWhisperDismiss = {
+                            chatInputViewModel.setWhisperTarget(null)
+                        },
                         onReplyDismiss = {
                             chatInputViewModel.setReplying(false)
                         },
@@ -565,9 +613,10 @@ fun MainScreen(
                             activeChannel?.let { streamViewModel.toggleStream(it) }
                         },
                         onChangeRoomState = { showRoomStateDialog = true },
+                        onNewWhisper = if (inputState.isWhisperTabActive) {{ showNewWhisperDialog = true }} else null,
+                        showQuickActions = !isSheetOpen,
                         modifier = Modifier.onGloballyPositioned { coordinates ->
                             inputHeightPx = coordinates.size.height
-                            inputTopY = coordinates.positionInRoot().y
                         }
                     )
                 }
@@ -765,6 +814,24 @@ fun MainScreen(
                         }
                     }
                 }
+
+                // Fullscreen Overlay Sheets - inside Scaffold content for edge-to-edge
+                FullScreenSheetOverlay(
+                    sheetState = fullScreenSheetState,
+                    isLoggedIn = isLoggedIn,
+                    mentionViewModel = mentionViewModel,
+                    appearanceSettingsDataStore = appearanceSettingsDataStore,
+                    onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
+                    onDismissReplies = {
+                        sheetNavigationViewModel.closeFullScreenSheet()
+                        chatInputViewModel.setReplying(false)
+                    },
+                    onUserClick = { userPopupParams = it },
+                    onMessageLongClick = { messageOptionsParams = it },
+                    onEmoteClick = { emoteInfoEmotes = it },
+                    onWhisperReply = chatInputViewModel::setWhisperTarget,
+                    bottomContentPadding = paddingValues.calculateBottomPadding(),
+                )
             }
         }
 
@@ -821,28 +888,12 @@ fun MainScreen(
 
                     floatingToolbar(
                         Modifier.align(Alignment.TopCenter),
-                        !isKeyboardVisible && !inputState.isEmoteMenuOpen,
+                        !isKeyboardVisible && !inputState.isEmoteMenuOpen && !isSheetOpen,
                         false,
                         showTabsInSplit,
                     )
 
                     emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-                    FullScreenSheetOverlay(
-                        sheetState = fullScreenSheetState,
-                        isLoggedIn = isLoggedIn,
-                        mentionViewModel = mentionViewModel,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
-                        onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
-                        onDismissReplies = {
-                            sheetNavigationViewModel.closeFullScreenSheet()
-                            chatInputViewModel.setReplying(false)
-                        },
-                        onUserClick = { userPopupParams = it },
-                        onMessageLongClick = { messageOptionsParams = it },
-                        onEmoteClick = { emoteInfoEmotes = it },
-                        modifier = Modifier.padding(bottom = sheetBottomPadding),
-                    )
 
                     if (showInputState && isKeyboardVisible) {
                         SuggestionDropdown(
@@ -923,7 +974,7 @@ fun MainScreen(
             // Floating Toolbars - collapsible tabs (expand on swipe) + actions
             if (!isInPipMode) floatingToolbar(
                 Modifier.align(Alignment.TopCenter),
-                !isWideWindow || (!isKeyboardVisible && !inputState.isEmoteMenuOpen),
+                (!isWideWindow || (!isKeyboardVisible && !inputState.isEmoteMenuOpen)) && !isSheetOpen,
                 true,
                 true,
             )
@@ -931,23 +982,6 @@ fun MainScreen(
             // Emote Menu Layer - slides up/down independently of keyboard
             // Fast tween to match system keyboard animation speed
             if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-            // Fullscreen Overlay Sheets
-            if (!isInPipMode) FullScreenSheetOverlay(
-                sheetState = fullScreenSheetState,
-                isLoggedIn = isLoggedIn,
-                mentionViewModel = mentionViewModel,
-                appearanceSettingsDataStore = appearanceSettingsDataStore,
-                onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
-                onDismissReplies = {
-                    sheetNavigationViewModel.closeFullScreenSheet()
-                    chatInputViewModel.setReplying(false)
-                },
-                onUserClick = { userPopupParams = it },
-                onMessageLongClick = { messageOptionsParams = it },
-                onEmoteClick = { emoteInfoEmotes = it },
-                modifier = Modifier.padding(bottom = sheetBottomPadding),
-            )
 
             if (!isInPipMode && showInputState && isKeyboardVisible) {
                 SuggestionDropdown(

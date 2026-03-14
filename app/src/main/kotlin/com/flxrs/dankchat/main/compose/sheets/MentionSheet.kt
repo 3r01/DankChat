@@ -1,23 +1,28 @@
 package com.flxrs.dankchat.main.compose.sheets
 
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,20 +30,23 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.mention.compose.MentionComposable
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MentionSheet(
     mentionViewModel: MentionComposeViewModel,
@@ -48,13 +56,20 @@ fun MentionSheet(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
+    bottomContentPadding: Dp = 0.dp,
 ) {
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
     val pagerState = rememberPagerState(
         initialPage = if (initialisWhisperTab) 1 else 0,
         pageCount = { 2 }
     )
     var backProgress by remember { mutableFloatStateOf(0f) }
+
+    val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+    // Toolbar area: status bar + padding + pill height + padding
+    val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 8.dp
 
     LaunchedEffect(pagerState.currentPage) {
         mentionViewModel.setCurrentTab(pagerState.currentPage)
@@ -71,47 +86,22 @@ fun MentionSheet(
         }
     }
 
-    Scaffold(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .graphicsLayer {
                 val scale = 1f - (backProgress * 0.1f)
                 scaleX = scale
                 scaleY = scale
                 alpha = 1f - backProgress
                 translationY = backProgress * 100f
-            },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.mentions_title)) },
-                    navigationIcon = {
-                        IconButton(onClick = onDismiss) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
-                        }
-                    }
-                )
-                PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
-                    Tab(
-                        selected = pagerState.currentPage == 0,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                        text = { Text(stringResource(R.string.mentions)) }
-                    )
-                    Tab(
-                        selected = pagerState.currentPage == 1,
-                        onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                        text = { Text(stringResource(R.string.whispers)) }
-                    )
-                }
             }
-        },
-    ) { paddingValues ->
+    ) {
+        // Chat content - edge to edge
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) { page ->
             MentionComposable(
                 mentionViewModel = mentionViewModel,
@@ -119,10 +109,72 @@ fun MentionSheet(
                 isWhisperTab = page == 1,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick
+                onEmoteClick = onEmoteClick,
+                onWhisperReply = if (page == 1) onWhisperReply else null,
+                contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             )
         }
+
+        // Status bar scrim
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+                .height(statusBarHeight)
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+        )
+
+        // Floating toolbar: back pill + tab pill
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = statusBarHeight + 8.dp)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Back navigation pill
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.back)
+                    )
+                }
+            }
+
+            // Tab pill
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                Row {
+                    val tabs = listOf(R.string.mentions, R.string.whispers)
+                    tabs.forEachIndexed { index, stringRes ->
+                        val isSelected = pagerState.currentPage == index
+                        val textColor = when {
+                            isSelected -> MaterialTheme.colorScheme.primary
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                .defaultMinSize(minHeight = 48.dp)
+                                .padding(horizontal = 16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(stringRes),
+                                color = textColor,
+                                style = MaterialTheme.typography.titleSmall,
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
-
-
 }

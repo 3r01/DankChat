@@ -473,6 +473,7 @@ class MainViewModel(
             val userId = dankChatPreferenceStore.userIdString
             if (userId != null) {
                 dataRepository.loadUserEmotes(userId)
+                chatRepository.reparseAllEmotesAndBadges()
             }
 
             checkFailuresAndEmitState()
@@ -672,6 +673,7 @@ class MainViewModel(
         val userId = dankChatPreferenceStore.userIdString
         if (userId != null) {
             dataRepository.loadUserEmotes(userId)
+            chatRepository.reparseAllEmotesAndBadges()
         }
 
         checkFailuresAndEmitState()

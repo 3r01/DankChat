@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
 import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
@@ -32,6 +34,8 @@ fun FullScreenSheetOverlay(
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onWhisperReply: (UserName) -> Unit = {},
+    bottomContentPadding: Dp = 0.dp,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -76,7 +80,9 @@ fun FullScreenSheetOverlay(
                                 )
                             )
                         },
-                        onEmoteClick = onEmoteClick
+                        onEmoteClick = onEmoteClick,
+                        onWhisperReply = onWhisperReply,
+                        bottomContentPadding = bottomContentPadding,
                     )
                 }
                 is FullScreenSheetState.Whisper -> {
@@ -98,7 +104,9 @@ fun FullScreenSheetOverlay(
                                 )
                             )
                         },
-                        onEmoteClick = onEmoteClick
+                        onEmoteClick = onEmoteClick,
+                        onWhisperReply = onWhisperReply,
+                        bottomContentPadding = bottomContentPadding,
                     )
                 }
                 is FullScreenSheetState.Replies -> {
@@ -118,7 +126,8 @@ fun FullScreenSheetOverlay(
                                     canCopy = true
                                 )
                             )
-                        }
+                        },
+                        bottomContentPadding = bottomContentPadding,
                     )
                 }
             }

@@ -68,8 +68,8 @@ class ChannelDataCoordinator(
                     stateFlow.value = state
                 }
 
-            // After channel data loaded, wait for global data too, then reparse
-            globalLoadJob?.join()
+            // Reparse immediately with whatever emotes are available now
+            // Don't wait for globalLoadJob — channel 3rd party emotes should show immediately
             chatRepository.reparseAllEmotesAndBadges()
         }
     }
@@ -84,9 +84,14 @@ class ChannelDataCoordinator(
 
             val results = globalDataLoader.loadGlobalData()
 
-            // Load user state emotes if logged in
+            // Reparse after global emotes load so 3rd party globals are visible immediately
+            chatRepository.reparseAllEmotesAndBadges()
+
+            // Load user state emotes if logged in (slow, paginated)
             if (preferenceStore.isLoggedIn) {
                 loadUserStateEmotesIfAvailable()
+                // Reparse again after user emotes finish so they become visible
+                chatRepository.reparseAllEmotesAndBadges()
             }
 
             val failures = dataRepository.dataLoadingFailures.value

@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 
 class NotificationService : Service(), CoroutineScope {
@@ -52,6 +53,7 @@ class NotificationService : Service(), CoroutineScope {
 
     private var notificationsJob: Job? = null
     private val notifications = mutableMapOf<UserName, MutableList<Int>>()
+    private val notifiedMessageIds = LinkedHashSet<String>()
 
     private val chatRepository: ChatRepository by inject()
     private val dataRepository: DataRepository by inject()
@@ -210,12 +212,21 @@ class NotificationService : Service(), CoroutineScope {
 
     fun checkForNotification() {
         shouldNotifyOnMention = false
+        notifiedMessageIds.clear()
 
         notificationsJob?.cancel()
         notificationsJob = launch {
             chatRepository.notificationsFlow.collect { items ->
                 items.forEach { (message) ->
                     if (shouldNotifyOnMention && notificationsEnabled) {
+                        if (!notifiedMessageIds.add(message.id)) {
+                            return@forEach // Already notified for this message
+                        }
+                        if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
+                            val iterator = notifiedMessageIds.iterator()
+                            iterator.next()
+                            iterator.remove()
+                        }
                         val data = message.toNotificationData()
                         data?.createMentionNotification()
                     }
@@ -304,7 +315,7 @@ class NotificationService : Service(), CoroutineScope {
     private fun NotificationData.createMentionNotification() {
         val pendingStartActivityIntent = Intent(this@NotificationService, MainActivity::class.java).let {
             it.putExtra(MainActivity.OPEN_CHANNEL_KEY, channel)
-            PendingIntent.getActivity(this@NotificationService, notificationIntentCode, it, pendingIntentFlag)
+            PendingIntent.getActivity(this@NotificationService, notificationIntentCode.getAndIncrement(), it, pendingIntentFlag)
         }
 
         val summary = NotificationCompat.Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
@@ -330,7 +341,7 @@ class NotificationService : Service(), CoroutineScope {
             .setGroup(MENTION_GROUP)
             .build()
 
-        val id = notificationId
+        val id = notificationId.getAndIncrement()
         notifications.getOrPut(channel) { mutableListOf() } += id
 
         manager.notify(id, notification)
@@ -352,9 +363,9 @@ class NotificationService : Service(), CoroutineScope {
         private val UNICODE_SYMBOL_REGEX = "\\p{So}|\\p{Sc}|\\p{Sm}|\\p{Cn}".toRegex()
         private val URL_REGEX = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)".toRegex(RegexOption.IGNORE_CASE)
 
-        private var notificationId = 42
-            get() = field++
-        private var notificationIntentCode = 420
-            get() = field++
+        private const val MAX_NOTIFIED_IDS = 500
+
+        private val notificationId = AtomicInteger(42)
+        private val notificationIntentCode = AtomicInteger(420)
     }
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.toArgb
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.Highlight
 import com.flxrs.dankchat.data.twitch.message.HighlightType
@@ -134,7 +135,8 @@ object ChatMessageMapper {
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
-                textAlpha = textAlpha
+                textAlpha = textAlpha,
+                currentUserName = preferenceStore.userName
             )
         }
     }
@@ -408,6 +410,7 @@ object ChatMessageMapper {
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         textAlpha: Float,
+        currentUserName: UserName?,
     ): ChatMessageUiState.WhisperMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, true)
         val timestamp = if (chatSettings.showTimestamps) {
@@ -483,7 +486,8 @@ object ChatMessageMapper {
             recipientName = recipientAliasOrFormattedName,
             message = message,
             emotes = emoteUis,
-            fullMessage = fullMessage
+            fullMessage = fullMessage,
+            replyTargetName = if (currentUserName != null && name.value.equals(currentUserName.value, ignoreCase = true)) recipientName else name
         )
     }
 

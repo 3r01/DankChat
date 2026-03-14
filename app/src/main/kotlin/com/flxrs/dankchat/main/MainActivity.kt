@@ -183,6 +183,9 @@ class MainActivity : AppCompatActivity() {
 
         if (useComposeUi) {
             setupComposeUi()
+            intent.parcelable<UserName>(OPEN_CHANNEL_KEY)?.let { channel ->
+                lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channel)) }
+            }
         } else {
             setupFragmentUi()
         }
@@ -584,8 +587,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val channelExtra = intent.parcelable<UserName>(OPEN_CHANNEL_KEY)
-        channelToOpen = channelExtra
+        val channelExtra = intent.parcelable<UserName>(OPEN_CHANNEL_KEY) ?: return
+        if (developerSettingsDataStore.current().useComposeChatUi) {
+            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
+        } else {
+            channelToOpen = channelExtra
+        }
     }
 
     fun clearNotificationsOfChannel(channel: UserName) = when {

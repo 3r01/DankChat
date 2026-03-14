@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.chat.replies.compose
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,7 @@ fun RepliesComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onNotFound: () -> Unit,
+    contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
@@ -49,7 +51,8 @@ fun RepliesComposable(
                 modifier = modifier,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
-                onEmoteClick = { /* no-op for replies */ }
+                onEmoteClick = { /* no-op for replies */ },
+                contentPadding = contentPadding
             )
         }
         is RepliesUiState.NotFound -> {

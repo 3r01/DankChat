@@ -13,7 +13,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -51,11 +50,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -71,7 +71,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.layout.layout
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -113,14 +112,13 @@ fun FloatingToolbar(
     if (tabState.tabs.isEmpty()) return
 
     val density = LocalDensity.current
-    val scope = rememberCoroutineScope()
     var isTabsExpanded by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
     var overflowInitialMenu by remember { mutableStateOf<AppBarMenu>(AppBarMenu.Main) }
 
     val totalTabs = tabState.tabs.size
     val hasOverflow = totalTabs > 3
-    val selectedIndex = tabState.selectedIndex
+    val selectedIndex = composePagerState.currentPage
     val tabListState = rememberLazyListState()
 
     // Expand tabs when pager is swiped in a direction with more channels
@@ -155,6 +153,7 @@ fun FloatingToolbar(
         }
     }
 
+
     // Dismiss scrim for inline overflow menu
     if (showOverflowMenu) {
         Box(
@@ -179,9 +178,25 @@ fun FloatingToolbar(
             .padding(top = if (currentStream != null && streamHeightDp > 0.dp) streamHeightDp else with(density) { WindowInsets.statusBars.getTop(density).toDp() })
             .padding(top = 8.dp)
     ) {
-        // Auto-scroll to keep selected tab visible
-        LaunchedEffect(selectedIndex) {
-            tabListState.animateScrollToItem(selectedIndex)
+        // Auto-scroll whenever the selected tab isn't fully visible
+        LaunchedEffect(Unit) {
+            snapshotFlow {
+                val currentIndex = composePagerState.currentPage
+                val layoutInfo = tabListState.layoutInfo
+                val viewportStart = layoutInfo.viewportStartOffset
+                val viewportEnd = layoutInfo.viewportEndOffset
+                val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == currentIndex }
+                when {
+                    itemInfo == null -> currentIndex
+                    itemInfo.offset < viewportStart -> currentIndex
+                    itemInfo.offset + itemInfo.size > viewportEnd -> currentIndex
+                    else -> -1
+                }
+            }.collect { targetIndex ->
+                if (targetIndex >= 0) {
+                    tabListState.animateScrollToItem(targetIndex)
+                }
+            }
         }
 
         // Mention indicators based on visibility
@@ -205,54 +220,56 @@ fun FloatingToolbar(
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
             ) {
             Box(modifier = if (endAligned) Modifier.fillMaxWidth() else Modifier) {
+            val mentionGradientColor = MaterialTheme.colorScheme.error
             Surface(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.extraLarge)
+                    .drawWithContent {
+                    drawContent()
+                    val gradientWidth = 24.dp.toPx()
+                    if (hasLeftMention) {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    mentionGradientColor.copy(alpha = 0.5f),
+                                    mentionGradientColor.copy(alpha = 0f)
+                                ),
+                                endX = gradientWidth
+                            ),
+                            size = Size(gradientWidth, size.height)
+                        )
+                    }
+                    if (hasRightMention) {
+                        drawRect(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    mentionGradientColor.copy(alpha = 0f),
+                                    mentionGradientColor.copy(alpha = 0.5f)
+                                ),
+                                startX = size.width - gradientWidth,
+                                endX = size.width
+                            ),
+                            topLeft = Offset(size.width - gradientWidth, 0f),
+                            size = Size(gradientWidth, size.height)
+                        )
+                    }
+                },
             ) {
-                val mentionGradientColor = MaterialTheme.colorScheme.error
                 LazyRow(
                     state = tabListState,
-                    contentPadding = PaddingValues(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .wrapLazyRowContent(tabListState)
-                        .drawWithContent {
-                            drawContent()
-                            val gradientWidth = 24.dp.toPx()
-                            if (hasLeftMention) {
-                                drawRect(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            mentionGradientColor.copy(alpha = 0.5f),
-                                            mentionGradientColor.copy(alpha = 0f)
-                                        ),
-                                        endX = gradientWidth
-                                    ),
-                                    size = Size(gradientWidth, size.height)
-                                )
-                            }
-                            if (hasRightMention) {
-                                drawRect(
-                                    brush = Brush.horizontalGradient(
-                                        colors = listOf(
-                                            mentionGradientColor.copy(alpha = 0f),
-                                            mentionGradientColor.copy(alpha = 0.5f)
-                                        ),
-                                        startX = size.width - gradientWidth,
-                                        endX = size.width
-                                    ),
-                                    topLeft = Offset(size.width - gradientWidth, 0f),
-                                    size = Size(gradientWidth, size.height)
-                                )
-                            }
-                        }
+                        .wrapLazyRowContent(tabListState, extraWidth = with(density) { 24.dp.roundToPx() })
+                        .padding(horizontal = 12.dp)
+                        .clipToBounds()
                 ) {
                     itemsIndexed(
                         items = tabState.tabs,
                         key = { _, tab -> tab.channel.value }
                     ) { index, tab ->
-                        val isSelected = tab.isSelected
+                        val isSelected = index == selectedIndex
                         val textColor = when {
                             isSelected -> MaterialTheme.colorScheme.primary
                             tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
@@ -398,12 +415,12 @@ fun FloatingToolbar(
 }
 
 /** Measures [LazyRow] at full width (for scrolling) but reports actual content width so the pill wraps content. */
-private fun Modifier.wrapLazyRowContent(listState: LazyListState) = layout { measurable, constraints ->
+private fun Modifier.wrapLazyRowContent(listState: LazyListState, extraWidth: Int = 0) = layout { measurable, constraints ->
     val placeable = measurable.measure(constraints)
     val items = listState.layoutInfo.visibleItemsInfo
     val contentWidth = if (items.isNotEmpty()) {
         val lastItem = items.last()
-        lastItem.offset + lastItem.size + listState.layoutInfo.afterContentPadding
+        lastItem.offset + lastItem.size + extraWidth
     } else {
         placeable.width
     }

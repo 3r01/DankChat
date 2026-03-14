@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Reply
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -33,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.EmoteDimensions
@@ -57,11 +62,13 @@ fun WhisperMessageComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
-    
-    Box(
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
@@ -70,14 +77,29 @@ fun WhisperMessageComposable(
             .padding(horizontal = 8.dp, vertical = 2.dp)
             .alpha(message.textAlpha)
     ) {
-        WhisperMessageText(
-            message = message,
-            fontSize = fontSize,
-            animateGifs = animateGifs,
-            onUserClick = onUserClick,
-            onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick
-        )
+        Box(modifier = Modifier.weight(1f)) {
+            WhisperMessageText(
+                message = message,
+                fontSize = fontSize,
+                animateGifs = animateGifs,
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick
+            )
+        }
+        if (onWhisperReply != null) {
+            IconButton(
+                onClick = { onWhisperReply(message.replyTargetName) },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Reply,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 
@@ -137,7 +159,9 @@ private fun WhisperMessageText(
                 append(message.senderName)
                 pop()
             }
-            append(" -> ")
+            withStyle(SpanStyle(color = defaultTextColor)) {
+                append(" -> ")
+            }
 
             // Recipient
             withStyle(
@@ -148,7 +172,9 @@ private fun WhisperMessageText(
             ) {
                 append(message.recipientName)
             }
-            append(": ")
+            withStyle(SpanStyle(color = defaultTextColor)) {
+                append(": ")
+            }
 
             // Message text with emotes
             withStyle(SpanStyle(color = defaultTextColor)) {

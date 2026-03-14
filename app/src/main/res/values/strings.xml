@@ -429,6 +429,12 @@
     <string name="message_copy_id">Copy message id</string>
     <string name="message_more_actions">More…</string>
     <string name="reply_header">Replying to @%1$s</string>
+    <string name="whisper_header">Whispering @%1$s</string>
+    <string name="hint_whispering">Send a whisper</string>
+    <string name="whisper_new">New whisper</string>
+    <string name="whisper_new_dialog_title">Send whisper to</string>
+    <string name="whisper_new_dialog_hint">Username</string>
+    <string name="whisper_new_dialog_start">Start</string>
     <string name="reply_thread_not_found">Reply thread not found</string>
     <string name="message_not_found">Message not found</string>
     <string name="emote_sheet_use">Use emote</string>
