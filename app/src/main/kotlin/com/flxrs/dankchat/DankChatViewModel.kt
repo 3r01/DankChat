@@ -21,12 +21,6 @@ import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
-import android.webkit.CookieManager
-import android.webkit.WebStorage
-import com.flxrs.dankchat.data.repo.IgnoresRepository
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
-import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
-
 @KoinViewModel
 class DankChatViewModel(
     private val chatRepository: ChatRepository,
@@ -34,9 +28,6 @@ class DankChatViewModel(
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val authApiClient: AuthApiClient,
     private val dataRepository: DataRepository,
-    private val ignoresRepository: IgnoresRepository,
-    private val userStateRepository: UserStateRepository,
-    private val emoteUsageRepository: EmoteUsageRepository,
 ) : ViewModel() {
 
     val serviceEvents = dataRepository.serviceEvents
@@ -74,20 +65,6 @@ class DankChatViewModel(
     fun checkLogin() {
         if (dankChatPreferenceStore.isLoggedIn && dankChatPreferenceStore.oAuthKey.isNullOrBlank()) {
             dankChatPreferenceStore.clearLogin()
-        }
-    }
-
-    fun clearDataForLogout() {
-        CookieManager.getInstance().removeAllCookies(null)
-        WebStorage.getInstance().deleteAllData()
-
-        dankChatPreferenceStore.clearLogin()
-        userStateRepository.clear()
-
-        chatRepository.closeAndReconnect()
-        ignoresRepository.clearIgnores()
-        viewModelScope.launch {
-            emoteUsageRepository.clearUsages()
         }
     }
 

@@ -84,7 +84,7 @@ class OverviewSettingsFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DankChatTheme {
-                    OverviewSettingsScreen(
+                    OverviewSettings(
                         isLoggedIn = dankChatPreferences.isLoggedIn,
                         hasChangelog = DankChatVersion.HAS_CHANGELOG,
                         onBackPressed = { navController.popBackStack() },
@@ -107,4 +107,124 @@ class OverviewSettingsFragment : Fragment() {
         (view.parent as? View)?.doOnPreDraw { startPostponedEnterTransition() }
     }
 }
+
+@Composable
+private fun OverviewSettings(
+    isLoggedIn: Boolean,
+    hasChangelog: Boolean,
+    onBackPressed: () -> Unit,
+    onLogoutRequested: () -> Unit,
+    onNavigateRequested: (id: Int) -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .imePadding(),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.settings)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBackPressed,
+                        content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") },
+                    )
+                }
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            PreferenceItem(
+                title = stringResource(R.string.preference_appearance_header),
+                icon = Icons.Default.Palette,
+                onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment) },
+            )
+            PreferenceItem(
+                title = stringResource(R.string.preference_highlights_ignores_header),
+                icon = Icons.Default.NotificationsActive,
+                onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_notificationsSettingsFragment) },
+            )
+            PreferenceItem(stringResource(R.string.preference_chat_header), Icons.Default.Forum, onClick = {
+                onNavigateRequested(R.id.action_overviewSettingsFragment_to_chatSettingsFragment)
+            })
+            PreferenceItem(stringResource(R.string.preference_streams_header), Icons.Default.PlayArrow, onClick = {
+                onNavigateRequested(R.id.action_overviewSettingsFragment_to_streamsSettingsFragment)
+            })
+            PreferenceItem(stringResource(R.string.preference_tools_header), Icons.Default.Construction, onClick = {
+                onNavigateRequested(R.id.action_overviewSettingsFragment_to_toolsSettingsFragment)
+            })
+            PreferenceItem(stringResource(R.string.preference_developer_header), Icons.Default.DeveloperMode, onClick = {
+                onNavigateRequested(R.id.action_overviewSettingsFragment_to_developerSettingsFragment)
+            })
+
+            AnimatedVisibility(hasChangelog) {
+                PreferenceItem(stringResource(R.string.preference_whats_new_header), Icons.Default.FiberNew, onClick = {
+                    onNavigateRequested(R.id.action_overviewSettingsFragment_to_changelogSheetFragment)
+                })
+            }
+
+            PreferenceItem(stringResource(R.string.logout), Icons.AutoMirrored.Default.ExitToApp, isEnabled = isLoggedIn, onClick = onLogoutRequested)
+            SecretDankerModeTrigger {
+                PreferenceCategoryWithSummary(
+                    title = {
+                        PreferenceCategoryTitle(
+                            text = stringResource(R.string.preference_about_header),
+                            modifier = Modifier.dankClickable(),
+                        )
+                    },
+                ) {
+                    val context = LocalContext.current
+                    val annotated = buildAnnotatedString {
+                        append(context.getString(R.string.preference_about_summary, BuildConfig.VERSION_NAME))
+                        appendLine()
+                        withLink(link = buildLinkAnnotation(GITHUB_URL)) {
+                            append(GITHUB_URL)
+                        }
+                        appendLine()
+                        appendLine()
+                        append(context.getString(R.string.preference_about_tos))
+                        appendLine()
+                        withLink(link = buildLinkAnnotation(TWITCH_TOS_URL)) {
+                            append(TWITCH_TOS_URL)
+                        }
+                        appendLine()
+                        appendLine()
+                        val licenseText = stringResource(R.string.open_source_licenses)
+                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_aboutFragment) })) {
+                            append(licenseText)
+                        }
+                    }
+                    PreferenceSummary(annotated, Modifier.padding(top = 16.dp))
+                }
+            }
+            NavigationBarSpacer()
+        }
+    }
+}
+
+@Composable
+@PreviewDynamicColors
+@PreviewLightDark
+private fun OverviewSettingsPreview() {
+    DankChatTheme {
+        OverviewSettings(
+            isLoggedIn = false,
+            hasChangelog = true,
+            onBackPressed = { },
+            onLogoutRequested = { },
+            onNavigateRequested = { },
+        )
+    }
+}
+
+private const val GITHUB_URL = "https://github.com/flex3r/dankchat"
+private const val TWITCH_TOS_URL = "https://www.twitch.tv/p/terms-of-service"
 

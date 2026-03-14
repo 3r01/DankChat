@@ -61,12 +61,93 @@ class StreamsSettingsFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
+                val viewModel = koinViewModel<StreamsSettingsViewModel>()
+                val settings = viewModel.settings.collectAsStateWithLifecycle().value
+
                 DankChatTheme {
-                    StreamsSettingsScreen(
+                    StreamsSettings(
+                        settings = settings,
+                        onInteraction = { viewModel.onInteraction(it) },
                         onBackPressed = { findNavController().popBackStack() },
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun StreamsSettings(
+    settings: StreamsSettings,
+    onInteraction: (StreamsSettingsInteraction) -> Unit,
+    onBackPressed: () -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.preference_streams_header)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBackPressed,
+                        content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
+                    )
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_fetch_streams_title),
+                summary = stringResource(R.string.preference_fetch_streams_summary),
+                isChecked = settings.fetchStreams,
+                onClick = { onInteraction(StreamsSettingsInteraction.FetchStreams(it)) },
+            )
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_streaminfo_title),
+                summary = stringResource(R.string.preference_streaminfo_summary),
+                isChecked = settings.showStreamInfo,
+                isEnabled = settings.fetchStreams,
+                onClick = { onInteraction(StreamsSettingsInteraction.ShowStreamInfo(it)) },
+            )
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_streaminfo_category_title),
+                summary = stringResource(R.string.preference_streaminfo_category_summary),
+                isChecked = settings.showStreamCategory,
+                isEnabled = settings.fetchStreams && settings.showStreamInfo,
+                onClick = { onInteraction(StreamsSettingsInteraction.ShowStreamCategory(it)) },
+            )
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_retain_webview_title),
+                summary = stringResource(R.string.preference_retain_webview_summary),
+                isChecked = settings.preventStreamReloads,
+                isEnabled = settings.fetchStreams,
+                onClick = { onInteraction(StreamsSettingsInteraction.PreventStreamReloads(it)) },
+            )
+
+            val activity = LocalActivity.current
+            val pipAvailable = remember {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        activity != null && activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+            }
+            if (pipAvailable) {
+                SwitchPreferenceItem(
+                    title = stringResource(R.string.preference_pip_title),
+                    summary = stringResource(R.string.preference_pip_summary),
+                    isChecked = settings.enablePiP,
+                    isEnabled = settings.fetchStreams && settings.preventStreamReloads,
+                    onClick = { onInteraction(StreamsSettingsInteraction.EnablePiP(it)) },
+                )
+            }
+            NavigationBarSpacer()
         }
     }
 }

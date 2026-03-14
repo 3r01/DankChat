@@ -76,9 +76,75 @@ class AboutFragment : Fragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 DankChatTheme {
-                    AboutScreen(
-                        onBackPressed = { navController.popBackStack() },
-                    )
+                    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                    Scaffold(
+                        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+                        modifier = Modifier
+                            .nestedScroll(scrollBehavior.nestedScrollConnection)
+                            .imePadding(),
+                        topBar = {
+                            TopAppBar(
+                                scrollBehavior = scrollBehavior,
+                                title = { Text(stringResource(R.string.open_source_licenses)) },
+                                navigationIcon = {
+                                    IconButton(
+                                        onClick = { navController.popBackStack() },
+                                        content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") },
+                                    )
+                                }
+                            )
+                        },
+                    ) { padding ->
+                        val context = LocalContext.current
+                        val libraries = produceState<Libs?>(null) {
+                            value = withContext(Dispatchers.IO) {
+                                Libs.Builder().withContext(context).build()
+                            }
+                        }
+                        var selectedLibrary by remember { mutableStateOf<Library?>(null) }
+                        LibrariesContainer(
+                            libraries = libraries.value,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(padding),
+                            contentPadding = WindowInsets.navigationBars.asPaddingValues(),
+                            onLibraryClick = { selectedLibrary = it },
+                        )
+                        selectedLibrary?.let { library ->
+                            val linkStyles = textLinkStyles()
+                            val rules = TextRuleDefaults.defaultList()
+                            val license = remember(library, rules) {
+                                val mappedRules = rules.map { it.copy(styles = linkStyles) }
+                                library.htmlReadyLicenseContent
+                                    .takeIf { it.isNotEmpty() }
+                                    ?.let { content ->
+                                        val html = AnnotatedString.fromHtml(
+                                            htmlString = content,
+                                            linkStyles = linkStyles,
+                                        )
+                                        mappedRules.annotateString(html.text)
+                                    }
+                            }
+                            if (license != null) {
+                                AlertDialog(
+                                    onDismissRequest = { selectedLibrary = null },
+                                    title = { Text(text = library.name) },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = { selectedLibrary = null },
+                                            content = { Text(stringResource(R.string.dialog_ok)) },
+                                        )
+                                    },
+                                    text = {
+                                        Text(
+                                            text = license,
+                                            modifier = Modifier.verticalScroll(rememberScrollState()),
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

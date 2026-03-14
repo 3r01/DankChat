@@ -109,12 +109,363 @@ class DeveloperSettingsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return ComposeView(requireContext()).apply {
             setContent {
+                val viewModel = koinViewModel<DeveloperSettingsViewModel>()
+                val settings = viewModel.settings.collectAsStateWithLifecycle().value
+
+                val context = LocalContext.current
+                val restartRequiredTitle = stringResource(R.string.restart_required)
+                val restartRequiredAction = stringResource(R.string.restart)
+                val snackbarHostState = remember { SnackbarHostState() }
+
+                LaunchedEffect(viewModel) {
+                    viewModel.events.collectLatest {
+                        when (it) {
+                            DeveloperSettingsEvent.RestartRequired -> {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = restartRequiredTitle,
+                                    actionLabel = restartRequiredAction,
+                                    duration = SnackbarDuration.Long,
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    ProcessPhoenix.triggerRebirth(context)
+                                }
+                            }
+                        }
+                    }
+                }
+
                 DankChatTheme {
-                    DeveloperSettingsScreen(
+                    DeveloperSettings(
+                        settings = settings,
+                        snackbarHostState = snackbarHostState,
+                        onInteraction = { viewModel.onInteraction(it) },
                         onBackPressed = { findNavController().popBackStack() },
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun DeveloperSettings(
+    settings: DeveloperSettings,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onInteraction: (DeveloperSettingsInteraction) -> Unit,
+    onBackPressed: () -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState, modifier = Modifier.navigationBarsPadding()) },
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.preference_developer_header)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBackPressed,
+                        content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
+                    )
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_debug_mode_title),
+                summary = stringResource(R.string.preference_debug_mode_summary),
+                isChecked = settings.debugMode,
+                onClick = { onInteraction(DeveloperSettingsInteraction.DebugMode(it)) },
+            )
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_repeated_sending_title),
+                summary = stringResource(R.string.preference_repeated_sending_summary),
+                isChecked = settings.repeatedSending,
+                onClick = { onInteraction(DeveloperSettingsInteraction.RepeatedSending(it)) },
+            )
+            SwitchPreferenceItem(
+                title = stringResource(R.string.preference_bypass_command_handling_title),
+                summary = stringResource(R.string.preference_bypass_command_handling_summary),
+                isChecked = settings.bypassCommandHandling,
+                onClick = { onInteraction(DeveloperSettingsInteraction.BypassCommandHandling(it)) },
+            )
+            SwitchPreferenceItem(
+                title = "Use Compose Chat UI",
+                summary = "Enable new Compose-based chat interface (experimental)",
+                isChecked = settings.useComposeChatUi,
+                onClick = { onInteraction(DeveloperSettingsInteraction.UseComposeChatUi(it)) },
+            )
+            ExpandablePreferenceItem(title = stringResource(R.string.preference_custom_login_title)) {
+                CustomLoginBottomSheet(
+                    onDismissRequested = ::dismiss,
+                    onRestartRequiredRequested = {
+                        dismiss()
+                        onInteraction(DeveloperSettingsInteraction.RestartRequired)
+                    }
+                )
+            }
+            ExpandablePreferenceItem(title = stringResource(R.string.preference_rm_host_title)) {
+                CustomRecentMessagesHostBottomSheet(
+                    initialHost = settings.customRecentMessagesHost,
+                    onInteraction = {
+                        dismiss()
+                        onInteraction(it)
+                    },
+                )
+            }
+
+            PreferenceCategory(title = "EventSub") {
+                if (!settings.isPubSubShutdown) {
+                    SwitchPreferenceItem(
+                        title = "Enable Twitch EventSub",
+                        summary = "Uses EventSub for various real-time events instead of deprecated PubSub",
+                        isChecked = settings.shouldUseEventSub,
+                        onClick = { onInteraction(EventSubEnabled(it)) },
+                    )
+                }
+                SwitchPreferenceItem(
+                    title = "Enable EventSub debug output",
+                    summary = "Prints debug output related to EventSub as system messages",
+                    isEnabled = settings.shouldUseEventSub,
+                    isChecked = settings.eventSubDebugOutput,
+                    onClick = { onInteraction(EventSubDebugOutput(it)) },
+                )
+            }
+
+            NavigationBarSpacer()
+        }
+    }
+}
+
+@Composable
+private fun CustomRecentMessagesHostBottomSheet(
+    initialHost: String,
+    onInteraction: (DeveloperSettingsInteraction) -> Unit,
+) {
+    var host by remember(initialHost) { mutableStateOf(initialHost) }
+    ModalBottomSheet(onDismissRequest = { onInteraction(DeveloperSettingsInteraction.CustomRecentMessagesHost(host)) }) {
+        Text(
+            text = stringResource(R.string.preference_rm_host_title),
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        )
+        TextButton(
+            onClick = { host = DeveloperSettings.RM_HOST_DEFAULT },
+            content = { Text(stringResource(R.string.reset)) },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(horizontal = 16.dp),
+        )
+        OutlinedTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            value = host,
+            onValueChange = { host = it },
+            label = { Text(stringResource(R.string.host)) },
+            maxLines = 1,
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Uri,
+            ),
+        )
+        Spacer(Modifier.height(64.dp))
+    }
+}
+
+@Composable
+private fun CustomLoginBottomSheet(
+    onDismissRequested: () -> Unit,
+    onRestartRequiredRequested: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val customLoginViewModel = koinInject<CustomLoginViewModel>()
+    val state = customLoginViewModel.customLoginState.collectAsStateWithLifecycle().value
+    val token = rememberTextFieldState(customLoginViewModel.getToken())
+    var showScopesDialog by remember { mutableStateOf(false) }
+
+    val error = when (state) {
+        is CustomLoginState.Failure       -> stringResource(R.string.custom_login_error_fallback, state.error.truncate())
+        CustomLoginState.TokenEmpty       -> stringResource(R.string.custom_login_error_empty_token)
+        CustomLoginState.TokenInvalid     -> stringResource(R.string.custom_login_error_invalid_token)
+        is CustomLoginState.MissingScopes -> stringResource(R.string.custom_login_error_missing_scopes, state.missingScopes.truncate())
+        else                              -> null
+    }
+
+    LaunchedEffect(state) {
+        if (state is CustomLoginState.Validated) {
+            onRestartRequiredRequested()
+        }
+    }
+
+    ModalBottomSheet(onDismissRequest = onDismissRequested) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                text = stringResource(R.string.preference_custom_login_title),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            Text(
+                text = stringResource(R.string.custom_login_hint),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+            )
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.End),
+            ) {
+                TextButton(
+                    onClick = { showScopesDialog = true },
+                    content = { Text(stringResource(R.string.custom_login_show_scopes)) },
+                )
+                TextButton(
+                    onClick = { token.setTextAndPlaceCursorAtEnd(customLoginViewModel.getToken()) },
+                    content = { Text(stringResource(R.string.reset)) },
+                )
+            }
+
+            var showPassword by remember { mutableStateOf(false) }
+            OutlinedSecureTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                state = token,
+                textObfuscationMode = when {
+                    showPassword -> TextObfuscationMode.Visible
+                    else         -> TextObfuscationMode.Hidden
+                },
+                label = { Text(stringResource(R.string.oauth_token)) },
+                isError = error != null,
+                supportingText = { error?.let { Text(it) } },
+                trailingIcon = {
+                    IconButton(
+                        onClick = { showPassword = !showPassword },
+                        content = {
+                            Icon(
+                                imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                contentDescription = null,
+                            )
+                        }
+                    )
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Password,
+                ),
+            )
+
+            AnimatedVisibility(visible = state !is CustomLoginState.Loading, modifier = Modifier.fillMaxWidth()) {
+                TextButton(
+                    onClick = {
+                        scope.launch { customLoginViewModel.validateCustomLogin(token.text.toString()) }
+                    },
+                    contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
+                    content = {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Save, contentDescription = stringResource(R.string.verify_login))
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text(stringResource(R.string.verify_login))
+                        }
+                    },
+                )
+            }
+            AnimatedVisibility(visible = state is CustomLoginState.Loading, modifier = Modifier.fillMaxWidth()) {
+                LinearProgressIndicator()
+            }
+            Spacer(Modifier.height(64.dp))
+        }
+    }
+
+    if (showScopesDialog) {
+        ShowScopesBottomSheet(
+            scopes = customLoginViewModel.getScopes(),
+            onDismissRequested = { showScopesDialog = false },
+        )
+    }
+
+    if (state is CustomLoginState.MissingScopes && state.dialogOpen) {
+        MissingScopesDialog(
+            missing = state.missingScopes,
+            onDismissRequested = { customLoginViewModel.dismissMissingScopesDialog() },
+            onContinueRequested = {
+                customLoginViewModel.saveLogin(state.token, state.validation)
+                onRestartRequiredRequested()
+            },
+        )
+    }
+}
+
+@Composable
+private fun ShowScopesBottomSheet(scopes: String, onDismissRequested: () -> Unit) {
+    val clipboard = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    ModalBottomSheet(onDismissRequested, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                text = stringResource(R.string.custom_login_required_scopes),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+            )
+            OutlinedTextField(
+                value = scopes,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("scopes", scopes)))
+                            }
+                        },
+                        content = { Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null) }
+                    )
+                }
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun MissingScopesDialog(missing: String, onDismissRequested: () -> Unit, onContinueRequested: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismissRequested,
+        title = { Text(stringResource(R.string.custom_login_missing_scopes_title)) },
+        text = { Text(stringResource(R.string.custom_login_missing_scopes_text, missing)) },
+        confirmButton = {
+            TextButton(
+                onClick = onContinueRequested,
+                content = { Text(stringResource(R.string.custom_login_missing_scopes_continue)) }
+            )
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequested,
+                content = { Text(stringResource(R.string.dialog_cancel)) }
+            )
+        },
+    )
 }

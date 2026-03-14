@@ -93,12 +93,254 @@ class AppearanceSettingsFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
+                val viewModel = koinViewModel<AppearanceSettingsViewModel>()
+                val settings = viewModel.settings.collectAsStateWithLifecycle().value
+
                 DankChatTheme {
-                    AppearanceSettingsScreen(
+                    AppearanceSettings(
+                        settings = settings,
+                        onInteraction = { viewModel.onInteraction(it) },
+                        onSuspendingInteraction = { viewModel.onSuspendingInteraction(it) },
                         onBackPressed = { findNavController().popBackStack() }
                     )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun AppearanceSettings(
+    settings: AppearanceSettings,
+    onInteraction: (AppearanceSettingsInteraction) -> Unit,
+    onSuspendingInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
+    onBackPressed: () -> Unit,
+) {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                scrollBehavior = scrollBehavior,
+                title = { Text(stringResource(R.string.preference_appearance_header)) },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBackPressed,
+                        content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
+                    )
+                }
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            ThemeCategory(
+                theme = settings.theme,
+                trueDarkTheme = settings.trueDarkTheme,
+                onInteraction = onSuspendingInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            DisplayCategory(
+                fontSize = settings.fontSize,
+                keepScreenOn = settings.keepScreenOn,
+                lineSeparator = settings.lineSeparator,
+                checkeredMessages = settings.checkeredMessages,
+                onInteraction = onInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            ComponentsCategory(
+                showInput = settings.showInput,
+                autoDisableInput = settings.autoDisableInput,
+                showChips = settings.showChips,
+                showChangelogs = settings.showChangelogs,
+                onInteraction = onInteraction,
+            )
+            NavigationBarSpacer()
+        }
+    }
+}
+
+@Composable
+private fun ComponentsCategory(
+    showInput: Boolean,
+    autoDisableInput: Boolean,
+    showChips: Boolean,
+    showChangelogs: Boolean,
+    onInteraction: (AppearanceSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(
+        title = stringResource(R.string.preference_components_group_title),
+    ) {
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_input_title),
+            summary = stringResource(R.string.preference_show_input_summary),
+            isChecked = showInput,
+            onClick = { onInteraction(ShowInput(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_auto_disable_input_title),
+            isEnabled = showInput,
+            isChecked = autoDisableInput,
+            onClick = { onInteraction(AutoDisableInput(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_chip_actions_title),
+            summary = stringResource(R.string.preference_show_chip_actions_summary),
+            isChecked = showChips,
+            onClick = { onInteraction(ShowChips(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_changelogs),
+            isChecked = showChangelogs,
+            onClick = { onInteraction(ShowChangelogs(it)) },
+        )
+    }
+}
+
+@Composable
+private fun DisplayCategory(
+    fontSize: Int,
+    keepScreenOn: Boolean,
+    lineSeparator: Boolean,
+    checkeredMessages: Boolean,
+    onInteraction: (AppearanceSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(
+        title = stringResource(R.string.preference_display_group_title),
+    ) {
+        val context = LocalContext.current
+        var value by remember(fontSize) { mutableFloatStateOf(fontSize.toFloat()) }
+        val summary = remember(value) { getFontSizeSummary(value.roundToInt(), context) }
+        SliderPreferenceItem(
+            title = stringResource(R.string.preference_font_size_title),
+            value = value,
+            range = 10f..40f,
+            onDrag = { value = it },
+            onDragFinished = { onInteraction(FontSize(value.roundToInt())) },
+            summary = summary,
+        )
+
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_keep_screen_on_title),
+            isChecked = keepScreenOn,
+            onClick = { onInteraction(KeepScreenOn(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_line_separator_title),
+            isChecked = lineSeparator,
+            onClick = { onInteraction(LineSeparator(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_checkered_lines_title),
+            summary = stringResource(R.string.preference_checkered_lines_summary),
+            isChecked = checkeredMessages,
+            onClick = { onInteraction(CheckeredMessages(it)) },
+        )
+    }
+}
+
+@Composable
+private fun ThemeCategory(
+    theme: ThemePreference,
+    trueDarkTheme: Boolean,
+    onInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val themeState = rememberThemeState(theme, trueDarkTheme, isSystemInDarkTheme())
+    PreferenceCategory(
+        title = stringResource(R.string.preference_theme_title),
+    ) {
+        val activity = LocalActivity.current
+        PreferenceListDialog(
+            title = stringResource(R.string.preference_theme_title),
+            summary = themeState.summary,
+            isEnabled = themeState.themeSwitcherEnabled,
+            values = themeState.values,
+            entries = themeState.entries,
+            selected = themeState.preference,
+            onChanged = {
+                scope.launch {
+                    activity ?: return@launch
+                    onInteraction(Theme(it))
+                    setDarkMode(it, activity)
+                }
+            }
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_true_dark_theme_title),
+            summary = stringResource(R.string.preference_true_dark_theme_summary),
+            isChecked = themeState.trueDarkPreference,
+            isEnabled = themeState.trueDarkEnabled,
+            onClick = {
+                scope.launch {
+                    activity ?: return@launch
+                    onInteraction(TrueDarkTheme(it))
+                    ActivityCompat.recreate(activity)
+                }
+            }
+        )
+    }
+}
+
+data class ThemeState(
+    val preference: ThemePreference,
+    val summary: String,
+    val trueDarkPreference: Boolean,
+    val values: ImmutableList<ThemePreference>,
+    val entries: ImmutableList<String>,
+    val themeSwitcherEnabled: Boolean,
+    val trueDarkEnabled: Boolean,
+)
+
+@Composable
+@Stable
+private fun rememberThemeState(theme: ThemePreference, trueDark: Boolean, systemDarkMode: Boolean): ThemeState {
+    val context = LocalContext.current
+    val defaultEntries = stringArrayResource(R.array.theme_entries).toImmutableList()
+    // minSdk 30 always supports light mode and system dark mode
+    val darkThemeTitle = stringResource(R.string.preference_dark_theme_entry_title)
+    val lightThemeTitle = stringResource(R.string.preference_light_theme_entry_title)
+    
+    val (entries, values) = remember {
+        defaultEntries to ThemePreference.entries.toImmutableList()
+    }
+
+    return remember(theme, trueDark) {
+        val selected = if (theme in values) theme else ThemePreference.Dark
+        val trueDarkEnabled = selected == ThemePreference.Dark || (selected == ThemePreference.System && systemDarkMode)
+        ThemeState(
+            preference = selected,
+            summary = entries[values.indexOf(selected)],
+            trueDarkPreference = trueDarkEnabled && trueDark,
+            values = values,
+            entries = entries,
+            themeSwitcherEnabled = true,
+            trueDarkEnabled = trueDarkEnabled,
+        )
+    }
+}
+
+private fun getFontSizeSummary(value: Int, context: Context): String {
+    return when {
+        value < 13 -> context.getString(R.string.preference_font_size_summary_very_small)
+        value in 13..17 -> context.getString(R.string.preference_font_size_summary_small)
+        value in 18..22 -> context.getString(R.string.preference_font_size_summary_large)
+        else -> context.getString(R.string.preference_font_size_summary_very_large)
+    }
+}
+
+private fun setDarkMode(themePreference: ThemePreference, activity: Activity) {
+    AppCompatDelegate.setDefaultNightMode(
+        when (themePreference) {
+            ThemePreference.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            ThemePreference.Dark   -> AppCompatDelegate.MODE_NIGHT_YES
+            else                   -> AppCompatDelegate.MODE_NIGHT_NO
+        }
+    )
+    ActivityCompat.recreate(activity)
 }
