@@ -49,7 +49,6 @@ data class EmoteDimensions(
  * @param text The AnnotatedString with annotations marking where inline content goes
  * @param inlineContentProviders Map of content IDs to composables that will be measured
  * @param modifier Modifier for the text
- * @param knownDimensions Optional pre-known dimensions for inline content IDs, skipping measurement subcomposition
  * @param onTextClick Callback for click events with offset position
  * @param onTextLongClick Callback for long-click events with offset position
  * @param interactionSource Optional interaction source for ripple effects
@@ -59,7 +58,6 @@ fun TextWithMeasuredInlineContent(
     text: AnnotatedString,
     inlineContentProviders: Map<String, @Composable () -> Unit>,
     modifier: Modifier = Modifier,
-    knownDimensions: Map<String, EmoteDimensions> = emptyMap(),
     onTextClick: ((Int) -> Unit)? = null,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -69,35 +67,28 @@ fun TextWithMeasuredInlineContent(
     val textLayoutResultRef = remember { mutableStateOf<TextLayoutResult?>(null) }
     
     SubcomposeLayout(modifier = modifier) { constraints ->
-        // Phase 1: Measure inline content to get actual dimensions
-        // Skip measurement for IDs with pre-known dimensions (from cache)
+        // Phase 1: Measure all inline content to get actual dimensions
         val measuredDimensions = mutableMapOf<String, EmoteDimensions>()
-
-        // Add all pre-known dimensions first
-        measuredDimensions.putAll(knownDimensions)
-
-        // Only measure items that don't have known dimensions
+        
         inlineContentProviders.forEach { (id, provider) ->
-            if (id !in knownDimensions) {
-                val measurables = subcompose("measure_$id", provider)
-                if (measurables.isNotEmpty()) {
-                    // Measure with unbounded constraints to get natural size
-                    val placeable = measurables.first().measure(
-                        Constraints(
-                            maxWidth = constraints.maxWidth,
-                            maxHeight = Constraints.Infinity
-                        )
+            val measurables = subcompose("measure_$id", provider)
+            if (measurables.isNotEmpty()) {
+                // Measure with unbounded constraints to get natural size
+                val placeable = measurables.first().measure(
+                    Constraints(
+                        maxWidth = constraints.maxWidth,
+                        maxHeight = Constraints.Infinity
                     )
-                    measuredDimensions[id] = EmoteDimensions(
-                        id = id,
-                        widthPx = placeable.width,
-                        heightPx = placeable.height
-                    )
-                }
+                )
+                measuredDimensions[id] = EmoteDimensions(
+                    id = id,
+                    widthPx = placeable.width,
+                    heightPx = placeable.height
+                )
             }
         }
-
-        // Phase 2: Create InlineTextContent with measured/known dimensions
+        
+        // Phase 2: Create InlineTextContent with measured dimensions
         val inlineContent = measuredDimensions.mapValues { (id, dimensions) ->
             InlineTextContent(
                 placeholder = Placeholder(

@@ -81,14 +81,6 @@ class DankChatPreferenceStore(
         get() = dankChatPreferences.getBoolean(MESSAGES_HISTORY_ACK_KEY, false)
         set(value) = dankChatPreferences.edit { putBoolean(MESSAGES_HISTORY_ACK_KEY, value) }
 
-    var keyboardHeightPortrait: Int
-        get() = dankChatPreferences.getInt(KEYBOARD_HEIGHT_PORTRAIT_KEY, 0)
-        set(value) = dankChatPreferences.edit { putInt(KEYBOARD_HEIGHT_PORTRAIT_KEY, value) }
-
-    var keyboardHeightLandscape: Int
-        get() = dankChatPreferences.getInt(KEYBOARD_HEIGHT_LANDSCAPE_KEY, 0)
-        set(value) = dankChatPreferences.edit { putInt(KEYBOARD_HEIGHT_LANDSCAPE_KEY, value) }
-
     var isSecretDankerModeEnabled: Boolean
         get() = dankChatPreferences.getBoolean(SECRET_DANKER_MODE_KEY, false)
         set(value) = dankChatPreferences.edit { putBoolean(SECRET_DANKER_MODE_KEY, value) }
@@ -226,8 +218,6 @@ class DankChatPreferenceStore(
         private const val ID_STRING_KEY = "idStringKey"
         private const val EXTERNAL_HOSTING_ACK_KEY = "nuulsAckKey" // the key is old key to prevent triggering the dialog for existing users
         private const val MESSAGES_HISTORY_ACK_KEY = "messageHistoryAckKey"
-        private const val KEYBOARD_HEIGHT_PORTRAIT_KEY = "keyboardHeightPortraitKey"
-        private const val KEYBOARD_HEIGHT_LANDSCAPE_KEY = "keyboardHeightLandscapeKey"
         private const val SECRET_DANKER_MODE_KEY = "secretDankerModeKey"
         private const val LAST_INSTALLED_VERSION_KEY = "lastInstalledVersionKey"
 

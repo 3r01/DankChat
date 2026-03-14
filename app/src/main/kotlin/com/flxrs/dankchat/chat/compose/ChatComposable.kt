@@ -1,14 +1,10 @@
 package com.flxrs.dankchat.chat.compose
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.LocalPlatformContext
-import coil3.imageLoader
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
@@ -35,12 +31,6 @@ fun ChatComposable(
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onReplyClick: (String, UserName) -> Unit,
     modifier: Modifier = Modifier,
-    showInput: Boolean = true,
-    isFullscreen: Boolean = false,
-    hasHelperText: Boolean = false,
-    onRecover: () -> Unit = {},
-    contentPadding: PaddingValues = PaddingValues(),
-    onScrollDirectionChanged: (Boolean) -> Unit = {},
 ) {
     // Create ChatComposeViewModel with channel-specific key for proper scoping
     val viewModel: ChatComposeViewModel = koinViewModel(
@@ -54,12 +44,7 @@ fun ChatComposable(
     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
     val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
-
-    // Create singleton coordinator using the app's ImageLoader (with disk cache, AnimatedImageDecoder, etc.)
-    val context = LocalPlatformContext.current
-    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
-
-    CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
+    
     ChatScreen(
         messages = messages,
         fontSize = appearanceSettings.fontSize.toFloat(),
@@ -69,13 +54,6 @@ fun ChatComposable(
         onUserClick = onUserClick,
         onMessageLongClick = onMessageLongClick,
         onEmoteClick = onEmoteClick,
-        onReplyClick = onReplyClick,
-        showInput = showInput,
-        isFullscreen = isFullscreen,
-        hasHelperText = hasHelperText,
-        onRecover = onRecover,
-        contentPadding = contentPadding,
-        onScrollDirectionChanged = onScrollDirectionChanged
+        onReplyClick = onReplyClick
     )
-    } // CompositionLocalProvider
 }

@@ -8,19 +8,19 @@ import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * ViewModel for Compose-based chat display.
@@ -43,41 +43,25 @@ class ChatComposeViewModel(
         .getChat(channel)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 
-    // Mapping cache: keyed on "${message.id}-${tag}-${altBg}" to avoid re-mapping unchanged messages
-    private val mappingCache = HashMap<String, ChatMessageUiState>(256)
-    private var lastAppearanceSettings: AppearanceSettings? = null
-    private var lastChatSettings: ChatSettings? = null
-
     val chatUiStates: StateFlow<List<ChatMessageUiState>> = combine(
         chat,
         appearanceSettingsDataStore.settings,
         chatSettingsDataStore.settings
     ) { messages, appearanceSettings, chatSettings ->
-        // Clear cache when settings change (affects all mapped results)
-        if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
-            mappingCache.clear()
-            lastAppearanceSettings = appearanceSettings
-            lastChatSettings = chatSettings
-        }
-
         var messageCount = 0
         messages.mapIndexed { index, item ->
             val isAlternateBackground = when (index) {
                 messages.lastIndex -> messageCount++.isEven
                 else               -> (index - messages.size - 1).isEven
             }
-            val altBg = isAlternateBackground && appearanceSettings.checkeredMessages
-            val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
-            mappingCache.getOrPut(cacheKey) {
-                item.toChatMessageUiState(
-                    context = context,
-                    appearanceSettings = appearanceSettings,
-                    chatSettings = chatSettings,
-                    preferenceStore = preferenceStore,
-                    isAlternateBackground = altBg
-                )
-            }
+            item.toChatMessageUiState(
+                context = context,
+                appearanceSettings = appearanceSettings,
+                chatSettings = chatSettings,
+                preferenceStore = preferenceStore,
+                isAlternateBackground = isAlternateBackground && appearanceSettings.checkeredMessages
+            )
         }
     }.flowOn(Dispatchers.Default)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())

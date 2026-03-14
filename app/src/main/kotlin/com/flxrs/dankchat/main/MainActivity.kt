@@ -2,25 +2,17 @@ package com.flxrs.dankchat.main
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
-import android.provider.MediaStore
 import android.util.Log
-import android.webkit.MimeTypeMap
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -48,10 +40,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.findNavController
 import androidx.navigation.toRoute
-import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.ValidationResult
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
@@ -77,10 +67,6 @@ import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
 import com.flxrs.dankchat.preferences.tools.upload.ImageUploaderScreen
 import com.flxrs.dankchat.theme.DankChatTheme
-import com.flxrs.dankchat.data.api.ApiException
-import com.flxrs.dankchat.data.repo.data.DataRepository
-import com.flxrs.dankchat.utils.createMediaFile
-import com.flxrs.dankchat.utils.removeExifAttributes
 import com.flxrs.dankchat.utils.extensions.hasPermission
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
 import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
@@ -88,15 +74,12 @@ import com.flxrs.dankchat.utils.extensions.keepScreenOn
 import com.flxrs.dankchat.utils.extensions.parcelable
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.compose.viewmodel.koinViewModel
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -104,47 +87,14 @@ class MainActivity : AppCompatActivity() {
     private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
     private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val mainEventBus: MainEventBus by inject()
-    private val dataRepository: DataRepository by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
     private var navController: NavController? = null
     private var bindingRef: MainActivityBinding? = null
     private val binding get() = bindingRef
-    private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         // just start the service, we don't care if the permission has been granted or not xd
         startService()
-    }
-
-    private val requestImageCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) handleCaptureRequest(imageCapture = true)
-    }
-
-    private val requestVideoCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) handleCaptureRequest(imageCapture = false)
-    }
-
-    private val requestGalleryMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-        uri ?: return@registerForActivityResult
-        val contentResolver = contentResolver
-        val mimeType = contentResolver.getType(uri)
-        val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-        if (extension == null) {
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(getString(R.string.snackbar_upload_failed), createMediaFile(this@MainActivity), false)) }
-            return@registerForActivityResult
-        }
-
-        val copy = createMediaFile(this, extension)
-        try {
-            contentResolver.openInputStream(uri)?.use { input -> copy.outputStream().use { input.copyTo(it) } }
-            if (copy.extension == "jpg" || copy.extension == "jpeg") {
-                copy.removeExifAttributes()
-            }
-            uploadMedia(copy, imageCapture = false)
-        } catch (_: Throwable) {
-            copy.delete()
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(null, copy, false)) }
-        }
     }
 
     private val twitchServiceConnection = TwitchServiceConnection()
@@ -214,16 +164,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupComposeUi() {
-        lifecycleScope.launch {
-            viewModel.validationResult.collect { result ->
-                when (result) {
-                    is ValidationResult.User -> mainEventBus.emitEvent(MainEvent.LoginValidated(result.username))
-                    is ValidationResult.IncompleteScopes -> mainEventBus.emitEvent(MainEvent.LoginOutdated(result.username))
-                    ValidationResult.TokenInvalid -> mainEventBus.emitEvent(MainEvent.LoginTokenInvalid)
-                    ValidationResult.Failure -> mainEventBus.emitEvent(MainEvent.LoginValidationFailed)
-                }
-            }
-        }
         setContent {
             DankChatTheme {
                 val navController = rememberNavController()
@@ -288,13 +228,13 @@ class MainActivity : AppCompatActivity() {
                                 // Handled in MainScreen with ViewModel
                             },
                             onCaptureImage = {
-                                startCameraCapture(captureVideo = false)
+                                // TODO: Implement camera capture
                             },
                             onCaptureVideo = {
-                                startCameraCapture(captureVideo = true)
+                                // TODO: Implement camera capture
                             },
                             onChooseMedia = {
-                                requestGalleryMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageAndVideo))
+                                // TODO: Implement media picker
                             }
                         )
                     }
@@ -620,70 +560,6 @@ class MainActivity : AppCompatActivity() {
         finish()
         android.os.Process.killProcess(android.os.Process.myPid())
     }
-
-    private fun startCameraCapture(captureVideo: Boolean = false) {
-        val (action, extension) = when {
-            captureVideo -> MediaStore.ACTION_VIDEO_CAPTURE to "mp4"
-            else         -> MediaStore.ACTION_IMAGE_CAPTURE to "jpg"
-        }
-        Intent(action).also { captureIntent ->
-            captureIntent.resolveActivity(packageManager)?.also {
-                try {
-                    createMediaFile(this, extension).apply { currentMediaUri = toUri() }
-                } catch (_: IOException) {
-                    null
-                }?.also {
-                    val uri = FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.fileprovider", it)
-                    captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-                    when {
-                        captureVideo -> requestVideoCapture.launch(captureIntent)
-                        else         -> requestImageCapture.launch(captureIntent)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun handleCaptureRequest(imageCapture: Boolean) {
-        if (currentMediaUri == Uri.EMPTY) return
-        var mediaFile: java.io.File? = null
-
-        try {
-            mediaFile = currentMediaUri.toFile()
-            currentMediaUri = Uri.EMPTY
-            uploadMedia(mediaFile, imageCapture)
-        } catch (_: IOException) {
-            currentMediaUri = Uri.EMPTY
-            mediaFile?.delete()
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(null, mediaFile ?: return@launch, imageCapture)) }
-        }
-    }
-
-    private fun uploadMedia(file: java.io.File, imageCapture: Boolean) {
-        lifecycleScope.launch {
-            mainEventBus.emitEvent(MainEvent.UploadLoading)
-            withContext(Dispatchers.IO) {
-                if (imageCapture) {
-                    runCatching { file.removeExifAttributes() }
-                }
-            }
-            val result = withContext(Dispatchers.IO) { dataRepository.uploadMedia(file) }
-            result.fold(
-                onSuccess = { url ->
-                    file.delete()
-                    mainEventBus.emitEvent(MainEvent.UploadSuccess(url))
-                },
-                onFailure = { throwable ->
-                    val message = when (throwable) {
-                        is ApiException -> "${throwable.status} ${throwable.message}"
-                        else            -> throwable.message
-                    }
-                    mainEventBus.emitEvent(MainEvent.UploadFailed(message, file, imageCapture))
-                }
-            )
-        }
-    }
-
 
     private inner class TwitchServiceConnection : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {

@@ -66,14 +66,9 @@ class ChannelManagementViewModel(
     }
 
     fun removeChannel(channel: UserName) {
-        val wasActive = chatRepository.activeChannel.value == channel
         preferenceStore.removeChannel(channel)
         chatRepository.updateChannels(preferenceStore.channels)
         channelDataCoordinator.cleanupChannel(channel)
-
-        if (wasActive) {
-            chatRepository.setActiveChannel(preferenceStore.channels.firstOrNull())
-        }
     }
 
     fun renameChannel(channel: UserName, displayName: String?) {

@@ -461,8 +461,6 @@ class MainFragment : Fragment() {
                 when (it) {
                     is MainEvent.Error -> handleErrorEvent(it)
                     MainEvent.LogOutRequested -> showLogoutConfirmationDialog()
-                    is MainEvent.UploadSuccess, is MainEvent.UploadFailed, MainEvent.UploadLoading -> Unit
-                    is MainEvent.LoginValidated, is MainEvent.LoginOutdated, MainEvent.LoginTokenInvalid, MainEvent.LoginValidationFailed -> Unit
                 }
             }
             collectFlow(channelMentionCount, ::updateChannelMentionBadges)
