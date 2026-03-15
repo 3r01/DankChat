@@ -67,6 +67,7 @@ class AuthStateCoordinator(
                         }
 
                         else                -> {
+                            channelDataCoordinator.cancelGlobalLoading()
                             emoteRepository.clearTwitchEmotes()
                             chatRepository.closeAndReconnect()
                         }

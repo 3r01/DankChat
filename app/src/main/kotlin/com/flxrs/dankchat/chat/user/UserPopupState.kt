@@ -17,6 +17,4 @@ sealed interface UserPopupState {
         val followingSince: String? = null,
         val isBlocked: Boolean = false
     ) : UserPopupState
-
-    data class NotLoggedIn(val userName: UserName, val displayName: DisplayName) : UserPopupState
 }

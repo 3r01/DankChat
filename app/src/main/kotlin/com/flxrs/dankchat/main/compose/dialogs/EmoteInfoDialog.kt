@@ -45,6 +45,7 @@ import androidx.compose.material3.PrimaryTabRow
 @Composable
 fun EmoteInfoDialog(
     items: List<EmoteSheetItem>,
+    isLoggedIn: Boolean,
     onUseEmote: (String) -> Unit,
     onCopyEmote: (String) -> Unit,
     onOpenLink: (String) -> Unit,
@@ -79,6 +80,7 @@ fun EmoteInfoDialog(
                 val item = items[page]
                 EmoteInfoContent(
                     item = item,
+                    showUseEmote = isLoggedIn,
                     onUseEmote = {
                         onUseEmote(item.name)
                         onDismiss()
@@ -101,6 +103,7 @@ fun EmoteInfoDialog(
 @Composable
 private fun EmoteInfoContent(
     item: EmoteSheetItem,
+    showUseEmote: Boolean,
     onUseEmote: () -> Unit,
     onCopyEmote: () -> Unit,
     onOpenLink: () -> Unit,
@@ -155,12 +158,14 @@ private fun EmoteInfoContent(
             }
         }
 
-        ListItem(
-            headlineContent = { Text(stringResource(R.string.emote_sheet_use)) },
-            leadingContent = { Icon(Icons.Default.InsertEmoticon, contentDescription = null) },
-            modifier = Modifier.clickable(onClick = onUseEmote),
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-        )
+        if (showUseEmote) {
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.emote_sheet_use)) },
+                leadingContent = { Icon(Icons.Default.InsertEmoticon, contentDescription = null) },
+                modifier = Modifier.clickable(onClick = onUseEmote),
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            )
+        }
         ListItem(
             headlineContent = { Text(stringResource(R.string.emote_sheet_copy)) },
             leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },

@@ -2,7 +2,6 @@ package com.flxrs.dankchat.preferences.appearance
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
@@ -15,17 +14,14 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class AppearanceSettingsViewModel(
     private val dataStore: AppearanceSettingsDataStore,
-    developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : ViewModel() {
 
-    private val useComposeUi = developerSettingsDataStore.current().useComposeChatUi
-
     val settings = dataStore.settings
-        .map { AppearanceSettingsUiState(settings = it, useComposeUi = useComposeUi) }
+        .map { AppearanceSettingsUiState(settings = it) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = AppearanceSettingsUiState(settings = dataStore.current(), useComposeUi = useComposeUi),
+            initialValue = AppearanceSettingsUiState(settings = dataStore.current()),
         )
 
     suspend fun onSuspendingInteraction(interaction: AppearanceSettingsInteraction) {
@@ -37,9 +33,7 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.KeepScreenOn      -> dataStore.update { it.copy(keepScreenOn = interaction.value) }
                 is AppearanceSettingsInteraction.LineSeparator     -> dataStore.update { it.copy(lineSeparator = interaction.value) }
                 is AppearanceSettingsInteraction.CheckeredMessages -> dataStore.update { it.copy(checkeredMessages = interaction.value) }
-                is AppearanceSettingsInteraction.ShowInput         -> dataStore.update { it.copy(showInput = interaction.value) }
                 is AppearanceSettingsInteraction.AutoDisableInput  -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
-                is AppearanceSettingsInteraction.ShowChips         -> dataStore.update { it.copy(showChips = interaction.value) }
                 is AppearanceSettingsInteraction.ShowChangelogs       -> dataStore.update { it.copy(showChangelogs = interaction.value) }
                 is AppearanceSettingsInteraction.ShowCharacterCounter -> dataStore.update { it.copy(showCharacterCounter = interaction.value) }
             }
@@ -56,9 +50,7 @@ sealed interface AppearanceSettingsInteraction {
     data class KeepScreenOn(val value: Boolean) : AppearanceSettingsInteraction
     data class LineSeparator(val value: Boolean) : AppearanceSettingsInteraction
     data class CheckeredMessages(val value: Boolean) : AppearanceSettingsInteraction
-    data class ShowInput(val value: Boolean) : AppearanceSettingsInteraction
     data class AutoDisableInput(val value: Boolean) : AppearanceSettingsInteraction
-    data class ShowChips(val value: Boolean) : AppearanceSettingsInteraction
     data class ShowChangelogs(val value: Boolean) : AppearanceSettingsInteraction
     data class ShowCharacterCounter(val value: Boolean) : AppearanceSettingsInteraction
 }
@@ -66,5 +58,4 @@ sealed interface AppearanceSettingsInteraction {
 @Immutable
 data class AppearanceSettingsUiState(
     val settings: AppearanceSettings,
-    val useComposeUi: Boolean,
 )

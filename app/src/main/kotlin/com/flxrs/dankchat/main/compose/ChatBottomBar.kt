@@ -71,6 +71,7 @@ fun ChatBottomBar(
                 textFieldState = textFieldState,
                 inputState = inputState.inputState,
                 enabled = inputState.enabled,
+                hasLastMessage = inputState.hasLastMessage,
                 canSend = inputState.canSend,
                 showReplyOverlay = inputState.showReplyOverlay,
                 replyName = inputState.replyName,

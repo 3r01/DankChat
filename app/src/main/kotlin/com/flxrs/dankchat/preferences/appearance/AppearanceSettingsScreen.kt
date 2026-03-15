@@ -47,8 +47,6 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.F
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowChips
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.TrueDarkTheme
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
@@ -71,7 +69,6 @@ fun AppearanceSettingsScreen(
 
     AppearanceSettingsContent(
         settings = uiState.settings,
-        useComposeUi = uiState.useComposeUi,
         onInteraction = { viewModel.onInteraction(it) },
         onSuspendingInteraction = { viewModel.onSuspendingInteraction(it) },
         onBackPressed = onBackPressed
@@ -81,7 +78,6 @@ fun AppearanceSettingsScreen(
 @Composable
 private fun AppearanceSettingsContent(
     settings: AppearanceSettings,
-    useComposeUi: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
     onSuspendingInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
     onBackPressed: () -> Unit,
@@ -124,12 +120,8 @@ private fun AppearanceSettingsContent(
             )
             HorizontalDivider(thickness = Dp.Hairline)
             ComponentsCategory(
-                showInput = settings.showInput,
                 autoDisableInput = settings.autoDisableInput,
-                showChips = settings.showChips,
                 showCharacterCounter = settings.showCharacterCounter,
-                showInputSetting = !useComposeUi,
-                showChipsSetting = !useComposeUi,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -139,39 +131,18 @@ private fun AppearanceSettingsContent(
 
 @Composable
 private fun ComponentsCategory(
-    showInput: Boolean,
     autoDisableInput: Boolean,
-    showChips: Boolean,
     showCharacterCounter: Boolean,
-    showInputSetting: Boolean,
-    showChipsSetting: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(
         title = stringResource(R.string.preference_components_group_title),
     ) {
-        if (showInputSetting) {
-            SwitchPreferenceItem(
-                title = stringResource(R.string.preference_show_input_title),
-                summary = stringResource(R.string.preference_show_input_summary),
-                isChecked = showInput,
-                onClick = { onInteraction(ShowInput(it)) },
-            )
-        }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_auto_disable_input_title),
-            isEnabled = !showInputSetting || showInput,
             isChecked = autoDisableInput,
             onClick = { onInteraction(AutoDisableInput(it)) },
         )
-        if (showChipsSetting) {
-            SwitchPreferenceItem(
-                title = stringResource(R.string.preference_show_chip_actions_title),
-                summary = stringResource(R.string.preference_show_chip_actions_summary),
-                isChecked = showChips,
-                onClick = { onInteraction(ShowChips(it)) },
-            )
-        }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_show_character_counter_title),
             summary = stringResource(R.string.preference_show_character_counter_summary),

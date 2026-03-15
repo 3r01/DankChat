@@ -3,7 +3,6 @@ package com.flxrs.dankchat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.auth.AuthDataStore
-import com.flxrs.dankchat.auth.AuthEvent
 import com.flxrs.dankchat.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
@@ -34,17 +33,6 @@ class DankChatViewModel(
     val isLoggedIn: Flow<Boolean> = authDataStore.settings
         .map { it.isLoggedIn }
         .distinctUntilChanged()
-
-    // Legacy compatibility for MainFragment — maps AuthEvent to ValidationResult.
-    // Remove when fragments are deleted.
-    val validationResult: Flow<ValidationResult> = authStateCoordinator.events.map { event ->
-        when (event) {
-            is AuthEvent.LoggedIn       -> ValidationResult.User(event.userName)
-            is AuthEvent.ScopesOutdated -> ValidationResult.IncompleteScopes(event.userName)
-            AuthEvent.TokenInvalid      -> ValidationResult.TokenInvalid
-            AuthEvent.ValidationFailed  -> ValidationResult.Failure
-        }
-    }
 
     val isTrueDarkModeEnabled get() = appearanceSettingsDataStore.current().trueDarkTheme
     val keepScreenOn = appearanceSettingsDataStore.settings

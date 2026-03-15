@@ -28,34 +28,24 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat.Type
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.doOnAttach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.findNavController
-import androidx.navigation.toRoute
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.auth.AuthDataStore
+import com.flxrs.dankchat.changelog.ChangelogScreen
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
-import com.flxrs.dankchat.databinding.MainActivityBinding
 import com.flxrs.dankchat.login.compose.LoginScreen
 import com.flxrs.dankchat.main.compose.MainScreen
 import com.flxrs.dankchat.main.compose.MainEventBus
@@ -63,17 +53,16 @@ import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.onboarding.OnboardingScreen
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.about.AboutScreen
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsScreen
 import com.flxrs.dankchat.preferences.chat.ChatSettingsScreen
 import com.flxrs.dankchat.preferences.chat.commands.CustomCommandsScreen
 import com.flxrs.dankchat.preferences.chat.userdisplay.UserDisplayScreen
-import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsScreen
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsScreen
 import com.flxrs.dankchat.preferences.notifications.highlights.HighlightsScreen
 import com.flxrs.dankchat.preferences.notifications.ignores.IgnoresScreen
 import com.flxrs.dankchat.preferences.overview.OverviewSettingsScreen
+import com.flxrs.dankchat.preferences.overview.SettingsNavigation
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
@@ -97,25 +86,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.compose.viewmodel.koinViewModel
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: DankChatViewModel by viewModel()
-    private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
     private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val mainEventBus: MainEventBus by inject()
     private val onboardingDataStore: OnboardingDataStore by inject()
     private val dataRepository: DataRepository by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
-    private var navController: NavController? = null
-    private var bindingRef: MainActivityBinding? = null
-    private val binding get() = bindingRef
     private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        // just start the service, we don't care if the permission has been granted or not xd
         startService()
     }
 
@@ -153,7 +136,6 @@ class MainActivity : AppCompatActivity() {
     private val twitchServiceConnection = TwitchServiceConnection()
     var notificationService: NotificationService? = null
     var isBound = false
-    var channelToOpen: UserName? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val isTrueDarkModeEnabled = viewModel.isTrueDarkModeEnabled
@@ -182,17 +164,9 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        // Check if we should use Compose UI — also force Compose for onboarding
-        val onboardingCompleted = onboardingDataStore.current().hasCompletedOnboarding
-        val useComposeUi = developerSettingsDataStore.current().useComposeChatUi || !onboardingCompleted
-
-        if (useComposeUi) {
-            setupComposeUi()
-            intent.parcelable<UserName>(OPEN_CHANNEL_KEY)?.let { channel ->
-                lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channel)) }
-            }
-        } else {
-            setupFragmentUi()
+        setupComposeUi()
+        intent.parcelable<UserName>(OPEN_CHANNEL_KEY)?.let { channel ->
+            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channel)) }
         }
 
         viewModel.checkLogin()
@@ -215,19 +189,10 @@ class MainActivity : AppCompatActivity() {
             .launchIn(lifecycleScope)
     }
 
-    private fun setupFragmentUi() {
-        bindingRef = MainActivityBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
-        navController = findNavController(R.id.main_content)
-    }
-
     private fun setupComposeUi() {
         setContent {
             DankChatTheme {
                 val navController = rememberNavController()
-                val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(
-                    initialValue = developerSettingsDataStore.current()
-                )
                 val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(
                     initialValue = dankChatPreferenceStore.isLoggedIn
                 )
@@ -367,16 +332,16 @@ class MainActivity : AppCompatActivity() {
                                     navController.popBackStack()
                                 }
                             },
-                            onNavigateRequested = { destinationId ->
-                                when (destinationId) {
-                                    R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment -> navController.navigate(AppearanceSettings)
-                                    R.id.action_overviewSettingsFragment_to_notificationsSettingsFragment -> navController.navigate(NotificationsSettings)
-                                    R.id.action_overviewSettingsFragment_to_chatSettingsFragment -> navController.navigate(ChatSettings)
-                                    R.id.action_overviewSettingsFragment_to_streamsSettingsFragment -> navController.navigate(StreamsSettings)
-                                    R.id.action_overviewSettingsFragment_to_toolsSettingsFragment -> navController.navigate(ToolsSettings)
-                                    R.id.action_overviewSettingsFragment_to_developerSettingsFragment -> navController.navigate(DeveloperSettings)
-                                    R.id.action_overviewSettingsFragment_to_changelogSheetFragment -> navController.navigate(ChangelogSettings)
-                                    R.id.action_overviewSettingsFragment_to_aboutFragment -> navController.navigate(AboutSettings)
+                            onNavigateRequested = { destination ->
+                                when (destination) {
+                                    SettingsNavigation.Appearance    -> navController.navigate(AppearanceSettings)
+                                    SettingsNavigation.Notifications -> navController.navigate(NotificationsSettings)
+                                    SettingsNavigation.Chat          -> navController.navigate(ChatSettings)
+                                    SettingsNavigation.Streams       -> navController.navigate(StreamsSettings)
+                                    SettingsNavigation.Tools         -> navController.navigate(ToolsSettings)
+                                    SettingsNavigation.Developer     -> navController.navigate(DeveloperSettings)
+                                    SettingsNavigation.Changelog     -> navController.navigate(ChangelogSettings)
+                                    SettingsNavigation.About         -> navController.navigate(AboutSettings)
                                 }
                             }
                         )
@@ -521,7 +486,7 @@ class MainActivity : AppCompatActivity() {
                         popEnterTransition = settingsEnterTransition,
                         popExitTransition = settingsExitTransition
                     ) {
-                        com.flxrs.dankchat.changelog.ChangelogScreen(
+                        ChangelogScreen(
                             onBackPressed = { navController.popBackStack() }
                         )
                     }
@@ -542,7 +507,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        bindingRef = null
 
         if (!isChangingConfigurations && !isInSupportedPictureInPictureMode) {
             handleShutDown()
@@ -561,7 +525,6 @@ class MainActivity : AppCompatActivity() {
         val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
             needsNotificationPermission -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            // start service without notification permission
             else                        -> startService()
         }
     }
@@ -594,59 +557,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        return navController?.navigateUp() ?: false || super.onSupportNavigateUp()
-    }
-
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        if (developerSettingsDataStore.current().useComposeChatUi) {
-            mainEventBus.setInPipMode(isInPictureInPictureMode)
-        }
+        mainEventBus.setInPipMode(isInPictureInPictureMode)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         val channelExtra = intent.parcelable<UserName>(OPEN_CHANNEL_KEY) ?: return
-        if (developerSettingsDataStore.current().useComposeChatUi) {
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
-        } else {
-            channelToOpen = channelExtra
-        }
+        lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
     }
 
     fun clearNotificationsOfChannel(channel: UserName) = when {
         isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
         else                                   -> pendingChannelsToClear += channel
-    }
-
-    fun setFullScreen(enabled: Boolean, changeActionBarVisibility: Boolean = true) {
-        val rootView = binding?.root ?: return
-        rootView.doOnAttach {
-            val windowInsetsController = WindowCompat.getInsetsController(window, it)
-            when {
-                enabled -> {
-                    // minSdk 30 guarantees multi-window support (API 24+)
-                    if (!isInMultiWindowMode) {
-                        with(windowInsetsController) {
-                            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                            hide(Type.systemBars())
-                        }
-                    }
-                    if (changeActionBarVisibility) {
-                        supportActionBar?.hide()
-                    }
-                }
-
-                else    -> {
-                    windowInsetsController.show(Type.systemBars())
-                    if (changeActionBarVisibility) {
-                        supportActionBar?.show()
-                    }
-                }
-            }
-            it.requestApplyInsets()
-        }
     }
 
     private fun handleShutDown() {

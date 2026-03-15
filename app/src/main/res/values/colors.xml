@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="color_ffz_mod">#34ae0a</color>
-
-    <color name="colorThatIsActuallyTransparent">#00FFFFFF</color>
-    <color name="ripple_color">#cca0a0a0</color>
-
     <color name="color_sub_highlight">#D1C4E9</color> <!--Deep Purple 100-->
 
     <!-- Base: Red 300-->

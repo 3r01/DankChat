@@ -17,7 +17,6 @@ import com.flxrs.dankchat.data.api.dankchat.dto.DankChatEmoteDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.HelixApiException
-import com.flxrs.dankchat.data.api.helix.HelixError
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
@@ -339,11 +338,7 @@ class EmoteRepository(
         try {
             loadUserEmotesViaHelix(userId, onFirstPageLoaded)
         } catch (e: HelixApiException) {
-            if (e.error is HelixError.MissingScopes) {
-                // Fallback to old path if the user hasn't re-logged with the new scope
-                return
-            }
-            throw e
+            Log.e(TAG, "Failed to load user emotes", e)
         }
     }
 

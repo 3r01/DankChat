@@ -58,11 +58,6 @@ class UserPopupComposeViewModel(
     }
 
     private fun loadData() = viewModelScope.launch {
-        if (!preferenceStore.isLoggedIn) {
-            _userPopupState.value = UserPopupState.NotLoggedIn(params.targetUserName, params.targetDisplayName)
-            return@launch
-        }
-
         _userPopupState.value = UserPopupState.Loading(params.targetUserName, params.targetDisplayName)
         val currentUserId = preferenceStore.userIdString
         if (!preferenceStore.isLoggedIn || currentUserId == null) {

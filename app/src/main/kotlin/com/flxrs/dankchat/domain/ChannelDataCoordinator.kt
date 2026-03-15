@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.domain
 
+import android.util.Log
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
@@ -96,8 +97,13 @@ class ChannelDataCoordinator(
                 if (userId != null) {
                     val firstPageLoaded = CompletableDeferred<Unit>()
                     launch {
-                        globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
-                        chatRepository.reparseAllEmotesAndBadges()
+                        try {
+                            globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
+                            chatRepository.reparseAllEmotesAndBadges()
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to load user emotes", e)
+                            firstPageLoaded.complete(Unit)
+                        }
                     }
                     firstPageLoaded.await()
                     chatRepository.reparseAllEmotesAndBadges()
@@ -113,6 +119,14 @@ class ChannelDataCoordinator(
                 )
             }
         }
+    }
+
+    /**
+     * Cancel ongoing global data loading (e.g., on logout)
+     */
+    fun cancelGlobalLoading() {
+        globalLoadJob?.cancel()
+        globalLoadJob = null
     }
 
     /**
@@ -178,5 +192,9 @@ class ChannelDataCoordinator(
 
             _globalLoadingState.value = GlobalLoadingState.Loaded
         }
+    }
+
+    companion object {
+        private val TAG = ChannelDataCoordinator::class.java.simpleName
     }
 }

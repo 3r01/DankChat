@@ -40,6 +40,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun MainScreenDialogs(
     dialogViewModel: DialogStateViewModel,
+    isLoggedIn: Boolean,
     activeChannel: UserName?,
     roomStateChannel: UserName?,
     inputSheetState: InputSheetState,
@@ -242,6 +243,7 @@ fun MainScreenDialogs(
         )
         EmoteInfoDialog(
             items = viewModel.items,
+            isLoggedIn = isLoggedIn,
             onUseEmote = { chatInputViewModel.insertText("$it ") },
             onCopyEmote = { /* TODO: copy to clipboard */ },
             onOpenLink = { onOpenUrl(it) },

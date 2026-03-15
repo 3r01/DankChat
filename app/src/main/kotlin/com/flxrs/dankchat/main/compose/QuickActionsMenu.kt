@@ -61,6 +61,8 @@ import kotlinx.collections.immutable.ImmutableList
 fun QuickActionsMenu(
     surfaceColor: Color,
     visibleActions: ImmutableList<InputAction>,
+    enabled: Boolean,
+    hasLastMessage: Boolean,
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     isFullscreen: Boolean,
@@ -86,9 +88,11 @@ fun QuickActionsMenu(
                     isModerator = isModerator,
                 )
                 if (overflowItem != null) {
+                    val actionEnabled = isActionEnabled(action, enabled, hasLastMessage)
                     DropdownMenuItem(
                         text = { Text(stringResource(overflowItem.labelRes)) },
                         onClick = { onActionClick(action) },
+                        enabled = actionEnabled,
                         leadingIcon = {
                             Icon(
                                 imageVector = overflowItem.icon,
@@ -194,6 +198,12 @@ private fun getOverflowItem(
         labelRes = R.string.menu_hide_input,
         icon = Icons.Default.VisibilityOff,
     )
+}
+
+private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
+    InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
+    InputAction.LastMessage -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.RoomState -> inputEnabled
 }
 
 /**

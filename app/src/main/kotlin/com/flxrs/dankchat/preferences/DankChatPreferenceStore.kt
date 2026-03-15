@@ -38,8 +38,6 @@ class DankChatPreferenceStore(
         get() = dankChatPreferences.getString(RENAME_KEY, null)
         set(value) = dankChatPreferences.edit { putString(RENAME_KEY, value) }
 
-    // Legacy forwarding — auth state now lives in AuthDataStore.
-    // Remove when fragments are deleted.
     val isLoggedIn: Boolean get() = authDataStore.isLoggedIn
     val oAuthKey: String? get() = authDataStore.oAuthKey
     val clientId: String get() = authDataStore.clientId
@@ -67,7 +65,6 @@ class DankChatPreferenceStore(
             authDataStore.updateAsync { it.copy(userId = value?.value) }
         }
 
-    // Legacy int user ID — only used by MainFragment migration code
     var userId: Int
         get() = dankChatPreferences.getInt(ID_KEY, 0)
         set(value) = dankChatPreferences.edit { putInt(ID_KEY, value) }

@@ -328,6 +328,7 @@ fun MainScreen(
 
     MainScreenDialogs(
         dialogViewModel = dialogViewModel,
+        isLoggedIn = isLoggedIn,
         activeChannel = activeChannel,
         roomStateChannel = inputState.activeChannel,
         inputSheetState = inputSheetState,

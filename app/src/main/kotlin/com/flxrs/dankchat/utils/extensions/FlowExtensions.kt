@@ -1,9 +1,5 @@
 package com.flxrs.dankchat.utils.extensions
 
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.flxrs.dankchat.data.UserName
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -11,15 +7,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.launch
-
-inline fun <T> Fragment.collectFlow(flow: Flow<T>, crossinline action: (T) -> Unit) {
-    viewLifecycleOwner.lifecycleScope.launch {
-        viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            flow.collect { action(it) }
-        }
-    }
-}
 
 fun <T> mutableSharedFlowOf(
     defaultValue: T,

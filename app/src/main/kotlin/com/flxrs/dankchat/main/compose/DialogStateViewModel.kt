@@ -6,6 +6,7 @@ import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
 import com.flxrs.dankchat.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class DialogStateViewModel : ViewModel() {
+class DialogStateViewModel(
+    private val preferenceStore: DankChatPreferenceStore,
+) : ViewModel() {
 
     private val _state = MutableStateFlow(DialogState())
     val state: StateFlow<DialogState> = _state.asStateFlow()
@@ -57,7 +60,10 @@ class DialogStateViewModel : ViewModel() {
     fun setUploading(uploading: Boolean) { update { copy(isUploading = uploading) } }
 
     // Message interactions
-    fun showUserPopup(params: UserPopupStateParams) { update { copy(userPopupParams = params) } }
+    fun showUserPopup(params: UserPopupStateParams) {
+        if (!preferenceStore.isLoggedIn) return
+        update { copy(userPopupParams = params) }
+    }
     fun dismissUserPopup() { update { copy(userPopupParams = null) } }
 
     fun showMessageOptions(params: MessageOptionsParams) { update { copy(messageOptionsParams = params) } }

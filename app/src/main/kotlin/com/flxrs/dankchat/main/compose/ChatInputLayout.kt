@@ -121,6 +121,7 @@ fun ChatInputLayout(
     textFieldState: TextFieldState,
     inputState: InputState,
     enabled: Boolean,
+    hasLastMessage: Boolean,
     canSend: Boolean,
     showReplyOverlay: Boolean,
     replyName: UserName?,
@@ -458,6 +459,7 @@ fun ChatInputLayout(
                                     InputActionButton(
                                         action = action,
                                         enabled = enabled,
+                                        hasLastMessage = hasLastMessage,
                                         isStreamActive = isStreamActive,
                                         isFullscreen = isFullscreen,
                                         onSearchClick = onSearchClick,
@@ -558,6 +560,8 @@ fun ChatInputLayout(
             QuickActionsMenu(
                 surfaceColor = surfaceColor,
                 visibleActions = visibleActions,
+                enabled = enabled,
+                hasLastMessage = hasLastMessage,
                 isStreamActive = isStreamActive,
                 hasStreamData = hasStreamData,
                 isFullscreen = isFullscreen,
@@ -775,6 +779,7 @@ private fun SendButton(
 private fun InputActionButton(
     action: InputAction,
     enabled: Boolean,
+    hasLastMessage: Boolean,
     isStreamActive: Boolean,
     isFullscreen: Boolean,
     onSearchClick: () -> Unit,
@@ -802,9 +807,15 @@ private fun InputActionButton(
         InputAction.HideInput -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
     }
 
+    val actionEnabled = when (action) {
+        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
+        InputAction.LastMessage -> enabled && hasLastMessage
+        InputAction.Stream, InputAction.RoomState -> enabled
+    }
+
     IconButton(
         onClick = onClick,
-        enabled = enabled,
+        enabled = actionEnabled,
         modifier = modifier,
     ) {
         Icon(

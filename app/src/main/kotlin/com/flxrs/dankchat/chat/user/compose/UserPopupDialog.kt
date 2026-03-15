@@ -2,6 +2,7 @@ package com.flxrs.dankchat.chat.user.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.AlertDialog
@@ -43,22 +43,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.chat.user.UserPopupComposeViewModel
-import com.flxrs.dankchat.chat.user.UserPopupState
-import com.flxrs.dankchat.chat.user.UserPopupStateParams
-import com.flxrs.dankchat.data.twitch.badge.Badge
-import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
-
 import com.flxrs.dankchat.chat.compose.BadgeUi
+import com.flxrs.dankchat.chat.user.UserPopupState
+import com.flxrs.dankchat.data.DisplayName
+import com.flxrs.dankchat.data.UserName
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -86,114 +80,33 @@ fun UserPopupDialog(
                 .padding(bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (val s = state) {
-                is UserPopupState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.padding(horizontal = 16.dp))
-                    Text(
-                        text = s.userName.formatWithDisplayName(s.displayName),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-                is UserPopupState.NotLoggedIn -> {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(96.dp)
-                            .padding(horizontal = 16.dp)
-                    )
-                    Text(
-                        text = s.userName.formatWithDisplayName(s.displayName),
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
+            when (state) {
                 is UserPopupState.Error -> {
                     Text(
-                        text = stringResource(R.string.error_with_message, s.throwable?.message.orEmpty()),
+                        text = stringResource(R.string.error_with_message, state.throwable?.message.orEmpty()),
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
-                is UserPopupState.Success -> {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        AsyncImage(
-                            model = s.avatarUrl,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(96.dp)
-                                .clip(CircleShape)
-                                .clickable { onOpenChannel(s.userName.value) }
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = s.userName.formatWithDisplayName(s.displayName),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = stringResource(R.string.user_popup_created, s.created),
-                                style = MaterialTheme.typography.bodyMedium,
-                                textAlign = TextAlign.Center
-                            )
-                            if (s.showFollowingSince) {
-                                Text(
-                                    text = s.followingSince?.let {
-                                        stringResource(R.string.user_popup_following_since, it)
-                                    } ?: stringResource(R.string.user_popup_not_following),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                            if (badges.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterHorizontally),
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                                ) {
-                                    badges.forEach { badge ->
-                                        val title = badge.badge.title
-                                        if (title != null) {
-                                            TooltipBox(
-                                                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                                                tooltip = {
-                                                    PlainTooltip {
-                                                        Text(title)
-                                                    }
-                                                },
-                                                state = rememberTooltipState(),
-                                            ) {
-                                                AsyncImage(
-                                                    model = badge.url,
-                                                    contentDescription = title,
-                                                    modifier = Modifier.size(32.dp)
-                                                )
-                                            }
-                                        } else {
-                                            AsyncImage(
-                                                model = badge.url,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(32.dp)
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+
+                else -> {
+                    val userName = state.userName
+                    val displayName = state.displayName
+                    val isSuccess = state is UserPopupState.Success
+                    val isBlocked = (state as? UserPopupState.Success)?.isBlocked == true
+
+                    UserInfoSection(
+                        state = state,
+                        userName = userName,
+                        displayName = displayName,
+                        badges = badges,
+                        onOpenChannel = onOpenChannel,
+                    )
 
                     ListItem(
                         headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
                         leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            onMention(s.userName.value, s.displayName.value)
+                            onMention(userName.value, displayName.value)
                             onDismiss()
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
@@ -202,7 +115,7 @@ fun UserPopupDialog(
                         headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
                         leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            onWhisper(s.userName.value)
+                            onWhisper(userName.value)
                             onDismiss()
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
@@ -212,28 +125,33 @@ fun UserPopupDialog(
                             headlineContent = { Text(stringResource(R.string.message_history)) },
                             leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
                             modifier = Modifier.clickable {
-                                onMessageHistory(s.userName.value)
+                                onMessageHistory(userName.value)
                                 onDismiss()
                             },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                     }
-                    ListItem(
-                        headlineContent = { Text(if (s.isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
-                        leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
-                        modifier = Modifier.clickable {
-                            if (s.isBlocked) {
-                                onUnblockUser()
-                            } else {
-                                showBlockConfirmation = true
-                            }
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
+                    if (isSuccess) {
+                        ListItem(
+                            headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
+                            leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
+                            modifier = Modifier.clickable {
+                                if (isBlocked) {
+                                    onUnblockUser()
+                                } else {
+                                    showBlockConfirmation = true
+                                }
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                    }
                     ListItem(
                         headlineContent = { Text(stringResource(R.string.user_popup_report)) },
                         leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
-                        modifier = Modifier.clickable { onReport(s.userName.value) },
+                        modifier = Modifier.clickable {
+                            onReport(userName.value)
+                            onDismiss()
+                        },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                 }
@@ -264,3 +182,121 @@ fun UserPopupDialog(
         )
     }
 }
+
+@Composable
+private fun UserInfoSection(
+    state: UserPopupState,
+    userName: UserName,
+    displayName: DisplayName,
+    badges: List<BadgeUi>,
+    onOpenChannel: (String) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        when (state) {
+            is UserPopupState.Success -> {
+                AsyncImage(
+                    model = state.avatarUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(96.dp)
+                        .clip(CircleShape)
+                        .clickable { onOpenChannel(state.userName.value) }
+                )
+            }
+
+            is UserPopupState.Loading -> {
+                Box(
+                    modifier = Modifier.size(96.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            is UserPopupState.Error -> {}
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
+            Text(
+                text = userName.formatWithDisplayName(displayName),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            when (state) {
+                is UserPopupState.Success -> {
+                    Text(
+                        text = stringResource(R.string.user_popup_created, state.created),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    if (state.showFollowingSince) {
+                        Text(
+                            text = state.followingSince?.let {
+                                stringResource(R.string.user_popup_following_since, it)
+                            } ?: stringResource(R.string.user_popup_not_following),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    if (badges.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterHorizontally),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            badges.forEach { badge ->
+                                val title = badge.badge.title
+                                if (title != null) {
+                                    TooltipBox(
+                                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                        tooltip = {
+                                            PlainTooltip {
+                                                Text(title)
+                                            }
+                                        },
+                                        state = rememberTooltipState(),
+                                    ) {
+                                        AsyncImage(
+                                            model = badge.url,
+                                            contentDescription = title,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                } else {
+                                    AsyncImage(
+                                        model = badge.url,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                else -> {} // Loading — name is shown, details load later
+            }
+        }
+    }
+}
+
+private val UserPopupState.userName: UserName
+    get() = when (this) {
+        is UserPopupState.Loading -> userName
+        is UserPopupState.Success -> userName
+        is UserPopupState.Error   -> UserName("")
+    }
+
+private val UserPopupState.displayName: DisplayName
+    get() = when (this) {
+        is UserPopupState.Loading -> displayName
+        is UserPopupState.Success -> displayName
+        is UserPopupState.Error   -> DisplayName("")
+    }

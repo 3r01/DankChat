@@ -50,13 +50,24 @@ import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 private const val GITHUB_URL = "https://github.com/flex3r/dankchat"
 private const val TWITCH_TOS_URL = "https://www.twitch.tv/p/terms-of-service"
 
+sealed interface SettingsNavigation {
+    data object Appearance : SettingsNavigation
+    data object Notifications : SettingsNavigation
+    data object Chat : SettingsNavigation
+    data object Streams : SettingsNavigation
+    data object Tools : SettingsNavigation
+    data object Developer : SettingsNavigation
+    data object Changelog : SettingsNavigation
+    data object About : SettingsNavigation
+}
+
 @Composable
 fun OverviewSettingsScreen(
     isLoggedIn: Boolean,
     hasChangelog: Boolean,
     onBackPressed: () -> Unit,
     onLogoutRequested: () -> Unit,
-    onNavigateRequested: (id: Int) -> Unit,
+    onNavigateRequested: (SettingsNavigation) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -87,29 +98,29 @@ fun OverviewSettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.preference_appearance_header),
                 icon = Icons.Default.Palette,
-                onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_appearanceSettingsFragment) },
+                onClick = { onNavigateRequested(SettingsNavigation.Appearance) },
             )
             PreferenceItem(
                 title = stringResource(R.string.preference_highlights_ignores_header),
                 icon = Icons.Default.NotificationsActive,
-                onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_notificationsSettingsFragment) },
+                onClick = { onNavigateRequested(SettingsNavigation.Notifications) },
             )
             PreferenceItem(stringResource(R.string.preference_chat_header), Icons.Default.Forum, onClick = {
-                onNavigateRequested(R.id.action_overviewSettingsFragment_to_chatSettingsFragment)
+                onNavigateRequested(SettingsNavigation.Chat)
             })
             PreferenceItem(stringResource(R.string.preference_streams_header), Icons.Default.PlayArrow, onClick = {
-                onNavigateRequested(R.id.action_overviewSettingsFragment_to_streamsSettingsFragment)
+                onNavigateRequested(SettingsNavigation.Streams)
             })
             PreferenceItem(stringResource(R.string.preference_tools_header), Icons.Default.Construction, onClick = {
-                onNavigateRequested(R.id.action_overviewSettingsFragment_to_toolsSettingsFragment)
+                onNavigateRequested(SettingsNavigation.Tools)
             })
             PreferenceItem(stringResource(R.string.preference_developer_header), Icons.Default.DeveloperMode, onClick = {
-                onNavigateRequested(R.id.action_overviewSettingsFragment_to_developerSettingsFragment)
+                onNavigateRequested(SettingsNavigation.Developer)
             })
 
             AnimatedVisibility(hasChangelog) {
                 PreferenceItem(stringResource(R.string.preference_whats_new_header), Icons.Default.FiberNew, onClick = {
-                    onNavigateRequested(R.id.action_overviewSettingsFragment_to_changelogSheetFragment)
+                    onNavigateRequested(SettingsNavigation.Changelog)
                 })
             }
 
@@ -141,7 +152,7 @@ fun OverviewSettingsScreen(
                         appendLine()
                         appendLine()
                         val licenseText = stringResource(R.string.open_source_licenses)
-                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigateRequested(R.id.action_overviewSettingsFragment_to_aboutFragment) })) {
+                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigateRequested(SettingsNavigation.About) })) {
                             append(licenseText)
                         }
                     }
