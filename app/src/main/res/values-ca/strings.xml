@@ -227,6 +227,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_about_tos">Twitch termes de servei i política d\'usuari</string>
     <string name="preference_show_chip_actions_title">Mostrar accions chip</string>
     <string name="preference_show_chip_actions_summary">Mostrar chips per alternar pantalla completa, streams i ajustar modes de xat</string>
+    <string name="preference_show_character_counter_title">Mostra el comptador de caràcters</string>
+    <string name="preference_show_character_counter_summary">Mostra el recompte de punts de codi al camp d\'entrada</string>
     <string name="preference_uploader_header">Pujador de media</string>
     <string name="preference_uploader_configure_title">Configurar pujador</string>
     <string name="preference_uploader_recent_uploads_title">Pujades recents</string>

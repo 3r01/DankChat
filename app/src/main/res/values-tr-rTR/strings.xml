@@ -258,6 +258,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_about_tos">Twitch hizmet koşulları ile kullanıcı politikası:</string>
     <string name="preference_show_chip_actions_title">Çip eylemlerini göster</string>
     <string name="preference_show_chip_actions_summary">Yayınlar, tamekranı açıp kapamak ve sohbet modlarını ayarlamak için çipler gösterir</string>
+    <string name="preference_show_character_counter_title">Karakter sayacını göster</string>
+    <string name="preference_show_character_counter_summary">Giriş alanında kod noktası sayısını görüntüler</string>
     <string name="preference_uploader_header">Medya yükleyici</string>
     <string name="preference_uploader_configure_title">Yükleyiciyi ayarla</string>
     <string name="preference_uploader_recent_uploads_title">Son yüklemeler</string>

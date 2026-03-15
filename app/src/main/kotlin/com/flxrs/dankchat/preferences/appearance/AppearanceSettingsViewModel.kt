@@ -39,7 +39,8 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.ShowInput         -> dataStore.update { it.copy(showInput = interaction.value) }
                 is AppearanceSettingsInteraction.AutoDisableInput  -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
                 is AppearanceSettingsInteraction.ShowChips         -> dataStore.update { it.copy(showChips = interaction.value) }
-                is AppearanceSettingsInteraction.ShowChangelogs    -> dataStore.update { it.copy(showChangelogs = interaction.value) }
+                is AppearanceSettingsInteraction.ShowChangelogs       -> dataStore.update { it.copy(showChangelogs = interaction.value) }
+                is AppearanceSettingsInteraction.ShowCharacterCounter -> dataStore.update { it.copy(showCharacterCounter = interaction.value) }
             }
         }
     }
@@ -58,6 +59,7 @@ sealed interface AppearanceSettingsInteraction {
     data class AutoDisableInput(val value: Boolean) : AppearanceSettingsInteraction
     data class ShowChips(val value: Boolean) : AppearanceSettingsInteraction
     data class ShowChangelogs(val value: Boolean) : AppearanceSettingsInteraction
+    data class ShowCharacterCounter(val value: Boolean) : AppearanceSettingsInteraction
 }
 
 data class AppearanceSettingsUiState(

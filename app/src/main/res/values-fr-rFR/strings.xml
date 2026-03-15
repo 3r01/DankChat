@@ -257,6 +257,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_about_tos">Conditions d\'utilisation de Twitch &amp; politique d\'utilisation :</string>
     <string name="preference_show_chip_actions_title">Bouton d\'action flottant</string>
     <string name="preference_show_chip_actions_summary">Affiche le bouton d\'action flottant pour activer/désactiver le plein écran, le live et ajuster les modes de discussion</string>
+    <string name="preference_show_character_counter_title">Afficher le compteur de caractères</string>
+    <string name="preference_show_character_counter_summary">Affiche le nombre de points de code dans le champ de saisie</string>
     <string name="preference_uploader_header">Mise en ligne de fichiers</string>
     <string name="preference_uploader_configure_title">Configurer la mise en ligne de fichiers personnalisé</string>
     <string name="preference_uploader_recent_uploads_title">Fichiers récents</string>

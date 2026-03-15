@@ -252,6 +252,8 @@
     <string name="preference_about_tos">Termos de serviço do Twitch &amp; política do usuário:</string>
     <string name="preference_show_chip_actions_title">Mostrar botão de ações</string>
     <string name="preference_show_chip_actions_summary">Exibe um botão para ativar tela cheia, transmissões e ajustar o modo do chat</string>
+    <string name="preference_show_character_counter_title">Mostrar contador de caracteres</string>
+    <string name="preference_show_character_counter_summary">Exibe a contagem de code points no campo de entrada</string>
     <string name="preference_uploader_header">Carregador de mídia</string>
     <string name="preference_uploader_configure_title">Configurar carregador</string>
     <string name="preference_uploader_recent_uploads_title">Envios recentes</string>

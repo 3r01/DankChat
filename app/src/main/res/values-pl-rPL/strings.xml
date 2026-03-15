@@ -256,6 +256,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_about_tos">Warunki korzystania z usługi Twitch &amp; polisa użytkownika:</string>
     <string name="preference_show_chip_actions_title">Pokaż akcje chipa</string>
     <string name="preference_show_chip_actions_summary">Wyświetla chipy dla przełączania pełnego ekranu, transmisji i dostosowywania trybów chatu</string>
+    <string name="preference_show_character_counter_title">Pokaż licznik znaków</string>
+    <string name="preference_show_character_counter_summary">Wyświetla liczbę punktów kodowych w polu wprowadzania</string>
     <string name="preference_uploader_header">Przesyłacz media</string>
     <string name="preference_uploader_configure_title">Przesyłacz konfiguracji</string>
     <string name="preference_uploader_recent_uploads_title">Ostatnio udostępnione</string>

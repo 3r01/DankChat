@@ -343,6 +343,8 @@
     <string name="preference_show_chip_actions_title">Show chip actions</string>
     <string name="preference_show_chip_actions_key" translatable="false">show_chip_actions_key</string>
     <string name="preference_show_chip_actions_summary">Displays chips for toggling fullscreen, streams and adjusting chat modes</string>
+    <string name="preference_show_character_counter_title">Show character counter</string>
+    <string name="preference_show_character_counter_summary">Displays code point count in the input field</string>
     <string name="preference_uploader_header">Media uploader</string>
     <string name="preference_uploader_configure_title">Configure uploader</string>
     <string name="preference_uploader_recent_uploads_title">Recent uploads</string>

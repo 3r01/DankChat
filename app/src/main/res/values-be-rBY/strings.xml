@@ -252,6 +252,8 @@
     <string name="preference_about_tos">Умовы карыстання і палітыка карыстальніка Twitch:</string>
     <string name="preference_show_chip_actions_title">Адлюстроўваць хуткія пераключальнікі</string>
     <string name="preference_show_chip_actions_summary">Адлюстроўваць пераключальнікі для поўнаэкраннага рэжыму і налады рэжымаў чату</string>
+    <string name="preference_show_character_counter_title">Паказваць лічыльнік сімвалаў</string>
+    <string name="preference_show_character_counter_summary">Адлюстроўвае колькасць кодавых пунктаў у полі ўводу</string>
     <string name="preference_uploader_header">Загрузчык медыя</string>
     <string name="preference_uploader_configure_title">Наладзіць загрузчык</string>
     <string name="preference_uploader_recent_uploads_title">Нядаўнія загрузкі</string>

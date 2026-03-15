@@ -219,7 +219,7 @@ fun MainScreenDialogs(
                 },
                 onCopy = {
                     scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", params.fullMessage)))
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
                         snackbarHostState.showSnackbar(context.getString(R.string.snackbar_message_copied))
                     }
                 },

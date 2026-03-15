@@ -259,6 +259,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_about_tos">Uživatelské zásady a Podmínky služby Twitch:</string>
     <string name="preference_show_chip_actions_title">Zobrazit rychlé přepínače</string>
     <string name="preference_show_chip_actions_summary">Zobrazí šipku s nastavením pro zobrazení chatu na celou obrazovku, zobrazení streamu nebo úpravy režimů v chatu</string>
+    <string name="preference_show_character_counter_title">Zobrazit počítadlo znaků</string>
+    <string name="preference_show_character_counter_summary">Zobrazuje počet kódových bodů ve vstupním poli</string>
     <string name="preference_uploader_header">Nahrávač médií</string>
     <string name="preference_uploader_configure_title">Konfigurace nahrávače</string>
     <string name="preference_uploader_recent_uploads_title">Nedávná nahrání</string>

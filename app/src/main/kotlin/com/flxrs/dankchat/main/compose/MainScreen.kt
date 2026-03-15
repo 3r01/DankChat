@@ -430,6 +430,9 @@ fun MainScreen(
     val inputActions by appearanceSettingsDataStore.inputActions.collectAsStateWithLifecycle(
         initialValue = appearanceSettingsDataStore.current().inputActions
     )
+    val showCharacterCounter by appearanceSettingsDataStore.showCharacterCounter.collectAsStateWithLifecycle(
+        initialValue = appearanceSettingsDataStore.current().showCharacterCounter
+    )
     val gestureInputHidden by mainScreenViewModel.gestureInputHidden.collectAsStateWithLifecycle()
     val gestureToolbarHidden by mainScreenViewModel.gestureToolbarHidden.collectAsStateWithLifecycle()
     val effectiveShowInput = showInputState && !gestureInputHidden
@@ -579,6 +582,7 @@ fun MainScreen(
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
                 inputActions = inputActions,
+                showCharacterCounter = showCharacterCounter,
                 onSend = chatInputViewModel::sendMessage,
                 onLastMessageClick = chatInputViewModel::getLastMessage,
                 onEmoteClick = {

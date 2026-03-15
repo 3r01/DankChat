@@ -197,6 +197,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_tts_force_english_title">Forsiraj engleski jezik</string>
     <string name="preference_tts_force_english_summary">Forisraj čitanje teksta na engleskom umesto na podrazumevanom jeziku</string>
     <string name="preference_visible_emotes_title">Vidljivost emotova nezavisnih servisa</string>
+    <string name="preference_show_character_counter_title">Prikaži brojač karaktera</string>
+    <string name="preference_show_character_counter_summary">Prikazuje broj kodnih tačaka u polju za unos</string>
     <string name="toggle_app_bar">Prikaži/sakrij traku aplikacije</string>
     <string name="error_with_message">Greška: %s</string>
     <string name="confirm_logout_question">Odjaviti se?</string>

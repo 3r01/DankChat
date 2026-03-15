@@ -45,6 +45,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.C
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FontSize
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowChips
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
@@ -125,6 +126,7 @@ private fun AppearanceSettingsContent(
                 showInput = settings.showInput,
                 autoDisableInput = settings.autoDisableInput,
                 showChips = settings.showChips,
+                showCharacterCounter = settings.showCharacterCounter,
                 showInputSetting = !useComposeUi,
                 showChipsSetting = !useComposeUi,
                 onInteraction = onInteraction,
@@ -139,6 +141,7 @@ private fun ComponentsCategory(
     showInput: Boolean,
     autoDisableInput: Boolean,
     showChips: Boolean,
+    showCharacterCounter: Boolean,
     showInputSetting: Boolean,
     showChipsSetting: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
@@ -168,6 +171,12 @@ private fun ComponentsCategory(
                 onClick = { onInteraction(ShowChips(it)) },
             )
         }
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_character_counter_title),
+            summary = stringResource(R.string.preference_show_character_counter_summary),
+            isChecked = showCharacterCounter,
+            onClick = { onInteraction(ShowCharacterCounter(it)) },
+        )
     }
 }
 

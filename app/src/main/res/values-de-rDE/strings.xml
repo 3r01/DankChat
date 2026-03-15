@@ -259,6 +259,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_about_tos">Twitch Nutzungsbedingungen und Benutzerrichtlinien:</string>
     <string name="preference_show_chip_actions_title">Chips anzeigen</string>
     <string name="preference_show_chip_actions_summary">Zeigt Chips zum Wechseln von Vollbild-, Stream- und Chatmodus an</string>
+    <string name="preference_show_character_counter_title">Zeichenzähler anzeigen</string>
+    <string name="preference_show_character_counter_summary">Zeigt die Anzahl der Codepunkte im Eingabefeld an</string>
     <string name="preference_uploader_header">Medienupload</string>
     <string name="preference_uploader_configure_title">Upload konfigurieren</string>
     <string name="preference_uploader_recent_uploads_title">Letzte Uploads</string>

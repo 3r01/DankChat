@@ -89,6 +89,9 @@ class AppearanceSettingsDataStore(
     val inputActions = settings
         .map { it.inputActions }
         .distinctUntilChanged()
+    val showCharacterCounter = settings
+        .map { it.showCharacterCounter }
+        .distinctUntilChanged()
 
     fun current() = currentSettings.value
 

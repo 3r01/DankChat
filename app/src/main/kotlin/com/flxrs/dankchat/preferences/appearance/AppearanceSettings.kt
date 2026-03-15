@@ -19,6 +19,7 @@ data class AppearanceSettings(
     val autoDisableInput: Boolean = true,
     val showChips: Boolean = true,
     val showChangelogs: Boolean = true,
+    val showCharacterCounter: Boolean = false,
     val inputActions: List<InputAction> = listOf(
         InputAction.Stream, InputAction.RoomState,
         InputAction.Search, InputAction.LastMessage,

@@ -120,6 +120,8 @@ data class TourOverlayState(
     val onSkip: (() -> Unit)? = null,
 )
 
+private const val TWITCH_MESSAGE_CODE_POINT_LIMIT = 500
+
 @Composable
 fun ChatInputLayout(
     textFieldState: TextFieldState,
@@ -137,6 +139,7 @@ fun ChatInputLayout(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     inputActions: List<InputAction>,
+    showCharacterCounter: Boolean = false,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -156,7 +159,6 @@ fun ChatInputLayout(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    var maxTextFieldHeight by remember { mutableIntStateOf(0) }
     val hint = when (inputState) {
         InputState.Default -> stringResource(R.string.hint_connected)
         InputState.Replying -> stringResource(R.string.hint_replying)
@@ -295,16 +297,25 @@ fun ChatInputLayout(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            val height = maxOf(placeable.height, maxTextFieldHeight)
-                            maxTextFieldHeight = height
-                            layout(placeable.width, height) {
-                                placeable.placeRelative(0, 0)
-                            }
-                        }
                         .padding(bottom = 0.dp), // Reduce bottom padding as actions are below
                     label = { Text(hint) },
+                    suffix = if (showCharacterCounter) {
+                        {
+                            val text = textFieldState.text.toString()
+                            val codePointCount = text.codePointCount(0, text.length)
+                            val isOverLimit = codePointCount > TWITCH_MESSAGE_CODE_POINT_LIMIT
+                            Text(
+                                text = "$codePointCount/$TWITCH_MESSAGE_CODE_POINT_LIMIT",
+                                color = when {
+                                    isOverLimit -> MaterialTheme.colorScheme.error
+                                    else        -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
+                    } else {
+                        null
+                    },
                     colors = textFieldColors,
                     shape = RoundedCornerShape(0.dp),
                     lineLimits = TextFieldLineLimits.MultiLine(

@@ -227,6 +227,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_user_long_click_summary_off">Tavallinen painallus maininnat ja pitkä painallus popup-ikkuna</string>
     <string name="preference_tts_force_english_title">Aseta kieli englanniksi</string>
     <string name="preference_visible_emotes_title">Näkyvät kolmannen osapuolen hymiöt</string>
+    <string name="preference_show_character_counter_title">Näytä merkkimäärälaskuri</string>
+    <string name="preference_show_character_counter_summary">Näyttää koodipisteiden määrän syöttökentässä</string>
     <string name="preference_uploader_header">Median lähettäjä</string>
     <string name="preference_tools_header">Työkalut</string>
     <string name="preference_theme_title">Teema</string>

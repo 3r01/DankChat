@@ -251,6 +251,8 @@
     <string name="preference_about_tos">Twitch利用規約とユーザーポリシー：</string>
     <string name="preference_show_chip_actions_title">チップの動作を表示</string>
     <string name="preference_show_chip_actions_summary">全画面表示、ストリーム、チャットモードの調整のためのチップを表示します</string>
+    <string name="preference_show_character_counter_title">文字数カウンターを表示</string>
+    <string name="preference_show_character_counter_summary">入力フィールドにコードポイント数を表示します</string>
     <string name="preference_uploader_header">メディアアップローダー</string>
     <string name="preference_uploader_configure_title">アップローダーを設定</string>
     <string name="preference_uploader_recent_uploads_title">最近のアップロード</string>
