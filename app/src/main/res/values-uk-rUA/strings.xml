@@ -433,4 +433,24 @@
     <string name="tour_got_it">Зрозуміло</string>
     <string name="tour_skip">Пропустити тур</string>
     <string name="tour_add_more_channels_hint">Тут ви можете додати більше каналів</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Повідомлення затримано з причини: %1$s. Дозвіл опублікує його в чаті.</string>
+    <string name="automod_allow">Дозволити</string>
+    <string name="automod_deny">Відхилити</string>
+    <string name="automod_status_approved">Схвалено</string>
+    <string name="automod_status_denied">Відхилено</string>
+    <string name="automod_status_expired">Термін минув</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (рівень %2$d)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">збігається з 1 заблокованим терміном %1$s</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">збігається з %1$d заблокованими термінами %2$s</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Не вдалося %1$s повідомлення AutoMod - повідомлення вже оброблено.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Не вдалося %1$s повідомлення AutoMod - потрібно повторно авторизуватися.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Не вдалося %1$s повідомлення AutoMod - у вас немає дозволу на цю дію.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">Не вдалося %1$s повідомлення AutoMod - цільове повідомлення не знайдено.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">Не вдалося %1$s повідомлення AutoMod - сталася невідома помилка.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s додав %2$s як заблокований термін у AutoMod.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s додав %2$s як дозволений термін у AutoMod.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s видалив %2$s як заблокований термін з AutoMod.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s видалив %2$s як дозволений термін з AutoMod.</string>
 </resources>

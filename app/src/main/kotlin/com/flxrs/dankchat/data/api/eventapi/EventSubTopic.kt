@@ -32,6 +32,48 @@ sealed interface EventSubTopic {
 
         override fun shortFormatted(): String = "ChannelModerate($channel)"
     }
+
+    data class AutomodMessageHold(
+        val channel: UserName,
+        val broadcasterId: UserId,
+        val moderatorId: UserId,
+    ) : EventSubTopic {
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.AutomodMessageHold,
+            version = "2",
+            condition = EventSubModeratorConditionDto(
+                broadcasterUserId = broadcasterId,
+                moderatorUserId = moderatorId,
+            ),
+            transport = EventSubTransportDto(
+                sessionId = sessionId,
+                method = EventSubMethod.Websocket,
+            ),
+        )
+
+        override fun shortFormatted(): String = "AutomodMessageHold($channel)"
+    }
+
+    data class AutomodMessageUpdate(
+        val channel: UserName,
+        val broadcasterId: UserId,
+        val moderatorId: UserId,
+    ) : EventSubTopic {
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.AutomodMessageUpdate,
+            version = "2",
+            condition = EventSubModeratorConditionDto(
+                broadcasterUserId = broadcasterId,
+                moderatorUserId = moderatorId,
+            ),
+            transport = EventSubTransportDto(
+                sessionId = sessionId,
+                method = EventSubMethod.Websocket,
+            ),
+        )
+
+        override fun shortFormatted(): String = "AutomodMessageUpdate($channel)"
+    }
 }
 
 data class SubscribedTopic(val id: String, val topic: EventSubTopic)

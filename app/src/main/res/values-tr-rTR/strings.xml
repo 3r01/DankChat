@@ -446,4 +446,24 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="tour_got_it">Anladım</string>
     <string name="tour_skip">Turu atla</string>
     <string name="tour_add_more_channels_hint">Buradan daha fazla kanal ekleyebilirsiniz</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Mesaj şu nedenle tutuldu: %1$s. İzin vermek mesajı sohbette yayınlayacaktır.</string>
+    <string name="automod_allow">İzin Ver</string>
+    <string name="automod_deny">Reddet</string>
+    <string name="automod_status_approved">Onaylandı</string>
+    <string name="automod_status_denied">Reddedildi</string>
+    <string name="automod_status_expired">Süresi Doldu</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (seviye %2$d)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">1 engellenen terimle eşleşiyor %1$s</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">%1$d engellenen terimle eşleşiyor %2$s</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoMod mesajı %1$s başarısız oldu - mesaj zaten işlenmiş.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoMod mesajı %1$s başarısız oldu - yeniden kimlik doğrulaması yapmanız gerekiyor.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoMod mesajı %1$s başarısız oldu - bu işlemi gerçekleştirme izniniz yok.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">AutoMod mesajı %1$s başarısız oldu - hedef mesaj bulunamadı.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">AutoMod mesajı %1$s başarısız oldu - bilinmeyen bir hata oluştu.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s, AutoMod üzerinde %2$s terimini engellenen terim olarak ekledi.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s, AutoMod üzerinde %2$s terimini izin verilen terim olarak ekledi.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s, AutoMod üzerinden %2$s terimini engellenen terim olarak kaldırdı.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s, AutoMod üzerinden %2$s terimini izin verilen terim olarak kaldırdı.</string>
 </resources>

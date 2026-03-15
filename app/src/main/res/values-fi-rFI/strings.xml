@@ -284,4 +284,24 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="tour_got_it">Selvä</string>
     <string name="tour_skip">Ohita esittely</string>
     <string name="tour_add_more_channels_hint">Voit lisätä lisää kanavia täältä</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Viesti pidätetty syystä: %1$s. Salliminen julkaisee sen chatissa.</string>
+    <string name="automod_allow">Salli</string>
+    <string name="automod_deny">Hylkää</string>
+    <string name="automod_status_approved">Hyväksytty</string>
+    <string name="automod_status_denied">Hylätty</string>
+    <string name="automod_status_expired">Vanhentunut</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (taso %2$d)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">vastaa 1 estettyä termiä %1$s</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">vastaa %1$d estettyä termiä %2$s</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoMod-viestin %1$s epäonnistui - viesti on jo käsitelty.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoMod-viestin %1$s epäonnistui - sinun täytyy kirjautua uudelleen.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoMod-viestin %1$s epäonnistui - sinulla ei ole oikeutta suorittaa tätä toimintoa.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">AutoMod-viestin %1$s epäonnistui - kohdeviestiä ei löytynyt.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">AutoMod-viestin %1$s epäonnistui - tuntematon virhe tapahtui.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s lisäsi %2$s estetyksi termiksi AutoModissa.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s lisäsi %2$s sallituksi termiksi AutoModissa.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s poisti %2$s estettynä terminä AutoModista.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s poisti %2$s sallittuna terminä AutoModista.</string>
 </resources>

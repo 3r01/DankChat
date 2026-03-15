@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.api.helix.dto.AnnouncementRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.BadgeSetDto
 import com.flxrs.dankchat.data.api.helix.dto.BanRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
+import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsDto
 import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialDto
@@ -227,6 +228,11 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<CheermoteSetDto>>()
             .data
+    }
+
+    suspend fun manageAutomodMessage(userId: UserId, msgId: String, action: String): Result<Unit> = runCatching {
+        helixApi.postManageAutomodMessage(ManageAutomodMessageRequestDto(userId = userId, msgId = msgId, action = action))
+            .throwHelixApiErrorOnFailure()
     }
 
     suspend fun postShoutout(broadcastUserId: UserId, targetUserId: UserId, moderatorUserId: UserId): Result<Unit> = runCatching {

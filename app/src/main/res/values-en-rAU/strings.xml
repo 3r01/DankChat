@@ -257,4 +257,24 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="tour_got_it">Got it</string>
     <string name="tour_skip">Skip tour</string>
     <string name="tour_add_more_channels_hint">You can add more channels here</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Held a message for reason: %1$s. Allow will post it in chat.</string>
+    <string name="automod_allow">Allow</string>
+    <string name="automod_deny">Deny</string>
+    <string name="automod_status_approved">Approved</string>
+    <string name="automod_status_denied">Denied</string>
+    <string name="automod_status_expired">Expired</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (level %2$d)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">matches 1 blocked term %1$s</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">matches %1$d blocked terms %2$s</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Failed to %1$s AutoMod message - message has already been processed.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Failed to %1$s AutoMod message - you need to re-authenticate.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Failed to %1$s AutoMod message - you don\'t have permission to perform that action.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">Failed to %1$s AutoMod message - target message not found.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">Failed to %1$s AutoMod message - an unknown error occurred.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s added %2$s as a blocked term on AutoMod.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s added %2$s as a permitted term on AutoMod.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removed %2$s as a blocked term on AutoMod.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s removed %2$s as a permitted term on AutoMod.</string>
 </resources>

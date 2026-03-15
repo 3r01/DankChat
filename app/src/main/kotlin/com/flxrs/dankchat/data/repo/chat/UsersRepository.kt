@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap
 class UsersRepository {
     private val users = ConcurrentHashMap<UserName, LruCache<UserName, DisplayName>>()
     private val usersFlows = ConcurrentHashMap<UserName, MutableStateFlow<Set<DisplayName>>>()
+    private val userColors = ConcurrentHashMap<UserName, Int>()
 
     fun getUsersFlow(channel: UserName): StateFlow<Set<DisplayName>> = usersFlows.getOrPut(channel) { MutableStateFlow(emptySet()) }
     fun findDisplayName(channel: UserName, userName: UserName): DisplayName? = users[channel]?.get(userName)
@@ -48,6 +49,12 @@ class UsersRepository {
         users.remove(channel)
         usersFlows.remove(channel)
     }
+
+    fun cacheUserColor(userName: UserName, color: Int) {
+        userColors[userName] = color
+    }
+
+    fun getCachedUserColor(userName: UserName): Int? = userColors[userName]
 
     companion object {
         private const val USER_CACHE_SIZE = 5000

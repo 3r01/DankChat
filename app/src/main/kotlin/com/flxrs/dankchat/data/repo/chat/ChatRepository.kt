@@ -7,9 +7,14 @@ import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.chat.toMentionTabItems
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.eventapi.AutomodHeld
+import com.flxrs.dankchat.data.api.eventapi.AutomodUpdate
 import com.flxrs.dankchat.data.api.eventapi.EventSubManager
 import com.flxrs.dankchat.data.api.eventapi.ModerationAction
 import com.flxrs.dankchat.data.api.eventapi.SystemMessage
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageStatus
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodReasonDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.BlockedTermReasonDto
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiClient
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiException
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesError
@@ -27,6 +32,9 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ChatEvent
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
+import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.data.twitch.badge.BadgeType
+import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
@@ -123,6 +131,7 @@ class ChatRepository(
     private var lastMessage = ConcurrentHashMap<UserName, String>()
     private val loadedRecentsInChannels = mutableSetOf<UserName>()
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
+    private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val rewardMutex = Mutex()
 
     private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
@@ -263,6 +272,45 @@ class ChatRepository(
                                 else                                  -> current.replaceOrAddModerationMessage(message, scrollBackLength, ::onMessageRemoved)
                             }
                         }
+                    }
+
+                    is AutomodHeld      -> {
+                        val data = eventMessage.data
+                        knownAutomodHeldIds.add(data.messageId)
+                        val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
+                        val userColor = usersRepository.getCachedUserColor(data.userLogin) ?: Message.DEFAULT_COLOR
+                        val automodBadge = Badge.GlobalBadge(
+                            title = "AutoMod",
+                            badgeTag = "automod/1",
+                            badgeInfo = null,
+                            url = "",
+                            type = BadgeType.Authority,
+                        )
+                        val automodMsg = AutomodMessage(
+                            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+                            id = eventMessage.id,
+                            channel = eventMessage.channelName,
+                            heldMessageId = data.messageId,
+                            userName = data.userLogin,
+                            userDisplayName = data.userName,
+                            messageText = data.message.text,
+                            reason = reason,
+                            badges = listOf(automodBadge),
+                            color = userColor,
+                        )
+                        messages[eventMessage.channelName]?.update { current ->
+                            current.addAndLimit(ChatItem(automodMsg, importance = ChatImportance.SYSTEM), scrollBackLength, ::onMessageRemoved)
+                        }
+                    }
+
+                    is AutomodUpdate    -> {
+                        knownAutomodHeldIds.remove(eventMessage.data.messageId)
+                        val newStatus = when (eventMessage.data.status) {
+                            AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+                            AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
+                            AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
+                        }
+                        updateAutomodMessageStatus(eventMessage.channelName, eventMessage.data.messageId, newStatus)
                     }
 
                     is SystemMessage    -> makeAndPostSystemMessage(type = SystemMessageType.Custom(eventMessage.message))
@@ -647,9 +695,10 @@ class ChatRepository(
             return
         }
 
-        val rewardId = ircMessage.tags["custom-reward-id"]
+        val rewardId = ircMessage.tags["custom-reward-id"]?.takeIf { it.isNotEmpty() }
+        val isAutomodApproval = rewardId != null && knownAutomodHeldIds.remove(rewardId)
         val additionalMessages = when {
-            rewardId != null -> {
+            rewardId != null && !isAutomodApproval -> {
                 val reward = rewardMutex.withLock {
                     knownRewards[rewardId]
                         ?.also {
@@ -697,6 +746,9 @@ class ChatRepository(
         }
 
         if (message is PrivMessage) {
+            if (message.color != Message.DEFAULT_COLOR) {
+                usersRepository.cacheUserColor(message.name, message.color)
+            }
             if (message.name == authDataStore.userName) {
                 val previousLastMessage = lastMessage[message.channel].orEmpty()
                 val lastMessageWasCommand = previousLastMessage.startsWith('.') || previousLastMessage.startsWith('/')
@@ -920,6 +972,39 @@ class ChatRepository(
     private fun Message.updateMessageInThread(): Message = repliesRepository.updateMessageInThread(this)
 
     private fun onMessageRemoved(item: ChatItem) = repliesRepository.cleanupMessageThread(item.message)
+
+    private fun formatAutomodReason(
+        reason: String,
+        automod: AutomodReasonDto?,
+        blockedTerm: BlockedTermReasonDto?,
+        messageText: String,
+    ): String = when {
+        reason == "automod" && automod != null -> "${automod.category} (level ${automod.level})"
+        reason == "blocked_term" && blockedTerm != null -> {
+            val terms = blockedTerm.termsFound.joinToString { found ->
+                val start = found.boundary.startPos
+                val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
+                "\"${messageText.substring(start, end)}\""
+            }
+            "blocked term: $terms"
+        }
+
+        else -> reason
+    }
+
+    fun updateAutomodMessageStatus(channel: UserName, heldMessageId: String, status: AutomodMessage.Status) {
+        messages[channel]?.update { current ->
+            current.map { item ->
+                val msg = item.message
+                when {
+                    msg is AutomodMessage && msg.heldMessageId == heldMessageId ->
+                        item.copy(tag = item.tag + 1, message = msg.copy(status = status))
+
+                    else                                                        -> item
+                }
+            }
+        }
+    }
 
     companion object {
         private val TAG = ChatRepository::class.java.simpleName

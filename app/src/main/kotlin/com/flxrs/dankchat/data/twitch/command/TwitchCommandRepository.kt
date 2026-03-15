@@ -692,6 +692,8 @@ class TwitchCommandRepository(
 
             }
 
+            HelixError.MessageAlreadyProcessed    -> "The message has already been processed."
+            HelixError.MessageNotFound            -> "The target message was not found."
             HelixError.Unknown                    -> GENERIC_ERROR_MESSAGE
         }
     }

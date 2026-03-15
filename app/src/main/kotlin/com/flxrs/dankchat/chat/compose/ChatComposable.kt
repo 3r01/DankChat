@@ -92,6 +92,8 @@ fun ChatComposable(
         onScrollDirectionChanged = onScrollDirectionChanged,
         scrollToMessageId = scrollToMessageId,
         onScrollToMessageHandled = onScrollToMessageHandled,
+        onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
+        onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
         recoveryFabTooltipState = recoveryFabTooltipState,
         onTourAdvance = onTourAdvance,
         onTourSkip = onTourSkip,

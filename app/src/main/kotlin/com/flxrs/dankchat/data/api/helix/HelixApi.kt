@@ -5,6 +5,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.AnnouncementRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.BanRequestDto
+import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
@@ -242,6 +243,13 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterId)
         contentType(ContentType.Application.Json)
+    }
+
+    suspend fun postManageAutomodMessage(request: ManageAutomodMessageRequestDto): HttpResponse? = ktorClient.post("moderation/automod/message") {
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        contentType(ContentType.Application.Json)
+        setBody(request)
     }
 
     suspend fun postShoutout(broadcasterUserId: UserId, targetUserId: UserId, moderatorUserId: UserId): HttpResponse? = ktorClient.post("chat/shoutouts") {

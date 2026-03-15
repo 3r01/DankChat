@@ -145,6 +145,30 @@ sealed interface ChatMessageUiState {
     ) : ChatMessageUiState
 
     /**
+     * AutoMod held messages with approve/deny actions
+     */
+    @Immutable
+    data class AutomodMessageUi(
+        override val id: String,
+        override val tag: Int,
+        override val timestamp: String,
+        override val lightBackgroundColor: Color,
+        override val darkBackgroundColor: Color,
+        override val textAlpha: Float,
+        override val enableRipple: Boolean = false,
+        val heldMessageId: String,
+        val channel: UserName,
+        val badges: List<BadgeUi>,
+        val userDisplayName: String,
+        val rawNameColor: Int,
+        val messageText: String,
+        val reason: String,
+        val status: AutomodMessageStatus,
+    ) : ChatMessageUiState {
+        enum class AutomodMessageStatus { Pending, Approved, Denied, Expired }
+    }
+
+    /**
      * Whisper messages
      */
     @Immutable
@@ -179,6 +203,7 @@ data class BadgeUi(
     val url: String,
     val badge: Badge,
     val position: Int, // Position in message
+    val drawableResId: Int? = null,
 )
 
 /**

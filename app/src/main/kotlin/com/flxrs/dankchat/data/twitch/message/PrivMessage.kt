@@ -95,7 +95,7 @@ val PrivMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
 
 val PrivMessage.isReward: Boolean
-    get() = tags["msg-id"] == "highlighted-message" || tags["custom-reward-id"] != null
+    get() = tags["msg-id"] == "highlighted-message" || !tags["custom-reward-id"].isNullOrEmpty()
 
 val PrivMessage.isFirstMessage: Boolean
     get() = tags["first-msg"] == "1"

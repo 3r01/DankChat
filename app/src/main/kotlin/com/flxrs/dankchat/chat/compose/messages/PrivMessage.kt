@@ -252,11 +252,11 @@ private fun PrivMessageText(
     val badgeSize = EmoteScaling.getBadgeSize(fontSize)
     val inlineContentProviders: Map<String, @Composable () -> Unit> = remember(message.badges, message.emotes, fontSize) {
         buildMap<String, @Composable () -> Unit> {
-            // Badge providers  
+            // Badge providers
             message.badges.forEach { badge ->
                 put("BADGE_${badge.position}") {
                     coil3.compose.AsyncImage(
-                        model = badge.url,
+                        model = badge.drawableResId ?: badge.url,
                         contentDescription = badge.badge.type.name,
                         modifier = Modifier.size(badgeSize)
                     )

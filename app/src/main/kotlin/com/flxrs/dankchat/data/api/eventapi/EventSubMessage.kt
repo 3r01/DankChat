@@ -1,6 +1,8 @@
 package com.flxrs.dankchat.data.api.eventapi
 
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageHoldDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageUpdateDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import kotlin.time.Instant
 
@@ -13,4 +15,18 @@ data class ModerationAction(
     val timestamp: Instant,
     val channelName: UserName,
     val data: ChannelModerateDto,
+) : EventSubMessage
+
+data class AutomodHeld(
+    val id: String,
+    val timestamp: Instant,
+    val channelName: UserName,
+    val data: AutomodMessageHoldDto,
+) : EventSubMessage
+
+data class AutomodUpdate(
+    val id: String,
+    val timestamp: Instant,
+    val channelName: UserName,
+    val data: AutomodMessageUpdateDto,
 ) : EventSubMessage

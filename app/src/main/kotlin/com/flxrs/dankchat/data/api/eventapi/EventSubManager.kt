@@ -39,8 +39,9 @@ class EventSubManager(
                 val userId = authDataStore.userIdString ?: return@collect
                 val channels = channelRepository.getChannels(it)
                 channels.forEach {
-                    val topic = EventSubTopic.ChannelModerate(channel = it.name, broadcasterId = it.id, moderatorId = userId)
-                    eventSubClient.subscribe(topic)
+                    eventSubClient.subscribe(EventSubTopic.ChannelModerate(channel = it.name, broadcasterId = it.id, moderatorId = userId))
+                    eventSubClient.subscribe(EventSubTopic.AutomodMessageHold(channel = it.name, broadcasterId = it.id, moderatorId = userId))
+                    eventSubClient.subscribe(EventSubTopic.AutomodMessageUpdate(channel = it.name, broadcasterId = it.id, moderatorId = userId))
                 }
             }
         }
@@ -69,10 +70,14 @@ class EventSubManager(
         }
 
         scope.launch {
-            val topic = eventSubClient.topics.value
-                .find { it.topic is EventSubTopic.ChannelModerate && it.topic.channel == channel }
-                ?: return@launch
-            eventSubClient.unsubscribe(topic)
+            val topics = eventSubClient.topics.value.filter { subscribedTopic ->
+                when (val topic = subscribedTopic.topic) {
+                    is EventSubTopic.ChannelModerate      -> topic.channel == channel
+                    is EventSubTopic.AutomodMessageHold   -> topic.channel == channel
+                    is EventSubTopic.AutomodMessageUpdate -> topic.channel == channel
+                }
+            }
+            topics.forEach { eventSubClient.unsubscribe(it) }
         }
     }
 

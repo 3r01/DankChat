@@ -412,4 +412,24 @@
     <string name="tour_got_it">了解</string>
     <string name="tour_skip">ツアーをスキップ</string>
     <string name="tour_add_more_channels_hint">ここでチャンネルを追加できます</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">理由: %1$s でメッセージが保留されました。許可するとチャットに投稿されます。</string>
+    <string name="automod_allow">許可</string>
+    <string name="automod_deny">拒否</string>
+    <string name="automod_status_approved">承認済み</string>
+    <string name="automod_status_denied">拒否済み</string>
+    <string name="automod_status_expired">期限切れ</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (レベル %2$d)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">1件のブロックされた用語 %1$s に一致</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">%1$d件のブロックされた用語 %2$s に一致</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoModメッセージの%1$sに失敗しました - メッセージは既に処理されています。</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoModメッセージの%1$sに失敗しました - 再認証が必要です。</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoModメッセージの%1$sに失敗しました - この操作を行う権限がありません。</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">AutoModメッセージの%1$sに失敗しました - 対象メッセージが見つかりません。</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">AutoModメッセージの%1$sに失敗しました - 不明なエラーが発生しました。</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$sがAutoModで%2$sをブロック用語として追加しました。</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$sがAutoModで%2$sを許可用語として追加しました。</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$sがAutoModから%2$sをブロック用語として削除しました。</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$sがAutoModから%2$sを許可用語として削除しました。</string>
 </resources>

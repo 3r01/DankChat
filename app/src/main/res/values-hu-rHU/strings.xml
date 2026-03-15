@@ -425,4 +425,24 @@
     <string name="tour_got_it">Értem</string>
     <string name="tour_skip">Bemutató kihagyása</string>
     <string name="tour_add_more_channels_hint">Itt adhat hozzá további csatornákat</string>
+
+    <!-- AutoMod -->
+    <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">Üzenet visszatartva az alábbi okból: %1$s. Az engedélyezés közzéteszi a chatben.</string>
+    <string name="automod_allow">Engedélyezés</string>
+    <string name="automod_deny">Elutasítás</string>
+    <string name="automod_status_approved">Jóváhagyva</string>
+    <string name="automod_status_denied">Elutasítva</string>
+    <string name="automod_status_expired">Lejárt</string>
+    <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (%2$d. szint)</string>
+    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">egyezik 1 blokkolt kifejezéssel: %1$s</string>
+    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">egyezik %1$d blokkolt kifejezéssel: %2$s</string>
+    <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nem sikerült %1$s az AutoMod üzenetet - az üzenet már feldolgozásra került.</string>
+    <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Nem sikerült %1$s az AutoMod üzenetet - újra be kell jelentkezned.</string>
+    <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Nem sikerült %1$s az AutoMod üzenetet - nincs jogosultságod ehhez a művelethez.</string>
+    <string name="automod_error_not_found" comment="Failed to allow AutoMod message - target message not found.">Nem sikerült %1$s az AutoMod üzenetet - a célüzenet nem található.</string>
+    <string name="automod_error_unknown" comment="Failed to allow AutoMod message - an unknown error occurred.">Nem sikerült %1$s az AutoMod üzenetet - ismeretlen hiba történt.</string>
+    <string name="automod_moderation_added_blocked_term" comment="flex3rs added &quot;test&quot; as a blocked term on AutoMod.">%1$s hozzáadta a(z) %2$s kifejezést blokkolt kifejezésként az AutoModhoz.</string>
+    <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s hozzáadta a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModhoz.</string>
+    <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést blokkolt kifejezésként az AutoModból.</string>
+    <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModból.</string>
 </resources>

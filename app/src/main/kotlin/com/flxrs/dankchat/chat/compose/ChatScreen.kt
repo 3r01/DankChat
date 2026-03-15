@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.chat.compose.messages.AutomodMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.DateSeparatorComposable
 import com.flxrs.dankchat.chat.compose.messages.ModerationMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.NoticeMessageComposable
@@ -96,6 +97,8 @@ fun ChatScreen(
     scrollToMessageId: String? = null,
     onScrollToMessageHandled: () -> Unit = {},
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
+    onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+    onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     containerColor: Color = MaterialTheme.colorScheme.background,
     showFabs: Boolean = true,
     recoveryFabTooltipState: TooltipState? = null,
@@ -172,6 +175,7 @@ fun ChatScreen(
                             is ChatMessageUiState.NoticeMessageUi          -> "notice"
                             is ChatMessageUiState.UserNoticeMessageUi      -> "usernotice"
                             is ChatMessageUiState.ModerationMessageUi      -> "moderation"
+                            is ChatMessageUiState.AutomodMessageUi         -> "automod"
                             is ChatMessageUiState.PrivMessageUi            -> "privmsg"
                             is ChatMessageUiState.WhisperMessageUi         -> "whisper"
                             is ChatMessageUiState.PointRedemptionMessageUi -> "redemption"
@@ -190,6 +194,8 @@ fun ChatScreen(
                         onReplyClick = onReplyClick,
                         onWhisperReply = onWhisperReply,
                         onJumpToMessage = onJumpToMessage,
+                        onAutomodAllow = onAutomodAllow,
+                        onAutomodDeny = onAutomodDeny,
                     )
 
                     // Add divider after each message if enabled
@@ -318,6 +324,8 @@ private fun ChatMessageItem(
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
+    onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+    onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
 ) {
     when (message) {
         is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
@@ -338,6 +346,13 @@ private fun ChatMessageItem(
         is ChatMessageUiState.ModerationMessageUi      -> ModerationMessageComposable(
             message = message,
             fontSize = fontSize
+        )
+
+        is ChatMessageUiState.AutomodMessageUi         -> AutomodMessageComposable(
+            message = message,
+            fontSize = fontSize,
+            onAllow = onAutomodAllow,
+            onDeny = onAutomodDeny,
         )
 
         is ChatMessageUiState.PrivMessageUi            -> {

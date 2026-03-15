@@ -41,4 +41,6 @@ sealed interface HelixError {
     data object Forwarded : HelixError
     data object ShoutoutSelf : HelixError
     data object ShoutoutTargetNotStreaming : HelixError
+    data object MessageAlreadyProcessed : HelixError
+    data object MessageNotFound : HelixError
 }

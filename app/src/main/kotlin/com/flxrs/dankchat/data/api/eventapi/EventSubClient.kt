@@ -7,6 +7,8 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.NotificationMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.ReconnectMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.RevocationMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.WelcomeMessageDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageHoldDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageUpdateDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -116,6 +118,7 @@ class EventSubClient(
                             val message = runCatching { json.decodeFromJsonElement<EventSubMessageDto>(jsonObject) }
                                 .getOrElse {
                                     Log.e(TAG, "[EventSub] failed to parse message: $it")
+                                    Log.e(TAG, "[EventSub] raw JSON: $jsonObject")
                                     emitSystemMessage(message = "[EventSub] failed to parse message: $it")
                                     continue
                                 }
@@ -259,15 +262,29 @@ class EventSubClient(
     private fun handleNotification(message: NotificationMessageDto) {
         Log.d(TAG, "[EventSub] received notification message: $message")
         val event = message.payload.event
-        val message = when (event) {
-            is ChannelModerateDto -> ModerationAction(
+        val eventSubMessage = when (event) {
+            is ChannelModerateDto      -> ModerationAction(
+                id = message.metadata.messageId,
+                timestamp = message.metadata.messageTimestamp,
+                channelName = event.broadcasterUserLogin,
+                data = event,
+            )
+
+            is AutomodMessageHoldDto   -> AutomodHeld(
+                id = message.metadata.messageId,
+                timestamp = message.metadata.messageTimestamp,
+                channelName = event.broadcasterUserLogin,
+                data = event,
+            )
+
+            is AutomodMessageUpdateDto -> AutomodUpdate(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
         }
-        eventsChannel.trySend(message)
+        eventsChannel.trySend(eventSubMessage)
     }
 
     private fun handleRevocation(message: RevocationMessageDto) {

@@ -62,11 +62,16 @@ data class ModerationMessage(
         SharedTimeout,
         SharedUntimeout,
         SharedDelete,
+        AddBlockedTerm,
+        AddPermittedTerm,
+        RemoveBlockedTerm,
+        RemovePermittedTerm,
     }
 
     private val durationOrBlank get() = duration?.let { " for $it" }.orEmpty()
     private val quotedReasonOrBlank get() = reason.takeUnless { it.isNullOrBlank() }?.let { ": \"$it\"" }.orEmpty()
     private val reasonsOrBlank get() = reason.takeUnless { it.isNullOrBlank() }?.let { ": $it" }.orEmpty()
+    private val quotedTermsOrBlank get() = reason.takeUnless { it.isNullOrBlank() } ?: "terms"
     private fun getTrimmedReasonOrBlank(showDeletedMessage: Boolean): String {
         if (!showDeletedMessage) return ""
 
@@ -138,7 +143,11 @@ data class ModerationMessage(
             Action.SharedUntimeout -> "$creatorUserDisplay untimedout $targetUserDisplay in $sourceBroadcasterDisplay."
             Action.SharedBan       -> "$creatorUserDisplay banned $targetUserDisplay in $sourceBroadcasterDisplay$quotedReasonOrBlank."
             Action.SharedUnban     -> "$creatorUserDisplay unbanned $targetUserDisplay in $sourceBroadcasterDisplay."
-            Action.SharedDelete    -> "$creatorUserDisplay deleted message from $targetUserDisplay in $sourceBroadcasterDisplay${getTrimmedReasonOrBlank(showDeletedMessage)}"
+            Action.SharedDelete       -> "$creatorUserDisplay deleted message from $targetUserDisplay in $sourceBroadcasterDisplay${getTrimmedReasonOrBlank(showDeletedMessage)}"
+            Action.AddBlockedTerm     -> "$creatorUserDisplay added $quotedTermsOrBlank as a blocked term on AutoMod."
+            Action.AddPermittedTerm   -> "$creatorUserDisplay added $quotedTermsOrBlank as a permitted term on AutoMod."
+            Action.RemoveBlockedTerm  -> "$creatorUserDisplay removed $quotedTermsOrBlank as a blocked term on AutoMod."
+            Action.RemovePermittedTerm -> "$creatorUserDisplay removed $quotedTermsOrBlank as a permitted term on AutoMod."
         }
     }
 
@@ -273,8 +282,12 @@ data class ModerationMessage(
             ChannelModerateAction.SharedChatBan     -> data.sharedChatBan?.reason
             ChannelModerateAction.SharedChatDelete  -> data.sharedChatDelete?.messageBody
             ChannelModerateAction.SharedChatTimeout -> data.sharedChatTimeout?.reason
-            ChannelModerateAction.Warn              -> data.warn?.let { listOfNotNull(it.reason).plus(it.chatRulesCited.orEmpty()).joinToString() }
-            else                                    -> null
+            ChannelModerateAction.Warn                -> data.warn?.let { listOfNotNull(it.reason).plus(it.chatRulesCited.orEmpty()).joinToString() }
+            ChannelModerateAction.AddBlockedTerm,
+            ChannelModerateAction.AddPermittedTerm,
+            ChannelModerateAction.RemoveBlockedTerm,
+            ChannelModerateAction.RemovePermittedTerm -> data.automodTerms?.terms?.joinToString(" and ") { "\"$it\"" }
+            else                                      -> null
         }
 
         private fun parseTargetUser(data: ModerationActionData): UserName? = when (data.moderationAction) {
@@ -353,8 +366,12 @@ data class ModerationMessage(
             ChannelModerateAction.SharedChatUntimeout -> Action.SharedUntimeout
             ChannelModerateAction.SharedChatBan       -> Action.SharedBan
             ChannelModerateAction.SharedChatUnban     -> Action.SharedUnban
-            ChannelModerateAction.SharedChatDelete    -> Action.SharedDelete
-            else                                      -> error("Unexpected moderation action $this")
+            ChannelModerateAction.SharedChatDelete       -> Action.SharedDelete
+            ChannelModerateAction.AddBlockedTerm       -> Action.AddBlockedTerm
+            ChannelModerateAction.AddPermittedTerm     -> Action.AddPermittedTerm
+            ChannelModerateAction.RemoveBlockedTerm    -> Action.RemoveBlockedTerm
+            ChannelModerateAction.RemovePermittedTerm  -> Action.RemovePermittedTerm
+            else                                       -> error("Unexpected moderation action $this")
         }
     }
 }

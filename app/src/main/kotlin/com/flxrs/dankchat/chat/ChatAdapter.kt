@@ -64,6 +64,7 @@ import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Highlight
 import com.flxrs.dankchat.data.twitch.message.HighlightType
+import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
@@ -190,6 +191,16 @@ class ChatAdapter(
             }
 
             is ModerationMessage      -> holder.binding.itemText.handleModerationMessage(message, holder)
+            is AutomodMessage         -> holder.binding.itemText.handleModerationMessage(
+                ModerationMessage(
+                    channel = message.channel,
+                    action = ModerationMessage.Action.Clear,
+                    timestamp = message.timestamp,
+                    id = message.id,
+                ),
+                holder,
+            )
+
             is PointRedemptionMessage -> holder.binding.itemText.handlePointRedemptionMessage(message, holder)
             is WhisperMessage         -> holder.binding.itemText.handleWhisperMessage(message, holder)
         }

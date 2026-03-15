@@ -7,5 +7,9 @@ import kotlinx.serialization.Serializable
 enum class EventSubSubscriptionType {
     @SerialName("channel.moderate")
     ChannelModerate,
+    @SerialName("automod.message.hold")
+    AutomodMessageHold,
+    @SerialName("automod.message.update")
+    AutomodMessageUpdate,
     Unknown,
 }

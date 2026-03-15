@@ -7,7 +7,9 @@ import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Highlight
+import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.HighlightType
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
@@ -38,14 +40,12 @@ object ChatMessageMapper {
     private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF93F1FF)
     private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFC2F18D)
     private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFFFE087)
-
     // Highlight colors - Dark theme
     private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF543589)
     private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF773031)
     private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF004F57)
     private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF2D5000)
     private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF574500)
-
     // Checkered background colors
     private val CHECKERED_LIGHT = Color(
         android.graphics.Color.argb(
@@ -106,6 +106,13 @@ object ChatMessageMapper {
                 isAlternateBackground = isAlternateBackground,
                 isMentionTab = isMentionTab,
                 isInReplies = isInReplies,
+                textAlpha = textAlpha
+            )
+
+            is AutomodMessage         -> msg.toAutomodMessageUi(
+                tag = this.tag,
+                chatSettings = chatSettings,
+                isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
 
@@ -264,6 +271,51 @@ object ChatMessageMapper {
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages)
+        )
+    }
+
+    private fun AutomodMessage.toAutomodMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        isAlternateBackground: Boolean,
+        textAlpha: Float,
+    ): ChatMessageUiState.AutomodMessageUi {
+        val timestamp = if (chatSettings.showTimestamps) {
+            DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
+        } else ""
+
+        val uiStatus = when (status) {
+            AutomodMessage.Status.Pending  -> ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus.Pending
+            AutomodMessage.Status.Approved -> ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus.Approved
+            AutomodMessage.Status.Denied   -> ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus.Denied
+            AutomodMessage.Status.Expired  -> ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus.Expired
+        }
+
+        return ChatMessageUiState.AutomodMessageUi(
+            id = id,
+            tag = tag,
+            timestamp = timestamp,
+            lightBackgroundColor = Color.Unspecified,
+            darkBackgroundColor = Color.Unspecified,
+            textAlpha = textAlpha,
+            heldMessageId = heldMessageId,
+            channel = channel,
+            badges = badges.mapIndexed { index, badge ->
+                BadgeUi(
+                    url = badge.url,
+                    badge = badge,
+                    position = index,
+                    drawableResId = when (badge.badgeTag) {
+                        "automod/1" -> R.drawable.ic_automod_badge
+                        else        -> null
+                    },
+                )
+            },
+            userDisplayName = userName.formatWithDisplayName(userDisplayName),
+            rawNameColor = color,
+            messageText = messageText,
+            reason = reason,
+            status = uiStatus,
         )
     }
 
