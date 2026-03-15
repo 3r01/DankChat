@@ -2,9 +2,7 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.runtime.Immutable
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -26,7 +24,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -91,18 +88,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
-import androidx.compose.ui.window.PopupProperties
-import androidx.compose.foundation.Canvas
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalDensity
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
@@ -159,6 +147,8 @@ fun ChatInputLayout(
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
     onNewWhisper: (() -> Unit)? = null,
+    overflowExpanded: Boolean = false,
+    onOverflowExpandedChanged: (Boolean) -> Unit = {},
     showQuickActions: Boolean = true,
     tourState: TourOverlayState = TourOverlayState(),
     modifier: Modifier = Modifier
@@ -200,8 +190,7 @@ fun ChatInputLayout(
     }
 
     var visibleActions by remember { mutableStateOf(effectiveActions) }
-    var userExpandedMenu by remember { mutableStateOf(false) }
-    val quickActionsExpanded = userExpandedMenu || tourState.forceOverflowOpen
+    val quickActionsExpanded = overflowExpanded || tourState.forceOverflowOpen
     var showConfigSheet by remember { mutableStateOf(false) }
     val topEndRadius by animateDpAsState(
         targetValue = if (quickActionsExpanded) 0.dp else 24.dp,
@@ -431,7 +420,7 @@ fun ChatInputLayout(
                                                 if (tourState.overflowMenuTooltipState != null) {
                                                     tourState.onAdvance?.invoke()
                                                 } else {
-                                                    userExpandedMenu = !quickActionsExpanded
+                                                    onOverflowExpandedChanged(!quickActionsExpanded)
                                                 }
                                             },
                                             modifier = Modifier.size(iconSize)
@@ -529,33 +518,6 @@ fun ChatInputLayout(
                 actionsRowContent()
             }
         }
-
-        QuickActionsOverflowMenu(
-            expanded = quickActionsExpanded,
-            surfaceColor = surfaceColor,
-            visibleActions = visibleActions,
-            isStreamActive = isStreamActive,
-            hasStreamData = hasStreamData,
-            isFullscreen = isFullscreen,
-            isModerator = isModerator,
-            tourState = tourState,
-            onDismiss = { if (!tourState.forceOverflowOpen) userExpandedMenu = false },
-            onActionClick = { action ->
-                when (action) {
-                    InputAction.Search -> onSearchClick()
-                    InputAction.LastMessage -> onLastMessageClick()
-                    InputAction.Stream -> onToggleStream()
-                    InputAction.RoomState -> onChangeRoomState()
-                    InputAction.Fullscreen -> onToggleFullscreen()
-                    InputAction.HideInput -> onToggleInput()
-                }
-                userExpandedMenu = false
-            },
-            onConfigureClick = {
-                userExpandedMenu = false
-                showConfigSheet = true
-            },
-        )
     }
 
     Box(modifier = modifier.fillMaxWidth()) {
@@ -577,6 +539,46 @@ fun ChatInputLayout(
         } else {
             inputContent()
         }
+
+        // Overflow menu — overlays above input, end-aligned
+        AnimatedVisibility(
+            visible = quickActionsExpanded,
+            enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, 0) {
+                        placeable.placeRelative(0, -placeable.height)
+                    }
+                },
+        ) {
+            QuickActionsMenu(
+                surfaceColor = surfaceColor,
+                visibleActions = visibleActions,
+                isStreamActive = isStreamActive,
+                hasStreamData = hasStreamData,
+                isFullscreen = isFullscreen,
+                isModerator = isModerator,
+                tourState = tourState,
+                onActionClick = { action ->
+                    when (action) {
+                        InputAction.Search -> onSearchClick()
+                        InputAction.LastMessage -> onLastMessageClick()
+                        InputAction.Stream -> onToggleStream()
+                        InputAction.RoomState -> onChangeRoomState()
+                        InputAction.Fullscreen -> onToggleFullscreen()
+                        InputAction.HideInput -> onToggleInput()
+                    }
+                    onOverflowExpandedChanged(false)
+                },
+                onConfigureClick = {
+                    onOverflowExpandedChanged(false)
+                    showConfigSheet = true
+                },
+            )
+        }
     }
 
     if (showConfigSheet) {
@@ -586,182 +588,6 @@ fun ChatInputLayout(
             onDismiss = { showConfigSheet = false },
         )
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun QuickActionsOverflowMenu(
-    expanded: Boolean,
-    surfaceColor: Color,
-    visibleActions: List<InputAction>,
-    isStreamActive: Boolean,
-    hasStreamData: Boolean,
-    isFullscreen: Boolean,
-    isModerator: Boolean,
-    tourState: TourOverlayState,
-    onDismiss: () -> Unit,
-    onActionClick: (InputAction) -> Unit,
-    onConfigureClick: () -> Unit,
-) {
-    val menuVisibleState = remember { MutableTransitionState(false) }
-    menuVisibleState.targetState = expanded
-
-    if (!menuVisibleState.currentState && !menuVisibleState.targetState) return
-
-    val positionProvider = remember {
-        object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
-            ): IntOffset = IntOffset(
-                x = anchorBounds.right - popupContentSize.width,
-                y = anchorBounds.top - popupContentSize.height
-            )
-        }
-    }
-
-    Popup(
-        popupPositionProvider = positionProvider,
-        onDismissRequest = onDismiss,
-        properties = PopupProperties(focusable = true),
-    ) {
-        AnimatedVisibility(
-            visibleState = menuVisibleState,
-            enter = slideInVertically(
-                initialOffsetY = { it },
-                animationSpec = tween(durationMillis = 150)
-            ) + fadeIn(animationSpec = tween(durationMillis = 100)),
-            exit = shrinkVertically(
-                shrinkTowards = Alignment.Bottom,
-                animationSpec = tween(durationMillis = 120)
-            ) + fadeOut(animationSpec = tween(durationMillis = 80)),
-        ) {
-            Surface(
-                shape = RoundedCornerShape(topStart = 12.dp),
-                color = surfaceColor,
-            ) {
-                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                    for (action in InputAction.entries) {
-                        if (action in visibleActions) continue
-                        val overflowItem = getOverflowItem(
-                            action = action,
-                            isStreamActive = isStreamActive,
-                            hasStreamData = hasStreamData,
-                            isFullscreen = isFullscreen,
-                            isModerator = isModerator,
-                        )
-                        if (overflowItem != null) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(overflowItem.labelRes)) },
-                                onClick = { onActionClick(action) },
-                                leadingIcon = {
-                                    Icon(
-                                        imageVector = overflowItem.icon,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                    HorizontalDivider()
-
-                    val configureItem: @Composable () -> Unit = {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.input_action_configure)) },
-                            onClick = {
-                                if (tourState.configureActionsTooltipState != null) {
-                                    tourState.onAdvance?.invoke()
-                                } else {
-                                    onConfigureClick()
-                                }
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Settings,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
-                    if (tourState.configureActionsTooltipState != null) {
-                        TooltipBox(
-                            positionProvider = rememberStartAlignedTooltipPositionProvider(),
-                            tooltip = {
-                                EndCaretTourTooltip(
-                                    text = stringResource(R.string.tour_configure_actions),
-                                    onAction = { tourState.onAdvance?.invoke() },
-                                    onSkip = { tourState.onSkip?.invoke() },
-                                )
-                            },
-                            state = tourState.configureActionsTooltipState,
-                            onDismissRequest = {},
-                            focusable = true,
-                            hasAction = true,
-                        ) {
-                            configureItem()
-                        }
-                    } else {
-                        configureItem()
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Immutable
-private data class OverflowItem(
-    val labelRes: Int,
-    val icon: ImageVector,
-)
-
-private fun getOverflowItem(
-    action: InputAction,
-    isStreamActive: Boolean,
-    hasStreamData: Boolean,
-    isFullscreen: Boolean,
-    isModerator: Boolean,
-): OverflowItem? = when (action) {
-    InputAction.Search -> OverflowItem(
-        labelRes = R.string.input_action_search,
-        icon = Icons.Default.Search,
-    )
-
-    InputAction.LastMessage -> OverflowItem(
-        labelRes = R.string.input_action_last_message,
-        icon = Icons.Default.History,
-    )
-
-    InputAction.Stream -> when {
-        hasStreamData || isStreamActive -> OverflowItem(
-            labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-            icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-        )
-
-        else -> null
-    }
-
-    InputAction.RoomState -> when {
-        isModerator -> OverflowItem(
-            labelRes = R.string.menu_room_state,
-            icon = Icons.Default.Shield,
-        )
-
-        else -> null
-    }
-
-    InputAction.Fullscreen -> OverflowItem(
-        labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
-        icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-    )
-
-    InputAction.HideInput -> OverflowItem(
-        labelRes = R.string.menu_hide_input,
-        icon = Icons.Default.VisibilityOff,
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1012,95 +838,3 @@ internal fun TooltipScope.TourTooltip(
     }
 }
 
-/**
- * Tour tooltip positioned to the start of its anchor, with a right-pointing caret on the end side.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun EndCaretTourTooltip(
-    text: String,
-    onAction: () -> Unit,
-    onSkip: () -> Unit,
-) {
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = containerColor,
-            shadowElevation = 2.dp,
-            tonalElevation = 2.dp,
-            modifier = Modifier.widthIn(max = 220.dp),
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp, bottom = 8.dp)
-            ) {
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    TextButton(onClick = onSkip) {
-                        Text(stringResource(R.string.tour_skip))
-                    }
-                    TextButton(onClick = onAction) {
-                        Text(stringResource(R.string.tour_next))
-                    }
-                }
-            }
-        }
-        Canvas(modifier = Modifier.size(width = 12.dp, height = 24.dp)) {
-            val path = Path().apply {
-                moveTo(0f, 0f)
-                lineTo(size.width, size.height / 2f)
-                lineTo(0f, size.height)
-                close()
-            }
-            drawPath(path, containerColor)
-        }
-    }
-}
-
-/**
- * Positions the tooltip to the start (left in LTR) of the anchor, vertically centered.
- * Falls back to above-positioning if there's not enough horizontal space.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun rememberStartAlignedTooltipPositionProvider(
-    spacingBetweenTooltipAndAnchor: Dp = 4.dp,
-): PopupPositionProvider {
-    val spacingPx = with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
-    return remember(spacingPx) {
-        object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize,
-            ): IntOffset {
-                val startX = anchorBounds.left - popupContentSize.width - spacingPx
-                return if (startX >= 0) {
-                    // Fits to the start — vertically center on anchor
-                    val y = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
-                    IntOffset(
-                        startX,
-                        y.coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0)),
-                    )
-                } else {
-                    // Not enough space — fall back to above, horizontally end-aligned with anchor
-                    val x = (anchorBounds.right - popupContentSize.width)
-                        .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
-                    val y = (anchorBounds.top - popupContentSize.height - spacingPx)
-                        .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
-                    IntOffset(x, y)
-                }
-            }
-        }
-    }
-}

@@ -52,6 +52,8 @@ fun ChatBottomBar(
     onSearchClick: () -> Unit,
     onNewWhisper: (() -> Unit)?,
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
+    overflowExpanded: Boolean = false,
+    onOverflowExpandedChanged: (Boolean) -> Unit = {},
     onInputHeightChanged: (Int) -> Unit,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
@@ -96,6 +98,8 @@ fun ChatBottomBar(
                 onInputActionsChanged = onInputActionsChanged,
                 onSearchClick = onSearchClick,
                 onNewWhisper = onNewWhisper,
+                overflowExpanded = overflowExpanded,
+                onOverflowExpandedChanged = onOverflowExpandedChanged,
                 showQuickActions = !isSheetOpen,
                 tourState = tourState,
                 modifier = Modifier.onGloballyPositioned { coordinates ->

@@ -16,6 +16,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -484,6 +486,7 @@ fun MainScreen(
         pageCount = { pagerState.channels.size }
     ).also { composePagerStateRef = it }
     var inputHeightPx by remember { mutableIntStateOf(0) }
+    var inputOverflowExpanded by remember { mutableStateOf(false) }
     if (!effectiveShowInput) inputHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     // scaffoldBottomContentPadding removed — input bar rendered outside Scaffold
@@ -587,6 +590,8 @@ fun MainScreen(
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onNewWhisper = if (inputState.isWhisperTabActive) { dialogViewModel::showNewWhisper } else null,
                 onInputActionsChanged = mainScreenViewModel::updateInputActions,
+                overflowExpanded = inputOverflowExpanded,
+                onOverflowExpandedChanged = { inputOverflowExpanded = it },
                 onInputHeightChanged = { inputHeightPx = it },
                 instantHide = isHistorySheet,
                 tourState = TourOverlayState(
@@ -942,6 +947,22 @@ fun MainScreen(
 
                     fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
 
+                    // Dismiss scrim for input overflow menu
+                    if (inputOverflowExpanded) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = remember { MutableInteractionSource() },
+                                ) {
+                                    if (!tourController.forceOverflowOpen) {
+                                        inputOverflowExpanded = false
+                                    }
+                                }
+                        )
+                    }
+
                     // Input bar - rendered after sheet overlay so it's on top
                     Box(
                         modifier = Modifier
@@ -1047,6 +1068,22 @@ fun MainScreen(
             // Fullscreen Overlay Sheets - above stream layer so they're not hidden
             if (!isInPipMode) {
                 fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+            }
+
+            // Dismiss scrim for input overflow menu
+            if (!isInPipMode && inputOverflowExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            if (!tourController.forceOverflowOpen) {
+                                inputOverflowExpanded = false
+                            }
+                        }
+                )
             }
 
             // Input bar - rendered after sheet overlay so it's on top
