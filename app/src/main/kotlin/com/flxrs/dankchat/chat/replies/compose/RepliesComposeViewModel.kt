@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.chat.replies.compose
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
@@ -28,7 +27,6 @@ class RepliesComposeViewModel(
     @InjectedParam private val rootMessageId: String,
     repliesRepository: RepliesRepository,
     private val chatMessageMapper: ChatMessageMapper,
-    private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
@@ -66,7 +64,6 @@ class RepliesComposeViewModel(
                     val altBg = index.isEven && appearanceSettings.checkeredMessages
                     chatMessageMapper.mapToUiState(
                         item = item,
-                        context = context,
                         appearanceSettings = appearanceSettings,
                         chatSettings = chatSettings,
                         preferenceStore = preferenceStore,

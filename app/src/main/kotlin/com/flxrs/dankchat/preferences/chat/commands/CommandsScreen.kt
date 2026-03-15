@@ -43,7 +43,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -79,13 +78,14 @@ private fun CustomCommandsScreen(
     onSaveAndNavBack: (List<CustomCommand>) -> Unit,
     onSave: (List<CustomCommand>) -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val commands = remember { initialCommands.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
@@ -154,8 +154,8 @@ private fun CustomCommandsScreen(
                         scope.launch {
                             snackbarHost.currentSnackbarData?.dismiss()
                             val result = snackbarHost.showSnackbar(
-                                message = context.getString(R.string.item_removed),
-                                actionLabel = context.getString(R.string.undo),
+                                message = itemRemovedMsg,
+                                actionLabel = undoMsg,
                                 duration = SnackbarDuration.Short,
                             )
                             if (result == SnackbarResult.ActionPerformed) {

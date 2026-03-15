@@ -30,7 +30,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withLink
@@ -124,16 +123,17 @@ fun OverviewSettingsScreen(
                         )
                     },
                 ) {
-                    val context = LocalContext.current
+                    val aboutSummary = stringResource(R.string.preference_about_summary, BuildConfig.VERSION_NAME)
+                    val aboutTos = stringResource(R.string.preference_about_tos)
                     val annotated = buildAnnotatedString {
-                        append(context.getString(R.string.preference_about_summary, BuildConfig.VERSION_NAME))
+                        append(aboutSummary)
                         appendLine()
                         withLink(link = buildLinkAnnotation(GITHUB_URL)) {
                             append(GITHUB_URL)
                         }
                         appendLine()
                         appendLine()
-                        append(context.getString(R.string.preference_about_tos))
+                        append(aboutTos)
                         appendLine()
                         withLink(link = buildLinkAnnotation(TWITCH_TOS_URL)) {
                             append(TWITCH_TOS_URL)

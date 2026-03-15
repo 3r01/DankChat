@@ -29,6 +29,7 @@ import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.messages.common.SimpleMessageContainer
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
+import com.flxrs.dankchat.chat.compose.resolve
 
 /**
  * Renders a system message (connected, disconnected, emote loading failures, etc.)
@@ -40,7 +41,7 @@ fun SystemMessageComposable(
     modifier: Modifier = Modifier,
 ) {
     SimpleMessageContainer(
-        message = message.message,
+        message = message.message.resolve(),
         timestamp = message.timestamp,
         fontSize = fontSize.sp,
         lightBackgroundColor = message.lightBackgroundColor,

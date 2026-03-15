@@ -57,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -105,11 +104,12 @@ private fun UserDisplayScreen(
     onAdd: (UserDisplayItem, Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LaunchedEffect(eventsWrapper) {
         eventsWrapper.events.collectLatest {
@@ -117,8 +117,8 @@ private fun UserDisplayScreen(
             when (it) {
                 is UserDisplayEvent.ItemRemoved -> {
                     val result = snackbarHost.showSnackbar(
-                        message = context.getString(R.string.item_removed),
-                        actionLabel = context.getString(R.string.undo),
+                        message = itemRemovedMsg,
+                        actionLabel = undoMsg,
                         duration = SnackbarDuration.Short,
                     )
                     if (result == SnackbarResult.ActionPerformed) {

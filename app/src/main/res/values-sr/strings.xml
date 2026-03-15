@@ -239,8 +239,10 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="automod_status_denied">Одбијено</string>
     <string name="automod_status_expired">Истекло</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (ниво %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">подудара се са 1 блокираним термином %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">подудара се са %1$d блокираних термина %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">подудара се са %1$d блокираним термином %2$s</item>
+        <item quantity="other">подудара се са %1$d блокираних термина %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Није успело %1$s AutoMod поруке - порука је већ обрађена.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Није успело %1$s AutoMod поруке - потребно је поново се аутентификовати.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Није успело %1$s AutoMod поруке - немате дозволу за ову радњу.</string>

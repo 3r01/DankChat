@@ -461,8 +461,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="automod_status_denied">Abgelehnt</string>
     <string name="automod_status_expired">Abgelaufen</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (Stufe %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">entspricht 1 blockiertem Begriff %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">entspricht %1$d blockierten Begriffen %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">entspricht %1$d blockiertem Begriff %2$s</item>
+        <item quantity="other">entspricht %1$d blockierten Begriffen %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoMod-Nachricht konnte nicht %1$s werden - Nachricht wurde bereits verarbeitet.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoMod-Nachricht konnte nicht %1$s werden - du musst dich erneut anmelden.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoMod-Nachricht konnte nicht %1$s werden - du hast keine Berechtigung für diese Aktion.</string>

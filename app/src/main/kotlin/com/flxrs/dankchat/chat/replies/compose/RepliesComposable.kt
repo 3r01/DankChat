@@ -34,8 +34,8 @@ fun RepliesComposable(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onNotFound: () -> Unit,
     containerColor: Color,
+    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    modifier: Modifier = Modifier
 ) {
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))

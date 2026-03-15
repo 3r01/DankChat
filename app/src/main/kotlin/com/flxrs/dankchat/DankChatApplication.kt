@@ -1,11 +1,7 @@
 package com.flxrs.dankchat
 
 import android.app.Application
-import android.app.UiModeManager
-import android.content.res.Configuration
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.getSystemService
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -66,18 +62,12 @@ class DankChatApplication : Application(), SingletonImageLoader.Factory {
     }
 
     private suspend fun setupThemeMode() {
-        val uiModeManager = getSystemService<UiModeManager>()
-        val isTv = uiModeManager?.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
         val theme = appearanceSettingsDataStore.settings.first().theme
 
-        val supportsLightMode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 || isTv
-        val supportsSystemDarkMode = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
-
         val nightMode = when {
-            // Force dark theme on < Android 8.1 because of statusbar/navigationbar issues, or if system dark mode is not supported
-            theme == Dark || !supportsLightMode || (theme == System && !supportsSystemDarkMode) -> AppCompatDelegate.MODE_NIGHT_YES
-            theme == System                                                                     -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            else                                                                                -> AppCompatDelegate.MODE_NIGHT_NO
+            theme == Dark   -> AppCompatDelegate.MODE_NIGHT_YES
+            theme == System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            else            -> AppCompatDelegate.MODE_NIGHT_NO
         }
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }

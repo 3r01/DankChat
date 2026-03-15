@@ -121,13 +121,15 @@ private fun IgnoresScreen(
     onPageChanged: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val resources = LocalContext.current.resources
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val pagerState = rememberPagerState { IgnoresTab.entries.size }
     val listStates = IgnoresTab.entries.map { rememberLazyListState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val appbarContainerColor = animatedAppBarColor(scrollBehavior)
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect {
@@ -144,13 +146,13 @@ private fun IgnoresScreen(
                 when (event) {
                     is IgnoreEvent.ItemRemoved  -> {
                         val message = when (event.item) {
-                            is TwitchBlockItem -> context.getString(R.string.unblocked_user, event.item.username)
-                            else               -> context.getString(R.string.item_removed)
+                            is TwitchBlockItem -> resources.getString(R.string.unblocked_user, event.item.username)
+                            else               -> itemRemovedMsg
                         }
 
                         val result = snackbarHost.showSnackbar(
                             message = message,
-                            actionLabel = context.getString(R.string.undo),
+                            actionLabel = undoMsg,
                             duration = SnackbarDuration.Short,
                         )
                         if (result == SnackbarResult.ActionPerformed) {
@@ -168,12 +170,12 @@ private fun IgnoresScreen(
                     }
 
                     is IgnoreEvent.BlockError   -> {
-                        val message = context.getString(R.string.blocked_user_failed, event.item.username)
+                        val message = resources.getString(R.string.blocked_user_failed, event.item.username)
                         snackbarHost.showSnackbar(message)
                     }
 
                     is IgnoreEvent.UnblockError -> {
-                        val message = context.getString(R.string.unblocked_user_failed, event.item.username)
+                        val message = resources.getString(R.string.unblocked_user_failed, event.item.username)
                         snackbarHost.showSnackbar(message)
                     }
                 }

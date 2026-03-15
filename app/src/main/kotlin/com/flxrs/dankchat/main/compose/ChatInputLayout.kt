@@ -84,6 +84,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -132,6 +133,7 @@ fun ChatInputLayout(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     inputActions: ImmutableList<InputAction>,
+    modifier: Modifier = Modifier,
     characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
@@ -151,7 +153,6 @@ fun ChatInputLayout(
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
     showQuickActions: Boolean = true,
     tourState: TourOverlayState = TourOverlayState(),
-    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
@@ -617,7 +618,7 @@ private fun InputActionConfigSheet(
                 .padding(bottom = 16.dp)
         ) {
             Text(
-                text = if (atLimit) stringResource(R.string.input_actions_max, MAX_INPUT_ACTIONS) else "",
+                text = if (atLimit) pluralStringResource(R.plurals.input_actions_max, MAX_INPUT_ACTIONS, MAX_INPUT_ACTIONS) else "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)

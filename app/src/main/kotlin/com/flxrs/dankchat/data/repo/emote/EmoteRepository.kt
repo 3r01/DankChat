@@ -3,7 +3,6 @@ package com.flxrs.dankchat.data.repo.emote
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.graphics.drawable.LayerDrawable
-import android.os.Build
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import com.flxrs.dankchat.data.DisplayName
@@ -812,9 +811,7 @@ class EmoteRepository(
     private fun parseFFZEmote(emote: FFZEmoteDto, channel: UserName?): GenericEmote? {
         val name = emote.name
         val id = emote.id
-        val urlMap = emote.animated
-            ?.mapValues { (_, url) -> url.takeIf { SUPPORTS_WEBP } ?: "$url.gif" }
-            ?: emote.urls
+        val urlMap = emote.animated ?: emote.urls
 
         val (scale, url) = when {
             urlMap["4"] != null -> 1 to urlMap.getValue("4")
@@ -841,7 +838,7 @@ class EmoteRepository(
             .filter { it.format == "WEBP" }
             .associate {
                 val size = it.name.substringBeforeLast('.')
-                size to it.emoteUrlWithFallback(base, size, data.animated)
+                size to it.emoteUrlWithFallback(base)
             }
 
         return GenericEmote(
@@ -855,11 +852,8 @@ class EmoteRepository(
         )
     }
 
-    private fun SevenTVEmoteFileDto.emoteUrlWithFallback(base: String, size: String, animated: Boolean): String {
-        return when {
-            animated && !SUPPORTS_WEBP -> "$base$size.gif"
-            else                       -> "$base$name"
-        }
+    private fun SevenTVEmoteFileDto.emoteUrlWithFallback(base: String): String {
+        return "$base$name"
     }
 
     private suspend fun List<SevenTVEmoteDto>.filterUnlistedIfEnabled(): List<SevenTVEmoteDto> = when {
@@ -875,7 +869,6 @@ class EmoteRepository(
 
     companion object {
         private val TAG = EmoteRepository::class.java.simpleName
-        private val SUPPORTS_WEBP = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
         fun Badge.cacheKey(baseHeight: Int): String = "$url-$baseHeight"
         fun List<ChatMessageEmote>.cacheKey(baseHeight: Int): String = joinToString(separator = "-") { it.id } + "-$baseHeight"
 

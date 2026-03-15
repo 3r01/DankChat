@@ -298,8 +298,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="automod_status_denied">Hylätty</string>
     <string name="automod_status_expired">Vanhentunut</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (taso %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">vastaa 1 estettyä termiä %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">vastaa %1$d estettyä termiä %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">vastaa %1$d estettyä termiä %2$s</item>
+        <item quantity="other">vastaa %1$d estettyä termiä %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoMod-viestin %1$s epäonnistui - viesti on jo käsitelty.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoMod-viestin %1$s epäonnistui - sinun täytyy kirjautua uudelleen.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoMod-viestin %1$s epäonnistui - sinulla ei ole oikeutta suorittaa tätä toimintoa.</string>

@@ -315,6 +315,17 @@ class ChatAdapter(
             )
 
             is SystemMessageType.ChannelSevenTVEmoteSetChanged -> context.getString(R.string.system_message_7tv_emote_set_changed, message.type.actorName, message.type.newEmoteSetName)
+            is SystemMessageType.AutomodActionFailed           -> {
+                val actionVerb = context.getString(if (message.type.allow) R.string.automod_allow else R.string.automod_deny).lowercase()
+                val errorResId = when (message.type.statusCode) {
+                    400  -> R.string.automod_error_already_processed
+                    401  -> R.string.automod_error_not_authenticated
+                    403  -> R.string.automod_error_not_authorized
+                    404  -> R.string.automod_error_not_found
+                    else -> R.string.automod_error_unknown
+                }
+                context.getString(errorResId, actionVerb)
+            }
         }
         val withTime = when {
             chatSettings.showTimestamps -> SpannableStringBuilder()

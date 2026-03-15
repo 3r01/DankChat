@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.chat.history.compose
 
-import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.runtime.snapshotFlow
@@ -46,7 +45,6 @@ class MessageHistoryComposeViewModel(
     chatRepository: ChatRepository,
     usersRepository: UsersRepository,
     private val chatMessageMapper: ChatMessageMapper,
-    private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
@@ -87,7 +85,6 @@ class MessageHistoryComposeViewModel(
                 val altBg = index.isEven && appearanceSettings.checkeredMessages
                 chatMessageMapper.mapToUiState(
                     item = item,
-                    context = context,
                     appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,
                     preferenceStore = preferenceStore,

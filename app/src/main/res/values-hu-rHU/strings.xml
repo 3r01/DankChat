@@ -439,8 +439,10 @@
     <string name="automod_status_denied">Elutasítva</string>
     <string name="automod_status_expired">Lejárt</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (%2$d. szint)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">egyezik 1 blokkolt kifejezéssel: %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">egyezik %1$d blokkolt kifejezéssel: %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">egyezik %1$d blokkolt kifejezéssel: %2$s</item>
+        <item quantity="other">egyezik %1$d blokkolt kifejezéssel: %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nem sikerült %1$s az AutoMod üzenetet - az üzenet már feldolgozásra került.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Nem sikerült %1$s az AutoMod üzenetet - újra be kell jelentkezned.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Nem sikerült %1$s az AutoMod üzenetet - nincs jogosultságod ehhez a művelethez.</string>

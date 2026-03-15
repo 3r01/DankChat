@@ -57,6 +57,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -123,13 +124,13 @@ fun FloatingToolbar(
     streamHeightDp: Dp,
     totalMentionCount: Int,
     onAction: (ToolbarAction) -> Unit,
+    modifier: Modifier = Modifier,
     endAligned: Boolean = false,
     showTabs: Boolean = true,
     addChannelTooltipState: TooltipState? = null,
     onAddChannelTooltipDismissed: () -> Unit = {},
     onSkipTour: () -> Unit = {},
     streamToolbarAlpha: Float = 1f,
-    modifier: Modifier = Modifier,
 ) {
 
     val density = LocalDensity.current
@@ -249,11 +250,20 @@ fun FloatingToolbar(
         }
 
         // Mention indicators based on visibility
-        val visibleItems = tabListState.layoutInfo.visibleItemsInfo
-        val firstVisibleIndex = visibleItems.firstOrNull()?.index ?: 0
-        val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: (totalTabs - 1)
-        val hasLeftMention = tabState.tabs.take(firstVisibleIndex).any { it.mentionCount > 0 }
-        val hasRightMention = tabState.tabs.drop(lastVisibleIndex + 1).any { it.mentionCount > 0 }
+        val hasLeftMention by remember {
+            derivedStateOf {
+                val visibleItems = tabListState.layoutInfo.visibleItemsInfo
+                val firstVisibleIndex = visibleItems.firstOrNull()?.index ?: 0
+                tabState.tabs.take(firstVisibleIndex).any { it.mentionCount > 0 }
+            }
+        }
+        val hasRightMention by remember {
+            derivedStateOf {
+                val visibleItems = tabListState.layoutInfo.visibleItemsInfo
+                val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: (totalTabs - 1)
+                tabState.tabs.drop(lastVisibleIndex + 1).any { it.mentionCount > 0 }
+            }
+        }
 
         Row(
             modifier = Modifier

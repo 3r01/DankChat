@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.chat.compose
 
-import android.content.Context
 import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.ChatImportance
@@ -68,7 +67,6 @@ class ChatMessageMapper(
 
     fun mapToUiState(
         item: ChatItem,
-        context: Context,
         appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
         preferenceStore: DankChatPreferenceStore,
@@ -83,7 +81,6 @@ class ChatMessageMapper(
         return when (val msg = item.message) {
             is SystemMessage          -> msg.toSystemMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
@@ -91,7 +88,6 @@ class ChatMessageMapper(
 
             is NoticeMessage          -> msg.toNoticeMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
@@ -99,7 +95,6 @@ class ChatMessageMapper(
 
             is UserNoticeMessage      -> msg.toUserNoticeMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
@@ -107,7 +102,6 @@ class ChatMessageMapper(
 
             is PrivMessage            -> msg.toPrivMessageUi(
                 tag = item.tag,
-                context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -125,7 +119,6 @@ class ChatMessageMapper(
 
             is ModerationMessage      -> msg.toModerationMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
                 isAlternateBackground = isAlternateBackground,
@@ -134,14 +127,12 @@ class ChatMessageMapper(
 
             is PointRedemptionMessage -> msg.toPointRedemptionMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 textAlpha = textAlpha
             )
 
             is WhisperMessage         -> msg.toWhisperMessageUi(
                 tag = item.tag,
-                context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha,
@@ -152,7 +143,6 @@ class ChatMessageMapper(
 
     private fun SystemMessage.toSystemMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         textAlpha: Float,
@@ -163,33 +153,42 @@ class ChatMessageMapper(
         } else ""
 
         val message = when (type) {
-            is SystemMessageType.Disconnected                  -> context.getString(R.string.system_message_disconnected)
-            is SystemMessageType.NoHistoryLoaded               -> context.getString(R.string.system_message_no_history)
-            is SystemMessageType.Connected                     -> context.getString(R.string.system_message_connected)
-            is SystemMessageType.Reconnected                   -> context.getString(R.string.system_message_reconnected)
-            is SystemMessageType.LoginExpired                  -> context.getString(R.string.login_expired)
-            is SystemMessageType.ChannelNonExistent            -> context.getString(R.string.system_message_channel_non_existent)
-            is SystemMessageType.MessageHistoryIgnored         -> context.getString(R.string.system_message_history_ignored)
-            is SystemMessageType.MessageHistoryIncomplete      -> context.getString(R.string.system_message_history_recovering)
-            is SystemMessageType.ChannelBTTVEmotesFailed       -> context.getString(R.string.system_message_bttv_emotes_failed, type.status)
-            is SystemMessageType.ChannelFFZEmotesFailed        -> context.getString(R.string.system_message_ffz_emotes_failed, type.status)
-            is SystemMessageType.ChannelSevenTVEmotesFailed    -> context.getString(R.string.system_message_7tv_emotes_failed, type.status)
-            is SystemMessageType.Custom                        -> type.message
+            is SystemMessageType.Disconnected                  -> TextResource.Res(R.string.system_message_disconnected)
+            is SystemMessageType.NoHistoryLoaded               -> TextResource.Res(R.string.system_message_no_history)
+            is SystemMessageType.Connected                     -> TextResource.Res(R.string.system_message_connected)
+            is SystemMessageType.Reconnected                   -> TextResource.Res(R.string.system_message_reconnected)
+            is SystemMessageType.LoginExpired                  -> TextResource.Res(R.string.login_expired)
+            is SystemMessageType.ChannelNonExistent            -> TextResource.Res(R.string.system_message_channel_non_existent)
+            is SystemMessageType.MessageHistoryIgnored         -> TextResource.Res(R.string.system_message_history_ignored)
+            is SystemMessageType.MessageHistoryIncomplete      -> TextResource.Res(R.string.system_message_history_recovering)
+            is SystemMessageType.ChannelBTTVEmotesFailed       -> TextResource.Res(R.string.system_message_bttv_emotes_failed, listOf(type.status))
+            is SystemMessageType.ChannelFFZEmotesFailed        -> TextResource.Res(R.string.system_message_ffz_emotes_failed, listOf(type.status))
+            is SystemMessageType.ChannelSevenTVEmotesFailed    -> TextResource.Res(R.string.system_message_7tv_emotes_failed, listOf(type.status))
+            is SystemMessageType.Custom                        -> TextResource.Plain(type.message)
             is SystemMessageType.MessageHistoryUnavailable     -> when (type.status) {
-                null -> context.getString(R.string.system_message_history_unavailable)
-                else -> context.getString(R.string.system_message_history_unavailable_detailed, type.status)
+                null -> TextResource.Res(R.string.system_message_history_unavailable)
+                else -> TextResource.Res(R.string.system_message_history_unavailable_detailed, listOf(type.status))
             }
 
-            is SystemMessageType.ChannelSevenTVEmoteAdded      -> context.getString(R.string.system_message_7tv_emote_added, type.actorName, type.emoteName)
-            is SystemMessageType.ChannelSevenTVEmoteRemoved    -> context.getString(R.string.system_message_7tv_emote_removed, type.actorName, type.emoteName)
-            is SystemMessageType.ChannelSevenTVEmoteRenamed    -> context.getString(
+            is SystemMessageType.ChannelSevenTVEmoteAdded      -> TextResource.Res(R.string.system_message_7tv_emote_added, listOf(type.actorName, type.emoteName))
+            is SystemMessageType.ChannelSevenTVEmoteRemoved    -> TextResource.Res(R.string.system_message_7tv_emote_removed, listOf(type.actorName, type.emoteName))
+            is SystemMessageType.ChannelSevenTVEmoteRenamed    -> TextResource.Res(
                 R.string.system_message_7tv_emote_renamed,
-                type.actorName,
-                type.oldEmoteName,
-                type.emoteName
+                listOf(type.actorName, type.oldEmoteName, type.emoteName)
             )
 
-            is SystemMessageType.ChannelSevenTVEmoteSetChanged -> context.getString(R.string.system_message_7tv_emote_set_changed, type.actorName, type.newEmoteSetName)
+            is SystemMessageType.ChannelSevenTVEmoteSetChanged -> TextResource.Res(R.string.system_message_7tv_emote_set_changed, listOf(type.actorName, type.newEmoteSetName))
+            is SystemMessageType.AutomodActionFailed           -> {
+                val actionRes = TextResource.Res(if (type.allow) R.string.automod_allow else R.string.automod_deny)
+                val errorResId = when (type.statusCode) {
+                    400  -> R.string.automod_error_already_processed
+                    401  -> R.string.automod_error_not_authenticated
+                    403  -> R.string.automod_error_not_authorized
+                    404  -> R.string.automod_error_not_found
+                    else -> R.string.automod_error_unknown
+                }
+                TextResource.Res(errorResId, listOf(actionRes))
+            }
         }
 
         return ChatMessageUiState.SystemMessageUi(
@@ -205,7 +204,6 @@ class ChatMessageMapper(
 
     private fun NoticeMessage.toNoticeMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         textAlpha: Float,
@@ -228,7 +226,6 @@ class ChatMessageMapper(
 
     private fun UserNoticeMessage.toUserNoticeMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         textAlpha: Float,
@@ -267,7 +264,6 @@ class ChatMessageMapper(
 
     private fun ModerationMessage.toModerationMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         preferenceStore: DankChatPreferenceStore,
         isAlternateBackground: Boolean,
@@ -336,7 +332,6 @@ class ChatMessageMapper(
 
     private fun PrivMessage.toPrivMessageUi(
         tag: Int,
-        context: Context,
         appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
@@ -442,7 +437,6 @@ class ChatMessageMapper(
 
     private fun PointRedemptionMessage.toPointRedemptionMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         textAlpha: Float,
     ): ChatMessageUiState.PointRedemptionMessageUi {
@@ -470,7 +464,6 @@ class ChatMessageMapper(
 
     private fun WhisperMessage.toWhisperMessageUi(
         tag: Int,
-        context: Context,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         textAlpha: Float,

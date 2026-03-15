@@ -1,16 +1,15 @@
 package com.flxrs.dankchat.chat.compose
 
-import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.R
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiException
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
@@ -51,7 +50,6 @@ class ChatComposeViewModel(
     private val chatMessageMapper: ChatMessageMapper,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
-    private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
@@ -107,7 +105,6 @@ class ChatComposeViewModel(
             val mapped = mappingCache.getOrPut(cacheKey) {
                 chatMessageMapper.mapToUiState(
                     item = item,
-                    context = context,
                     appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,
                     preferenceStore = preferenceStore,
@@ -146,21 +143,15 @@ class ChatComposeViewModel(
         viewModelScope.launch {
             val userId = authDataStore.userIdString ?: return@launch
             val action = if (allow) "ALLOW" else "DENY"
-            val actionVerb = context.getString(if (allow) R.string.automod_allow else R.string.automod_deny).lowercase()
 
             helixApiClient.manageAutomodMessage(userId, heldMessageId, action)
                 .onFailure { error ->
                     Log.e(TAG, "Failed to $action automod message $heldMessageId", error)
-
                     val statusCode = (error as? HelixApiException)?.status?.value
-                    val errorMessage = when (statusCode) {
-                        400  -> context.getString(R.string.automod_error_already_processed, actionVerb)
-                        401  -> context.getString(R.string.automod_error_not_authenticated, actionVerb)
-                        403  -> context.getString(R.string.automod_error_not_authorized, actionVerb)
-                        404  -> context.getString(R.string.automod_error_not_found, actionVerb)
-                        else -> context.getString(R.string.automod_error_unknown, actionVerb)
-                    }
-                    repository.makeAndPostCustomSystemMessage(errorMessage, channel)
+                    repository.makeAndPostSystemMessage(
+                        SystemMessageType.AutomodActionFailed(statusCode = statusCode, allow = allow),
+                        channel
+                    )
                 }
         }
     }

@@ -158,6 +158,7 @@ fun MainScreen(
     val resources = LocalResources.current
     val context = LocalContext.current
     val density = LocalDensity.current
+    val messageNotInHistoryMsg = stringResource(R.string.message_not_in_history)
     val layoutDirection = LocalLayoutDirection.current
     // Scoped ViewModels - each handles one concern
     val mainScreenViewModel: MainScreenViewModel = koinViewModel()
@@ -349,7 +350,7 @@ fun MainScreen(
                 scope.launch { composePagerStateRef?.scrollToPage(target.channelIndex) }
             } else {
                 scope.launch {
-                    snackbarHostState.showSnackbar(context.getString(R.string.message_not_in_history))
+                    snackbarHostState.showSnackbar(messageNotInHistoryMsg)
                 }
             }
         },
@@ -864,7 +865,7 @@ fun MainScreen(
                         sheetNavigationViewModel.closeFullScreenSheet()
                     } else {
                         scope.launch {
-                            snackbarHostState.showSnackbar(context.getString(R.string.message_not_in_history))
+                            snackbarHostState.showSnackbar(messageNotInHistoryMsg)
                         }
                     }
                 },

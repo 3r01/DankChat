@@ -447,8 +447,10 @@
     <string name="automod_status_denied">Відхилено</string>
     <string name="automod_status_expired">Термін минув</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (рівень %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">збігається з 1 заблокованим терміном %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">збігається з %1$d заблокованими термінами %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">збігається з %1$d заблокованим терміном %2$s</item>
+        <item quantity="other">збігається з %1$d заблокованими термінами %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Не вдалося %1$s повідомлення AutoMod - повідомлення вже оброблено.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Не вдалося %1$s повідомлення AutoMod - потрібно повторно авторизуватися.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Не вдалося %1$s повідомлення AutoMod - у вас немає дозволу на цю дію.</string>

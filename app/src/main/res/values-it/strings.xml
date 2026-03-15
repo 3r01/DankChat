@@ -428,8 +428,10 @@
     <string name="automod_status_denied">Negato</string>
     <string name="automod_status_expired">Scaduto</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (livello %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">corrisponde a 1 termine bloccato %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">corrisponde a %1$d termini bloccati %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">corrisponde a %1$d termine bloccato %2$s</item>
+        <item quantity="other">corrisponde a %1$d termini bloccati %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Impossibile %1$s il messaggio AutoMod - il messaggio è già stato elaborato.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Impossibile %1$s il messaggio AutoMod - devi autenticarti di nuovo.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Impossibile %1$s il messaggio AutoMod - non hai il permesso di eseguire questa azione.</string>

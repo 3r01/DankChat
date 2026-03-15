@@ -334,8 +334,10 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="automod_status_denied">Denegat</string>
     <string name="automod_status_expired">Caducat</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (nivell %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">coincideix amb 1 terme bloquejat %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">coincideix amb %1$d termes bloquejats %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">coincideix amb %1$d terme bloquejat %2$s</item>
+        <item quantity="other">coincideix amb %1$d termes bloquejats %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">No s\'ha pogut %1$s el missatge d\'AutoMod - el missatge ja ha estat processat.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">No s\'ha pogut %1$s el missatge d\'AutoMod - cal tornar a autenticar-se.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">No s\'ha pogut %1$s el missatge d\'AutoMod - no tens permís per realitzar aquesta acció.</string>

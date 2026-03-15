@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.onboarding
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
@@ -336,6 +337,7 @@ private fun MessageHistoryPage(
 
 private enum class NotificationPermissionState { Pending, Granted, Denied }
 
+@SuppressLint("InlinedApi")
 @Composable
 private fun NotificationsPage(
     onContinue: () -> Unit,

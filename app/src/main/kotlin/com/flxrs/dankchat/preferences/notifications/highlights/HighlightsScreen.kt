@@ -130,13 +130,14 @@ private fun HighlightsScreen(
     onPageChanged: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val pagerState = rememberPagerState { HighlightsTab.entries.size }
     val listStates = HighlightsTab.entries.map { rememberLazyListState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val appBarContainerColor = animatedAppBarColor(scrollBehavior)
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect {
@@ -153,8 +154,8 @@ private fun HighlightsScreen(
                 when (event) {
                     is HighlightEvent.ItemRemoved -> {
                         val result = snackbarHost.showSnackbar(
-                            message = context.getString(R.string.item_removed),
-                            actionLabel = context.getString(R.string.undo),
+                            message = itemRemovedMsg,
+                            actionLabel = undoMsg,
                             duration = SnackbarDuration.Short,
                         )
                         if (result == SnackbarResult.ActionPerformed) {

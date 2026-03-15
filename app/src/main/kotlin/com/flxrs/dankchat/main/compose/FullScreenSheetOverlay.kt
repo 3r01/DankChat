@@ -41,10 +41,10 @@ fun FullScreenSheetOverlay(
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    modifier: Modifier = Modifier,
     onWhisperReply: (UserName) -> Unit = {},
     onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     bottomContentPadding: Dp = 0.dp,
-    modifier: Modifier = Modifier,
 ) {
     // Pre-resolve history VM outside AnimatedVisibility to avoid Koin creating
     // duplicate instances during the enter animation (causes mid-animation stutter)

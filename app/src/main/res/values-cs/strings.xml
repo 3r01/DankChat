@@ -446,8 +446,10 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="automod_status_denied">Zamítnuto</string>
     <string name="automod_status_expired">Vypršelo</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (úroveň %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">odpovídá 1 blokovanému výrazu %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">odpovídá %1$d blokovaným výrazům %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">odpovídá %1$d blokovanému výrazu %2$s</item>
+        <item quantity="other">odpovídá %1$d blokovaným výrazům %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nepodařilo se %1$s zprávu AutoMod - zpráva již byla zpracována.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Nepodařilo se %1$s zprávu AutoMod - je třeba se znovu přihlásit.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Nepodařilo se %1$s zprávu AutoMod - nemáte oprávnění k provedení této akce.</string>

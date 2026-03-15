@@ -2,7 +2,6 @@ package com.flxrs.dankchat.login.compose
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.os.Build
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebResourceError
@@ -10,7 +9,6 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -120,7 +118,6 @@ fun LoginScreen(
                                 return true // Consume
                             }
 
-                            @RequiresApi(Build.VERSION_CODES.N)
                             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                                 val fragment = request?.url?.fragment ?: return false
                                 viewModel.parseToken(fragment)

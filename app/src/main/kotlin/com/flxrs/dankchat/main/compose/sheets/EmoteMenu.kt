@@ -54,8 +54,8 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EmoteMenu(
     onEmoteClick: (String, String) -> Unit,
     onBackspace: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: EmoteMenuViewModel = koinViewModel(),
-    modifier: Modifier = Modifier
 ) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()

@@ -155,8 +155,8 @@ private fun SingleEmoteDrawable(
     scaleFactor: Double,
     emoteCoordinator: EmoteAnimationCoordinator,
     animateGifs: Boolean,
-    alpha: Float = 1f,
     modifier: Modifier = Modifier,
+    alpha: Float = 1f,
     onClick: () -> Unit = {},
 ) {
     val context = LocalPlatformContext.current

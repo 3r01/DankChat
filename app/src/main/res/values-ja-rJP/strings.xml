@@ -426,8 +426,10 @@
     <string name="automod_status_denied">拒否済み</string>
     <string name="automod_status_expired">期限切れ</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (レベル %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">1件のブロックされた用語 %1$s に一致</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">%1$d件のブロックされた用語 %2$s に一致</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">%1$d件のブロックされた用語 %2$s に一致</item>
+        <item quantity="other">%1$d件のブロックされた用語 %2$s に一致</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">AutoModメッセージの%1$sに失敗しました - メッセージは既に処理されています。</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">AutoModメッセージの%1$sに失敗しました - 再認証が必要です。</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">AutoModメッセージの%1$sに失敗しました - この操作を行う権限がありません。</string>

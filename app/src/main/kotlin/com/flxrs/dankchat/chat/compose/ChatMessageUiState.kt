@@ -62,7 +62,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
-        val message: String,
+        val message: TextResource,
     ) : ChatMessageUiState
 
     /**

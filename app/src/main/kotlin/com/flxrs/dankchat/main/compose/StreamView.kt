@@ -36,10 +36,10 @@ import com.flxrs.dankchat.data.UserName
 fun StreamView(
     channel: UserName,
     streamViewModel: StreamViewModel,
+    modifier: Modifier = Modifier,
     isInPipMode: Boolean = false,
     fillPane: Boolean = false,
     onClose: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     // Track whether the WebView has been attached to a window before.
     // First open: load URL while detached, attach after page loads (avoids white SurfaceView flash).

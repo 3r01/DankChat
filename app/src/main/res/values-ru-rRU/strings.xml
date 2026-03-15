@@ -450,8 +450,10 @@
     <string name="automod_status_denied">Отклонено</string>
     <string name="automod_status_expired">Истекло</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (уровень %2$d)</string>
-    <string name="automod_reason_blocked_term_single" comment="matches 1 blocked term &quot;test&quot;">совпадает с 1 заблокированным термином %1$s</string>
-    <string name="automod_reason_blocked_term_multiple" comment="matches 2 blocked terms &quot;test&quot; &quot;bad&quot;">совпадает с %1$d заблокированными терминами %2$s</string>
+    <plurals name="automod_reason_blocked_terms">
+        <item quantity="one">совпадает с %1$d заблокированным термином %2$s</item>
+        <item quantity="other">совпадает с %1$d заблокированными терминами %2$s</item>
+    </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Не удалось %1$s сообщение AutoMod - сообщение уже обработано.</string>
     <string name="automod_error_not_authenticated" comment="Failed to allow AutoMod message - you need to re-authenticate.">Не удалось %1$s сообщение AutoMod - необходимо повторно авторизоваться.</string>
     <string name="automod_error_not_authorized" comment="Failed to allow AutoMod message - you don\'t have permission to perform that action.">Не удалось %1$s сообщение AutoMod - у вас нет прав для выполнения этого действия.</string>

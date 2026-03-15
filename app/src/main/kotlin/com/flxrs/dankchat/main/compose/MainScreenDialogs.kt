@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
@@ -54,9 +53,10 @@ fun MainScreenDialogs(
     onJumpToMessage: (messageId: String, channel: UserName) -> Unit = { _, _ -> },
 ) {
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
+    val messageCopiedMsg = stringResource(R.string.snackbar_message_copied)
+    val messageIdCopiedMsg = stringResource(R.string.snackbar_message_id_copied)
 
     val channelManagementViewModel: ChannelManagementViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
@@ -220,7 +220,7 @@ fun MainScreenDialogs(
                 onCopy = {
                     scope.launch {
                         clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                        snackbarHostState.showSnackbar(context.getString(R.string.snackbar_message_copied))
+                        snackbarHostState.showSnackbar(messageCopiedMsg)
                     }
                 },
                 onMoreActions = {
@@ -290,13 +290,13 @@ fun MainScreenDialogs(
             onCopyFullMessage = {
                 scope.launch {
                     clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", it)))
-                    snackbarHostState.showSnackbar(context.getString(R.string.snackbar_message_copied))
+                    snackbarHostState.showSnackbar(messageCopiedMsg)
                 }
             },
             onCopyMessageId = {
                 scope.launch {
                     clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", it)))
-                    snackbarHostState.showSnackbar(context.getString(R.string.snackbar_message_id_copied))
+                    snackbarHostState.showSnackbar(messageIdCopiedMsg)
                 }
             },
             onDismiss = sheetNavigationViewModel::closeInputSheet,
