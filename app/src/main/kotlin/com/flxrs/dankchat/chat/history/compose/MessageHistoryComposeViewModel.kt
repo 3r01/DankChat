@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.search.ChatItemFilter
@@ -50,6 +51,17 @@ class MessageHistoryComposeViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
+        appearanceSettingsDataStore.settings,
+        chatSettingsDataStore.settings,
+    ) { appearance, chat ->
+        ChatDisplaySettings(
+            fontSize = appearance.fontSize.toFloat(),
+            showLineSeparator = appearance.lineSeparator,
+            animateGifs = chat.animateGifs,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     val searchFieldState = TextFieldState()
 

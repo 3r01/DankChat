@@ -13,9 +13,6 @@ import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -59,12 +56,8 @@ fun ChatComposable(
         parameters = { parametersOf(channel) }
     )
 
-    val appearanceSettingsDataStore: AppearanceSettingsDataStore = koinInject()
-    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
-    
     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
-    val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
-    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
+    val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
 
     // Create singleton coordinator using the app's ImageLoader (with disk cache, AnimatedImageDecoder, etc.)
     val context = LocalPlatformContext.current
@@ -73,9 +66,9 @@ fun ChatComposable(
     CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
     ChatScreen(
         messages = messages,
-        fontSize = appearanceSettings.fontSize.toFloat(),
-        showLineSeparator = appearanceSettings.lineSeparator,
-        animateGifs = chatSettings.animateGifs,
+        fontSize = displaySettings.fontSize,
+        showLineSeparator = displaySettings.showLineSeparator,
+        animateGifs = displaySettings.animateGifs,
         modifier = modifier.fillMaxSize(),
         onUserClick = onUserClick,
         onMessageLongClick = onMessageLongClick,

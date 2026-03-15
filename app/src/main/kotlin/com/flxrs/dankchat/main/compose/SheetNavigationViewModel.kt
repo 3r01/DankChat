@@ -2,10 +2,14 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
@@ -15,7 +19,13 @@ class SheetNavigationViewModel : ViewModel() {
     val fullScreenSheetState: StateFlow<FullScreenSheetState> = _fullScreenSheetState.asStateFlow()
 
     private val _inputSheetState = MutableStateFlow<InputSheetState>(InputSheetState.Closed)
-    val inputSheetState: StateFlow<InputSheetState> = _inputSheetState.asStateFlow()
+
+    val sheetState: StateFlow<SheetNavigationState> = combine(
+        _fullScreenSheetState,
+        _inputSheetState,
+    ) { fullScreen, input ->
+        SheetNavigationState(fullScreenSheet = fullScreen, inputSheet = input)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SheetNavigationState())
 
     fun openReplies(rootMessageId: String, replyName: UserName) {
         _fullScreenSheetState.value = FullScreenSheetState.Replies(rootMessageId, replyName)
@@ -77,3 +87,9 @@ sealed interface InputSheetState {
     data object EmoteMenu : InputSheetState
     @Immutable data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
 }
+
+@Immutable
+data class SheetNavigationState(
+    val fullScreenSheet: FullScreenSheetState = FullScreenSheetState.Closed,
+    val inputSheet: InputSheetState = InputSheetState.Closed,
+)

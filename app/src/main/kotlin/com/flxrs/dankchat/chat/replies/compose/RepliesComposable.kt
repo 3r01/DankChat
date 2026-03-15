@@ -15,9 +15,7 @@ import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.replies.RepliesUiState
 import androidx.compose.ui.graphics.Color
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import org.koin.compose.koinInject
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 
 /**
  * Standalone composable for reply thread display.
@@ -32,7 +30,6 @@ import org.koin.compose.koinInject
 @Composable
 fun RepliesComposable(
     repliesViewModel: RepliesComposeViewModel,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onNotFound: () -> Unit,
@@ -40,9 +37,7 @@ fun RepliesComposable(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
-    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
-    val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
-    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
+    val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
 
     val context = LocalPlatformContext.current
@@ -53,9 +48,9 @@ fun RepliesComposable(
         is RepliesUiState.Found -> {
             ChatScreen(
                 messages = (uiState as RepliesUiState.Found).items,
-                fontSize = appearanceSettings.fontSize.toFloat(),
-                showLineSeparator = appearanceSettings.lineSeparator,
-                animateGifs = chatSettings.animateGifs,
+                fontSize = displaySettings.fontSize,
+                showLineSeparator = displaySettings.showLineSeparator,
+                animateGifs = displaySettings.animateGifs,
                 modifier = modifier,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,

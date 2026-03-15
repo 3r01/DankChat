@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.Immutable
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -62,6 +63,7 @@ sealed interface AppearanceSettingsInteraction {
     data class ShowCharacterCounter(val value: Boolean) : AppearanceSettingsInteraction
 }
 
+@Immutable
 data class AppearanceSettingsUiState(
     val settings: AppearanceSettings,
     val useComposeUi: Boolean,

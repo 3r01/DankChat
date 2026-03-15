@@ -3,6 +3,7 @@ package com.flxrs.dankchat.chat.replies.compose
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.replies.RepliesState
 import com.flxrs.dankchat.chat.replies.RepliesUiState
@@ -32,6 +33,17 @@ class RepliesComposeViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
+        appearanceSettingsDataStore.settings,
+        chatSettingsDataStore.settings,
+    ) { appearance, chat ->
+        ChatDisplaySettings(
+            fontSize = appearance.fontSize.toFloat(),
+            showLineSeparator = appearance.lineSeparator,
+            animateGifs = chat.animateGifs,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     val state = repliesRepository.getThreadItemsFlow(rootMessageId)
         .map {

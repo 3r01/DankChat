@@ -5,9 +5,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
@@ -29,8 +31,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.EmojiEmotions
@@ -104,6 +108,8 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.InputState
 import com.flxrs.dankchat.preferences.appearance.InputAction
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableColumn
 
 private const val MAX_INPUT_ACTIONS = 4
@@ -120,7 +126,6 @@ data class TourOverlayState(
     val onSkip: (() -> Unit)? = null,
 )
 
-private const val TWITCH_MESSAGE_CODE_POINT_LIMIT = 500
 
 @Composable
 fun ChatInputLayout(
@@ -138,8 +143,8 @@ fun ChatInputLayout(
     isModerator: Boolean,
     isStreamActive: Boolean,
     hasStreamData: Boolean,
-    inputActions: List<InputAction>,
-    showCharacterCounter: Boolean = false,
+    inputActions: ImmutableList<InputAction>,
+    characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -151,7 +156,7 @@ fun ChatInputLayout(
     whisperTarget: UserName?,
     onWhisperDismiss: () -> Unit,
     onChangeRoomState: () -> Unit,
-    onInputActionsChanged: (List<InputAction>) -> Unit,
+    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
     onNewWhisper: (() -> Unit)? = null,
     showQuickActions: Boolean = true,
@@ -191,7 +196,7 @@ fun ChatInputLayout(
                 InputAction.RoomState -> isModerator
                 else -> true
             }
-        }
+        }.toImmutableList()
     }
 
     var visibleActions by remember { mutableStateOf(effectiveActions) }
@@ -299,22 +304,40 @@ fun ChatInputLayout(
                         .focusRequester(focusRequester)
                         .padding(bottom = 0.dp), // Reduce bottom padding as actions are below
                     label = { Text(hint) },
-                    suffix = if (showCharacterCounter) {
-                        {
-                            val text = textFieldState.text.toString()
-                            val codePointCount = text.codePointCount(0, text.length)
-                            val isOverLimit = codePointCount > TWITCH_MESSAGE_CODE_POINT_LIMIT
-                            Text(
-                                text = "$codePointCount/$TWITCH_MESSAGE_CODE_POINT_LIMIT",
-                                color = when {
-                                    isOverLimit -> MaterialTheme.colorScheme.error
-                                    else        -> MaterialTheme.colorScheme.onSurfaceVariant
-                                },
-                                style = MaterialTheme.typography.labelSmall,
-                            )
+                    suffix = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                        ) {
+                            when (characterCounter) {
+                                is CharacterCounterState.Hidden -> Unit
+                                is CharacterCounterState.Visible -> {
+                                    Text(
+                                        text = characterCounter.text,
+                                        color = when {
+                                            characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
+                                            else                        -> MaterialTheme.colorScheme.onSurfaceVariant
+                                        },
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = enabled && textFieldState.text.isNotEmpty(),
+                                enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                                exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = stringResource(R.string.dialog_dismiss),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier
+                                        .padding(start = 4.dp)
+                                        .size(20.dp)
+                                        .clickable { textFieldState.clearText() },
+                                )
+                            }
                         }
-                    } else {
-                        null
                     },
                     colors = textFieldColors,
                     shape = RoundedCornerShape(0.dp),
@@ -371,7 +394,7 @@ fun ChatInputLayout(
                         val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
                         val availableForActions = maxWidth - iconSize * fixedSlots
                         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
-                        visibleActions = effectiveActions.take(maxVisibleActions)
+                        visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -744,8 +767,8 @@ private fun getOverflowItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InputActionConfigSheet(
-    inputActions: List<InputAction>,
-    onInputActionsChanged: (List<InputAction>) -> Unit,
+    inputActions: ImmutableList<InputAction>,
+    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -757,7 +780,7 @@ private fun InputActionConfigSheet(
 
     ModalBottomSheet(
         onDismissRequest = {
-            onInputActionsChanged(localEnabled.toList())
+            onInputActionsChanged(localEnabled.toImmutableList())
             onDismiss()
         },
         sheetState = sheetState,

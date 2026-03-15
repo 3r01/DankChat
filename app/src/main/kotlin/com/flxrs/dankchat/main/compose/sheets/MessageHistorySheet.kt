@@ -63,17 +63,15 @@ import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.compose.SuggestionDropdown
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
-import org.koin.compose.koinInject
 
 @Composable
 fun MessageHistorySheet(
     viewModel: MessageHistoryComposeViewModel,
     channel: UserName,
     initialFilter: String,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -85,11 +83,7 @@ fun MessageHistorySheet(
         viewModel.setInitialQuery(initialFilter)
     }
 
-    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
-    val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(
-        initialValue = appearanceSettingsDataStore.current()
-    )
-    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
+    val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
 
@@ -142,9 +136,9 @@ fun MessageHistorySheet(
         CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
             ChatScreen(
                 messages = messages,
-                fontSize = appearanceSettings.fontSize.toFloat(),
-                showLineSeparator = appearanceSettings.lineSeparator,
-                animateGifs = chatSettings.animateGifs,
+                fontSize = displaySettings.fontSize,
+                showLineSeparator = displaySettings.showLineSeparator,
+                animateGifs = displaySettings.animateGifs,
                 modifier = Modifier.fillMaxSize(),
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
@@ -211,7 +205,7 @@ fun MessageHistorySheet(
 
         // Filter suggestions above search bar
         SuggestionDropdown(
-            suggestions = filterSuggestions,
+            suggestions = filterSuggestions.toImmutableList(),
             onSuggestionClick = { suggestion -> viewModel.applySuggestion(suggestion) },
             modifier = Modifier
                 .align(Alignment.BottomStart)

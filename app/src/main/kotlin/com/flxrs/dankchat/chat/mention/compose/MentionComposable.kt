@@ -15,9 +15,7 @@ import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import androidx.compose.ui.graphics.Color
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import org.koin.compose.koinInject
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -31,7 +29,6 @@ import org.koin.compose.koinInject
 @Composable
 fun MentionComposable(
     mentionViewModel: MentionComposeViewModel,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     isWhisperTab: Boolean,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -42,9 +39,7 @@ fun MentionComposable(
     contentPadding: PaddingValues = PaddingValues(),
     modifier: Modifier = Modifier
 ) {
-    val chatSettingsDataStore: ChatSettingsDataStore = koinInject()
-    val appearanceSettings by appearanceSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = appearanceSettingsDataStore.current())
-    val chatSettings by chatSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = chatSettingsDataStore.current())
+    val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
         isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
         else         -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
@@ -56,9 +51,9 @@ fun MentionComposable(
     CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
     ChatScreen(
         messages = messages,
-        fontSize = appearanceSettings.fontSize.toFloat(),
-        showLineSeparator = appearanceSettings.lineSeparator,
-        animateGifs = chatSettings.animateGifs,
+        fontSize = displaySettings.fontSize,
+        showLineSeparator = displaySettings.showLineSeparator,
+        animateGifs = displaySettings.animateGifs,
         showChannelPrefix = !isWhisperTab,
         modifier = modifier,
         onUserClick = onUserClick,

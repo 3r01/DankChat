@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
@@ -29,22 +30,28 @@ class StreamViewModel(
 ) : AndroidViewModel(application) {
 
     private val _currentStreamedChannel = MutableStateFlow<UserName?>(null)
-    val currentStreamedChannel: StateFlow<UserName?> = _currentStreamedChannel.asStateFlow()
 
-    val shouldEnablePipAutoMode: StateFlow<Boolean> = combine(
-        currentStreamedChannel,
-        streamsSettingsDataStore.pipEnabled,
-    ) { currentStream, pipEnabled ->
-        currentStream != null && pipEnabled
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    val hasStreamData: StateFlow<Boolean> = combine(
+    private val hasStreamData: StateFlow<Boolean> = combine(
         chatRepository.activeChannel,
         streamDataRepository.streamData
     ) { activeChannel, streamData ->
         activeChannel != null && streamData.any { it.channel == activeChannel }
     }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val streamState: StateFlow<StreamState> = combine(
+        _currentStreamedChannel,
+        hasStreamData,
+    ) { currentStream, hasData ->
+        StreamState(currentStream = currentStream, hasStreamData = hasData)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
+
+    val shouldEnablePipAutoMode: StateFlow<Boolean> = combine(
+        _currentStreamedChannel,
+        streamsSettingsDataStore.pipEnabled,
+    ) { currentStream, pipEnabled ->
+        currentStream != null && pipEnabled
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
         viewModelScope.launch {
@@ -109,3 +116,9 @@ class StreamViewModel(
         super.onCleared()
     }
 }
+
+@Immutable
+data class StreamState(
+    val currentStream: UserName? = null,
+    val hasStreamData: Boolean = false,
+)

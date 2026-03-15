@@ -68,7 +68,7 @@ fun StreamView(
             (webView.parent as? ViewGroup)?.removeView(webView)
             // Active close (channel set to null) → destroy WebView
             // Config change (channel still set) → just detach, keep alive for reuse
-            if (streamViewModel.currentStreamedChannel.value == null) {
+            if (streamViewModel.streamState.value.currentStream == null) {
                 streamViewModel.destroyWebView(webView)
             }
         }

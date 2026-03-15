@@ -90,6 +90,11 @@ class ChatInputViewModel(
     val whisperTarget: StateFlow<UserName?> = _whisperTarget.asStateFlow()
 
     // Create flow from TextFieldState tracking both text and cursor position
+    private val codePointCount = snapshotFlow {
+        val text = textFieldState.text
+        text.toString().codePointCount(0, text.length)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     private val textFlow = snapshotFlow { textFieldState.text.toString() }
     private val textAndCursorFlow = snapshotFlow {
         textFieldState.text.toString() to textFieldState.selection.start
@@ -242,8 +247,9 @@ class ChatInputViewModel(
         _uiState = combine(
             baseFlow,
             inputOverlayFlow,
-            helperText
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText ->
+            helperText,
+            codePointCount,
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText, codePoints ->
             val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
             val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
             val isInReplyThread = sheetState is FullScreenSheetState.Replies
@@ -288,7 +294,11 @@ class ChatInputViewModel(
                 helperText = helperText,
                 showWhisperOverlay = showWhisperOverlay,
                 whisperTarget = whisperTarget,
-                isWhisperTabActive = isWhisperTabActive
+                isWhisperTabActive = isWhisperTabActive,
+                characterCounter = CharacterCounterState.Visible(
+                    text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
+                    isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
+                ),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
 
@@ -470,6 +480,7 @@ class ChatInputViewModel(
 
     companion object {
         private const val SUGGESTION_DEBOUNCE_MS = 20L
+        private const val MESSAGE_CODE_POINT_LIMIT = 500
     }
 }
 
@@ -513,5 +524,12 @@ data class ChatInputUiState(
     val helperText: String? = null,
     val showWhisperOverlay: Boolean = false,
     val whisperTarget: UserName? = null,
-    val isWhisperTabActive: Boolean = false
+    val isWhisperTabActive: Boolean = false,
+    val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
 )
+
+sealed interface CharacterCounterState {
+    data object Hidden : CharacterCounterState
+    @Immutable
+    data class Visible(val text: String, val isOverLimit: Boolean) : CharacterCounterState
+}

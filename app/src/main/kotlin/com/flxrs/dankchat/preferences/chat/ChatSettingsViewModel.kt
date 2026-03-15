@@ -2,6 +2,7 @@ package com.flxrs.dankchat.preferences.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -96,6 +97,7 @@ sealed interface ChatSettingsInteraction {
     data class ChatModes(val value: Boolean) : ChatSettingsInteraction
 }
 
+@Immutable
 data class ChatSettingsState(
     val suggestions: Boolean,
     val preferEmoteSuggestions: Boolean,

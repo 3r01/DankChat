@@ -113,13 +113,9 @@ import com.flxrs.dankchat.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
 import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
-import com.flxrs.dankchat.preferences.appearance.InputAction
-import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.tour.FeatureTourController
 import com.flxrs.dankchat.tour.PostOnboardingStep
@@ -171,8 +167,6 @@ fun MainScreen(
     val streamViewModel: StreamViewModel = koinViewModel()
     val dialogViewModel: DialogStateViewModel = koinViewModel()
     val mentionViewModel: MentionComposeViewModel = koinViewModel()
-    val appearanceSettingsDataStore: AppearanceSettingsDataStore = koinInject()
-    val developerSettingsDataStore: DeveloperSettingsDataStore = koinInject()
     val preferenceStore: DankChatPreferenceStore = koinInject()
     val onboardingDataStore: OnboardingDataStore = koinInject()
     val mainEventBus: MainEventBus = koinInject()
@@ -189,8 +183,7 @@ fun MainScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-    val developerSettings by developerSettingsDataStore.settings.collectAsStateWithLifecycle(initialValue = developerSettingsDataStore.current())
-    val isRepeatedSendEnabled = developerSettings.repeatedSending
+    val mainState by mainScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     val ime = WindowInsets.ime
     val navBars = WindowInsets.navigationBars
@@ -227,8 +220,9 @@ fun MainScreen(
     var backProgress by remember { mutableStateOf(0f) }
 
     // Stream state
-    val currentStream by streamViewModel.currentStreamedChannel.collectAsStateWithLifecycle()
-    val hasStreamData by streamViewModel.hasStreamData.collectAsStateWithLifecycle()
+    val streamVmState by streamViewModel.streamState.collectAsStateWithLifecycle()
+    val currentStream = streamVmState.currentStream
+    val hasStreamData = streamVmState.hasStreamData
     val imeTargetBottom = with(density) { WindowInsets.imeAnimationTarget.getBottom(density) }
     val streamState = rememberStreamToolbarState(currentStream, isKeyboardVisible, imeTargetBottom)
 
@@ -280,12 +274,12 @@ fun MainScreen(
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
 
     val toolsSettingsDataStore: ToolsSettingsDataStore = koinInject()
-    val userStateRepository: UserStateRepository = koinInject()
 
-    val fullScreenSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+    val sheetNavState by sheetNavigationViewModel.sheetState.collectAsStateWithLifecycle()
+    val fullScreenSheetState = sheetNavState.fullScreenSheet
     val isSheetOpen = fullScreenSheetState !is FullScreenSheetState.Closed
     val isHistorySheet = fullScreenSheetState is FullScreenSheetState.History
-    val inputSheetState by sheetNavigationViewModel.inputSheetState.collectAsStateWithLifecycle()
+    val inputSheetState = sheetNavState.inputSheet
 
     MainScreenEventHandler(
         resources = resources,
@@ -425,29 +419,20 @@ fun MainScreen(
         )
     }
 
-    val isFullscreen by mainScreenViewModel.isFullscreen.collectAsStateWithLifecycle()
-    val showInputState by mainScreenViewModel.showInput.collectAsStateWithLifecycle()
-    val inputActions by appearanceSettingsDataStore.inputActions.collectAsStateWithLifecycle(
-        initialValue = appearanceSettingsDataStore.current().inputActions
-    )
-    val showCharacterCounter by appearanceSettingsDataStore.showCharacterCounter.collectAsStateWithLifecycle(
-        initialValue = appearanceSettingsDataStore.current().showCharacterCounter
-    )
-    val gestureInputHidden by mainScreenViewModel.gestureInputHidden.collectAsStateWithLifecycle()
-    val gestureToolbarHidden by mainScreenViewModel.gestureToolbarHidden.collectAsStateWithLifecycle()
-    val effectiveShowInput = showInputState && !gestureInputHidden
-    val effectiveShowAppBar = !gestureToolbarHidden
+    val isFullscreen = mainState.isFullscreen
+    val effectiveShowInput = mainState.effectiveShowInput
+    val effectiveShowAppBar = mainState.effectiveShowAppBar
 
     // Auto-advance tour when input is hidden during the SwipeGesture step (e.g. by actual swipe)
-    LaunchedEffect(gestureInputHidden, tourController.currentStep) {
-        if (gestureInputHidden && tourController.currentStep == TourStep.SwipeGesture) {
+    LaunchedEffect(mainState.gestureInputHidden, tourController.currentStep) {
+        if (mainState.gestureInputHidden && tourController.currentStep == TourStep.SwipeGesture) {
             tourController.advance()
         }
     }
 
     // Keep toolbar visible during tour
-    LaunchedEffect(tourController.isActive, gestureToolbarHidden) {
-        if (tourController.isActive && gestureToolbarHidden) {
+    LaunchedEffect(tourController.isActive, mainState.gestureToolbarHidden) {
+        if (tourController.isActive && mainState.gestureToolbarHidden) {
             mainScreenViewModel.setGestureToolbarHidden(false)
         }
     }
@@ -577,12 +562,12 @@ fun MainScreen(
                 isUploading = dialogState.isUploading,
                 isLoading = tabState.loading,
                 isFullscreen = isFullscreen,
-                isModerator = userStateRepository.isModeratorInChannel(inputState.activeChannel),
+                isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
                 isStreamActive = currentStream != null,
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
-                inputActions = inputActions,
-                showCharacterCounter = showCharacterCounter,
+                inputActions = mainState.inputActions,
+                characterCounter = if (mainState.showCharacterCounter) inputState.characterCounter else CharacterCounterState.Hidden,
                 onSend = chatInputViewModel::sendMessage,
                 onLastMessageClick = chatInputViewModel::getLastMessage,
                 onEmoteClick = {
@@ -601,11 +586,7 @@ fun MainScreen(
                 onChangeRoomState = dialogViewModel::showRoomState,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onNewWhisper = if (inputState.isWhisperTabActive) { dialogViewModel::showNewWhisper } else null,
-                onInputActionsChanged = { newActions ->
-                    scope.launch {
-                        appearanceSettingsDataStore.update { it.copy(inputActions = newActions) }
-                    }
-                },
+                onInputActionsChanged = mainScreenViewModel::updateInputActions,
                 onInputHeightChanged = { inputHeightPx = it },
                 instantHide = isHistorySheet,
                 tourState = TourOverlayState(
@@ -792,7 +773,7 @@ fun MainScreen(
                                         showFabs = !isSheetOpen,
                                         onRecover = {
                                             if (isFullscreen) mainScreenViewModel.toggleFullscreen()
-                                            if (!showInputState) mainScreenViewModel.toggleInput()
+                                            if (!mainState.showInput) mainScreenViewModel.toggleInput()
                                             mainScreenViewModel.resetGestureState()
                                         },
                                         contentPadding = PaddingValues(
@@ -862,7 +843,6 @@ fun MainScreen(
                 sheetState = fullScreenSheetState,
                 isLoggedIn = isLoggedIn,
                 mentionViewModel = mentionViewModel,
-                appearanceSettingsDataStore = appearanceSettingsDataStore,
                 onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
                 onDismissReplies = {
                     sheetNavigationViewModel.closeFullScreenSheet()
@@ -950,7 +930,7 @@ fun MainScreen(
                     )
 
                     // Status bar scrim when toolbar is gesture-hidden
-                    if (!isFullscreen && gestureToolbarHidden) {
+                    if (!isFullscreen && mainState.gestureToolbarHidden) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopCenter)
@@ -1106,7 +1086,7 @@ fun MainScreen(
             )
 
             // Status bar scrim when toolbar is gesture-hidden — keeps status bar readable
-            if (!isInPipMode && !isFullscreen && gestureToolbarHidden) {
+            if (!isInPipMode && !isFullscreen && mainState.gestureToolbarHidden) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopCenter)

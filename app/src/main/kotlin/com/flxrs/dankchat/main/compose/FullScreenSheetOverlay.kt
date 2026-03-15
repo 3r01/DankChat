@@ -28,7 +28,6 @@ import com.flxrs.dankchat.chat.history.compose.MessageHistoryComposeViewModel
 import com.flxrs.dankchat.main.compose.sheets.MentionSheet
 import com.flxrs.dankchat.main.compose.sheets.MessageHistorySheet
 import com.flxrs.dankchat.main.compose.sheets.RepliesSheet
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -37,7 +36,6 @@ fun FullScreenSheetOverlay(
     sheetState: FullScreenSheetState,
     isLoggedIn: Boolean,
     mentionViewModel: MentionComposeViewModel,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onDismiss: () -> Unit,
     onDismissReplies: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
@@ -105,7 +103,7 @@ fun FullScreenSheetOverlay(
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = false,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
+
                         onDismiss = onDismiss,
                         onUserClick = userClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -131,7 +129,7 @@ fun FullScreenSheetOverlay(
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = true,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
+
                         onDismiss = onDismiss,
                         onUserClick = userClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -156,7 +154,7 @@ fun FullScreenSheetOverlay(
                 is FullScreenSheetState.Replies -> {
                     RepliesSheet(
                         rootMessageId = renderState.replyMessageId,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
+
                         onDismiss = onDismissReplies,
                         onUserClick = userClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -179,7 +177,7 @@ fun FullScreenSheetOverlay(
                         viewModel = (currentHistoryViewModel ?: lastHistoryViewModel)!!,
                         channel = renderState.channel,
                         initialFilter = renderState.initialFilter,
-                        appearanceSettingsDataStore = appearanceSettingsDataStore,
+
                         onDismiss = onDismiss,
                         onUserClick = userClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->

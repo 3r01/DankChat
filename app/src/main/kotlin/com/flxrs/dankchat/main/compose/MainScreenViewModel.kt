@@ -1,17 +1,26 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
+import com.flxrs.dankchat.data.repo.chat.UserStateRepository
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.appearance.InputAction
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,24 +45,37 @@ class MainScreenViewModel(
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    private val developerSettingsDataStore: DeveloperSettingsDataStore,
+    private val userStateRepository: UserStateRepository,
 ) : ViewModel() {
 
     // Only expose truly global state
-    val globalLoadingState: StateFlow<GlobalLoadingState> = 
+    val globalLoadingState: StateFlow<GlobalLoadingState> =
         channelDataCoordinator.globalLoadingState
 
-    val showInput: StateFlow<Boolean> = appearanceSettingsDataStore.settings
-        .map { it.showInput }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
-
     private val _isFullscreen = MutableStateFlow(false)
-    val isFullscreen: StateFlow<Boolean> = _isFullscreen.asStateFlow()
-
     private val _gestureInputHidden = MutableStateFlow(false)
-    val gestureInputHidden: StateFlow<Boolean> = _gestureInputHidden.asStateFlow()
-
     private val _gestureToolbarHidden = MutableStateFlow(false)
-    val gestureToolbarHidden: StateFlow<Boolean> = _gestureToolbarHidden.asStateFlow()
+
+    val uiState: StateFlow<MainScreenUiState> = combine(
+        appearanceSettingsDataStore.settings,
+        developerSettingsDataStore.settings.map { it.repeatedSending },
+        _isFullscreen,
+        _gestureInputHidden,
+        _gestureToolbarHidden,
+    ) { appearance, repeatedSending, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
+        MainScreenUiState(
+            isFullscreen = isFullscreen,
+            showInput = appearance.showInput,
+            inputActions = appearance.inputActions.toImmutableList(),
+            showCharacterCounter = appearance.showCharacterCounter,
+            isRepeatedSendEnabled = repeatedSending,
+            gestureInputHidden = gestureInputHidden,
+            gestureToolbarHidden = gestureToolbarHidden,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
+
+    fun isModeratorInChannel(channel: UserName?): Boolean = userStateRepository.isModeratorInChannel(channel)
 
     // Keyboard height persistence — debounced to avoid thrashing during animation
     private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1)
@@ -107,6 +129,12 @@ class MainScreenViewModel(
         }
     }
 
+    fun updateInputActions(actions: ImmutableList<InputAction>) {
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update { it.copy(inputActions = actions) }
+        }
+    }
+
     fun toggleFullscreen() {
         _isFullscreen.update { !it }
     }
@@ -117,3 +145,17 @@ class MainScreenViewModel(
 }
 
 private data class KeyboardHeightUpdate(val heightPx: Int, val isLandscape: Boolean)
+
+@Immutable
+data class MainScreenUiState(
+    val isFullscreen: Boolean = false,
+    val showInput: Boolean = true,
+    val inputActions: ImmutableList<InputAction> = persistentListOf(),
+    val showCharacterCounter: Boolean = false,
+    val isRepeatedSendEnabled: Boolean = false,
+    val gestureInputHidden: Boolean = false,
+    val gestureToolbarHidden: Boolean = false,
+) {
+    val effectiveShowInput: Boolean get() = showInput && !gestureInputHidden
+    val effectiveShowAppBar: Boolean get() = !gestureToolbarHidden
+}

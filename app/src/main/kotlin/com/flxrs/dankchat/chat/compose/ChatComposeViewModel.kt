@@ -18,11 +18,13 @@ import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.extensions.isEven
+import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -54,6 +56,17 @@ class ChatComposeViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
+        appearanceSettingsDataStore.settings,
+        chatSettingsDataStore.settings,
+    ) { appearance, chat ->
+        ChatDisplaySettings(
+            fontSize = appearance.fontSize.toFloat(),
+            showLineSeparator = appearance.lineSeparator,
+            animateGifs = chat.animateGifs,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     private val chat: StateFlow<List<ChatItem>> = repository
         .getChat(channel)
@@ -156,3 +169,10 @@ class ChatComposeViewModel(
         private val TAG = ChatComposeViewModel::class.java.simpleName
     }
 }
+
+@Immutable
+data class ChatDisplaySettings(
+    val fontSize: Float = 14f,
+    val showLineSeparator: Boolean = false,
+    val animateGifs: Boolean = true,
+)

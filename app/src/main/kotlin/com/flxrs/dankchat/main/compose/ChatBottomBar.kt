@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
+import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -37,8 +38,8 @@ fun ChatBottomBar(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     isSheetOpen: Boolean,
-    inputActions: List<InputAction>,
-    showCharacterCounter: Boolean = false,
+    inputActions: ImmutableList<InputAction>,
+    characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
@@ -50,7 +51,7 @@ fun ChatBottomBar(
     onChangeRoomState: () -> Unit,
     onSearchClick: () -> Unit,
     onNewWhisper: (() -> Unit)?,
-    onInputActionsChanged: (List<InputAction>) -> Unit,
+    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onInputHeightChanged: (Int) -> Unit,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
@@ -80,7 +81,7 @@ fun ChatBottomBar(
                 isStreamActive = isStreamActive,
                 hasStreamData = hasStreamData,
                 inputActions = inputActions,
-                showCharacterCounter = showCharacterCounter,
+                characterCounter = characterCounter,
                 onSend = onSend,
                 onLastMessageClick = onLastMessageClick,
                 onEmoteClick = onEmoteClick,

@@ -44,7 +44,6 @@ import com.flxrs.dankchat.chat.mention.compose.MentionComposable
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -52,7 +51,6 @@ import kotlinx.coroutines.launch
 fun MentionSheet(
     mentionViewModel: MentionComposeViewModel,
     initialisWhisperTab: Boolean,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -112,7 +110,6 @@ fun MentionSheet(
         ) { page ->
             MentionComposable(
                 mentionViewModel = mentionViewModel,
-                appearanceSettingsDataStore = appearanceSettingsDataStore,
                 isWhisperTab = page == 1,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,

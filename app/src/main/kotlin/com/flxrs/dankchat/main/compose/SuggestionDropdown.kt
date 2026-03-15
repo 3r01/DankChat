@@ -35,10 +35,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.chat.suggestion.Suggestion
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun SuggestionDropdown(
-    suggestions: List<Suggestion>,
+    suggestions: ImmutableList<Suggestion>,
     onSuggestionClick: (Suggestion) -> Unit,
     modifier: Modifier = Modifier
 ) {

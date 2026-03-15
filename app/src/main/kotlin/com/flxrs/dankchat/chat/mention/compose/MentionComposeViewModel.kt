@@ -3,7 +3,9 @@ package com.flxrs.dankchat.chat.mention.compose
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
@@ -32,6 +34,17 @@ class MentionComposeViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
+        appearanceSettingsDataStore.settings,
+        chatSettingsDataStore.settings,
+    ) { appearance, chat ->
+        ChatDisplaySettings(
+            fontSize = appearance.fontSize.toFloat(),
+            showLineSeparator = appearance.lineSeparator,
+            animateGifs = chat.animateGifs,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab

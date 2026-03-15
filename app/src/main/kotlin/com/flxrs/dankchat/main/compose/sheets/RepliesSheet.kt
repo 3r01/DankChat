@@ -35,7 +35,6 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.replies.compose.RepliesComposable
 import com.flxrs.dankchat.chat.replies.compose.RepliesComposeViewModel
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.CancellationException
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -43,7 +42,6 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun RepliesSheet(
     rootMessageId: String,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
@@ -90,7 +88,6 @@ fun RepliesSheet(
         // Chat content - edge to edge
         RepliesComposable(
             repliesViewModel = viewModel,
-            appearanceSettingsDataStore = appearanceSettingsDataStore,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
             onNotFound = onDismiss,
