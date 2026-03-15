@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Завантаження завершено: %1$s</string>
     <string name="snackbar_upload_failed">Помилка при завантаженні</string>
     <string name="snackbar_upload_failed_cause">Помилка при завантаженні: %1$s</string>
+    <string name="share_upload_label">Завантажити</string>
+    <string name="share_upload_copied">Скопійовано до буфера обміну</string>
+    <string name="share_upload_copy">Копіювати URL</string>
     <string name="snackbar_retry">Повторити</string>
     <string name="snackbar_data_reloaded">Смайли оновлені</string>
     <string name="snackbar_data_load_failed_cause">Помилка завантаження даних: %1$s</string>

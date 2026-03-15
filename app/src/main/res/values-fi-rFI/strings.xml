@@ -56,6 +56,9 @@
     <string name="system_message_upload_complete">Lataus valmis: %1$s</string>
     <string name="snackbar_upload_failed">Virhe lähetyksen aikana</string>
     <string name="snackbar_upload_failed_cause">Virhe lähetyksen aikana: %1$s</string>
+    <string name="share_upload_label">Lataa</string>
+    <string name="share_upload_copied">Kopioitu leikepöydälle</string>
+    <string name="share_upload_copy">Kopioi URL</string>
     <string name="snackbar_retry">Yritä uudelleen</string>
     <string name="snackbar_data_reloaded">Emotet on ladattu uudelleen</string>
     <string name="snackbar_data_load_failed_cause">Tietojen lataaminen epäonnistui: %1$s</string>

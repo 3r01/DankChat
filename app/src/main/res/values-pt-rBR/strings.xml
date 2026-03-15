@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Upload concluído: %1$s</string>
     <string name="snackbar_upload_failed">Erro durante o envio</string>
     <string name="snackbar_upload_failed_cause">Erro durante o envio: %1$s</string>
+    <string name="share_upload_label">Enviar</string>
+    <string name="share_upload_copied">Copiado para a área de transferência</string>
+    <string name="share_upload_copy">Copiar URL</string>
     <string name="snackbar_retry">Tentar Novamente</string>
     <string name="snackbar_data_reloaded">Emotes recarregados</string>
     <string name="snackbar_data_load_failed_cause">Falha no carregamento de dados: %1$s</string>

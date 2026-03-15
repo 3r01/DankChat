@@ -56,6 +56,9 @@
     <string name="snackbar_image_uploaded">Copiado: %1$s</string>
     <string name="snackbar_upload_failed">Error al subir</string>
     <string name="snackbar_upload_failed_cause">Error al subir: %1$s</string>
+    <string name="share_upload_label">Subir</string>
+    <string name="share_upload_copied">Copiado al portapapeles</string>
+    <string name="share_upload_copy">Copiar URL</string>
     <string name="snackbar_retry">Reintentar</string>
     <string name="snackbar_data_reloaded">Emoticonos actualizados</string>
     <string name="snackbar_data_load_failed_cause">Error al cargar datos: %1$s</string>

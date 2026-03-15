@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Nahrávání dokončeno: %1$s</string>
     <string name="snackbar_upload_failed">Chyba při nahrávání</string>
     <string name="snackbar_upload_failed_cause">Chyba při nahrávání: %1$s</string>
+    <string name="share_upload_label">Nahrát</string>
+    <string name="share_upload_copied">Zkopírováno do schránky</string>
+    <string name="share_upload_copy">Kopírovat URL</string>
     <string name="snackbar_retry">Opakovat</string>
     <string name="snackbar_data_reloaded">Emotikony byly znovu načteny</string>
     <string name="snackbar_data_load_failed_cause">Načítání dat se nezdařilo: %1$s</string>

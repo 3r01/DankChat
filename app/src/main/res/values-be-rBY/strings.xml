@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Загрузка завершана: %1$s</string>
     <string name="snackbar_upload_failed">Памылка пры загрузцы</string>
     <string name="snackbar_upload_failed_cause">Памылка пры загрузцы: %1$s</string>
+    <string name="share_upload_label">Загрузіць</string>
+    <string name="share_upload_copied">Скапіравана ў буфер абмену</string>
+    <string name="share_upload_copy">Капіяваць URL</string>
     <string name="snackbar_retry">Паўтарыць</string>
     <string name="snackbar_data_reloaded">Смайлы абноўлены</string>
     <string name="snackbar_data_load_failed_cause">Памылка загрузкі дадзеных: %1$s</string>

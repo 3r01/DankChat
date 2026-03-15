@@ -54,6 +54,9 @@
     <string name="system_message_upload_complete">Pujada completada: %1$s</string>
     <string name="snackbar_upload_failed">Error durant la pujada</string>
     <string name="snackbar_upload_failed_cause">Error durant la pujada: %1$s</string>
+    <string name="share_upload_label">Puja</string>
+    <string name="share_upload_copied">Copiat al porta-retalls</string>
+    <string name="share_upload_copy">Copia l\'URL</string>
     <string name="snackbar_retry">Reintentar</string>
     <string name="snackbar_data_reloaded">Emotes recargats</string>
     <string name="snackbar_data_load_failed_cause">Càrrega de dades fallida: %1$s</string>

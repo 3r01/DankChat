@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Feltöltés kész: %1$s</string>
     <string name="snackbar_upload_failed">Hiba a feltöltés során</string>
     <string name="snackbar_upload_failed_cause">Hiba a feltöltés során: %1$s</string>
+    <string name="share_upload_label">Feltöltés</string>
+    <string name="share_upload_copied">Vágólapra másolva</string>
+    <string name="share_upload_copy">URL másolása</string>
     <string name="snackbar_retry">Újrapróbálkozás</string>
     <string name="snackbar_data_reloaded">Hangulatjelek újratöltve</string>
     <string name="snackbar_data_load_failed_cause">Az adatbetöltés sikertelen: %1$s</string>

@@ -56,6 +56,9 @@
     <string name="snackbar_image_uploaded">Kopyalandı: %1$s</string>
     <string name="snackbar_upload_failed">Yükleme sırasında hata</string>
     <string name="snackbar_upload_failed_cause">Yükleme sırasında hata: %1$s</string>
+    <string name="share_upload_label">Yükle</string>
+    <string name="share_upload_copied">Panoya kopyalandı</string>
+    <string name="share_upload_copy">URL kopyala</string>
     <string name="snackbar_retry">Yeniden dene</string>
     <string name="snackbar_data_reloaded">İfadeler yenilendi</string>
     <string name="snackbar_data_load_failed_cause">Veri yüklenemedi: %1$s</string>

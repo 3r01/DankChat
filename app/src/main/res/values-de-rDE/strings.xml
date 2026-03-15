@@ -57,6 +57,9 @@
     <string name="system_message_upload_complete">Upload abgeschlossen: %1$s</string>
     <string name="snackbar_upload_failed">Fehler beim Hochladen</string>
     <string name="snackbar_upload_failed_cause">Fehler beim Hochladen: %1$s</string>
+    <string name="share_upload_label">Hochladen</string>
+    <string name="share_upload_copied">In Zwischenablage kopiert</string>
+    <string name="share_upload_copy">URL kopieren</string>
     <string name="snackbar_retry">Wiederholen</string>
     <string name="snackbar_data_reloaded">Emotes neu geladen</string>
     <string name="snackbar_data_load_failed_cause">Datenladen fehlgeschlagen: %1$s</string>

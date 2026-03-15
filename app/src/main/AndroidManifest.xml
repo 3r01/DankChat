@@ -47,6 +47,19 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".share.ShareUploadActivity"
+            android:exported="true"
+            android:label="@string/share_upload_label"
+            android:theme="@style/AppTheme.ShareUpload">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

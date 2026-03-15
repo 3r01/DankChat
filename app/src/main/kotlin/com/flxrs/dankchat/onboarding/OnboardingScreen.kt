@@ -200,7 +200,7 @@ private fun WelcomePage(
                 painter = painterResource(R.drawable.ic_dank_chat_mono_cropped),
                 contentDescription = null,
                 modifier = Modifier.size(128.dp),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.inverseOnSurface,
             )
         },
         title = stringResource(R.string.onboarding_welcome_title),

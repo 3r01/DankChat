@@ -56,6 +56,9 @@
     <string name="system_message_upload_complete">アップロード完了：%1$s</string>
     <string name="snackbar_upload_failed">アップロード中にエラー</string>
     <string name="snackbar_upload_failed_cause">アップロード中にエラー：%1$s</string>
+    <string name="share_upload_label">アップロード</string>
+    <string name="share_upload_copied">クリップボードにコピーしました</string>
+    <string name="share_upload_copy">URLをコピー</string>
     <string name="snackbar_retry">再試行</string>
     <string name="snackbar_data_reloaded">エモートをリロードしました</string>
     <string name="snackbar_data_load_failed_cause">データの読み込みに失敗しました：%1$s</string>

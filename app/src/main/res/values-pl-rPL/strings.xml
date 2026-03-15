@@ -56,6 +56,9 @@
     <string name="snackbar_image_uploaded">Skopiowano: %1$s</string>
     <string name="snackbar_upload_failed">Błąd podczas przesyłania</string>
     <string name="snackbar_upload_failed_cause">Błąd podczas przesyłania: %1$s</string>
+    <string name="share_upload_label">Prześlij</string>
+    <string name="share_upload_copied">Skopiowano do schowka</string>
+    <string name="share_upload_copy">Kopiuj URL</string>
     <string name="snackbar_retry">Ponów</string>
     <string name="snackbar_data_reloaded">Przeładowano emotki</string>
     <string name="snackbar_data_load_failed_cause">Błąd podczas ładowania danych: %1$s</string>
