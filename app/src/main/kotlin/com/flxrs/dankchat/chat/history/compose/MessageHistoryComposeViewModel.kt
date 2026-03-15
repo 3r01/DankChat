@@ -7,7 +7,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
+import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.search.ChatItemFilter
 import com.flxrs.dankchat.chat.search.ChatSearchFilter
@@ -44,6 +44,7 @@ class MessageHistoryComposeViewModel(
     @InjectedParam private val channel: UserName,
     chatRepository: ChatRepository,
     usersRepository: UsersRepository,
+    private val chatMessageMapper: ChatMessageMapper,
     private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
@@ -72,7 +73,8 @@ class MessageHistoryComposeViewModel(
             .filter { ChatItemFilter.matches(it, activeFilters) }
             .mapIndexed { index, item ->
                 val altBg = index.isEven && appearanceSettings.checkeredMessages
-                item.toChatMessageUiState(
+                chatMessageMapper.mapToUiState(
+                    item = item,
                     context = context,
                     appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,

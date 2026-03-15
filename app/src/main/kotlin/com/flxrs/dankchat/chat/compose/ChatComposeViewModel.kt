@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.chat.ChatItem
-import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiException
@@ -47,6 +46,7 @@ import java.util.Locale
 class ChatComposeViewModel(
     @InjectedParam private val channel: UserName,
     private val repository: ChatRepository,
+    private val chatMessageMapper: ChatMessageMapper,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
     private val context: Context,
@@ -92,7 +92,8 @@ class ChatComposeViewModel(
             val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
             val mapped = mappingCache.getOrPut(cacheKey) {
-                item.toChatMessageUiState(
+                chatMessageMapper.mapToUiState(
+                    item = item,
                     context = context,
                     appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,

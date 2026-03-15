@@ -25,14 +25,20 @@ import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettings
+import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.google.android.material.color.MaterialColors
+import org.koin.core.annotation.Single
 
 /**
  * Maps domain Message objects to Compose UI state objects.
  * Pre-computed all rendering decisions to minimize work during composition.
  */
-object ChatMessageMapper {
+@Single
+class ChatMessageMapper(
+    private val usersRepository: UsersRepository,
+) {
 
     // Highlight colors - Light theme
     private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFFD1C4E9)
@@ -60,22 +66,23 @@ object ChatMessageMapper {
         )
     )
 
-    fun ChatItem.toChatMessageUiState(
+    fun mapToUiState(
+        item: ChatItem,
         context: Context,
         appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
         preferenceStore: DankChatPreferenceStore,
         isAlternateBackground: Boolean,
     ): ChatMessageUiState {
-        val textAlpha = when (importance) {
+        val textAlpha = when (item.importance) {
             ChatImportance.SYSTEM  -> 1f
             ChatImportance.DELETED -> 0.5f
             ChatImportance.REGULAR -> 1f
         }
 
-        return when (val msg = message) {
+        return when (val msg = item.message) {
             is SystemMessage          -> msg.toSystemMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -83,7 +90,7 @@ object ChatMessageMapper {
             )
 
             is NoticeMessage          -> msg.toNoticeMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -91,7 +98,7 @@ object ChatMessageMapper {
             )
 
             is UserNoticeMessage      -> msg.toUserNoticeMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -99,25 +106,25 @@ object ChatMessageMapper {
             )
 
             is PrivMessage            -> msg.toPrivMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
-                isMentionTab = isMentionTab,
-                isInReplies = isInReplies,
+                isMentionTab = item.isMentionTab,
+                isInReplies = item.isInReplies,
                 textAlpha = textAlpha
             )
 
             is AutomodMessage         -> msg.toAutomodMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
 
             is ModerationMessage      -> msg.toModerationMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
@@ -126,14 +133,14 @@ object ChatMessageMapper {
             )
 
             is PointRedemptionMessage -> msg.toPointRedemptionMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 textAlpha = textAlpha
             )
 
             is WhisperMessage         -> msg.toWhisperMessageUi(
-                tag = this.tag,
+                tag = item.tag,
                 context = context,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
@@ -238,6 +245,12 @@ object ChatMessageMapper {
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
 
+        val displayName = tags["display-name"].orEmpty()
+        val login = tags["login"]?.toUserName()
+        val rawNameColor = tags["color"]?.ifBlank { null }?.let(android.graphics.Color::parseColor)
+            ?: login?.let { usersRepository.getCachedUserColor(it) }
+            ?: Message.DEFAULT_COLOR
+
         return ChatMessageUiState.UserNoticeMessageUi(
             id = id,
             tag = tag,
@@ -246,6 +259,8 @@ object ChatMessageMapper {
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message,
+            displayName = displayName,
+            rawNameColor = rawNameColor,
             shouldHighlight = shouldHighlight
         )
     }

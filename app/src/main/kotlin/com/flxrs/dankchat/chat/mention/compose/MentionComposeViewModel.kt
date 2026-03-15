@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.chat.ChatItem
-import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
+import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -26,6 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class MentionComposeViewModel(
     chatRepository: ChatRepository,
+    private val chatMessageMapper: ChatMessageMapper,
     private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
@@ -38,7 +39,7 @@ class MentionComposeViewModel(
     fun setCurrentTab(index: Int) {
         _currentTab.value = index
     }
-    
+
     val mentions: StateFlow<List<ChatItem>> = chatRepository.mentions
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), emptyList())
     val whispers: StateFlow<List<ChatItem>> = chatRepository.whispers
@@ -51,7 +52,8 @@ class MentionComposeViewModel(
     ) { messages, appearanceSettings, chatSettings ->
         messages.mapIndexed { index, item ->
             val altBg = index.isEven && appearanceSettings.checkeredMessages
-            item.toChatMessageUiState(
+            chatMessageMapper.mapToUiState(
+                item = item,
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
@@ -68,7 +70,8 @@ class MentionComposeViewModel(
     ) { messages, appearanceSettings, chatSettings ->
         messages.mapIndexed { index, item ->
             val altBg = index.isEven && appearanceSettings.checkeredMessages
-            item.toChatMessageUiState(
+            chatMessageMapper.mapToUiState(
+                item = item,
                 context = context,
                 appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,

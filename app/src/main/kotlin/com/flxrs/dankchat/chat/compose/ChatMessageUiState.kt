@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 
 /**
@@ -92,6 +93,8 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         val message: String,
+        val displayName: String = "",
+        val rawNameColor: Int = Message.DEFAULT_COLOR,
         val shouldHighlight: Boolean,
     ) : ChatMessageUiState
 

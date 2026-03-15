@@ -3,7 +3,7 @@ package com.flxrs.dankchat.chat.replies.compose
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.chat.compose.ChatMessageMapper.toChatMessageUiState
+import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.replies.RepliesState
 import com.flxrs.dankchat.chat.replies.RepliesUiState
 import com.flxrs.dankchat.data.repo.RepliesRepository
@@ -26,6 +26,7 @@ import kotlin.time.Duration.Companion.seconds
 class RepliesComposeViewModel(
     @InjectedParam private val rootMessageId: String,
     repliesRepository: RepliesRepository,
+    private val chatMessageMapper: ChatMessageMapper,
     private val context: Context,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
@@ -40,7 +41,7 @@ class RepliesComposeViewModel(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesState.Found(emptyList()))
-    
+
     val uiState: StateFlow<RepliesUiState> = combine(
         state,
         appearanceSettingsDataStore.settings,
@@ -51,7 +52,8 @@ class RepliesComposeViewModel(
             is RepliesState.Found -> {
                 val uiMessages = repliesState.items.mapIndexed { index, item ->
                     val altBg = index.isEven && appearanceSettings.checkeredMessages
-                    item.toChatMessageUiState(
+                    chatMessageMapper.mapToUiState(
+                        item = item,
                         context = context,
                         appearanceSettings = appearanceSettings,
                         chatSettings = chatSettings,
