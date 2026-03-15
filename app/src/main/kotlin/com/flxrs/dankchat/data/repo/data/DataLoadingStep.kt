@@ -21,6 +21,7 @@ sealed interface DataLoadingStep {
     data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
     data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep
     data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
+    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
 }
 
 fun List<DataLoadingStep>.toMergedStrings(): List<String> {

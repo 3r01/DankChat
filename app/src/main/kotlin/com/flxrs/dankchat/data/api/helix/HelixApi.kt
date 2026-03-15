@@ -237,6 +237,13 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
         contentType(ContentType.Application.Json)
     }
 
+    suspend fun getCheermotes(broadcasterId: UserId): HttpResponse? = ktorClient.get("bits/cheermotes") {
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterId)
+        contentType(ContentType.Application.Json)
+    }
+
     suspend fun postShoutout(broadcasterUserId: UserId, targetUserId: UserId, moderatorUserId: UserId): HttpResponse? = ktorClient.post("chat/shoutouts") {
         val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
         bearerAuth(oAuth)

@@ -26,6 +26,9 @@ sealed interface ChatMessageEmoteType : Parcelable {
 
     @Parcelize
     data class GlobalSevenTVEmote(val creator: DisplayName?, val baseName: String?) : ChatMessageEmoteType
+
+    @Parcelize
+    data object Cheermote : ChatMessageEmoteType
 }
 
 fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType? = when (this) {

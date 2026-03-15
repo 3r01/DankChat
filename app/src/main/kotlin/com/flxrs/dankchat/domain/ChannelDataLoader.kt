@@ -119,10 +119,17 @@ class ChannelDataLoader(
                     onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) }
                 )
             }
+            val cheermotesResult = async {
+                dataRepository.loadChannelCheermotes(channel, channelInfo.id).fold(
+                    onSuccess = { null },
+                    onFailure = { ChannelLoadingFailure.Cheermotes(channel, it) }
+                )
+            }
             listOfNotNull(
                 bttvResult.await(),
                 ffzResult.await(),
-                sevenTvResult.await()
+                sevenTvResult.await(),
+                cheermotesResult.await(),
             )
         }
     }

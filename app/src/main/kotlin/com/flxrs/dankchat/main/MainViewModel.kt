@@ -497,6 +497,7 @@ class MainViewModel(
                         is DataLoadingStep.ChannelSevenTVEmotes -> dataRepository.loadChannelSevenTVEmotes(it.step.channel, it.step.channelId)
                         is DataLoadingStep.ChannelFFZEmotes     -> dataRepository.loadChannelFFZEmotes(it.step.channel, it.step.channelId)
                         is DataLoadingStep.ChannelBTTVEmotes    -> dataRepository.loadChannelBTTVEmotes(it.step.channel, it.step.channelDisplayName, it.step.channelId)
+                        is DataLoadingStep.ChannelCheermotes    -> dataRepository.loadChannelCheermotes(it.step.channel, it.step.channelId)
                     }
                 }
             } + chatLoadingFailures.map {

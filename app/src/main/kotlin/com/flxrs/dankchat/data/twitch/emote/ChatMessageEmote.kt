@@ -16,4 +16,6 @@ data class ChatMessageEmote(
     val type: ChatMessageEmoteType,
     val isTwitch: Boolean = false,
     val isOverlayEmote: Boolean = false,
+    val cheerAmount: Int? = null,
+    val cheerColor: Int? = null,
 ) : Parcelable

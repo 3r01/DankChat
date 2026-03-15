@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.repo.emote
 
+import com.flxrs.dankchat.data.twitch.emote.CheermoteSet
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 
 data class GlobalEmoteState(
@@ -14,6 +15,7 @@ data class ChannelEmoteState(
     val ffzEmotes: List<GenericEmote> = emptyList(),
     val bttvEmotes: List<GenericEmote> = emptyList(),
     val sevenTvEmotes: List<GenericEmote> = emptyList(),
+    val cheermoteSets: List<CheermoteSet> = emptyList(),
 )
 
 fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes {

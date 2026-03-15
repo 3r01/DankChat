@@ -38,6 +38,11 @@ sealed interface ChannelLoadingFailure {
         override val error: Throwable
     ) : ChannelLoadingFailure
 
+    data class Cheermotes(
+        override val channel: UserName,
+        override val error: Throwable
+    ) : ChannelLoadingFailure
+
     data class RecentMessages(
         override val channel: UserName,
         override val error: Throwable

@@ -16,6 +16,7 @@ import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatBadgeDto
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatEmoteDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.HelixApiException
 import com.flxrs.dankchat.data.api.helix.HelixError
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
@@ -39,6 +40,8 @@ import com.flxrs.dankchat.data.twitch.badge.BadgeSet
 import com.flxrs.dankchat.data.twitch.badge.BadgeType
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.data.twitch.emote.CheermoteSet
+import com.flxrs.dankchat.data.twitch.emote.CheermoteTier
 import com.flxrs.dankchat.data.twitch.emote.EmoteType
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.data.twitch.emote.toChatMessageEmoteType
@@ -169,8 +172,14 @@ class EmoteRepository(
             replyMentionOffset = replyMentionOffset
         )
         val twitchEmoteCodes = twitchEmotes.mapTo(HashSet(twitchEmotes.size)) { it.code }
-        val thirdPartyEmotes = parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel).filterNot { it.code in twitchEmoteCodes }
-        val emotes = (twitchEmotes + thirdPartyEmotes)
+        val cheermotes = when {
+            message is PrivMessage && message.tags["bits"] != null -> parseCheermotes(appendedSpaceAdjustedMessage, channel)
+            else                                                   -> emptyList()
+        }
+        val cheermoteCodes = cheermotes.mapTo(HashSet(cheermotes.size)) { it.code }
+        val thirdPartyEmotes = parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel)
+            .filterNot { it.code in twitchEmoteCodes || it.code in cheermoteCodes }
+        val emotes = twitchEmotes + thirdPartyEmotes + cheermotes
 
         val (adjustedMessage, adjustedEmotes) = adjustOverlayEmotes(appendedSpaceAdjustedMessage, emotes)
         val messageWithEmotes = when (message) {
@@ -570,6 +579,62 @@ class EmoteRepository(
             }
 
         globalEmoteState.update { it.copy(sevenTvEmotes = sevenTvGlobalEmotes) }
+    }
+
+    suspend fun setCheermotes(channel: UserName, cheermoteDtos: List<CheermoteSetDto>) = withContext(Dispatchers.Default) {
+        val cheermoteSets = cheermoteDtos.map { dto ->
+            CheermoteSet(
+                prefix = dto.prefix,
+                regex = Regex("^${Regex.escape(dto.prefix)}([1-9][0-9]*)$", RegexOption.IGNORE_CASE),
+                tiers = dto.tiers
+                    .sortedByDescending { it.minBits }
+                    .map { tier ->
+                        CheermoteTier(
+                            minBits = tier.minBits,
+                            color = try {
+                                android.graphics.Color.parseColor(tier.color)
+                            } catch (_: IllegalArgumentException) {
+                                android.graphics.Color.GRAY
+                            },
+                            animatedUrl = tier.images.dark.animated["2"] ?: tier.images.dark.animated["1"].orEmpty(),
+                            staticUrl = tier.images.dark.static["2"] ?: tier.images.dark.static["1"].orEmpty(),
+                        )
+                    }
+            )
+        }
+        channelEmoteStates[channel]?.update {
+            it.copy(cheermoteSets = cheermoteSets)
+        }
+    }
+
+    private fun parseCheermotes(message: String, channel: UserName): List<ChatMessageEmote> {
+        val cheermoteSets = channelEmoteStates[channel]?.value?.cheermoteSets
+        if (cheermoteSets.isNullOrEmpty()) return emptyList()
+
+        var currentPosition = 0
+        return buildList {
+            message.split(WHITESPACE_REGEX).forEach { word ->
+                for (set in cheermoteSets) {
+                    val match = set.regex.matchEntire(word)
+                    if (match != null) {
+                        val bits = match.groupValues[1].toIntOrNull() ?: break
+                        val tier = set.tiers.firstOrNull { bits >= it.minBits } ?: break
+                        this += ChatMessageEmote(
+                            position = currentPosition..currentPosition + word.length,
+                            url = tier.animatedUrl,
+                            id = "${set.prefix}_$bits",
+                            code = word,
+                            scale = 1,
+                            type = ChatMessageEmoteType.Cheermote,
+                            cheerAmount = bits,
+                            cheerColor = tier.color,
+                        )
+                        break
+                    }
+                }
+                currentPosition += word.length + 1
+            }
+        }
     }
 
     private val UserName?.twitchEmoteType: EmoteType

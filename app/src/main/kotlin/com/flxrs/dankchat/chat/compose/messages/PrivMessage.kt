@@ -217,6 +217,18 @@ private fun PrivMessageText(
                     // Emote inline content
                     appendInlineContent("EMOTE_${emote.code}", emote.code)
 
+                    // Cheer amount text
+                    if (emote.cheerAmount != null) {
+                        withStyle(
+                            SpanStyle(
+                                color = emote.cheerColor ?: textColor,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        ) {
+                            append(emote.cheerAmount.toString())
+                        }
+                    }
+
                     // Add space after emote if next character exists and is not whitespace
                     val nextPos = emote.position.last + 1
                     if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {

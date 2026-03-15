@@ -216,6 +216,19 @@ class DataRepository(
         }
     }
 
+    suspend fun loadChannelCheermotes(channel: UserName, channelId: UserId): Result<Unit> = withContext(Dispatchers.IO) {
+        if (!authDataStore.isLoggedIn) {
+            return@withContext Result.success(Unit)
+        }
+
+        measureTimeAndLog(TAG, "cheermotes for #$channel") {
+            helixApiClient.getCheermotes(channelId)
+                .getOrEmitFailure { DataLoadingStep.ChannelCheermotes(channel, channelId) }
+                .onSuccess { emoteRepository.setCheermotes(channel, it) }
+                .map { }
+        }
+    }
+
     suspend fun loadGlobalFFZEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)

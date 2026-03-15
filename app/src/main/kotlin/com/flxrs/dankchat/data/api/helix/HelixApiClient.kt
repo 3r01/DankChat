@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionResponseList
 import com.flxrs.dankchat.data.api.helix.dto.AnnouncementRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.BadgeSetDto
 import com.flxrs.dankchat.data.api.helix.dto.BanRequestDto
+import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsDto
 import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialDto
@@ -218,6 +219,13 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
         helixApi.getChannelBadges(broadcastUserId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<BadgeSetDto>>()
+            .data
+    }
+
+    suspend fun getCheermotes(broadcasterId: UserId): Result<List<CheermoteSetDto>> = runCatching {
+        helixApi.getCheermotes(broadcasterId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<CheermoteSetDto>>()
             .data
     }
 

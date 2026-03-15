@@ -57,6 +57,7 @@ class EmoteSheetViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
             is ChatMessageEmoteType.GlobalFFZEmote      -> "$FFZ_BASE_LINK$id-$code"
 
             is ChatMessageEmoteType.TwitchEmote         -> "$TWITCH_BASE_LINK$id"
+            is ChatMessageEmoteType.Cheermote          -> "$TWITCH_BASE_LINK$id"
         }
     }
 
@@ -69,6 +70,7 @@ class EmoteSheetViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
             is ChatMessageEmoteType.GlobalFFZEmote      -> R.string.emote_sheet_ffz_global_emote
             is ChatMessageEmoteType.GlobalSevenTVEmote  -> R.string.emote_sheet_seventv_global_emote
             ChatMessageEmoteType.TwitchEmote            -> R.string.emote_sheet_twitch_emote
+            ChatMessageEmoteType.Cheermote             -> R.string.emote_sheet_twitch_emote
         }
     }
 

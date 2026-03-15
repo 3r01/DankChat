@@ -193,6 +193,8 @@ data class EmoteUi(
     val isTwitch: Boolean,
     val scale: Int,
     val emotes: List<ChatMessageEmote>, // For click handling
+    val cheerAmount: Int? = null,
+    val cheerColor: Color? = null,
 )
 
 /**

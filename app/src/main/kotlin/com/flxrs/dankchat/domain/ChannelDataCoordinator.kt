@@ -162,6 +162,7 @@ class ChannelDataCoordinator(
                         is DataLoadingStep.ChannelSevenTVEmotes -> channelsToRetry.add(step.channel)
                         is DataLoadingStep.ChannelFFZEmotes     -> channelsToRetry.add(step.channel)
                         is DataLoadingStep.ChannelBTTVEmotes    -> channelsToRetry.add(step.channel)
+                        is DataLoadingStep.ChannelCheermotes    -> channelsToRetry.add(step.channel)
                     }
                 }
             }

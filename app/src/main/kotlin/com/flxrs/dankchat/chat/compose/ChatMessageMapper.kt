@@ -314,17 +314,21 @@ object ChatMessageMapper {
                     is ChatMessageEmoteType.GlobalBTTVEmote    -> true // Assume third-party can be animated
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
+                    is ChatMessageEmoteType.Cheermote          -> true
                 }
             }
 
+            val firstEmote = emoteGroup.first()
             EmoteUi(
-                code = emoteGroup.first().code,
+                code = firstEmote.code,
                 urls = emoteGroup.map { it.url },
                 position = position,
                 isAnimated = hasAnimated,
                 isTwitch = emoteGroup.any { it.isTwitch },
-                scale = emoteGroup.first().scale,
-                emotes = emoteGroup
+                scale = firstEmote.scale,
+                emotes = emoteGroup,
+                cheerAmount = firstEmote.cheerAmount,
+                cheerColor = firstEmote.cheerColor?.let { Color(it) },
             )
         }
 
@@ -428,20 +432,23 @@ object ChatMessageMapper {
                     is ChatMessageEmoteType.GlobalFFZEmote,
                     is ChatMessageEmoteType.ChannelBTTVEmote,
                     is ChatMessageEmoteType.GlobalBTTVEmote    -> true
-
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
+                    is ChatMessageEmoteType.Cheermote          -> true
                 }
             }
 
+            val firstEmote = emoteGroup.first()
             EmoteUi(
-                code = emoteGroup.first().code,
+                code = firstEmote.code,
                 urls = emoteGroup.map { it.url },
                 position = position,
                 isAnimated = hasAnimated,
                 isTwitch = emoteGroup.any { it.isTwitch },
-                scale = emoteGroup.first().scale,
-                emotes = emoteGroup
+                scale = firstEmote.scale,
+                emotes = emoteGroup,
+                cheerAmount = firstEmote.cheerAmount,
+                cheerColor = firstEmote.cheerColor?.let { Color(it) },
             )
         }
 
