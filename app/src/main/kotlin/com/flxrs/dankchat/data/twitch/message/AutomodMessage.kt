@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
+import com.flxrs.dankchat.chat.compose.TextResource
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
@@ -13,7 +14,7 @@ data class AutomodMessage(
     val userName: UserName,
     val userDisplayName: DisplayName,
     val messageText: String,
-    val reason: String,
+    val reason: TextResource,
     val badges: List<Badge> = emptyList(),
     val color: Int = Message.DEFAULT_COLOR,
     val status: Status = Status.Pending,

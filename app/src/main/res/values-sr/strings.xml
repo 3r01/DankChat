@@ -254,6 +254,63 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s је уклонио %2$s као блокирани термин са AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s је уклонио %2$s као дозвољени термин са AutoMod.</string>
 
+    <!-- Moderation messages -->
+    <!-- Timeout -->
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">Добили сте тајмаут%1$s%2$s%3$s.%4$s</string>
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s је дао тајмаут кориснику %2$s%3$s.%4$s</string>
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s је добио тајмаут%2$s.%3$s</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">Бановани сте%1$s%2$s.</string>
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s је бановао %2$s%3$s.</string>
+    <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s је трајно банован.</string>
+    <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s је уклонио тајмаут кориснику %2$s.</string>
+    <string name="mod_unban" comment="flex3rs unbanned user123.">%1$s је одбановао %2$s.</string>
+    <string name="mod_modded" comment="flex3rs modded user123.">%1$s је поставио %2$s за модератора.</string>
+    <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s је уклонио %2$s са модератора.</string>
+    <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s је додао %2$s као VIP овог канала.</string>
+    <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s је уклонио %2$s као VIP овог канала.</string>
+    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s је упозорио %2$s%3$s</string>
+    <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s је покренуо рејд на %2$s.</string>
+    <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s је отказао рејд на %2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s је обрисао поруку од %2$s%3$s.</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Порука од %1$s је обрисана%2$s.</string>
+    <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s је очистио чат.</string>
+    <string name="mod_clear_no_creator">Чат је очишћен од стране модератора.</string>
+    <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s је укључио emote-only режим.</string>
+    <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s је искључио emote-only режим.</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s је укључио followers-only режим.%2$s</string>
+    <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s је искључио followers-only режим.</string>
+    <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s је укључио unique-chat режим.</string>
+    <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s је искључио unique-chat режим.</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s је укључио спори режим.%2$s</string>
+    <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s је искључио спори режим.</string>
+    <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s је укључио subscribers-only режим.</string>
+    <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s је искључио subscribers-only режим.</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s је дао тајмаут кориснику %2$s%3$s у %4$s.%5$s</string>
+    <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s је уклонио тајмаут кориснику %2$s у %3$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s је бановао %2$s у %3$s%4$s.</string>
+    <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s је одбановао %2$s у %3$s.</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s је обрисао поруку од %2$s у %3$s%4$s</string>
+    <string name="mod_duration_suffix" comment=" for 10m"> на %1$s</string>
+    <string name="mod_by_creator_suffix" comment=" by flex3rs"> од стране %1$s</string>
+    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
+    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
+    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> са садржајем: \"%1$s\"</string>
+    <plurals name="mod_count_suffix" comment=" (2 times)">
+        <item quantity="one"> (%1$d пут)</item>
+        <item quantity="few"> (%1$d пута)</item>
+        <item quantity="other"> (%1$d пута)</item>
+    </plurals>
+    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
+        <item quantity="one"> (%1$d минут)</item>
+        <item quantity="few"> (%1$d минута)</item>
+        <item quantity="other"> (%1$d минута)</item>
+    </plurals>
+    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
+        <item quantity="one"> (%1$d секунда)</item>
+        <item quantity="few"> (%1$d секунде)</item>
+        <item quantity="other"> (%1$d секунди)</item>
+    </plurals>
+
     <!-- Whisper -->
     <string name="backspace">Обриши</string>
     <string name="hint_whispering">Пошаљи шапат</string>

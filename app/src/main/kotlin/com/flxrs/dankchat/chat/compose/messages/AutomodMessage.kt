@@ -31,6 +31,7 @@ import com.flxrs.dankchat.chat.compose.EmoteDimensions
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
+import com.flxrs.dankchat.chat.compose.resolve
 import com.flxrs.dankchat.data.UserName
 
 private val AutoModBlue = Color(0xFF448AFF)
@@ -56,7 +57,7 @@ fun AutomodMessageComposable(
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
 
     // Resolve strings
-    val headerText = stringResource(R.string.automod_header, message.reason)
+    val headerText = stringResource(R.string.automod_header, message.reason.resolve())
     val allowText = stringResource(R.string.automod_allow)
     val denyText = stringResource(R.string.automod_deny)
     val approvedText = stringResource(R.string.automod_status_approved)

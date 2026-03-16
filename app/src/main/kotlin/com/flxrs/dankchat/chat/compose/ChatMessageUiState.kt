@@ -110,7 +110,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
-        val message: String,
+        val message: TextResource,
     ) : ChatMessageUiState
 
     /**
@@ -165,7 +165,7 @@ sealed interface ChatMessageUiState {
         val userDisplayName: String,
         val rawNameColor: Int,
         val messageText: String,
-        val reason: String,
+        val reason: TextResource,
         val status: AutomodMessageStatus,
     ) : ChatMessageUiState {
         enum class AutomodMessageStatus { Pending, Approved, Denied, Expired }

@@ -208,7 +208,7 @@ fun ModerationMessageComposable(
     modifier: Modifier = Modifier,
 ) {
     SimpleMessageContainer(
-        message = message.message,
+        message = message.message.resolve(),
         timestamp = message.timestamp,
         fontSize = fontSize.sp,
         lightBackgroundColor = message.lightBackgroundColor,

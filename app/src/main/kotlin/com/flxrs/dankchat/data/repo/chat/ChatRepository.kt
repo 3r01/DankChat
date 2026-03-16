@@ -34,6 +34,8 @@ import com.flxrs.dankchat.data.twitch.chat.ChatEvent
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeType
+import com.flxrs.dankchat.R
+import com.flxrs.dankchat.chat.compose.TextResource
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
@@ -978,18 +980,19 @@ class ChatRepository(
         automod: AutomodReasonDto?,
         blockedTerm: BlockedTermReasonDto?,
         messageText: String,
-    ): String = when {
-        reason == "automod" && automod != null -> "${automod.category} (level ${automod.level})"
+    ): TextResource = when {
+        reason == "automod" && automod != null -> TextResource.Res(R.string.automod_reason_category, listOf(automod.category, automod.level))
         reason == "blocked_term" && blockedTerm != null -> {
             val terms = blockedTerm.termsFound.joinToString { found ->
                 val start = found.boundary.startPos
                 val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
                 "\"${messageText.substring(start, end)}\""
             }
-            "blocked term: $terms"
+            val count = blockedTerm.termsFound.size
+            TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, listOf(count, terms))
         }
 
-        else -> reason
+        else -> TextResource.Plain(reason)
     }
 
     fun updateAutomodMessageStatus(channel: UserName, heldMessageId: String, status: AutomodMessage.Status) {
