@@ -431,6 +431,7 @@ fun FloatingToolbar(
                                     }
                                     TooltipBox(
                                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+                                            TooltipAnchorPosition.Above,
                                             spacingBetweenTooltipAndAnchor = 8.dp,
                                         ),
                                         tooltip = {

@@ -17,7 +17,7 @@ sealed interface Suggestion {
         override fun toString() = command
     }
 
-    data class FilterSuggestion(val keyword: String, @StringRes val descriptionRes: Int, val displayText: String? = null) : Suggestion {
+    data class FilterSuggestion(val keyword: String, @param:StringRes val descriptionRes: Int, val displayText: String? = null) : Suggestion {
         override fun toString() = keyword
     }
 }

@@ -10,7 +10,7 @@ data class CheermoteSet(
 
 data class CheermoteTier(
     val minBits: Int,
-    @ColorInt val color: Int,
+    @param:ColorInt val color: Int,
     val animatedUrl: String,
     val staticUrl: String,
 )

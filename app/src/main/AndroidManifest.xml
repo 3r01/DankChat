@@ -30,6 +30,8 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="tiramisu">
 
+        <profileable android:shell="true" />
+
         <service
             android:name=".data.notification.NotificationService"
             android:exported="false"

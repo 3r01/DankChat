@@ -287,7 +287,6 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = { fadeOut(animationSpec = tween(90)) }
                     ) {
                         LoginScreen(
-                            navController = navController,
                             onLoginSuccess = { navController.popBackStack() },
                             onCancel = { navController.popBackStack() }
                         )

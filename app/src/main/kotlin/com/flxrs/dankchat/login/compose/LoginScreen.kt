@@ -33,8 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.net.toUri
-import androidx.navigation.NavController
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.login.LoginViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -42,7 +40,6 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    navController: NavController,
     onLoginSuccess: () -> Unit,
     onCancel: () -> Unit,
 ) {
@@ -83,11 +80,13 @@ fun LoginScreen(
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
+        Column(modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize()) {
             if (isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            
+
             AndroidView(
                 factory = { context ->
                     WebView(context).also { webViewRef = it }.apply {
@@ -98,24 +97,17 @@ fun LoginScreen(
                         @SuppressLint("SetJavaScriptEnabled")
                         settings.javaScriptEnabled = true
                         settings.setSupportZoom(true)
-                        
+
                         clearCache(true)
                         clearFormData()
-                        
+
                         webViewClient = object : WebViewClient() {
                             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                                 isLoading = true
                             }
-                            
+
                             override fun onPageFinished(view: WebView?, url: String?) {
                                 isLoading = false
-                            }
-
-                            override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
-                                val urlString = url ?: ""
-                                val fragment = urlString.toUri().fragment ?: return false
-                                viewModel.parseToken(fragment)
-                                return true // Consume
                             }
 
                             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -123,13 +115,13 @@ fun LoginScreen(
                                 viewModel.parseToken(fragment)
                                 return true // Consume
                             }
-                            
+
                             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
                                 Log.e("LoginScreen", "Error: ${error?.description}")
                                 isLoading = false
                             }
                         }
-                        
+
                         loadUrl(viewModel.loginUrl)
                     }
                 },
@@ -137,7 +129,7 @@ fun LoginScreen(
             )
         }
     }
-    
+
     BackHandler {
         onCancel()
     }

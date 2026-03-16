@@ -15,10 +15,10 @@ sealed interface TextResource {
     data class Plain(val value: String) : TextResource
 
     @Immutable
-    data class Res(@StringRes val id: Int, val args: ImmutableList<Any> = persistentListOf()) : TextResource
+    data class Res(@param:StringRes val id: Int, val args: ImmutableList<Any> = persistentListOf()) : TextResource
 
     @Immutable
-    data class PluralRes(@PluralsRes val id: Int, val quantity: Int, val args: ImmutableList<Any> = persistentListOf()) : TextResource
+    data class PluralRes(@param:PluralsRes val id: Int, val quantity: Int, val args: ImmutableList<Any> = persistentListOf()) : TextResource
 }
 
 @Composable

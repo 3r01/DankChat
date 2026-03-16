@@ -1,14 +1,12 @@
-@file:Suppress("UnstableApiUsage")
-
+import com.android.build.api.artifact.ArtifactTransformationRequest
+import com.android.build.api.artifact.SingleArtifact
 import com.android.build.gradle.internal.PropertiesValueSource
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.StringReader
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
@@ -42,11 +40,6 @@ android {
         }
     }
 
-    sourceSets {
-        getByName("main") {
-            java.srcDir("src/main/kotlin")
-        }
-    }
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -80,30 +73,26 @@ android {
         }
     }
 
-    buildOutputs.all {
-        (this as? BaseVariantOutputImpl)?.apply {
-            val appName = "DankChat-${name}.apk"
-            outputFileName = appName
+    androidComponents.onVariants { variant ->
+        val renameTask = tasks.register<RenameApkTask>("renameApk${variant.name.replaceFirstChar { it.uppercase() }}") {
+            apkName.set("DankChat-${variant.name}.apk")
+        }
+        val transformationRequest = variant.artifacts.use(renameTask)
+            .wiredWithDirectories(RenameApkTask::inputDirs, RenameApkTask::outputDirs)
+            .toTransformMany(SingleArtifact.APK)
+        renameTask.configure {
+            this.transformationRequest = transformationRequest
         }
     }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     lint {
         disable += "RestrictedApi"
-    }
-
-    //noinspection WrongGradleMethod
-    androidComponents {
-        beforeVariants {
-            sourceSets.named("main") {
-                java.srcDir(File("build/generated/ksp/${it.name}/kotlin"))
-            }
-        }
     }
 }
 
@@ -119,9 +108,9 @@ tasks.withType<Test> {
 }
 
 kotlin {
-    jvmToolchain(jdkVersion = 17)
+    jvmToolchain(jdkVersion = 21)
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+        jvmTarget.set(JvmTarget.JVM_21)
         freeCompilerArgs.addAll(
             "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
             "-opt-in=kotlinx.coroutines.FlowPreview",
@@ -240,4 +229,28 @@ fun gradleLocalProperties(projectRootDir: File, providers: ProviderFactory): Pro
     }
 
     return properties
+}
+
+abstract class RenameApkTask : DefaultTask() {
+    @get:InputDirectory
+    abstract val inputDirs: DirectoryProperty
+
+    @get:OutputDirectory
+    abstract val outputDirs: DirectoryProperty
+
+    @get:Input
+    abstract val apkName: Property<String>
+
+    @get:Internal
+    lateinit var transformationRequest: ArtifactTransformationRequest<RenameApkTask>
+
+    @TaskAction
+    fun taskAction() {
+        transformationRequest.submit(this) { builtArtifact ->
+            val inputFile = File(builtArtifact.outputFile)
+            val outputFile = File(outputDirs.get().asFile, apkName.get())
+            inputFile.copyTo(outputFile, overwrite = true)
+            outputFile
+        }
+    }
 }
