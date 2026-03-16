@@ -14,6 +14,8 @@ import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.data.repo.data.DataUpdateEventMessage
+import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -48,6 +50,28 @@ class ChannelDataCoordinator(
     // Global loading state
     private val _globalLoadingState = MutableStateFlow<GlobalLoadingState>(GlobalLoadingState.Idle)
     val globalLoadingState: StateFlow<GlobalLoadingState> = _globalLoadingState.asStateFlow()
+
+    init {
+        scope.launch {
+            dataRepository.dataUpdateEvents.collect { event ->
+                when (event) {
+                    is DataUpdateEventMessage.ActiveEmoteSetChanged -> {
+                        chatRepository.makeAndPostSystemMessage(
+                            type = SystemMessageType.ChannelSevenTVEmoteSetChanged(event.actorName, event.emoteSetName),
+                            channel = event.channel
+                        )
+                    }
+
+                    is DataUpdateEventMessage.EmoteSetUpdated       -> {
+                        val (channel, update) = event
+                        update.added.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteAdded(update.actorName, it.name), channel) }
+                        update.updated.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteRenamed(update.actorName, it.oldName, it.name), channel) }
+                        update.removed.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteRemoved(update.actorName, it.name), channel) }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Get loading state for a specific channel
