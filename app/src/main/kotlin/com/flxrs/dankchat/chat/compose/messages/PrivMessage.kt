@@ -3,6 +3,8 @@ package com.flxrs.dankchat.chat.compose.messages
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -64,6 +66,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 @Composable
 fun PrivMessageComposable(
     message: ChatMessageUiState.PrivMessageUi,
+    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
     showChannelPrefix: Boolean = false,
@@ -80,7 +83,8 @@ fun PrivMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(backgroundColor)
+            .background(backgroundColor, highlightShape)
+            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
             .indication(interactionSource, ripple())
             .padding(vertical = 2.dp)
     ) {

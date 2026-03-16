@@ -9,6 +9,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -168,10 +172,10 @@ fun ChatScreen(
                     .fillMaxSize()
                     .then(scrollModifier)
             ) {
-                items(
+                itemsIndexed(
                     items = reversedMessages,
-                    key = { message -> message.id },
-                    contentType = { message ->
+                    key = { _, message -> message.id },
+                    contentType = { _, message ->
                         when (message) {
                             is ChatMessageUiState.SystemMessageUi          -> "system"
                             is ChatMessageUiState.NoticeMessageUi          -> "notice"
@@ -184,9 +188,14 @@ fun ChatScreen(
                             is ChatMessageUiState.DateSeparatorUi          -> "datesep"
                         }
                     }
-                ) { message ->
+                ) { index, message ->
+                    // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
+                    val highlightedBelow = reversedMessages.getOrNull(index - 1)?.isHighlighted == true
+                    val highlightedAbove = reversedMessages.getOrNull(index + 1)?.isHighlighted == true
+                    val highlightShape = message.highlightShape(highlightedAbove, highlightedBelow)
                     ChatMessageItem(
                         message = message,
+                        highlightShape = highlightShape,
                         fontSize = fontSize,
                         showChannelPrefix = showChannelPrefix,
                         animateGifs = animateGifs,
@@ -311,12 +320,23 @@ private fun RecoveryFab(
     }
 }
 
+private val HIGHLIGHT_CORNER_RADIUS = 8.dp
+
+private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlightedBelow: Boolean): Shape {
+    if (!isHighlighted) return RectangleShape
+    val top = if (highlightedAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    val bottom = if (highlightedBelow) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
+}
+
 /**
  * Renders a single chat message based on its type
  */
+
 @Composable
 private fun ChatMessageItem(
     message: ChatMessageUiState,
+    highlightShape: Shape,
     fontSize: Float,
     showChannelPrefix: Boolean,
     animateGifs: Boolean,
@@ -342,6 +362,7 @@ private fun ChatMessageItem(
 
         is ChatMessageUiState.UserNoticeMessageUi      -> UserNoticeMessageComposable(
             message = message,
+            highlightShape = highlightShape,
             fontSize = fontSize
         )
 
@@ -359,14 +380,13 @@ private fun ChatMessageItem(
 
         is ChatMessageUiState.PrivMessageUi            -> {
             if (onJumpToMessage != null) {
-                val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.background(backgroundColor),
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         PrivMessageComposable(
                             message = message,
+                            highlightShape = highlightShape,
                             fontSize = fontSize,
                             showChannelPrefix = showChannelPrefix,
                             animateGifs = animateGifs,
@@ -391,6 +411,7 @@ private fun ChatMessageItem(
             } else {
                 PrivMessageComposable(
                     message = message,
+                    highlightShape = highlightShape,
                     fontSize = fontSize,
                     showChannelPrefix = showChannelPrefix,
                     animateGifs = animateGifs,
@@ -404,6 +425,7 @@ private fun ChatMessageItem(
 
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
             message = message,
+            highlightShape = highlightShape,
             fontSize = fontSize
         )
 

@@ -3,6 +3,8 @@ package com.flxrs.dankchat.chat.compose.messages
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -79,6 +81,7 @@ fun NoticeMessageComposable(
 @Composable
 fun UserNoticeMessageComposable(
     message: ChatMessageUiState.UserNoticeMessageUi,
+    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
 ) {
@@ -153,7 +156,8 @@ fun UserNoticeMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(bgColor)
+            .background(bgColor, highlightShape)
+            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
             .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
     ) {

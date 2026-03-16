@@ -3,6 +3,8 @@ package com.flxrs.dankchat.chat.compose.messages
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -316,6 +318,7 @@ private fun WhisperMessageText(
 @Composable
 fun PointRedemptionMessageComposable(
     message: ChatMessageUiState.PointRedemptionMessageUi,
+    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
 ) {
@@ -326,7 +329,8 @@ fun PointRedemptionMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(backgroundColor)
+            .background(backgroundColor, highlightShape)
+            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
             .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
     ) {

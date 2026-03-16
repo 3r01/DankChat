@@ -24,6 +24,7 @@ sealed interface ChatMessageUiState {
     val darkBackgroundColor: Color
     val textAlpha: Float
     val enableRipple: Boolean
+    val isHighlighted: Boolean
 
     /**
      * Regular chat message from a user
@@ -37,6 +38,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean,
+        override val isHighlighted: Boolean,
         val channel: UserName,
         val userId: UserId?,
         val userName: UserName,
@@ -63,6 +65,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val message: TextResource,
     ) : ChatMessageUiState
 
@@ -78,6 +81,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val message: String,
     ) : ChatMessageUiState
 
@@ -93,6 +97,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val message: String,
         val displayName: String = "",
         val rawNameColor: Int = Message.DEFAULT_COLOR,
@@ -111,6 +116,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val message: TextResource,
     ) : ChatMessageUiState
 
@@ -126,6 +132,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = true,
         val nameText: String?,
         val title: String,
         val cost: Int,
@@ -145,6 +152,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color = Color.Transparent,
         override val textAlpha: Float = 0.5f,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val dateText: String,
     ) : ChatMessageUiState
 
@@ -160,6 +168,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
+        override val isHighlighted: Boolean = false,
         val heldMessageId: String,
         val channel: UserName,
         val badges: ImmutableList<BadgeUi>,
@@ -184,6 +193,7 @@ sealed interface ChatMessageUiState {
         override val darkBackgroundColor: Color,
         override val textAlpha: Float,
         override val enableRipple: Boolean,
+        override val isHighlighted: Boolean = false,
         val userId: UserId,
         val userName: UserName,
         val displayName: DisplayName,
