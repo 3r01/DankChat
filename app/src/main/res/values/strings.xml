@@ -114,14 +114,24 @@
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removed %2$s as a blocked term on AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removed %2$s as a permitted term on AutoMod.</string>
 
-    <!-- Moderation messages -->
-    <!-- Timeout -->
-    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">You were timed out%1$s%2$s%3$s.%4$s</string>
-    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s timed out %2$s%3$s.%4$s</string>
-    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s has been timed out%2$s.%3$s</string>
-    <!-- Ban -->
-    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">You were banned%1$s%2$s.</string>
-    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s banned %2$s%3$s.</string>
+    <!-- Moderation messages — complete sentence variants for proper localization -->
+    <!-- Timeout (self, IRC — no creator info) -->
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m.">You were timed out for %1$s.</string>
+    <!-- Timeout (self, EventSub — has creator) -->
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs.">You were timed out for %1$s by %2$s.</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;.">You were timed out for %1$s by %2$s: \"%3$s\".</string>
+    <!-- Timeout (other, by creator) -->
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m.">%1$s timed out %2$s for %3$s.</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: &quot;reason&quot;.">%1$s timed out %2$s for %3$s: \"%4$s\".</string>
+    <!-- Timeout (other, IRC — no creator) -->
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m.">%1$s has been timed out for %2$s.</string>
+    <!-- Ban (self) -->
+    <string name="mod_ban_self_irc" comment="You were banned.">You were banned.</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs.">You were banned by %1$s.</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: &quot;reason&quot;.">You were banned by %1$s: \"%2$s\".</string>
+    <!-- Ban (other) -->
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123.">%1$s banned %2$s.</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s banned %2$s: \"%3$s\".</string>
     <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s has been permanently banned.</string>
     <!-- Simple actions -->
     <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s untimedout %2$s.</string>
@@ -130,49 +140,46 @@
     <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s unmodded %2$s.</string>
     <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s has added %2$s as a VIP of this channel.</string>
     <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s has removed %2$s as a VIP of this channel.</string>
-    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s has warned %2$s%3$s</string>
+    <string name="mod_warn" comment="flex3rs has warned user123.">%1$s has warned %2$s.</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s has warned %2$s: %3$s</string>
     <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s initiated a raid to %2$s.</string>
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s canceled the raid to %2$s.</string>
     <!-- Delete -->
-    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s deleted message from %2$s%3$s.</string>
-    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">A message from %1$s was deleted%2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123.">%1$s deleted message from %2$s.</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s deleted message from %2$s saying: \"%3$s\".</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted.">A message from %1$s was deleted.</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: &quot;hello&quot;.">A message from %1$s was deleted saying: \"%2$s\".</string>
     <!-- Clear -->
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s cleared the chat.</string>
     <string name="mod_clear_no_creator">Chat has been cleared by a moderator.</string>
     <!-- Room state -->
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s turned on emote-only mode.</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s turned off emote-only mode.</string>
-    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s turned on followers-only mode.%2$s</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode.">%1$s turned on followers-only mode.</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes).">%1$s turned on followers-only mode (%2$d minutes).</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s turned off followers-only mode.</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s turned on unique-chat mode.</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s turned off unique-chat mode.</string>
-    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s turned on slow mode.%2$s</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode.">%1$s turned on slow mode.</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds).">%1$s turned on slow mode (%2$d seconds).</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s turned off slow mode.</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s turned on subscribers-only mode.</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s turned off subscribers-only mode.</string>
     <!-- Shared chat -->
-    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s timed out %2$s%3$s in %4$s.%5$s</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456.">%1$s timed out %2$s for %3$s in %4$s.</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: &quot;reason&quot;.">%1$s timed out %2$s for %3$s in %4$s: \"%5$s\".</string>
     <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s untimedout %2$s in %3$s.</string>
-    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s banned %2$s in %3$s%4$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456.">%1$s banned %2$s in %3$s.</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s banned %2$s in %3$s: \"%4$s\".</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s unbanned %2$s in %3$s.</string>
-    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s deleted message from %2$s in %3$s%4$s</string>
-    <!-- Helper suffixes -->
-    <string name="mod_duration_suffix" comment=" for 10m"> for %1$s</string>
-    <string name="mod_by_creator_suffix" comment=" by flex3rs"> by %1$s</string>
-    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
-    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
-    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> saying: \"%1$s\"</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456.">%1$s deleted message from %2$s in %3$s.</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;.">%1$s deleted message from %2$s in %3$s saying: \"%4$s\".</string>
+    <!-- Helper: message + count concatenation -->
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
+    <!-- Parenthetical count (appended after complete sentences, safe for all languages) -->
     <plurals name="mod_count_suffix" comment=" (2 times)">
-        <item quantity="one"> (%1$d time)</item>
-        <item quantity="other"> (%1$d times)</item>
-    </plurals>
-    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
-        <item quantity="one"> (%1$d minute)</item>
-        <item quantity="other"> (%1$d minutes)</item>
-    </plurals>
-    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
-        <item quantity="one"> (%1$d second)</item>
-        <item quantity="other"> (%1$d seconds)</item>
+        <item quantity="one">\u0020(%1$d time)</item>
+        <item quantity="other">\u0020(%1$d times)</item>
     </plurals>
 
     <string name="timed_out_message">&lt; Message deleted &gt;</string>

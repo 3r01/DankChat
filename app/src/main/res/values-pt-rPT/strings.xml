@@ -448,12 +448,17 @@
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s removeu %2$s como termo permitido do AutoMod.</string>
 
     <!-- Moderation messages -->
-    <!-- Timeout -->
-    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">Foste suspenso%1$s%2$s%3$s.%4$s</string>
-    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s suspendeu %2$s%3$s.%4$s</string>
-    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s foi suspenso%2$s.%3$s</string>
-    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">Foste banido%1$s%2$s.</string>
-    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s baniu %2$s%3$s.</string>
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m.">Foste suspenso por %1$s.</string>
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs.">Foste suspenso por %1$s por %2$s.</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;.">Foste suspenso por %1$s por %2$s: \"%3$s\".</string>
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m.">%1$s suspendeu %2$s por %3$s.</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: &quot;reason&quot;.">%1$s suspendeu %2$s por %3$s: \"%4$s\".</string>
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m.">%1$s foi suspenso por %2$s.</string>
+    <string name="mod_ban_self_irc" comment="You were banned.">Foste banido.</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs.">Foste banido por %1$s.</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: &quot;reason&quot;.">Foste banido por %1$s: \"%2$s\".</string>
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123.">%1$s baniu %2$s.</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s baniu %2$s: \"%3$s\".</string>
     <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s foi banido permanentemente.</string>
     <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s removeu a suspensão de %2$s.</string>
     <string name="mod_unban" comment="flex3rs unbanned user123.">%1$s desbaniu %2$s.</string>
@@ -461,47 +466,41 @@
     <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s removeu %2$s de moderador.</string>
     <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s adicionou %2$s como VIP deste canal.</string>
     <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s removeu %2$s como VIP deste canal.</string>
-    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s avisou %2$s%3$s</string>
+    <string name="mod_warn" comment="flex3rs has warned user123.">%1$s avisou %2$s.</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s avisou %2$s: %3$s</string>
     <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s iniciou uma raid para %2$s.</string>
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s cancelou a raid para %2$s.</string>
-    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s eliminou a mensagem de %2$s%3$s.</string>
-    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Uma mensagem de %1$s foi eliminada%2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123.">%1$s eliminou a mensagem de %2$s.</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s eliminou a mensagem de %2$s a dizer: \"%3$s\".</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted.">Uma mensagem de %1$s foi eliminada.</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Uma mensagem de %1$s foi eliminada a dizer: \"%2$s\".</string>
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s limpou o chat.</string>
     <string name="mod_clear_no_creator">O chat foi limpo por um moderador.</string>
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s ativou o modo apenas emotes.</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s desativou o modo apenas emotes.</string>
-    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s ativou o modo apenas seguidores.%2$s</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode.">%1$s ativou o modo apenas seguidores.</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes).">%1$s ativou o modo apenas seguidores (%2$d minutos).</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s desativou o modo apenas seguidores.</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s ativou o modo de chat único.</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s desativou o modo de chat único.</string>
-    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s ativou o modo lento.%2$s</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode.">%1$s ativou o modo lento.</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds).">%1$s ativou o modo lento (%2$d segundos).</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s desativou o modo lento.</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s ativou o modo apenas subscritores.</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s desativou o modo apenas subscritores.</string>
-    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s suspendeu %2$s%3$s em %4$s.%5$s</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456.">%1$s suspendeu %2$s por %3$s em %4$s.</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: &quot;reason&quot;.">%1$s suspendeu %2$s por %3$s em %4$s: \"%5$s\".</string>
     <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s removeu a suspensão de %2$s em %3$s.</string>
-    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s baniu %2$s em %3$s%4$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456.">%1$s baniu %2$s em %3$s.</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s baniu %2$s em %3$s: \"%4$s\".</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s desbaniu %2$s em %3$s.</string>
-    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s eliminou a mensagem de %2$s em %3$s%4$s</string>
-    <string name="mod_duration_suffix" comment=" for 10m"> por %1$s</string>
-    <string name="mod_by_creator_suffix" comment=" by flex3rs"> por %1$s</string>
-    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
-    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
-    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> a dizer: \"%1$s\"</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456.">%1$s eliminou a mensagem de %2$s em %3$s.</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;.">%1$s eliminou a mensagem de %2$s em %3$s a dizer: \"%4$s\".</string>
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
-        <item quantity="one"> (%1$d vez)</item>
-        <item quantity="many"> (%1$d vezes)</item>
-        <item quantity="other"> (%1$d vezes)</item>
-    </plurals>
-    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
-        <item quantity="one"> (%1$d minuto)</item>
-        <item quantity="many"> (%1$d minutos)</item>
-        <item quantity="other"> (%1$d minutos)</item>
-    </plurals>
-    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
-        <item quantity="one"> (%1$d segundo)</item>
-        <item quantity="many"> (%1$d segundos)</item>
-        <item quantity="other"> (%1$d segundos)</item>
+        <item quantity="one">\u0020(%1$d vez)</item>
+        <item quantity="many">\u0020(%1$d vezes)</item>
+        <item quantity="other">\u0020(%1$d vezes)</item>
     </plurals>
 
     <!-- Whisper -->

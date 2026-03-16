@@ -71,25 +71,16 @@ data class ModerationMessage(
         RemovePermittedTerm,
     }
 
-    private val durationSuffix: TextResource
-        get() = duration?.let { TextResource.Res(R.string.mod_duration_suffix, persistentListOf(it)) } ?: TextResource.Plain("")
-    private val creatorSuffix: TextResource
-        get() = creatorUserDisplay?.let { TextResource.Res(R.string.mod_by_creator_suffix, persistentListOf(it.toString())) } ?: TextResource.Plain("")
-    private val quotedReasonSuffix: TextResource
-        get() = reason.takeUnless { it.isNullOrBlank() }?.let { TextResource.Res(R.string.mod_reason_suffix, persistentListOf(it)) } ?: TextResource.Plain("")
-    private val reasonsSuffix: TextResource
-        get() = reason.takeUnless { it.isNullOrBlank() }?.let { TextResource.Res(R.string.mod_reasons_suffix, persistentListOf(it)) } ?: TextResource.Plain("")
+    private val hasReason get() = !reason.isNullOrBlank()
     private val quotedTermsOrBlank get() = reason.takeUnless { it.isNullOrBlank() } ?: "terms"
 
-    private fun sayingSuffix(showDeletedMessage: Boolean): TextResource {
-        if (!showDeletedMessage) return TextResource.Plain("")
-
+    private fun trimmedMessage(showDeletedMessage: Boolean): String? {
+        if (!showDeletedMessage) return null
         val fullReason = reason.orEmpty()
-        val trimmed = when {
+        return when {
             fullReason.length > 50 -> "${fullReason.take(50)}…"
             else                   -> fullReason
-        }
-        return TextResource.Res(R.string.mod_saying_suffix, persistentListOf(trimmed))
+        }.takeIf { it.isNotEmpty() }
     }
 
     private fun countSuffix(): TextResource {
@@ -99,97 +90,138 @@ data class ModerationMessage(
         }
     }
 
-    private fun minutesSuffix(): TextResource {
-        return durationInt?.takeIf { it > 0 }?.let { TextResource.PluralRes(R.plurals.mod_minutes_suffix, it, persistentListOf(it)) } ?: TextResource.Plain("")
-    }
-
-    private fun secondsSuffix(): TextResource {
-        return durationInt?.let { TextResource.PluralRes(R.plurals.mod_seconds_suffix, it, persistentListOf(it)) } ?: TextResource.Plain("")
-    }
-
     fun getSystemMessage(currentUser: UserName?, showDeletedMessage: Boolean): TextResource {
-        return when (action) {
-            Action.Timeout             -> when (targetUser) {
-                currentUser -> TextResource.Res(R.string.mod_timeout_self, persistentListOf(durationSuffix, creatorSuffix, quotedReasonSuffix, countSuffix()))
+        val creator = creatorUserDisplay.toString()
+        val target = targetUserDisplay.toString()
+        val dur = duration.orEmpty()
+        val source = sourceBroadcasterDisplay.toString()
+
+        val message = when (action) {
+            Action.Timeout         -> when (targetUser) {
+                currentUser -> when (creatorUserDisplay) {
+                    null -> TextResource.Res(R.string.mod_timeout_self_irc, persistentListOf(dur))
+                    else -> when {
+                        hasReason -> TextResource.Res(R.string.mod_timeout_self_reason, persistentListOf(dur, creator, reason.orEmpty()))
+                        else      -> TextResource.Res(R.string.mod_timeout_self, persistentListOf(dur, creator))
+                    }
+                }
+
                 else        -> when (creatorUserDisplay) {
-                    null -> TextResource.Res(R.string.mod_timeout_no_creator, persistentListOf(targetUserDisplay.toString(), durationSuffix, countSuffix()))
-                    else -> TextResource.Res(R.string.mod_timeout_by_creator, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), durationSuffix, countSuffix()))
+                    null -> TextResource.Res(R.string.mod_timeout_no_creator, persistentListOf(target, dur))
+                    else -> when {
+                        hasReason -> TextResource.Res(R.string.mod_timeout_by_creator_reason, persistentListOf(creator, target, dur, reason.orEmpty()))
+                        else      -> TextResource.Res(R.string.mod_timeout_by_creator, persistentListOf(creator, target, dur))
+                    }
                 }
             }
 
-            Action.Untimeout           -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Ban                 -> when (targetUser) {
-                currentUser -> TextResource.Res(R.string.mod_ban_self, persistentListOf(creatorSuffix, quotedReasonSuffix))
+            Action.Untimeout       -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creator, target))
+
+            Action.Ban             -> when (targetUser) {
+                currentUser -> when (creatorUserDisplay) {
+                    null -> TextResource.Res(R.string.mod_ban_self_irc)
+                    else -> when {
+                        hasReason -> TextResource.Res(R.string.mod_ban_self_reason, persistentListOf(creator, reason.orEmpty()))
+                        else      -> TextResource.Res(R.string.mod_ban_self, persistentListOf(creator))
+                    }
+                }
+
                 else        -> when (creatorUserDisplay) {
-                    null -> TextResource.Res(R.string.mod_ban_no_creator, persistentListOf(targetUserDisplay.toString()))
-                    else -> TextResource.Res(R.string.mod_ban_by_creator, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), quotedReasonSuffix))
+                    null -> TextResource.Res(R.string.mod_ban_no_creator, persistentListOf(target))
+                    else -> when {
+                        hasReason -> TextResource.Res(R.string.mod_ban_by_creator_reason, persistentListOf(creator, target, reason.orEmpty()))
+                        else      -> TextResource.Res(R.string.mod_ban_by_creator, persistentListOf(creator, target))
+                    }
                 }
             }
 
-            Action.Unban               -> TextResource.Res(R.string.mod_unban, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Mod                 -> TextResource.Res(R.string.mod_modded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unmod               -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Delete              -> when (creatorUserDisplay) {
-                null -> TextResource.Res(R.string.mod_delete_no_creator, persistentListOf(targetUserDisplay.toString(), sayingSuffix(showDeletedMessage)))
-                else -> TextResource.Res(R.string.mod_delete_by_creator, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sayingSuffix(showDeletedMessage)))
+            Action.Unban           -> TextResource.Res(R.string.mod_unban, persistentListOf(creator, target))
+            Action.Mod             -> TextResource.Res(R.string.mod_modded, persistentListOf(creator, target))
+            Action.Unmod           -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creator, target))
+
+            Action.Delete          -> {
+                val msg = trimmedMessage(showDeletedMessage)
+                when (creatorUserDisplay) {
+                    null -> when (msg) {
+                        null -> TextResource.Res(R.string.mod_delete_no_creator, persistentListOf(target))
+                        else -> TextResource.Res(R.string.mod_delete_no_creator_message, persistentListOf(target, msg))
+                    }
+
+                    else -> when (msg) {
+                        null -> TextResource.Res(R.string.mod_delete_by_creator, persistentListOf(creator, target))
+                        else -> TextResource.Res(R.string.mod_delete_by_creator_message, persistentListOf(creator, target, msg))
+                    }
+                }
             }
 
-            Action.Clear               -> when (creatorUserDisplay) {
+            Action.Clear           -> when (creatorUserDisplay) {
                 null -> TextResource.Res(R.string.mod_clear_no_creator)
-                else -> TextResource.Res(R.string.mod_clear_by_creator, persistentListOf(creatorUserDisplay.toString()))
+                else -> TextResource.Res(R.string.mod_clear_by_creator, persistentListOf(creator))
             }
 
-            Action.Vip                 -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unvip               -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Warn                -> {
-                val suffix = when (val r = reasonsSuffix) {
-                    is TextResource.Plain -> TextResource.Plain(".")
-                    else                  -> r
+            Action.Vip             -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creator, target))
+            Action.Unvip           -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creator, target))
+
+            Action.Warn            -> when {
+                hasReason -> TextResource.Res(R.string.mod_warn_reason, persistentListOf(creator, target, reason.orEmpty()))
+                else      -> TextResource.Res(R.string.mod_warn, persistentListOf(creator, target))
+            }
+
+            Action.Raid            -> TextResource.Res(R.string.mod_raid, persistentListOf(creator, target))
+            Action.Unraid          -> TextResource.Res(R.string.mod_unraid, persistentListOf(creator, target))
+            Action.EmoteOnly       -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creator))
+            Action.EmoteOnlyOff    -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creator))
+
+            Action.Followers       -> when (val mins = durationInt?.takeIf { it > 0 }) {
+                null -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creator))
+                else -> TextResource.Res(R.string.mod_followers_on_duration, persistentListOf(creator, mins))
+            }
+
+            Action.FollowersOff    -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creator))
+            Action.UniqueChat      -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creator))
+            Action.UniqueChatOff   -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creator))
+
+            Action.Slow            -> when (val secs = durationInt) {
+                null -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creator))
+                else -> TextResource.Res(R.string.mod_slow_on_duration, persistentListOf(creator, secs))
+            }
+
+            Action.SlowOff         -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creator))
+            Action.Subscribers     -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creator))
+            Action.SubscribersOff  -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creator))
+
+            Action.SharedTimeout   -> when {
+                hasReason -> TextResource.Res(R.string.mod_shared_timeout_reason, persistentListOf(creator, target, dur, source, reason.orEmpty()))
+                else      -> TextResource.Res(R.string.mod_shared_timeout, persistentListOf(creator, target, dur, source))
+            }
+
+            Action.SharedUntimeout -> TextResource.Res(R.string.mod_shared_untimeout, persistentListOf(creator, target, source))
+
+            Action.SharedBan       -> when {
+                hasReason -> TextResource.Res(R.string.mod_shared_ban_reason, persistentListOf(creator, target, source, reason.orEmpty()))
+                else      -> TextResource.Res(R.string.mod_shared_ban, persistentListOf(creator, target, source))
+            }
+
+            Action.SharedUnban     -> TextResource.Res(R.string.mod_shared_unban, persistentListOf(creator, target, source))
+
+            Action.SharedDelete    -> {
+                val msg = trimmedMessage(showDeletedMessage)
+                when (msg) {
+                    null -> TextResource.Res(R.string.mod_shared_delete, persistentListOf(creator, target, source))
+                    else -> TextResource.Res(R.string.mod_shared_delete_message, persistentListOf(creator, target, source, msg))
                 }
-                TextResource.Res(R.string.mod_warn, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), suffix))
             }
 
-            Action.Raid                -> TextResource.Res(R.string.mod_raid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unraid              -> TextResource.Res(R.string.mod_unraid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.EmoteOnly           -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.EmoteOnlyOff        -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Followers           -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creatorUserDisplay.toString(), minutesSuffix()))
-            Action.FollowersOff        -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.UniqueChat          -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.UniqueChatOff       -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Slow                -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creatorUserDisplay.toString(), secondsSuffix()))
-            Action.SlowOff             -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Subscribers         -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.SubscribersOff      -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.SharedTimeout       -> TextResource.Res(
-                R.string.mod_shared_timeout,
-                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), durationSuffix, sourceBroadcasterDisplay.toString(), countSuffix())
-            )
+            Action.AddBlockedTerm      -> TextResource.Res(R.string.automod_moderation_added_blocked_term, persistentListOf(creator, quotedTermsOrBlank))
+            Action.AddPermittedTerm    -> TextResource.Res(R.string.automod_moderation_added_permitted_term, persistentListOf(creator, quotedTermsOrBlank))
+            Action.RemoveBlockedTerm   -> TextResource.Res(R.string.automod_moderation_removed_blocked_term, persistentListOf(creator, quotedTermsOrBlank))
+            Action.RemovePermittedTerm -> TextResource.Res(R.string.automod_moderation_removed_permitted_term, persistentListOf(creator, quotedTermsOrBlank))
+        }
 
-            Action.SharedUntimeout     -> TextResource.Res(
-                R.string.mod_shared_untimeout,
-                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString())
-            )
-
-            Action.SharedBan           -> TextResource.Res(
-                R.string.mod_shared_ban,
-                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), quotedReasonSuffix)
-            )
-
-            Action.SharedUnban         -> TextResource.Res(
-                R.string.mod_shared_unban,
-                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString())
-            )
-
-            Action.SharedDelete        -> TextResource.Res(
-                R.string.mod_shared_delete,
-                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), sayingSuffix(showDeletedMessage))
-            )
-
-            Action.AddBlockedTerm      -> TextResource.Res(R.string.automod_moderation_added_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
-            Action.AddPermittedTerm    -> TextResource.Res(R.string.automod_moderation_added_permitted_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
-            Action.RemoveBlockedTerm   -> TextResource.Res(R.string.automod_moderation_removed_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
-            Action.RemovePermittedTerm -> TextResource.Res(R.string.automod_moderation_removed_permitted_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
+        val count = countSuffix()
+        return when (count) {
+            is TextResource.Plain -> message
+            else                  -> TextResource.Res(R.string.mod_message_with_count, persistentListOf(message, count))
         }
     }
 

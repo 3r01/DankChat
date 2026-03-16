@@ -454,12 +454,17 @@
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModból.</string>
 
     <!-- Moderation messages -->
-    <!-- Timeout -->
-    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">Ideiglenesen ki lettél tiltva%1$s%2$s%3$s.%4$s</string>
-    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s ideiglenesen kitiltotta %2$s felhasználót%3$s.%4$s</string>
-    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s ideiglenesen ki lett tiltva%2$s.%3$s</string>
-    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">Ki lettél tiltva%1$s%2$s.</string>
-    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s kitiltotta %2$s felhasználót%3$s.</string>
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m.">Ideiglenesen ki lettél tiltva %1$s időtartamra.</string>
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs.">Ideiglenesen ki lettél tiltva %1$s időtartamra %2$s által.</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;.">Ideiglenesen ki lettél tiltva %1$s időtartamra %2$s által: \"%3$s\".</string>
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m.">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra.</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: &quot;reason&quot;.">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra: \"%4$s\".</string>
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m.">%1$s ideiglenesen ki lett tiltva %2$s időtartamra.</string>
+    <string name="mod_ban_self_irc" comment="You were banned.">Ki lettél tiltva.</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs.">Ki lettél tiltva %1$s által.</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: &quot;reason&quot;.">Ki lettél tiltva %1$s által: \"%2$s\".</string>
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123.">%1$s kitiltotta %2$s felhasználót.</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s kitiltotta %2$s felhasználót: \"%3$s\".</string>
     <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s véglegesen ki lett tiltva.</string>
     <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s feloldotta %2$s ideiglenes kitiltását.</string>
     <string name="mod_unban" comment="flex3rs unbanned user123.">%1$s feloldotta %2$s kitiltását.</string>
@@ -467,44 +472,40 @@
     <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s eltávolította %2$s moderátori jogát.</string>
     <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s hozzáadta %2$s felhasználót a csatorna VIP-jeként.</string>
     <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s eltávolította %2$s felhasználót a csatorna VIP-jei közül.</string>
-    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s figyelmeztette %2$s felhasználót%3$s</string>
+    <string name="mod_warn" comment="flex3rs has warned user123.">%1$s figyelmeztette %2$s felhasználót.</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s figyelmeztette %2$s felhasználót: %3$s</string>
     <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s raidet indított %2$s felé.</string>
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s visszavonta a raidet %2$s felé.</string>
-    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s törölte %2$s üzenetét%3$s.</string>
-    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">%1$s üzenete törölve lett%2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123.">%1$s törölte %2$s üzenetét.</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s törölte %2$s üzenetét mondván: \"%3$s\".</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted.">%1$s üzenete törölve lett.</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: &quot;hello&quot;.">%1$s üzenete törölve lett mondván: \"%2$s\".</string>
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s törölte a chatet.</string>
     <string name="mod_clear_no_creator">Egy moderátor törölte a chatet.</string>
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s bekapcsolta a csak hangulatjel módot.</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s kikapcsolta a csak hangulatjel módot.</string>
-    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s bekapcsolta a csak követők módot.%2$s</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode.">%1$s bekapcsolta a csak követők módot.</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes).">%1$s bekapcsolta a csak követők módot (%2$d perc).</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s kikapcsolta a csak követők módot.</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s bekapcsolta az egyedi chat módot.</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s kikapcsolta az egyedi chat módot.</string>
-    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s bekapcsolta a lassú módot.%2$s</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode.">%1$s bekapcsolta a lassú módot.</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds).">%1$s bekapcsolta a lassú módot (%2$d másodperc).</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s kikapcsolta a lassú módot.</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s bekapcsolta a csak feliratkozók módot.</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s kikapcsolta a csak feliratkozók módot.</string>
-    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s ideiglenesen kitiltotta %2$s felhasználót%3$s a(z) %4$s csatornán.%5$s</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456.">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra a(z) %4$s csatornán.</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: &quot;reason&quot;.">%1$s ideiglenesen kitiltotta %2$s felhasználót %3$s időtartamra a(z) %4$s csatornán: \"%5$s\".</string>
     <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s feloldotta %2$s ideiglenes kitiltását a(z) %3$s csatornán.</string>
-    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s kitiltotta %2$s felhasználót a(z) %3$s csatornán%4$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456.">%1$s kitiltotta %2$s felhasználót a(z) %3$s csatornán.</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s kitiltotta %2$s felhasználót a(z) %3$s csatornán: \"%4$s\".</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s feloldotta %2$s kitiltását a(z) %3$s csatornán.</string>
-    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s törölte %2$s üzenetét a(z) %3$s csatornán%4$s</string>
-    <string name="mod_duration_suffix" comment=" for 10m"> %1$s időtartamra</string>
-    <string name="mod_by_creator_suffix" comment=" by flex3rs"> %1$s által</string>
-    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
-    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
-    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> mondván: \"%1$s\"</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456.">%1$s törölte %2$s üzenetét a(z) %3$s csatornán.</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;.">%1$s törölte %2$s üzenetét a(z) %3$s csatornán mondván: \"%4$s\".</string>
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
-        <item quantity="one"> (%1$d alkalommal)</item>
-        <item quantity="other"> (%1$d alkalommal)</item>
-    </plurals>
-    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
-        <item quantity="one"> (%1$d perc)</item>
-        <item quantity="other"> (%1$d perc)</item>
-    </plurals>
-    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
-        <item quantity="one"> (%1$d másodperc)</item>
-        <item quantity="other"> (%1$d másodperc)</item>
+        <item quantity="one">\u0020(%1$d alkalommal)</item>
+        <item quantity="other">\u0020(%1$d alkalommal)</item>
     </plurals>
 
     <!-- Whisper -->

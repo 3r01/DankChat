@@ -313,12 +313,17 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s poisti %2$s sallittuna terminä AutoModista.</string>
 
     <!-- Moderation messages -->
-    <!-- Timeout -->
-    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">Sinut asetettiin jäähylle%1$s%2$s%3$s.%4$s</string>
-    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s asetti jäähylle käyttäjän %2$s%3$s.%4$s</string>
-    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s on asetettu jäähylle%2$s.%3$s</string>
-    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">Sinut estettiin%1$s%2$s.</string>
-    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s esti käyttäjän %2$s%3$s.</string>
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m.">Sinut asetettiin jäähylle %1$s ajaksi.</string>
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs.">Sinut asetettiin jäähylle %1$s ajaksi käyttäjän %2$s toimesta.</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;.">Sinut asetettiin jäähylle %1$s ajaksi käyttäjän %2$s toimesta: \"%3$s\".</string>
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m.">%1$s asetti käyttäjän %2$s jäähylle %3$s ajaksi.</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: &quot;reason&quot;.">%1$s asetti käyttäjän %2$s jäähylle %3$s ajaksi: \"%4$s\".</string>
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m.">%1$s on asetettu jäähylle %2$s ajaksi.</string>
+    <string name="mod_ban_self_irc" comment="You were banned.">Sinut estettiin.</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs.">Sinut estettiin käyttäjän %1$s toimesta.</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: &quot;reason&quot;.">Sinut estettiin käyttäjän %1$s toimesta: \"%2$s\".</string>
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123.">%1$s esti käyttäjän %2$s.</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s esti käyttäjän %2$s: \"%3$s\".</string>
     <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s on estetty pysyvästi.</string>
     <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s poisti jäähyn käyttäjältä %2$s.</string>
     <string name="mod_unban" comment="flex3rs unbanned user123.">%1$s poisti eston käyttäjältä %2$s.</string>
@@ -326,44 +331,40 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s poisti moderaattorin käyttäjältä %2$s.</string>
     <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s lisäsi käyttäjän %2$s tämän kanavan VIP-jäseneksi.</string>
     <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s poisti käyttäjän %2$s tämän kanavan VIP-jäsenyydestä.</string>
-    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s varoitti käyttäjää %2$s%3$s</string>
+    <string name="mod_warn" comment="flex3rs has warned user123.">%1$s varoitti käyttäjää %2$s.</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s varoitti käyttäjää %2$s: %3$s</string>
     <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s aloitti raidin kanavalle %2$s.</string>
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s peruutti raidin kanavalle %2$s.</string>
-    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s poisti viestin käyttäjältä %2$s%3$s.</string>
-    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Viesti käyttäjältä %1$s poistettiin%2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123.">%1$s poisti viestin käyttäjältä %2$s.</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s poisti viestin käyttäjältä %2$s sanoen: \"%3$s\".</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted.">Viesti käyttäjältä %1$s poistettiin.</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Viesti käyttäjältä %1$s poistettiin sanoen: \"%2$s\".</string>
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s tyhjesi chatin.</string>
-    <string name="mod_clear_no_creator">Moderaattori tyhjentsi chatin.</string>
+    <string name="mod_clear_no_creator">Moderaattori on tyhjentänyt chatin.</string>
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s otti käyttöön vain hymiöt -tilan.</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s poisti käytöstä vain hymiöt -tilan.</string>
-    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s otti käyttöön vain seuraajat -tilan.%2$s</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode.">%1$s otti käyttöön vain seuraajat -tilan.</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes).">%1$s otti käyttöön vain seuraajat -tilan (%2$d minuuttia).</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s poisti käytöstä vain seuraajat -tilan.</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s otti käyttöön ainutlaatuinen chat -tilan.</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s poisti käytöstä ainutlaatuinen chat -tilan.</string>
-    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s otti käyttöön hitaan tilan.%2$s</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode.">%1$s otti käyttöön hitaan tilan.</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds).">%1$s otti käyttöön hitaan tilan (%2$d sekuntia).</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s poisti käytöstä hitaan tilan.</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s otti käyttöön vain tilaajat -tilan.</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s poisti käytöstä vain tilaajat -tilan.</string>
-    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s asetti jäähylle käyttäjän %2$s%3$s kanavalla %4$s.%5$s</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456.">%1$s asetti käyttäjän %2$s jäähylle %3$s ajaksi kanavalla %4$s.</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: &quot;reason&quot;.">%1$s asetti käyttäjän %2$s jäähylle %3$s ajaksi kanavalla %4$s: \"%5$s\".</string>
     <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s poisti jäähyn käyttäjältä %2$s kanavalla %3$s.</string>
-    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s esti käyttäjän %2$s kanavalla %3$s%4$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456.">%1$s esti käyttäjän %2$s kanavalla %3$s.</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s esti käyttäjän %2$s kanavalla %3$s: \"%4$s\".</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s poisti eston käyttäjältä %2$s kanavalla %3$s.</string>
-    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s poisti viestin käyttäjältä %2$s kanavalla %3$s%4$s</string>
-    <string name="mod_duration_suffix" comment=" for 10m"> %1$s ajaksi</string>
-    <string name="mod_by_creator_suffix" comment=" by flex3rs"> käyttäjän %1$s toimesta</string>
-    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
-    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
-    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> sanoen: \"%1$s\"</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456.">%1$s poisti viestin käyttäjältä %2$s kanavalla %3$s.</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;.">%1$s poisti viestin käyttäjältä %2$s kanavalla %3$s sanoen: \"%4$s\".</string>
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
-        <item quantity="one"> (%1$d kerta)</item>
-        <item quantity="other"> (%1$d kertaa)</item>
-    </plurals>
-    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
-        <item quantity="one"> (%1$d minuutti)</item>
-        <item quantity="other"> (%1$d minuuttia)</item>
-    </plurals>
-    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
-        <item quantity="one"> (%1$d sekunti)</item>
-        <item quantity="other"> (%1$d sekuntia)</item>
+        <item quantity="one">\u0020(%1$d kerta)</item>
+        <item quantity="other">\u0020(%1$d kertaa)</item>
     </plurals>
 
     <!-- Whisper -->

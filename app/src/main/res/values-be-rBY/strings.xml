@@ -463,11 +463,17 @@
 
     <!-- Moderation messages -->
     <!-- Timeout -->
-    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;. (2 times)">Вас было заглушана%1$s%2$s%3$s.%4$s</string>
-    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s заглушыў %2$s%3$s.%4$s</string>
-    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m. (2 times)">%1$s быў заглушаны%2$s.%3$s</string>
-    <string name="mod_ban_self" comment="You were banned by flex3rs: &quot;reason&quot;.">Вас было забанена%1$s%2$s.</string>
-    <string name="mod_ban_by_creator" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s забаніў %2$s%3$s.</string>
+    <string name="mod_timeout_self_irc" comment="You were timed out for 10m.">Вас было заглушана на %1$s.</string>
+    <string name="mod_timeout_self" comment="You were timed out for 10m by flex3rs.">Вас было заглушана на %1$s мадэратарам %2$s.</string>
+    <string name="mod_timeout_self_reason" comment="You were timed out for 10m by flex3rs: &quot;reason&quot;.">Вас было заглушана на %1$s мадэратарам %2$s: \"%3$s\".</string>
+    <string name="mod_timeout_by_creator" comment="flex3rs timed out user123 for 10m.">%1$s заглушыў %2$s на %3$s.</string>
+    <string name="mod_timeout_by_creator_reason" comment="flex3rs timed out user123 for 10m: &quot;reason&quot;.">%1$s заглушыў %2$s на %3$s: \"%4$s\".</string>
+    <string name="mod_timeout_no_creator" comment="user123 has been timed out for 10m.">%1$s быў заглушаны на %2$s.</string>
+    <string name="mod_ban_self_irc" comment="You were banned.">Вас было забанена.</string>
+    <string name="mod_ban_self" comment="You were banned by flex3rs.">Вас было забанена мадэратарам %1$s.</string>
+    <string name="mod_ban_self_reason" comment="You were banned by flex3rs: &quot;reason&quot;.">Вас было забанена мадэратарам %1$s: \"%2$s\".</string>
+    <string name="mod_ban_by_creator" comment="flex3rs banned user123.">%1$s забаніў %2$s.</string>
+    <string name="mod_ban_by_creator_reason" comment="flex3rs banned user123: &quot;reason&quot;.">%1$s забаніў %2$s: \"%3$s\".</string>
     <string name="mod_ban_no_creator" comment="user123 has been permanently banned.">%1$s быў перманентна забанены.</string>
     <string name="mod_untimeout" comment="flex3rs untimedout user123.">%1$s зняў заглушэнне з %2$s.</string>
     <string name="mod_unban" comment="flex3rs unbanned user123.">%1$s разбаніў %2$s.</string>
@@ -475,50 +481,42 @@
     <string name="mod_unmodded" comment="flex3rs unmodded user123.">%1$s зняў мадэратара з %2$s.</string>
     <string name="mod_vip_added" comment="flex3rs has added user123 as a VIP of this channel.">%1$s дадаў %2$s як VIP гэтага канала.</string>
     <string name="mod_vip_removed" comment="flex3rs has removed user123 as a VIP of this channel.">%1$s выдаліў %2$s як VIP гэтага канала.</string>
-    <string name="mod_warn" comment="flex3rs has warned user123: reason1, reason2">%1$s папярэдзіў %2$s%3$s</string>
+    <string name="mod_warn" comment="flex3rs has warned user123.">%1$s папярэдзіў %2$s.</string>
+    <string name="mod_warn_reason" comment="flex3rs has warned user123: reason1, reason2">%1$s папярэдзіў %2$s: %3$s</string>
     <string name="mod_raid" comment="flex3rs initiated a raid to user123.">%1$s пачаў рэйд на %2$s.</string>
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123.">%1$s адмяніў рэйд на %2$s.</string>
-    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s выдаліў паведамленне ад %2$s%3$s.</string>
-    <string name="mod_delete_no_creator" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Паведамленне ад %1$s было выдалена%2$s.</string>
+    <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123.">%1$s выдаліў паведамленне ад %2$s.</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: &quot;hello&quot;.">%1$s выдаліў паведамленне ад %2$s з тэкстам: \"%3$s\".</string>
+    <string name="mod_delete_no_creator" comment="A message from user123 was deleted.">Паведамленне ад %1$s было выдалена.</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: &quot;hello&quot;.">Паведамленне ад %1$s было выдалена з тэкстам: \"%2$s\".</string>
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat.">%1$s ачысціў чат.</string>
     <string name="mod_clear_no_creator">Чат быў ачышчаны мадэратарам.</string>
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode.">%1$s уключыў рэжым толькі эмоцыі.</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode.">%1$s выключыў рэжым толькі эмоцыі.</string>
-    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode. (10 minutes)">%1$s уключыў рэжым толькі для падпісчыкаў канала.%2$s</string>
+    <string name="mod_followers_on" comment="flex3rs turned on followers-only mode.">%1$s уключыў рэжым толькі для падпісчыкаў канала.</string>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes).">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$d хвілін).</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode.">%1$s выключыў рэжым толькі для падпісчыкаў канала.</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode.">%1$s уключыў рэжым унікальнага чату.</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode.">%1$s выключыў рэжым унікальнага чату.</string>
-    <string name="mod_slow_on" comment="flex3rs turned on slow mode. (30 seconds)">%1$s уключыў павольны рэжым.%2$s</string>
+    <string name="mod_slow_on" comment="flex3rs turned on slow mode.">%1$s уключыў павольны рэжым.</string>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds).">%1$s уключыў павольны рэжым (%2$d секунд).</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode.">%1$s выключыў павольны рэжым.</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode.">%1$s уключыў рэжым толькі для падпісчыкаў.</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode.">%1$s выключыў рэжым толькі для падпісчыкаў.</string>
-    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456. (2 times)">%1$s заглушыў %2$s%3$s у %4$s.%5$s</string>
+    <string name="mod_shared_timeout" comment="flex3rs timed out user123 for 10m in channel456.">%1$s заглушыў %2$s на %3$s у %4$s.</string>
+    <string name="mod_shared_timeout_reason" comment="flex3rs timed out user123 for 10m in channel456: &quot;reason&quot;.">%1$s заглушыў %2$s на %3$s у %4$s: \"%5$s\".</string>
     <string name="mod_shared_untimeout" comment="flex3rs untimedout user123 in channel456.">%1$s зняў заглушэнне з %2$s у %3$s.</string>
-    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s забаніў %2$s у %3$s%4$s.</string>
+    <string name="mod_shared_ban" comment="flex3rs banned user123 in channel456.">%1$s забаніў %2$s у %3$s.</string>
+    <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: &quot;reason&quot;.">%1$s забаніў %2$s у %3$s: \"%4$s\".</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456.">%1$s разбаніў %2$s у %3$s.</string>
-    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;">%1$s выдаліў паведамленне ад %2$s у %3$s%4$s</string>
-    <string name="mod_duration_suffix" comment=" for 10m"> на %1$s</string>
-    <string name="mod_by_creator_suffix" comment=" by flex3rs"> ад %1$s</string>
-    <string name="mod_reason_suffix" comment=": &quot;Being toxic&quot;">: \"%1$s\"</string>
-    <string name="mod_reasons_suffix" comment=": reason1, reason2">: %1$s</string>
-    <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> з тэкстам: \"%1$s\"</string>
+    <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456.">%1$s выдаліў паведамленне ад %2$s у %3$s.</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: &quot;hello&quot;.">%1$s выдаліў паведамленне ад %2$s у %3$s з тэкстам: \"%4$s\".</string>
+    <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
-        <item quantity="one"> (%1$d раз)</item>
-        <item quantity="few"> (%1$d разы)</item>
-        <item quantity="many"> (%1$d разоў)</item>
-        <item quantity="other"> (%1$d разоў)</item>
-    </plurals>
-    <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
-        <item quantity="one"> (%1$d хвіліна)</item>
-        <item quantity="few"> (%1$d хвіліны)</item>
-        <item quantity="many"> (%1$d хвілін)</item>
-        <item quantity="other"> (%1$d хвілін)</item>
-    </plurals>
-    <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
-        <item quantity="one"> (%1$d секунда)</item>
-        <item quantity="few"> (%1$d секунды)</item>
-        <item quantity="many"> (%1$d секунд)</item>
-        <item quantity="other"> (%1$d секунд)</item>
+        <item quantity="one">\u0020(%1$d раз)</item>
+        <item quantity="few">\u0020(%1$d разы)</item>
+        <item quantity="many">\u0020(%1$d разоў)</item>
+        <item quantity="other">\u0020(%1$d разоў)</item>
     </plurals>
 
     <!-- Whisper -->
