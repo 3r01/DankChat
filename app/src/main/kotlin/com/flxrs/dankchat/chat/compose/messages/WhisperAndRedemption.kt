@@ -76,10 +76,10 @@ fun WhisperMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .alpha(message.textAlpha)
             .background(backgroundColor)
             .indication(interactionSource, ripple())
-            .padding(vertical = 2.dp)
-            .alpha(message.textAlpha)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         Box(modifier = Modifier.weight(1f)) {
             WhisperMessageText(
@@ -329,10 +329,9 @@ fun PointRedemptionMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(backgroundColor, highlightShape)
-            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
-            .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
+            .background(backgroundColor, highlightShape)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

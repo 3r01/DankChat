@@ -83,10 +83,10 @@ fun PrivMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .alpha(message.textAlpha)
             .background(backgroundColor, highlightShape)
-            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
             .indication(interactionSource, ripple())
-            .padding(vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         // Reply thread header
         if (message.thread != null) {
@@ -97,16 +97,17 @@ fun PrivMessageComposable(
                     .padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val replyColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Reply,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Color.Gray
+                    tint = replyColor
                 )
                 Text(
                     text = "Reply to @${message.thread.userName}: ${message.thread.message}",
                     fontSize = (fontSize * 0.9f).sp,
-                    color = Color.Gray,
+                    color = replyColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
@@ -320,8 +321,7 @@ private fun PrivMessageText(
         style = TextStyle(fontSize = fontSize.sp),
         knownDimensions = knownDimensions,
         modifier = Modifier
-            .fillMaxWidth()
-            .alpha(message.textAlpha),
+            .fillMaxWidth(),
         interactionSource = interactionSource,
         onTextClick = { offset ->
             // Handle username clicks

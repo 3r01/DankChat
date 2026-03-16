@@ -202,9 +202,9 @@ fun AutomodMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .drawBehind { drawRect(backgroundColor) }
             .alpha(resolvedAlpha)
-            .padding(vertical = 2.dp)
+            .drawBehind { drawRect(backgroundColor) }
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         // Header line with badge inline content
         TextWithMeasuredInlineContent(

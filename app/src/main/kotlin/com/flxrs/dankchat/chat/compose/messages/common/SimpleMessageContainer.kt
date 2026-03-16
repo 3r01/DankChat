@@ -75,9 +75,9 @@ fun SimpleMessageContainer(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(bgColor)
-            .padding(vertical = 2.dp)
             .alpha(textAlpha)
+            .background(bgColor)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         ClickableText(
             text = annotatedString,

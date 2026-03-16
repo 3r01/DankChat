@@ -156,10 +156,9 @@ fun UserNoticeMessageComposable(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .background(bgColor, highlightShape)
-            .then(if (message.isHighlighted) Modifier.padding(horizontal = 2.dp) else Modifier)
-            .padding(vertical = 2.dp)
             .alpha(message.textAlpha)
+            .background(bgColor, highlightShape)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         ClickableText(
             text = annotatedString,
