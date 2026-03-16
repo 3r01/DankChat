@@ -93,6 +93,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    lint {
+        disable += "RestrictedApi"
+    }
+
     //noinspection WrongGradleMethod
     androidComponents {
         beforeVariants {

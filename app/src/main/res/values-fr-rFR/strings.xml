@@ -512,14 +512,17 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> disant : \"%1$s\"</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
         <item quantity="one"> (%1$d fois)</item>
+        <item quantity="many"> (%1$d fois)</item>
         <item quantity="other"> (%1$d fois)</item>
     </plurals>
     <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
         <item quantity="one"> (%1$d minute)</item>
+        <item quantity="many"> (%1$d minutes)</item>
         <item quantity="other"> (%1$d minutes)</item>
     </plurals>
     <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
         <item quantity="one"> (%1$d seconde)</item>
+        <item quantity="many"> (%1$d secondes)</item>
         <item quantity="other"> (%1$d secondes)</item>
     </plurals>
 

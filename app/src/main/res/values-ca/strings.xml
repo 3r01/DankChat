@@ -399,14 +399,17 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> dient: \"%1$s\"</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
         <item quantity="one"> (%1$d vegada)</item>
+        <item quantity="many"> (%1$d vegades)</item>
         <item quantity="other"> (%1$d vegades)</item>
     </plurals>
     <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
         <item quantity="one"> (%1$d minut)</item>
+        <item quantity="many"> (%1$d minuts)</item>
         <item quantity="other"> (%1$d minuts)</item>
     </plurals>
     <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
         <item quantity="one"> (%1$d segon)</item>
+        <item quantity="many"> (%1$d segons)</item>
         <item quantity="other"> (%1$d segons)</item>
     </plurals>
 

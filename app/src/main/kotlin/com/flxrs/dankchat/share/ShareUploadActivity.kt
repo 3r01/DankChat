@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import com.flxrs.dankchat.utils.extensions.parcelable
 import android.webkit.MimeTypeMap
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -79,7 +80,7 @@ class ShareUploadActivity : ComponentActivity() {
     }
 
     private fun handleShareIntent(intent: Intent) {
-        val uri = intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+        val uri = intent.parcelable<Uri>(Intent.EXTRA_STREAM)
         if (uri == null) {
             uploadState = ShareUploadState.Error(getString(R.string.snackbar_upload_failed))
             return

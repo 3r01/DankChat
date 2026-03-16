@@ -495,14 +495,17 @@
     <string name="mod_saying_suffix" comment=" saying: &quot;hello world&quot;"> dicendo: \"%1$s\"</string>
     <plurals name="mod_count_suffix" comment=" (2 times)">
         <item quantity="one"> (%1$d volta)</item>
+        <item quantity="many"> (%1$d volte)</item>
         <item quantity="other"> (%1$d volte)</item>
     </plurals>
     <plurals name="mod_minutes_suffix" comment=" (10 minutes)">
         <item quantity="one"> (%1$d minuto)</item>
+        <item quantity="many"> (%1$d minuti)</item>
         <item quantity="other"> (%1$d minuti)</item>
     </plurals>
     <plurals name="mod_seconds_suffix" comment=" (30 seconds)">
         <item quantity="one"> (%1$d secondo)</item>
+        <item quantity="many"> (%1$d secondi)</item>
         <item quantity="other"> (%1$d secondi)</item>
     </plurals>
 
