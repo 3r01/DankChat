@@ -56,6 +56,7 @@ import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -204,7 +205,7 @@ fun FloatingToolbar(
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
-        var toolbarRowHeight by remember { mutableStateOf(0f) }
+        var toolbarRowHeight by remember { mutableFloatStateOf(0f) }
         val scrimModifier = if (hasStream) {
             Modifier.fillMaxWidth()
         } else {

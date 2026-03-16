@@ -220,7 +220,7 @@ fun MainScreen(
 
     val inputState by chatInputViewModel.uiState(sheetNavigationViewModel.fullScreenSheetState, mentionViewModel.currentTab).collectAsStateWithLifecycle()
     val isKeyboardVisible = isImeVisible || isImeOpening
-    var backProgress by remember { mutableStateOf(0f) }
+    var backProgress by remember { mutableFloatStateOf(0f) }
 
     // Stream state
     val streamVmState by streamViewModel.streamState.collectAsStateWithLifecycle()
