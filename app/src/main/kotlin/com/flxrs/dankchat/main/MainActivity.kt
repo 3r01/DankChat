@@ -19,8 +19,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -31,6 +29,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.getValue
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -44,11 +44,13 @@ import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.changelog.ChangelogScreen
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.notification.NotificationService
+import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
 import com.flxrs.dankchat.login.compose.LoginScreen
-import com.flxrs.dankchat.main.compose.MainScreen
 import com.flxrs.dankchat.main.compose.MainEventBus
+import com.flxrs.dankchat.main.compose.MainScreen
 import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.onboarding.OnboardingScreen
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -68,15 +70,13 @@ import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
 import com.flxrs.dankchat.preferences.tools.upload.ImageUploaderScreen
 import com.flxrs.dankchat.theme.DankChatTheme
-import com.flxrs.dankchat.data.api.ApiException
-import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.utils.createMediaFile
-import com.flxrs.dankchat.utils.removeExifAttributes
 import com.flxrs.dankchat.utils.extensions.hasPermission
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
 import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
 import com.flxrs.dankchat.utils.extensions.keepScreenOn
 import com.flxrs.dankchat.utils.extensions.parcelable
+import com.flxrs.dankchat.utils.removeExifAttributes
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.DynamicColorsOptions
 import kotlinx.coroutines.Dispatchers
@@ -103,11 +103,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val requestImageCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) handleCaptureRequest(imageCapture = true)
+        if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = true)
     }
 
     private val requestVideoCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == Activity.RESULT_OK) handleCaptureRequest(imageCapture = false)
+        if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = false)
     }
 
     private val requestGalleryMedia = registerForActivityResult(PickVisualMedia()) { uri ->
@@ -333,14 +333,14 @@ class MainActivity : AppCompatActivity() {
                             },
                             onNavigateRequested = { destination ->
                                 when (destination) {
-                                    SettingsNavigation.Appearance    -> navController.navigate(AppearanceSettings)
+                                    SettingsNavigation.Appearance -> navController.navigate(AppearanceSettings)
                                     SettingsNavigation.Notifications -> navController.navigate(NotificationsSettings)
-                                    SettingsNavigation.Chat          -> navController.navigate(ChatSettings)
-                                    SettingsNavigation.Streams       -> navController.navigate(StreamsSettings)
-                                    SettingsNavigation.Tools         -> navController.navigate(ToolsSettings)
-                                    SettingsNavigation.Developer     -> navController.navigate(DeveloperSettings)
-                                    SettingsNavigation.Changelog     -> navController.navigate(ChangelogSettings)
-                                    SettingsNavigation.About         -> navController.navigate(AboutSettings)
+                                    SettingsNavigation.Chat -> navController.navigate(ChatSettings)
+                                    SettingsNavigation.Streams -> navController.navigate(StreamsSettings)
+                                    SettingsNavigation.Tools -> navController.navigate(ToolsSettings)
+                                    SettingsNavigation.Developer -> navController.navigate(DeveloperSettings)
+                                    SettingsNavigation.Changelog -> navController.navigate(ChangelogSettings)
+                                    SettingsNavigation.About -> navController.navigate(AboutSettings)
                                 }
                             }
                         )
@@ -521,7 +521,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val hasCompletedOnboarding = onboardingDataStore.current().hasCompletedOnboarding
-        val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && hasPermission(Manifest.permission.POST_NOTIFICATIONS)
+        val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
             needsNotificationPermission -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             else                        -> startService()
@@ -533,7 +533,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 isBound = true
                 ContextCompat.startForegroundService(this, it)
-                bindService(it, twitchServiceConnection, Context.BIND_AUTO_CREATE)
+                bindService(it, twitchServiceConnection, BIND_AUTO_CREATE)
             } catch (t: Throwable) {
                 Log.e(TAG, Log.getStackTraceString(t))
             }
@@ -640,7 +640,6 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
 
     private inner class TwitchServiceConnection : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {

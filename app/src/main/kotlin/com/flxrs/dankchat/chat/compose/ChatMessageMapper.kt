@@ -5,11 +5,13 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Highlight
-import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.HighlightType
+import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
@@ -24,8 +26,6 @@ import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettings
-import com.flxrs.dankchat.data.repo.chat.UsersRepository
-import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.google.android.material.color.MaterialColors
 import kotlinx.collections.immutable.persistentListOf
@@ -40,32 +40,6 @@ import org.koin.core.annotation.Single
 class ChatMessageMapper(
     private val usersRepository: UsersRepository,
 ) {
-
-    // Highlight colors - Light theme
-    private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFFD1C4E9)
-    private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFEF9A9A)
-    private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF93F1FF)
-    private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFC2F18D)
-    private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFFFE087)
-    // Highlight colors - Dark theme
-    private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF543589)
-    private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF773031)
-    private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF004F57)
-    private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF2D5000)
-    private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF574500)
-    // Checkered background colors
-    private val CHECKERED_LIGHT = Color(
-        android.graphics.Color.argb(
-            (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
-            0, 0, 0
-        )
-    )
-    private val CHECKERED_DARK = Color(
-        android.graphics.Color.argb(
-            (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
-            255, 255, 255
-        )
-    )
 
     fun mapToUiState(
         item: ChatItem,
@@ -378,6 +352,7 @@ class ChatMessageMapper(
                     is ChatMessageEmoteType.GlobalBTTVEmote    -> true // Assume third-party can be animated
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
+
                     is ChatMessageEmoteType.Cheermote          -> true
                 }
             }
@@ -494,8 +469,10 @@ class ChatMessageMapper(
                     is ChatMessageEmoteType.GlobalFFZEmote,
                     is ChatMessageEmoteType.ChannelBTTVEmote,
                     is ChatMessageEmoteType.GlobalBTTVEmote    -> true
+
                     is ChatMessageEmoteType.ChannelSevenTVEmote,
                     is ChatMessageEmoteType.GlobalSevenTVEmote -> true
+
                     is ChatMessageEmoteType.Cheermote          -> true
                 }
             }
@@ -606,5 +583,35 @@ class ChatMessageMapper(
         }
 
         return getHighlightColors(highlight.type)
+    }
+
+    companion object {
+        // Highlight colors - Light theme
+        private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFFD1C4E9)
+        private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFEF9A9A)
+        private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF93F1FF)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFC2F18D)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFFFE087)
+
+        // Highlight colors - Dark theme
+        private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF543589)
+        private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF773031)
+        private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF004F57)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF2D5000)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF574500)
+
+        // Checkered background colors
+        private val CHECKERED_LIGHT = Color(
+            android.graphics.Color.argb(
+                (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
+                0, 0, 0
+            )
+        )
+        private val CHECKERED_DARK = Color(
+            android.graphics.Color.argb(
+                (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
+                255, 255, 255
+            )
+        )
     }
 }

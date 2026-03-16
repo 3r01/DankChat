@@ -63,4 +63,4 @@ val Int.isEven get() = (this % 2 == 0)
 
 val isAtLeastTiramisu: Boolean by lazy { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU }
 
-fun Context.hasPermission(permission: String): Boolean = ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
+fun Context.hasPermission(permission: String): Boolean = ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED

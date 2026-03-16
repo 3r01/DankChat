@@ -1,22 +1,21 @@
 package com.flxrs.dankchat.main.compose
 
+import android.app.Activity
+import android.app.PictureInPictureParams
+import android.os.Build
+import android.util.Rational
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +24,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,33 +34,32 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.systemGestures
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -75,36 +73,32 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.max
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import kotlinx.coroutines.delay
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import android.app.Activity
-import android.app.PictureInPictureParams
-import android.os.Build
-import android.util.Rational
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.R
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.flxrs.dankchat.chat.compose.ChatComposable
 import com.flxrs.dankchat.chat.compose.ScrollDirectionTracker
 import com.flxrs.dankchat.chat.compose.overscrollRevealConnection
@@ -118,21 +112,18 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
 import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
-import com.flxrs.dankchat.tour.FeatureTourController
 import com.flxrs.dankchat.tour.PostOnboardingStep
 import com.flxrs.dankchat.tour.TourStep
 import com.flxrs.dankchat.tour.rememberFeatureTourController
 import com.flxrs.dankchat.tour.rememberPostOnboardingCoordinator
-import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.ui.platform.LocalResources
-import androidx.window.core.layout.WindowSizeClass
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -315,14 +306,16 @@ fun MainScreen(
     // Tooltip .show() calls live in FloatingToolbar.
     LaunchedEffect(postOnboardingStep) {
         when (postOnboardingStep) {
-            PostOnboardingStep.FeatureTour -> {
+            PostOnboardingStep.FeatureTour                       -> {
                 toolbarAddChannelTooltipState.dismiss()
                 tourController.start()
             }
+
             PostOnboardingStep.Complete, PostOnboardingStep.Idle -> {
                 toolbarAddChannelTooltipState.dismiss()
             }
-            PostOnboardingStep.ToolbarPlusHint -> Unit
+
+            PostOnboardingStep.ToolbarPlusHint                   -> Unit
         }
     }
 
@@ -479,8 +472,6 @@ fun MainScreen(
         }
     }
 
-    val currentDestination = navController.currentBackStackEntryAsState().value?.destination?.route
-
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
 
     val composePagerState = rememberPagerState(
@@ -534,9 +525,10 @@ fun MainScreen(
         }
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier)
     ) {
         // Menu content height matches keyboard content area (above nav bar)
         val targetMenuHeight = if (keyboardHeightPx > 0) {
@@ -590,7 +582,9 @@ fun MainScreen(
                 onToggleStream = { activeChannel?.let { streamViewModel.toggleStream(it) } },
                 onChangeRoomState = dialogViewModel::showRoomState,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
-                onNewWhisper = if (inputState.isWhisperTabActive) { dialogViewModel::showNewWhisper } else null,
+                onNewWhisper = if (inputState.isWhisperTabActive) {
+                    dialogViewModel::showNewWhisper
+                } else null,
                 onInputActionsChanged = mainScreenViewModel::updateInputActions,
                 overflowExpanded = inputOverflowExpanded,
                 onOverflowExpandedChanged = { inputOverflowExpanded = it },
@@ -611,48 +605,56 @@ fun MainScreen(
         // Shared toolbar action handler
         val handleToolbarAction: (ToolbarAction) -> Unit = { action ->
             when (action) {
-                is ToolbarAction.SelectTab -> {
+                is ToolbarAction.SelectTab    -> {
                     channelTabViewModel.selectTab(action.index)
                     scope.launch { composePagerState.scrollToPage(action.index) }
                 }
+
                 is ToolbarAction.LongClickTab -> {
                     channelTabViewModel.selectTab(action.index)
                     scope.launch { composePagerState.scrollToPage(action.index) }
                 }
-                ToolbarAction.AddChannel -> {
+
+                ToolbarAction.AddChannel      -> {
                     coordinator.onAddedChannelFromToolbar()
                     dialogViewModel.showAddChannel()
                 }
-                ToolbarAction.OpenMentions -> sheetNavigationViewModel.openMentions()
-                ToolbarAction.Login -> onLogin()
-                ToolbarAction.Relogin -> onRelogin()
-                ToolbarAction.Logout -> dialogViewModel.showLogout()
-                ToolbarAction.ManageChannels -> dialogViewModel.showManageChannels()
-                ToolbarAction.OpenChannel -> onOpenChannel()
-                ToolbarAction.RemoveChannel -> dialogViewModel.showRemoveChannel()
-                ToolbarAction.ReportChannel -> onReportChannel()
-                ToolbarAction.BlockChannel -> dialogViewModel.showBlockChannel()
-                ToolbarAction.CaptureImage -> {
+
+                ToolbarAction.OpenMentions    -> sheetNavigationViewModel.openMentions()
+                ToolbarAction.Login           -> onLogin()
+                ToolbarAction.Relogin         -> onRelogin()
+                ToolbarAction.Logout          -> dialogViewModel.showLogout()
+                ToolbarAction.ManageChannels  -> dialogViewModel.showManageChannels()
+                ToolbarAction.OpenChannel     -> onOpenChannel()
+                ToolbarAction.RemoveChannel   -> dialogViewModel.showRemoveChannel()
+                ToolbarAction.ReportChannel   -> onReportChannel()
+                ToolbarAction.BlockChannel    -> dialogViewModel.showBlockChannel()
+                ToolbarAction.CaptureImage    -> {
                     if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else dialogViewModel.setPendingUploadAction(onCaptureImage)
                 }
-                ToolbarAction.CaptureVideo -> {
+
+                ToolbarAction.CaptureVideo    -> {
                     if (preferenceStore.hasExternalHostingAcknowledged) onCaptureVideo() else dialogViewModel.setPendingUploadAction(onCaptureVideo)
                 }
-                ToolbarAction.ChooseMedia -> {
+
+                ToolbarAction.ChooseMedia     -> {
                     if (preferenceStore.hasExternalHostingAcknowledged) onChooseMedia() else dialogViewModel.setPendingUploadAction(onChooseMedia)
                 }
-                ToolbarAction.ReloadEmotes -> {
+
+                ToolbarAction.ReloadEmotes    -> {
                     activeChannel?.let { channelManagementViewModel.reloadEmotes(it) }
                     onReloadEmotes()
                 }
-                ToolbarAction.Reconnect -> {
+
+                ToolbarAction.Reconnect       -> {
                     channelManagementViewModel.reconnect()
                     onReconnect()
                 }
-                ToolbarAction.ClearChat -> dialogViewModel.showClearChat()
-                ToolbarAction.ToggleStream -> activeChannel?.let { streamViewModel.toggleStream(it) }
-                ToolbarAction.OpenSettings -> onNavigateToSettings()
-                ToolbarAction.MessageHistory -> activeChannel?.let { sheetNavigationViewModel.openHistory(it) }
+
+                ToolbarAction.ClearChat       -> dialogViewModel.showClearChat()
+                ToolbarAction.ToggleStream    -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                ToolbarAction.OpenSettings    -> onNavigateToSettings()
+                ToolbarAction.MessageHistory  -> activeChannel?.let { sheetNavigationViewModel.openHistory(it) }
             }
         }
 
@@ -750,7 +752,8 @@ fun MainScreen(
                                     ChatComposable(
                                         channel = channel,
                                         onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                                            dialogViewModel.showUserPopup(UserPopupStateParams(
+                                            dialogViewModel.showUserPopup(
+                                                UserPopupStateParams(
                                                 targetUserId = userId?.let { UserId(it) } ?: UserId(""),
                                                 targetUserName = UserName(userName),
                                                 targetDisplayName = DisplayName(displayName),
@@ -759,14 +762,16 @@ fun MainScreen(
                                             ))
                                         },
                                         onMessageLongClick = { messageId, channel, fullMessage ->
-                                            dialogViewModel.showMessageOptions(MessageOptionsParams(
-                                                messageId = messageId,
-                                                channel = channel?.let { UserName(it) },
-                                                fullMessage = fullMessage,
-                                                canModerate = isLoggedIn,
-                                                canReply = isLoggedIn,
-                                                canCopy = true
-                                            ))
+                                            dialogViewModel.showMessageOptions(
+                                                MessageOptionsParams(
+                                                    messageId = messageId,
+                                                    channel = channel?.let { UserName(it) },
+                                                    fullMessage = fullMessage,
+                                                    canModerate = isLoggedIn,
+                                                    canReply = isLoggedIn,
+                                                    canCopy = true
+                                                )
+                                            )
                                         },
                                         onEmoteClick = { emotes ->
                                             dialogViewModel.showEmoteInfo(emotes)
@@ -787,8 +792,8 @@ fun MainScreen(
                                             top = chatTopPadding + 56.dp,
                                             bottom = paddingValues.calculateBottomPadding() + inputHeightDp + when {
                                                 !effectiveShowInput && !isFullscreen -> max(navBarHeightDp, roundedCornerBottomPadding)
-                                                !effectiveShowInput                 -> roundedCornerBottomPadding
-                                                else                                -> 0.dp
+                                                !effectiveShowInput                  -> roundedCornerBottomPadding
+                                                else                                 -> 0.dp
                                             }
                                         ),
                                         scrollModifier = chatScrollModifier,
@@ -844,7 +849,7 @@ fun MainScreen(
         val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
             val effectiveBottomPadding = when {
                 !effectiveShowInput -> bottomPadding + max(navBarHeightDp, roundedCornerBottomPadding)
-                else -> bottomPadding
+                else                -> bottomPadding
             }
             FullScreenSheetOverlay(
                 sheetState = fullScreenSheetState,
@@ -886,9 +891,10 @@ fun MainScreen(
             ) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     // Left pane: Stream
-                    Box(modifier = Modifier
-                        .weight(splitFraction)
-                        .fillMaxSize()
+                    Box(
+                        modifier = Modifier
+                            .weight(splitFraction)
+                            .fillMaxSize()
                     ) {
                         StreamView(
                             channel = currentStream,
@@ -903,94 +909,95 @@ fun MainScreen(
                     }
 
                     // Right pane: Chat + all overlays
-                    Box(modifier = Modifier
-                        .weight(1f - splitFraction)
-                        .fillMaxSize()
-                    ) {
-                    val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
-
-                    Scaffold(
-                        modifier = modifier
-                            .fillMaxSize()
-                            .padding(bottom = scaffoldBottomPadding),
-                        contentWindowInsets = WindowInsets(0),
-                        snackbarHost = {
-                            SnackbarHost(
-                                hostState = snackbarHostState,
-                                modifier = Modifier.padding(bottom = inputHeightDp),
-                            )
-                        },
-                    ) { paddingValues ->
-                        scaffoldContent(paddingValues, statusBarTop)
-                    }
-
-                    val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
-                    val showTabsInSplit = chatPaneWidthDp > 250.dp
-
-                    floatingToolbar(
-                        Modifier.align(Alignment.TopCenter),
-                        !isKeyboardVisible && !inputState.isEmoteMenuOpen && !isSheetOpen,
-                        false,
-                        showTabsInSplit,
-                    )
-
-                    // Status bar scrim when toolbar is gesture-hidden
-                    if (!isFullscreen && mainState.gestureToolbarHidden) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopCenter)
-                                .fillMaxWidth()
-                                .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
-                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
-                        )
-                    }
-
-                    fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
-
-                    // Dismiss scrim for input overflow menu
-                    if (inputOverflowExpanded) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                ) {
-                                    if (!tourController.forceOverflowOpen) {
-                                        inputOverflowExpanded = false
-                                    }
-                                }
-                        )
-                    }
-
-                    // Input bar - rendered after sheet overlay so it's on top
                     Box(
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = scaffoldBottomPadding)
-                            .swipeDownToHide(
-                                enabled = effectiveShowInput,
-                                thresholdPx = swipeDownThresholdPx,
-                                onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                            )
+                            .weight(1f - splitFraction)
+                            .fillMaxSize()
                     ) {
-                        bottomBar()
-                    }
+                        val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
-                    emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
+                        Scaffold(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .padding(bottom = scaffoldBottomPadding),
+                            contentWindowInsets = WindowInsets(0),
+                            snackbarHost = {
+                                SnackbarHost(
+                                    hostState = snackbarHostState,
+                                    modifier = Modifier.padding(bottom = inputHeightDp),
+                                )
+                            },
+                        ) { paddingValues ->
+                            scaffoldContent(paddingValues, statusBarTop)
+                        }
 
-                    if (effectiveShowInput && isKeyboardVisible) {
-                        SuggestionDropdown(
-                            suggestions = inputState.suggestions,
-                            onSuggestionClick = chatInputViewModel::applySuggestion,
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .navigationBarsPadding()
-                                .imePadding()
-                                .padding(bottom = inputHeightDp + 2.dp)
+                        val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
+                        val showTabsInSplit = chatPaneWidthDp > 250.dp
+
+                        floatingToolbar(
+                            Modifier.align(Alignment.TopCenter),
+                            !isKeyboardVisible && !inputState.isEmoteMenuOpen && !isSheetOpen,
+                            false,
+                            showTabsInSplit,
                         )
+
+                        // Status bar scrim when toolbar is gesture-hidden
+                        if (!isFullscreen && mainState.gestureToolbarHidden) {
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .fillMaxWidth()
+                                    .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
+                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+                            )
+                        }
+
+                        fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+
+                        // Dismiss scrim for input overflow menu
+                        if (inputOverflowExpanded) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clickable(
+                                        indication = null,
+                                        interactionSource = remember { MutableInteractionSource() },
+                                    ) {
+                                        if (!tourController.forceOverflowOpen) {
+                                            inputOverflowExpanded = false
+                                        }
+                                    }
+                            )
+                        }
+
+                        // Input bar - rendered after sheet overlay so it's on top
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = scaffoldBottomPadding)
+                                .swipeDownToHide(
+                                    enabled = effectiveShowInput,
+                                    thresholdPx = swipeDownThresholdPx,
+                                    onHide = { mainScreenViewModel.setGestureInputHidden(true) },
+                                )
+                        ) {
+                            bottomBar()
+                        }
+
+                        emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
+
+                        if (effectiveShowInput && isKeyboardVisible) {
+                            SuggestionDropdown(
+                                suggestions = inputState.suggestions,
+                                onSuggestionClick = chatInputViewModel::applySuggestion,
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .navigationBarsPadding()
+                                    .imePadding()
+                                    .padding(bottom = inputHeightDp + 2.dp)
+                            )
+                        }
                     }
-                }
                 }
 
                 // Draggable handle overlaid at the split edge
@@ -1177,14 +1184,16 @@ private class StreamToolbarState(
         if (hasVisibleStream) wasKeyboardClosingWithStream = false
 
         when {
-            keyboardClosingWithStream -> {
+            keyboardClosingWithStream                                     -> {
                 alpha.animateTo(0f, tween(durationMillis = 150))
             }
-            hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
+
+            hasVisibleStream && hasVisibleStream != prevHasVisibleStream  -> {
                 prevHasVisibleStream = hasVisibleStream
                 alpha.snapTo(0f)
                 alpha.animateTo(1f, tween(durationMillis = 350))
             }
+
             !hasVisibleStream && hasVisibleStream != prevHasVisibleStream -> {
                 prevHasVisibleStream = hasVisibleStream
                 alpha.snapTo(0f)
