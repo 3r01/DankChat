@@ -30,7 +30,6 @@ class UserDisplayViewModel(
     fun addUserDisplay() = viewModelScope.launch {
         val entity = userDisplayRepository.addUserDisplay()
         userDisplays += entity.toItem()
-        println("XXX ${userDisplays.toList()}")
         val position = userDisplays.lastIndex
         sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
     }
