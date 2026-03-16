@@ -245,7 +245,11 @@ fun MainScreenDialogs(
             items = viewModel.items,
             isLoggedIn = isLoggedIn,
             onUseEmote = { chatInputViewModel.insertText("$it ") },
-            onCopyEmote = { /* TODO: copy to clipboard */ },
+            onCopyEmote = {
+                scope.launch {
+                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("emote", it)))
+                }
+            },
             onOpenLink = { onOpenUrl(it) },
             onDismiss = dialogViewModel::dismissEmoteInfo
         )
