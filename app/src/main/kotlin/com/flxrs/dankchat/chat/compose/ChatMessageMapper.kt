@@ -251,6 +251,12 @@ class ChatMessageMapper(
             DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
         } else ""
 
+        val arguments = buildList {
+            duration?.let(::add)
+            reason?.takeIf { it.isNotBlank() }?.let(::add)
+            sourceBroadcasterDisplay?.toString()?.let(::add)
+        }.toImmutableList()
+
         return ChatMessageUiState.ModerationMessageUi(
             id = id,
             tag = tag,
@@ -263,6 +269,7 @@ class ChatMessageMapper(
             targetName = targetUserDisplay?.toString(),
             creatorColor = creatorUserDisplay?.let { usersRepository.getCachedUserColor(UserName(it.toString())) } ?: Message.DEFAULT_COLOR,
             targetColor = targetUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
+            arguments = arguments,
         )
     }
 

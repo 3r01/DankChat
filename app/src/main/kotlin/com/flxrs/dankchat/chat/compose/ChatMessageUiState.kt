@@ -10,6 +10,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * UI state for rendering chat messages in Compose.
@@ -122,6 +123,7 @@ sealed interface ChatMessageUiState {
         val targetName: String? = null,
         val creatorColor: Int = Message.DEFAULT_COLOR,
         val targetColor: Int = Message.DEFAULT_COLOR,
+        val arguments: ImmutableList<String> = persistentListOf(),
     ) : ChatMessageUiState
 
     /**

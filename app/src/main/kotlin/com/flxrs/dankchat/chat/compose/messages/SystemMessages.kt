@@ -3,6 +3,7 @@ package com.flxrs.dankchat.chat.compose.messages
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Box
@@ -202,6 +203,8 @@ fun DateSeparatorComposable(
     )
 }
 
+private data class StyledRange(val start: Int, val length: Int, val color: Color, val bold: Boolean)
+
 /**
  * Renders a moderation message (timeouts, bans, deletions) with colored usernames.
  */
@@ -214,7 +217,7 @@ fun ModerationMessageComposable(
 ) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
-    val timestampColor = MaterialTheme.colorScheme.onSurface
+    val timestampColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     val creatorColor = rememberNormalizedColor(message.creatorColor, bgColor)
     val targetColor = rememberNormalizedColor(message.targetColor, bgColor)
     val textSize = fontSize.sp
@@ -222,9 +225,36 @@ fun ModerationMessageComposable(
     val context = LocalContext.current
     val linkColor = MaterialTheme.colorScheme.primary
 
+    val dimmedTextColor = textColor.copy(alpha = 0.7f)
+
     val annotatedString = remember(
-        message, resolvedMessage, textColor, creatorColor, targetColor, linkColor, timestampColor, textSize
+        message, resolvedMessage, textColor, dimmedTextColor, creatorColor, targetColor, linkColor, timestampColor, textSize
     ) {
+        // Collect all highlighted ranges: usernames (bold+colored) and arguments (regular text color)
+        val ranges = buildList {
+            var searchFrom = 0
+            message.creatorName?.let { name ->
+                val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                if (idx >= 0) {
+                    add(StyledRange(idx, name.length, creatorColor, bold = true))
+                    searchFrom = idx + name.length
+                }
+            }
+            message.targetName?.let { name ->
+                val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                if (idx >= 0) {
+                    add(StyledRange(idx, name.length, targetColor, bold = true))
+                }
+            }
+            for (arg in message.arguments) {
+                if (arg.isBlank()) continue
+                val idx = resolvedMessage.indexOf(arg, ignoreCase = true)
+                if (idx >= 0 && none { it.start <= idx && idx < it.start + it.length }) {
+                    add(StyledRange(idx, arg.length, textColor, bold = false))
+                }
+            }
+        }.sortedBy { it.start }
+
         buildAnnotatedString {
             // Timestamp
             if (message.timestamp.isNotEmpty()) {
@@ -242,39 +272,27 @@ fun ModerationMessageComposable(
                 append(" ")
             }
 
-            // Build list of name ranges to color
-            val nameRanges = buildList {
-                var searchFrom = 0
-                message.creatorName?.let { name ->
-                    val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
-                    if (idx >= 0) {
-                        add(Triple(idx, name.length, creatorColor))
-                        searchFrom = idx + name.length
-                    }
-                }
-                message.targetName?.let { name ->
-                    val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
-                    if (idx >= 0) add(Triple(idx, name.length, targetColor))
-                }
-            }.sortedBy { it.first }
-
-            // Render message with colored name segments
+            // Render message: highlighted ranges at full opacity, template text dimmed
             var cursor = 0
-            for ((start, length, color) in nameRanges) {
-                if (start < cursor) continue // skip overlapping
-                if (start > cursor) {
-                    withStyle(SpanStyle(color = textColor)) {
-                        appendWithLinks(resolvedMessage.substring(cursor, start), linkColor)
+            for (range in ranges) {
+                if (range.start < cursor) continue
+                if (range.start > cursor) {
+                    withStyle(SpanStyle(color = dimmedTextColor)) {
+                        append(resolvedMessage.substring(cursor, range.start))
                     }
                 }
-                withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) {
-                    append(resolvedMessage.substring(start, start + length))
+                val style = when {
+                    range.bold -> SpanStyle(color = range.color, fontWeight = FontWeight.Bold)
+                    else       -> SpanStyle(color = range.color)
                 }
-                cursor = start + length
+                withStyle(style) {
+                    append(resolvedMessage.substring(range.start, range.start + range.length))
+                }
+                cursor = range.start + range.length
             }
             if (cursor < resolvedMessage.length) {
-                withStyle(SpanStyle(color = textColor)) {
-                    appendWithLinks(resolvedMessage.substring(cursor), linkColor)
+                withStyle(SpanStyle(color = dimmedTextColor)) {
+                    append(resolvedMessage.substring(cursor))
                 }
             }
         }
