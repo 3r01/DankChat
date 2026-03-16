@@ -28,6 +28,8 @@ import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.google.android.material.color.MaterialColors
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.core.annotation.Single
 
 /**
@@ -161,23 +163,23 @@ class ChatMessageMapper(
             is SystemMessageType.ChannelNonExistent            -> TextResource.Res(R.string.system_message_channel_non_existent)
             is SystemMessageType.MessageHistoryIgnored         -> TextResource.Res(R.string.system_message_history_ignored)
             is SystemMessageType.MessageHistoryIncomplete      -> TextResource.Res(R.string.system_message_history_recovering)
-            is SystemMessageType.ChannelBTTVEmotesFailed       -> TextResource.Res(R.string.system_message_bttv_emotes_failed, listOf(type.status))
-            is SystemMessageType.ChannelFFZEmotesFailed        -> TextResource.Res(R.string.system_message_ffz_emotes_failed, listOf(type.status))
-            is SystemMessageType.ChannelSevenTVEmotesFailed    -> TextResource.Res(R.string.system_message_7tv_emotes_failed, listOf(type.status))
+            is SystemMessageType.ChannelBTTVEmotesFailed       -> TextResource.Res(R.string.system_message_bttv_emotes_failed, persistentListOf(type.status))
+            is SystemMessageType.ChannelFFZEmotesFailed        -> TextResource.Res(R.string.system_message_ffz_emotes_failed, persistentListOf(type.status))
+            is SystemMessageType.ChannelSevenTVEmotesFailed    -> TextResource.Res(R.string.system_message_7tv_emotes_failed, persistentListOf(type.status))
             is SystemMessageType.Custom                        -> TextResource.Plain(type.message)
             is SystemMessageType.MessageHistoryUnavailable     -> when (type.status) {
                 null -> TextResource.Res(R.string.system_message_history_unavailable)
-                else -> TextResource.Res(R.string.system_message_history_unavailable_detailed, listOf(type.status))
+                else -> TextResource.Res(R.string.system_message_history_unavailable_detailed, persistentListOf(type.status))
             }
 
-            is SystemMessageType.ChannelSevenTVEmoteAdded      -> TextResource.Res(R.string.system_message_7tv_emote_added, listOf(type.actorName, type.emoteName))
-            is SystemMessageType.ChannelSevenTVEmoteRemoved    -> TextResource.Res(R.string.system_message_7tv_emote_removed, listOf(type.actorName, type.emoteName))
+            is SystemMessageType.ChannelSevenTVEmoteAdded      -> TextResource.Res(R.string.system_message_7tv_emote_added, persistentListOf(type.actorName, type.emoteName))
+            is SystemMessageType.ChannelSevenTVEmoteRemoved    -> TextResource.Res(R.string.system_message_7tv_emote_removed, persistentListOf(type.actorName, type.emoteName))
             is SystemMessageType.ChannelSevenTVEmoteRenamed    -> TextResource.Res(
                 R.string.system_message_7tv_emote_renamed,
-                listOf(type.actorName, type.oldEmoteName, type.emoteName)
+                persistentListOf(type.actorName, type.oldEmoteName, type.emoteName)
             )
 
-            is SystemMessageType.ChannelSevenTVEmoteSetChanged -> TextResource.Res(R.string.system_message_7tv_emote_set_changed, listOf(type.actorName, type.newEmoteSetName))
+            is SystemMessageType.ChannelSevenTVEmoteSetChanged -> TextResource.Res(R.string.system_message_7tv_emote_set_changed, persistentListOf(type.actorName, type.newEmoteSetName))
             is SystemMessageType.AutomodActionFailed           -> {
                 val actionRes = TextResource.Res(if (type.allow) R.string.automod_allow else R.string.automod_deny)
                 val errorResId = when (type.statusCode) {
@@ -187,7 +189,7 @@ class ChatMessageMapper(
                     404  -> R.string.automod_error_not_found
                     else -> R.string.automod_error_unknown
                 }
-                TextResource.Res(errorResId, listOf(actionRes))
+                TextResource.Res(errorResId, persistentListOf(actionRes))
             }
         }
 
@@ -321,7 +323,7 @@ class ChatMessageMapper(
                         else        -> null
                     },
                 )
-            },
+            }.toImmutableList(),
             userDisplayName = userName.formatWithDisplayName(userDisplayName),
             rawNameColor = color,
             messageText = messageText,
@@ -363,7 +365,7 @@ class ChatMessageMapper(
                 badge = badge,
                 position = index
             )
-        }
+        }.toImmutableList()
 
         val emoteUis = emotes.groupBy { it.position }.map { (position, emoteGroup) ->
             // Check if any emote in the group is animated - we need to check the type
@@ -383,16 +385,16 @@ class ChatMessageMapper(
             val firstEmote = emoteGroup.first()
             EmoteUi(
                 code = firstEmote.code,
-                urls = emoteGroup.map { it.url },
+                urls = emoteGroup.map { it.url }.toImmutableList(),
                 position = position,
                 isAnimated = hasAnimated,
                 isTwitch = emoteGroup.any { it.isTwitch },
                 scale = firstEmote.scale,
-                emotes = emoteGroup,
+                emotes = emoteGroup.toImmutableList(),
                 cheerAmount = firstEmote.cheerAmount,
                 cheerColor = firstEmote.cheerColor?.let { Color(it) },
             )
-        }
+        }.toImmutableList()
 
         val threadUi = if (thread != null && !isInReplies) {
             thread.toThreadUi()
@@ -481,7 +483,7 @@ class ChatMessageMapper(
                 badge = badge,
                 position = index
             )
-        }
+        }.toImmutableList()
 
         val emoteUis = emotes.groupBy { it.position }.map { (position, emoteGroup) ->
             // Check if any emote in the group is animated
@@ -501,16 +503,16 @@ class ChatMessageMapper(
             val firstEmote = emoteGroup.first()
             EmoteUi(
                 code = firstEmote.code,
-                urls = emoteGroup.map { it.url },
+                urls = emoteGroup.map { it.url }.toImmutableList(),
                 position = position,
                 isAnimated = hasAnimated,
                 isTwitch = emoteGroup.any { it.isTwitch },
                 scale = firstEmote.scale,
-                emotes = emoteGroup,
+                emotes = emoteGroup.toImmutableList(),
                 cheerAmount = firstEmote.cheerAmount,
                 cheerColor = firstEmote.cheerColor?.let { Color(it) },
             )
-        }
+        }.toImmutableList()
 
         val fullMessage = buildString {
             if (timestamp.isNotEmpty()) {

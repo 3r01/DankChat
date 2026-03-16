@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * UI state for rendering chat messages in Compose.
@@ -40,11 +41,11 @@ sealed interface ChatMessageUiState {
         val userId: UserId?,
         val userName: UserName,
         val displayName: DisplayName,
-        val badges: List<BadgeUi>,
+        val badges: ImmutableList<BadgeUi>,
         val rawNameColor: Int,
         val nameText: String,
         val message: String,
-        val emotes: List<EmoteUi>,
+        val emotes: ImmutableList<EmoteUi>,
         val isAction: Boolean,
         val thread: ThreadUi?,
         val fullMessage: String, // For copying
@@ -161,7 +162,7 @@ sealed interface ChatMessageUiState {
         override val enableRipple: Boolean = false,
         val heldMessageId: String,
         val channel: UserName,
-        val badges: List<BadgeUi>,
+        val badges: ImmutableList<BadgeUi>,
         val userDisplayName: String,
         val rawNameColor: Int,
         val messageText: String,
@@ -186,13 +187,13 @@ sealed interface ChatMessageUiState {
         val userId: UserId,
         val userName: UserName,
         val displayName: DisplayName,
-        val badges: List<BadgeUi>,
+        val badges: ImmutableList<BadgeUi>,
         val rawSenderColor: Int,
         val rawRecipientColor: Int,
         val senderName: String,
         val recipientName: String,
         val message: String,
-        val emotes: List<EmoteUi>,
+        val emotes: ImmutableList<EmoteUi>,
         val fullMessage: String,
         val replyTargetName: UserName,
     ) : ChatMessageUiState
@@ -215,12 +216,12 @@ data class BadgeUi(
 @Immutable
 data class EmoteUi(
     val code: String,
-    val urls: List<String>,
+    val urls: ImmutableList<String>,
     val position: IntRange,
     val isAnimated: Boolean,
     val isTwitch: Boolean,
     val scale: Int,
-    val emotes: List<ChatMessageEmote>, // For click handling
+    val emotes: ImmutableList<ChatMessageEmote>, // For click handling
     val cheerAmount: Int? = null,
     val cheerColor: Color? = null,
 )

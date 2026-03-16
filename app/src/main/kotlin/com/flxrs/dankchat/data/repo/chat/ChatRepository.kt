@@ -36,6 +36,7 @@ import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeType
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.TextResource
+import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
@@ -981,7 +982,7 @@ class ChatRepository(
         blockedTerm: BlockedTermReasonDto?,
         messageText: String,
     ): TextResource = when {
-        reason == "automod" && automod != null -> TextResource.Res(R.string.automod_reason_category, listOf(automod.category, automod.level))
+        reason == "automod" && automod != null -> TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
         reason == "blocked_term" && blockedTerm != null -> {
             val terms = blockedTerm.termsFound.joinToString { found ->
                 val start = found.boundary.startPos
@@ -989,7 +990,7 @@ class ChatRepository(
                 "\"${messageText.substring(start, end)}\""
             }
             val count = blockedTerm.termsFound.size
-            TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, listOf(count, terms))
+            TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
         }
 
         else -> TextResource.Plain(reason)

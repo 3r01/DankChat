@@ -890,18 +890,16 @@ fun MainScreen(
                         .weight(splitFraction)
                         .fillMaxSize()
                     ) {
-                        currentStream?.let { channel ->
-                            StreamView(
-                                channel = channel,
-                                streamViewModel = streamViewModel,
-                                fillPane = true,
-                                onClose = {
-                                    focusManager.clearFocus()
-                                    streamViewModel.closeStream()
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                        StreamView(
+                            channel = currentStream,
+                            streamViewModel = streamViewModel,
+                            fillPane = true,
+                            onClose = {
+                                focusManager.clearFocus()
+                                streamViewModel.closeStream()
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
 
                     // Right pane: Chat + all overlays
