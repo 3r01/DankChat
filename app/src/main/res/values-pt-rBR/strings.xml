@@ -398,15 +398,18 @@
     <string name="shared_chat">Chat Unido</string>
     <plurals name="viewers_and_uptime">
         <item quantity="one">Ao vivo com %1$d espectador por %2$s</item>
+        <item quantity="many">Ao vivo com %1$d espectadores por %2$s</item>
         <item quantity="other">Ao vivo com %1$d espectadores por %2$s</item>
     </plurals>
     <plurals name="months">
         <item quantity="one">%d mês</item>
+        <item quantity="many">%d meses</item>
         <item quantity="other">%d meses</item>
     </plurals>
     <string name="open_source_licenses">Licenças de código aberto</string>
     <plurals name="viewers_and_uptime_with_cateogry" comment="Live with 1 viewer in Just Chatting for 1h 1m&#13;&#10;Live with 10 viewers in Just Chatting for 1h 1m">
         <item quantity="one">Ao vivo com %1$d espectador em %2$s por %3$s</item>
+        <item quantity="many">Ao vivo com %1$d espectadores em %2$s por %3$s</item>
         <item quantity="other">Ao vivo com %1$d espectadores em %2$s por %3$s</item>
     </plurals>
     <string name="preference_streaminfo_category_title">Mostrar categoria da transmissão</string>

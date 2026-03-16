@@ -397,10 +397,12 @@
     <string name="back">Voltar</string>
     <plurals name="viewers_and_uptime">
         <item quantity="one">Ao vivo com %1$d espectador à %2$s</item>
+        <item quantity="many">Ao vivo com %1$d espectadores à %2$s</item>
         <item quantity="other">Ao vivo com %1$d espectadores à %2$s</item>
     </plurals>
     <plurals name="months">
         <item quantity="one">%d mês</item>
+        <item quantity="many">%d meses</item>
         <item quantity="other">%d meses</item>
     </plurals>
     <string name="toggle_app_bar">Alternar barra da aplicação</string>

@@ -395,10 +395,12 @@
     <string name="login_menu_zoom_in">Ingrandisci</string>
     <plurals name="viewers_and_uptime">
         <item quantity="one">Live con %1$d spettatore per %2$s</item>
+        <item quantity="many">Live con %1$d spettatori per %2$s</item>
         <item quantity="other">Live con %1$d spettatori per %2$s</item>
     </plurals>
     <plurals name="months">
         <item quantity="one">%d mese</item>
+        <item quantity="many">%d mesi</item>
         <item quantity="other">%d mesi</item>
     </plurals>
     <string name="toggle_app_bar">Mostra/nascondi barra app</string>
