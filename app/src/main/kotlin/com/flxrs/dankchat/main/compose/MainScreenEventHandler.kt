@@ -19,6 +19,7 @@ import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.main.MainActivity
 import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
@@ -81,6 +82,10 @@ fun MainScreenEventHandler(
         authStateCoordinator.events.collect { event ->
             when (event) {
                 is AuthEvent.LoggedIn       -> {
+                    launch {
+                        delay(2000)
+                        snackbarHostState.currentSnackbarData?.dismiss()
+                    }
                     snackbarHostState.showSnackbar(
                         message = resources.getString(R.string.snackbar_login, event.userName),
                         duration = SnackbarDuration.Short,
