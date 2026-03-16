@@ -166,7 +166,6 @@
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
 <string name="menu_room_state">Channel settings</string>
-    <string name="input_actions_title">Input actions</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maximum of %1$d action</item>
         <item quantity="other">Maximum of %1$d actions</item>
@@ -572,13 +571,6 @@
     <string name="onboarding_notifications_allow">Allow Notifications</string>
     <string name="onboarding_notifications_rationale">Without notifications, you won\'t know when someone mentions you in chat while the app is in the background.</string>
     <string name="onboarding_notifications_open_settings">Open Notification Settings</string>
-    <string name="onboarding_battery_title">Battery Optimization</string>
-    <string name="onboarding_battery_body">DankChat runs a background service for notifications. Some devices aggressively kill background apps, which can cause missed notifications.\n\nExcluding DankChat from battery optimization helps keep it running reliably.</string>
-    <string name="onboarding_battery_open_settings">Open Settings</string>
-    <string name="onboarding_battery_granted">Battery optimization disabled</string>
-    <string name="onboarding_done_title">You\'re all set!</string>
-    <string name="onboarding_done_body">Start by adding a Twitch channel to chat in.</string>
-    <string name="onboarding_done_button">Start</string>
 
     <!-- Feature Tour -->
     <string name="tour_input_actions">Customizable actions for quick access to search, streams, and more</string>

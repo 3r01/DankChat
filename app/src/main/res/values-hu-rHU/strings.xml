@@ -452,4 +452,65 @@
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s hozzáadta a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModhoz.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést blokkolt kifejezésként az AutoModból.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s eltávolította a(z) %2$s kifejezést engedélyezett kifejezésként az AutoModból.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Törlés</string>
+    <string name="hint_whispering">Suttogás küldése</string>
+    <string name="whisper_header">Suttogás @%1$s felhasználónak</string>
+    <string name="whisper_new">Új suttogás</string>
+    <string name="whisper_new_dialog_title">Suttogás küldése</string>
+    <string name="whisper_new_dialog_hint">Felhasználónév</string>
+    <string name="whisper_new_dialog_start">Küldés</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Csak emote</string>
+    <string name="room_state_subscriber_only">Csak feliratkozók</string>
+    <string name="room_state_slow_mode">Lassú mód</string>
+    <string name="room_state_unique_chat">Egyedi chat (R9K)</string>
+    <string name="room_state_follower_only">Csak követők</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Adj hozzá egy csatornát a csevegéshez</string>
+    <string name="no_recent_emotes">Nincsenek legutóbbi emoték</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Közvetítés megjelenítése</string>
+    <string name="menu_hide_stream">Közvetítés elrejtése</string>
+    <string name="menu_fullscreen">Teljes képernyő</string>
+    <string name="menu_exit_fullscreen">Kilépés a teljes képernyőből</string>
+    <string name="menu_hide_input">Bevitel elrejtése</string>
+    <string name="menu_room_state">Csatornabeállítások</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Üzenetek keresése</string>
+    <string name="input_action_last_message">Utolsó üzenet</string>
+    <string name="input_action_stream">Közvetítés váltása</string>
+    <string name="input_action_room_state">Csatornabeállítások</string>
+    <string name="input_action_fullscreen">Teljes képernyő</string>
+    <string name="input_action_hide_input">Bevitel elrejtése</string>
+    <string name="input_action_configure">Műveletek beállítása</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Maximum %1$d művelet</item>
+        <item quantity="other">Maximum %1$d művelet</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Állítsunk be mindent.</string>
+    <string name="onboarding_login_title">Bejelentkezés Twitch-csel</string>
+    <string name="onboarding_login_body">Jelentkezz be üzenetek küldéséhez, emoték használatához, suttogások fogadásához és az összes funkció feloldásához.</string>
+    <string name="onboarding_login_button">Bejelentkezés Twitch-csel</string>
+    <string name="onboarding_login_success">Sikeres bejelentkezés</string>
+    <string name="onboarding_notifications_title">Értesítések</string>
+    <string name="onboarding_notifications_body">A DankChat értesíthet, ha valaki megemlít a chatben, miközben az alkalmazás a háttérben fut.</string>
+    <string name="onboarding_notifications_allow">Értesítések engedélyezése</string>
+    <string name="onboarding_notifications_open_settings">Értesítési beállítások megnyitása</string>
+    <string name="onboarding_notifications_rationale">Értesítések nélkül nem fogod tudni, ha valaki megemlít a chatben, miközben az alkalmazás a háttérben fut.</string>
+    <string name="onboarding_history_title">Üzenetelőzmények</string>
+    <string name="onboarding_history_body">A DankChat induláskor betölti a korábbi üzeneteket egy harmadik féltől származó szolgáltatásból.\nAz üzenetek lekéréséhez a DankChat elküldi a megnyitott csatornák neveit ennek a szolgáltatásnak.\nA szolgáltatás ideiglenesen tárolja a meglátogatott csatornák üzeneteit.\n\nEzt később módosíthatod a beállításokban, vagy többet tudhatsz meg a https://recent-messages.robotty.de/ oldalon.</string>
+    <string name="onboarding_history_enable">Engedélyezés</string>
+    <string name="onboarding_history_disable">Letiltás</string>
+    <string name="onboarding_continue">Tovább</string>
+    <string name="onboarding_get_started">Kezdjük</string>
+    <string name="onboarding_skip">Kihagyás</string>
 </resources>

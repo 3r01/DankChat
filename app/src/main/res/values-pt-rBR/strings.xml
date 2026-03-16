@@ -441,6 +441,7 @@
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (nível %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">corresponde a %1$d termo bloqueado %2$s</item>
+        <item quantity="many">corresponde a %1$d termos bloqueados %2$s</item>
         <item quantity="other">corresponde a %1$d termos bloqueados %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Falha ao %1$s mensagem do AutoMod - a mensagem já foi processada.</string>
@@ -452,4 +453,66 @@
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s adicionou %2$s como termo permitido no AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removeu %2$s como termo bloqueado do AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s removeu %2$s como termo permitido do AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Apagar</string>
+    <string name="hint_whispering">Enviar um sussurro</string>
+    <string name="whisper_header">Sussurrando para @%1$s</string>
+    <string name="whisper_new">Novo sussurro</string>
+    <string name="whisper_new_dialog_title">Enviar sussurro para</string>
+    <string name="whisper_new_dialog_hint">Nome de usuário</string>
+    <string name="whisper_new_dialog_start">Enviar</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Apenas emotes</string>
+    <string name="room_state_subscriber_only">Apenas assinantes</string>
+    <string name="room_state_slow_mode">Modo lento</string>
+    <string name="room_state_unique_chat">Chat único (R9K)</string>
+    <string name="room_state_follower_only">Apenas seguidores</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Adicione um canal para começar a conversar</string>
+    <string name="no_recent_emotes">Nenhum emote recente</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Mostrar stream</string>
+    <string name="menu_hide_stream">Ocultar stream</string>
+    <string name="menu_fullscreen">Tela cheia</string>
+    <string name="menu_exit_fullscreen">Sair da tela cheia</string>
+    <string name="menu_hide_input">Ocultar entrada</string>
+    <string name="menu_room_state">Configurações do canal</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Pesquisar mensagens</string>
+    <string name="input_action_last_message">Última mensagem</string>
+    <string name="input_action_stream">Alternar stream</string>
+    <string name="input_action_room_state">Configurações do canal</string>
+    <string name="input_action_fullscreen">Tela cheia</string>
+    <string name="input_action_hide_input">Ocultar entrada</string>
+    <string name="input_action_configure">Configurar ações</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Máximo de %1$d ação</item>
+        <item quantity="many">Máximo de %1$d ações</item>
+        <item quantity="other">Máximo de %1$d ações</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Vamos configurar tudo.</string>
+    <string name="onboarding_login_title">Entrar com Twitch</string>
+    <string name="onboarding_login_body">Entre para enviar mensagens, usar seus emotes, receber sussurros e desbloquear todas as funcionalidades.</string>
+    <string name="onboarding_login_button">Entrar com Twitch</string>
+    <string name="onboarding_login_success">Login realizado com sucesso</string>
+    <string name="onboarding_notifications_title">Notificações</string>
+    <string name="onboarding_notifications_body">O DankChat pode notificá-lo quando alguém mencionar você no chat enquanto o app está em segundo plano.</string>
+    <string name="onboarding_notifications_allow">Permitir notificações</string>
+    <string name="onboarding_notifications_open_settings">Abrir configurações de notificações</string>
+    <string name="onboarding_notifications_rationale">Sem notificações, você não saberá quando alguém mencionar você no chat enquanto o app está em segundo plano.</string>
+    <string name="onboarding_history_title">Histórico de mensagens</string>
+    <string name="onboarding_history_body">O DankChat carrega mensagens históricas de um serviço externo ao iniciar.\nPara obter as mensagens, o DankChat envia os nomes dos canais abertos para esse serviço.\nO serviço armazena temporariamente as mensagens dos canais visitados.\n\nVocê pode alterar isso mais tarde nas configurações ou saber mais em https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Ativar</string>
+    <string name="onboarding_history_disable">Desativar</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_skip">Pular</string>
 </resources>

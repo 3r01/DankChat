@@ -449,6 +449,8 @@
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (рівень %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">збігається з %1$d заблокованим терміном %2$s</item>
+        <item quantity="few">збігається з %1$d заблокованими термінами %2$s</item>
+        <item quantity="many">збігається з %1$d заблокованими термінами %2$s</item>
         <item quantity="other">збігається з %1$d заблокованими термінами %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Не вдалося %1$s повідомлення AutoMod - повідомлення вже оброблено.</string>
@@ -460,4 +462,67 @@
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s додав %2$s як дозволений термін у AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s видалив %2$s як заблокований термін з AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s видалив %2$s як дозволений термін з AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Видалити</string>
+    <string name="hint_whispering">Надіслати шепіт</string>
+    <string name="whisper_header">Шепіт до @%1$s</string>
+    <string name="whisper_new">Новий шепіт</string>
+    <string name="whisper_new_dialog_title">Надіслати шепіт до</string>
+    <string name="whisper_new_dialog_hint">Ім\'я користувача</string>
+    <string name="whisper_new_dialog_start">Надіслати</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Лише емоути</string>
+    <string name="room_state_subscriber_only">Лише підписники</string>
+    <string name="room_state_slow_mode">Повільний режим</string>
+    <string name="room_state_unique_chat">Унікальний чат (R9K)</string>
+    <string name="room_state_follower_only">Лише фоловери</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Додайте канал, щоб почати спілкування</string>
+    <string name="no_recent_emotes">Немає нещодавніх емоутів</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Показати трансляцію</string>
+    <string name="menu_hide_stream">Сховати трансляцію</string>
+    <string name="menu_fullscreen">На весь екран</string>
+    <string name="menu_exit_fullscreen">Вийти з повноекранного режиму</string>
+    <string name="menu_hide_input">Сховати введення</string>
+    <string name="menu_room_state">Налаштування каналу</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Пошук повідомлень</string>
+    <string name="input_action_last_message">Останнє повідомлення</string>
+    <string name="input_action_stream">Перемкнути трансляцію</string>
+    <string name="input_action_room_state">Налаштування каналу</string>
+    <string name="input_action_fullscreen">На весь екран</string>
+    <string name="input_action_hide_input">Сховати введення</string>
+    <string name="input_action_configure">Налаштувати дії</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Максимум %1$d дія</item>
+        <item quantity="few">Максимум %1$d дії</item>
+        <item quantity="many">Максимум %1$d дій</item>
+        <item quantity="other">Максимум %1$d дій</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Давайте все налаштуємо.</string>
+    <string name="onboarding_login_title">Увійти через Twitch</string>
+    <string name="onboarding_login_body">Увійдіть, щоб надсилати повідомлення, використовувати свої емоути, отримувати шепіт та розблокувати всі функції.</string>
+    <string name="onboarding_login_button">Увійти через Twitch</string>
+    <string name="onboarding_login_success">Вхід виконано</string>
+    <string name="onboarding_notifications_title">Сповіщення</string>
+    <string name="onboarding_notifications_body">DankChat може сповіщувати вас, коли хтось згадує вас у чаті, поки застосунок працює у фоні.</string>
+    <string name="onboarding_notifications_allow">Дозволити сповіщення</string>
+    <string name="onboarding_notifications_open_settings">Відкрити налаштування сповіщень</string>
+    <string name="onboarding_notifications_rationale">Без сповіщень ви не дізнаєтесь, коли хтось згадує вас у чаті, поки застосунок працює у фоні.</string>
+    <string name="onboarding_history_title">Історія повідомлень</string>
+    <string name="onboarding_history_body">DankChat завантажує історичні повідомлення зі стороннього сервісу при запуску.\nДля отримання повідомлень DankChat надсилає назви відкритих каналів цьому сервісу.\nСервіс тимчасово зберігає повідомлення відвіданих каналів.\n\nВи можете змінити це пізніше в налаштуваннях або дізнатися більше на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Увімкнути</string>
+    <string name="onboarding_history_disable">Вимкнути</string>
+    <string name="onboarding_continue">Продовжити</string>
+    <string name="onboarding_get_started">Почати</string>
+    <string name="onboarding_skip">Пропустити</string>
 </resources>

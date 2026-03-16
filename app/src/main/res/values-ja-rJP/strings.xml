@@ -439,4 +439,64 @@
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$sがAutoModで%2$sを許可用語として追加しました。</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$sがAutoModから%2$sをブロック用語として削除しました。</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$sがAutoModから%2$sを許可用語として削除しました。</string>
+
+    <!-- Whisper -->
+    <string name="backspace">バックスペース</string>
+    <string name="hint_whispering">ウィスパーを送信</string>
+    <string name="whisper_header">@%1$s にウィスパー中</string>
+    <string name="whisper_new">新しいウィスパー</string>
+    <string name="whisper_new_dialog_title">ウィスパーの送信先</string>
+    <string name="whisper_new_dialog_hint">ユーザー名</string>
+    <string name="whisper_new_dialog_start">送信</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">エモートのみ</string>
+    <string name="room_state_subscriber_only">サブスクライバーのみ</string>
+    <string name="room_state_slow_mode">スローモード</string>
+    <string name="room_state_unique_chat">ユニークチャット (R9K)</string>
+    <string name="room_state_follower_only">フォロワーのみ</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">チャンネルを追加してチャットを始めましょう</string>
+    <string name="no_recent_emotes">最近使用したエモートはありません</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">配信を表示</string>
+    <string name="menu_hide_stream">配信を非表示</string>
+    <string name="menu_fullscreen">全画面</string>
+    <string name="menu_exit_fullscreen">全画面を終了</string>
+    <string name="menu_hide_input">入力欄を非表示</string>
+    <string name="menu_room_state">チャンネル設定</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">メッセージを検索</string>
+    <string name="input_action_last_message">最後のメッセージ</string>
+    <string name="input_action_stream">配信を切り替え</string>
+    <string name="input_action_room_state">チャンネル設定</string>
+    <string name="input_action_fullscreen">全画面</string>
+    <string name="input_action_hide_input">入力欄を非表示</string>
+    <string name="input_action_configure">アクションを設定</string>
+    <plurals name="input_actions_max">
+        <item quantity="other">最大%1$d個のアクション</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">セットアップを始めましょう。</string>
+    <string name="onboarding_login_title">Twitchでログイン</string>
+    <string name="onboarding_login_body">ログインして、メッセージの送信、エモートの使用、ウィスパーの受信、すべての機能をお楽しみください。</string>
+    <string name="onboarding_login_button">Twitchでログイン</string>
+    <string name="onboarding_login_success">ログイン成功</string>
+    <string name="onboarding_notifications_title">通知</string>
+    <string name="onboarding_notifications_body">DankChatは、アプリがバックグラウンドにある時にチャットで誰かがあなたをメンションした場合に通知できます。</string>
+    <string name="onboarding_notifications_allow">通知を許可</string>
+    <string name="onboarding_notifications_open_settings">通知設定を開く</string>
+    <string name="onboarding_notifications_rationale">通知がないと、アプリがバックグラウンドにある時にチャットで誰かがあなたをメンションしても気づけません。</string>
+    <string name="onboarding_history_title">メッセージ履歴</string>
+    <string name="onboarding_history_body">DankChatは起動時にサードパーティサービスから過去のメッセージを読み込みます。\nメッセージを取得するために、DankChatは開いているチャンネル名をそのサービスに送信します。\nサービスは訪問されたチャンネルのメッセージを一時的に保存します。\n\nこれは後で設定から変更できます。詳細は https://recent-messages.robotty.de/ をご覧ください。</string>
+    <string name="onboarding_history_enable">有効にする</string>
+    <string name="onboarding_history_disable">無効にする</string>
+    <string name="onboarding_continue">続ける</string>
+    <string name="onboarding_get_started">始める</string>
+    <string name="onboarding_skip">スキップ</string>
 </resources>

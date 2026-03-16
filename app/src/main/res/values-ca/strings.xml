@@ -336,6 +336,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (nivell %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">coincideix amb %1$d terme bloquejat %2$s</item>
+        <item quantity="many">coincideix amb %1$d termes bloquejats %2$s</item>
         <item quantity="other">coincideix amb %1$d termes bloquejats %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">No s\'ha pogut %1$s el missatge d\'AutoMod - el missatge ja ha estat processat.</string>
@@ -347,4 +348,66 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s ha afegit %2$s com a terme permès a AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s ha eliminat %2$s com a terme bloquejat d\'AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s ha eliminat %2$s com a terme permès d\'AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Retrocés</string>
+    <string name="hint_whispering">Envia un xiuxiueig</string>
+    <string name="whisper_header">Xiuxiuejant a @%1$s</string>
+    <string name="whisper_new">Nou xiuxiueig</string>
+    <string name="whisper_new_dialog_title">Envia xiuxiueig a</string>
+    <string name="whisper_new_dialog_hint">Nom d\'usuari</string>
+    <string name="whisper_new_dialog_start">Enviar</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Només emotes</string>
+    <string name="room_state_subscriber_only">Només subscriptors</string>
+    <string name="room_state_slow_mode">Mode lent</string>
+    <string name="room_state_unique_chat">Xat únic (R9K)</string>
+    <string name="room_state_follower_only">Només seguidors</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Afegeix un canal per començar a xatejar</string>
+    <string name="no_recent_emotes">Cap emote recent</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Mostra l\'emissió</string>
+    <string name="menu_hide_stream">Amaga l\'emissió</string>
+    <string name="menu_fullscreen">Pantalla completa</string>
+    <string name="menu_exit_fullscreen">Surt de la pantalla completa</string>
+    <string name="menu_hide_input">Amaga l\'entrada</string>
+    <string name="menu_room_state">Configuració del canal</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Cerca missatges</string>
+    <string name="input_action_last_message">Últim missatge</string>
+    <string name="input_action_stream">Commuta l\'emissió</string>
+    <string name="input_action_room_state">Configuració del canal</string>
+    <string name="input_action_fullscreen">Pantalla completa</string>
+    <string name="input_action_hide_input">Amaga l\'entrada</string>
+    <string name="input_action_configure">Configura accions</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Màxim %1$d acció</item>
+        <item quantity="many">Màxim %1$d accions</item>
+        <item quantity="other">Màxim %1$d accions</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Configurem-ho tot.</string>
+    <string name="onboarding_login_title">Inicia sessió amb Twitch</string>
+    <string name="onboarding_login_body">Inicia sessió per enviar missatges, fer servir els teus emotes, rebre xiuxiueigs i desbloquejar totes les funcions.</string>
+    <string name="onboarding_login_button">Inicia sessió amb Twitch</string>
+    <string name="onboarding_login_success">Inici de sessió correcte</string>
+    <string name="onboarding_notifications_title">Notificacions</string>
+    <string name="onboarding_notifications_body">DankChat pot notificar-te quan algú et menciona al xat mentre l\'aplicació és en segon pla.</string>
+    <string name="onboarding_notifications_allow">Permet les notificacions</string>
+    <string name="onboarding_notifications_open_settings">Obre la configuració de notificacions</string>
+    <string name="onboarding_notifications_rationale">Sense notificacions, no sabràs quan algú et menciona al xat mentre l\'aplicació és en segon pla.</string>
+    <string name="onboarding_history_title">Historial de missatges</string>
+    <string name="onboarding_history_body">DankChat carrega missatges històrics d\'un servei de tercers en iniciar.\nPer obtenir els missatges, DankChat envia els noms dels canals oberts a aquest servei.\nEl servei emmagatzema temporalment els missatges dels canals visitats.\n\nPots canviar això més tard a la configuració o saber-ne més a https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Activa</string>
+    <string name="onboarding_history_disable">Desactiva</string>
+    <string name="onboarding_continue">Continua</string>
+    <string name="onboarding_get_started">Comença</string>
+    <string name="onboarding_skip">Omet</string>
 </resources>

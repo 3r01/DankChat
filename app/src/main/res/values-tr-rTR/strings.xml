@@ -473,4 +473,65 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s, AutoMod üzerinde %2$s terimini izin verilen terim olarak ekledi.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s, AutoMod üzerinden %2$s terimini engellenen terim olarak kaldırdı.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s, AutoMod üzerinden %2$s terimini izin verilen terim olarak kaldırdı.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Geri sil</string>
+    <string name="hint_whispering">Fısıltı gönder</string>
+    <string name="whisper_header">@%1$s adlı kişiye fısıldıyor</string>
+    <string name="whisper_new">Yeni fısıltı</string>
+    <string name="whisper_new_dialog_title">Fısıltı gönder</string>
+    <string name="whisper_new_dialog_hint">Kullanıcı adı</string>
+    <string name="whisper_new_dialog_start">Gönder</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Yalnızca emote</string>
+    <string name="room_state_subscriber_only">Yalnızca aboneler</string>
+    <string name="room_state_slow_mode">Yavaş mod</string>
+    <string name="room_state_unique_chat">Benzersiz sohbet (R9K)</string>
+    <string name="room_state_follower_only">Yalnızca takipçiler</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Sohbete başlamak için bir kanal ekleyin</string>
+    <string name="no_recent_emotes">Son kullanılan emote yok</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Yayını göster</string>
+    <string name="menu_hide_stream">Yayını gizle</string>
+    <string name="menu_fullscreen">Tam ekran</string>
+    <string name="menu_exit_fullscreen">Tam ekrandan çık</string>
+    <string name="menu_hide_input">Girişi gizle</string>
+    <string name="menu_room_state">Kanal ayarları</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Mesajları ara</string>
+    <string name="input_action_last_message">Son mesaj</string>
+    <string name="input_action_stream">Yayını aç/kapat</string>
+    <string name="input_action_room_state">Kanal ayarları</string>
+    <string name="input_action_fullscreen">Tam ekran</string>
+    <string name="input_action_hide_input">Girişi gizle</string>
+    <string name="input_action_configure">Eylemleri yapılandır</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">En fazla %1$d eylem</item>
+        <item quantity="other">En fazla %1$d eylem</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Hadi her şeyi ayarlayalım.</string>
+    <string name="onboarding_login_title">Twitch ile giriş yap</string>
+    <string name="onboarding_login_body">Mesaj göndermek, emote\'larınızı kullanmak, fısıltı almak ve tüm özelliklerin kilidini açmak için giriş yapın.</string>
+    <string name="onboarding_login_button">Twitch ile giriş yap</string>
+    <string name="onboarding_login_success">Giriş başarılı</string>
+    <string name="onboarding_notifications_title">Bildirimler</string>
+    <string name="onboarding_notifications_body">DankChat, uygulama arka planda çalışırken sohbette biri sizden bahsettiğinde sizi bilgilendirebilir.</string>
+    <string name="onboarding_notifications_allow">Bildirimlere izin ver</string>
+    <string name="onboarding_notifications_open_settings">Bildirim ayarlarını aç</string>
+    <string name="onboarding_notifications_rationale">Bildirimler olmadan, uygulama arka planda çalışırken sohbette biri sizden bahsettiğinde haberiniz olmaz.</string>
+    <string name="onboarding_history_title">Mesaj Geçmişi</string>
+    <string name="onboarding_history_body">DankChat başlangıçta üçüncü taraf bir hizmetten geçmiş mesajları yükler.\nMesajları almak için DankChat, açık kanalların adlarını bu hizmete gönderir.\nHizmet, ziyaret edilen kanalların mesajlarını geçici olarak depolar.\n\nBunu daha sonra ayarlardan değiştirebilir veya https://recent-messages.robotty.de/ adresinden daha fazla bilgi edinebilirsiniz.</string>
+    <string name="onboarding_history_enable">Etkinleştir</string>
+    <string name="onboarding_history_disable">Devre dışı bırak</string>
+    <string name="onboarding_continue">Devam et</string>
+    <string name="onboarding_get_started">Başla</string>
+    <string name="onboarding_skip">Atla</string>
 </resources>

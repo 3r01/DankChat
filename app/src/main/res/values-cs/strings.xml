@@ -448,6 +448,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (úroveň %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">odpovídá %1$d blokovanému výrazu %2$s</item>
+        <item quantity="few">odpovídá %1$d blokovaným výrazům %2$s</item>
+        <item quantity="many">odpovídá %1$d blokovaným výrazům %2$s</item>
         <item quantity="other">odpovídá %1$d blokovaným výrazům %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nepodařilo se %1$s zprávu AutoMod - zpráva již byla zpracována.</string>
@@ -459,4 +461,67 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s přidal/a %2$s jako povolený výraz na AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s odebral/a %2$s jako blokovaný výraz z AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s odebral/a %2$s jako povolený výraz z AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Smazat</string>
+    <string name="hint_whispering">Odeslat šepot</string>
+    <string name="whisper_header">Šeptání s @%1$s</string>
+    <string name="whisper_new">Nový šepot</string>
+    <string name="whisper_new_dialog_title">Odeslat šepot</string>
+    <string name="whisper_new_dialog_hint">Uživatelské jméno</string>
+    <string name="whisper_new_dialog_start">Odeslat</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Pouze emotikony</string>
+    <string name="room_state_subscriber_only">Pouze odběratelé</string>
+    <string name="room_state_slow_mode">Pomalý režim</string>
+    <string name="room_state_unique_chat">Unikátní chat (R9K)</string>
+    <string name="room_state_follower_only">Pouze sledující</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Přidejte kanál a začněte chatovat</string>
+    <string name="no_recent_emotes">Žádné nedávné emotikony</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Zobrazit stream</string>
+    <string name="menu_hide_stream">Skrýt stream</string>
+    <string name="menu_fullscreen">Celá obrazovka</string>
+    <string name="menu_exit_fullscreen">Ukončit celou obrazovku</string>
+    <string name="menu_hide_input">Skrýt vstup</string>
+    <string name="menu_room_state">Nastavení kanálu</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Hledat zprávy</string>
+    <string name="input_action_last_message">Poslední zpráva</string>
+    <string name="input_action_stream">Přepnout stream</string>
+    <string name="input_action_room_state">Nastavení kanálu</string>
+    <string name="input_action_fullscreen">Celá obrazovka</string>
+    <string name="input_action_hide_input">Skrýt vstup</string>
+    <string name="input_action_configure">Konfigurovat akce</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Maximálně %1$d akce</item>
+        <item quantity="few">Maximálně %1$d akce</item>
+        <item quantity="many">Maximálně %1$d akcí</item>
+        <item quantity="other">Maximálně %1$d akcí</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Pojďme vše nastavit.</string>
+    <string name="onboarding_login_title">Přihlásit se přes Twitch</string>
+    <string name="onboarding_login_body">Přihlaste se pro odesílání zpráv, používání emotikonů, příjem šepotů a odemknutí všech funkcí.</string>
+    <string name="onboarding_login_button">Přihlásit se přes Twitch</string>
+    <string name="onboarding_login_success">Přihlášení úspěšné</string>
+    <string name="onboarding_notifications_title">Oznámení</string>
+    <string name="onboarding_notifications_body">DankChat vás může upozornit, když vás někdo zmíní v chatu, zatímco aplikace běží na pozadí.</string>
+    <string name="onboarding_notifications_allow">Povolit oznámení</string>
+    <string name="onboarding_notifications_open_settings">Otevřít nastavení oznámení</string>
+    <string name="onboarding_notifications_rationale">Bez oznámení se nedozvíte, když vás někdo zmíní v chatu, zatímco aplikace běží na pozadí.</string>
+    <string name="onboarding_history_title">Historie zpráv</string>
+    <string name="onboarding_history_body">DankChat načítá historické zprávy ze služby třetí strany při spuštění.\nPro získání zpráv DankChat odesílá názvy otevřených kanálů této službě.\nSlužba dočasně ukládá zprávy navštívených kanálů.\n\nToto můžete později změnit v nastavení nebo se dozvědět více na https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Povolit</string>
+    <string name="onboarding_history_disable">Zakázat</string>
+    <string name="onboarding_continue">Pokračovat</string>
+    <string name="onboarding_get_started">Začít</string>
+    <string name="onboarding_skip">Přeskočit</string>
 </resources>

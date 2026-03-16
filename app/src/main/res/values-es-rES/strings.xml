@@ -462,6 +462,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (nivel %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">coincide con %1$d término bloqueado %2$s</item>
+        <item quantity="many">coincide con %1$d términos bloqueados %2$s</item>
         <item quantity="other">coincide con %1$d términos bloqueados %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Error al %1$s mensaje de AutoMod - el mensaje ya ha sido procesado.</string>
@@ -473,4 +474,66 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s añadió %2$s como término permitido en AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s eliminó %2$s como término bloqueado de AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s eliminó %2$s como término permitido de AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Retroceso</string>
+    <string name="hint_whispering">Enviar un susurro</string>
+    <string name="whisper_header">Susurrando a @%1$s</string>
+    <string name="whisper_new">Nuevo susurro</string>
+    <string name="whisper_new_dialog_title">Enviar susurro a</string>
+    <string name="whisper_new_dialog_hint">Nombre de usuario</string>
+    <string name="whisper_new_dialog_start">Enviar</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Solo emotes</string>
+    <string name="room_state_subscriber_only">Solo suscriptores</string>
+    <string name="room_state_slow_mode">Modo lento</string>
+    <string name="room_state_unique_chat">Chat único (R9K)</string>
+    <string name="room_state_follower_only">Solo seguidores</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Añade un canal para empezar a chatear</string>
+    <string name="no_recent_emotes">No hay emotes recientes</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Mostrar stream</string>
+    <string name="menu_hide_stream">Ocultar stream</string>
+    <string name="menu_fullscreen">Pantalla completa</string>
+    <string name="menu_exit_fullscreen">Salir de pantalla completa</string>
+    <string name="menu_hide_input">Ocultar entrada</string>
+    <string name="menu_room_state">Ajustes del canal</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Buscar mensajes</string>
+    <string name="input_action_last_message">Último mensaje</string>
+    <string name="input_action_stream">Alternar stream</string>
+    <string name="input_action_room_state">Ajustes del canal</string>
+    <string name="input_action_fullscreen">Pantalla completa</string>
+    <string name="input_action_hide_input">Ocultar entrada</string>
+    <string name="input_action_configure">Configurar acciones</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Máximo de %1$d acción</item>
+        <item quantity="many">Máximo de %1$d acciones</item>
+        <item quantity="other">Máximo de %1$d acciones</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Vamos a configurar todo.</string>
+    <string name="onboarding_login_title">Iniciar sesión con Twitch</string>
+    <string name="onboarding_login_body">Inicia sesión para enviar mensajes, usar tus emotes, recibir susurros y desbloquear todas las funciones.</string>
+    <string name="onboarding_login_button">Iniciar sesión con Twitch</string>
+    <string name="onboarding_login_success">Inicio de sesión exitoso</string>
+    <string name="onboarding_notifications_title">Notificaciones</string>
+    <string name="onboarding_notifications_body">DankChat puede notificarte cuando alguien te menciona en el chat mientras la app está en segundo plano.</string>
+    <string name="onboarding_notifications_allow">Permitir notificaciones</string>
+    <string name="onboarding_notifications_open_settings">Abrir ajustes de notificaciones</string>
+    <string name="onboarding_notifications_rationale">Sin notificaciones, no sabrás cuando alguien te menciona en el chat mientras la app está en segundo plano.</string>
+    <string name="onboarding_history_title">Historial de mensajes</string>
+    <string name="onboarding_history_body">DankChat carga mensajes históricos de un servicio externo al iniciar.\nPara obtener los mensajes, DankChat envía los nombres de los canales abiertos a ese servicio.\nEl servicio almacena temporalmente los mensajes de los canales visitados.\n\nPuedes cambiar esto más tarde en los ajustes o saber más en https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Activar</string>
+    <string name="onboarding_history_disable">Desactivar</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_get_started">Comenzar</string>
+    <string name="onboarding_skip">Omitir</string>
 </resources>

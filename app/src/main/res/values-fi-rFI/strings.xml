@@ -311,4 +311,65 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s lisäsi %2$s sallituksi termiksi AutoModissa.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s poisti %2$s estettynä terminä AutoModista.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s poisti %2$s sallittuna terminä AutoModista.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Askelpalautin</string>
+    <string name="hint_whispering">Lähetä kuiskaus</string>
+    <string name="whisper_header">Kuiskaus käyttäjälle @%1$s</string>
+    <string name="whisper_new">Uusi kuiskaus</string>
+    <string name="whisper_new_dialog_title">Lähetä kuiskaus käyttäjälle</string>
+    <string name="whisper_new_dialog_hint">Käyttäjänimi</string>
+    <string name="whisper_new_dialog_start">Lähetä</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Vain hymiöt</string>
+    <string name="room_state_subscriber_only">Vain tilaajat</string>
+    <string name="room_state_slow_mode">Hidas tila</string>
+    <string name="room_state_unique_chat">Ainutlaatuinen chat (R9K)</string>
+    <string name="room_state_follower_only">Vain seuraajat</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Lisää kanava aloittaaksesi keskustelun</string>
+    <string name="no_recent_emotes">Ei viimeaikaisia hymiöitä</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Näytä lähetys</string>
+    <string name="menu_hide_stream">Piilota lähetys</string>
+    <string name="menu_fullscreen">Koko näyttö</string>
+    <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
+    <string name="menu_hide_input">Piilota syöttö</string>
+    <string name="menu_room_state">Kanavan asetukset</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Hae viestejä</string>
+    <string name="input_action_last_message">Viimeisin viesti</string>
+    <string name="input_action_stream">Vaihda lähetys</string>
+    <string name="input_action_room_state">Kanavan asetukset</string>
+    <string name="input_action_fullscreen">Koko näyttö</string>
+    <string name="input_action_hide_input">Piilota syöttö</string>
+    <string name="input_action_configure">Muokkaa toimintoja</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Enintään %1$d toiminto</item>
+        <item quantity="other">Enintään %1$d toimintoa</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Aloitetaan käyttöönotto.</string>
+    <string name="onboarding_login_title">Kirjaudu Twitchillä</string>
+    <string name="onboarding_login_body">Kirjaudu sisään lähettääksesi viestejä, käyttääksesi hymiöitäsi, vastaanottaaksesi kuiskauksia ja avataksesi kaikki ominaisuudet.</string>
+    <string name="onboarding_login_button">Kirjaudu Twitchillä</string>
+    <string name="onboarding_login_success">Kirjautuminen onnistui</string>
+    <string name="onboarding_notifications_title">Ilmoitukset</string>
+    <string name="onboarding_notifications_body">DankChat voi ilmoittaa sinulle, kun joku mainitsee sinut chatissa sovelluksen ollessa taustalla.</string>
+    <string name="onboarding_notifications_allow">Salli ilmoitukset</string>
+    <string name="onboarding_notifications_open_settings">Avaa ilmoitusasetukset</string>
+    <string name="onboarding_notifications_rationale">Ilman ilmoituksia et tiedä, kun joku mainitsee sinut chatissa sovelluksen ollessa taustalla.</string>
+    <string name="onboarding_history_title">Viestihistoria</string>
+    <string name="onboarding_history_body">DankChat lataa historiallisia viestejä kolmannen osapuolen palvelusta käynnistyksen yhteydessä.\nViestien hakemiseksi DankChat lähettää avattujen kanavien nimet tälle palvelulle.\nPalvelu tallentaa tilapäisesti vierailtujen kanavien viestejä.\n\nVoit muuttaa tätä myöhemmin asetuksista tai lukea lisää osoitteessa https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Ota käyttöön</string>
+    <string name="onboarding_history_disable">Poista käytöstä</string>
+    <string name="onboarding_continue">Jatka</string>
+    <string name="onboarding_get_started">Aloita</string>
+    <string name="onboarding_skip">Ohita</string>
 </resources>

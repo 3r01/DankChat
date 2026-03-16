@@ -285,4 +285,54 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s added %2$s as a permitted term on AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removed %2$s as a blocked term on AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s removed %2$s as a permitted term on AutoMod.</string>
+
+    <string name="backspace">Backspace</string>
+    <string name="hint_whispering">Send a whisper</string>
+    <string name="whisper_header">Whispering @%1$s</string>
+    <string name="whisper_new">New whisper</string>
+    <string name="whisper_new_dialog_title">Send whisper to</string>
+    <string name="whisper_new_dialog_hint">Username</string>
+    <string name="whisper_new_dialog_start">Start</string>
+    <string name="room_state_emote_only">Emote only</string>
+    <string name="room_state_subscriber_only">Subscriber only</string>
+    <string name="room_state_slow_mode">Slow mode</string>
+    <string name="room_state_unique_chat">Unique chat (R9K)</string>
+    <string name="room_state_follower_only">Follower only</string>
+    <string name="no_channels_added_body">Add a channel to start chatting</string>
+    <string name="no_recent_emotes">No recent emotes</string>
+    <string name="menu_show_stream">Show stream</string>
+    <string name="menu_hide_stream">Hide stream</string>
+    <string name="menu_fullscreen">Fullscreen</string>
+    <string name="menu_exit_fullscreen">Exit fullscreen</string>
+    <string name="menu_hide_input">Hide input</string>
+    <string name="menu_room_state">Channel settings</string>
+    <string name="input_action_search">Search messages</string>
+    <string name="input_action_last_message">Last message</string>
+    <string name="input_action_stream">Toggle stream</string>
+    <string name="input_action_room_state">Channel settings</string>
+    <string name="input_action_fullscreen">Fullscreen</string>
+    <string name="input_action_hide_input">Hide input</string>
+    <string name="input_action_configure">Configure actions</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Maximum of %1$d action</item>
+        <item quantity="other">Maximum of %1$d actions</item>
+    </plurals>
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Let\'s get you set up.</string>
+    <string name="onboarding_login_title">Login with Twitch</string>
+    <string name="onboarding_login_body">Log in to send messages, use your emotes, receive whispers, and unlock all features.</string>
+    <string name="onboarding_login_button">Login with Twitch</string>
+    <string name="onboarding_login_success">Login successful</string>
+    <string name="onboarding_notifications_title">Notifications</string>
+    <string name="onboarding_notifications_body">DankChat can notify you when someone mentions you in chat while the app is in the background.</string>
+    <string name="onboarding_notifications_allow">Allow Notifications</string>
+    <string name="onboarding_notifications_open_settings">Open Notification Settings</string>
+    <string name="onboarding_notifications_rationale">Without notifications, you won\'t know when someone mentions you in chat while the app is in the background.</string>
+    <string name="onboarding_history_title">Message History</string>
+    <string name="onboarding_history_body">DankChat loads historical messages from a third-party service on startup.\nTo get the messages, DankChat sends the names of the channels you have open to that service.\nThe service temporarily stores messages for channels you (and others) visit to provide the service.\n\nYou can change this later in the settings or learn more at https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Enable</string>
+    <string name="onboarding_history_disable">Disable</string>
+    <string name="onboarding_continue">Continue</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_skip">Skip</string>
 </resources>

@@ -241,6 +241,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (ниво %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">подудара се са %1$d блокираним термином %2$s</item>
+        <item quantity="few">подудара се са %1$d блокирана термина %2$s</item>
         <item quantity="other">подудара се са %1$d блокираних термина %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Није успело %1$s AutoMod поруке - порука је већ обрађена.</string>
@@ -252,4 +253,66 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s је додао %2$s као дозвољени термин на AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s је уклонио %2$s као блокирани термин са AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s је уклонио %2$s као дозвољени термин са AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Обриши</string>
+    <string name="hint_whispering">Пошаљи шапат</string>
+    <string name="whisper_header">Шапат ка @%1$s</string>
+    <string name="whisper_new">Нови шапат</string>
+    <string name="whisper_new_dialog_title">Пошаљи шапат</string>
+    <string name="whisper_new_dialog_hint">Корисничко име</string>
+    <string name="whisper_new_dialog_start">Пошаљи</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Само емотикони</string>
+    <string name="room_state_subscriber_only">Само претплатници</string>
+    <string name="room_state_slow_mode">Спори режим</string>
+    <string name="room_state_unique_chat">Јединствени чат (R9K)</string>
+    <string name="room_state_follower_only">Само пратиоци</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Додајте канал да бисте почели да ћаскате</string>
+    <string name="no_recent_emotes">Нема недавних емотикона</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Прикажи стрим</string>
+    <string name="menu_hide_stream">Сакриј стрим</string>
+    <string name="menu_fullscreen">Цео екран</string>
+    <string name="menu_exit_fullscreen">Изађи из целог екрана</string>
+    <string name="menu_hide_input">Сакриј унос</string>
+    <string name="menu_room_state">Подешавања канала</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Претражи поруке</string>
+    <string name="input_action_last_message">Последња порука</string>
+    <string name="input_action_stream">Укључи/искључи стрим</string>
+    <string name="input_action_room_state">Подешавања канала</string>
+    <string name="input_action_fullscreen">Цео екран</string>
+    <string name="input_action_hide_input">Сакриј унос</string>
+    <string name="input_action_configure">Подеси акције</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Максимално %1$d акција</item>
+        <item quantity="few">Максимално %1$d акције</item>
+        <item quantity="other">Максимално %1$d акција</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Хајде да подесимо све.</string>
+    <string name="onboarding_login_title">Пријави се преко Twitch-а</string>
+    <string name="onboarding_login_body">Пријавите се да бисте слали поруке, користили емотиконе, примали шапате и откључали све функције.</string>
+    <string name="onboarding_login_button">Пријави се преко Twitch-а</string>
+    <string name="onboarding_login_success">Пријава успешна</string>
+    <string name="onboarding_notifications_title">Обавештења</string>
+    <string name="onboarding_notifications_body">DankChat може да вас обавести када вас неко помене у чату док апликација ради у позадини.</string>
+    <string name="onboarding_notifications_allow">Дозволи обавештења</string>
+    <string name="onboarding_notifications_open_settings">Отвори подешавања обавештења</string>
+    <string name="onboarding_notifications_rationale">Без обавештења нећете знати када вас неко помене у чату док апликација ради у позадини.</string>
+    <string name="onboarding_history_title">Историја порука</string>
+    <string name="onboarding_history_body">DankChat учитава историјске поруке из услуге треће стране при покретању.\nДа би добио поруке, DankChat шаље имена отворених канала овој услузи.\nУслуга привремено чува поруке посећених канала.\n\nОво можете касније променити у подешавањима или сазнати више на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Укључи</string>
+    <string name="onboarding_history_disable">Искључи</string>
+    <string name="onboarding_continue">Настави</string>
+    <string name="onboarding_get_started">Почни</string>
+    <string name="onboarding_skip">Прескочи</string>
 </resources>

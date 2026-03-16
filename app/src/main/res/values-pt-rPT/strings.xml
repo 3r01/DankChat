@@ -3,7 +3,7 @@
     <string name="app_name">DankChat</string>
     <string name="app_name_dank">DankChat (Dank)</string>
     <string name="send_hint">Envia uma mensagem</string>
-    <string name="login">Inicio de sessão</string>
+    <string name="login">Início de sessão</string>
     <string name="reload_emotes">Recarregar emotes</string>
     <string name="reconnect">Reconectar</string>
     <string name="clear_chat">Limpar o chat</string>
@@ -282,7 +282,7 @@
     <string name="preference_retain_webview_summary">Permite a prevenção experimental de recargas da stream após mudanças da orientação ou reabertura do DankChat.</string>
     <string name="preference_show_changelogs">Mostrar lista de alterações após uma actualização</string>
     <string name="preference_whats_new_header">O que há de novo</string>
-    <string name="preference_custom_login_title">Inicio de sessão customizado</string>
+    <string name="preference_custom_login_title">Início de sessão customizado</string>
     <string name="preference_bypass_command_handling_title">Ignorar manipulação de comandos da Twitch</string>
     <string name="preference_bypass_command_handling_summary">Desativa a interceptação de comandos da Twitch e envia-os para o chat</string>
     <string name="preference_7tv_live_updates_title">7TV atualização de emotes ao vivo</string>
@@ -389,9 +389,9 @@
     <string name="emote_copied">Emote copiado</string>
     <string name="changelog_sheet_title">DankChat foi atualizado!</string>
     <string name="changelog_sheet_subtitle">O que há de novo em v%1$s</string>
-    <string name="confirm_login_cancel_title">Confirmação do cancelamento do inicio de sessão</string>
-    <string name="confirm_login_cancel_message">Tens a certeza de que desejas cancelar o processo do inicio de sessão</string>
-    <string name="confirm_login_cancel_positive_button">Cancelar inicio de sessão</string>
+    <string name="confirm_login_cancel_title">Confirmação do cancelamento do início de sessão</string>
+    <string name="confirm_login_cancel_message">Tens a certeza de que desejas cancelar o processo do início de sessão</string>
+    <string name="confirm_login_cancel_positive_button">Cancelar início de sessão</string>
     <string name="login_menu_zoom_out">Reduzir o zoom</string>
     <string name="login_menu_zoom_in">Aumentar o zoom</string>
     <string name="back">Voltar</string>
@@ -432,6 +432,7 @@
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (nível %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">corresponde a %1$d termo bloqueado %2$s</item>
+        <item quantity="many">corresponde a %1$d termos bloqueados %2$s</item>
         <item quantity="other">corresponde a %1$d termos bloqueados %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Falha ao %1$s mensagem do AutoMod - a mensagem já foi processada.</string>
@@ -443,4 +444,66 @@
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s adicionou %2$s como termo permitido no AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s removeu %2$s como termo bloqueado do AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s removeu %2$s como termo permitido do AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Apagar</string>
+    <string name="hint_whispering">Enviar um sussurro</string>
+    <string name="whisper_header">Sussurrar a @%1$s</string>
+    <string name="whisper_new">Novo sussurro</string>
+    <string name="whisper_new_dialog_title">Enviar sussurro a</string>
+    <string name="whisper_new_dialog_hint">Nome de utilizador</string>
+    <string name="whisper_new_dialog_start">Enviar</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Apenas emotes</string>
+    <string name="room_state_subscriber_only">Apenas subscritores</string>
+    <string name="room_state_slow_mode">Modo lento</string>
+    <string name="room_state_unique_chat">Chat único (R9K)</string>
+    <string name="room_state_follower_only">Apenas seguidores</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Adicione um canal para começar a conversar</string>
+    <string name="no_recent_emotes">Nenhum emote recente</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Mostrar transmissão</string>
+    <string name="menu_hide_stream">Ocultar transmissão</string>
+    <string name="menu_fullscreen">Ecrã inteiro</string>
+    <string name="menu_exit_fullscreen">Sair do ecrã inteiro</string>
+    <string name="menu_hide_input">Ocultar entrada</string>
+    <string name="menu_room_state">Definições do canal</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Pesquisar mensagens</string>
+    <string name="input_action_last_message">Última mensagem</string>
+    <string name="input_action_stream">Alternar transmissão</string>
+    <string name="input_action_room_state">Definições do canal</string>
+    <string name="input_action_fullscreen">Ecrã inteiro</string>
+    <string name="input_action_hide_input">Ocultar entrada</string>
+    <string name="input_action_configure">Configurar ações</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Máximo de %1$d ação</item>
+        <item quantity="many">Máximo de %1$d ações</item>
+        <item quantity="other">Máximo de %1$d ações</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Vamos configurar tudo.</string>
+    <string name="onboarding_login_title">Iniciar sessão com Twitch</string>
+    <string name="onboarding_login_body">Inicie sessão para enviar mensagens, usar os seus emotes, receber sussurros e desbloquear todas as funcionalidades.</string>
+    <string name="onboarding_login_button">Iniciar sessão com Twitch</string>
+    <string name="onboarding_login_success">Sessão iniciada com sucesso</string>
+    <string name="onboarding_notifications_title">Notificações</string>
+    <string name="onboarding_notifications_body">O DankChat pode notificá-lo quando alguém o mencionar no chat enquanto a app está em segundo plano.</string>
+    <string name="onboarding_notifications_allow">Permitir notificações</string>
+    <string name="onboarding_notifications_open_settings">Abrir definições de notificações</string>
+    <string name="onboarding_notifications_rationale">Sem notificações, não saberá quando alguém o mencionar no chat enquanto a app está em segundo plano.</string>
+    <string name="onboarding_history_title">Histórico de mensagens</string>
+    <string name="onboarding_history_body">O DankChat carrega mensagens históricas de um serviço externo ao iniciar.\nPara obter as mensagens, o DankChat envia os nomes dos canais abertos para esse serviço.\nO serviço armazena temporariamente as mensagens dos canais visitados.\n\nPode alterar isto mais tarde nas definições ou saber mais em https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Ativar</string>
+    <string name="onboarding_history_disable">Desativar</string>
+    <string name="onboarding_continue">Continuar</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_skip">Saltar</string>
 </resources>

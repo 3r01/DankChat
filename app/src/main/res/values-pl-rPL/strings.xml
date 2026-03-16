@@ -466,6 +466,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (poziom %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">pasuje do %1$d zablokowanego wyrażenia %2$s</item>
+        <item quantity="few">pasuje do %1$d zablokowanych wyrażeń %2$s</item>
+        <item quantity="many">pasuje do %1$d zablokowanych wyrażeń %2$s</item>
         <item quantity="other">pasuje do %1$d zablokowanych wyrażeń %2$s</item>
     </plurals>
     <string name="automod_error_already_processed" comment="Failed to allow AutoMod message - message has already been processed.">Nie udało się %1$s wiadomości AutoMod - wiadomość została już przetworzona.</string>
@@ -477,4 +479,67 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="automod_moderation_added_permitted_term" comment="flex3rs added &quot;test&quot; as a permitted term on AutoMod.">%1$s dodał/a %2$s jako dozwolone wyrażenie w AutoMod.</string>
     <string name="automod_moderation_removed_blocked_term" comment="flex3rs removed &quot;test&quot; as a blocked term on AutoMod.">%1$s usunął/ęła %2$s jako zablokowane wyrażenie z AutoMod.</string>
     <string name="automod_moderation_removed_permitted_term" comment="flex3rs removed &quot;test&quot; as a permitted term on AutoMod.">%1$s usunął/ęła %2$s jako dozwolone wyrażenie z AutoMod.</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Cofnij</string>
+    <string name="hint_whispering">Wyślij szept</string>
+    <string name="whisper_header">Szept do @%1$s</string>
+    <string name="whisper_new">Nowy szept</string>
+    <string name="whisper_new_dialog_title">Wyślij szept do</string>
+    <string name="whisper_new_dialog_hint">Nazwa użytkownika</string>
+    <string name="whisper_new_dialog_start">Wyślij</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Tylko emotki</string>
+    <string name="room_state_subscriber_only">Tylko subskrybenci</string>
+    <string name="room_state_slow_mode">Tryb powolny</string>
+    <string name="room_state_unique_chat">Unikalny czat (R9K)</string>
+    <string name="room_state_follower_only">Tylko obserwujący</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Dodaj kanał, aby zacząć czatować</string>
+    <string name="no_recent_emotes">Brak ostatnich emotek</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Pokaż transmisję</string>
+    <string name="menu_hide_stream">Ukryj transmisję</string>
+    <string name="menu_fullscreen">Pełny ekran</string>
+    <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
+    <string name="menu_hide_input">Ukryj pole wpisywania</string>
+    <string name="menu_room_state">Ustawienia kanału</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Szukaj wiadomości</string>
+    <string name="input_action_last_message">Ostatnia wiadomość</string>
+    <string name="input_action_stream">Przełącz transmisję</string>
+    <string name="input_action_room_state">Ustawienia kanału</string>
+    <string name="input_action_fullscreen">Pełny ekran</string>
+    <string name="input_action_hide_input">Ukryj pole wpisywania</string>
+    <string name="input_action_configure">Konfiguruj akcje</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Maksymalnie %1$d akcja</item>
+        <item quantity="few">Maksymalnie %1$d akcje</item>
+        <item quantity="many">Maksymalnie %1$d akcji</item>
+        <item quantity="other">Maksymalnie %1$d akcji</item>
+    </plurals>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">DankChat</string>
+    <string name="onboarding_welcome_body">Skonfigurujmy wszystko.</string>
+    <string name="onboarding_login_title">Zaloguj się przez Twitch</string>
+    <string name="onboarding_login_body">Zaloguj się, aby wysyłać wiadomości, używać swoich emotek, otrzymywać szepty i odblokować wszystkie funkcje.</string>
+    <string name="onboarding_login_button">Zaloguj się przez Twitch</string>
+    <string name="onboarding_login_success">Logowanie udane</string>
+    <string name="onboarding_notifications_title">Powiadomienia</string>
+    <string name="onboarding_notifications_body">DankChat może powiadamiać Cię, gdy ktoś wspomni o Tobie na czacie, gdy aplikacja działa w tle.</string>
+    <string name="onboarding_notifications_allow">Zezwól na powiadomienia</string>
+    <string name="onboarding_notifications_open_settings">Otwórz ustawienia powiadomień</string>
+    <string name="onboarding_notifications_rationale">Bez powiadomień nie będziesz wiedzieć, gdy ktoś wspomni o Tobie na czacie, gdy aplikacja działa w tle.</string>
+    <string name="onboarding_history_title">Historia wiadomości</string>
+    <string name="onboarding_history_body">DankChat ładuje historyczne wiadomości z zewnętrznego serwisu przy uruchomieniu.\nAby pobrać wiadomości, DankChat wysyła nazwy otwartych kanałów do tego serwisu.\nSerwis tymczasowo przechowuje wiadomości odwiedzanych kanałów.\n\nMożesz to zmienić później w ustawieniach lub dowiedzieć się więcej na https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_enable">Włącz</string>
+    <string name="onboarding_history_disable">Wyłącz</string>
+    <string name="onboarding_continue">Dalej</string>
+    <string name="onboarding_get_started">Rozpocznij</string>
+    <string name="onboarding_skip">Pomiń</string>
 </resources>
