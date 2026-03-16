@@ -22,6 +22,6 @@ interface EmoteUsageDao {
     suspend fun deleteOldUsages()
 
     companion object {
-        private const val RECENT_EMOTE_USAGE_LIMIT = 30
+        private const val RECENT_EMOTE_USAGE_LIMIT = 60
     }
 }
