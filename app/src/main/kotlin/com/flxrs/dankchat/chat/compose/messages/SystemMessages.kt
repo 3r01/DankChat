@@ -29,6 +29,7 @@ import androidx.core.net.toUri
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.messages.common.SimpleMessageContainer
+import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
 import com.flxrs.dankchat.chat.compose.resolve
@@ -202,21 +203,108 @@ fun DateSeparatorComposable(
 }
 
 /**
- * Renders a moderation message (timeouts, bans, deletions)
+ * Renders a moderation message (timeouts, bans, deletions) with colored usernames.
  */
+@Suppress("DEPRECATION")
 @Composable
 fun ModerationMessageComposable(
     message: ChatMessageUiState.ModerationMessageUi,
     fontSize: Float,
     modifier: Modifier = Modifier,
 ) {
-    SimpleMessageContainer(
-        message = message.message.resolve(),
-        timestamp = message.timestamp,
-        fontSize = fontSize.sp,
-        lightBackgroundColor = message.lightBackgroundColor,
-        darkBackgroundColor = message.darkBackgroundColor,
-        textAlpha = message.textAlpha,
-        modifier = modifier,
-    )
+    val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
+    val textColor = rememberAdaptiveTextColor(bgColor)
+    val timestampColor = MaterialTheme.colorScheme.onSurface
+    val creatorColor = rememberNormalizedColor(message.creatorColor, bgColor)
+    val targetColor = rememberNormalizedColor(message.targetColor, bgColor)
+    val textSize = fontSize.sp
+    val resolvedMessage = message.message.resolve()
+    val context = LocalContext.current
+    val linkColor = MaterialTheme.colorScheme.primary
+
+    val annotatedString = remember(
+        message, resolvedMessage, textColor, creatorColor, targetColor, linkColor, timestampColor, textSize
+    ) {
+        buildAnnotatedString {
+            // Timestamp
+            if (message.timestamp.isNotEmpty()) {
+                withStyle(
+                    SpanStyle(
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = textSize * 0.95f,
+                        color = timestampColor,
+                        letterSpacing = (-0.03).em,
+                    )
+                ) {
+                    append(message.timestamp)
+                }
+                append(" ")
+            }
+
+            // Build list of name ranges to color
+            val nameRanges = buildList {
+                var searchFrom = 0
+                message.creatorName?.let { name ->
+                    val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                    if (idx >= 0) {
+                        add(Triple(idx, name.length, creatorColor))
+                        searchFrom = idx + name.length
+                    }
+                }
+                message.targetName?.let { name ->
+                    val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                    if (idx >= 0) add(Triple(idx, name.length, targetColor))
+                }
+            }.sortedBy { it.first }
+
+            // Render message with colored name segments
+            var cursor = 0
+            for ((start, length, color) in nameRanges) {
+                if (start < cursor) continue // skip overlapping
+                if (start > cursor) {
+                    withStyle(SpanStyle(color = textColor)) {
+                        appendWithLinks(resolvedMessage.substring(cursor, start), linkColor)
+                    }
+                }
+                withStyle(SpanStyle(color = color, fontWeight = FontWeight.Bold)) {
+                    append(resolvedMessage.substring(start, start + length))
+                }
+                cursor = start + length
+            }
+            if (cursor < resolvedMessage.length) {
+                withStyle(SpanStyle(color = textColor)) {
+                    appendWithLinks(resolvedMessage.substring(cursor), linkColor)
+                }
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .alpha(message.textAlpha)
+            .background(bgColor)
+            .padding(horizontal = 2.dp, vertical = 2.dp)
+    ) {
+        ClickableText(
+            text = annotatedString,
+            style = TextStyle(fontSize = textSize),
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { offset ->
+                annotatedString.getStringAnnotations("URL", offset, offset)
+                    .firstOrNull()?.let { annotation ->
+                        try {
+                            CustomTabsIntent.Builder()
+                                .setShowTitle(true)
+                                .build()
+                                .launchUrl(context, annotation.item.toUri())
+                        } catch (e: Exception) {
+                            Log.e("ModerationMessage", "Error launching URL", e)
+                        }
+                    }
+            }
+        )
+    }
 }

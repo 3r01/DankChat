@@ -118,6 +118,10 @@ sealed interface ChatMessageUiState {
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
         val message: TextResource,
+        val creatorName: String? = null,
+        val targetName: String? = null,
+        val creatorColor: Int = Message.DEFAULT_COLOR,
+        val targetColor: Int = Message.DEFAULT_COLOR,
     ) : ChatMessageUiState
 
     /**

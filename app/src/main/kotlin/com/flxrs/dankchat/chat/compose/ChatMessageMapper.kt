@@ -258,7 +258,11 @@ class ChatMessageMapper(
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
-            message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages)
+            message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages),
+            creatorName = creatorUserDisplay?.toString(),
+            targetName = targetUserDisplay?.toString(),
+            creatorColor = creatorUserDisplay?.let { usersRepository.getCachedUserColor(UserName(it.toString())) } ?: Message.DEFAULT_COLOR,
+            targetColor = targetUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
         )
     }
 
