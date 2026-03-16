@@ -34,7 +34,6 @@ fun MentionComposable(
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     modifier: Modifier = Modifier,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
-    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     containerColor: Color,
     contentPadding: PaddingValues = PaddingValues(),
 ) {
@@ -59,7 +58,6 @@ fun MentionComposable(
             onMessageLongClick = onMessageLongClick,
             onEmoteClick = onEmoteClick,
             onWhisperReply = if (isWhisperTab) onWhisperReply else null,
-            onJumpToMessage = if (!isWhisperTab) onJumpToMessage else null,
             contentPadding = contentPadding,
             containerColor = containerColor,
         )

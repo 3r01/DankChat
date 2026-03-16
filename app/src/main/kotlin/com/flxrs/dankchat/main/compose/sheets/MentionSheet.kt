@@ -56,7 +56,6 @@ fun MentionSheet(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
-    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     bottomContentPadding: Dp = 0.dp,
 ) {
     val scope = rememberCoroutineScope()
@@ -115,7 +114,6 @@ fun MentionSheet(
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = onEmoteClick,
                 onWhisperReply = if (page == 1) onWhisperReply else null,
-                onJumpToMessage = if (page == 0) onJumpToMessage else null,
                 containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             )

@@ -121,7 +121,6 @@ fun FullScreenSheetOverlay(
                         },
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
-                        onJumpToMessage = onJumpToMessage,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
@@ -148,7 +147,6 @@ fun FullScreenSheetOverlay(
                         },
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
-                        onJumpToMessage = onJumpToMessage,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
@@ -167,7 +165,8 @@ fun FullScreenSheetOverlay(
                                     fullMessage = fullMessage,
                                     canModerate = isLoggedIn,
                                     canReply = isLoggedIn,
-                                    canCopy = true
+                                    canCopy = true,
+                                    canJump = true,
                                 )
                             )
                         },
