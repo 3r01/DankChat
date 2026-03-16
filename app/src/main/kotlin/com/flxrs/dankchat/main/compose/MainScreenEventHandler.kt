@@ -3,7 +3,6 @@ package com.flxrs.dankchat.main.compose
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.res.Resources
-import androidx.core.content.getSystemService
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -11,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.auth.AuthEvent
@@ -41,8 +41,8 @@ fun MainScreenEventHandler(
         mainEventBus.events.collect { event ->
             when (event) {
                 is MainEvent.LogOutRequested -> dialogViewModel.showLogout()
-                is MainEvent.UploadLoading -> dialogViewModel.setUploading(true)
-                is MainEvent.UploadSuccess -> {
+                is MainEvent.UploadLoading   -> dialogViewModel.setUploading(true)
+                is MainEvent.UploadSuccess   -> {
                     dialogViewModel.setUploading(false)
                     context.getSystemService<ClipboardManager>()
                         ?.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", event.url))
@@ -56,19 +56,22 @@ fun MainScreenEventHandler(
                         chatInputViewModel.insertText(event.url)
                     }
                 }
-                is MainEvent.UploadFailed -> {
+
+                is MainEvent.UploadFailed    -> {
                     dialogViewModel.setUploading(false)
                     val message = event.errorMessage?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
                         ?: resources.getString(R.string.snackbar_upload_failed)
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
                 }
-                is MainEvent.OpenChannel -> {
+
+                is MainEvent.OpenChannel     -> {
                     channelTabViewModel.selectTab(
                         preferenceStore.channels.indexOf(event.channel)
                     )
                     (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
-                else -> Unit
+
+                else                         -> Unit
             }
         }
     }
@@ -77,19 +80,22 @@ fun MainScreenEventHandler(
     LaunchedEffect(Unit) {
         authStateCoordinator.events.collect { event ->
             when (event) {
-                is AuthEvent.LoggedIn -> {
+                is AuthEvent.LoggedIn       -> {
                     snackbarHostState.showSnackbar(
                         message = resources.getString(R.string.snackbar_login, event.userName),
                         duration = SnackbarDuration.Short,
                     )
                 }
+
                 is AuthEvent.ScopesOutdated -> {
                     dialogViewModel.showLoginOutdated(event.userName)
                 }
-                AuthEvent.TokenInvalid -> {
+
+                AuthEvent.TokenInvalid      -> {
                     dialogViewModel.showLoginExpired()
                 }
-                AuthEvent.ValidationFailed -> {
+
+                AuthEvent.ValidationFailed  -> {
                     snackbarHostState.showSnackbar(
                         message = resources.getString(R.string.oauth_verify_failed),
                         duration = SnackbarDuration.Short,

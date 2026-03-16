@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.data.api.eventapi.dto.messages
 
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 @SerialName("session_welcome")

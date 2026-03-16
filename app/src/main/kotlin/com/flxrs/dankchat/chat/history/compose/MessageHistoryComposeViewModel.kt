@@ -22,6 +22,7 @@ import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,7 +36,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
-import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 
@@ -131,12 +131,12 @@ class MessageHistoryComposeViewModel(
         val lastSpaceIndex = currentText.trimEnd().lastIndexOf(' ')
         val prefix = when {
             lastSpaceIndex >= 0 -> currentText.substring(0, lastSpaceIndex + 1)
-            else -> ""
+            else                -> ""
         }
         val keyword = suggestion.toString()
         val suffix = when {
             keyword.endsWith(':') -> ""
-            else -> " "
+            else                  -> " "
         }
         val newText = prefix + keyword + suffix
         searchFieldState.edit {

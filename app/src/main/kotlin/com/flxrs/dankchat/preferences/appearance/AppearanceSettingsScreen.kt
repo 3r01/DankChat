@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
@@ -251,12 +250,12 @@ data class ThemeState(
 @Composable
 @Stable
 private fun rememberThemeState(theme: ThemePreference, trueDark: Boolean, systemDarkMode: Boolean): ThemeState {
-    val context = LocalContext.current
+    LocalContext.current
     val defaultEntries = stringArrayResource(R.array.theme_entries).toImmutableList()
     // minSdk 30 always supports light mode and system dark mode
-    val darkThemeTitle = stringResource(R.string.preference_dark_theme_entry_title)
-    val lightThemeTitle = stringResource(R.string.preference_light_theme_entry_title)
-    
+    stringResource(R.string.preference_dark_theme_entry_title)
+    stringResource(R.string.preference_light_theme_entry_title)
+
     val (entries, values) = remember {
         defaultEntries to ThemePreference.entries.toImmutableList()
     }

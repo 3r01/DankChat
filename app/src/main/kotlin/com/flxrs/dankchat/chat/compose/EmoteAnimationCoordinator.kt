@@ -43,7 +43,7 @@ class EmoteAnimationCoordinator(
 
     // Cache of known emote dimensions (width, height in px) to avoid layout shifts
     val dimensionCache = LruCache<String, Pair<Int, Int>>(512)
-    
+
     /**
      * Get or load an emote drawable.
      * 
@@ -59,13 +59,13 @@ class EmoteAnimationCoordinator(
             }
             return cached
         }
-        
+
         // Load the emote via Coil (Coil handles concurrent requests internally)
         return try {
             val request = ImageRequest.Builder(platformContext)
                 .data(url)
                 .build()
-                
+
             val result = imageLoader.execute(request)
             if (result is SuccessResult) {
                 val image = result.image
@@ -88,24 +88,24 @@ class EmoteAnimationCoordinator(
             null
         }
     }
-    
+
     /**
      * Check if an emote is already cached.
      */
     fun getCached(url: String): Drawable? = emoteCache.get(url)
-    
+
     /**
      * Put a drawable in the cache (used by AsyncImage onSuccess callback).
      */
     fun putInCache(url: String, drawable: Drawable) {
         emoteCache.put(url, drawable)
     }
-    
+
     /**
      * Get a cached LayerDrawable for stacked emotes.
      */
     fun getLayerCached(cacheKey: String): LayerDrawable? = layerCache.get(cacheKey)
-    
+
     /**
      * Put a LayerDrawable in the cache for stacked emotes.
      */

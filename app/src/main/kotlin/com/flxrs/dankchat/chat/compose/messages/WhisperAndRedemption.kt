@@ -23,9 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.EmoteDimensions
@@ -50,6 +49,7 @@ import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
 /**
@@ -290,7 +290,7 @@ private fun WhisperMessageText(
                         onUserClick(userId, userName, displayName, message.badges, false)
                     }
                 }
-            
+
             // Handle URL clicks
             annotatedString.getStringAnnotations("URL", offset, offset)
                 .firstOrNull()?.let { annotation ->
@@ -321,7 +321,7 @@ fun PointRedemptionMessageComposable(
 ) {
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val timestampColor = rememberAdaptiveTextColor(backgroundColor)
-    
+
     Box(
         modifier = modifier
             .fillMaxWidth()

@@ -3,6 +3,8 @@ package com.flxrs.dankchat.main.compose
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.IgnoresRepository
+import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -13,9 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-import com.flxrs.dankchat.data.repo.IgnoresRepository
-import com.flxrs.dankchat.data.repo.channel.ChannelRepository
-
 @KoinViewModel
 class ChannelManagementViewModel(
     private val preferenceStore: DankChatPreferenceStore,
@@ -25,7 +24,7 @@ class ChannelManagementViewModel(
     private val channelRepository: ChannelRepository,
 ) : ViewModel() {
 
-    val channels: StateFlow<List<ChannelWithRename>> = 
+    val channels: StateFlow<List<ChannelWithRename>> =
         preferenceStore.getChannelsWithRenamesFlow()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -39,14 +38,14 @@ class ChannelManagementViewModel(
                 }
             }
         }
-        
+
         // Auto-load data when channels added and join if necessary
         viewModelScope.launch {
             var previousChannels = emptySet<UserName>()
             channels.collect { channelList ->
                 val currentChannels = channelList.map { it.channel }.toSet()
                 val newChannels = currentChannels - previousChannels
-                
+
                 newChannels.forEach { channel ->
                     chatRepository.joinChannel(channel)
                     channelDataCoordinator.loadChannelData(channel)
@@ -127,12 +126,12 @@ class ChannelManagementViewModel(
         // 1. Cleanup removed channels
         if (removedChannels.isNotEmpty()) {
             chatRepository.updateChannels(newChannelNames) // This handles join/part
-            removedChannels.forEach { channel -> 
+            removedChannels.forEach { channel ->
                 channelDataCoordinator.cleanupChannel(channel)
                 // Remove rename
                 preferenceStore.setRenamedChannel(ChannelWithRename(channel, null))
             }
-            
+
             // 2. Update active channel if removed
             val activeChannel = chatRepository.activeChannel.value
             if (activeChannel in removedChannels) {

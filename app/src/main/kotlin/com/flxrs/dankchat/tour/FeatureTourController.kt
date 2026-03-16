@@ -42,9 +42,9 @@ class FeatureTourController(
 
     val currentStep: TourStep?
         get() = when {
-            !isActive                              -> null
+            !isActive                                 -> null
             currentStepIndex >= TourStep.entries.size -> null
-            else                                   -> TourStep.entries[currentStepIndex]
+            else                                      -> TourStep.entries[currentStepIndex]
         }
 
     /** When true, ChatInputLayout should force the overflow menu open. */
@@ -74,7 +74,7 @@ class FeatureTourController(
         // A larger gap means a prior tour was never completed and the step index is stale.
         currentStepIndex = when {
             CURRENT_TOUR_VERSION - settings.featureTourVersion == 1 -> settings.featureTourStep.coerceIn(0, TourStep.entries.size - 1)
-            else -> 0
+            else                                                    -> 0
         }
         applyStepSideEffects()
         showCurrentTooltip()
@@ -95,7 +95,8 @@ class FeatureTourController(
                 completeTour()
                 return
             }
-            else -> {
+
+            else             -> {
                 onboardingDataStore.updateAsync { it.copy(featureTourStep = currentStepIndex) }
                 applyStepSideEffects()
             }
@@ -114,9 +115,9 @@ class FeatureTourController(
     private fun applyStepSideEffects() {
         when (currentStep) {
             TourStep.ConfigureActions -> forceOverflowOpen = true
-            TourStep.SwipeGesture -> forceOverflowOpen = false
-            TourStep.RecoveryFab -> onHideInput?.invoke()
-            else -> {}
+            TourStep.SwipeGesture     -> forceOverflowOpen = false
+            TourStep.RecoveryFab      -> onHideInput?.invoke()
+            else                      -> {}
         }
     }
 
@@ -145,11 +146,11 @@ class FeatureTourController(
     }
 
     private fun tooltipStateForStep(step: TourStep): TooltipState = when (step) {
-        TourStep.InputActions      -> inputActionsTooltipState
-        TourStep.OverflowMenu      -> overflowMenuTooltipState
-        TourStep.ConfigureActions  -> configureActionsTooltipState
-        TourStep.SwipeGesture      -> swipeGestureTooltipState
-        TourStep.RecoveryFab       -> recoveryFabTooltipState
+        TourStep.InputActions     -> inputActionsTooltipState
+        TourStep.OverflowMenu     -> overflowMenuTooltipState
+        TourStep.ConfigureActions -> configureActionsTooltipState
+        TourStep.SwipeGesture     -> swipeGestureTooltipState
+        TourStep.RecoveryFab      -> recoveryFabTooltipState
     }
 }
 

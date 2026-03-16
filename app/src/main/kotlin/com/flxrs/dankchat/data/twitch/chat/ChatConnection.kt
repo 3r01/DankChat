@@ -2,10 +2,10 @@ package com.flxrs.dankchat.data.twitch.chat
 
 import android.util.Log
 import com.flxrs.dankchat.BuildConfig
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.toUserName
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.timer
 import io.ktor.http.HttpHeaders

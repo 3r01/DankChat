@@ -42,8 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -59,11 +59,9 @@ import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.history.compose.MessageHistoryComposeViewModel
-import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.main.compose.SuggestionDropdown
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
+import com.flxrs.dankchat.main.compose.SuggestionDropdown
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 

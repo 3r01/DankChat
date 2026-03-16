@@ -2,18 +2,16 @@ package com.flxrs.dankchat.main.compose.dialogs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
@@ -24,10 +22,10 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -97,7 +95,7 @@ fun MessageOptionsDialog(
                     }
                 )
             }
-            
+
             if (canJump && channel != null) {
                 MessageOptionItem(
                     icon = Icons.AutoMirrored.Filled.OpenInNew,
@@ -134,25 +132,25 @@ fun MessageOptionsDialog(
 
             if (canModerate) {
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                
+
                 MessageOptionItem(
                     icon = Icons.Default.Timer,
                     text = stringResource(R.string.user_popup_timeout),
                     onClick = { showTimeoutDialog = true }
                 )
-                
+
                 MessageOptionItem(
                     icon = Icons.Default.Delete,
                     text = stringResource(R.string.user_popup_delete),
                     onClick = { showDeleteDialog = true }
                 )
-                
+
                 MessageOptionItem(
                     icon = Icons.Default.Gavel,
                     text = stringResource(R.string.user_popup_ban),
                     onClick = { showBanDialog = true }
                 )
-                
+
                 MessageOptionItem(
                     icon = Icons.Default.Gavel, // Using same icon for unban
                     text = stringResource(R.string.user_popup_unban),

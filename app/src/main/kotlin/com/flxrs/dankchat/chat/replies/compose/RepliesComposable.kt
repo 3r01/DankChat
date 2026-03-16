@@ -6,6 +6,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
@@ -14,8 +15,6 @@ import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.replies.RepliesUiState
-import androidx.compose.ui.graphics.Color
-import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 
 /**
  * Standalone composable for reply thread display.
@@ -44,26 +43,27 @@ fun RepliesComposable(
     val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
 
     CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
-    when (uiState) {
-        is RepliesUiState.Found -> {
-            ChatScreen(
-                messages = (uiState as RepliesUiState.Found).items,
-                fontSize = displaySettings.fontSize,
-                showLineSeparator = displaySettings.showLineSeparator,
-                animateGifs = displaySettings.animateGifs,
-                modifier = modifier,
-                onUserClick = onUserClick,
-                onMessageLongClick = onMessageLongClick,
-                onEmoteClick = { /* no-op for replies */ },
-                contentPadding = contentPadding,
-                containerColor = containerColor,
-            )
-        }
-        is RepliesUiState.NotFound -> {
-            LaunchedEffect(Unit) {
-                onNotFound()
+        when (uiState) {
+            is RepliesUiState.Found    -> {
+                ChatScreen(
+                    messages = (uiState as RepliesUiState.Found).items,
+                    fontSize = displaySettings.fontSize,
+                    showLineSeparator = displaySettings.showLineSeparator,
+                    animateGifs = displaySettings.animateGifs,
+                    modifier = modifier,
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = { /* no-op for replies */ },
+                    contentPadding = contentPadding,
+                    containerColor = containerColor,
+                )
+            }
+
+            is RepliesUiState.NotFound -> {
+                LaunchedEffect(Unit) {
+                    onNotFound()
+                }
             }
         }
-    }
     } // CompositionLocalProvider
 }

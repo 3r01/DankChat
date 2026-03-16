@@ -67,13 +67,13 @@ class HighlightsViewModel(
 
             HighlightsTab.Users            -> {
                 val entity = highlightsRepository.addUserHighlight()
-                userHighlights +=  entity.toItem(notificationsEnabled)
+                userHighlights += entity.toItem(notificationsEnabled)
                 position = userHighlights.lastIndex
             }
 
             HighlightsTab.Badges           -> {
                 val entity = highlightsRepository.addBadgeHighlight()
-                badgeHighlights +=  entity.toItem(notificationsEnabled)
+                badgeHighlights += entity.toItem(notificationsEnabled)
                 position = badgeHighlights.lastIndex
             }
 
@@ -101,7 +101,7 @@ class HighlightsViewModel(
                 isLast = position == userHighlights.lastIndex
             }
 
-            is BadgeHighlightItem    -> {
+            is BadgeHighlightItem   -> {
                 highlightsRepository.updateBadgeHighlight(item.toEntity())
                 badgeHighlights.add(position, item)
                 isLast = position == badgeHighlights.lastIndex
@@ -131,7 +131,7 @@ class HighlightsViewModel(
                 userHighlights.removeAt(position)
             }
 
-            is BadgeHighlightItem    -> {
+            is BadgeHighlightItem   -> {
                 position = badgeHighlights.indexOfFirst { it.id == item.id }
                 highlightsRepository.removeBadgeHighlight(item.toEntity())
                 badgeHighlights.removeAt(position)

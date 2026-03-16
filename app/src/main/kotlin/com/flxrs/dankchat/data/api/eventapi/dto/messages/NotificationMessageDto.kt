@@ -3,9 +3,9 @@ package com.flxrs.dankchat.data.api.eventapi.dto.messages
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionStatus
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionType
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.NotificationEventDto
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 @SerialName("notification")

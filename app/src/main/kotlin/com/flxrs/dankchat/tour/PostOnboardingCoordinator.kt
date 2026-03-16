@@ -55,7 +55,7 @@ class PostOnboardingCoordinator(
         val settings = onboardingDataStore.current()
         step = when {
             settings.featureTourVersion < CURRENT_TOUR_VERSION && !isEmpty -> PostOnboardingStep.FeatureTour
-            else -> PostOnboardingStep.Complete
+            else                                                           -> PostOnboardingStep.Complete
         }
     }
 
@@ -69,11 +69,11 @@ class PostOnboardingCoordinator(
         val toolbarDone = settings.hasShownToolbarHint || toolbarHintDone
 
         step = when {
-            !settings.hasCompletedOnboarding -> PostOnboardingStep.Idle
-            isEmpty -> PostOnboardingStep.Idle
-            !toolbarDone -> PostOnboardingStep.ToolbarPlusHint
+            !settings.hasCompletedOnboarding                   -> PostOnboardingStep.Idle
+            isEmpty                                            -> PostOnboardingStep.Idle
+            !toolbarDone                                       -> PostOnboardingStep.ToolbarPlusHint
             settings.featureTourVersion < CURRENT_TOUR_VERSION -> PostOnboardingStep.FeatureTour
-            else -> PostOnboardingStep.Complete
+            else                                               -> PostOnboardingStep.Complete
         }
     }
 }

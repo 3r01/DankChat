@@ -65,7 +65,7 @@ fun AddChannelDialog(
             }
         }
     )
-    
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }

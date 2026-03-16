@@ -61,31 +61,36 @@ class SheetNavigationViewModel : ViewModel() {
 
     fun handleBackPress(): Boolean {
         return when {
-            _inputSheetState.value != InputSheetState.Closed -> {
+            _inputSheetState.value != InputSheetState.Closed           -> {
                 closeInputSheet()
                 true
             }
+
             _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
                 closeFullScreenSheet()
                 true
             }
-            else -> false
+
+            else                                                       -> false
         }
     }
 }
 
 sealed interface FullScreenSheetState {
     data object Closed : FullScreenSheetState
-    @Immutable data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
+    @Immutable
+    data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
     data object Mention : FullScreenSheetState
     data object Whisper : FullScreenSheetState
-    @Immutable data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
+    @Immutable
+    data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
 }
 
 sealed interface InputSheetState {
     data object Closed : InputSheetState
     data object EmoteMenu : InputSheetState
-    @Immutable data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
+    @Immutable
+    data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState
 }
 
 @Immutable

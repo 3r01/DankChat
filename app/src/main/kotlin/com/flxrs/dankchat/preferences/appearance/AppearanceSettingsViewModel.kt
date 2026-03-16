@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.preferences.appearance
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -7,7 +8,6 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.Immutable
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
@@ -27,13 +27,13 @@ class AppearanceSettingsViewModel(
     suspend fun onSuspendingInteraction(interaction: AppearanceSettingsInteraction) {
         runCatching {
             when (interaction) {
-                is AppearanceSettingsInteraction.Theme             -> dataStore.update { it.copy(theme = interaction.theme) }
-                is AppearanceSettingsInteraction.TrueDarkTheme     -> dataStore.update { it.copy(trueDarkTheme = interaction.trueDarkTheme) }
-                is AppearanceSettingsInteraction.FontSize          -> dataStore.update { it.copy(fontSize = interaction.fontSize) }
-                is AppearanceSettingsInteraction.KeepScreenOn      -> dataStore.update { it.copy(keepScreenOn = interaction.value) }
-                is AppearanceSettingsInteraction.LineSeparator     -> dataStore.update { it.copy(lineSeparator = interaction.value) }
-                is AppearanceSettingsInteraction.CheckeredMessages -> dataStore.update { it.copy(checkeredMessages = interaction.value) }
-                is AppearanceSettingsInteraction.AutoDisableInput  -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
+                is AppearanceSettingsInteraction.Theme                -> dataStore.update { it.copy(theme = interaction.theme) }
+                is AppearanceSettingsInteraction.TrueDarkTheme        -> dataStore.update { it.copy(trueDarkTheme = interaction.trueDarkTheme) }
+                is AppearanceSettingsInteraction.FontSize             -> dataStore.update { it.copy(fontSize = interaction.fontSize) }
+                is AppearanceSettingsInteraction.KeepScreenOn         -> dataStore.update { it.copy(keepScreenOn = interaction.value) }
+                is AppearanceSettingsInteraction.LineSeparator        -> dataStore.update { it.copy(lineSeparator = interaction.value) }
+                is AppearanceSettingsInteraction.CheckeredMessages    -> dataStore.update { it.copy(checkeredMessages = interaction.value) }
+                is AppearanceSettingsInteraction.AutoDisableInput     -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
                 is AppearanceSettingsInteraction.ShowChangelogs       -> dataStore.update { it.copy(showChangelogs = interaction.value) }
                 is AppearanceSettingsInteraction.ShowCharacterCounter -> dataStore.update { it.copy(showCharacterCounter = interaction.value) }
             }

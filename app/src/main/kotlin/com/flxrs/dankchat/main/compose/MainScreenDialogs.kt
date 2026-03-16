@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.main.compose
 
 import android.content.ClipData
-import com.flxrs.dankchat.main.compose.dialogs.ConfirmationDialog
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
@@ -22,10 +21,11 @@ import com.flxrs.dankchat.chat.message.compose.MessageOptionsComposeViewModel
 import com.flxrs.dankchat.chat.message.compose.MessageOptionsState
 import com.flxrs.dankchat.chat.user.UserPopupComposeViewModel
 import com.flxrs.dankchat.chat.user.compose.UserPopupDialog
+import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
-import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
+import com.flxrs.dankchat.main.compose.dialogs.ConfirmationDialog
 import com.flxrs.dankchat.main.compose.dialogs.EmoteInfoDialog
 import com.flxrs.dankchat.main.compose.dialogs.ManageChannelsDialog
 import com.flxrs.dankchat.main.compose.dialogs.MessageOptionsDialog

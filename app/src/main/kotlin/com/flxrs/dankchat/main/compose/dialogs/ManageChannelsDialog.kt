@@ -52,7 +52,7 @@ fun ManageChannelsDialog(
 ) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
     var channelToEdit by remember { mutableStateOf<ChannelWithRename?>(null) }
-    
+
     // Local state for smooth reordering and deferred updates
     val localChannels = remember { mutableStateListOf<ChannelWithRename>() }
     LaunchedEffect(channels) {
@@ -85,7 +85,7 @@ fun ManageChannelsDialog(
             itemsIndexed(localChannels, key = { _, it -> it.channel.value }) { index, channelWithRename ->
                 ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
                     val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
-                    
+
                     Surface(
                         shadowElevation = elevation,
                         color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent
@@ -115,7 +115,7 @@ fun ManageChannelsDialog(
                     }
                 }
             }
-            
+
             if (localChannels.isEmpty()) {
                 item {
                     Text(
@@ -146,7 +146,7 @@ fun ManageChannelsDialog(
     channelToEdit?.let { channel ->
         EditChannelDialog(
             channelWithRename = channel,
-            onRename = { userName, newName -> 
+            onRename = { userName, newName ->
                 val index = localChannels.indexOfFirst { it.channel == userName }
                 if (index != -1) {
                     val rename = newName?.ifBlank { null }?.let { UserName(it) }

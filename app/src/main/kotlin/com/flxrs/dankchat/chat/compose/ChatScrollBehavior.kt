@@ -37,8 +37,13 @@ class ScrollDirectionTracker(
         }
         accumulated += available.y
         when {
-            accumulated > hideThresholdPx  -> { onHide(); accumulated = 0f }
-            accumulated < -showThresholdPx -> { onShow(); accumulated = 0f }
+            accumulated > hideThresholdPx  -> {
+                onHide(); accumulated = 0f
+            }
+
+            accumulated < -showThresholdPx -> {
+                onShow(); accumulated = 0f
+            }
         }
         return Offset.Zero
     }
@@ -82,7 +87,7 @@ fun Modifier.swipeDownToHide(
     if (!enabled) return this
     return this.pointerInput(enabled) {
         awaitEachGesture {
-            val down = awaitFirstDown(pass = PointerEventPass.Initial, requireUnconsumed = false)
+            awaitFirstDown(pass = PointerEventPass.Initial, requireUnconsumed = false)
             var totalDragY = 0f
             var fired = false
             while (true) {

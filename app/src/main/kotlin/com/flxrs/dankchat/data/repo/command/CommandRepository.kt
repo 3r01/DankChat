@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.command
 
 import android.util.Log
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.supibot.SupibotApiClient
@@ -13,7 +14,6 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommandRepository
 import com.flxrs.dankchat.data.twitch.message.RoomState
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore

@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.database.entity.BlacklistedUserEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntityType
 import com.flxrs.dankchat.data.database.entity.UserHighlightEntity
-import kotlinx.collections.immutable.ImmutableList
 
 sealed interface HighlightItem {
     val id: Long

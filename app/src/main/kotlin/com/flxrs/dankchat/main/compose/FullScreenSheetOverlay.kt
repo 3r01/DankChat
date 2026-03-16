@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.chat.compose.BadgeUi
+import com.flxrs.dankchat.chat.history.compose.MessageHistoryComposeViewModel
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
 import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
 import com.flxrs.dankchat.chat.user.UserPopupStateParams
@@ -24,7 +25,6 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.chat.history.compose.MessageHistoryComposeViewModel
 import com.flxrs.dankchat.main.compose.sheets.MentionSheet
 import com.flxrs.dankchat.main.compose.sheets.MessageHistorySheet
 import com.flxrs.dankchat.main.compose.sheets.RepliesSheet
@@ -94,7 +94,7 @@ fun FullScreenSheetOverlay(
             // Use lastActiveState so content stays visible during the exit animation
             val renderState = when {
                 isVisible -> sheetState
-                else -> lastActiveState
+                else      -> lastActiveState
             }
 
             when (renderState) {
@@ -125,6 +125,7 @@ fun FullScreenSheetOverlay(
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
+
                 is FullScreenSheetState.Whisper -> {
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
@@ -151,6 +152,7 @@ fun FullScreenSheetOverlay(
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
+
                 is FullScreenSheetState.Replies -> {
                     RepliesSheet(
                         rootMessageId = renderState.replyMessageId,
@@ -172,6 +174,7 @@ fun FullScreenSheetOverlay(
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
+
                 is FullScreenSheetState.History -> {
                     MessageHistorySheet(
                         viewModel = (currentHistoryViewModel ?: lastHistoryViewModel)!!,

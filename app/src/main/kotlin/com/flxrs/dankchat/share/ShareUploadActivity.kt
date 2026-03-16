@@ -5,7 +5,6 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import com.flxrs.dankchat.utils.extensions.parcelable
 import android.webkit.MimeTypeMap
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -49,6 +48,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.theme.DankChatTheme
 import com.flxrs.dankchat.utils.createMediaFile
+import com.flxrs.dankchat.utils.extensions.parcelable
 import com.flxrs.dankchat.utils.removeExifAttributes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -168,7 +168,7 @@ private fun ShareUploadDialog(
                 when (currentState) {
                     is ShareUploadState.Loading -> LoadingContent()
                     is ShareUploadState.Success -> SuccessContent(url = currentState.url)
-                    is ShareUploadState.Error -> ErrorContent(message = currentState.message)
+                    is ShareUploadState.Error   -> ErrorContent(message = currentState.message)
                 }
             }
 
@@ -178,7 +178,7 @@ private fun ShareUploadDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 when (state) {
-                    is ShareUploadState.Error -> {
+                    is ShareUploadState.Error   -> {
                         TextButton(onClick = onDismiss) {
                             Text(stringResource(R.string.dialog_dismiss))
                         }

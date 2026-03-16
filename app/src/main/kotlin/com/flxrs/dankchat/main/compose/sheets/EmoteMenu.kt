@@ -87,10 +87,10 @@ fun EmoteMenu(
                         text = {
                             Text(
                                 text = when (tabItem.type) {
-                                    EmoteMenuTab.RECENT -> stringResource(R.string.emote_menu_tab_recent)
-                                    EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
+                                    EmoteMenuTab.RECENT  -> stringResource(R.string.emote_menu_tab_recent)
+                                    EmoteMenuTab.SUBS    -> stringResource(R.string.emote_menu_tab_subs)
                                     EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
-                                    EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
+                                    EmoteMenuTab.GLOBAL  -> stringResource(R.string.emote_menu_tab_global)
                                 }
                             )
                         }
@@ -134,20 +134,20 @@ fun EmoteMenu(
                                 items = items,
                                 key = { item ->
                                     when (item) {
-                                        is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
+                                        is EmoteItem.Emote  -> "emote-${item.emote.id}-${item.emote.code}"
                                         is EmoteItem.Header -> "header-${item.title}"
                                     }
                                 },
                                 span = { item ->
                                     when (item) {
                                         is EmoteItem.Header -> GridItemSpan(maxLineSpan)
-                                        is EmoteItem.Emote -> GridItemSpan(1)
+                                        is EmoteItem.Emote  -> GridItemSpan(1)
                                     }
                                 },
                                 contentType = { item ->
                                     when (item) {
                                         is EmoteItem.Header -> "header"
-                                        is EmoteItem.Emote -> "emote"
+                                        is EmoteItem.Emote  -> "emote"
                                     }
                                 }
                             ) { item ->
@@ -162,7 +162,7 @@ fun EmoteMenu(
                                         )
                                     }
 
-                                    is EmoteItem.Emote -> {
+                                    is EmoteItem.Emote  -> {
                                         AsyncImage(
                                             model = item.emote.url,
                                             contentDescription = item.emote.code,

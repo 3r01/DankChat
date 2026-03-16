@@ -23,12 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,12 +44,12 @@ import com.flxrs.dankchat.chat.compose.EmoteDimensions
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.StackedEmote
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 
@@ -332,7 +332,7 @@ private fun PrivMessageText(
                         onUserClick(userId, userName, displayName, channel, message.badges, false)
                     }
                 }
-            
+
             // Handle URL clicks
             annotatedString.getStringAnnotations("URL", offset, offset)
                 .firstOrNull()?.let { annotation ->

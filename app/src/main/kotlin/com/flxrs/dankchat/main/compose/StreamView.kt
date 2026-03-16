@@ -82,7 +82,7 @@ fun StreamView(
     ) {
         val webViewModifier = when {
             isInPipMode || fillPane -> Modifier.fillMaxSize()
-            else -> Modifier
+            else                    -> Modifier
                 .fillMaxWidth()
                 .aspectRatio(16f / 9f)
         }

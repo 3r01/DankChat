@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.twitch.command
 
 import android.util.Log
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
@@ -19,7 +20,6 @@ import com.flxrs.dankchat.data.repo.chat.UserState
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import org.koin.core.annotation.Single
 import java.util.UUID

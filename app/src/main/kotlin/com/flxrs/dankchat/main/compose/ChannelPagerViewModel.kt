@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore

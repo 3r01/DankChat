@@ -346,7 +346,7 @@ private fun <T : IgnoreItem> IgnoresList(
         item(key = "bottom-spacer") {
             val height = when (tab) {
                 IgnoresTab.Messages, IgnoresTab.Users -> 112.dp
-                IgnoresTab.Twitch   -> Dp.Unspecified
+                IgnoresTab.Twitch                     -> Dp.Unspecified
             }
             NavigationBarSpacer(Modifier.height(height))
         }

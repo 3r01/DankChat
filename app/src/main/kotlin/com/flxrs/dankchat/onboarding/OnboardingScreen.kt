@@ -2,8 +2,8 @@ package com.flxrs.dankchat.onboarding
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,7 +12,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
@@ -54,16 +52,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withLink
-import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.net.toUri
-import android.content.pm.PackageManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -398,7 +394,7 @@ private fun NotificationsPage(
                             }
                         }
 
-                        NotificationPermissionState.Denied -> {
+                        NotificationPermissionState.Denied  -> {
                             Text(
                                 text = stringResource(R.string.onboarding_notifications_rationale),
                                 style = MaterialTheme.typography.bodySmall,

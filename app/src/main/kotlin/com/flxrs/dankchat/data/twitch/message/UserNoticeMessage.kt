@@ -33,7 +33,7 @@ data class UserNoticeMessage(
             var msgId = tags["msg-id"]
             var mirrored = msgId == "sharedchatnotice"
             if (mirrored) {
-               msgId = tags["source-msg-id"]
+                msgId = tags["source-msg-id"]
             } else {
                 val roomId = tags["room-id"]
                 val sourceRoomId = tags["source-room-id"]

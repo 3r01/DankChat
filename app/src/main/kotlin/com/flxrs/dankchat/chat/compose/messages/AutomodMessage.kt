@@ -101,7 +101,7 @@ fun AutomodMessageComposable(
 
             // Allow / Deny buttons or status text
             when (message.status) {
-                AutomodMessageStatus.Pending  -> {
+                AutomodMessageStatus.Pending -> {
                     pushStringAnnotation(tag = ALLOW_TAG, annotation = message.heldMessageId)
                     withStyle(SpanStyle(color = allowColor, fontWeight = FontWeight.Bold)) {
                         append(allowText)
@@ -121,13 +121,13 @@ fun AutomodMessageComposable(
                     }
                 }
 
-                AutomodMessageStatus.Denied   -> {
+                AutomodMessageStatus.Denied -> {
                     withStyle(SpanStyle(color = denyColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
                         append(deniedText)
                     }
                 }
 
-                AutomodMessageStatus.Expired  -> {
+                AutomodMessageStatus.Expired -> {
                     withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f), fontWeight = FontWeight.Bold)) {
                         append(expiredText)
                     }

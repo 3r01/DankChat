@@ -64,7 +64,7 @@ fun ChatBottomBar(
             enter = EnterTransition.None,
             exit = when {
                 instantHide -> ExitTransition.None
-                else -> slideOutVertically(targetOffsetY = { it })
+                else        -> slideOutVertically(targetOffsetY = { it })
             },
         ) {
             ChatInputLayout(
@@ -115,7 +115,7 @@ fun ChatBottomBar(
             if (!helperText.isNullOrEmpty()) {
                 val horizontalPadding = when {
                     isFullscreen -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
-                    else -> PaddingValues(horizontal = 16.dp)
+                    else         -> PaddingValues(horizontal = 16.dp)
                 }
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,

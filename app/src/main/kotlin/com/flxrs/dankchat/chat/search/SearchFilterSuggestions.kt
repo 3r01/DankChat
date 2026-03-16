@@ -41,12 +41,12 @@ object SearchFilterSuggestions {
         val partial = lastToken.substring(colonIndex + 1)
 
         return when (prefix.lowercase()) {
-            "from:" -> users
+            "from:"  -> users
                 .filter { it.value.startsWith(partial, ignoreCase = true) && !it.value.equals(partial, ignoreCase = true) }
                 .take(MAX_VALUE_SUGGESTIONS)
                 .map { Suggestion.FilterSuggestion(keyword = "from:${it.value}", descriptionRes = R.string.search_filter_user, displayText = it.value) }
 
-            "has:" -> HAS_VALUES.filter { suggestion ->
+            "has:"   -> HAS_VALUES.filter { suggestion ->
                 val value = suggestion.displayText.orEmpty()
                 value.startsWith(partial, ignoreCase = true) && !value.equals(partial, ignoreCase = true)
             }
@@ -56,7 +56,7 @@ object SearchFilterSuggestions {
                 .take(MAX_VALUE_SUGGESTIONS)
                 .map { Suggestion.FilterSuggestion(keyword = "badge:$it", descriptionRes = R.string.search_filter_badge, displayText = it) }
 
-            else -> emptyList()
+            else     -> emptyList()
         }
     }
 }

@@ -7,8 +7,24 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.flxrs.dankchat.data.database.converter.InstantConverter
-import com.flxrs.dankchat.data.database.dao.*
-import com.flxrs.dankchat.data.database.entity.*
+import com.flxrs.dankchat.data.database.dao.BadgeHighlightDao
+import com.flxrs.dankchat.data.database.dao.BlacklistedUserDao
+import com.flxrs.dankchat.data.database.dao.EmoteUsageDao
+import com.flxrs.dankchat.data.database.dao.MessageHighlightDao
+import com.flxrs.dankchat.data.database.dao.MessageIgnoreDao
+import com.flxrs.dankchat.data.database.dao.RecentUploadsDao
+import com.flxrs.dankchat.data.database.dao.UserDisplayDao
+import com.flxrs.dankchat.data.database.dao.UserHighlightDao
+import com.flxrs.dankchat.data.database.dao.UserIgnoreDao
+import com.flxrs.dankchat.data.database.entity.BadgeHighlightEntity
+import com.flxrs.dankchat.data.database.entity.BlacklistedUserEntity
+import com.flxrs.dankchat.data.database.entity.EmoteUsageEntity
+import com.flxrs.dankchat.data.database.entity.MessageHighlightEntity
+import com.flxrs.dankchat.data.database.entity.MessageIgnoreEntity
+import com.flxrs.dankchat.data.database.entity.UploadEntity
+import com.flxrs.dankchat.data.database.entity.UserDisplayEntity
+import com.flxrs.dankchat.data.database.entity.UserHighlightEntity
+import com.flxrs.dankchat.data.database.entity.UserIgnoreEntity
 
 @Database(
     version = 7,

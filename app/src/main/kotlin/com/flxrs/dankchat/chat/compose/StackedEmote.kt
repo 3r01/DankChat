@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.runtime.remember
 import coil3.asDrawable
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
@@ -47,7 +47,7 @@ fun StackedEmote(
     val baseHeight = EmoteScaling.getBaseHeight(fontSize)
     val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
     val scaleFactor = EmoteScaling.getScaleFactor(baseHeightPx)
-    
+
     // For single emote, render directly without LayerDrawable
     if (emote.urls.size == 1 && emote.emotes.isNotEmpty()) {
         SingleEmoteDrawable(
@@ -62,10 +62,10 @@ fun StackedEmote(
         )
         return
     }
-    
+
     // For stacked emotes, create cache key matching old implementation
     val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
-    
+
     // Estimate placeholder size from dimension cache or from base height
     val cachedDims = emoteCoordinator.dimensionCache.get(cacheKey)
     val estimatedHeightPx = cachedDims?.second ?: (baseHeightPx * (emote.emotes.firstOrNull()?.scale ?: 1))
@@ -242,9 +242,9 @@ private fun transformEmoteDrawable(
 ): Drawable {
     val ratio = drawable.intrinsicWidth / drawable.intrinsicHeight.toFloat()
     val height = when {
-        drawable.intrinsicHeight < 55 && emote.isTwitch       -> (70 * scale).roundToInt()
+        drawable.intrinsicHeight < 55 && emote.isTwitch -> (70 * scale).roundToInt()
         drawable.intrinsicHeight in 55..111 && emote.isTwitch -> (112 * scale).roundToInt()
-        else                                                   -> (drawable.intrinsicHeight * scale).roundToInt()
+        else -> (drawable.intrinsicHeight * scale).roundToInt()
     }
     val width = (height * ratio).roundToInt()
 

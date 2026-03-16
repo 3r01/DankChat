@@ -80,9 +80,11 @@ fun LoginScreen(
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier
-            .padding(paddingValues)
-            .fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
             if (isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }

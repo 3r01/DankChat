@@ -1,11 +1,11 @@
 package com.flxrs.dankchat.chat.compose
 
+import android.util.Patterns
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
-import android.util.Patterns
 
 private val DISALLOWED_URL_CHARS = """<>\{}|^"`""".toSet()
 
@@ -35,7 +35,7 @@ fun AnnotatedString.Builder.appendWithLinks(text: String, linkColor: Color, prev
             fixedEnd++
         }
         end = fixedEnd
-        
+
         val url = text.substring(start, end)
 
         // Append text before URL

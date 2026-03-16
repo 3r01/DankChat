@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.Intent
 import android.media.AudioManager
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.speech.tts.TextToSpeech
 import android.util.Log

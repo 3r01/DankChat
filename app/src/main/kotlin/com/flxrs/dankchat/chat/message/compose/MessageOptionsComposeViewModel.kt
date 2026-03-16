@@ -12,7 +12,6 @@ import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
-import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class MessageOptionsComposeViewModel(

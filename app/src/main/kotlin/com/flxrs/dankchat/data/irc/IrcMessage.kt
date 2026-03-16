@@ -25,10 +25,10 @@ data class IrcMessage(
                 while (i < value.length) {
                     if (value[i] == '\\' && i + 1 < value.length) {
                         when (value[i + 1]) {
-                            ':' -> append(';')
-                            's' -> append(' ')
-                            'r' -> append('\r')
-                            'n' -> append('\n')
+                            ':'  -> append(';')
+                            's'  -> append(' ')
+                            'r'  -> append('\r')
+                            'n'  -> append('\n')
                             '\\' -> append('\\')
                             else -> {
                                 append(value[i])

@@ -9,7 +9,6 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.gif.AnimatedImageDecoder
-import coil3.gif.GifDecoder
 import coil3.network.cachecontrol.CacheControlCacheStrategy
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.flxrs.dankchat.data.repo.HighlightsRepository
@@ -30,11 +29,10 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.koin.ksp.generated.*
+import org.koin.ksp.generated.module
 
 class DankChatApplication : Application(), SingletonImageLoader.Factory {
     // Dummy comment to force KSP re-run
-
 
     private val dispatchersProvider: DispatchersProvider by inject()
     private val scope by lazy { CoroutineScope(SupervisorJob() + dispatchersProvider.main) }

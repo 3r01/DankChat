@@ -3,10 +3,10 @@ package com.flxrs.dankchat.main.compose
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
@@ -83,8 +83,13 @@ class MainScreenViewModel(
     private val _keyboardHeightPx = MutableStateFlow(0)
     val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
 
-    fun setGestureInputHidden(hidden: Boolean) { _gestureInputHidden.value = hidden }
-    fun setGestureToolbarHidden(hidden: Boolean) { _gestureToolbarHidden.value = hidden }
+    fun setGestureInputHidden(hidden: Boolean) {
+        _gestureInputHidden.value = hidden
+    }
+
+    fun setGestureToolbarHidden(hidden: Boolean) {
+        _gestureToolbarHidden.value = hidden
+    }
 
     fun resetGestureState() {
         _gestureInputHidden.value = false

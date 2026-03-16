@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
@@ -69,7 +68,7 @@ fun TextWithMeasuredInlineContent(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val textLayoutResultRef = remember { mutableStateOf<TextLayoutResult?>(null) }
-    
+
     SubcomposeLayout(modifier = modifier) { constraints ->
         // Phase 1: Measure inline content to get actual dimensions
         // Skip measurement for IDs with pre-known dimensions (from cache)
@@ -112,9 +111,9 @@ fun TextWithMeasuredInlineContent(
                 inlineContentProviders[id]?.invoke()
             }
         }
-        
+
         // Phase 3: Compose the text with correct inline content
-        
+
         val textMeasurables = subcompose("text") {
             BasicText(
                 text = text,
@@ -154,14 +153,14 @@ fun TextWithMeasuredInlineContent(
                 }
             )
         }
-        
+
         if (textMeasurables.isEmpty()) {
             return@SubcomposeLayout layout(0, 0) {}
         }
-        
+
         // Phase 4: Measure and layout the text
         val textPlaceable = textMeasurables.first().measure(constraints)
-        
+
         layout(textPlaceable.width, textPlaceable.height) {
             textPlaceable.place(0, 0)
         }

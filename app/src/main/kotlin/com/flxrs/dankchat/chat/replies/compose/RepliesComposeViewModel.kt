@@ -10,6 +10,7 @@ import com.flxrs.dankchat.data.repo.RepliesRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,9 +19,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
-import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.core.annotation.InjectedParam
-import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class RepliesComposeViewModel(
@@ -59,7 +58,7 @@ class RepliesComposeViewModel(
     ) { repliesState, appearanceSettings, chatSettings ->
         when (repliesState) {
             is RepliesState.NotFound -> RepliesUiState.NotFound
-            is RepliesState.Found -> {
+            is RepliesState.Found    -> {
                 val uiMessages = repliesState.items.mapIndexed { index, item ->
                     val altBg = index.isEven && appearanceSettings.checkeredMessages
                     chatMessageMapper.mapToUiState(

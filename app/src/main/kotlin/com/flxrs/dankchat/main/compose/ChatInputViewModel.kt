@@ -5,9 +5,9 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.ui.text.TextRange
 import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.data.DisplayName
@@ -16,15 +16,14 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
+import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
-import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.main.InputState
 import com.flxrs.dankchat.main.MainEvent
 import com.flxrs.dankchat.main.RepeatedSendData
-import com.flxrs.dankchat.main.compose.FullScreenSheetState
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -35,7 +34,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -257,19 +255,20 @@ class ChatInputViewModel(
             val canTypeInConnectionState = connectionState == ConnectionState.CONNECTED || !autoDisableInput
 
             val inputState = when (connectionState) {
-                ConnectionState.CONNECTED -> when {
+                ConnectionState.CONNECTED               -> when {
                     isWhisperTabActive && whisperTarget != null -> InputState.Whispering
-                    effectiveIsReplying -> InputState.Replying
-                    else -> InputState.Default
+                    effectiveIsReplying                         -> InputState.Replying
+                    else                                        -> InputState.Default
                 }
+
                 ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
-                ConnectionState.DISCONNECTED -> InputState.Disconnected
+                ConnectionState.DISCONNECTED            -> InputState.Disconnected
             }
 
             val enabled = when {
                 isMentionsTabActive -> false
-                isWhisperTabActive -> isLoggedIn && canTypeInConnectionState && whisperTarget != null
-                else -> isLoggedIn && canTypeInConnectionState
+                isWhisperTabActive  -> isLoggedIn && canTypeInConnectionState && whisperTarget != null
+                else                -> isLoggedIn && canTypeInConnectionState
             }
 
             val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && enabled
@@ -325,8 +324,8 @@ class ChatInputViewModel(
         val chatState = fullScreenSheetState.value
         val replyIdOrNull = when {
             chatState is FullScreenSheetState.Replies -> chatState.replyMessageId
-            _isReplying.value -> _replyMessageId.value
-            else -> null
+            _isReplying.value                         -> _replyMessageId.value
+            else                                      -> null
         }
 
         val commandResult = runCatching {
@@ -532,6 +531,7 @@ data class ChatInputUiState(
 
 sealed interface CharacterCounterState {
     data object Hidden : CharacterCounterState
+
     @Immutable
     data class Visible(val text: String, val isOverLimit: Boolean) : CharacterCounterState
 }

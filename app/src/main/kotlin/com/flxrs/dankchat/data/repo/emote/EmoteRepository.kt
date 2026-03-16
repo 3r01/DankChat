@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.graphics.drawable.LayerDrawable
+import android.util.Log
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import com.flxrs.dankchat.data.DisplayName
@@ -14,13 +14,13 @@ import com.flxrs.dankchat.data.api.bttv.dto.BTTVGlobalEmoteDto
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatBadgeDto
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatEmoteDto
-import com.flxrs.dankchat.data.api.helix.HelixApiClient
-import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
-import com.flxrs.dankchat.data.api.helix.HelixApiException
-import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
+import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.HelixApiException
+import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
+import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVUserDetails
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteFileDto
@@ -30,9 +30,7 @@ import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
-import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
-import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeSet
 import com.flxrs.dankchat.data.twitch.badge.BadgeType
@@ -853,7 +851,7 @@ class EmoteRepository(
 
     private suspend fun List<SevenTVEmoteDto>.filterUnlistedIfEnabled(): List<SevenTVEmoteDto> = when {
         chatSettingsDataStore.settings.first().allowUnlistedSevenTvEmotes -> this
-        else                                                       -> filter { it.data?.listed == true }
+        else                                                              -> filter { it.data?.listed == true }
     }
 
     private val String.withLeadingHttps: String

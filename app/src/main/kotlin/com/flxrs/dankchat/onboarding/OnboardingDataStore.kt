@@ -8,10 +8,10 @@ import com.flxrs.dankchat.utils.datastore.createDataStore
 import com.flxrs.dankchat.utils.datastore.safeData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 

@@ -55,9 +55,9 @@ class SuggestionProvider(
             // Order suggestions based on user preference
             val orderedSuggestions = when {
                 preferEmotes -> emotes + users + commands
-                else -> users + emotes + commands
+                else         -> users + emotes + commands
             }
-            
+
             // Limit results to reasonable number
             orderedSuggestions.take(MAX_SUGGESTIONS)
         }
@@ -128,7 +128,7 @@ class SuggestionProvider(
         return suggestions.mapNotNull { suggestion ->
             when {
                 constraint.startsWith('@') -> suggestion.copy(withLeadingAt = true)
-                else -> suggestion
+                else                       -> suggestion
             }.takeIf { it.toString().startsWith(constraint, ignoreCase = true) }
         }
     }

@@ -2,7 +2,6 @@ package com.flxrs.dankchat.data.twitch.message
 
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.TextResource
-import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateAction
@@ -13,11 +12,12 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionType
 import com.flxrs.dankchat.utils.DateTimeUtils
-import kotlin.time.Instant
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
+import kotlin.time.Instant
 
 data class ModerationMessage(
     override val timestamp: Long = System.currentTimeMillis(),
@@ -109,7 +109,7 @@ data class ModerationMessage(
 
     fun getSystemMessage(currentUser: UserName?, showDeletedMessage: Boolean): TextResource {
         return when (action) {
-            Action.Timeout         -> when (targetUser) {
+            Action.Timeout             -> when (targetUser) {
                 currentUser -> TextResource.Res(R.string.mod_timeout_self, persistentListOf(durationSuffix, creatorSuffix, quotedReasonSuffix, countSuffix()))
                 else        -> when (creatorUserDisplay) {
                     null -> TextResource.Res(R.string.mod_timeout_no_creator, persistentListOf(targetUserDisplay.toString(), durationSuffix, countSuffix()))
@@ -117,8 +117,8 @@ data class ModerationMessage(
                 }
             }
 
-            Action.Untimeout       -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Ban             -> when (targetUser) {
+            Action.Untimeout           -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Ban                 -> when (targetUser) {
                 currentUser -> TextResource.Res(R.string.mod_ban_self, persistentListOf(creatorSuffix, quotedReasonSuffix))
                 else        -> when (creatorUserDisplay) {
                     null -> TextResource.Res(R.string.mod_ban_no_creator, persistentListOf(targetUserDisplay.toString()))
@@ -126,48 +126,69 @@ data class ModerationMessage(
                 }
             }
 
-            Action.Unban           -> TextResource.Res(R.string.mod_unban, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Mod             -> TextResource.Res(R.string.mod_modded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unmod           -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Delete          -> when (creatorUserDisplay) {
+            Action.Unban               -> TextResource.Res(R.string.mod_unban, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Mod                 -> TextResource.Res(R.string.mod_modded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Unmod               -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Delete              -> when (creatorUserDisplay) {
                 null -> TextResource.Res(R.string.mod_delete_no_creator, persistentListOf(targetUserDisplay.toString(), sayingSuffix(showDeletedMessage)))
                 else -> TextResource.Res(R.string.mod_delete_by_creator, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sayingSuffix(showDeletedMessage)))
             }
 
-            Action.Clear           -> when (creatorUserDisplay) {
+            Action.Clear               -> when (creatorUserDisplay) {
                 null -> TextResource.Res(R.string.mod_clear_no_creator)
                 else -> TextResource.Res(R.string.mod_clear_by_creator, persistentListOf(creatorUserDisplay.toString()))
             }
 
-            Action.Vip             -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unvip           -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Warn            -> {
+            Action.Vip                 -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Unvip               -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Warn                -> {
                 val suffix = when (val r = reasonsSuffix) {
                     is TextResource.Plain -> TextResource.Plain(".")
                     else                  -> r
                 }
                 TextResource.Res(R.string.mod_warn, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), suffix))
             }
-            Action.Raid            -> TextResource.Res(R.string.mod_raid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.Unraid          -> TextResource.Res(R.string.mod_unraid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
-            Action.EmoteOnly       -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.EmoteOnlyOff    -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Followers       -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creatorUserDisplay.toString(), minutesSuffix()))
-            Action.FollowersOff    -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.UniqueChat      -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.UniqueChatOff   -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Slow            -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creatorUserDisplay.toString(), secondsSuffix()))
-            Action.SlowOff         -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.Subscribers     -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creatorUserDisplay.toString()))
-            Action.SubscribersOff  -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creatorUserDisplay.toString()))
-            Action.SharedTimeout   -> TextResource.Res(R.string.mod_shared_timeout, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), durationSuffix, sourceBroadcasterDisplay.toString(), countSuffix()))
-            Action.SharedUntimeout -> TextResource.Res(R.string.mod_shared_untimeout, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString()))
-            Action.SharedBan       -> TextResource.Res(R.string.mod_shared_ban, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), quotedReasonSuffix))
-            Action.SharedUnban     -> TextResource.Res(R.string.mod_shared_unban, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString()))
-            Action.SharedDelete       -> TextResource.Res(R.string.mod_shared_delete, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), sayingSuffix(showDeletedMessage)))
-            Action.AddBlockedTerm     -> TextResource.Res(R.string.automod_moderation_added_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
-            Action.AddPermittedTerm   -> TextResource.Res(R.string.automod_moderation_added_permitted_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
-            Action.RemoveBlockedTerm  -> TextResource.Res(R.string.automod_moderation_removed_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
+
+            Action.Raid                -> TextResource.Res(R.string.mod_raid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.Unraid              -> TextResource.Res(R.string.mod_unraid, persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString()))
+            Action.EmoteOnly           -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creatorUserDisplay.toString()))
+            Action.EmoteOnlyOff        -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creatorUserDisplay.toString()))
+            Action.Followers           -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creatorUserDisplay.toString(), minutesSuffix()))
+            Action.FollowersOff        -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creatorUserDisplay.toString()))
+            Action.UniqueChat          -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creatorUserDisplay.toString()))
+            Action.UniqueChatOff       -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creatorUserDisplay.toString()))
+            Action.Slow                -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creatorUserDisplay.toString(), secondsSuffix()))
+            Action.SlowOff             -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creatorUserDisplay.toString()))
+            Action.Subscribers         -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creatorUserDisplay.toString()))
+            Action.SubscribersOff      -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creatorUserDisplay.toString()))
+            Action.SharedTimeout       -> TextResource.Res(
+                R.string.mod_shared_timeout,
+                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), durationSuffix, sourceBroadcasterDisplay.toString(), countSuffix())
+            )
+
+            Action.SharedUntimeout     -> TextResource.Res(
+                R.string.mod_shared_untimeout,
+                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString())
+            )
+
+            Action.SharedBan           -> TextResource.Res(
+                R.string.mod_shared_ban,
+                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), quotedReasonSuffix)
+            )
+
+            Action.SharedUnban         -> TextResource.Res(
+                R.string.mod_shared_unban,
+                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString())
+            )
+
+            Action.SharedDelete        -> TextResource.Res(
+                R.string.mod_shared_delete,
+                persistentListOf(creatorUserDisplay.toString(), targetUserDisplay.toString(), sourceBroadcasterDisplay.toString(), sayingSuffix(showDeletedMessage))
+            )
+
+            Action.AddBlockedTerm      -> TextResource.Res(R.string.automod_moderation_added_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
+            Action.AddPermittedTerm    -> TextResource.Res(R.string.automod_moderation_added_permitted_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
+            Action.RemoveBlockedTerm   -> TextResource.Res(R.string.automod_moderation_removed_blocked_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
             Action.RemovePermittedTerm -> TextResource.Res(R.string.automod_moderation_removed_permitted_term, persistentListOf(creatorUserDisplay.toString(), quotedTermsOrBlank))
         }
     }
@@ -297,17 +318,18 @@ data class ModerationMessage(
         }
 
         private fun parseReason(data: ChannelModerateDto): String? = when (data.action) {
-            ChannelModerateAction.Ban               -> data.ban?.reason
-            ChannelModerateAction.Delete            -> data.delete?.messageBody
-            ChannelModerateAction.Timeout           -> data.timeout?.reason
-            ChannelModerateAction.SharedChatBan     -> data.sharedChatBan?.reason
-            ChannelModerateAction.SharedChatDelete  -> data.sharedChatDelete?.messageBody
-            ChannelModerateAction.SharedChatTimeout -> data.sharedChatTimeout?.reason
+            ChannelModerateAction.Ban                 -> data.ban?.reason
+            ChannelModerateAction.Delete              -> data.delete?.messageBody
+            ChannelModerateAction.Timeout             -> data.timeout?.reason
+            ChannelModerateAction.SharedChatBan       -> data.sharedChatBan?.reason
+            ChannelModerateAction.SharedChatDelete    -> data.sharedChatDelete?.messageBody
+            ChannelModerateAction.SharedChatTimeout   -> data.sharedChatTimeout?.reason
             ChannelModerateAction.Warn                -> data.warn?.let { listOfNotNull(it.reason).plus(it.chatRulesCited.orEmpty()).joinToString() }
             ChannelModerateAction.AddBlockedTerm,
             ChannelModerateAction.AddPermittedTerm,
             ChannelModerateAction.RemoveBlockedTerm,
             ChannelModerateAction.RemovePermittedTerm -> data.automodTerms?.terms?.joinToString(" and ") { "\"$it\"" }
+
             else                                      -> null
         }
 
@@ -387,12 +409,12 @@ data class ModerationMessage(
             ChannelModerateAction.SharedChatUntimeout -> Action.SharedUntimeout
             ChannelModerateAction.SharedChatBan       -> Action.SharedBan
             ChannelModerateAction.SharedChatUnban     -> Action.SharedUnban
-            ChannelModerateAction.SharedChatDelete       -> Action.SharedDelete
-            ChannelModerateAction.AddBlockedTerm       -> Action.AddBlockedTerm
-            ChannelModerateAction.AddPermittedTerm     -> Action.AddPermittedTerm
-            ChannelModerateAction.RemoveBlockedTerm    -> Action.RemoveBlockedTerm
-            ChannelModerateAction.RemovePermittedTerm  -> Action.RemovePermittedTerm
-            else                                       -> error("Unexpected moderation action $this")
+            ChannelModerateAction.SharedChatDelete    -> Action.SharedDelete
+            ChannelModerateAction.AddBlockedTerm      -> Action.AddBlockedTerm
+            ChannelModerateAction.AddPermittedTerm    -> Action.AddPermittedTerm
+            ChannelModerateAction.RemoveBlockedTerm   -> Action.RemoveBlockedTerm
+            ChannelModerateAction.RemovePermittedTerm -> Action.RemovePermittedTerm
+            else                                      -> error("Unexpected moderation action $this")
         }
     }
 }

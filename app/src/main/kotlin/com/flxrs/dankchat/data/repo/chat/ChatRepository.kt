@@ -2,8 +2,11 @@ package com.flxrs.dankchat.data.repo.chat
 
 import android.graphics.Color
 import android.util.Log
+import com.flxrs.dankchat.R
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.chat.compose.TextResource
 import com.flxrs.dankchat.chat.toMentionTabItems
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
@@ -29,14 +32,11 @@ import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.data.twitch.badge.BadgeType
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ChatEvent
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
-import com.flxrs.dankchat.data.twitch.badge.Badge
-import com.flxrs.dankchat.data.twitch.badge.BadgeType
-import com.flxrs.dankchat.R
-import com.flxrs.dankchat.chat.compose.TextResource
-import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
@@ -53,7 +53,6 @@ import com.flxrs.dankchat.data.twitch.pubsub.PubSubMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.ReadConnection
 import com.flxrs.dankchat.di.WriteConnection
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.INVISIBLE_CHAR
@@ -69,6 +68,7 @@ import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
 import com.flxrs.dankchat.utils.extensions.replaceOrAddModerationMessage
 import com.flxrs.dankchat.utils.extensions.replaceWithTimeout
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -343,7 +343,7 @@ class ChatRepository(
     suspend fun loadRecentMessagesIfEnabled(channel: UserName) {
         when {
             chatSettingsDataStore.settings.first().loadMessageHistory -> loadRecentMessages(channel)
-            else                                               -> messages[channel]?.update { current ->
+            else                                                      -> messages[channel]?.update { current ->
                 val message = SystemMessageType.NoHistoryLoaded.toChatItem()
                 listOf(message).addAndLimit(current, scrollBackLength, ::onMessageRemoved, checkForDuplications = true)
             }
@@ -723,7 +723,7 @@ class ChatRepository(
                 }.orEmpty()
             }
 
-            else             -> emptyList()
+            else                                   -> emptyList()
         }
 
         val message = runCatching {
@@ -982,7 +982,7 @@ class ChatRepository(
         blockedTerm: BlockedTermReasonDto?,
         messageText: String,
     ): TextResource = when {
-        reason == "automod" && automod != null -> TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
+        reason == "automod" && automod != null          -> TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
         reason == "blocked_term" && blockedTerm != null -> {
             val terms = blockedTerm.termsFound.joinToString { found ->
                 val start = found.boundary.startPos
@@ -993,7 +993,7 @@ class ChatRepository(
             TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
         }
 
-        else -> TextResource.Plain(reason)
+        else                                            -> TextResource.Plain(reason)
     }
 
     fun updateAutomodMessageStatus(channel: UserName, heldMessageId: String, status: AutomodMessage.Status) {

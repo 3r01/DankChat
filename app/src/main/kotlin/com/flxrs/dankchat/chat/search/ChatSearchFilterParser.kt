@@ -25,22 +25,24 @@ object ChatSearchFilterParser {
             val value = raw.substring(colonIndex + 1)
 
             when (prefix) {
-                "from" -> return when {
+                "from"  -> return when {
                     isBeingTyped || value.isEmpty() -> null
-                    else -> ChatSearchFilter.Author(name = value, negate = negate)
+                    else                            -> ChatSearchFilter.Author(name = value, negate = negate)
                 }
-                "has" -> return when (value.lowercase()) {
-                    "link" -> ChatSearchFilter.HasLink(negate = negate)
+
+                "has"   -> return when (value.lowercase()) {
+                    "link"  -> ChatSearchFilter.HasLink(negate = negate)
                     "emote" -> ChatSearchFilter.HasEmote(emoteName = null, negate = negate)
-                    "" -> null
-                    else -> when {
+                    ""      -> null
+                    else    -> when {
                         isBeingTyped -> null
-                        else -> ChatSearchFilter.HasEmote(emoteName = value, negate = negate)
+                        else         -> ChatSearchFilter.HasEmote(emoteName = value, negate = negate)
                     }
                 }
+
                 "badge" -> return when {
                     isBeingTyped || value.isEmpty() -> null
-                    else -> ChatSearchFilter.BadgeFilter(badgeName = value.lowercase(), negate = negate)
+                    else                            -> ChatSearchFilter.BadgeFilter(badgeName = value.lowercase(), negate = negate)
                 }
             }
         }
@@ -51,7 +53,7 @@ object ChatSearchFilterParser {
     private fun extractNegation(token: String): Pair<Boolean, String> {
         return when {
             token.startsWith('!') || token.startsWith('-') -> true to token.substring(1)
-            else -> false to token
+            else                                           -> false to token
         }
     }
 }

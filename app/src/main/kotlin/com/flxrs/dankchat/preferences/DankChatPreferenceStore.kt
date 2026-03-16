@@ -7,9 +7,9 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.changelog.DankChatVersion
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.auth.AuthSettings
+import com.flxrs.dankchat.changelog.DankChatVersion
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName

@@ -445,7 +445,7 @@ private fun MessageHighlightItem(
                 )
             }
         }
-        val defaultColor = when(item.type) {
+        val defaultColor = when (item.type) {
             MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
             MessageHighlightItem.Type.ChannelPointRedemption                               -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
             MessageHighlightItem.Type.ElevatedMessage                                      -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
@@ -487,7 +487,7 @@ private fun MessageHighlightItem(
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 )
-                Row (
+                Row(
                     modifier = modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -594,7 +594,7 @@ private fun UserHighlightItem(
                                 .fillMaxWidth()
                                 .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                         )
-                        Row (
+                        Row(
                             modifier = modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -659,15 +659,15 @@ private fun BadgeHighlightItem(
                 } else {
                     var name = ""
                     when (item.badgeName) {
-                        "broadcaster"-> name = stringResource(R.string.badge_broadcaster)
-                        "admin"-> name = stringResource(R.string.badge_admin)
-                        "staff"-> name = stringResource(R.string.badge_staff)
-                        "moderator"-> name = stringResource(R.string.badge_moderator)
-                        "lead_moderator"-> name = stringResource(R.string.badge_lead_moderator)
-                        "partner"-> name = stringResource(R.string.badge_verified)
-                        "vip"-> name = stringResource(R.string.badge_vip)
-                        "founder"-> name = stringResource(R.string.badge_founder)
-                        "subscriber"-> name = stringResource(R.string.badge_subscriber)
+                        "broadcaster"    -> name = stringResource(R.string.badge_broadcaster)
+                        "admin"          -> name = stringResource(R.string.badge_admin)
+                        "staff"          -> name = stringResource(R.string.badge_staff)
+                        "moderator"      -> name = stringResource(R.string.badge_moderator)
+                        "lead_moderator" -> name = stringResource(R.string.badge_lead_moderator)
+                        "partner"        -> name = stringResource(R.string.badge_verified)
+                        "vip"            -> name = stringResource(R.string.badge_vip)
+                        "founder"        -> name = stringResource(R.string.badge_founder)
+                        "subscriber"     -> name = stringResource(R.string.badge_subscriber)
                     }
                     Box(
                         modifier = Modifier
@@ -733,7 +733,7 @@ private fun BadgeHighlightItem(
                                 .fillMaxWidth()
                                 .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                         )
-                        Row (
+                        Row(
                             modifier = modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {

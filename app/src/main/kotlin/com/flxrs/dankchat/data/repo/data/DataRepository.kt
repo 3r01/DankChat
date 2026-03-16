@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.data
 
 import android.util.Log
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -21,7 +22,6 @@ import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
 import com.flxrs.dankchat.data.twitch.badge.toBadgeSets
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.utils.extensions.measureTimeAndLog
@@ -130,7 +130,7 @@ class DataRepository(
     suspend fun loadGlobalBadges(): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "global badges") {
             val result = when {
-                authDataStore.isLoggedIn                -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                authDataStore.isLoggedIn                          -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
                 else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
@@ -162,7 +162,7 @@ class DataRepository(
     suspend fun loadChannelBadges(channel: UserName, id: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "channel badges for #$id") {
             val result = when {
-                authDataStore.isLoggedIn                -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                authDataStore.isLoggedIn                          -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
                 System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
                 else                                              -> return@withContext Result.success(Unit)
             }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }

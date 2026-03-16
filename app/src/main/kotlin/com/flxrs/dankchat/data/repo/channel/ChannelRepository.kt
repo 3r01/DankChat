@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.repo.channel
 
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
@@ -9,7 +10,6 @@ import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.firstValueOrNull
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +42,7 @@ class ChannelRepository(
                 .getOrNull()
                 ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
-            else                               -> null
+            else                     -> null
         } ?: tryGetChannelFromIrc(name)
 
         if (channel != null) {
@@ -139,7 +139,8 @@ class ChannelRepository(
     }
 
     fun initRoomState(channel: UserName) {
-        roomStateFlows.putIfAbsent(channel, MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST))    }
+        roomStateFlows.putIfAbsent(channel, MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST))
+    }
 
     fun removeRoomState(channel: UserName) {
         roomStates.remove(channel)

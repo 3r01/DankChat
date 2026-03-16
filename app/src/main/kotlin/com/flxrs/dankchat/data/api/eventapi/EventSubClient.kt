@@ -261,8 +261,7 @@ class EventSubClient(
 
     private fun handleNotification(message: NotificationMessageDto) {
         Log.d(TAG, "[EventSub] received notification message: $message")
-        val event = message.payload.event
-        val eventSubMessage = when (event) {
+        val eventSubMessage = when (val event = message.payload.event) {
             is ChannelModerateDto      -> ModerationAction(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
@@ -296,8 +295,7 @@ class EventSubClient(
     private fun DefaultClientWebSocketSession.handleReconnect(message: ReconnectMessageDto) {
         Log.i(TAG, "[EventSub] received request to reconnect: ${message.payload.session.reconnectUrl}")
         emitSystemMessage(message = "[EventSub] received request to reconnect")
-        val url = message.payload.session.reconnectUrl?.replaceFirst("ws://", "wss://")
-        when (url) {
+        when (val url = message.payload.session.reconnectUrl?.replaceFirst("ws://", "wss://")) {
             null -> reconnect()
             else -> {
                 previousSession = this

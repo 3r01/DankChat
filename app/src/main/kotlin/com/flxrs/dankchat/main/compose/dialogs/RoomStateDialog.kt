@@ -52,6 +52,7 @@ fun RoomStateDialog(
                 "30",
                 "/slow"
             )
+
             ParameterDialogType.FOLLOWER_MODE -> listOf(
                 R.string.room_state_follower_only,
                 R.string.minutes,

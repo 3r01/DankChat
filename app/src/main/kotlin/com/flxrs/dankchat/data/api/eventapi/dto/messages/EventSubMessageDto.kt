@@ -1,10 +1,10 @@
 package com.flxrs.dankchat.data.api.eventapi.dto.messages
 
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionType
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import kotlin.time.Instant
 
 @Serializable
 @JsonClassDiscriminator("message_type")
@@ -48,12 +48,16 @@ data class EventSubSubscriptionMetadataDto(
 enum class EventSubMessageType {
     @SerialName("session_welcome")
     Welcome,
+
     @SerialName("session_keepalive")
     KeepAlive,
+
     @SerialName("notification")
     Notification,
+
     @SerialName("revocation")
     Revocation,
+
     @SerialName("reconnect")
     Reconnect,
     Unknown,

@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.repo
 
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toDisplayName
@@ -9,7 +10,6 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThread
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.utils.extensions.replaceIf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

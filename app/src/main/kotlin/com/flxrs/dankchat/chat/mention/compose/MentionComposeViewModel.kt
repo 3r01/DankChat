@@ -2,7 +2,6 @@ package com.flxrs.dankchat.chat.mention.compose
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper
@@ -11,18 +10,16 @@ import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
-import com.flxrs.dankchat.utils.extensions.isEven
 import org.koin.android.annotation.KoinViewModel
-import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class MentionComposeViewModel(

@@ -21,10 +21,10 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -38,8 +38,6 @@ import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.emote.EmoteSheetItem
 import kotlinx.coroutines.launch
-
-import androidx.compose.material3.PrimaryTabRow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

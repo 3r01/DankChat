@@ -24,13 +24,13 @@ fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes {
     val deduplicatedGlobalTwitchEmotes = global.twitchEmotes.filterNot { it.id in channelEmoteIds }
     return Emotes(
         twitchEmotes = deduplicatedGlobalTwitchEmotes + channel.twitchEmotes,
-    ffzChannelEmotes = channel.ffzEmotes,
-    ffzGlobalEmotes = global.ffzEmotes,
-    bttvChannelEmotes = channel.bttvEmotes,
-    bttvGlobalEmotes = global.bttvEmotes,
-    sevenTvChannelEmotes = channel.sevenTvEmotes,
-    sevenTvGlobalEmotes = global.sevenTvEmotes,
-)
+        ffzChannelEmotes = channel.ffzEmotes,
+        ffzGlobalEmotes = global.ffzEmotes,
+        bttvChannelEmotes = channel.bttvEmotes,
+        bttvGlobalEmotes = global.bttvEmotes,
+        sevenTvChannelEmotes = channel.sevenTvEmotes,
+        sevenTvGlobalEmotes = global.sevenTvEmotes,
+    )
 }
 
 data class Emotes(

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -27,13 +27,13 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -89,7 +89,7 @@ fun UserPopupDialog(
                     )
                 }
 
-                else -> {
+                else                    -> {
                     val userName = state.userName
                     val displayName = state.displayName
                     val isSuccess = state is UserPopupState.Success
@@ -219,7 +219,7 @@ private fun UserInfoSection(
                 }
             }
 
-            is UserPopupState.Error -> {}
+            is UserPopupState.Error   -> {}
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -282,7 +282,7 @@ private fun UserInfoSection(
                     }
                 }
 
-                else -> {} // Loading — name is shown, details load later
+                else                      -> {} // Loading — name is shown, details load later
             }
         }
     }

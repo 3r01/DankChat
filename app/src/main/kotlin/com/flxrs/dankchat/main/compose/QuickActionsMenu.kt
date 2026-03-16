@@ -29,7 +29,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
@@ -111,7 +110,7 @@ fun QuickActionsMenu(
                     onClick = {
                         when {
                             tourState.configureActionsTooltipState != null -> tourState.onAdvance?.invoke()
-                            else                                          -> onConfigureClick()
+                            else                                           -> onConfigureClick()
                         }
                     },
                     leadingIcon = {
@@ -142,7 +141,7 @@ fun QuickActionsMenu(
                     }
                 }
 
-                else -> configureItem()
+                else                                           -> configureItem()
             }
         }
     }
@@ -161,7 +160,7 @@ private fun getOverflowItem(
     isFullscreen: Boolean,
     isModerator: Boolean,
 ): OverflowItem? = when (action) {
-    InputAction.Search -> OverflowItem(
+    InputAction.Search      -> OverflowItem(
         labelRes = R.string.input_action_search,
         icon = Icons.Default.Search,
     )
@@ -171,30 +170,30 @@ private fun getOverflowItem(
         icon = Icons.Default.History,
     )
 
-    InputAction.Stream -> when {
+    InputAction.Stream      -> when {
         hasStreamData || isStreamActive -> OverflowItem(
             labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
             icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
         )
 
-        else -> null
+        else                            -> null
     }
 
-    InputAction.RoomState -> when {
+    InputAction.RoomState   -> when {
         isModerator -> OverflowItem(
             labelRes = R.string.menu_room_state,
             icon = Icons.Default.Shield,
         )
 
-        else -> null
+        else        -> null
     }
 
-    InputAction.Fullscreen -> OverflowItem(
+    InputAction.Fullscreen  -> OverflowItem(
         labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
         icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
     )
 
-    InputAction.HideInput -> OverflowItem(
+    InputAction.HideInput   -> OverflowItem(
         labelRes = R.string.menu_hide_input,
         icon = Icons.Default.VisibilityOff,
     )
@@ -202,8 +201,8 @@ private fun getOverflowItem(
 
 private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
     InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
-    InputAction.LastMessage -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.RoomState -> inputEnabled
+    InputAction.LastMessage                                           -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.RoomState                         -> inputEnabled
 }
 
 /**

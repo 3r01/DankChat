@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.data.twitch.pubsub.dto.redemption
 
 import androidx.annotation.Keep
-import kotlin.time.Instant
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Keep
 @Serializable

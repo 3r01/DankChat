@@ -40,7 +40,7 @@ sealed class Message {
                 if (pairs.isEmpty()) return@mapNotNull null
 
                 // skip over invalid parsed data
-                val parsedPositions = pairs.mapNotNull positions@ { pos ->
+                val parsedPositions = pairs.mapNotNull positions@{ pos ->
                     val pair = pos.split('-')
                     if (pair.size != 2) return@positions null
 

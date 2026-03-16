@@ -20,8 +20,8 @@ fun rememberBackgroundColor(lightColor: Color, darkColor: Color): Color {
     return remember(raw, background) {
         when {
             raw == Color.Transparent -> Color.Transparent
-            raw.alpha < 1f          -> raw.compositeOver(background)
-            else                    -> raw
+            raw.alpha < 1f           -> raw.compositeOver(background)
+            else                     -> raw
         }
     }
 }

@@ -32,9 +32,9 @@ class NotificationsSettingsDataStore(
 
     private val initialMigration = dankChatPreferencesMigration<NotificationsPreferenceKeys, NotificationsSettings>(context) { acc, key, value ->
         when (key) {
-            NotificationsPreferenceKeys.ShowNotifications           -> acc.copy(showNotifications = value.booleanOrDefault(acc.showNotifications))
-            NotificationsPreferenceKeys.ShowWhisperNotifications    -> acc.copy(showWhisperNotifications = value.booleanOrDefault(acc.showWhisperNotifications))
-            NotificationsPreferenceKeys.MentionFormat               -> acc.copy(
+            NotificationsPreferenceKeys.ShowNotifications -> acc.copy(showNotifications = value.booleanOrDefault(acc.showNotifications))
+            NotificationsPreferenceKeys.ShowWhisperNotifications -> acc.copy(showWhisperNotifications = value.booleanOrDefault(acc.showWhisperNotifications))
+            NotificationsPreferenceKeys.MentionFormat -> acc.copy(
                 mentionFormat = value.stringOrNull()?.let { format ->
                     MentionFormat.entries.find { it.template == format }
                 } ?: acc.mentionFormat

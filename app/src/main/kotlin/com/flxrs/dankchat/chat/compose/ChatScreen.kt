@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -30,6 +31,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -39,8 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,11 +59,6 @@ import com.flxrs.dankchat.chat.compose.messages.PrivMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.SystemMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.chat.compose.messages.WhisperMessageComposable
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.TooltipState
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.main.compose.TourTooltip
@@ -164,7 +164,9 @@ fun ChatScreen(
                 state = listState,
                 reverseLayout = true,
                 contentPadding = contentPadding,
-                modifier = Modifier.fillMaxSize().then(scrollModifier)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(scrollModifier)
             ) {
                 items(
                     items = reversedMessages,
@@ -179,7 +181,7 @@ fun ChatScreen(
                             is ChatMessageUiState.PrivMessageUi            -> "privmsg"
                             is ChatMessageUiState.WhisperMessageUi         -> "whisper"
                             is ChatMessageUiState.PointRedemptionMessageUi -> "redemption"
-                            is ChatMessageUiState.DateSeparatorUi            -> "datesep"
+                            is ChatMessageUiState.DateSeparatorUi          -> "datesep"
                         }
                     }
                 ) { message ->
@@ -211,9 +213,9 @@ fun ChatScreen(
                 val bottomContentPadding = contentPadding.calculateBottomPadding()
                 val fabBottomPadding by animateDpAsState(
                     targetValue = when {
-                        showInput      -> bottomContentPadding
-                        hasHelperText  -> maxOf(bottomContentPadding, 48.dp)
-                        else           -> maxOf(bottomContentPadding, 24.dp)
+                        showInput     -> bottomContentPadding
+                        hasHelperText -> maxOf(bottomContentPadding, 48.dp)
+                        else          -> maxOf(bottomContentPadding, 24.dp)
                     },
                     animationSpec = if (showInput) snap() else spring(),
                     label = "fabBottomPadding"
@@ -405,7 +407,7 @@ private fun ChatMessageItem(
             fontSize = fontSize
         )
 
-        is ChatMessageUiState.DateSeparatorUi            -> DateSeparatorComposable(
+        is ChatMessageUiState.DateSeparatorUi          -> DateSeparatorComposable(
             message = message,
             fontSize = fontSize
         )

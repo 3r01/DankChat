@@ -2,6 +2,7 @@ package com.flxrs.dankchat.di
 
 import android.util.Log
 import com.flxrs.dankchat.BuildConfig
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.api.auth.AuthApi
 import com.flxrs.dankchat.data.api.badges.BadgesApi
 import com.flxrs.dankchat.data.api.bttv.BTTVApi
@@ -11,7 +12,6 @@ import com.flxrs.dankchat.data.api.helix.HelixApi
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApi
 import com.flxrs.dankchat.data.api.seventv.SevenTVApi
 import com.flxrs.dankchat.data.api.supibot.SupibotApi
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp

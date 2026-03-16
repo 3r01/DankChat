@@ -1,10 +1,10 @@
 package com.flxrs.dankchat.data.repo.stream
 
+import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.main.StreamData
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils

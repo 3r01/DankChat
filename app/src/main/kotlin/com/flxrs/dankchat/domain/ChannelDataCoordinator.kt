@@ -1,31 +1,31 @@
 package com.flxrs.dankchat.domain
 
 import android.util.Log
-import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
-import com.flxrs.dankchat.data.state.ChannelLoadingState
-import com.flxrs.dankchat.data.state.GlobalLoadingState
-import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.auth.AuthDataStore
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
+import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.DataUpdateEventMessage
+import com.flxrs.dankchat.data.state.ChannelLoadingState
+import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
@@ -110,7 +110,7 @@ class ChannelDataCoordinator(
             _globalLoadingState.value = GlobalLoadingState.Loading
             dataRepository.clearDataLoadingFailures()
 
-            val results = globalDataLoader.loadGlobalData()
+            globalDataLoader.loadGlobalData()
 
             // Reparse after global emotes load so 3rd party globals are visible immediately
             chatRepository.reparseAllEmotesAndBadges()
@@ -184,10 +184,10 @@ class ChannelDataCoordinator(
     fun retryDataLoading(dataFailures: Set<DataLoadingFailure>, chatFailures: Set<ChatLoadingFailure>) {
         scope.launch {
             _globalLoadingState.value = GlobalLoadingState.Loading
-            
+
             // Collect channels that need retry
             val channelsToRetry = mutableSetOf<UserName>()
-            
+
             val dataResults = dataFailures.map { failure ->
                 async {
                     when (val step = failure.step) {

@@ -5,5 +5,5 @@ sealed interface InputState {
     object Replying : InputState
     object Whispering : InputState
     object NotLoggedIn : InputState
-    object Disconnected: InputState
+    object Disconnected : InputState
 }

@@ -137,54 +137,54 @@ fun MentionSheet(
                 .padding(bottom = 16.dp)
                 .padding(horizontal = 8.dp),
         ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            // Back navigation pill
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainer,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.back)
-                    )
+                // Back navigation pill
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
                 }
-            }
 
-            // Tab pill
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                color = MaterialTheme.colorScheme.surfaceContainer,
-            ) {
-                Row {
-                    val tabs = listOf(R.string.mentions, R.string.whispers)
-                    tabs.forEachIndexed { index, stringRes ->
-                        val isSelected = pagerState.currentPage == index
-                        val textColor = when {
-                            isSelected -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                                .defaultMinSize(minHeight = 48.dp)
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            Text(
-                                text = stringResource(stringRes),
-                                color = textColor,
-                                style = MaterialTheme.typography.titleSmall,
-                            )
+                // Tab pill
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                ) {
+                    Row {
+                        val tabs = listOf(R.string.mentions, R.string.whispers)
+                        tabs.forEachIndexed { index, stringRes ->
+                            val isSelected = pagerState.currentPage == index
+                            val textColor = when {
+                                isSelected -> MaterialTheme.colorScheme.primary
+                                else       -> MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                    .defaultMinSize(minHeight = 48.dp)
+                                    .padding(horizontal = 16.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(stringRes),
+                                    color = textColor,
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.main.compose
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.runtime.Immutable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -9,9 +8,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,6 +18,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,45 +33,41 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Keyboard
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RichTooltip
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipScope
 import androidx.compose.material3.TooltipState
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -89,10 +84,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalDensity
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.InputState
@@ -114,7 +107,6 @@ data class TourOverlayState(
     val onAdvance: (() -> Unit)? = null,
     val onSkip: (() -> Unit)? = null,
 )
-
 
 @Composable
 fun ChatInputLayout(
@@ -157,10 +149,10 @@ fun ChatInputLayout(
 ) {
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
-        InputState.Default -> stringResource(R.string.hint_connected)
-        InputState.Replying -> stringResource(R.string.hint_replying)
-        InputState.Whispering -> stringResource(R.string.hint_whispering)
-        InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
+        InputState.Default      -> stringResource(R.string.hint_connected)
+        InputState.Replying     -> stringResource(R.string.hint_replying)
+        InputState.Whispering   -> stringResource(R.string.hint_whispering)
+        InputState.NotLoggedIn  -> stringResource(R.string.hint_not_logged_int)
         InputState.Disconnected -> stringResource(R.string.hint_disconnected)
     }
 
@@ -184,9 +176,9 @@ fun ChatInputLayout(
     val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive) {
         inputActions.filter { action ->
             when (action) {
-                InputAction.Stream -> hasStreamData || isStreamActive
+                InputAction.Stream    -> hasStreamData || isStreamActive
                 InputAction.RoomState -> isModerator
-                else -> true
+                else                  -> true
             }
         }.toImmutableList()
     }
@@ -301,13 +293,13 @@ fun ChatInputLayout(
                             modifier = Modifier.height(IntrinsicSize.Min),
                         ) {
                             when (characterCounter) {
-                                is CharacterCounterState.Hidden -> Unit
+                                is CharacterCounterState.Hidden  -> Unit
                                 is CharacterCounterState.Visible -> {
                                     Text(
                                         text = characterCounter.text,
                                         color = when {
                                             characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
-                                            else                        -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            else                         -> MaterialTheme.colorScheme.onSurfaceVariant
                                         },
                                         style = MaterialTheme.typography.labelSmall,
                                     )
@@ -514,8 +506,8 @@ fun ChatInputLayout(
                             } else {
                                 endAlignedContent()
                             }
+                        }
                     }
-                }
                 }
 
                 actionsRowContent()
@@ -569,12 +561,12 @@ fun ChatInputLayout(
                 tourState = tourState,
                 onActionClick = { action ->
                     when (action) {
-                        InputAction.Search -> onSearchClick()
+                        InputAction.Search      -> onSearchClick()
                         InputAction.LastMessage -> onLastMessageClick()
-                        InputAction.Stream -> onToggleStream()
-                        InputAction.RoomState -> onChangeRoomState()
-                        InputAction.Fullscreen -> onToggleFullscreen()
-                        InputAction.HideInput -> onToggleInput()
+                        InputAction.Stream      -> onToggleStream()
+                        InputAction.RoomState   -> onChangeRoomState()
+                        InputAction.Fullscreen  -> onToggleFullscreen()
+                        InputAction.HideInput   -> onToggleInput()
                     }
                     onOverflowExpandedChanged(false)
                 },
@@ -732,22 +724,22 @@ private fun InputActionConfigSheet(
 
 private val InputAction.labelRes: Int
     get() = when (this) {
-        InputAction.Search -> R.string.input_action_search
+        InputAction.Search      -> R.string.input_action_search
         InputAction.LastMessage -> R.string.input_action_last_message
-        InputAction.Stream -> R.string.input_action_stream
-        InputAction.RoomState -> R.string.input_action_room_state
-        InputAction.Fullscreen -> R.string.input_action_fullscreen
-        InputAction.HideInput -> R.string.input_action_hide_input
+        InputAction.Stream      -> R.string.input_action_stream
+        InputAction.RoomState   -> R.string.input_action_room_state
+        InputAction.Fullscreen  -> R.string.input_action_fullscreen
+        InputAction.HideInput   -> R.string.input_action_hide_input
     }
 
 private val InputAction.icon: ImageVector
     get() = when (this) {
-        InputAction.Search -> Icons.Default.Search
+        InputAction.Search      -> Icons.Default.Search
         InputAction.LastMessage -> Icons.Default.History
-        InputAction.Stream -> Icons.Default.Videocam
-        InputAction.RoomState -> Icons.Default.Shield
-        InputAction.Fullscreen -> Icons.Default.Fullscreen
-        InputAction.HideInput -> Icons.Default.VisibilityOff
+        InputAction.Stream      -> Icons.Default.Videocam
+        InputAction.RoomState   -> Icons.Default.Shield
+        InputAction.Fullscreen  -> Icons.Default.Fullscreen
+        InputAction.HideInput   -> Icons.Default.VisibilityOff
     }
 
 @Composable
@@ -791,26 +783,28 @@ private fun InputActionButton(
     modifier: Modifier = Modifier,
 ) {
     val (icon, contentDescription, onClick) = when (action) {
-        InputAction.Search -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
+        InputAction.Search      -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
         InputAction.LastMessage -> Triple(Icons.Default.History, R.string.resume_scroll, onLastMessageClick)
-        InputAction.Stream -> Triple(
+        InputAction.Stream      -> Triple(
             if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
             R.string.toggle_stream,
             onToggleStream,
         )
-        InputAction.RoomState -> Triple(Icons.Default.Shield, R.string.menu_room_state, onChangeRoomState)
-        InputAction.Fullscreen -> Triple(
+
+        InputAction.RoomState   -> Triple(Icons.Default.Shield, R.string.menu_room_state, onChangeRoomState)
+        InputAction.Fullscreen  -> Triple(
             if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
             R.string.toggle_fullscreen,
             onToggleFullscreen,
         )
-        InputAction.HideInput -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
+
+        InputAction.HideInput   -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
     }
 
     val actionEnabled = when (action) {
         InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
-        InputAction.LastMessage -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.RoomState -> enabled
+        InputAction.LastMessage                                           -> enabled && hasLastMessage
+        InputAction.Stream, InputAction.RoomState                         -> enabled
     }
 
     IconButton(

@@ -1,7 +1,7 @@
 package com.flxrs.dankchat.domain
 
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.UserId
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
@@ -12,7 +12,6 @@ import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -70,7 +69,7 @@ class ChannelDataLoader(
                     is ChannelLoadingFailure.SevenTVEmotes -> SystemMessageType.ChannelSevenTVEmotesFailed(status)
                     is ChannelLoadingFailure.BTTVEmotes    -> SystemMessageType.ChannelBTTVEmotesFailed(status)
                     is ChannelLoadingFailure.FFZEmotes     -> SystemMessageType.ChannelFFZEmotesFailed(status)
-                    else -> null
+                    else                                   -> null
                 }
                 systemMessageType?.let {
                     chatRepository.makeAndPostSystemMessage(it, channel)
@@ -79,7 +78,7 @@ class ChannelDataLoader(
 
             when {
                 failures.isEmpty() -> emit(ChannelLoadingState.Loaded)
-                else -> emit(ChannelLoadingState.Failed("Some data failed to load", failures))
+                else               -> emit(ChannelLoadingState.Failed("Some data failed to load", failures))
             }
         } catch (e: Exception) {
             emit(ChannelLoadingState.Failed(e.message ?: "Unknown error", emptyList()))

@@ -5,17 +5,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.rememberEmoteAnimationCoordinator
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import androidx.compose.ui.graphics.Color
-import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -49,20 +48,20 @@ fun MentionComposable(
     val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
 
     CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
-    ChatScreen(
-        messages = messages,
-        fontSize = displaySettings.fontSize,
-        showLineSeparator = displaySettings.showLineSeparator,
-        animateGifs = displaySettings.animateGifs,
-        showChannelPrefix = !isWhisperTab,
-        modifier = modifier,
-        onUserClick = onUserClick,
-        onMessageLongClick = onMessageLongClick,
-        onEmoteClick = onEmoteClick,
-        onWhisperReply = if (isWhisperTab) onWhisperReply else null,
-        onJumpToMessage = if (!isWhisperTab) onJumpToMessage else null,
-        contentPadding = contentPadding,
-        containerColor = containerColor,
-    )
+        ChatScreen(
+            messages = messages,
+            fontSize = displaySettings.fontSize,
+            showLineSeparator = displaySettings.showLineSeparator,
+            animateGifs = displaySettings.animateGifs,
+            showChannelPrefix = !isWhisperTab,
+            modifier = modifier,
+            onUserClick = onUserClick,
+            onMessageLongClick = onMessageLongClick,
+            onEmoteClick = onEmoteClick,
+            onWhisperReply = if (isWhisperTab) onWhisperReply else null,
+            onJumpToMessage = if (!isWhisperTab) onJumpToMessage else null,
+            contentPadding = contentPadding,
+            containerColor = containerColor,
+        )
     } // CompositionLocalProvider
 }

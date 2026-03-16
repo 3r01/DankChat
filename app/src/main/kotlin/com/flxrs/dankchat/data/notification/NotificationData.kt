@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.notification
 
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage

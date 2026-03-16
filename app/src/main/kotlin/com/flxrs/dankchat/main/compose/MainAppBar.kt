@@ -10,10 +10,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -34,10 +32,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
@@ -78,8 +76,8 @@ fun MainAppBar(
 ) {
     var currentMenu by remember { mutableStateOf<AppBarMenu?>(null) }
 
-        TopAppBar(
-            title = { Text(stringResource(R.string.app_name)) },        actions = {
+    TopAppBar(
+        title = { Text(stringResource(R.string.app_name)) }, actions = {
             // Add channel button (always visible)
             IconButton(onClick = onAddChannel) {
                 Icon(
@@ -126,7 +124,7 @@ fun MainAppBar(
                 ) { menu ->
                     Column {
                         when (menu) {
-                            AppBarMenu.Main -> {
+                            AppBarMenu.Main    -> {
                                 if (!isLoggedIn) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.login)) },
@@ -233,7 +231,7 @@ fun MainAppBar(
                                 }
                             }
 
-                            AppBarMenu.Upload -> {
+                            AppBarMenu.Upload  -> {
                                 SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.take_picture)) },
@@ -258,7 +256,7 @@ fun MainAppBar(
                                 )
                             }
 
-                            AppBarMenu.More -> {
+                            AppBarMenu.More    -> {
                                 SubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.reload_emotes)) },
@@ -283,7 +281,7 @@ fun MainAppBar(
                                 )
                             }
 
-                            null -> {}
+                            null               -> {}
                         }
                     }
                 }
@@ -341,7 +339,7 @@ fun ToolbarOverflowMenu(
         ) { menu ->
             Column {
                 when (menu) {
-                    AppBarMenu.Main -> {
+                    AppBarMenu.Main    -> {
                         if (!isLoggedIn) {
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.login)) },
@@ -374,6 +372,7 @@ fun ToolbarOverflowMenu(
                             onClick = { onOpenSettings(); onDismiss() }
                         )
                     }
+
                     AppBarMenu.Account -> {
                         SubMenuHeader(title = stringResource(R.string.account), onBack = { currentMenu = AppBarMenu.Main })
                         DropdownMenuItem(
@@ -385,6 +384,7 @@ fun ToolbarOverflowMenu(
                             onClick = { onLogout(); onDismiss() }
                         )
                     }
+
                     AppBarMenu.Channel -> {
                         SubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
                         DropdownMenuItem(
@@ -410,7 +410,8 @@ fun ToolbarOverflowMenu(
                             )
                         }
                     }
-                    AppBarMenu.Upload -> {
+
+                    AppBarMenu.Upload  -> {
                         SubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.take_picture)) },
@@ -425,7 +426,8 @@ fun ToolbarOverflowMenu(
                             onClick = { onChooseMedia(); onDismiss() }
                         )
                     }
-                    AppBarMenu.More -> {
+
+                    AppBarMenu.More    -> {
                         SubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.reload_emotes)) },
@@ -440,7 +442,8 @@ fun ToolbarOverflowMenu(
                             onClick = { onClearChat(); onDismiss() }
                         )
                     }
-                    null -> {}
+
+                    null               -> {}
                 }
             }
         }
@@ -492,7 +495,7 @@ fun InlineOverflowMenu(
     ) { menu ->
         Column {
             when (menu) {
-                AppBarMenu.Main -> {
+                AppBarMenu.Main    -> {
                     if (!isLoggedIn) {
                         InlineMenuItem(text = stringResource(R.string.login)) { onAction(ToolbarAction.Login); onDismiss() }
                     } else {
@@ -504,11 +507,13 @@ fun InlineOverflowMenu(
                     InlineMenuItem(text = stringResource(R.string.more), hasSubMenu = true) { currentMenu = AppBarMenu.More }
                     InlineMenuItem(text = stringResource(R.string.settings)) { onAction(ToolbarAction.OpenSettings); onDismiss() }
                 }
+
                 AppBarMenu.Account -> {
                     InlineSubMenuHeader(title = stringResource(R.string.account), onBack = { currentMenu = AppBarMenu.Main })
                     InlineMenuItem(text = stringResource(R.string.relogin)) { onAction(ToolbarAction.Relogin); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.logout)) { onAction(ToolbarAction.Logout); onDismiss() }
                 }
+
                 AppBarMenu.Channel -> {
                     InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
                     if (hasStreamData || isStreamActive) {
@@ -522,13 +527,15 @@ fun InlineOverflowMenu(
                         InlineMenuItem(text = stringResource(R.string.block_channel)) { onAction(ToolbarAction.BlockChannel); onDismiss() }
                     }
                 }
-                AppBarMenu.Upload -> {
+
+                AppBarMenu.Upload  -> {
                     InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
                     InlineMenuItem(text = stringResource(R.string.take_picture)) { onAction(ToolbarAction.CaptureImage); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.record_video)) { onAction(ToolbarAction.CaptureVideo); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.choose_media)) { onAction(ToolbarAction.ChooseMedia); onDismiss() }
                 }
-                AppBarMenu.More -> {
+
+                AppBarMenu.More    -> {
                     InlineSubMenuHeader(title = stringResource(R.string.more), onBack = { currentMenu = AppBarMenu.Main })
                     InlineMenuItem(text = stringResource(R.string.reload_emotes)) { onAction(ToolbarAction.ReloadEmotes); onDismiss() }
                     InlineMenuItem(text = stringResource(R.string.reconnect)) { onAction(ToolbarAction.Reconnect); onDismiss() }

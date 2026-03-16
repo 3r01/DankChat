@@ -60,7 +60,7 @@ fun EditChannelDialog(
                 }),
                 trailingIcon = if (renameText.text.isNotEmpty()) {
                     {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             onRename(channelWithRename.channel, null)
                             onDismiss()
                         }) {
@@ -90,7 +90,7 @@ fun EditChannelDialog(
             }
         }
     )
-    
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }

@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.main.compose
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
@@ -61,7 +61,7 @@ class ChannelTabViewModel(
                         .indexOfFirst { it.channel == active }
                         .coerceAtLeast(0),
                     loading = globalState == GlobalLoadingState.Loading
-                        || tabs.any { it.loadingState == ChannelLoadingState.Loading },
+                            || tabs.any { it.loadingState == ChannelLoadingState.Loading },
                 )
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())

@@ -57,6 +57,7 @@ fun <T : Enum<T>> Any?.mappedStringOrDefault(original: Array<String>, enumEntrie
 
 @Suppress("UNCHECKED_CAST")
 fun Any?.stringSetOrNull() = this as? Set<String>
+
 @Suppress("UNCHECKED_CAST")
 fun Any?.stringSetOrDefault(default: Set<String>) = this as? Set<String> ?: default
 fun <T : Enum<T>> Any?.mappedStringSetOrDefault(original: Array<String>, enumEntries: EnumEntries<T>, default: List<T>): List<T> {

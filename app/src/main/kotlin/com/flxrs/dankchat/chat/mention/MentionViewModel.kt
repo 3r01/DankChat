@@ -13,7 +13,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class MentionViewModel(chatRepository: ChatRepository) : ViewModel() {
-    
+
     val mentions: StateFlow<List<ChatItem>> = chatRepository.mentions
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeout = 5.seconds), emptyList())
     val whispers: StateFlow<List<ChatItem>> = chatRepository.whispers
