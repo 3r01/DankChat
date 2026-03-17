@@ -130,8 +130,8 @@ fun FullScreenSheetOverlay(
                                     messageId = messageId,
                                     channel = channel?.let { UserName(it) },
                                     fullMessage = fullMessage,
-                                    canModerate = isLoggedIn,
-                                    canReply = isLoggedIn,
+                                    canModerate = false,
+                                    canReply = false,
                                     canCopy = true,
                                     canJump = true,
                                 )

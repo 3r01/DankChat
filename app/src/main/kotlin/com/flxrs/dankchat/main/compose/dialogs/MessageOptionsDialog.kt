@@ -85,7 +85,7 @@ fun MessageOptionsDialog(
                     }
                 )
             }
-            if (hasReplyThread) {
+            if (canReply && hasReplyThread) {
                 MessageOptionItem(
                     icon = Icons.AutoMirrored.Filled.Reply, // Using same icon for thread view
                     text = stringResource(R.string.message_view_thread),
