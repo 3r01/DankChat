@@ -4,6 +4,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
@@ -527,6 +528,7 @@ data class ChatInputUiState(
     val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
 )
 
+@Stable
 sealed interface CharacterCounterState {
     data object Hidden : CharacterCounterState
 

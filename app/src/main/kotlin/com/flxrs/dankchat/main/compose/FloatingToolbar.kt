@@ -86,6 +86,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 
+private const val TAB_AUTO_COLLAPSE_DELAY_MS = 1000L
+
 sealed interface ToolbarAction {
     data class SelectTab(val index: Int) : ToolbarAction
     data class LongClickTab(val index: Int) : ToolbarAction
@@ -158,10 +160,10 @@ fun FloatingToolbar(
         }
     }
 
-    // Auto-collapse after all scrolling stops + 2s delay
+    // Auto-collapse after all scrolling stops
     LaunchedEffect(isTabsExpanded, composePagerState.isScrollInProgress, tabListState.isScrollInProgress) {
         if (isTabsExpanded && !composePagerState.isScrollInProgress && !tabListState.isScrollInProgress) {
-            delay(2000)
+            delay(TAB_AUTO_COLLAPSE_DELAY_MS)
             isTabsExpanded = false
         }
     }

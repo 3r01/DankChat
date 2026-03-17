@@ -24,7 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
+
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -100,7 +100,6 @@ fun ChatScreen(
     onScrollDirectionChanged: (isScrollingUp: Boolean) -> Unit = {},
     scrollToMessageId: String? = null,
     onScrollToMessageHandled: () -> Unit = {},
-    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     containerColor: Color = MaterialTheme.colorScheme.background,
@@ -204,7 +203,6 @@ fun ChatScreen(
                         onEmoteClick = onEmoteClick,
                         onReplyClick = onReplyClick,
                         onWhisperReply = onWhisperReply,
-                        onJumpToMessage = onJumpToMessage,
                         onAutomodAllow = onAutomodAllow,
                         onAutomodDeny = onAutomodDeny,
                     )
@@ -345,7 +343,6 @@ private fun ChatMessageItem(
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
-    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
     onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
 ) {
@@ -378,50 +375,17 @@ private fun ChatMessageItem(
             onDeny = onAutomodDeny,
         )
 
-        is ChatMessageUiState.PrivMessageUi            -> {
-            if (onJumpToMessage != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        PrivMessageComposable(
-                            message = message,
-                            highlightShape = highlightShape,
-                            fontSize = fontSize,
-                            showChannelPrefix = showChannelPrefix,
-                            animateGifs = animateGifs,
-                            onUserClick = onUserClick,
-                            onMessageLongClick = onMessageLongClick,
-                            onEmoteClick = onEmoteClick,
-                            onReplyClick = onReplyClick
-                        )
-                    }
-                    IconButton(
-                        onClick = { onJumpToMessage(message.id, message.channel) },
-                        modifier = Modifier.size(32.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                            contentDescription = stringResource(R.string.message_jump_to),
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            } else {
-                PrivMessageComposable(
-                    message = message,
-                    highlightShape = highlightShape,
-                    fontSize = fontSize,
-                    showChannelPrefix = showChannelPrefix,
-                    animateGifs = animateGifs,
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                    onReplyClick = onReplyClick
-                )
-            }
-        }
+        is ChatMessageUiState.PrivMessageUi            -> PrivMessageComposable(
+            message = message,
+            highlightShape = highlightShape,
+            fontSize = fontSize,
+            showChannelPrefix = showChannelPrefix,
+            animateGifs = animateGifs,
+            onUserClick = onUserClick,
+            onMessageLongClick = onMessageLongClick,
+            onEmoteClick = onEmoteClick,
+            onReplyClick = onReplyClick
+        )
 
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
             message = message,

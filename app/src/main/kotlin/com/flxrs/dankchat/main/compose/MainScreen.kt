@@ -587,15 +587,17 @@ fun MainScreen(
                 onOverflowExpandedChanged = { inputOverflowExpanded = it },
                 onInputHeightChanged = { inputHeightPx = it },
                 instantHide = isHistorySheet,
-                tourState = TourOverlayState(
-                    inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
-                    overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
-                    configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
-                    swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
-                    forceOverflowOpen = featureTourState.forceOverflowOpen,
-                    onAdvance = featureTourViewModel::advance,
-                    onSkip = featureTourViewModel::skipTour,
-                ),
+                tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen) {
+                    TourOverlayState(
+                        inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
+                        overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
+                        configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
+                        swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
+                        forceOverflowOpen = featureTourState.forceOverflowOpen,
+                        onAdvance = featureTourViewModel::advance,
+                        onSkip = featureTourViewModel::skipTour,
+                    )
+                },
             )
         }
 
@@ -861,17 +863,6 @@ fun MainScreen(
                 onMessageLongClick = dialogViewModel::showMessageOptions,
                 onEmoteClick = dialogViewModel::showEmoteInfo,
                 onWhisperReply = chatInputViewModel::setWhisperTarget,
-                onJumpToMessage = { messageId, channel ->
-                    val target = channelPagerViewModel.resolveJumpTarget(channel, messageId)
-                    if (target != null) {
-                        scrollTargets[target.channel] = target.messageId
-                        sheetNavigationViewModel.closeFullScreenSheet()
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(messageNotInHistoryMsg)
-                        }
-                    }
-                },
                 bottomContentPadding = effectiveBottomPadding,
             )
         }

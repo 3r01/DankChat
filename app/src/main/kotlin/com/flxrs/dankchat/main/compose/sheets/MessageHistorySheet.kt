@@ -74,7 +74,6 @@ fun MessageHistorySheet(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
-    onJumpToMessage: ((messageId: String, channel: UserName) -> Unit)? = null,
 ) {
 
     LaunchedEffect(viewModel, initialFilter) {
@@ -141,7 +140,6 @@ fun MessageHistorySheet(
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = onEmoteClick,
-                onJumpToMessage = onJumpToMessage,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
                 containerColor = sheetBackgroundColor,
             )
