@@ -55,7 +55,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.rememberTooltipState
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -110,14 +110,12 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.main.compose.sheets.EmoteMenu
-import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
+import com.flxrs.dankchat.tour.FeatureTourViewModel
 import com.flxrs.dankchat.tour.PostOnboardingStep
 import com.flxrs.dankchat.tour.TourStep
-import com.flxrs.dankchat.tour.rememberFeatureTourController
-import com.flxrs.dankchat.tour.rememberPostOnboardingCoordinator
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
@@ -162,11 +160,9 @@ fun MainScreen(
     val dialogViewModel: DialogStateViewModel = koinViewModel()
     val mentionViewModel: MentionComposeViewModel = koinViewModel()
     val preferenceStore: DankChatPreferenceStore = koinInject()
-    val onboardingDataStore: OnboardingDataStore = koinInject()
     val mainEventBus: MainEventBus = koinInject()
-    val tourController = rememberFeatureTourController(onboardingDataStore)
-    tourController.onHideInput = { mainScreenViewModel.setGestureInputHidden(true) }
-    tourController.onRestoreInput = { mainScreenViewModel.setGestureInputHidden(false) }
+    val featureTourViewModel: FeatureTourViewModel = koinViewModel()
+    val featureTourState by featureTourViewModel.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -290,33 +286,34 @@ fun MainScreen(
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
 
     // Post-onboarding flow: toolbar hint → feature tour
-    val coordinator = rememberPostOnboardingCoordinator(onboardingDataStore)
-    tourController.onComplete = coordinator::onTourCompleted
-    val postOnboardingStep = coordinator.step
-    val toolbarAddChannelTooltipState = rememberTooltipState(isPersistent = true)
     val channelsReady = !tabState.loading
     val channelsEmpty = tabState.tabs.isEmpty() && channelsReady
 
-    // Notify coordinator when channel state changes
+    // Notify tour VM when channel state changes
     LaunchedEffect(channelsReady, channelsEmpty) {
-        coordinator.onChannelsChanged(empty = channelsEmpty, ready = channelsReady)
+        featureTourViewModel.onChannelsChanged(empty = channelsEmpty, ready = channelsReady)
     }
 
     // Drive tooltip dismissals and tour start from the typed step.
     // Tooltip .show() calls live in FloatingToolbar.
-    LaunchedEffect(postOnboardingStep) {
-        when (postOnboardingStep) {
+    LaunchedEffect(featureTourState.postOnboardingStep) {
+        when (featureTourState.postOnboardingStep) {
             PostOnboardingStep.FeatureTour                       -> {
-                toolbarAddChannelTooltipState.dismiss()
-                tourController.start()
+                featureTourViewModel.addChannelTooltipState.dismiss()
+                featureTourViewModel.startTour()
             }
 
             PostOnboardingStep.Complete, PostOnboardingStep.Idle -> {
-                toolbarAddChannelTooltipState.dismiss()
+                featureTourViewModel.addChannelTooltipState.dismiss()
             }
 
             PostOnboardingStep.ToolbarPlusHint                   -> Unit
         }
+    }
+
+    // Sync tour's gestureInputHidden with MainScreenViewModel
+    LaunchedEffect(featureTourState.gestureInputHidden) {
+        mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
     }
 
     MainScreenDialogs(
@@ -421,15 +418,15 @@ fun MainScreen(
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
     // Auto-advance tour when input is hidden during the SwipeGesture step (e.g. by actual swipe)
-    LaunchedEffect(mainState.gestureInputHidden, tourController.currentStep) {
-        if (mainState.gestureInputHidden && tourController.currentStep == TourStep.SwipeGesture) {
-            tourController.advance()
+    LaunchedEffect(mainState.gestureInputHidden, featureTourState.currentTourStep) {
+        if (mainState.gestureInputHidden && featureTourState.currentTourStep == TourStep.SwipeGesture) {
+            featureTourViewModel.advance()
         }
     }
 
     // Keep toolbar visible during tour
-    LaunchedEffect(tourController.isActive, mainState.gestureToolbarHidden) {
-        if (tourController.isActive && mainState.gestureToolbarHidden) {
+    LaunchedEffect(featureTourState.isTourActive, mainState.gestureToolbarHidden) {
+        if (featureTourState.isTourActive && mainState.gestureToolbarHidden) {
             mainScreenViewModel.setGestureToolbarHidden(false)
         }
     }
@@ -591,13 +588,13 @@ fun MainScreen(
                 onInputHeightChanged = { inputHeightPx = it },
                 instantHide = isHistorySheet,
                 tourState = TourOverlayState(
-                    inputActionsTooltipState = if (tourController.currentStep == TourStep.InputActions) tourController.inputActionsTooltipState else null,
-                    overflowMenuTooltipState = if (tourController.currentStep == TourStep.OverflowMenu) tourController.overflowMenuTooltipState else null,
-                    configureActionsTooltipState = if (tourController.currentStep == TourStep.ConfigureActions) tourController.configureActionsTooltipState else null,
-                    swipeGestureTooltipState = if (tourController.currentStep == TourStep.SwipeGesture) tourController.swipeGestureTooltipState else null,
-                    forceOverflowOpen = tourController.forceOverflowOpen,
-                    onAdvance = tourController::advance,
-                    onSkip = tourController::skipTour,
+                    inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
+                    overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
+                    configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
+                    swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
+                    forceOverflowOpen = featureTourState.forceOverflowOpen,
+                    onAdvance = featureTourViewModel::advance,
+                    onSkip = featureTourViewModel::skipTour,
                 ),
             )
         }
@@ -616,7 +613,7 @@ fun MainScreen(
                 }
 
                 ToolbarAction.AddChannel      -> {
-                    coordinator.onAddedChannelFromToolbar()
+                    featureTourViewModel.onAddedChannelFromToolbar()
                     dialogViewModel.showAddChannel()
                 }
 
@@ -673,9 +670,9 @@ fun MainScreen(
                 onAction = handleToolbarAction,
                 endAligned = endAligned,
                 showTabs = showTabs,
-                addChannelTooltipState = if (postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) toolbarAddChannelTooltipState else null,
-                onAddChannelTooltipDismissed = coordinator::onToolbarHintDismissed,
-                onSkipTour = tourController::skipTour,
+                addChannelTooltipState = if (featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) featureTourViewModel.addChannelTooltipState else null,
+                onAddChannelTooltipDismissed = featureTourViewModel::onToolbarHintDismissed,
+                onSkipTour = featureTourViewModel::skipTour,
                 streamToolbarAlpha = streamState.effectiveAlpha,
                 modifier = toolbarModifier,
             )
@@ -754,12 +751,12 @@ fun MainScreen(
                                         onUserClick = { userId, userName, displayName, channel, badges, _ ->
                                             dialogViewModel.showUserPopup(
                                                 UserPopupStateParams(
-                                                targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                                targetUserName = UserName(userName),
-                                                targetDisplayName = DisplayName(displayName),
-                                                channel = channel?.let { UserName(it) },
-                                                badges = badges.map { it.badge }
-                                            ))
+                                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                                    targetUserName = UserName(userName),
+                                                    targetDisplayName = DisplayName(displayName),
+                                                    channel = channel?.let { UserName(it) },
+                                                    badges = badges.map { it.badge }
+                                                ))
                                         },
                                         onMessageLongClick = { messageId, channel, fullMessage ->
                                             dialogViewModel.showMessageOptions(
@@ -801,9 +798,9 @@ fun MainScreen(
                                         onScrollDirectionChanged = { },
                                         scrollToMessageId = scrollTargets[channel],
                                         onScrollToMessageHandled = { scrollTargets.remove(channel) },
-                                        recoveryFabTooltipState = if (tourController.currentStep == TourStep.RecoveryFab) tourController.recoveryFabTooltipState else null,
-                                        onTourAdvance = tourController::advance,
-                                        onTourSkip = tourController::skipTour,
+                                        recoveryFabTooltipState = if (featureTourState.currentTourStep == TourStep.RecoveryFab) featureTourViewModel.recoveryFabTooltipState else null,
+                                        onTourAdvance = featureTourViewModel::advance,
+                                        onTourSkip = featureTourViewModel::skipTour,
                                     )
                                 }
                             }
@@ -963,7 +960,7 @@ fun MainScreen(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() },
                                     ) {
-                                        if (!tourController.forceOverflowOpen) {
+                                        if (!featureTourState.forceOverflowOpen) {
                                             inputOverflowExpanded = false
                                         }
                                     }
@@ -1086,7 +1083,7 @@ fun MainScreen(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() },
                         ) {
-                            if (!tourController.forceOverflowOpen) {
+                            if (!featureTourState.forceOverflowOpen) {
                                 inputOverflowExpanded = false
                             }
                         }

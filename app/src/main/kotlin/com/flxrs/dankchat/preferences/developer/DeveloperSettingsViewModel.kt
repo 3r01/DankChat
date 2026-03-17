@@ -2,6 +2,7 @@ package com.flxrs.dankchat.preferences.developer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.utils.extensions.withTrailingSlash
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,6 +19,7 @@ import kotlin.time.Duration.Companion.seconds
 class DeveloperSettingsViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val dankchatPreferenceStore: DankChatPreferenceStore,
+    private val onboardingDataStore: OnboardingDataStore,
 ) : ViewModel() {
 
     private val initial = developerSettingsDataStore.current()
@@ -54,6 +56,27 @@ class DeveloperSettingsViewModel(
 
                 is DeveloperSettingsInteraction.EventSubDebugOutput      -> developerSettingsDataStore.update { it.copy(eventSubDebugOutput = interaction.value) }
                 is DeveloperSettingsInteraction.RestartRequired          -> _events.emit(DeveloperSettingsEvent.RestartRequired)
+                is DeveloperSettingsInteraction.ResetOnboarding          -> {
+                    onboardingDataStore.update {
+                        it.copy(
+                            hasCompletedOnboarding = false,
+                            onboardingPage = 0,
+                        )
+                    }
+                    _events.emit(DeveloperSettingsEvent.RestartRequired)
+                }
+
+                is DeveloperSettingsInteraction.ResetTour                -> {
+                    onboardingDataStore.update {
+                        it.copy(
+                            featureTourVersion = 0,
+                            featureTourStep = 0,
+                            hasShownAddChannelHint = false,
+                            hasShownToolbarHint = false,
+                        )
+                    }
+                    _events.emit(DeveloperSettingsEvent.RestartRequired)
+                }
             }
         }
     }
@@ -71,6 +94,8 @@ sealed interface DeveloperSettingsInteraction {
     data class EventSubEnabled(val value: Boolean) : DeveloperSettingsInteraction
     data class EventSubDebugOutput(val value: Boolean) : DeveloperSettingsInteraction
     data object RestartRequired : DeveloperSettingsInteraction
+    data object ResetOnboarding : DeveloperSettingsInteraction
+    data object ResetTour : DeveloperSettingsInteraction
 }
 
 

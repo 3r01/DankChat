@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+
 import org.koin.android.annotation.KoinViewModel
 
 data class OnboardingState(
@@ -35,7 +35,7 @@ class OnboardingViewModel(
     val state: StateFlow<OnboardingState>
 
     init {
-        val savedPage = runBlocking { onboardingDataStore.current().onboardingPage }
+        val savedPage = onboardingDataStore.current().onboardingPage
         val isLoggedIn = authDataStore.isLoggedIn
         _state = MutableStateFlow(
             OnboardingState(
@@ -76,10 +76,13 @@ class OnboardingViewModel(
         _state.update { it.copy(messageHistoryDecided = true, messageHistoryEnabled = enabled) }
     }
 
-    suspend fun completeOnboarding() {
+    fun completeOnboarding(onComplete: () -> Unit) {
         val historyEnabled = _state.value.messageHistoryEnabled
         dankChatPreferenceStore.hasMessageHistoryAcknowledged = true
-        chatSettingsDataStore.update { it.copy(loadMessageHistory = historyEnabled) }
-        onboardingDataStore.update { it.copy(hasCompletedOnboarding = true, onboardingPage = 0) }
+        viewModelScope.launch {
+            chatSettingsDataStore.update { it.copy(loadMessageHistory = historyEnabled) }
+            onboardingDataStore.update { it.copy(hasCompletedOnboarding = true, onboardingPage = 0) }
+            onComplete()
+        }
     }
 }

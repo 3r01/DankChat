@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.about.libraries.android)
+    alias(libs.plugins.android.junit5)
 }
 
 android {
@@ -213,9 +214,11 @@ dependencies {
 
 // Test
     testImplementation(libs.junit.jupiter.api)
-    testImplementation(libs.junit.jupiter.engine)
+    testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
 }
 
 fun gradleLocalProperties(projectRootDir: File, providers: ProviderFactory): Properties {

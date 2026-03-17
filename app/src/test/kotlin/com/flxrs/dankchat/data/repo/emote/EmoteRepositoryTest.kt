@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
+import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
@@ -17,6 +18,9 @@ internal class EmoteRepositoryTest {
 
     @MockK
     lateinit var dankchatApiClient: DankChatApiClient
+
+    @MockK
+    lateinit var helixApiClient: HelixApiClient
 
     @MockK
     lateinit var chatSettings: ChatSettingsDataStore

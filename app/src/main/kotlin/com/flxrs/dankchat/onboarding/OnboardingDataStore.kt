@@ -11,7 +11,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
@@ -40,32 +39,27 @@ class OnboardingDataStore(
         override suspend fun cleanUp() = Unit
     }
 
+    private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
+
     private val dataStore = createDataStore(
         fileName = "onboarding",
         context = context,
         defaultValue = OnboardingSettings(),
         serializer = OnboardingSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+        scope = scope,
         migrations = listOf(existingUserMigration),
     )
 
     val settings = dataStore.safeData(OnboardingSettings())
     val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
+        scope = scope,
         started = SharingStarted.Eagerly,
         initialValue = runBlocking { settings.first() }
     )
 
-    private val persistScope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
-
     fun current() = currentSettings.value
 
     suspend fun update(transform: suspend (OnboardingSettings) -> OnboardingSettings) {
-        runCatching { dataStore.updateData(transform) }
-    }
-
-    /** Fire-and-forget update that survives caller cancellation (e.g. config change). */
-    fun updateAsync(transform: suspend (OnboardingSettings) -> OnboardingSettings) {
-        persistScope.launch { update(transform) }
+        dataStore.updateData(transform)
     }
 }

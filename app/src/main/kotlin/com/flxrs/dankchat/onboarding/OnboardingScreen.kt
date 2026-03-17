@@ -135,10 +135,7 @@ fun OnboardingScreen(
 
                     3 -> NotificationsPage(
                         onContinue = {
-                            scope.launch {
-                                viewModel.completeOnboarding()
-                                onComplete()
-                            }
+                            viewModel.completeOnboarding(onComplete)
                         },
                     )
                 }

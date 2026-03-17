@@ -37,7 +37,7 @@ compose-material3-adaptive = "1.2.0"
 compose-unstyled = "1.49.6"
 material = "1.13.0"
 flexBox = "3.0.0"
-autoLinkText =  "2.0.2"
+autoLinkText = "2.0.2"
 
 processPhoenix = "3.0.0"
 
@@ -45,7 +45,9 @@ colorPicker = "3.1.0"
 reorderable = "2.4.3"
 
 junit = "6.0.3"
+androidJunit5 = "2.0.1"
 mockk = "1.14.9"
+turbine = "1.2.0"
 
 [libraries]
 android-desugar-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidDesugarLibs" }
@@ -134,6 +136,8 @@ junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.re
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
@@ -144,4 +148,5 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 nav-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotlin", version.ref = "androidxNavigation" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 about-libraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "about-libraries" }
+android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "androidJunit5" }
 androidx-room = { id = "androidx.room", version.ref = "androidxRoom" }  #TODO use me when working

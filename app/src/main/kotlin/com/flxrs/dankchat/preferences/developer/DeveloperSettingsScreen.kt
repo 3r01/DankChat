@@ -70,6 +70,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.components.ExpandablePreferenceItem
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
+import com.flxrs.dankchat.preferences.components.PreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubDebugOutput
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubEnabled
@@ -203,6 +204,19 @@ private fun DeveloperSettingsContent(
                     isEnabled = settings.shouldUseEventSub,
                     isChecked = settings.eventSubDebugOutput,
                     onClick = { onInteraction(EventSubDebugOutput(it)) },
+                )
+            }
+
+            PreferenceCategory(title = stringResource(R.string.preference_reset_onboarding_category)) {
+                PreferenceItem(
+                    title = stringResource(R.string.preference_reset_onboarding_title),
+                    summary = stringResource(R.string.preference_reset_onboarding_summary),
+                    onClick = { onInteraction(DeveloperSettingsInteraction.ResetOnboarding) },
+                )
+                PreferenceItem(
+                    title = stringResource(R.string.preference_reset_tour_title),
+                    summary = stringResource(R.string.preference_reset_tour_summary),
+                    onClick = { onInteraction(DeveloperSettingsInteraction.ResetTour) },
                 )
             }
 

@@ -233,7 +233,7 @@
     <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
-<string name="menu_room_state">Channel settings</string>
+    <string name="menu_room_state">Channel settings</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maximum of %1$d action</item>
         <item quantity="other">Maximum of %1$d actions</item>
@@ -436,6 +436,11 @@
     <string name="preference_unlisted_emotes_summary">Disables filtering of unapproved or unlisted emotes</string>
     <string name="preference_rm_host_key" translatable="false">rm_host_key</string>
     <string name="preference_rm_host_title">Custom recent messages host</string>
+    <string name="preference_reset_onboarding_category" translatable="false">Onboarding</string>
+    <string name="preference_reset_onboarding_title" translatable="false">Reset onboarding</string>
+    <string name="preference_reset_onboarding_summary" translatable="false">Clears onboarding completion, shows onboarding flow on next restart</string>
+    <string name="preference_reset_tour_title" translatable="false">Reset feature tour</string>
+    <string name="preference_reset_tour_summary" translatable="false">Clears feature tour and toolbar hint progress</string>
     <string name="preference_fetch_streams_key" translatable="false">fetch_streams_key</string>
     <string name="preference_fetch_streams_title">Fetch stream information</string>
     <string name="preference_fetch_streams_summary">Periodically fetches stream information of open channels. Required to start embedded stream.</string>
