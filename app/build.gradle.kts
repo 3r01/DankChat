@@ -65,11 +65,12 @@ android {
             manifestPlaceholders["applicationLabel"] = "@string/app_name"
         }
         create("dank") {
-            initWith(getByName("debug"))
+            initWith(getByName("release"))
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             manifestPlaceholders["applicationLabel"] = "@string/app_name_dank"
             applicationIdSuffix = ".dank"
             isDefault = true
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

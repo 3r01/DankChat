@@ -113,8 +113,8 @@ fun MainScreenEventHandler(
     // Handle data loading errors
     val loadingState by mainScreenViewModel.globalLoadingState.collectAsStateWithLifecycle()
     LaunchedEffect(loadingState) {
-        if (loadingState is GlobalLoadingState.Failed) {
-            val state = loadingState as GlobalLoadingState.Failed
+        val state = loadingState as? GlobalLoadingState.Failed
+        if (state != null) {
             launch {
                 snackbarHostState.showSnackbar(
                     message = state.message,

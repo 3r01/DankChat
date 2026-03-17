@@ -175,8 +175,9 @@ fun FullScreenSheetOverlay(
                 }
 
                 is FullScreenSheetState.History -> {
+                    val viewModel = currentHistoryViewModel ?: lastHistoryViewModel ?: return@AnimatedVisibility
                     MessageHistorySheet(
-                        viewModel = (currentHistoryViewModel ?: lastHistoryViewModel)!!,
+                        viewModel = viewModel,
                         channel = renderState.channel,
                         initialFilter = renderState.initialFilter,
 

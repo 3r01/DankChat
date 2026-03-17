@@ -415,7 +415,7 @@ class ChatRepository(
         eventSubManager.reconnectIfNecessary()
     }
 
-    fun getLastMessage(): String? = lastMessage[activeChannel.value]?.withoutInvisibleChar
+    fun getLastMessage(): String? = activeChannel.value?.let { lastMessage[it]?.withoutInvisibleChar }
 
     fun fakeWhisperIfNecessary(input: String) {
         if (pubSubManager.connectedAndHasWhisperTopic) {

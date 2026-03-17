@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.message.RoomState
 
+private data class ParameterDialogConfig(val titleRes: Int, val hintRes: Int, val defaultValue: String, val commandPrefix: String)
+
 private enum class ParameterDialogType {
     SLOW_MODE,
     FOLLOWER_MODE
@@ -45,32 +47,32 @@ fun RoomStateDialog(
     var parameterDialog by remember { mutableStateOf<ParameterDialogType?>(null) }
 
     parameterDialog?.let { type ->
-        val (title, hint, defaultValue, commandPrefix) = when (type) {
-            ParameterDialogType.SLOW_MODE -> listOf(
-                R.string.room_state_slow_mode,
-                R.string.seconds,
-                "30",
-                "/slow"
+        val (titleRes, hintRes, defaultValue, commandPrefix) = when (type) {
+            ParameterDialogType.SLOW_MODE -> ParameterDialogConfig(
+                titleRes = R.string.room_state_slow_mode,
+                hintRes = R.string.seconds,
+                defaultValue = "30",
+                commandPrefix = "/slow"
             )
 
-            ParameterDialogType.FOLLOWER_MODE -> listOf(
-                R.string.room_state_follower_only,
-                R.string.minutes,
-                "10",
-                "/followers"
+            ParameterDialogType.FOLLOWER_MODE -> ParameterDialogConfig(
+                titleRes = R.string.room_state_follower_only,
+                hintRes = R.string.minutes,
+                defaultValue = "10",
+                commandPrefix = "/followers"
             )
         }
 
-        var inputValue by remember(type) { mutableStateOf(defaultValue as String) }
+        var inputValue by remember(type) { mutableStateOf(defaultValue) }
 
         AlertDialog(
             onDismissRequest = { parameterDialog = null },
-            title = { Text(stringResource(title as Int)) },
+            title = { Text(stringResource(titleRes)) },
             text = {
                 OutlinedTextField(
                     value = inputValue,
                     onValueChange = { inputValue = it },
-                    label = { Text(stringResource(hint as Int)) },
+                    label = { Text(stringResource(hintRes)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()

@@ -198,7 +198,7 @@ class ChatInputViewModel(
     )
 
     fun uiState(externalSheetState: StateFlow<FullScreenSheetState>, externalMentionTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
-        if (_uiState != null) return _uiState!!
+        _uiState?.let { return it }
 
         // Wire up external sheet state for whisper clearing
         viewModelScope.launch {
@@ -242,7 +242,7 @@ class ChatInputViewModel(
             InputOverlayState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget)
         }
 
-        _uiState = combine(
+        return combine(
             baseFlow,
             inputOverlayFlow,
             helperText,
@@ -300,9 +300,7 @@ class ChatInputViewModel(
                     isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
                 ),
             )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState())
-
-        return _uiState!!
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState()).also { _uiState = it }
     }
 
     fun sendMessage() {
