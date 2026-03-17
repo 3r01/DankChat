@@ -36,17 +36,21 @@ fun AnnotatedString.Builder.appendWithLinks(text: String, linkColor: Color, prev
         }
         end = fixedEnd
 
-        val url = text.substring(start, end)
+        val rawUrl = text.substring(start, end)
+        val url = when {
+            rawUrl.contains("://") -> rawUrl
+            else                   -> "https://$rawUrl"
+        }
 
         // Append text before URL
         if (start > lastIndex) {
             append(text.substring(lastIndex, start))
         }
 
-        // Append URL with annotation and style
+        // Append URL with annotation and style — annotation has full URL, display shows original text
         pushStringAnnotation(tag = "URL", annotation = url)
         withStyle(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)) {
-            append(url)
+            append(rawUrl)
         }
         pop()
 
