@@ -497,6 +497,15 @@ fun MainScreen(
             }
     }
 
+    // Clear focus after stream closes — the layout shift from removing StreamView
+    // can cause the TextField to regain focus and open the keyboard.
+    LaunchedEffect(currentStream) {
+        if (currentStream == null) {
+            keyboardController?.hide()
+            focusManager.clearFocus()
+        }
+    }
+
     // Sync Compose pager with ViewModel state
     LaunchedEffect(pagerState.currentPage, pagerState.channels.size) {
         if (!composePagerState.isScrollInProgress &&

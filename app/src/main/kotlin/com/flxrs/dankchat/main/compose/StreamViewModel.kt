@@ -107,6 +107,7 @@ class StreamViewModel(
         _currentStreamedChannel.value = null
     }
 
+
     override fun onCleared() {
         streamDataRepository.cancelStreamData()
         cachedWebView?.destroy()

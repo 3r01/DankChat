@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.doOnAttach
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 
@@ -98,10 +99,18 @@ fun StreamView(
                     if (!hasBeenAttached) {
                         hasBeenAttached = true
                         streamViewModel.hasWebViewBeenAttached = true
+                    } else {
+                        // Resume playback after config change — the Twitch player pauses
+                        // when the WebView detaches from the old window during Activity recreation.
+                        webView.doOnAttach { view ->
+                            view.postDelayed({
+                                (view as? WebView)?.evaluateJavascript("document.querySelector('video')?.play()", null)
+                            }, 100)
+                        }
                     }
                     webView
                 },
-                update = { view ->
+                update = { _ ->
                     streamViewModel.setStream(channel, webView)
                 },
                 modifier = webViewModifier
