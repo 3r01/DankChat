@@ -889,6 +889,7 @@ fun MainScreen(
                             streamViewModel = streamViewModel,
                             fillPane = true,
                             onClose = {
+                                keyboardController?.hide()
                                 focusManager.clearFocus()
                                 streamViewModel.closeStream()
                             },
@@ -1023,8 +1024,9 @@ fun MainScreen(
             // Stream View layer
             currentStream?.let { channel ->
                 val showStream = isInPipMode || !isKeyboardVisible || isLandscape
-                // Delay adding StreamView to composition to prevent WebView flash
-                var streamComposed by remember { mutableStateOf(false) }
+                // Delay adding StreamView to composition to prevent WebView flash on first open.
+                // If the WebView was already attached (e.g. switching from wide layout), skip the delay.
+                var streamComposed by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
                 LaunchedEffect(showStream) {
                     if (showStream) {
                         delay(100)
@@ -1039,6 +1041,7 @@ fun MainScreen(
                         streamViewModel = streamViewModel,
                         isInPipMode = isInPipMode,
                         onClose = {
+                            keyboardController?.hide()
                             focusManager.clearFocus()
                             streamViewModel.closeStream()
                         },

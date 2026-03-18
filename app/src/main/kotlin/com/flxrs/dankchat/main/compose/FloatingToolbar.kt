@@ -168,6 +168,14 @@ fun FloatingToolbar(
         }
     }
 
+    // Scroll to selected tab after collapse animation settles
+    LaunchedEffect(isTabsExpanded, selectedIndex) {
+        if (!isTabsExpanded && hasOverflow) {
+            delay(400) // wait for action icons enter animation (350ms tween)
+            tabListState.animateScrollToItem(selectedIndex)
+        }
+    }
+
     // Reset expanded state when toolbar hides (e.g. keyboard opens in split mode)
     LaunchedEffect(showAppBar) {
         if (!showAppBar) {
