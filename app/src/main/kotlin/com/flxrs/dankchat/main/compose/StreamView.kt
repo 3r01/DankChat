@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -113,7 +115,9 @@ fun StreamView(
                 update = { _ ->
                     streamViewModel.setStream(channel, webView)
                 },
-                modifier = webViewModifier
+                modifier = webViewModifier.graphicsLayer {
+                    compositingStrategy = CompositingStrategy.Offscreen
+                }
             )
         } else {
             Box(modifier = webViewModifier)
