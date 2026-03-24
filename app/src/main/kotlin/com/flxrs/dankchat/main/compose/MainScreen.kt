@@ -115,6 +115,7 @@ import com.flxrs.dankchat.tour.FeatureTourViewModel
 import com.flxrs.dankchat.tour.PostOnboardingStep
 import com.flxrs.dankchat.tour.TourStep
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -564,7 +565,11 @@ fun MainScreen(
                 isStreamActive = currentStream != null,
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
-                inputActions = mainState.inputActions,
+                inputActions = when (fullScreenSheetState) {
+                    is FullScreenSheetState.Mention,
+                    is FullScreenSheetState.Whisper -> persistentListOf()
+                    else                            -> mainState.inputActions
+                },
                 characterCounter = if (mainState.showCharacterCounter) inputState.characterCounter else CharacterCounterState.Hidden,
                 onSend = chatInputViewModel::sendMessage,
                 onLastMessageClick = chatInputViewModel::getLastMessage,
