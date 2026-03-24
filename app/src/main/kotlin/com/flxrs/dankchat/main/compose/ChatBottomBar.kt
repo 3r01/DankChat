@@ -8,6 +8,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
@@ -55,6 +57,8 @@ fun ChatBottomBar(
     overflowExpanded: Boolean = false,
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
     onInputHeightChanged: (Int) -> Unit,
+    onHelperTextHeightChanged: (Int) -> Unit = {},
+    isInSplitLayout: Boolean = false,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
 ) {
@@ -114,12 +118,19 @@ fun ChatBottomBar(
             val helperText = inputState.helperText
             if (!helperText.isNullOrEmpty()) {
                 val horizontalPadding = when {
-                    isFullscreen -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
-                    else         -> PaddingValues(horizontal = 16.dp)
+                    isFullscreen && isInSplitLayout -> {
+                        val rcPadding = rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+                        val direction = LocalLayoutDirection.current
+                        PaddingValues(start = 16.dp, end = rcPadding.calculateEndPadding(direction))
+                    }
+                    isFullscreen                    -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+                    else                            -> PaddingValues(horizontal = 16.dp)
                 }
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { onHelperTextHeightChanged(it.size.height) }
                 ) {
                     Text(
                         text = helperText,

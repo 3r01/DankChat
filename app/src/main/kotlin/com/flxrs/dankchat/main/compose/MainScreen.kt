@@ -476,9 +476,12 @@ fun MainScreen(
         pageCount = { pagerState.channels.size }
     ).also { composePagerStateRef = it }
     var inputHeightPx by remember { mutableIntStateOf(0) }
+    var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
     if (!effectiveShowInput) inputHeightPx = 0
+    if (effectiveShowInput || inputState.helperText.isNullOrEmpty()) helperTextHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
+    val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
     // scaffoldBottomContentPadding removed — input bar rendered outside Scaffold
 
     // Clear focus when keyboard fully reaches the bottom, but not when
@@ -595,6 +598,8 @@ fun MainScreen(
                 overflowExpanded = inputOverflowExpanded,
                 onOverflowExpandedChanged = { inputOverflowExpanded = it },
                 onInputHeightChanged = { inputHeightPx = it },
+                onHelperTextHeightChanged = { helperTextHeightPx = it },
+                isInSplitLayout = useWideSplitLayout,
                 instantHide = isHistorySheet,
                 tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen) {
                     TourOverlayState(
@@ -789,7 +794,6 @@ fun MainScreen(
                                         },
                                         showInput = effectiveShowInput,
                                         isFullscreen = isFullscreen,
-                                        hasHelperText = !inputState.helperText.isNullOrEmpty(),
                                         showFabs = !isSheetOpen,
                                         onRecover = {
                                             if (isFullscreen) mainScreenViewModel.toggleFullscreen()
@@ -798,10 +802,11 @@ fun MainScreen(
                                         },
                                         contentPadding = PaddingValues(
                                             top = chatTopPadding + 56.dp,
-                                            bottom = paddingValues.calculateBottomPadding() + inputHeightDp + when {
-                                                !effectiveShowInput && !isFullscreen -> max(navBarHeightDp, roundedCornerBottomPadding)
-                                                !effectiveShowInput                  -> roundedCornerBottomPadding
-                                                else                                 -> 0.dp
+                                            bottom = paddingValues.calculateBottomPadding() + when {
+                                                effectiveShowInput     -> inputHeightDp
+                                                !isFullscreen          -> max(helperTextHeightDp, max(navBarHeightDp, roundedCornerBottomPadding))
+                                                useWideSplitLayout     -> helperTextHeightDp
+                                                else                   -> max(helperTextHeightDp, roundedCornerBottomPadding)
                                             }
                                         ),
                                         scrollModifier = chatScrollModifier,

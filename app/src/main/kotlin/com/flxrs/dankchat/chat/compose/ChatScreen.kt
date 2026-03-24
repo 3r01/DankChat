@@ -92,7 +92,6 @@ fun ChatScreen(
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
-    hasHelperText: Boolean = false,
     onRecover: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
     scrollModifier: Modifier = Modifier,
@@ -219,11 +218,7 @@ fun ChatScreen(
                 val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
                 val bottomContentPadding = contentPadding.calculateBottomPadding()
                 val fabBottomPadding by animateDpAsState(
-                    targetValue = when {
-                        showInput     -> bottomContentPadding
-                        hasHelperText -> maxOf(bottomContentPadding, 48.dp)
-                        else          -> maxOf(bottomContentPadding, 24.dp)
-                    },
+                    targetValue = bottomContentPadding,
                     animationSpec = if (showInput) snap() else spring(),
                     label = "fabBottomPadding"
                 )
