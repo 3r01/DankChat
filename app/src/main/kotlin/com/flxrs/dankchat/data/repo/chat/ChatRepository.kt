@@ -929,6 +929,7 @@ class ChatRepository(
 
                 else                                                                                                          -> current
             }
+
             withIncompleteWarning.addAndLimit(items, scrollBackLength, ::onMessageRemoved, checkForDuplications = true)
         }
 

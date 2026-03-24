@@ -235,7 +235,7 @@ data class ModerationMessage(
             val durationSeconds = tags["ban-duration"]?.toIntOrNull()
             val duration = durationSeconds?.let { DateTimeUtils.formatSeconds(it) }
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
-            val id = tags["id"] ?: UUID.randomUUID().toString()
+            val id = tags["id"] ?: "clearchat-$ts-$channel-${target ?: "all"}"
             val action = when {
                 target == null          -> Action.Clear
                 durationSeconds == null -> Action.Ban
@@ -262,7 +262,7 @@ data class ModerationMessage(
             val targetMsgId = tags["target-msg-id"]
             val reason = params.getOrNull(1)
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
-            val id = tags["id"] ?: UUID.randomUUID().toString()
+            val id = tags["id"] ?: "clearmsg-$ts-$channel-${target ?: ""}"
 
             return ModerationMessage(
                 timestamp = ts,
