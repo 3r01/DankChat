@@ -5,4 +5,4 @@ import org.koin.core.annotation.Module
 
 @Module(includes = [ConnectionModule::class, DatabaseModule::class, NetworkModule::class, CoroutineModule::class])
 @ComponentScan("com.flxrs.dankchat")
-class DankChatModule // dummy comment to force re-ksp
+class DankChatModule // force re-ksp

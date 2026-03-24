@@ -18,16 +18,7 @@ import com.flxrs.dankchat.data.api.eventapi.SystemMessage
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageStatus
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodReasonDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.BlockedTermReasonDto
-import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiClient
-import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiException
-import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesError
-import com.flxrs.dankchat.data.api.recentmessages.dto.RecentMessagesDto
 import com.flxrs.dankchat.data.irc.IrcMessage
-import com.flxrs.dankchat.data.repo.HighlightsRepository
-import com.flxrs.dankchat.data.repo.IgnoresRepository
-import com.flxrs.dankchat.data.repo.RepliesRepository
-import com.flxrs.dankchat.data.repo.UserDisplayRepository
-import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
@@ -64,7 +55,6 @@ import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.increment
 import com.flxrs.dankchat.utils.extensions.mutableSharedFlowOf
-import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
 import com.flxrs.dankchat.utils.extensions.replaceOrAddModerationMessage
 import com.flxrs.dankchat.utils.extensions.replaceWithTimeout
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
@@ -95,23 +85,18 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.system.measureTimeMillis
 
 @Single
 class ChatRepository(
-    private val recentMessagesApiClient: RecentMessagesApiClient,
+    private val messageProcessor: MessageProcessor,
+    private val recentMessagesHandler: RecentMessagesHandler,
     private val emoteRepository: EmoteRepository,
-    private val highlightsRepository: HighlightsRepository,
-    private val ignoresRepository: IgnoresRepository,
-    private val userDisplayRepository: UserDisplayRepository,
-    private val repliesRepository: RepliesRepository,
     private val userStateRepository: UserStateRepository,
     private val usersRepository: UsersRepository,
     private val authDataStore: AuthDataStore,
     private val dankChatPreferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val pubSubManager: PubSubManager,
-    private val channelRepository: ChannelRepository,
     private val eventSubManager: EventSubManager,
     @Named(type = ReadConnection::class) private val readConnection: ChatConnection,
     @Named(type = WriteConnection::class) private val writeConnection: ChatConnection,
@@ -132,7 +117,6 @@ class ChatRepository(
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
 
     private var lastMessage = ConcurrentHashMap<UserName, String>()
-    private val loadedRecentsInChannels = mutableSetOf<UserName>()
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
     private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val rewardMutex = Mutex()
@@ -150,176 +134,184 @@ class ChatRepository(
         .stateIn(scope, SharingStarted.Eagerly, 500)
     private val scrollBackLength get() = scrollBackLengthFlow.value
 
+    private val channelRepository get() = messageProcessor.channelRepository
+
     init {
-        scope.launch {
-            readConnection.messages.collect { event ->
-                when (event) {
-                    is ChatEvent.Connected          -> handleConnected(event.channel, event.isAnonymous)
-                    is ChatEvent.Closed             -> handleDisconnect()
-                    is ChatEvent.ChannelNonExistent -> makeAndPostSystemMessage(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
-                    is ChatEvent.LoginFailed        -> makeAndPostSystemMessage(SystemMessageType.LoginExpired)
-                    is ChatEvent.Message            -> onMessage(event.message)
-                    is ChatEvent.Error              -> handleDisconnect()
-                }
+        scope.launch { collectReadConnectionEvents() }
+        scope.launch { collectWriteConnectionEvents() }
+        scope.launch { collectPubSubEvents() }
+        scope.launch { collectEventSubEvents() }
+    }
+
+    private suspend fun collectReadConnectionEvents() {
+        readConnection.messages.collect { event ->
+            when (event) {
+                is ChatEvent.Connected          -> handleConnected(event.channel, event.isAnonymous)
+                is ChatEvent.Closed             -> handleDisconnect()
+                is ChatEvent.ChannelNonExistent -> makeAndPostSystemMessage(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
+                is ChatEvent.LoginFailed        -> makeAndPostSystemMessage(SystemMessageType.LoginExpired)
+                is ChatEvent.Message            -> onMessage(event.message)
+                is ChatEvent.Error              -> handleDisconnect()
             }
         }
-        scope.launch {
-            writeConnection.messages.collect { event ->
-                if (event !is ChatEvent.Message) return@collect
+    }
+
+    private suspend fun collectWriteConnectionEvents() {
+        writeConnection.messages.collect { event ->
+            if (event is ChatEvent.Message) {
                 onWriterMessage(event.message)
             }
         }
-        scope.launch {
-            pubSubManager.messages.collect { pubSubMessage ->
-                when (pubSubMessage) {
-                    is PubSubMessage.PointRedemption -> {
-                        if (ignoresRepository.isUserBlocked(pubSubMessage.data.user.id)) {
-                            return@collect
-                        }
+    }
 
-                        if (pubSubMessage.data.reward.requiresUserInput) {
-                            val id = pubSubMessage.data.reward.id
-                            rewardMutex.withLock {
-                                when {
-                                    // already handled, remove it and do nothing else
-                                    knownRewards.containsKey(id) -> {
-                                        Log.d(TAG, "Removing known reward $id")
-                                        knownRewards.remove(id)
-                                    }
+    private suspend fun collectPubSubEvents() {
+        pubSubManager.messages.collect { pubSubMessage ->
+            when (pubSubMessage) {
+                is PubSubMessage.PointRedemption -> handlePubSubReward(pubSubMessage)
+                is PubSubMessage.Whisper         -> handlePubSubWhisper(pubSubMessage)
+                is PubSubMessage.ModeratorAction -> handlePubSubModeration(pubSubMessage)
+            }
+        }
+    }
 
-                                    else                         -> {
-                                        Log.d(TAG, "Received pubsub reward message with id $id")
-                                        knownRewards[id] = pubSubMessage
-                                    }
-                                }
-                            }
-                        } else {
-                            val message = runCatching {
-                                PointRedemptionMessage
-                                    .parsePointReward(pubSubMessage.timestamp, pubSubMessage.data)
-                                    .applyIgnores()
-                                    ?.calculateHighlightState()
-                                    ?.calculateUserDisplays()
-                            }.getOrNull() ?: return@collect
+    private suspend fun collectEventSubEvents() {
+        eventSubManager.events.collect { eventMessage ->
+            when (eventMessage) {
+                is ModerationAction -> handleEventSubModeration(eventMessage)
+                is AutomodHeld      -> handleAutomodHeld(eventMessage)
+                is AutomodUpdate    -> handleAutomodUpdate(eventMessage)
+                is SystemMessage    -> makeAndPostSystemMessage(type = SystemMessageType.Custom(eventMessage.message))
+            }
+        }
+    }
 
-                            messages[pubSubMessage.channelName]?.update {
-                                it.addAndLimit(ChatItem(message), scrollBackLength, ::onMessageRemoved)
-                            }
-                        }
+    private suspend fun handlePubSubReward(pubSubMessage: PubSubMessage.PointRedemption) {
+        if (messageProcessor.isUserBlocked(pubSubMessage.data.user.id)) {
+            return
+        }
+
+        if (pubSubMessage.data.reward.requiresUserInput) {
+            val id = pubSubMessage.data.reward.id
+            rewardMutex.withLock {
+                when {
+                    knownRewards.containsKey(id) -> {
+                        Log.d(TAG, "Removing known reward $id")
+                        knownRewards.remove(id)
                     }
 
-                    is PubSubMessage.Whisper         -> {
-                        if (ignoresRepository.isUserBlocked(pubSubMessage.data.userId)) {
-                            return@collect
-                        }
-
-                        val message = runCatching {
-                            WhisperMessage.fromPubSub(pubSubMessage.data)
-                                .applyIgnores()
-                                ?.calculateHighlightState()
-                                ?.calculateUserDisplays()
-                                ?.parseEmotesAndBadges() as? WhisperMessage
-                        }.getOrNull() ?: return@collect
-
-                        val item = ChatItem(message, isMentionTab = true)
-                        _whispers.update { current ->
-                            current.addAndLimit(item, scrollBackLength, ::onMessageRemoved)
-                        }
-
-                        if (pubSubMessage.data.userId == userStateRepository.userState.value.userId) {
-                            return@collect
-                        }
-
-                        val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
-                        usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
-                        _channelMentionCount.increment(WhisperMessage.WHISPER_CHANNEL, 1)
-                        _notificationsFlow.tryEmit(listOf(item))
-                    }
-
-                    is PubSubMessage.ModeratorAction -> {
-                        val (timestamp, channelId, data) = pubSubMessage
-                        val channelName = channelRepository.tryGetUserNameById(channelId) ?: return@collect
-                        val message = runCatching {
-                            ModerationMessage.parseModerationAction(timestamp, channelName, data)
-                        }.getOrElse {
-                            return@collect
-                        }
-
-                        messages[message.channel]?.update { current ->
-                            when (message.action) {
-                                ModerationMessage.Action.Delete -> current.replaceWithTimeout(message, scrollBackLength, ::onMessageRemoved)
-                                else                            -> current.replaceOrAddModerationMessage(message, scrollBackLength, ::onMessageRemoved)
-                            }
-                        }
+                    else                         -> {
+                        Log.d(TAG, "Received pubsub reward message with id $id")
+                        knownRewards[id] = pubSubMessage
                     }
                 }
             }
-        }
-        scope.launch {
-            eventSubManager.events.collect { eventMessage ->
-                when (eventMessage) {
-                    is ModerationAction -> {
-                        val (id, timestamp, channelName, data) = eventMessage
-                        val message = runCatching {
-                            ModerationMessage.parseModerationAction(id, timestamp, channelName, data)
-                        }.getOrElse {
-                            Log.d(TAG, "Failed to parse event sub moderation message: $it")
-                            return@collect
-                        }
+        } else {
+            val message = runCatching {
+                messageProcessor.processReward(
+                    PointRedemptionMessage.parsePointReward(pubSubMessage.timestamp, pubSubMessage.data)
+                )
+            }.getOrNull() ?: return
 
-                        messages[message.channel]?.update { current ->
-                            when (message.action) {
-                                ModerationMessage.Action.Delete,
-                                ModerationMessage.Action.SharedDelete -> current.replaceWithTimeout(message, scrollBackLength, ::onMessageRemoved)
-
-                                else                                  -> current.replaceOrAddModerationMessage(message, scrollBackLength, ::onMessageRemoved)
-                            }
-                        }
-                    }
-
-                    is AutomodHeld      -> {
-                        val data = eventMessage.data
-                        knownAutomodHeldIds.add(data.messageId)
-                        val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
-                        val userColor = usersRepository.getCachedUserColor(data.userLogin) ?: Message.DEFAULT_COLOR
-                        val automodBadge = Badge.GlobalBadge(
-                            title = "AutoMod",
-                            badgeTag = "automod/1",
-                            badgeInfo = null,
-                            url = "",
-                            type = BadgeType.Authority,
-                        )
-                        val automodMsg = AutomodMessage(
-                            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
-                            id = eventMessage.id,
-                            channel = eventMessage.channelName,
-                            heldMessageId = data.messageId,
-                            userName = data.userLogin,
-                            userDisplayName = data.userName,
-                            messageText = data.message.text,
-                            reason = reason,
-                            badges = listOf(automodBadge),
-                            color = userColor,
-                        )
-                        messages[eventMessage.channelName]?.update { current ->
-                            current.addAndLimit(ChatItem(automodMsg, importance = ChatImportance.SYSTEM), scrollBackLength, ::onMessageRemoved)
-                        }
-                    }
-
-                    is AutomodUpdate    -> {
-                        knownAutomodHeldIds.remove(eventMessage.data.messageId)
-                        val newStatus = when (eventMessage.data.status) {
-                            AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
-                            AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
-                            AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
-                        }
-                        updateAutomodMessageStatus(eventMessage.channelName, eventMessage.data.messageId, newStatus)
-                    }
-
-                    is SystemMessage    -> makeAndPostSystemMessage(type = SystemMessageType.Custom(eventMessage.message))
-                }
+            messages[pubSubMessage.channelName]?.update {
+                it.addAndLimit(ChatItem(message), scrollBackLength, messageProcessor::onMessageRemoved)
             }
         }
+    }
+
+    private suspend fun handlePubSubWhisper(pubSubMessage: PubSubMessage.Whisper) {
+        if (messageProcessor.isUserBlocked(pubSubMessage.data.userId)) {
+            return
+        }
+
+        val message = runCatching {
+            messageProcessor.processWhisper(WhisperMessage.fromPubSub(pubSubMessage.data)) as? WhisperMessage
+        }.getOrNull() ?: return
+
+        val item = ChatItem(message, isMentionTab = true)
+        _whispers.update { current ->
+            current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved)
+        }
+
+        if (pubSubMessage.data.userId == userStateRepository.userState.value.userId) {
+            return
+        }
+
+        val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
+        usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
+        _channelMentionCount.increment(WhisperMessage.WHISPER_CHANNEL, 1)
+        _notificationsFlow.tryEmit(listOf(item))
+    }
+
+    private fun handlePubSubModeration(pubSubMessage: PubSubMessage.ModeratorAction) {
+        val (timestamp, channelId, data) = pubSubMessage
+        val channelName = channelRepository.tryGetUserNameById(channelId) ?: return
+        val message = runCatching {
+            ModerationMessage.parseModerationAction(timestamp, channelName, data)
+        }.getOrElse { return }
+
+        applyModerationMessage(message)
+    }
+
+    private fun handleEventSubModeration(eventMessage: ModerationAction) {
+        val (id, timestamp, channelName, data) = eventMessage
+        val message = runCatching {
+            ModerationMessage.parseModerationAction(id, timestamp, channelName, data)
+        }.getOrElse {
+            Log.d(TAG, "Failed to parse event sub moderation message: $it")
+            return
+        }
+
+        applyModerationMessage(message)
+    }
+
+    private fun applyModerationMessage(message: ModerationMessage) {
+        messages[message.channel]?.update { current ->
+            when (message.action) {
+                ModerationMessage.Action.Delete,
+                ModerationMessage.Action.SharedDelete -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
+
+                else                                  -> current.replaceOrAddModerationMessage(message, scrollBackLength, messageProcessor::onMessageRemoved)
+            }
+        }
+    }
+
+    private fun handleAutomodHeld(eventMessage: AutomodHeld) {
+        val data = eventMessage.data
+        knownAutomodHeldIds.add(data.messageId)
+        val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
+        val userColor = usersRepository.getCachedUserColor(data.userLogin) ?: Message.DEFAULT_COLOR
+        val automodBadge = Badge.GlobalBadge(
+            title = "AutoMod",
+            badgeTag = "automod/1",
+            badgeInfo = null,
+            url = "",
+            type = BadgeType.Authority,
+        )
+        val automodMsg = AutomodMessage(
+            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+            id = eventMessage.id,
+            channel = eventMessage.channelName,
+            heldMessageId = data.messageId,
+            userName = data.userLogin,
+            userDisplayName = data.userName,
+            messageText = data.message.text,
+            reason = reason,
+            badges = listOf(automodBadge),
+            color = userColor,
+        )
+        messages[eventMessage.channelName]?.update { current ->
+            current.addAndLimit(ChatItem(automodMsg, importance = ChatImportance.SYSTEM), scrollBackLength, messageProcessor::onMessageRemoved)
+        }
+    }
+
+    private fun handleAutomodUpdate(eventMessage: AutomodUpdate) {
+        knownAutomodHeldIds.remove(eventMessage.data.messageId)
+        val newStatus = when (eventMessage.data.status) {
+            AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+            AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
+            AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
+        }
+        updateAutomodMessageStatus(eventMessage.channelName, eventMessage.data.messageId, newStatus)
     }
 
     val notificationsFlow: SharedFlow<List<ChatItem>> = _notificationsFlow.asSharedFlow()
@@ -345,7 +337,7 @@ class ChatRepository(
             chatSettingsDataStore.settings.first().loadMessageHistory -> loadRecentMessages(channel)
             else                                                      -> messages[channel]?.update { current ->
                 val message = SystemMessageType.NoHistoryLoaded.toChatItem()
-                listOf(message).addAndLimit(current, scrollBackLength, ::onMessageRemoved, checkForDuplications = true)
+                listOf(message).addAndLimit(current, scrollBackLength, messageProcessor::onMessageRemoved, checkForDuplications = true)
             }
         }
     }
@@ -357,9 +349,7 @@ class ChatRepository(
                     messages.map {
                         it.copy(
                             tag = it.tag + 1,
-                            message = it.message
-                                .parseEmotesAndBadges()
-                                .updateMessageInThread(),
+                            message = messageProcessor.reparseEmotesAndBadges(it.message),
                         )
                     }
                 }
@@ -445,7 +435,7 @@ class ChatRepository(
             )
             val fakeItem = ChatItem(fakeMessage, isMentionTab = true)
             _whispers.update {
-                it.addAndLimit(fakeItem, scrollBackLength, ::onMessageRemoved)
+                it.addAndLimit(fakeItem, scrollBackLength, messageProcessor::onMessageRemoved)
             }
         }
     }
@@ -553,12 +543,11 @@ class ChatRepository(
         connectionState.remove(channel)
         lastMessage.remove(channel)
         _channelMentionCount.clear(channel)
-        loadedRecentsInChannels.remove(channel)
         usersRepository.removeChannel(channel)
         userStateRepository.removeChannel(channel)
         channelRepository.removeRoomState(channel)
         emoteRepository.removeChannel(channel)
-        repliesRepository.cleanupMessageThreadsInChannel(channel)
+        messageProcessor.cleanupMessageThreadsInChannel(channel)
     }
 
     private fun prepareMessage(channel: UserName, message: String, replyId: String?): String? {
@@ -638,7 +627,7 @@ class ChatRepository(
         }
 
         messages[parsed.channel]?.update { current ->
-            current.replaceOrAddModerationMessage(parsed, scrollBackLength, ::onMessageRemoved)
+            current.replaceOrAddModerationMessage(parsed, scrollBackLength, messageProcessor::onMessageRemoved)
         }
     }
 
@@ -650,7 +639,7 @@ class ChatRepository(
         }
 
         messages[parsed.channel]?.update { current ->
-            current.replaceWithTimeout(parsed, scrollBackLength, ::onMessageRemoved)
+            current.replaceWithTimeout(parsed, scrollBackLength, messageProcessor::onMessageRemoved)
         }
     }
 
@@ -660,18 +649,16 @@ class ChatRepository(
         }
 
         val userId = ircMessage.tags["user-id"]?.toUserId()
-        if (ignoresRepository.isUserBlocked(userId)) {
+        if (messageProcessor.isUserBlocked(userId)) {
             return
         }
 
         val userState = userStateRepository.userState.value
         val recipient = userState.displayName ?: return
         val message = runCatching {
-            WhisperMessage.parseFromIrc(ircMessage, recipient, userState.color)
-                .applyIgnores()
-                ?.calculateHighlightState()
-                ?.calculateUserDisplays()
-                ?.parseEmotesAndBadges() as? WhisperMessage
+            messageProcessor.processWhisper(
+                WhisperMessage.parseFromIrc(ircMessage, recipient, userState.color)
+            ) as? WhisperMessage
         }.getOrNull() ?: return
 
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
@@ -679,7 +666,7 @@ class ChatRepository(
 
         val item = ChatItem(message, isMentionTab = true)
         _whispers.update { current ->
-            current.addAndLimit(item, scrollBackLength, ::onMessageRemoved)
+            current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved)
         }
         _channelMentionCount.increment(WhisperMessage.WHISPER_CHANNEL, 1)
     }
@@ -694,7 +681,7 @@ class ChatRepository(
         }
 
         val userId = ircMessage.tags["user-id"]?.toUserId()
-        if (ignoresRepository.isUserBlocked(userId)) {
+        if (messageProcessor.isUserBlocked(userId)) {
             return
         }
 
@@ -719,7 +706,8 @@ class ChatRepository(
                 }
 
                 reward?.let {
-                    listOf(ChatItem(PointRedemptionMessage.parsePointReward(it.timestamp, it.data).calculateHighlightState()))
+                    val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(it.timestamp, it.data))
+                    listOfNotNull(processed?.let(::ChatItem))
                 }.orEmpty()
             }
 
@@ -727,13 +715,9 @@ class ChatRepository(
         }
 
         val message = runCatching {
-            Message.parse(ircMessage, channelRepository::tryGetUserNameById)
-                ?.applyIgnores()
-                ?.calculateMessageThread { channel, id -> messages[channel]?.value?.find { it.message.id == id }?.message }
-                ?.calculateUserDisplays()
-                ?.parseEmotesAndBadges()
-                ?.calculateHighlightState()
-                ?.updateMessageInThread()
+            messageProcessor.processIrcMessage(ircMessage) { channel, id ->
+                messages[channel]?.value?.find { it.message.id == id }?.message
+            }
         }.getOrElse {
             Log.e(TAG, "Failed to parse message", it)
             return
@@ -742,7 +726,7 @@ class ChatRepository(
         if (message is NoticeMessage && usersRepository.isGlobalChannel(message.channel)) {
             messages.keys.forEach {
                 messages[it]?.update { current ->
-                    current.addAndLimit(ChatItem(message, importance = ChatImportance.SYSTEM), scrollBackLength, ::onMessageRemoved)
+                    current.addAndLimit(ChatItem(message, importance = ChatImportance.SYSTEM), scrollBackLength, messageProcessor::onMessageRemoved)
                 }
             }
             return
@@ -789,7 +773,7 @@ class ChatRepository(
         }
 
         messages[channel]?.update { current ->
-            current.addAndLimit(items = additionalMessages + items, scrollBackLength, ::onMessageRemoved)
+            current.addAndLimit(items = additionalMessages + items, scrollBackLength, messageProcessor::onMessageRemoved)
         }
 
         _notificationsFlow.tryEmit(items)
@@ -799,7 +783,7 @@ class ChatRepository(
 
         if (mentions.isNotEmpty()) {
             _mentions.update { current ->
-                current.addAndLimit(mentions, scrollBackLength, ::onMessageRemoved)
+                current.addAndLimit(mentions, scrollBackLength, messageProcessor::onMessageRemoved)
             }
         }
 
@@ -819,13 +803,13 @@ class ChatRepository(
 
     fun makeAndPostCustomSystemMessage(message: String, channel: UserName) {
         messages[channel]?.update {
-            it.addSystemMessage(SystemMessageType.Custom(message), scrollBackLength, ::onMessageRemoved)
+            it.addSystemMessage(SystemMessageType.Custom(message), scrollBackLength, messageProcessor::onMessageRemoved)
         }
     }
 
     fun makeAndPostSystemMessage(type: SystemMessageType, channel: UserName) {
         messages[channel]?.update {
-            it.addSystemMessage(type, scrollBackLength, ::onMessageRemoved)
+            it.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved)
         }
     }
 
@@ -833,7 +817,7 @@ class ChatRepository(
         channels.forEach { channel ->
             val flow = messages[channel] ?: return@forEach
             val current = flow.value
-            flow.value = current.addSystemMessage(type, scrollBackLength, ::onMessageRemoved) {
+            flow.value = current.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved) {
                 scope.launch {
                     if (chatSettingsDataStore.settings.first().loadMessageHistoryOnReconnect) {
                         loadRecentMessages(channel, isReconnect = true)
@@ -849,135 +833,27 @@ class ChatRepository(
         ConnectionState.CONNECTED_NOT_LOGGED_IN -> SystemMessageType.Connected
     }
 
-    private suspend fun loadRecentMessages(channel: UserName, isReconnect: Boolean = false) = withContext(Dispatchers.IO) {
-        if (!isReconnect && channel in loadedRecentsInChannels) {
-            return@withContext
-        }
+    private suspend fun loadRecentMessages(channel: UserName, isReconnect: Boolean = false) {
+        val messagesFlow = messages[channel] ?: return
+        val result = recentMessagesHandler.load(
+            channel = channel,
+            isReconnect = isReconnect,
+            messagesFlow = messagesFlow,
+            scrollBackLength = scrollBackLength,
+            onMessageRemoved = messageProcessor::onMessageRemoved,
+            onLoadingFailure = { step, throwable -> _chatLoadingFailures.update { it + ChatLoadingFailure(step, throwable) } },
+            postSystemMessage = ::makeAndPostSystemMessage,
+        )
 
-        val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
-        val result = recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
-            if (!isReconnect) {
-                handleRecentMessagesFailure(throwable, channel)
+        if (result.mentionItems.isNotEmpty()) {
+            _mentions.update { current ->
+                (current + result.mentionItems)
+                    .distinctBy { it.message.id }
+                    .sortedBy { it.message.timestamp }
             }
-            return@withContext
         }
-
-        loadedRecentsInChannels += channel
-        val recentMessages = result.messages.orEmpty()
-        val items = mutableListOf<ChatItem>()
-        val messageIndex = HashMap<String, Message>(recentMessages.size)
-        val userSuggestions = mutableListOf<Pair<UserName, DisplayName>>()
-        measureTimeMillis {
-            for (recentMessage in recentMessages) {
-                val parsedIrc = IrcMessage.parse(recentMessage)
-                val isDeleted = parsedIrc.tags["rm-deleted"] == "1"
-                if (ignoresRepository.isUserBlocked(parsedIrc.tags["user-id"]?.toUserId())) {
-                    continue
-                }
-
-                when (parsedIrc.command) {
-                    "CLEARCHAT" -> {
-                        val parsed = runCatching {
-                            ModerationMessage.parseClearChat(parsedIrc)
-                        }.getOrNull() ?: continue
-
-                        items.replaceOrAddHistoryModerationMessage(parsed)
-                    }
-
-                    "CLEARMSG"  -> {
-                        val parsed = runCatching {
-                            ModerationMessage.parseClearMessage(parsedIrc)
-                        }.getOrNull() ?: continue
-
-                        items += ChatItem(parsed, importance = ChatImportance.SYSTEM)
-                    }
-
-                    else        -> {
-                        val message = runCatching {
-                            Message.parse(parsedIrc, channelRepository::tryGetUserNameById)
-                                ?.applyIgnores()
-                                ?.calculateMessageThread { _, id -> messageIndex[id] }
-                                ?.calculateUserDisplays()
-                                ?.parseEmotesAndBadges()
-                                ?.calculateHighlightState()
-                                ?.updateMessageInThread()
-                        }.getOrNull() ?: continue
-
-                        messageIndex[message.id] = message
-                        if (message is PrivMessage) {
-                            val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
-                            userSuggestions += message.name.lowercase() to userForSuggestion
-                        }
-
-                        val importance = when {
-                            isDeleted   -> ChatImportance.DELETED
-                            isReconnect -> ChatImportance.SYSTEM
-                            else        -> ChatImportance.REGULAR
-                        }
-                        if (message is UserNoticeMessage && message.childMessage != null) {
-                            items += ChatItem(message.childMessage, importance = importance)
-                        }
-                        items += ChatItem(message, importance = importance)
-                    }
-                }
-            }
-        }.let { Log.i(TAG, "Parsing message history for #$channel took $it ms") }
-
-        messages[channel]?.update { current ->
-            val withIncompleteWarning = when {
-                !isReconnect && recentMessages.isNotEmpty() && result.errorCode == RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> {
-                    current + SystemMessageType.MessageHistoryIncomplete.toChatItem()
-                }
-
-                else                                                                                                          -> current
-            }
-
-            withIncompleteWarning.addAndLimit(items, scrollBackLength, ::onMessageRemoved, checkForDuplications = true)
-        }
-
-        val mentions = items.filter { (it.message.highlights.hasMention()) }.toMentionTabItems()
-        _mentions.update { current ->
-            (current + mentions)
-                .distinctBy { it.message.id }
-                .sortedBy { it.message.timestamp }
-        }
-        usersRepository.updateUsers(channel, userSuggestions)
+        usersRepository.updateUsers(channel, result.userSuggestions)
     }
-
-    private fun handleRecentMessagesFailure(throwable: Throwable, channel: UserName) {
-        val type = when (throwable) {
-            !is RecentMessagesApiException -> {
-                _chatLoadingFailures.update { it + ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), throwable) }
-                SystemMessageType.MessageHistoryUnavailable(status = null)
-            }
-
-            else                           -> when (throwable.error) {
-                RecentMessagesError.ChannelNotJoined -> {
-                    loadedRecentsInChannels += channel // not a temporary error, so we don't want to retry
-                    SystemMessageType.MessageHistoryIgnored
-                }
-
-                else                                 -> {
-                    _chatLoadingFailures.update { it + ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), throwable) }
-                    SystemMessageType.MessageHistoryUnavailable(status = throwable.status.value.toString())
-                }
-            }
-        }
-        makeAndPostSystemMessage(type, setOf(channel))
-    }
-
-    private fun Message.applyIgnores(): Message? = ignoresRepository.applyIgnores(this)
-    private suspend fun Message.calculateHighlightState(): Message = highlightsRepository.calculateHighlightState(this)
-    private suspend fun Message.parseEmotesAndBadges(): Message = emoteRepository.parseEmotesAndBadges(this)
-    private fun Message.calculateUserDisplays(): Message = userDisplayRepository.calculateUserDisplay(this)
-
-    private fun Message.calculateMessageThread(findMessageById: (channel: UserName, id: String) -> Message?): Message {
-        return repliesRepository.calculateMessageThread(message = this, findMessageById)
-    }
-
-    private fun Message.updateMessageInThread(): Message = repliesRepository.updateMessageInThread(this)
-
-    private fun onMessageRemoved(item: ChatItem) = repliesRepository.cleanupMessageThread(item.message)
 
     private fun formatAutomodReason(
         reason: String,
@@ -1018,7 +894,6 @@ class ChatRepository(
         private val ESCAPE_TAG = 0x000E0002.codePointAsString
 
         private const val PUBSUB_TIMEOUT = 5000L
-        private const val RECENT_MESSAGES_LIMIT_AFTER_RECONNECT = 100
 
         val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
         const val ZERO_WIDTH_JOINER = 0x200D.toChar().toString()
