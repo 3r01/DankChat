@@ -257,15 +257,16 @@ fun FloatingToolbar(
                 }
             }
 
-            // Mention indicators based on visibility
-            val hasLeftMention by remember {
+            // Mention indicators based on visibility (keyed on tabs so the
+            // derivedStateOf recaptures when mention counts change)
+            val hasLeftMention by remember(tabState.tabs) {
                 derivedStateOf {
                     val visibleItems = tabListState.layoutInfo.visibleItemsInfo
                     val firstVisibleIndex = visibleItems.firstOrNull()?.index ?: 0
                     tabState.tabs.take(firstVisibleIndex).any { it.mentionCount > 0 }
                 }
             }
-            val hasRightMention by remember {
+            val hasRightMention by remember(tabState.tabs) {
                 derivedStateOf {
                     val visibleItems = tabListState.layoutInfo.visibleItemsInfo
                     val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: (totalTabs - 1)

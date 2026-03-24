@@ -75,6 +75,10 @@ class ChannelTabViewModel(
             chatRepository.clearMentionCount(channel)
         }
     }
+
+    fun clearAllMentionCounts() {
+        chatRepository.clearMentionCounts()
+    }
 }
 
 @Immutable

@@ -112,11 +112,13 @@ fun ChatScreen(
     // Track if we should auto-scroll to bottom (sticky state)
     var shouldAutoScroll by rememberSaveable { mutableStateOf(true) }
 
-    // Detect if we're showing the newest messages (with reverseLayout, index 0 = newest)
+    // Detect if we're showing the newest messages (with reverseLayout, index 0 = newest).
+    // Require zero scroll offset so items scrolled into the bottom content padding
+    // (behind the input bar) don't count as "at bottom".
     val isAtBottom by remember {
         derivedStateOf {
-            val firstVisibleItem = listState.layoutInfo.visibleItemsInfo.firstOrNull()
-            firstVisibleItem?.index == 0
+            listState.firstVisibleItemIndex == 0 &&
+                listState.firstVisibleItemScrollOffset == 0
         }
     }
 

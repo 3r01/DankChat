@@ -310,9 +310,12 @@ fun MainScreen(
         }
     }
 
-    // Sync tour's gestureInputHidden with MainScreenViewModel
-    LaunchedEffect(featureTourState.gestureInputHidden) {
-        mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
+    // Sync tour's gestureInputHidden with MainScreenViewModel (only during active tour
+    // to avoid resetting the persisted state on Activity recreation)
+    LaunchedEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
+        if (featureTourState.isTourActive) {
+            mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
+        }
     }
 
     MainScreenDialogs(
@@ -630,7 +633,10 @@ fun MainScreen(
                     dialogViewModel.showAddChannel()
                 }
 
-                ToolbarAction.OpenMentions    -> sheetNavigationViewModel.openMentions()
+                ToolbarAction.OpenMentions    -> {
+                    sheetNavigationViewModel.openMentions()
+                    channelTabViewModel.clearAllMentionCounts()
+                }
                 ToolbarAction.Login           -> onLogin()
                 ToolbarAction.Relogin         -> onRelogin()
                 ToolbarAction.Logout          -> dialogViewModel.showLogout()
