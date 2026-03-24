@@ -2,6 +2,8 @@ package com.flxrs.dankchat.data.state
 
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
+import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 
 sealed interface ChannelLoadingState {
     data object Idle : ChannelLoadingState
@@ -55,6 +57,7 @@ sealed interface GlobalLoadingState {
     data object Loaded : GlobalLoadingState
     data class Failed(
         val message: String,
-        val failures: Set<com.flxrs.dankchat.data.repo.data.DataLoadingFailure> = emptySet()
+        val failures: Set<DataLoadingFailure> = emptySet(),
+        val chatFailures: Set<ChatLoadingFailure> = emptySet(),
     ) : GlobalLoadingState
 }

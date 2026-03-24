@@ -3,10 +3,8 @@ package com.flxrs.dankchat.domain
 import android.util.Log
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
-import com.flxrs.dankchat.data.repo.chat.UserStateRepository
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataRepository
@@ -25,6 +23,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
@@ -33,9 +32,8 @@ import java.util.concurrent.ConcurrentHashMap
 class ChannelDataCoordinator(
     private val channelDataLoader: ChannelDataLoader,
     private val globalDataLoader: GlobalDataLoader,
-    private val chatRepository: ChatRepository,
+    private val chatMessageRepository: ChatMessageRepository,
     private val dataRepository: DataRepository,
-    private val userStateRepository: UserStateRepository,
     private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
     dispatchersProvider: DispatchersProvider
@@ -56,26 +54,41 @@ class ChannelDataCoordinator(
             dataRepository.dataUpdateEvents.collect { event ->
                 when (event) {
                     is DataUpdateEventMessage.ActiveEmoteSetChanged -> {
-                        chatRepository.makeAndPostSystemMessage(
-                            type = SystemMessageType.ChannelSevenTVEmoteSetChanged(event.actorName, event.emoteSetName),
-                            channel = event.channel
-                        )
+                        chatMessageRepository.addSystemMessage(event.channel, SystemMessageType.ChannelSevenTVEmoteSetChanged(event.actorName, event.emoteSetName))
                     }
 
                     is DataUpdateEventMessage.EmoteSetUpdated       -> {
                         val (channel, update) = event
-                        update.added.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteAdded(update.actorName, it.name), channel) }
-                        update.updated.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteRenamed(update.actorName, it.oldName, it.name), channel) }
-                        update.removed.forEach { chatRepository.makeAndPostSystemMessage(SystemMessageType.ChannelSevenTVEmoteRemoved(update.actorName, it.name), channel) }
+                        update.added.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteAdded(update.actorName, it.name)) }
+                        update.updated.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteRenamed(update.actorName, it.oldName, it.name)) }
+                        update.removed.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteRemoved(update.actorName, it.name)) }
+                    }
+                }
+            }
+        }
+
+        scope.launch {
+            chatMessageRepository.chatLoadingFailures.collect { chatFailures ->
+                if (chatFailures.isNotEmpty()) {
+                    _globalLoadingState.update { current ->
+                        when (current) {
+                            is GlobalLoadingState.Failed -> current.copy(chatFailures = chatFailures)
+                            is GlobalLoadingState.Loaded -> {
+                                val total = chatFailures.size
+                                GlobalLoadingState.Failed(
+                                    message = "$total data source(s) failed to load",
+                                    chatFailures = chatFailures,
+                                )
+                            }
+
+                            else                         -> current
+                        }
                     }
                 }
             }
         }
     }
 
-    /**
-     * Get loading state for a specific channel
-     */
     fun getChannelLoadingState(channel: UserName): StateFlow<ChannelLoadingState> {
         return channelStates.getOrPut(channel) {
             MutableStateFlow(ChannelLoadingState.Idle)
@@ -98,7 +111,7 @@ class ChannelDataCoordinator(
 
             // Reparse immediately with whatever emotes are available now
             // Don't wait for globalLoadJob — channel 3rd party emotes should show immediately
-            chatRepository.reparseAllEmotesAndBadges()
+            chatMessageRepository.reparseAllEmotesAndBadges()
         }
     }
 
@@ -113,7 +126,7 @@ class ChannelDataCoordinator(
             globalDataLoader.loadGlobalData()
 
             // Reparse after global emotes load so 3rd party globals are visible immediately
-            chatRepository.reparseAllEmotesAndBadges()
+            chatMessageRepository.reparseAllEmotesAndBadges()
 
             // Load user emotes if logged in — only block on first page, rest loads async
             if (authDataStore.isLoggedIn) {
@@ -123,23 +136,26 @@ class ChannelDataCoordinator(
                     launch {
                         try {
                             globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
-                            chatRepository.reparseAllEmotesAndBadges()
+                            chatMessageRepository.reparseAllEmotesAndBadges()
                         } catch (e: Exception) {
                             Log.e(TAG, "Failed to load user emotes", e)
                             firstPageLoaded.complete(Unit)
                         }
                     }
                     firstPageLoaded.await()
-                    chatRepository.reparseAllEmotesAndBadges()
+                    chatMessageRepository.reparseAllEmotesAndBadges()
                 }
             }
 
-            val failures = dataRepository.dataLoadingFailures.value
+            val dataFailures = dataRepository.dataLoadingFailures.value
+            val chatFailures = chatMessageRepository.chatLoadingFailures.value
+            val totalFailures = dataFailures.size + chatFailures.size
             _globalLoadingState.value = when {
-                failures.isEmpty() -> GlobalLoadingState.Loaded
+                totalFailures == 0 -> GlobalLoadingState.Loaded
                 else               -> GlobalLoadingState.Failed(
-                    message = "${failures.size} provider(s) failed to load",
-                    failures = failures
+                    message = "$totalFailures data source(s) failed to load",
+                    failures = dataFailures,
+                    chatFailures = chatFailures,
                 )
             }
         }
@@ -181,14 +197,15 @@ class ChannelDataCoordinator(
     /**
      * Retry specific failed data and chat steps
      */
-    fun retryDataLoading(dataFailures: Set<DataLoadingFailure>, chatFailures: Set<ChatLoadingFailure>) {
+    fun retryDataLoading(failedState: GlobalLoadingState.Failed) {
         scope.launch {
             _globalLoadingState.value = GlobalLoadingState.Loading
+            dataRepository.clearDataLoadingFailures()
+            chatMessageRepository.clearChatLoadingFailures()
 
-            // Collect channels that need retry
             val channelsToRetry = mutableSetOf<UserName>()
 
-            val dataResults = dataFailures.map { failure ->
+            val dataResults = failedState.failures.map { failure ->
                 async {
                     when (val step = failure.step) {
                         is DataLoadingStep.GlobalSevenTVEmotes  -> globalDataLoader.loadGlobalSevenTVEmotes()
@@ -205,7 +222,7 @@ class ChannelDataCoordinator(
                 }
             }
 
-            chatFailures.forEach { failure ->
+            failedState.chatFailures.forEach { failure ->
                 when (val step = failure.step) {
                     is ChatLoadingStep.RecentMessages -> channelsToRetry.add(step.channel)
                 }
@@ -214,7 +231,17 @@ class ChannelDataCoordinator(
             dataResults.awaitAll()
             channelsToRetry.forEach { loadChannelData(it) }
 
-            _globalLoadingState.value = GlobalLoadingState.Loaded
+            val remainingDataFailures = dataRepository.dataLoadingFailures.value
+            val remainingChatFailures = chatMessageRepository.chatLoadingFailures.value
+            val totalRemaining = remainingDataFailures.size + remainingChatFailures.size
+            _globalLoadingState.value = when {
+                totalRemaining == 0 -> GlobalLoadingState.Loaded
+                else                -> GlobalLoadingState.Failed(
+                    message = "$totalRemaining data source(s) failed to load",
+                    failures = remainingDataFailures,
+                    chatFailures = remainingChatFailures,
+                )
+            }
         }
     }
 

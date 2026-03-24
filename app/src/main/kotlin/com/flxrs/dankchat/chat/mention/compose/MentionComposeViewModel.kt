@@ -6,7 +6,7 @@ import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.chat.compose.ChatDisplaySettings
 import com.flxrs.dankchat.chat.compose.ChatMessageMapper
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -23,7 +23,7 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class MentionComposeViewModel(
-    chatRepository: ChatRepository,
+    chatNotificationRepository: ChatNotificationRepository,
     private val chatMessageMapper: ChatMessageMapper,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
@@ -48,9 +48,9 @@ class MentionComposeViewModel(
         _currentTab.value = index
     }
 
-    val mentions: StateFlow<List<ChatItem>> = chatRepository.mentions
+    val mentions: StateFlow<List<ChatItem>> = chatNotificationRepository.mentions
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), emptyList())
-    val whispers: StateFlow<List<ChatItem>> = chatRepository.whispers
+    val whispers: StateFlow<List<ChatItem>> = chatNotificationRepository.whispers
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), emptyList())
 
     val mentionsUiStates: Flow<List<ChatMessageUiState>> = combine(
@@ -87,8 +87,8 @@ class MentionComposeViewModel(
         }
     }.flowOn(Dispatchers.Default)
 
-    val hasMentions: StateFlow<Boolean> = chatRepository.hasMentions
+    val hasMentions: StateFlow<Boolean> = chatNotificationRepository.hasMentions
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
-    val hasWhispers: StateFlow<Boolean> = chatRepository.hasWhispers
+    val hasWhispers: StateFlow<Boolean> = chatNotificationRepository.hasWhispers
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
 }

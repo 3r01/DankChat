@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.RepliesRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChatConnector
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
@@ -28,14 +31,17 @@ class MessageOptionsComposeViewModel(
     @InjectedParam private val canModerateParam: Boolean,
     @InjectedParam private val canReplyParam: Boolean,
     private val chatRepository: ChatRepository,
+    private val chatMessageRepository: ChatMessageRepository,
+    private val chatConnector: ChatConnector,
+    private val chatNotificationRepository: ChatNotificationRepository,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
     private val commandRepository: CommandRepository,
     private val repliesRepository: RepliesRepository,
 ) : ViewModel() {
 
-    private val messageFlow = flowOf(chatRepository.findMessage(messageId, channel))
-    private val connectionStateFlow = chatRepository.getConnectionState(channel ?: WhisperMessage.WHISPER_CHANNEL)
+    private val messageFlow = flowOf(chatMessageRepository.findMessage(messageId, channel, chatNotificationRepository.whispers))
+    private val connectionStateFlow = chatConnector.getConnectionState(channel ?: WhisperMessage.WHISPER_CHANNEL)
 
     val state: StateFlow<MessageOptionsState> = combine(
         userStateRepository.userState,

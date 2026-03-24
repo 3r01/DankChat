@@ -144,8 +144,8 @@ class MainScreenViewModel(
         _isFullscreen.update { !it }
     }
 
-    fun retryDataLoading(dataFailures: Set<com.flxrs.dankchat.data.repo.data.DataLoadingFailure>, chatFailures: Set<com.flxrs.dankchat.data.repo.chat.ChatLoadingFailure>) {
-        channelDataCoordinator.retryDataLoading(dataFailures, chatFailures)
+    fun retryDataLoading(failedState: GlobalLoadingState.Failed) {
+        channelDataCoordinator.retryDataLoading(failedState)
     }
 }
 

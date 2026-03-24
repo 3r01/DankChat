@@ -29,7 +29,7 @@ import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserConnection
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeSet
@@ -151,8 +151,8 @@ class EmoteRepository(
         val (messageString, channel, emotesWithPositions) = emoteData
 
         val withEmojiFix = messageString.replace(
-            ChatRepository.ESCAPE_TAG_REGEX,
-            ChatRepository.ZERO_WIDTH_JOINER
+            ESCAPE_TAG_REGEX,
+            ZERO_WIDTH_JOINER
         )
 
         // Combined single-pass: find supplementary codepoint positions AND remove duplicate whitespace
@@ -862,6 +862,10 @@ class EmoteRepository(
 
     companion object {
         private val TAG = EmoteRepository::class.java.simpleName
+
+        private val ESCAPE_TAG = 0x000E0002.codePointAsString
+        val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
+        const val ZERO_WIDTH_JOINER = 0x200D.toChar().toString()
         fun Badge.cacheKey(baseHeight: Int): String = "$url-$baseHeight"
         fun List<ChatMessageEmote>.cacheKey(baseHeight: Int): String = joinToString(separator = "-") { it.id } + "-$baseHeight"
 

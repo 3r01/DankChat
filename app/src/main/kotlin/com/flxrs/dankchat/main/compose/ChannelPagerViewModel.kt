@@ -4,7 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -17,13 +19,15 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class ChannelPagerViewModel(
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatMessageRepository: ChatMessageRepository,
+    private val chatNotificationRepository: ChatNotificationRepository,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
 
     val uiState: StateFlow<ChannelPagerUiState> = combine(
         preferenceStore.getChannelsWithRenamesFlow(),
-        chatRepository.activeChannel,
+        chatChannelProvider.activeChannel,
     ) { channels, active ->
         ChannelPagerUiState(
             channels = channels.map { it.channel }.toImmutableList(),
@@ -36,9 +40,9 @@ class ChannelPagerViewModel(
         val channels = preferenceStore.channels
         if (page in channels.indices) {
             val channel = channels[page]
-            chatRepository.setActiveChannel(channel)
-            chatRepository.clearUnreadMessage(channel)
-            chatRepository.clearMentionCount(channel)
+            chatChannelProvider.setActiveChannel(channel)
+            chatNotificationRepository.clearUnreadMessage(channel)
+            chatNotificationRepository.clearMentionCount(channel)
         }
     }
 
@@ -50,7 +54,7 @@ class ChannelPagerViewModel(
         val channels = preferenceStore.channels
         val index = channels.indexOfFirst { it == channel }
         if (index < 0) return null
-        if (chatRepository.getChat(channel).value.none { it.message.id == messageId }) return null
+        if (chatMessageRepository.getChat(channel).value.none { it.message.id == messageId }) return null
         onPageChanged(index)
         return JumpTarget(channelIndex = index, channel = channel, messageId = messageId)
     }

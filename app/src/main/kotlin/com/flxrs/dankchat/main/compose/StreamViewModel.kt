@@ -6,7 +6,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.main.stream.StreamWebView
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
@@ -23,7 +23,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class StreamViewModel(
     application: Application,
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
 ) : AndroidViewModel(application) {
@@ -31,7 +31,7 @@ class StreamViewModel(
     private val _currentStreamedChannel = MutableStateFlow<UserName?>(null)
 
     private val hasStreamData: StateFlow<Boolean> = combine(
-        chatRepository.activeChannel,
+        chatChannelProvider.activeChannel,
         streamDataRepository.streamData
     ) { activeChannel, streamData ->
         activeChannel != null && streamData.any { it.channel == activeChannel }
@@ -54,7 +54,7 @@ class StreamViewModel(
 
     init {
         viewModelScope.launch {
-            chatRepository.channels.collect { channels ->
+            chatChannelProvider.channels.collect { channels ->
                 if (channels != null) {
                     streamDataRepository.fetchStreamData(channels)
                 }

@@ -1,0 +1,152 @@
+package com.flxrs.dankchat.data.repo.chat
+
+import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.twitch.message.AutomodMessage
+import com.flxrs.dankchat.data.twitch.message.Message
+import com.flxrs.dankchat.data.twitch.message.ModerationMessage
+import com.flxrs.dankchat.data.twitch.message.SystemMessageType
+import com.flxrs.dankchat.data.twitch.message.WhisperMessage
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.extensions.addAndLimit
+import com.flxrs.dankchat.utils.extensions.addSystemMessage
+import com.flxrs.dankchat.utils.extensions.replaceOrAddModerationMessage
+import com.flxrs.dankchat.utils.extensions.replaceWithTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
+import org.koin.core.annotation.Single
+import java.util.concurrent.ConcurrentHashMap
+
+@Single
+class ChatMessageRepository(
+    private val messageProcessor: MessageProcessor,
+    chatSettingsDataStore: ChatSettingsDataStore,
+    dispatchersProvider: DispatchersProvider,
+) {
+
+    private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
+    private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
+    private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
+
+    private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
+        .onEach { length ->
+            messages.forEach { (_, flow) ->
+                if (flow.value.size > length) {
+                    flow.update { it.takeLast(length) }
+                }
+            }
+        }
+        .stateIn(scope, SharingStarted.Eagerly, 500)
+    val scrollBackLength get() = scrollBackLengthFlow.value
+
+    val chatLoadingFailures = _chatLoadingFailures.asStateFlow()
+
+    fun getChat(channel: UserName): StateFlow<List<ChatItem>> = messages.getOrPut(channel) { MutableStateFlow(emptyList()) }
+
+    fun getMessagesFlow(channel: UserName): MutableStateFlow<List<ChatItem>>? = messages[channel]
+
+    fun findMessage(messageId: String, channel: UserName?, whispers: StateFlow<List<ChatItem>>): Message? =
+        (channel?.let { messages[it] } ?: whispers).value.find { it.message.id == messageId }?.message
+
+    fun addMessages(channel: UserName, items: List<ChatItem>) {
+        messages[channel]?.update { current ->
+            current.addAndLimit(items = items, scrollBackLength, messageProcessor::onMessageRemoved)
+        }
+    }
+
+    fun applyModerationMessage(message: ModerationMessage) {
+        messages[message.channel]?.update { current ->
+            when (message.action) {
+                ModerationMessage.Action.Delete,
+                ModerationMessage.Action.SharedDelete -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
+
+                else                                  -> current.replaceOrAddModerationMessage(message, scrollBackLength, messageProcessor::onMessageRemoved)
+            }
+        }
+    }
+
+    fun broadcastToAllChannels(item: ChatItem) {
+        messages.keys.forEach { channel ->
+            messages[channel]?.update { current ->
+                current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved)
+            }
+        }
+    }
+
+    fun clearMessages(channel: UserName) {
+        messages[channel]?.value = emptyList()
+    }
+
+    fun updateAutomodMessageStatus(channel: UserName, heldMessageId: String, status: AutomodMessage.Status) {
+        messages[channel]?.update { current ->
+            current.map { item ->
+                val msg = item.message
+                when {
+                    msg is AutomodMessage && msg.heldMessageId == heldMessageId ->
+                        item.copy(tag = item.tag + 1, message = msg.copy(status = status))
+
+                    else                                                        -> item
+                }
+            }
+        }
+    }
+
+    suspend fun reparseAllEmotesAndBadges() = withContext(Dispatchers.Default) {
+        messages.values.map { flow ->
+            async {
+                flow.update { items ->
+                    items.map {
+                        it.copy(
+                            tag = it.tag + 1,
+                            message = messageProcessor.reparseEmotesAndBadges(it.message),
+                        )
+                    }
+                }
+            }
+        }.awaitAll()
+    }
+
+    fun addSystemMessage(channel: UserName, type: SystemMessageType) {
+        messages[channel]?.update {
+            it.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved)
+        }
+    }
+
+    fun addSystemMessageToChannels(type: SystemMessageType, channels: Set<UserName> = messages.keys): Set<UserName> {
+        val reconnectedChannels = mutableSetOf<UserName>()
+        channels.forEach { channel ->
+            val flow = messages[channel] ?: return@forEach
+            val current = flow.value
+            flow.value = current.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved) {
+                reconnectedChannels += channel
+            }
+        }
+        return reconnectedChannels
+    }
+
+    fun addLoadingFailure(failure: ChatLoadingFailure) {
+        _chatLoadingFailures.update { it + failure }
+    }
+
+    fun clearChatLoadingFailures() = _chatLoadingFailures.update { emptySet() }
+
+    fun createMessageFlows(channel: UserName) {
+        messages.putIfAbsent(channel, MutableStateFlow(emptyList()))
+    }
+
+    fun removeMessageFlows(channel: UserName) {
+        messages.remove(channel)
+    }
+}

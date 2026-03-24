@@ -206,12 +206,12 @@ class HighlightsRepository(
         val messageHighlights = validMessageHighlights.value
 
         val highlights = buildSet {
-            val subsHighlight = messageHighlights.subsHighlight
+            val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
             if (isSub && subsHighlight != null) {
                 add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
             }
 
-            val announcementsHighlight = messageHighlights.announcementsHighlight
+            val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
             if (isAnnouncement && announcementsHighlight != null) {
                 add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
             }
@@ -224,9 +224,9 @@ class HighlightsRepository(
     }
 
     private fun PointRedemptionMessage.calculateHighlightState(): PointRedemptionMessage {
-        val rewardsHighlight = validMessageHighlights.value.rewardsHighlight
-        if (rewardsHighlight != null) {
-            return copy(highlights = setOf(Highlight(HighlightType.ChannelPointRedemption, rewardsHighlight.customColor)))
+        val highlight = validMessageHighlights.value.ofType(MessageHighlightEntityType.ChannelPointRedemption)
+        if (highlight != null) {
+            return copy(highlights = setOf(Highlight(HighlightType.ChannelPointRedemption, highlight.customColor)))
         }
         return copy(highlights = emptySet())
     }
@@ -245,44 +245,44 @@ class HighlightsRepository(
         val badgeHighlights = validBadgeHighlights.value
         val messageHighlights = validMessageHighlights.value
         val highlights = buildSet {
-            val subsHighlight = messageHighlights.subsHighlight
+            val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
             if (isSub && subsHighlight != null) {
                 add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
             }
 
-            val announcementsHighlight = messageHighlights.announcementsHighlight
+            val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
             if (isAnnouncement && announcementsHighlight != null) {
                 add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
             }
 
-            val rewardsHighlight = messageHighlights.rewardsHighlight
+            val rewardsHighlight = messageHighlights.ofType(MessageHighlightEntityType.ChannelPointRedemption)
             if (isReward && rewardsHighlight != null) {
                 add(Highlight(HighlightType.ChannelPointRedemption, rewardsHighlight.customColor))
             }
 
-            val firstMessageHighlight = messageHighlights.firstMessageHighlight
+            val firstMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.FirstMessage)
             if (isFirstMessage && firstMessageHighlight != null) {
                 add(Highlight(HighlightType.FirstMessage, firstMessageHighlight.customColor))
             }
 
-            val elevatedMessageHighlight = messageHighlights.elevatedMessageHighlight
+            val elevatedMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.ElevatedMessage)
             if (isElevatedMessage && elevatedMessageHighlight != null) {
                 add(Highlight(HighlightType.ElevatedMessage, elevatedMessageHighlight.customColor))
             }
 
             if (containsCurrentUserName) {
-                val highlight = messageHighlights.userNameHighlight
+                val highlight = messageHighlights.ofType(MessageHighlightEntityType.Username)
                 if (highlight?.enabled == true) {
                     add(Highlight(HighlightType.Username, highlight.customColor))
-                    addNotificationHighlightIfEnabled(highlight)
+                    addNotificationHighlightIfEnabled(highlight.createNotification)
                 }
             }
 
             if (containsParticipatedReply) {
-                val highlight = messageHighlights.repliesHighlight
+                val highlight = messageHighlights.ofType(MessageHighlightEntityType.Reply)
                 if (highlight?.enabled == true) {
                     add(Highlight(HighlightType.Reply, highlight.customColor))
-                    addNotificationHighlightIfEnabled(highlight)
+                    addNotificationHighlightIfEnabled(highlight.createNotification)
                 }
             }
 
@@ -293,14 +293,14 @@ class HighlightsRepository(
 
                     if (message.contains(regex)) {
                         add(Highlight(HighlightType.Custom, it.customColor))
-                        addNotificationHighlightIfEnabled(it)
+                        addNotificationHighlightIfEnabled(it.createNotification)
                     }
                 }
 
             userHighlights.forEach {
                 if (name.matches(it.username)) {
                     add(Highlight(HighlightType.Custom, it.customColor))
-                    addNotificationHighlightIfEnabled(it)
+                    addNotificationHighlightIfEnabled(it.createNotification)
                 }
             }
             badgeHighlights.forEach { highlight ->
@@ -314,7 +314,7 @@ class HighlightsRepository(
                         }
                         if (match) {
                             add(Highlight(HighlightType.Badge, highlight.customColor))
-                            addNotificationHighlightIfEnabled(highlight)
+                            addNotificationHighlightIfEnabled(highlight.createNotification)
                         }
                     }
                 }
@@ -329,41 +329,11 @@ class HighlightsRepository(
         else                                                                     -> this
     }
 
-    private val List<MessageHighlightEntity>.subsHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.Subscription }
+    private fun List<MessageHighlightEntity>.ofType(type: MessageHighlightEntityType): MessageHighlightEntity? =
+        find { it.type == type }
 
-    private val List<MessageHighlightEntity>.announcementsHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.Announcement }
-
-    private val List<MessageHighlightEntity>.rewardsHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.ChannelPointRedemption }
-
-    private val List<MessageHighlightEntity>.firstMessageHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.FirstMessage }
-
-    private val List<MessageHighlightEntity>.elevatedMessageHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.ElevatedMessage }
-
-    private val List<MessageHighlightEntity>.repliesHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.Reply }
-
-    private val List<MessageHighlightEntity>.userNameHighlight: MessageHighlightEntity?
-        get() = find { it.type == MessageHighlightEntityType.Username }
-
-    private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(highlightEntity: MessageHighlightEntity) {
-        if (highlightEntity.createNotification) {
-            add(Highlight(HighlightType.Notification))
-        }
-    }
-
-    private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(highlightEntity: UserHighlightEntity) {
-        if (highlightEntity.createNotification) {
-            add(Highlight(HighlightType.Notification))
-        }
-    }
-
-    private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(highlightEntity: BadgeHighlightEntity) {
-        if (highlightEntity.createNotification) {
+    private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(createNotification: Boolean) {
+        if (createNotification) {
             add(Highlight(HighlightType.Notification))
         }
     }

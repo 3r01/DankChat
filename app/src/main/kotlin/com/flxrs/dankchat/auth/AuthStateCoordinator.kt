@@ -7,7 +7,8 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.repo.IgnoresRepository
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
@@ -34,7 +35,8 @@ sealed interface AuthEvent {
 @Single
 class AuthStateCoordinator(
     private val authDataStore: AuthDataStore,
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatConnector: ChatConnector,
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val emoteRepository: EmoteRepository,
     private val authApiClient: AuthApiClient,
@@ -59,7 +61,7 @@ class AuthStateCoordinator(
                 .collect { settings ->
                     when {
                         settings.isLoggedIn -> {
-                            chatRepository.reconnect()
+                            chatConnector.reconnect()
                             channelDataCoordinator.reloadGlobalData()
                             settings.userName?.let { name ->
                                 _events.send(AuthEvent.LoggedIn(UserName(name)))
@@ -69,7 +71,8 @@ class AuthStateCoordinator(
                         else                -> {
                             channelDataCoordinator.cancelGlobalLoading()
                             emoteRepository.clearTwitchEmotes()
-                            chatRepository.closeAndReconnect()
+                            userStateRepository.clear()
+                            chatConnector.closeAndReconnect(chatChannelProvider.channels.value.orEmpty())
                         }
                     }
                 }

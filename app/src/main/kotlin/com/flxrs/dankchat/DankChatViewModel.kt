@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.auth.AuthStateCoordinator
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,7 +21,9 @@ import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class DankChatViewModel(
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatConnector: ChatConnector,
+    private val preferenceStore: DankChatPreferenceStore,
     private val authDataStore: AuthDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val dataRepository: DataRepository,
@@ -29,7 +33,7 @@ class DankChatViewModel(
     val serviceEvents = dataRepository.serviceEvents
     private var initialConnectionStarted = false
 
-    val activeChannel = chatRepository.activeChannel
+    val activeChannel = chatChannelProvider.activeChannel
     val isLoggedIn: Flow<Boolean> = authDataStore.settings
         .map { it.isLoggedIn }
         .distinctUntilChanged()
@@ -47,7 +51,9 @@ class DankChatViewModel(
         viewModelScope.launch {
             authStateCoordinator.validateOnStartup()
             initialConnectionStarted = true
-            chatRepository.connectAndJoin()
+            val channels = preferenceStore.channels
+            chatChannelProvider.setChannels(channels)
+            chatConnector.connectAndJoin(channels)
         }
     }
 
@@ -55,7 +61,7 @@ class DankChatViewModel(
         if (!initialConnectionStarted) return
 
         viewModelScope.launch {
-            chatRepository.reconnectIfNecessary()
+            chatConnector.reconnectIfNecessary()
             dataRepository.reconnectIfNecessary()
         }
     }

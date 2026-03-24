@@ -16,7 +16,7 @@ import com.flxrs.dankchat.chat.search.SearchFilterSuggestions
 import com.flxrs.dankchat.chat.suggestion.Suggestion
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -42,7 +42,7 @@ import org.koin.core.annotation.InjectedParam
 @KoinViewModel
 class MessageHistoryComposeViewModel(
     @InjectedParam private val channel: UserName,
-    chatRepository: ChatRepository,
+    chatMessageRepository: ChatMessageRepository,
     usersRepository: UsersRepository,
     private val chatMessageMapper: ChatMessageMapper,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
@@ -74,7 +74,7 @@ class MessageHistoryComposeViewModel(
         .distinctUntilChanged()
 
     val historyUiStates: Flow<List<ChatMessageUiState>> = combine(
-        chatRepository.getChat(channel),
+        chatMessageRepository.getChat(channel),
         filters,
         appearanceSettingsDataStore.settings,
         chatSettingsDataStore.settings,
@@ -95,7 +95,7 @@ class MessageHistoryComposeViewModel(
 
     private val users: StateFlow<Set<DisplayName>> = usersRepository.getUsersFlow(channel)
 
-    private val badgeNames: StateFlow<Set<String>> = chatRepository.getChat(channel)
+    private val badgeNames: StateFlow<Set<String>> = chatMessageRepository.getChat(channel)
         .map { items ->
             items.asSequence()
                 .map { it.message }

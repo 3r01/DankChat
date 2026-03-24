@@ -9,7 +9,7 @@ import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiException
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
@@ -44,7 +44,7 @@ import java.util.Locale
 @KoinViewModel
 class ChatComposeViewModel(
     @InjectedParam private val channel: UserName,
-    private val repository: ChatRepository,
+    private val chatMessageRepository: ChatMessageRepository,
     private val chatMessageMapper: ChatMessageMapper,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
@@ -64,7 +64,7 @@ class ChatComposeViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
-    private val chat: StateFlow<List<ChatItem>> = repository
+    private val chat: StateFlow<List<ChatItem>> = chatMessageRepository
         .getChat(channel)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 
@@ -146,9 +146,9 @@ class ChatComposeViewModel(
                 .onFailure { error ->
                     Log.e(TAG, "Failed to $action automod message $heldMessageId", error)
                     val statusCode = (error as? HelixApiException)?.status?.value
-                    repository.makeAndPostSystemMessage(
-                        SystemMessageType.AutomodActionFailed(statusCode = statusCode, allow = allow),
-                        channel
+                    chatMessageRepository.addSystemMessage(
+                        channel,
+                        SystemMessageType.AutomodActionFailed(statusCode = statusCode, allow = allow)
                     )
                 }
         }

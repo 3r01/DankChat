@@ -4,7 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
@@ -22,7 +23,8 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class ChannelTabViewModel(
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatNotificationRepository: ChatNotificationRepository,
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
@@ -38,9 +40,9 @@ class ChannelTabViewModel(
             }
 
             combine(
-                chatRepository.activeChannel,
-                chatRepository.unreadMessagesMap,
-                chatRepository.channelMentionCount,
+                chatChannelProvider.activeChannel,
+                chatNotificationRepository.unreadMessagesMap,
+                chatNotificationRepository.channelMentionCount,
                 combine(loadingFlows) { it.toList() },
                 channelDataCoordinator.globalLoadingState
             ) { active, unread, mentions, loadingStates, globalState ->
@@ -70,14 +72,14 @@ class ChannelTabViewModel(
         val channels = preferenceStore.channels
         if (index in channels.indices) {
             val channel = channels[index]
-            chatRepository.setActiveChannel(channel)
-            chatRepository.clearUnreadMessage(channel)
-            chatRepository.clearMentionCount(channel)
+            chatChannelProvider.setActiveChannel(channel)
+            chatNotificationRepository.clearUnreadMessage(channel)
+            chatNotificationRepository.clearMentionCount(channel)
         }
     }
 
     fun clearAllMentionCounts() {
-        chatRepository.clearMentionCounts()
+        chatNotificationRepository.clearMentionCounts()
     }
 }
 

@@ -5,6 +5,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingFailure
@@ -21,6 +22,7 @@ import org.koin.core.annotation.Single
 class ChannelDataLoader(
     private val dataRepository: DataRepository,
     private val chatRepository: ChatRepository,
+    private val chatMessageRepository: ChatMessageRepository,
     private val channelRepository: ChannelRepository,
     private val getChannelsUseCase: GetChannelsUseCase,
     private val dispatchersProvider: DispatchersProvider
@@ -72,7 +74,7 @@ class ChannelDataLoader(
                     else                                   -> null
                 }
                 systemMessageType?.let {
-                    chatRepository.makeAndPostSystemMessage(it, channel)
+                    chatMessageRepository.addSystemMessage(channel, it)
                 }
             }
 

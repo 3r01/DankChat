@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatConnector
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -20,6 +24,10 @@ class ChannelManagementViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatConnector: ChatConnector,
+    private val chatMessageRepository: ChatMessageRepository,
+    private val chatNotificationRepository: ChatNotificationRepository,
     private val ignoresRepository: IgnoresRepository,
     private val channelRepository: ChannelRepository,
 ) : ViewModel() {
@@ -31,10 +39,10 @@ class ChannelManagementViewModel(
     init {
         // Set initial active channel if not already set
         viewModelScope.launch {
-            if (chatRepository.activeChannel.value == null) {
+            if (chatChannelProvider.activeChannel.value == null) {
                 val firstChannel = preferenceStore.channels.firstOrNull()
                 if (firstChannel != null) {
-                    chatRepository.setActiveChannel(firstChannel)
+                    chatChannelProvider.setActiveChannel(firstChannel)
                 }
             }
         }
@@ -60,18 +68,18 @@ class ChannelManagementViewModel(
         if (channel !in current) {
             preferenceStore.channels = current + channel
             chatRepository.joinChannel(channel)
-            chatRepository.setActiveChannel(channel)
+            chatChannelProvider.setActiveChannel(channel)
         }
     }
 
     fun removeChannel(channel: UserName) {
-        val wasActive = chatRepository.activeChannel.value == channel
+        val wasActive = chatChannelProvider.activeChannel.value == channel
         preferenceStore.removeChannel(channel)
         chatRepository.updateChannels(preferenceStore.channels)
         channelDataCoordinator.cleanupChannel(channel)
 
         if (wasActive) {
-            chatRepository.setActiveChannel(preferenceStore.channels.firstOrNull())
+            chatChannelProvider.setActiveChannel(preferenceStore.channels.firstOrNull())
         }
     }
 
@@ -93,11 +101,11 @@ class ChannelManagementViewModel(
     }
 
     fun reconnect() {
-        chatRepository.reconnect()
+        chatConnector.reconnect()
     }
 
     fun clearChat(channel: UserName) {
-        chatRepository.clear(channel)
+        chatMessageRepository.clearMessages(channel)
     }
 
     fun blockChannel(channel: UserName) = viewModelScope.launch {
@@ -113,9 +121,9 @@ class ChannelManagementViewModel(
     }
 
     fun selectChannel(channel: UserName) {
-        chatRepository.setActiveChannel(channel)
-        chatRepository.clearUnreadMessage(channel)
-        chatRepository.clearMentionCount(channel)
+        chatChannelProvider.setActiveChannel(channel)
+        chatNotificationRepository.clearUnreadMessage(channel)
+        chatNotificationRepository.clearMentionCount(channel)
     }
 
     fun applyChanges(updatedChannels: List<ChannelWithRename>) {
@@ -133,12 +141,12 @@ class ChannelManagementViewModel(
             }
 
             // 2. Update active channel if removed
-            val activeChannel = chatRepository.activeChannel.value
+            val activeChannel = chatChannelProvider.activeChannel.value
             if (activeChannel in removedChannels) {
                 // Determine new active channel (try to keep index or go to first)
                 // For simplicity, pick the first one, or null if empty
                 val newActive = newChannelNames.firstOrNull()
-                chatRepository.setActiveChannel(newActive)
+                chatChannelProvider.setActiveChannel(newActive)
             }
         }
 

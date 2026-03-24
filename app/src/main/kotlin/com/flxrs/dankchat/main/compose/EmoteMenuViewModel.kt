@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.chat.emotemenu.EmoteMenuTab
 import com.flxrs.dankchat.chat.emotemenu.EmoteMenuTabItem
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
@@ -27,12 +27,12 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class EmoteMenuViewModel(
-    private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
     private val dataRepository: DataRepository,
     private val emoteUsageRepository: EmoteUsageRepository,
 ) : ViewModel() {
 
-    private val activeChannel = chatRepository.activeChannel
+    private val activeChannel = chatChannelProvider.activeChannel
 
     private val emotes = activeChannel
         .flatMapLatestOrDefault(Emotes()) { dataRepository.getEmotes(it) }

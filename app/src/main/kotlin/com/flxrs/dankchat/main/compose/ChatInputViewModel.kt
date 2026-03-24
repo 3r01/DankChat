@@ -14,6 +14,8 @@ import com.flxrs.dankchat.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
@@ -57,6 +59,8 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class ChatInputViewModel(
     private val chatRepository: ChatRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatConnector: ChatConnector,
     private val commandRepository: CommandRepository,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
@@ -105,7 +109,7 @@ class ChatInputViewModel(
     // Get suggestions based on current text, cursor position, and active channel
     private val suggestions: StateFlow<List<Suggestion>> = combine(
         debouncedTextAndCursor,
-        chatRepository.activeChannel
+        chatChannelProvider.activeChannel
     ) { (text, cursorPos), channel ->
         Triple(text, cursorPos, channel)
     }.flatMapLatest { (text, cursorPos, channel) ->
@@ -114,7 +118,7 @@ class ChatInputViewModel(
 
     private val roomStateDisplayText: StateFlow<String?> = combine(
         chatSettingsDataStore.showChatModes,
-        chatRepository.activeChannel
+        chatChannelProvider.activeChannel
     ) { showModes, channel ->
         showModes to channel
     }.flatMapLatest { (showModes, channel) ->
@@ -125,7 +129,7 @@ class ChatInputViewModel(
 
     private val currentStreamInfo: StateFlow<String?> = combine(
         streamsSettingsDataStore.showStreamsInfo,
-        chatRepository.activeChannel,
+        chatChannelProvider.activeChannel,
         streamDataRepository.streamData
     ) { streamInfoEnabled, activeChannel, streamData ->
         streamData.find { it.channel == activeChannel }?.formattedData?.takeIf { streamInfoEnabled }
@@ -146,7 +150,7 @@ class ChatInputViewModel(
 
     init {
         viewModelScope.launch {
-            chatRepository.activeChannel.collect {
+            chatChannelProvider.activeChannel.collect {
                 repeatedSend.update { it.copy(enabled = false) }
             }
         }
@@ -168,7 +172,7 @@ class ChatInputViewModel(
             repeatedSend.collectLatest {
                 if (it.enabled && it.message.isNotBlank()) {
                     while (isActive) {
-                        val activeChannel = chatRepository.activeChannel.value ?: break
+                        val activeChannel = chatChannelProvider.activeChannel.value ?: break
                         val delay = userStateRepository.getSendDelay(activeChannel)
                         trySendMessageOrCommand(it.message, skipSuspendingCommands = true)
                         delay(delay)
@@ -214,10 +218,10 @@ class ChatInputViewModel(
         val baseFlow = combine(
             textFlow,
             suggestions,
-            chatRepository.activeChannel,
-            chatRepository.activeChannel.flatMapLatest { channel ->
+            chatChannelProvider.activeChannel,
+            chatChannelProvider.activeChannel.flatMapLatest { channel ->
                 if (channel == null) flowOf(ConnectionState.DISCONNECTED)
-                else chatRepository.getConnectionState(channel)
+                else chatConnector.getConnectionState(channel)
             },
             combine(preferenceStore.isLoggedInFlow, appearanceSettingsDataStore.settings.map { it.autoDisableInput }) { a, b -> a to b }
         ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, autoDisableInput) ->
@@ -319,7 +323,7 @@ class ChatInputViewModel(
     }
 
     fun trySendMessageOrCommand(message: String, skipSuspendingCommands: Boolean = false) = viewModelScope.launch {
-        val channel = chatRepository.activeChannel.value ?: return@launch
+        val channel = chatChannelProvider.activeChannel.value ?: return@launch
         val chatState = fullScreenSheetState.value
         val replyIdOrNull = when {
             chatState is FullScreenSheetState.Replies -> chatState.replyMessageId
@@ -429,7 +433,7 @@ class ChatInputViewModel(
     }
 
     fun postSystemMessage(message: String) {
-        val channel = chatRepository.activeChannel.value ?: return
+        val channel = chatChannelProvider.activeChannel.value ?: return
         chatRepository.makeAndPostCustomSystemMessage(message, channel)
     }
 

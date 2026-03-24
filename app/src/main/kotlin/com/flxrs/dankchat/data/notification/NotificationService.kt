@@ -16,7 +16,7 @@ import androidx.core.content.getSystemService
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.chat.ChatRepository
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
@@ -54,7 +54,7 @@ class NotificationService : Service(), CoroutineScope {
     private val notifications = mutableMapOf<UserName, MutableList<Int>>()
     private val notifiedMessageIds = LinkedHashSet<String>()
 
-    private val chatRepository: ChatRepository by inject()
+    private val chatNotificationRepository: ChatNotificationRepository by inject()
     private val dataRepository: DataRepository by inject()
     private val toolsSettingsDataStore: ToolsSettingsDataStore by inject()
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore by inject()
@@ -215,7 +215,7 @@ class NotificationService : Service(), CoroutineScope {
 
         notificationsJob?.cancel()
         notificationsJob = launch {
-            chatRepository.notificationsFlow.collect { items ->
+            chatNotificationRepository.notificationsFlow.collect { items ->
                 items.forEach { (message) ->
                     if (shouldNotifyOnMention && notificationsEnabled) {
                         if (!notifiedMessageIds.add(message.id)) {

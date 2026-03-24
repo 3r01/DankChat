@@ -110,18 +110,16 @@ fun MainScreenEventHandler(
         }
     }
 
-    // Handle data loading errors
     val loadingState by mainScreenViewModel.globalLoadingState.collectAsStateWithLifecycle()
     LaunchedEffect(loadingState) {
-        val state = loadingState as? GlobalLoadingState.Failed
-        if (state != null) {
-            launch {
-                snackbarHostState.showSnackbar(
-                    message = state.message,
-                    actionLabel = resources.getString(R.string.snackbar_retry),
-                    duration = SnackbarDuration.Long
-                )
-            }
+        val state = loadingState as? GlobalLoadingState.Failed ?: return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = state.message,
+            actionLabel = resources.getString(R.string.snackbar_retry),
+            duration = SnackbarDuration.Long
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            mainScreenViewModel.retryDataLoading(state)
         }
     }
 }

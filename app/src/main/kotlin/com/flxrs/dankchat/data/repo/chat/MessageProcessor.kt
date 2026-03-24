@@ -25,7 +25,7 @@ class MessageProcessor(
     private val emoteRepository: EmoteRepository,
     private val userDisplayRepository: UserDisplayRepository,
     private val repliesRepository: RepliesRepository,
-    val channelRepository: ChannelRepository,
+    private val channelRepository: ChannelRepository,
 ) {
 
     /** Full pipeline: parse IRC → ignore → thread → display → emotes → highlights → thread update. Returns null if ignored or parse fails. */

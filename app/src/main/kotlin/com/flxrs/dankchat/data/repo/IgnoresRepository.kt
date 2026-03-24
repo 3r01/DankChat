@@ -203,11 +203,11 @@ class IgnoresRepository(
     private fun UserNoticeMessage.applyIgnores(): UserNoticeMessage? {
         val messageIgnores = validMessageIgnores.value
 
-        if (isSub && messageIgnores.areSubsIgnored) {
+        if (isSub && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Subscription)) {
             return null
         }
 
-        if (isAnnouncement && messageIgnores.areAnnouncementsIgnored) {
+        if (isAnnouncement && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Announcement)) {
             return null
         }
 
@@ -219,23 +219,23 @@ class IgnoresRepository(
     private fun PrivMessage.applyIgnores(): PrivMessage? {
         val messageIgnores = validMessageIgnores.value
 
-        if (isSub && messageIgnores.areSubsIgnored) {
+        if (isSub && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Subscription)) {
             return null
         }
 
-        if (isAnnouncement && messageIgnores.areAnnouncementsIgnored) {
+        if (isAnnouncement && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Announcement)) {
             return null
         }
 
-        if (isReward && messageIgnores.areRewardsIgnored) {
+        if (isReward && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.ChannelPointRedemption)) {
             return null
         }
 
-        if (isElevatedMessage && messageIgnores.areElevatedMessagesIgnored) {
+        if (isElevatedMessage && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.ElevatedMessage)) {
             return null
         }
 
-        if (isFirstMessage && messageIgnores.areFirstMessagesIgnored) {
+        if (isFirstMessage && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.FirstMessage)) {
             return null
         }
 
@@ -286,21 +286,6 @@ class IgnoresRepository(
 
         return this
     }
-
-    private val List<MessageIgnoreEntity>.areSubsIgnored: Boolean
-        get() = isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Subscription)
-
-    private val List<MessageIgnoreEntity>.areAnnouncementsIgnored: Boolean
-        get() = isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.Announcement)
-
-    private val List<MessageIgnoreEntity>.areRewardsIgnored: Boolean
-        get() = isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.ChannelPointRedemption)
-
-    private val List<MessageIgnoreEntity>.areFirstMessagesIgnored: Boolean
-        get() = isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.FirstMessage)
-
-    private val List<MessageIgnoreEntity>.areElevatedMessagesIgnored: Boolean
-        get() = isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.ElevatedMessage)
 
     private fun List<MessageIgnoreEntity>.isMessageIgnoreTypeEnabled(type: MessageIgnoreEntityType): Boolean {
         return any { it.type == type }
