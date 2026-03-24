@@ -115,6 +115,7 @@ import com.flxrs.dankchat.tour.FeatureTourViewModel
 import com.flxrs.dankchat.tour.PostOnboardingStep
 import com.flxrs.dankchat.tour.TourStep
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
+import com.flxrs.dankchat.preferences.appearance.InputAction
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
@@ -566,9 +567,15 @@ fun MainScreen(
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
                 inputActions = when (fullScreenSheetState) {
-                    is FullScreenSheetState.Mention,
-                    is FullScreenSheetState.Whisper -> persistentListOf()
-                    else                            -> mainState.inputActions
+                    is FullScreenSheetState.Replies -> persistentListOf(InputAction.LastMessage)
+                    is FullScreenSheetState.Whisper,
+                    is FullScreenSheetState.Mention -> when {
+                        inputState.isWhisperTabActive && inputState.whisperTarget != null -> persistentListOf(InputAction.LastMessage)
+                        else                                                              -> persistentListOf()
+                    }
+
+                    is FullScreenSheetState.History,
+                    is FullScreenSheetState.Closed  -> mainState.inputActions
                 },
                 characterCounter = if (mainState.showCharacterCounter) inputState.characterCounter else CharacterCounterState.Hidden,
                 onSend = chatInputViewModel::sendMessage,
@@ -1085,43 +1092,6 @@ fun MainScreen(
                 }
             }
 
-            // Fullscreen Overlay Sheets - above stream layer so they're not hidden
-            if (!isInPipMode) {
-                fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
-            }
-
-            // Dismiss scrim for input overflow menu
-            if (!isInPipMode && inputOverflowExpanded) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                        ) {
-                            if (!featureTourState.forceOverflowOpen) {
-                                inputOverflowExpanded = false
-                            }
-                        }
-                )
-            }
-
-            // Input bar - rendered after sheet overlay so it's on top
-            if (!isInPipMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = scaffoldBottomPadding)
-                        .swipeDownToHide(
-                            enabled = effectiveShowInput,
-                            thresholdPx = swipeDownThresholdPx,
-                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                        )
-                ) {
-                    bottomBar()
-                }
-            }
-
             // Status bar scrim when stream is active — fades with stream/toolbar
             if (currentStream != null && !isFullscreen && !isInPipMode) {
                 Box(
@@ -1150,6 +1120,43 @@ fun MainScreen(
                         .fillMaxWidth()
                         .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f))
+                )
+            }
+
+            // Fullscreen Overlay Sheets — after toolbar/scrims so sheets render on top
+            if (!isInPipMode) {
+                fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+            }
+
+            // Input bar — on top of sheets for whisper/reply input
+            if (!isInPipMode) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = scaffoldBottomPadding)
+                        .swipeDownToHide(
+                            enabled = effectiveShowInput,
+                            thresholdPx = swipeDownThresholdPx,
+                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
+                        )
+                ) {
+                    bottomBar()
+                }
+            }
+
+            // Dismiss scrim for input overflow menu
+            if (!isInPipMode && inputOverflowExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            if (!featureTourState.forceOverflowOpen) {
+                                inputOverflowExpanded = false
+                            }
+                        }
                 )
             }
 

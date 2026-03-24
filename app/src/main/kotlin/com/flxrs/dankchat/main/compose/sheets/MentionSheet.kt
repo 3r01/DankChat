@@ -1,6 +1,11 @@
 package com.flxrs.dankchat.main.compose.sheets
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -26,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -34,12 +41,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.BadgeUi
+import com.flxrs.dankchat.chat.compose.ScrollDirectionTracker
 import com.flxrs.dankchat.chat.mention.compose.MentionComposable
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
 import com.flxrs.dankchat.data.UserName
@@ -65,15 +74,25 @@ fun MentionSheet(
         pageCount = { 2 }
     )
     var backProgress by remember { mutableFloatStateOf(0f) }
+    var toolbarVisible by remember { mutableStateOf(true) }
 
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
-    // Toolbar area: status bar + padding + pill height + padding
     val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 16.dp
     val sheetBackgroundColor = lerp(
         MaterialTheme.colorScheme.surfaceContainer,
         MaterialTheme.colorScheme.surfaceContainerHigh,
         fraction = 0.75f,
     )
+
+    val scrollTracker = remember {
+        ScrollDirectionTracker(
+            hideThresholdPx = with(density) { 100.dp.toPx() },
+            showThresholdPx = with(density) { 36.dp.toPx() },
+            onHide = { toolbarVisible = false },
+            onShow = { toolbarVisible = true },
+        )
+    }
+    val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
     LaunchedEffect(pagerState.currentPage) {
         mentionViewModel.setCurrentTab(pagerState.currentPage)
@@ -102,7 +121,6 @@ fun MentionSheet(
                 translationY = backProgress * 100f
             }
     ) {
-        // Chat content - edge to edge
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
@@ -116,73 +134,87 @@ fun MentionSheet(
                 onWhisperReply = if (page == 1) onWhisperReply else null,
                 containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
+                scrollModifier = scrollModifier,
             )
         }
 
-        // Floating toolbar with gradient scrim
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        1f to sheetBackgroundColor.copy(alpha = 0f)
-                    )
-                )
-                .padding(top = statusBarHeight + 8.dp)
-                .padding(bottom = 16.dp)
-                .padding(horizontal = 8.dp),
+        AnimatedVisibility(
+            visible = toolbarVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                // Back navigation pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                ) {
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            1f to sheetBackgroundColor.copy(alpha = 0f)
                         )
-                    }
-                }
-
-                // Tab pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    )
+                    .padding(top = statusBarHeight + 8.dp)
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 8.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Top
                 ) {
-                    Row {
-                        val tabs = listOf(R.string.mentions, R.string.whispers)
-                        tabs.forEachIndexed { index, stringRes ->
-                            val isSelected = pagerState.currentPage == index
-                            val textColor = when {
-                                isSelected -> MaterialTheme.colorScheme.primary
-                                else       -> MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                                    .defaultMinSize(minHeight = 48.dp)
-                                    .padding(horizontal = 16.dp)
-                            ) {
-                                Text(
-                                    text = stringResource(stringRes),
-                                    color = textColor,
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        Row {
+                            val tabs = listOf(R.string.mentions, R.string.whispers)
+                            tabs.forEachIndexed { index, stringRes ->
+                                val isSelected = pagerState.currentPage == index
+                                val textColor = when {
+                                    isSelected -> MaterialTheme.colorScheme.primary
+                                    else       -> MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                        .defaultMinSize(minHeight = 48.dp)
+                                        .padding(horizontal = 16.dp)
+                                ) {
+                                    Text(
+                                        text = stringResource(stringRes),
+                                        color = textColor,
+                                        style = MaterialTheme.typography.titleSmall,
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+        }
+
+        if (!toolbarVisible) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(statusBarHeight)
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+            )
         }
     }
 }

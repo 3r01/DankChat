@@ -447,7 +447,20 @@ fun ChatInputLayout(
                                     }
                                 }
 
-                                // Configurable action icons (only those that fit)
+                                // New Whisper Button (only on whisper tab)
+                                if (onNewWhisper != null) {
+                                    IconButton(
+                                        onClick = onNewWhisper,
+                                        modifier = Modifier.size(iconSize)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AddComment,
+                                            contentDescription = stringResource(R.string.whisper_new),
+                                        )
+                                    }
+                                }
+
+                                // Configurable action icons
                                 for (action in visibleActions) {
                                     InputActionButton(
                                         action = action,
@@ -463,19 +476,6 @@ fun ChatInputLayout(
                                         onToggleInput = onToggleInput,
                                         modifier = Modifier.size(iconSize),
                                     )
-                                }
-
-                                // New Whisper Button (only on whisper tab)
-                                if (onNewWhisper != null) {
-                                    IconButton(
-                                        onClick = onNewWhisper,
-                                        modifier = Modifier.size(iconSize)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AddComment,
-                                            contentDescription = stringResource(R.string.whisper_new),
-                                        )
-                                    }
                                 }
 
                                 // Send Button (Right)

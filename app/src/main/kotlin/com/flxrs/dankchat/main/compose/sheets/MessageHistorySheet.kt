@@ -1,6 +1,11 @@
 package com.flxrs.dankchat.main.compose.sheets
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
@@ -36,6 +42,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +51,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -54,6 +62,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.chat.compose.ScrollDirectionTracker
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatScreen
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
@@ -115,6 +124,17 @@ fun MessageHistorySheet(
         }
     }
 
+    var toolbarVisible by remember { mutableStateOf(true) }
+    val scrollTracker = remember {
+        ScrollDirectionTracker(
+            hideThresholdPx = with(density) { 100.dp.toPx() },
+            showThresholdPx = with(density) { 36.dp.toPx() },
+            onHide = { toolbarVisible = false },
+            onShow = { toolbarVisible = true },
+        )
+    }
+    val scrollModifier = Modifier.nestedScroll(scrollTracker)
+
     val context = LocalPlatformContext.current
     val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
 
@@ -141,65 +161,80 @@ fun MessageHistorySheet(
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = onEmoteClick,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
+                scrollModifier = scrollModifier,
                 containerColor = sheetBackgroundColor,
             )
         }
 
-        // Floating toolbar with gradient scrim - back pill + channel name pill
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        1f to sheetBackgroundColor.copy(alpha = 0f),
-                    )
-                )
-                .padding(top = statusBarHeight + 8.dp)
-                .padding(bottom = 16.dp)
-                .padding(horizontal = 8.dp),
+        AnimatedVisibility(
+            visible = toolbarVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Top,
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            1f to sheetBackgroundColor.copy(alpha = 0f),
+                        )
+                    )
+                    .padding(top = statusBarHeight + 8.dp)
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 8.dp),
             ) {
-                // Back navigation pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Top,
                 ) {
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back),
-                        )
-                    }
-                }
-
-                // Channel name pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .defaultMinSize(minHeight = 48.dp)
-                            .padding(horizontal = 16.dp),
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
                     ) {
-                        Text(
-                            text = stringResource(R.string.message_history_title, channel.value),
-                            style = MaterialTheme.typography.titleSmall,
-                        )
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .defaultMinSize(minHeight = 48.dp)
+                                .padding(horizontal = 16.dp),
+                        ) {
+                            Text(
+                                text = stringResource(R.string.message_history_title, channel.value),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
             }
         }
 
         // Filter suggestions above search bar
+        if (!toolbarVisible) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(statusBarHeight)
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+            )
+        }
+
         SuggestionDropdown(
             suggestions = filterSuggestions.toImmutableList(),
             onSuggestionClick = { suggestion -> viewModel.applySuggestion(suggestion) },

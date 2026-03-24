@@ -36,6 +36,7 @@ fun MentionComposable(
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     containerColor: Color,
     contentPadding: PaddingValues = PaddingValues(),
+    scrollModifier: Modifier = Modifier,
 ) {
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
@@ -59,6 +60,7 @@ fun MentionComposable(
             onEmoteClick = onEmoteClick,
             onWhisperReply = if (isWhisperTab) onWhisperReply else null,
             contentPadding = contentPadding,
+            scrollModifier = scrollModifier,
             containerColor = containerColor,
         )
     } // CompositionLocalProvider

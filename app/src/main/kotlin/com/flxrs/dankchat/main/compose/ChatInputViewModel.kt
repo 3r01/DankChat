@@ -90,6 +90,7 @@ class ChatInputViewModel(
     val isEmoteMenuOpen = _isEmoteMenuOpen.asStateFlow()
 
     private val _whisperTarget = MutableStateFlow<UserName?>(null)
+    private var lastWhisperText: String? = null
     val whisperTarget: StateFlow<UserName?> = _whisperTarget.asStateFlow()
 
     // Create flow from TextFieldState tracking both text and cursor position
@@ -286,7 +287,10 @@ class ChatInputViewModel(
                 text = text,
                 canSend = canSend,
                 enabled = enabled,
-                hasLastMessage = chatRepository.getLastMessage() != null,
+                hasLastMessage = when {
+                    isWhisperTabActive -> lastWhisperText != null
+                    else               -> chatRepository.getLastMessage() != null
+                },
                 suggestions = suggestions.toImmutableList(),
                 activeChannel = activeChannel,
                 connectionState = connectionState,
@@ -312,11 +316,11 @@ class ChatInputViewModel(
         val text = textFieldState.text.toString()
         if (text.isNotBlank()) {
             val whisperTarget = _whisperTarget.value
-            val messageToSend = if (whisperTarget != null) {
-                "/w ${whisperTarget.value} $text"
-            } else {
-                text
+            val messageToSend = when {
+                whisperTarget != null -> "/w ${whisperTarget.value} $text"
+                else                  -> text
             }
+            lastWhisperText = if (whisperTarget != null) text else null
             trySendMessageOrCommand(messageToSend)
             textFieldState.clearText()
         }
@@ -378,9 +382,12 @@ class ChatInputViewModel(
     }
 
     fun getLastMessage() {
-        val lastMessage = chatRepository.getLastMessage() ?: return
+        val message = when {
+            _whisperTarget.value != null -> lastWhisperText
+            else                         -> chatRepository.getLastMessage()
+        } ?: return
         textFieldState.edit {
-            replace(0, length, lastMessage)
+            replace(0, length, message)
             placeCursorAtEnd()
         }
     }

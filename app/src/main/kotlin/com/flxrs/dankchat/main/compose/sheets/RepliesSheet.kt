@@ -1,12 +1,18 @@
 package com.flxrs.dankchat.main.compose.sheets
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -20,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -27,12 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.BadgeUi
+import com.flxrs.dankchat.chat.compose.ScrollDirectionTracker
 import com.flxrs.dankchat.chat.replies.compose.RepliesComposable
 import com.flxrs.dankchat.chat.replies.compose.RepliesComposeViewModel
 import kotlinx.coroutines.CancellationException
@@ -53,6 +62,7 @@ fun RepliesSheet(
     )
     val density = LocalDensity.current
     var backProgress by remember { mutableFloatStateOf(0f) }
+    var toolbarVisible by remember { mutableStateOf(true) }
 
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
     val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 16.dp
@@ -61,6 +71,16 @@ fun RepliesSheet(
         MaterialTheme.colorScheme.surfaceContainerHigh,
         fraction = 0.75f,
     )
+
+    val scrollTracker = remember {
+        ScrollDirectionTracker(
+            hideThresholdPx = with(density) { 100.dp.toPx() },
+            showThresholdPx = with(density) { 36.dp.toPx() },
+            onHide = { toolbarVisible = false },
+            onShow = { toolbarVisible = true },
+        )
+    }
+    val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
     PredictiveBackHandler { progress ->
         try {
@@ -85,7 +105,6 @@ fun RepliesSheet(
                 translationY = backProgress * 100f
             }
     ) {
-        // Chat content - edge to edge
         RepliesComposable(
             repliesViewModel = viewModel,
             onUserClick = onUserClick,
@@ -93,56 +112,70 @@ fun RepliesSheet(
             onNotFound = onDismiss,
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
+            scrollModifier = scrollModifier,
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Floating toolbar with gradient scrim
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .fillMaxWidth()
-                .background(
-                    brush = Brush.verticalGradient(
-                        0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                        1f to sheetBackgroundColor.copy(alpha = 0f)
-                    )
-                )
-                .padding(top = statusBarHeight + 8.dp)
-                .padding(bottom = 16.dp)
-                .padding(horizontal = 8.dp),
+        AnimatedVisibility(
+            visible = toolbarVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.verticalGradient(
+                            0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                            1f to sheetBackgroundColor.copy(alpha = 0f)
+                        )
+                    )
+                    .padding(top = statusBarHeight + 8.dp)
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 8.dp),
             ) {
-                // Back navigation pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
                 ) {
-                    IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                    ) {
+                        IconButton(onClick = onDismiss) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = MaterialTheme.shapes.extraLarge,
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.replies_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                         )
                     }
                 }
-
-                // Title pill
-                Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.replies_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                    )
-                }
             }
+        }
+
+        if (!toolbarVisible) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(statusBarHeight)
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+            )
         }
     }
 }

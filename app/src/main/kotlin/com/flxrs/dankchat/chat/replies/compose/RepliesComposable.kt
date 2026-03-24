@@ -35,6 +35,7 @@ fun RepliesComposable(
     containerColor: Color,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
+    scrollModifier: Modifier = Modifier,
 ) {
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
@@ -55,6 +56,7 @@ fun RepliesComposable(
                     onMessageLongClick = onMessageLongClick,
                     onEmoteClick = { /* no-op for replies */ },
                     contentPadding = contentPadding,
+                    scrollModifier = scrollModifier,
                     containerColor = containerColor,
                 )
             }
