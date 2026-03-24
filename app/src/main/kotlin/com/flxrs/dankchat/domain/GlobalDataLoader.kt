@@ -20,10 +20,6 @@ class GlobalDataLoader(
     private val dispatchersProvider: DispatchersProvider
 ) {
 
-    /**
-     * Load all global data (badges, emotes, commands, blocks)
-     * Returns the list of Results from each emote/badge provider.
-     */
     suspend fun loadGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
         val results = awaitAll(
             async { loadDankChatBadges() },
@@ -32,7 +28,6 @@ class GlobalDataLoader(
             async { loadGlobalFFZEmotes() },
             async { loadGlobalSevenTVEmotes() },
         )
-        // Fire-and-forget tasks that handle their own errors
         launch { loadSupibotCommands() }
         launch { loadUserBlocks() }
         results
@@ -46,16 +41,10 @@ class GlobalDataLoader(
     suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
     suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
-    /**
-     * Load user-specific global emotes via Helix API (requires login + user:read:emotes scope)
-     */
     suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
         dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
     }
 
-    /**
-     * Load user-specific global emotes via DankChat API (legacy fallback)
-     */
     suspend fun loadUserStateEmotes(
         globalEmoteSets: List<String>,
         followerEmoteSets: Map<UserName, List<String>>
