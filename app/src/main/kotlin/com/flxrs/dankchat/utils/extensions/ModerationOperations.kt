@@ -4,9 +4,6 @@ import com.flxrs.dankchat.chat.ChatImportance
 import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
-import com.flxrs.dankchat.data.twitch.message.SystemMessage
-import com.flxrs.dankchat.data.twitch.message.SystemMessageType
-import com.flxrs.dankchat.data.twitch.message.toChatItem
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -22,7 +19,8 @@ fun MutableList<ChatItem>.replaceOrAddHistoryModerationMessage(moderationMessage
 
 fun List<ChatItem>.replaceOrAddModerationMessage(moderationMessage: ModerationMessage, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit): List<ChatItem> = toMutableList().apply {
     if (!moderationMessage.canClearMessages) {
-        return addAndLimit(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
+        addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
+        return this
     }
 
     val addSystemMessage = checkForStackedTimeouts(moderationMessage)
@@ -52,9 +50,8 @@ fun List<ChatItem>.replaceOrAddModerationMessage(moderationMessage: ModerationMe
         }
     }
 
-    return when {
-        addSystemMessage -> addAndLimit(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
-        else             -> this
+    if (addSystemMessage) {
+        addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
     }
 }
 
@@ -79,59 +76,8 @@ fun List<ChatItem>.replaceWithTimeout(moderationMessage: ModerationMessage, scro
             break
         }
     }
-    return addAndLimit(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
-}
 
-fun List<ChatItem>.addAndLimit(item: ChatItem, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit): List<ChatItem> = toMutableList().apply {
-    add(item)
-    while (size > scrollBackLength) {
-        onMessageRemoved(removeAt(index = 0))
-    }
-}
-
-fun List<ChatItem>.addAndLimit(
-    items: Collection<ChatItem>,
-    scrollBackLength: Int,
-    onMessageRemoved: (ChatItem) -> Unit,
-    checkForDuplications: Boolean = false
-): List<ChatItem> = when {
-    checkForDuplications -> plus(items)
-        .distinctBy { it.message.id }
-        .sortedBy { it.message.timestamp }
-        .also {
-            it
-                .take((it.size - scrollBackLength).coerceAtLeast(minimumValue = 0))
-                .forEach(onMessageRemoved)
-        }
-        .takeLast(scrollBackLength)
-
-    else                 -> toMutableList().apply {
-        addAll(items)
-        while (size > scrollBackLength) {
-            onMessageRemoved(removeAt(index = 0))
-        }
-    }
-}
-
-fun List<ChatItem>.addSystemMessage(type: SystemMessageType, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, onReconnect: () -> Unit = {}): List<ChatItem> {
-    return when {
-        type != SystemMessageType.Connected -> addAndLimit(type.toChatItem(), scrollBackLength, onMessageRemoved)
-        else                                -> replaceLastSystemMessageIfNecessary(scrollBackLength, onMessageRemoved, onReconnect)
-    }
-}
-
-fun List<ChatItem>.replaceLastSystemMessageIfNecessary(scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, onReconnect: () -> Unit): List<ChatItem> {
-    val item = lastOrNull()
-    val message = item?.message
-    return when ((message as? SystemMessage)?.type) {
-        SystemMessageType.Disconnected          -> {
-            onReconnect()
-            dropLast(1) + item.copy(message = SystemMessage(SystemMessageType.Reconnected))
-        }
-
-        is SystemMessageType.ChannelNonExistent -> dropLast(1) + SystemMessageType.Connected.toChatItem()
-        else                                    -> addAndLimit(SystemMessageType.Connected.toChatItem(), scrollBackLength, onMessageRemoved)
-    }
+    addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
 }
 
 private fun MutableList<ChatItem>.checkForStackedTimeouts(moderationMessage: ModerationMessage): Boolean {

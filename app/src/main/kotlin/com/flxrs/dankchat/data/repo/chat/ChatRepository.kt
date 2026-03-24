@@ -865,6 +865,7 @@ class ChatRepository(
         loadedRecentsInChannels += channel
         val recentMessages = result.messages.orEmpty()
         val items = mutableListOf<ChatItem>()
+        val messageIndex = HashMap<String, Message>(recentMessages.size)
         val userSuggestions = mutableListOf<Pair<UserName, DisplayName>>()
         measureTimeMillis {
             for (recentMessage in recentMessages) {
@@ -895,13 +896,14 @@ class ChatRepository(
                         val message = runCatching {
                             Message.parse(parsedIrc, channelRepository::tryGetUserNameById)
                                 ?.applyIgnores()
-                                ?.calculateMessageThread { _, id -> items.find { it.message.id == id }?.message }
+                                ?.calculateMessageThread { _, id -> messageIndex[id] }
                                 ?.calculateUserDisplays()
                                 ?.parseEmotesAndBadges()
                                 ?.calculateHighlightState()
                                 ?.updateMessageInThread()
                         }.getOrNull() ?: continue
 
+                        messageIndex[message.id] = message
                         if (message is PrivMessage) {
                             val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
                             userSuggestions += message.name.lowercase() to userForSuggestion
