@@ -2,7 +2,6 @@ package com.flxrs.dankchat.main.compose
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.res.Resources
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -10,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
@@ -25,7 +25,6 @@ import org.koin.compose.koinInject
 
 @Composable
 fun MainScreenEventHandler(
-    resources: Resources,
     snackbarHostState: SnackbarHostState,
     mainEventBus: MainEventBus,
     dialogViewModel: DialogStateViewModel,
@@ -35,6 +34,7 @@ fun MainScreenEventHandler(
     preferenceStore: DankChatPreferenceStore,
 ) {
     val context = LocalContext.current
+    val resources = LocalResources.current
     val authStateCoordinator: AuthStateCoordinator = koinInject()
 
     // MainEventBus event collection
@@ -113,8 +113,14 @@ fun MainScreenEventHandler(
     val loadingState by mainScreenViewModel.globalLoadingState.collectAsStateWithLifecycle()
     LaunchedEffect(loadingState) {
         val state = loadingState as? GlobalLoadingState.Failed ?: return@LaunchedEffect
+        val failedSteps = state.failures.map { it.step } + state.chatFailures.map { it.step }
+        val stepsText = failedSteps.joinToString(", ") { it::class.simpleName.orEmpty() }
+        val message = when {
+            failedSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
+            else                  -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
+        }
         val result = snackbarHostState.showSnackbar(
-            message = state.message,
+            message = message,
             actionLabel = resources.getString(R.string.snackbar_retry),
             duration = SnackbarDuration.Long
         )

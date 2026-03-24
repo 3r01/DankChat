@@ -41,7 +41,7 @@ class ChannelDataLoader(
             val channelInfo = channelRepository.getChannel(channel)
                 ?: getChannelsUseCase(listOf(channel)).firstOrNull()
             if (channelInfo == null) {
-                emit(ChannelLoadingState.Failed("Channel not found", emptyList()))
+                emit(ChannelLoadingState.Failed(emptyList()))
                 return@flow
             }
 
@@ -80,10 +80,10 @@ class ChannelDataLoader(
 
             when {
                 failures.isEmpty() -> emit(ChannelLoadingState.Loaded)
-                else               -> emit(ChannelLoadingState.Failed("Some data failed to load", failures))
+                else               -> emit(ChannelLoadingState.Failed(failures))
             }
         } catch (e: Exception) {
-            emit(ChannelLoadingState.Failed(e.message ?: "Unknown error", emptyList()))
+            emit(ChannelLoadingState.Failed(emptyList()))
         }
     }
 

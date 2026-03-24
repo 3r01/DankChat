@@ -10,7 +10,6 @@ sealed interface ChannelLoadingState {
     data object Loading : ChannelLoadingState
     data object Loaded : ChannelLoadingState
     data class Failed(
-        val message: String,
         val failures: List<ChannelLoadingFailure>
     ) : ChannelLoadingState
 }
@@ -56,7 +55,6 @@ sealed interface GlobalLoadingState {
     data object Loading : GlobalLoadingState
     data object Loaded : GlobalLoadingState
     data class Failed(
-        val message: String,
         val failures: Set<DataLoadingFailure> = emptySet(),
         val chatFailures: Set<ChatLoadingFailure> = emptySet(),
     ) : GlobalLoadingState

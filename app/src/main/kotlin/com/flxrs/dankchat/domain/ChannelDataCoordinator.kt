@@ -73,13 +73,7 @@ class ChannelDataCoordinator(
                     _globalLoadingState.update { current ->
                         when (current) {
                             is GlobalLoadingState.Failed -> current.copy(chatFailures = chatFailures)
-                            is GlobalLoadingState.Loaded -> {
-                                val total = chatFailures.size
-                                GlobalLoadingState.Failed(
-                                    message = "$total data source(s) failed to load",
-                                    chatFailures = chatFailures,
-                                )
-                            }
+                            is GlobalLoadingState.Loaded -> GlobalLoadingState.Failed(chatFailures = chatFailures)
 
                             else                         -> current
                         }
@@ -149,11 +143,9 @@ class ChannelDataCoordinator(
 
             val dataFailures = dataRepository.dataLoadingFailures.value
             val chatFailures = chatMessageRepository.chatLoadingFailures.value
-            val totalFailures = dataFailures.size + chatFailures.size
             _globalLoadingState.value = when {
-                totalFailures == 0 -> GlobalLoadingState.Loaded
-                else               -> GlobalLoadingState.Failed(
-                    message = "$totalFailures data source(s) failed to load",
+                dataFailures.isEmpty() && chatFailures.isEmpty() -> GlobalLoadingState.Loaded
+                else                                             -> GlobalLoadingState.Failed(
                     failures = dataFailures,
                     chatFailures = chatFailures,
                 )
@@ -233,11 +225,9 @@ class ChannelDataCoordinator(
 
             val remainingDataFailures = dataRepository.dataLoadingFailures.value
             val remainingChatFailures = chatMessageRepository.chatLoadingFailures.value
-            val totalRemaining = remainingDataFailures.size + remainingChatFailures.size
             _globalLoadingState.value = when {
-                totalRemaining == 0 -> GlobalLoadingState.Loaded
-                else                -> GlobalLoadingState.Failed(
-                    message = "$totalRemaining data source(s) failed to load",
+                remainingDataFailures.isEmpty() && remainingChatFailures.isEmpty() -> GlobalLoadingState.Loaded
+                else                                                               -> GlobalLoadingState.Failed(
                     failures = remainingDataFailures,
                     chatFailures = remainingChatFailures,
                 )

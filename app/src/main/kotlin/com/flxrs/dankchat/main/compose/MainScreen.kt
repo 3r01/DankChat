@@ -83,7 +83,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
@@ -143,7 +142,6 @@ fun MainScreen(
     onChooseMedia: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val resources = LocalResources.current
     val context = LocalContext.current
     val density = LocalDensity.current
     val messageNotInHistoryMsg = stringResource(R.string.message_not_in_history)
@@ -271,7 +269,6 @@ fun MainScreen(
     val inputSheetState = sheetNavState.inputSheet
 
     MainScreenEventHandler(
-        resources = resources,
         snackbarHostState = snackbarHostState,
         mainEventBus = mainEventBus,
         dialogViewModel = dialogViewModel,
