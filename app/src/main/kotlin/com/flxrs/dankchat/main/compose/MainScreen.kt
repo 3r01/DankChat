@@ -101,7 +101,6 @@ import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.ChatComposable
 import com.flxrs.dankchat.chat.compose.ScrollDirectionTracker
-import com.flxrs.dankchat.chat.compose.overscrollRevealConnection
 import com.flxrs.dankchat.chat.compose.swipeDownToHide
 import com.flxrs.dankchat.chat.mention.compose.MentionComposeViewModel
 import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
@@ -439,15 +438,8 @@ fun MainScreen(
             onShow = { mainScreenViewModel.setGestureToolbarHidden(false) },
         )
     }
-    val overscrollReveal = remember {
-        overscrollRevealConnection(
-            frameThreshold = 15,
-            onReveal = { mainScreenViewModel.setGestureInputHidden(false) },
-        )
-    }
     val chatScrollModifier = Modifier
         .nestedScroll(toolbarTracker)
-        .nestedScroll(overscrollReveal)
 
     val swipeDownThresholdPx = with(density) { 56.dp.toPx() }
 
@@ -588,7 +580,12 @@ fun MainScreen(
                 onReplyDismiss = { chatInputViewModel.setReplying(false) },
                 onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
                 onToggleInput = mainScreenViewModel::toggleInput,
-                onToggleStream = { activeChannel?.let { streamViewModel.toggleStream(it) } },
+                onToggleStream = {
+                    when {
+                        currentStream != null -> streamViewModel.closeStream()
+                        else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                    }
+                },
                 onChangeRoomState = dialogViewModel::showRoomState,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onNewWhisper = if (inputState.isWhisperTabActive) {
@@ -665,7 +662,10 @@ fun MainScreen(
                 }
 
                 ToolbarAction.ClearChat       -> dialogViewModel.showClearChat()
-                ToolbarAction.ToggleStream    -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                ToolbarAction.ToggleStream    -> when {
+                    currentStream != null -> streamViewModel.closeStream()
+                    else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                }
                 ToolbarAction.OpenSettings    -> onNavigateToSettings()
                 ToolbarAction.MessageHistory  -> activeChannel?.let { sheetNavigationViewModel.openHistory(it) }
             }

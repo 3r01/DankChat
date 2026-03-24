@@ -50,31 +50,6 @@ class ScrollDirectionTracker(
 }
 
 /**
- * Detects sustained overscroll at the bottom of a reversed list.
- * Requires [frameThreshold] consecutive overscroll events (~16ms each
- * during a drag) before calling [onReveal], so only a deliberate,
- * sustained pull triggers it — not a scroll that merely reaches the end.
- */
-fun overscrollRevealConnection(frameThreshold: Int, onReveal: () -> Unit): NestedScrollConnection {
-    return object : NestedScrollConnection {
-        private var consecutiveFrames = 0
-
-        override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-            if (source == NestedScrollSource.UserInput && available.y < 0f) {
-                consecutiveFrames++
-                if (consecutiveFrames >= frameThreshold) {
-                    onReveal()
-                    consecutiveFrames = 0
-                }
-            } else {
-                consecutiveFrames = 0
-            }
-            return Offset.Zero
-        }
-    }
-}
-
-/**
  * Detects a cumulative downward drag exceeding [thresholdPx] and calls [onHide].
  * Uses [PointerEventPass.Initial] to observe events before children (text fields,
  * buttons) consume them. Events are never consumed so children still work normally.
