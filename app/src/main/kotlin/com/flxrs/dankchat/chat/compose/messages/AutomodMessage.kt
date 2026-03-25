@@ -28,6 +28,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus
 import com.flxrs.dankchat.chat.compose.EmoteDimensions
+import com.flxrs.dankchat.chat.compose.messages.common.BadgeInlineContent
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
@@ -173,11 +174,7 @@ fun AutomodMessageComposable(
         buildMap {
             message.badges.forEach { badge ->
                 put("BADGE_${badge.position}") {
-                    coil3.compose.AsyncImage(
-                        model = badge.drawableResId ?: badge.url,
-                        contentDescription = badge.badge.type.name,
-                        modifier = Modifier.size(badgeSize)
-                    )
+                    BadgeInlineContent(badge = badge, size = badgeSize)
                 }
             }
         }

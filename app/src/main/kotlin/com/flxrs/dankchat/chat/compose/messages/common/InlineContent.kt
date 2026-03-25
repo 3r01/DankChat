@@ -1,17 +1,25 @@
 package com.flxrs.dankchat.chat.compose.messages.common
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.EmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.EmoteUi
 import com.flxrs.dankchat.chat.compose.StackedEmote
+import com.flxrs.dankchat.data.twitch.badge.Badge
+
+private val FfzModGreen = Color(0xFF34AE0A)
 
 /**
  * Renders a badge as inline content in a message.
+ * FFZ mod badges get a green background fill since the badge image is foreground-only.
  */
 @Composable
 fun BadgeInlineContent(
@@ -19,11 +27,25 @@ fun BadgeInlineContent(
     size: Dp,
     modifier: Modifier = Modifier
 ) {
-    AsyncImage(
-        model = badge.url,
-        contentDescription = badge.badge.type.name,
-        modifier = modifier.size(size)
-    )
+    when (badge.badge) {
+        is Badge.FFZModBadge -> {
+            Box(modifier = modifier.size(size).background(FfzModGreen)) {
+                AsyncImage(
+                    model = badge.url,
+                    contentDescription = badge.badge.type.name,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+
+        else                 -> {
+            AsyncImage(
+                model = badge.drawableResId ?: badge.url,
+                contentDescription = badge.badge.type.name,
+                modifier = modifier.size(size)
+            )
+        }
+    }
 }
 
 /**

@@ -43,6 +43,7 @@ import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.EmoteDimensions
+import com.flxrs.dankchat.chat.compose.messages.common.BadgeInlineContent
 import com.flxrs.dankchat.chat.compose.EmoteScaling
 import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.chat.compose.StackedEmote
@@ -221,11 +222,7 @@ private fun WhisperMessageText(
             // Badge providers
             message.badges.forEach { badge ->
                 put("BADGE_${badge.position}") {
-                    coil3.compose.AsyncImage(
-                        model = badge.url,
-                        contentDescription = badge.badge.type.name,
-                        modifier = Modifier.size(badgeSize)
-                    )
+                    BadgeInlineContent(badge = badge, size = badgeSize)
                 }
             }
 
