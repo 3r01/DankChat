@@ -495,12 +495,20 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s ativou o modo apenas emotes</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s desativou o modo apenas emotes</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s ativou o modo apenas seguidores</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s ativou o modo apenas seguidores (%2$d minutos)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s ativou o modo apenas seguidores (%2$d minuto)</item>
+        <item quantity="many">%1$s ativou o modo apenas seguidores (%2$d minutos)</item>
+        <item quantity="other">%1$s ativou o modo apenas seguidores (%2$d minutos)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s desativou o modo apenas seguidores</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s ativou o modo de chat único</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s desativou o modo de chat único</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s ativou o modo lento</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s ativou o modo lento (%2$d segundos)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s ativou o modo lento (%2$d segundo)</item>
+        <item quantity="many">%1$s ativou o modo lento (%2$d segundos)</item>
+        <item quantity="other">%1$s ativou o modo lento (%2$d segundos)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s desativou o modo lento</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s ativou o modo apenas subscritores</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s desativou o modo apenas subscritores</string>

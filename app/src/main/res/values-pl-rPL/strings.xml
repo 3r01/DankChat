@@ -529,12 +529,22 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s włączył/a tryb tylko emotki</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s wyłączył/a tryb tylko emotki</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s włączył/a tryb tylko dla obserwujących</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s włączył/a tryb tylko dla obserwujących (%2$d minut)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s włączył/a tryb tylko dla obserwujących (%2$d minutę)</item>
+        <item quantity="few">%1$s włączył/a tryb tylko dla obserwujących (%2$d minuty)</item>
+        <item quantity="many">%1$s włączył/a tryb tylko dla obserwujących (%2$d minut)</item>
+        <item quantity="other">%1$s włączył/a tryb tylko dla obserwujących (%2$d minut)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s wyłączył/a tryb tylko dla obserwujących</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s włączył/a tryb unikalnego czatu</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s wyłączył/a tryb unikalnego czatu</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s włączył/a tryb powolny</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s włączył/a tryb powolny (%2$d sekund)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s włączył/a tryb powolny (%2$d sekundę)</item>
+        <item quantity="few">%1$s włączył/a tryb powolny (%2$d sekundy)</item>
+        <item quantity="many">%1$s włączył/a tryb powolny (%2$d sekund)</item>
+        <item quantity="other">%1$s włączył/a tryb powolny (%2$d sekund)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s wyłączył/a tryb powolny</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s włączył/a tryb tylko dla subskrybentów</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s wyłączył/a tryb tylko dla subskrybentów</string>

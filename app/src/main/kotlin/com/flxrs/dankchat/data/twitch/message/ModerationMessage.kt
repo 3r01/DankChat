@@ -174,7 +174,7 @@ data class ModerationMessage(
 
             Action.Followers       -> when (val mins = durationInt?.takeIf { it > 0 }) {
                 null -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creator))
-                else -> TextResource.Res(R.string.mod_followers_on_duration, persistentListOf(creator, mins))
+                else -> TextResource.PluralRes(R.plurals.mod_followers_on_duration, mins, persistentListOf(creator, mins))
             }
 
             Action.FollowersOff    -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creator))
@@ -183,7 +183,7 @@ data class ModerationMessage(
 
             Action.Slow            -> when (val secs = durationInt) {
                 null -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creator))
-                else -> TextResource.Res(R.string.mod_slow_on_duration, persistentListOf(creator, secs))
+                else -> TextResource.PluralRes(R.plurals.mod_slow_on_duration, secs, persistentListOf(creator, secs))
             }
 
             Action.SlowOff         -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creator))

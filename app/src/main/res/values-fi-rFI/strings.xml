@@ -360,12 +360,18 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s otti käyttöön vain hymiöt -tilan</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s poisti käytöstä vain hymiöt -tilan</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s otti käyttöön vain seuraajat -tilan</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s otti käyttöön vain seuraajat -tilan (%2$d minuuttia)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s otti käyttöön vain seuraajat -tilan (%2$d minuutti)</item>
+        <item quantity="other">%1$s otti käyttöön vain seuraajat -tilan (%2$d minuuttia)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s poisti käytöstä vain seuraajat -tilan</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s otti käyttöön ainutlaatuinen chat -tilan</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s poisti käytöstä ainutlaatuinen chat -tilan</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s otti käyttöön hitaan tilan</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s otti käyttöön hitaan tilan (%2$d sekuntia)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s otti käyttöön hitaan tilan (%2$d sekunti)</item>
+        <item quantity="other">%1$s otti käyttöön hitaan tilan (%2$d sekuntia)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s poisti käytöstä hitaan tilan</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s otti käyttöön vain tilaajat -tilan</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s poisti käytöstä vain tilaajat -tilan</string>

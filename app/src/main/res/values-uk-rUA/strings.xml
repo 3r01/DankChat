@@ -512,12 +512,22 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s увімкнув режим лише емоції</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s вимкнув режим лише емоції</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s увімкнув режим лише для підписників каналу</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s увімкнув режим лише для підписників каналу (%2$d хвилин)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s увімкнув режим лише для підписників каналу (%2$d хвилину)</item>
+        <item quantity="few">%1$s увімкнув режим лише для підписників каналу (%2$d хвилини)</item>
+        <item quantity="many">%1$s увімкнув режим лише для підписників каналу (%2$d хвилин)</item>
+        <item quantity="other">%1$s увімкнув режим лише для підписників каналу (%2$d хвилин)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s вимкнув режим лише для підписників каналу</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s увімкнув режим унікального чату</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s вимкнув режим унікального чату</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s увімкнув повільний режим</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s увімкнув повільний режим (%2$d секунд)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s увімкнув повільний режим (%2$d секунду)</item>
+        <item quantity="few">%1$s увімкнув повільний режим (%2$d секунди)</item>
+        <item quantity="many">%1$s увімкнув повільний режим (%2$d секунд)</item>
+        <item quantity="other">%1$s увімкнув повільний режим (%2$d секунд)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s вимкнув повільний режим</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s увімкнув режим лише для підписників</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s вимкнув режим лише для підписників</string>

@@ -523,12 +523,18 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s hat den Emote-only-Modus aktiviert</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s hat den Emote-only-Modus deaktiviert</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s hat den Followers-only-Modus aktiviert</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s hat den Followers-only-Modus aktiviert (%2$d Minuten)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s hat den Followers-only-Modus aktiviert (%2$d Minute)</item>
+        <item quantity="other">%1$s hat den Followers-only-Modus aktiviert (%2$d Minuten)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s hat den Followers-only-Modus deaktiviert</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s hat den Unique-Chat-Modus aktiviert</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s hat den Unique-Chat-Modus deaktiviert</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s hat den Slow-Modus aktiviert</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s hat den Slow-Modus aktiviert (%2$d Sekunden)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s hat den Slow-Modus aktiviert (%2$d Sekunde)</item>
+        <item quantity="other">%1$s hat den Slow-Modus aktiviert (%2$d Sekunden)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s hat den Slow-Modus deaktiviert</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s hat den Subscribers-only-Modus aktiviert</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s hat den Subscribers-only-Modus deaktiviert</string>

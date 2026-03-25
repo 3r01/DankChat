@@ -517,12 +517,18 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s turned on emote-only mode</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s turned off emote-only mode</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s turned on followers-only mode</string>
-    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s turned on followers-only mode (%2$d minutes)</string>
+    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
+        <item quantity="one">%1$s turned on followers-only mode (%2$d minute)</item>
+        <item quantity="other">%1$s turned on followers-only mode (%2$d minutes)</item>
+    </plurals>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s turned off followers-only mode</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s turned on unique-chat mode</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s turned off unique-chat mode</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s turned on slow mode</string>
-    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s turned on slow mode (%2$d seconds)</string>
+    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
+        <item quantity="one">%1$s turned on slow mode (%2$d second)</item>
+        <item quantity="other">%1$s turned on slow mode (%2$d seconds)</item>
+    </plurals>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s turned off slow mode</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s turned on subscribers-only mode</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s turned off subscribers-only mode</string>
