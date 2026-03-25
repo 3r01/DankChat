@@ -364,7 +364,9 @@ class ChatInputViewModel(
                 if (commandResult.command == TwitchCommand.Whisper) {
                     chatRepository.fakeWhisperIfNecessary(message)
                 }
-                if (commandResult.response != null) {
+                val isWhisperContext = chatState is FullScreenSheetState.Whisper ||
+                    (chatState is FullScreenSheetState.Mention && _whisperTarget.value != null)
+                if (commandResult.response != null && !isWhisperContext) {
                     chatRepository.makeAndPostCustomSystemMessage(commandResult.response, channel)
                 }
             }

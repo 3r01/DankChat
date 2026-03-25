@@ -37,6 +37,7 @@ fun MentionComposable(
     containerColor: Color,
     contentPadding: PaddingValues = PaddingValues(),
     scrollModifier: Modifier = Modifier,
+    onScrollToBottom: () -> Unit = {},
 ) {
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
@@ -62,6 +63,7 @@ fun MentionComposable(
             contentPadding = contentPadding,
             scrollModifier = scrollModifier,
             containerColor = containerColor,
+            onScrollToBottom = onScrollToBottom,
         )
     } // CompositionLocalProvider
 }

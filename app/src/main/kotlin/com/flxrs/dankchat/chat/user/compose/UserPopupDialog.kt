@@ -67,6 +67,7 @@ fun UserPopupDialog(
     onWhisper: (String) -> Unit,
     onOpenChannel: (String) -> Unit,
     onReport: (String) -> Unit,
+    isOwnUser: Boolean = false,
     onMessageHistory: ((String) -> Unit)? = null,
 ) {
     var showBlockConfirmation by remember { mutableStateOf(false) }
@@ -112,15 +113,17 @@ fun UserPopupDialog(
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
-                    ListItem(
-                        headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
-                        leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
-                        modifier = Modifier.clickable {
-                            onWhisper(userName.value)
-                            onDismiss()
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
+                    if (!isOwnUser) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
+                            leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
+                            modifier = Modifier.clickable {
+                                onWhisper(userName.value)
+                                onDismiss()
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                    }
                     if (onMessageHistory != null) {
                         ListItem(
                             headlineContent = { Text(stringResource(R.string.message_history)) },
@@ -132,7 +135,7 @@ fun UserPopupDialog(
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                     }
-                    if (isSuccess) {
+                    if (isSuccess && !isOwnUser) {
                         ListItem(
                             headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
                             leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
@@ -146,15 +149,17 @@ fun UserPopupDialog(
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent)
                         )
                     }
-                    ListItem(
-                        headlineContent = { Text(stringResource(R.string.user_popup_report)) },
-                        leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
-                        modifier = Modifier.clickable {
-                            onReport(userName.value)
-                            onDismiss()
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
+                    if (!isOwnUser) {
+                        ListItem(
+                            headlineContent = { Text(stringResource(R.string.user_popup_report)) },
+                            leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
+                            modifier = Modifier.clickable {
+                                onReport(userName.value)
+                                onDismiss()
+                            },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                        )
+                    }
                 }
             }
         }

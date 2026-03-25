@@ -36,6 +36,7 @@ fun RepliesComposable(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     scrollModifier: Modifier = Modifier,
+    onScrollToBottom: () -> Unit = {},
 ) {
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
@@ -58,6 +59,7 @@ fun RepliesComposable(
                     contentPadding = contentPadding,
                     scrollModifier = scrollModifier,
                     containerColor = containerColor,
+                    onScrollToBottom = onScrollToBottom,
                 )
             }
 

@@ -24,6 +24,7 @@ import com.flxrs.dankchat.chat.user.compose.UserPopupDialog
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.main.compose.dialogs.AddChannelDialog
 import com.flxrs.dankchat.main.compose.dialogs.ConfirmationDialog
 import com.flxrs.dankchat.main.compose.dialogs.EmoteInfoDialog
@@ -261,9 +262,12 @@ fun MainScreenDialogs(
             parameters = { parametersOf(params) }
         )
         val state by viewModel.userPopupState.collectAsStateWithLifecycle()
+        val preferenceStore: DankChatPreferenceStore = koinInject()
+        val isOwnUser = preferenceStore.userIdString == params.targetUserId
         UserPopupDialog(
             state = state,
             badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) },
+            isOwnUser = isOwnUser,
             onBlockUser = viewModel::blockUser,
             onUnblockUser = viewModel::unblockUser,
             onDismiss = dialogViewModel::dismissUserPopup,
@@ -274,9 +278,10 @@ fun MainScreenDialogs(
                 )
             },
             onWhisper = { name ->
-                chatInputViewModel.updateInputText("/w $name ")
+                sheetNavigationViewModel.openWhispers()
+                chatInputViewModel.setWhisperTarget(UserName(name))
             },
-            onOpenChannel = { _ -> onOpenChannel() },
+            onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
             onReport = { _ ->
                 onReportChannel()
             },

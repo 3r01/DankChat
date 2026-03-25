@@ -232,7 +232,7 @@ fun ChatScreen(
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + fabBottomPadding),
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
                     contentAlignment = Alignment.BottomEnd
                 ) {
                     if (recoveryFabTooltipState != null) {

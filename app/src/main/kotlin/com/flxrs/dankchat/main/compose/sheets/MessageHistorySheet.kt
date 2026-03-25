@@ -163,6 +163,7 @@ fun MessageHistorySheet(
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
                 scrollModifier = scrollModifier,
                 containerColor = sheetBackgroundColor,
+                onScrollToBottom = { toolbarVisible = true },
             )
         }
 

@@ -113,6 +113,7 @@ fun RepliesSheet(
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             scrollModifier = scrollModifier,
+            onScrollToBottom = { toolbarVisible = true },
             modifier = Modifier.fillMaxSize(),
         )
 

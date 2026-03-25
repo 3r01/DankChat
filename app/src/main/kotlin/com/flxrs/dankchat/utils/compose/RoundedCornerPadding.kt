@@ -106,8 +106,9 @@ fun Modifier.avoidRoundedCorners(fallback: PaddingValues): Modifier = composed {
 
 /**
  * Returns the bottom padding needed to avoid rounded display corners.
- * Useful for [contentPadding][androidx.compose.foundation.lazy.LazyColumn] where a modifier
- * would shrink the scrollable area instead of adding inset space.
+ * Uses a 25-degree boundary — a practical middle ground between the strict 45-degree
+ * safe line (~29% of radius) and the full radius (100%). Gives ~58% of the radius,
+ * keeping content comfortably clear of rounded corners without excessive spacing.
  *
  * On API < 31 returns [fallback].
  */
@@ -126,10 +127,21 @@ fun rememberRoundedCornerBottomPadding(fallback: Dp = 0.dp): Dp {
 
     val bottomLeft = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)
     val bottomRight = windowInsets.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)
-    val maxRadius = maxOf(bottomLeft?.radius ?: 0, bottomRight?.radius ?: 0)
-    if (maxRadius == 0) return fallback
+    val screenHeight = view.rootView.height
+    val safePadding = maxOf(
+        bottomLeft?.safeBottomPadding(screenHeight) ?: 0,
+        bottomRight?.safeBottomPadding(screenHeight) ?: 0,
+    )
+    if (safePadding == 0) return fallback
 
-    return with(density) { maxRadius.toDp() }
+    return with(density) { safePadding.toDp() }
+}
+
+@RequiresApi(api = 31)
+private fun RoundedCorner.safeBottomPadding(screenHeight: Int): Int {
+    val offset = (radius * sin(Math.toRadians(25.0))).toInt()
+    val safeBottom = center.y + offset
+    return max(0, screenHeight - safeBottom)
 }
 
 /**

@@ -28,14 +28,16 @@ class ScrollDirectionTracker(
 ) : NestedScrollConnection {
     private var accumulated = 0f
 
-    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
         if (source != NestedScrollSource.UserInput) return Offset.Zero
+        val delta = consumed.y
+        if (delta == 0f) return Offset.Zero
         // Reset accumulator on direction change to avoid stale buildup
         when {
-            accumulated > 0f && available.y < 0f -> accumulated = 0f
-            accumulated < 0f && available.y > 0f -> accumulated = 0f
+            accumulated > 0f && delta < 0f -> accumulated = 0f
+            accumulated < 0f && delta > 0f -> accumulated = 0f
         }
-        accumulated += available.y
+        accumulated += delta
         when {
             accumulated > hideThresholdPx  -> {
                 onHide(); accumulated = 0f

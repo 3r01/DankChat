@@ -135,6 +135,7 @@ fun MentionSheet(
                 containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
                 scrollModifier = scrollModifier,
+                onScrollToBottom = { toolbarVisible = true },
             )
         }
 

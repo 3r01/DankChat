@@ -125,6 +125,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+private val ROUNDED_CORNER_THRESHOLD = 8.dp
+
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainScreen(
@@ -545,6 +547,10 @@ fun MainScreen(
         // the keyboard by navBarHeight, causing a visible lag during reveal.
         val navBarHeightDp = with(density) { navBars.getBottom(density).toDp() }
         val roundedCornerBottomPadding = rememberRoundedCornerBottomPadding()
+        val effectiveRoundedCorner = when {
+            roundedCornerBottomPadding >= ROUNDED_CORNER_THRESHOLD -> roundedCornerBottomPadding
+            else                                                   -> 0.dp
+        }
         val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
         // Shared scaffold bottom padding calculation
@@ -818,10 +824,16 @@ fun MainScreen(
                                         contentPadding = PaddingValues(
                                             top = chatTopPadding + 56.dp,
                                             bottom = paddingValues.calculateBottomPadding() + when {
-                                                effectiveShowInput     -> inputHeightDp
-                                                !isFullscreen          -> max(helperTextHeightDp, max(navBarHeightDp, roundedCornerBottomPadding))
-                                                useWideSplitLayout     -> helperTextHeightDp
-                                                else                   -> max(helperTextHeightDp, roundedCornerBottomPadding)
+                                                effectiveShowInput -> inputHeightDp
+                                                !isFullscreen      -> when {
+                                                    helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                    else                      -> max(navBarHeightDp, effectiveRoundedCorner)
+                                                }
+
+                                                else               -> when {
+                                                    helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                    else                      -> effectiveRoundedCorner
+                                                }
                                             }
                                         ),
                                         scrollModifier = chatScrollModifier,
@@ -876,7 +888,7 @@ fun MainScreen(
         // Shared fullscreen sheet overlay
         val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
             val effectiveBottomPadding = when {
-                !effectiveShowInput -> bottomPadding + max(navBarHeightDp, roundedCornerBottomPadding)
+                !effectiveShowInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
                 else                -> bottomPadding
             }
             FullScreenSheetOverlay(
@@ -1128,23 +1140,7 @@ fun MainScreen(
                 fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
             }
 
-            // Input bar — on top of sheets for whisper/reply input
-            if (!isInPipMode) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = scaffoldBottomPadding)
-                        .swipeDownToHide(
-                            enabled = effectiveShowInput,
-                            thresholdPx = swipeDownThresholdPx,
-                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                        )
-                ) {
-                    bottomBar()
-                }
-            }
-
-            // Dismiss scrim for input overflow menu
+            // Dismiss scrim for input overflow menu — before input bar so menu items stay clickable
             if (!isInPipMode && inputOverflowExpanded) {
                 Box(
                     modifier = Modifier
@@ -1158,6 +1154,22 @@ fun MainScreen(
                             }
                         }
                 )
+            }
+
+            // Input bar — on top of sheets and dismiss scrim for whisper/reply input
+            if (!isInPipMode) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = scaffoldBottomPadding)
+                        .swipeDownToHide(
+                            enabled = effectiveShowInput,
+                            thresholdPx = swipeDownThresholdPx,
+                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
+                        )
+                ) {
+                    bottomBar()
+                }
             }
 
             // Emote Menu Layer - slides up/down independently of keyboard
