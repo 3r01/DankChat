@@ -90,6 +90,34 @@ data class ModerationMessage(
         }
     }
 
+    private fun formatMinutesDuration(minutes: Int): TextResource {
+        val parts = DateTimeUtils.decomposeMinutes(minutes).map { it.toTextResource() }
+        return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_minutes, 0, persistentListOf(0)) })
+    }
+
+    private fun formatSecondsDuration(seconds: Int): TextResource {
+        val parts = DateTimeUtils.decomposeSeconds(seconds).map { it.toTextResource() }
+        return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_seconds, 0, persistentListOf(0)) })
+    }
+
+    private fun DateTimeUtils.DurationPart.toTextResource(): TextResource {
+        val pluralRes = when (unit) {
+            DateTimeUtils.DurationUnit.WEEKS   -> R.plurals.duration_weeks
+            DateTimeUtils.DurationUnit.DAYS    -> R.plurals.duration_days
+            DateTimeUtils.DurationUnit.HOURS   -> R.plurals.duration_hours
+            DateTimeUtils.DurationUnit.MINUTES -> R.plurals.duration_minutes
+            DateTimeUtils.DurationUnit.SECONDS -> R.plurals.duration_seconds
+        }
+        return TextResource.PluralRes(pluralRes, value, persistentListOf(value))
+    }
+
+    private fun joinDurationParts(parts: List<TextResource>, fallback: () -> TextResource): TextResource = when (parts.size) {
+        0    -> fallback()
+        1    -> parts[0]
+        2    -> TextResource.Res(R.string.duration_join_2, persistentListOf(parts[0], parts[1]))
+        else -> TextResource.Res(R.string.duration_join_3, persistentListOf(parts[0], parts[1], parts[2]))
+    }
+
     fun getSystemMessage(currentUser: UserName?, showDeletedMessage: Boolean): TextResource {
         val creator = creatorUserDisplay.toString()
         val target = targetUserDisplay.toString()
@@ -174,7 +202,7 @@ data class ModerationMessage(
 
             Action.Followers       -> when (val mins = durationInt?.takeIf { it > 0 }) {
                 null -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creator))
-                else -> TextResource.PluralRes(R.plurals.mod_followers_on_duration, mins, persistentListOf(creator, mins))
+                else -> TextResource.Res(R.string.mod_followers_on_duration, persistentListOf(creator, formatMinutesDuration(mins)))
             }
 
             Action.FollowersOff    -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creator))
@@ -183,7 +211,7 @@ data class ModerationMessage(
 
             Action.Slow            -> when (val secs = durationInt) {
                 null -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creator))
-                else -> TextResource.PluralRes(R.plurals.mod_slow_on_duration, secs, persistentListOf(creator, secs))
+                else -> TextResource.Res(R.string.mod_slow_on_duration, persistentListOf(creator, formatSecondsDuration(secs)))
             }
 
             Action.SlowOff         -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creator))

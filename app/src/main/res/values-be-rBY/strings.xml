@@ -80,6 +80,38 @@
 
     <string name="highlight_header_first_time_chat">Першае паведамленне</string>
     <string name="highlight_header_elevated_chat">Павышанае паведамленне</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d секунду</item>
+        <item quantity="few">%1$d секунды</item>
+        <item quantity="many">%1$d секунд</item>
+        <item quantity="other">%1$d секунд</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d хвіліну</item>
+        <item quantity="few">%1$d хвіліны</item>
+        <item quantity="many">%1$d хвілін</item>
+        <item quantity="other">%1$d хвілін</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d гадзіну</item>
+        <item quantity="few">%1$d гадзіны</item>
+        <item quantity="many">%1$d гадзін</item>
+        <item quantity="other">%1$d гадзін</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d дзень</item>
+        <item quantity="few">%1$d дні</item>
+        <item quantity="many">%1$d дзён</item>
+        <item quantity="other">%1$d дзён</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d тыдзень</item>
+        <item quantity="few">%1$d тыдні</item>
+        <item quantity="many">%1$d тыдняў</item>
+        <item quantity="other">%1$d тыдняў</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Уставіць</string>
     <string name="add_channel_hint">Назва канала</string>
     <string name="emote_menu_tab_recent">Нядаўнія</string>
@@ -510,22 +542,12 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s уключыў рэжым толькі эмоцыі</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s выключыў рэжым толькі эмоцыі</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s уключыў рэжым толькі для падпісчыкаў канала</string>
-    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
-        <item quantity="one">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$d хвіліну)</item>
-        <item quantity="few">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$d хвіліны)</item>
-        <item quantity="many">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$d хвілін)</item>
-        <item quantity="other">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$d хвілін)</item>
-    </plurals>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s уключыў рэжым толькі для падпісчыкаў канала (%2$s)</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s выключыў рэжым толькі для падпісчыкаў канала</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s уключыў рэжым унікальнага чату</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s выключыў рэжым унікальнага чату</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s уключыў павольны рэжым</string>
-    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
-        <item quantity="one">%1$s уключыў павольны рэжым (%2$d секунду)</item>
-        <item quantity="few">%1$s уключыў павольны рэжым (%2$d секунды)</item>
-        <item quantity="many">%1$s уключыў павольны рэжым (%2$d секунд)</item>
-        <item quantity="other">%1$s уключыў павольны рэжым (%2$d секунд)</item>
-    </plurals>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s уключыў павольны рэжым (%2$s)</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s выключыў павольны рэжым</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s уключыў рэжым толькі для падпісчыкаў</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s выключыў рэжым толькі для падпісчыкаў</string>
@@ -560,6 +582,14 @@
     <string name="room_state_slow_mode">Павольны рэжым</string>
     <string name="room_state_unique_chat">Унікальны чат (R9K)</string>
     <string name="room_state_follower_only">Толькі фалаверы</string>
+    <string name="room_state_preset_custom">Іншае</string>
+    <string name="room_state_follower_any">Любы</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Дадайце канал, каб пачаць размову</string>

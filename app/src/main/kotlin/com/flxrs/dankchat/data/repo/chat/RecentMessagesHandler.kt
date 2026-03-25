@@ -33,6 +33,7 @@ class RecentMessagesHandler(
     private val recentMessagesApiClient: RecentMessagesApiClient,
     private val messageProcessor: MessageProcessor,
     private val chatMessageRepository: ChatMessageRepository,
+    private val usersRepository: UsersRepository,
 ) {
 
     private val loadedChannels = mutableSetOf<UserName>()
@@ -95,6 +96,9 @@ class RecentMessagesHandler(
                         if (message is PrivMessage) {
                             val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
                             userSuggestions += message.name.lowercase() to userForSuggestion
+                            if (message.color != Message.DEFAULT_COLOR) {
+                                usersRepository.cacheUserColor(message.name, message.color)
+                            }
                         }
 
                         val importance = when {

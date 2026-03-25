@@ -73,6 +73,26 @@ object DateTimeUtils {
         else -> null
     }
 
+    enum class DurationUnit { WEEKS, DAYS, HOURS, MINUTES, SECONDS }
+    data class DurationPart(val value: Int, val unit: DurationUnit)
+
+    fun decomposeMinutes(totalMinutes: Int): List<DurationPart> = buildList {
+        var remaining = totalMinutes
+        val weeks = remaining / 10080; remaining %= 10080
+        if (weeks > 0) add(DurationPart(weeks, DurationUnit.WEEKS))
+        val days = remaining / 1440; remaining %= 1440
+        if (days > 0) add(DurationPart(days, DurationUnit.DAYS))
+        val hours = remaining / 60; remaining %= 60
+        if (hours > 0) add(DurationPart(hours, DurationUnit.HOURS))
+        if (remaining > 0) add(DurationPart(remaining, DurationUnit.MINUTES))
+    }
+
+    fun decomposeSeconds(totalSeconds: Int): List<DurationPart> = buildList {
+        val mins = totalSeconds / 60; val secs = totalSeconds % 60
+        if (mins > 0) add(DurationPart(mins, DurationUnit.MINUTES))
+        if (secs > 0) add(DurationPart(secs, DurationUnit.SECONDS))
+    }
+
     fun calculateUptime(startedAtString: String): String {
         val startedAt = Instant.parse(startedAtString).atZone(ZoneId.systemDefault()).toEpochSecond()
         val now = ZonedDateTime.now().toEpochSecond()

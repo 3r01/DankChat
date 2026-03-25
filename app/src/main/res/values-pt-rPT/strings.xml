@@ -80,6 +80,33 @@
 
     <string name="highlight_header_first_time_chat">Primeira mensagem</string>
     <string name="highlight_header_elevated_chat">Mensagem elevada</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d segundo</item>
+        <item quantity="many">%1$d segundos</item>
+        <item quantity="other">%1$d segundos</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d minuto</item>
+        <item quantity="many">%1$d minutos</item>
+        <item quantity="other">%1$d minutos</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d hora</item>
+        <item quantity="many">%1$d horas</item>
+        <item quantity="other">%1$d horas</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d dia</item>
+        <item quantity="many">%1$d dias</item>
+        <item quantity="other">%1$d dias</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d semana</item>
+        <item quantity="many">%1$d semanas</item>
+        <item quantity="other">%1$d semanas</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Colar</string>
     <string name="add_channel_hint">Nome do canal</string>
     <string name="emote_menu_tab_recent">Recente</string>
@@ -495,20 +522,12 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s ativou o modo apenas emotes</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s desativou o modo apenas emotes</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s ativou o modo apenas seguidores</string>
-    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
-        <item quantity="one">%1$s ativou o modo apenas seguidores (%2$d minuto)</item>
-        <item quantity="many">%1$s ativou o modo apenas seguidores (%2$d minutos)</item>
-        <item quantity="other">%1$s ativou o modo apenas seguidores (%2$d minutos)</item>
-    </plurals>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s ativou o modo apenas seguidores (%2$s)</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s desativou o modo apenas seguidores</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s ativou o modo de chat único</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s desativou o modo de chat único</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s ativou o modo lento</string>
-    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
-        <item quantity="one">%1$s ativou o modo lento (%2$d segundo)</item>
-        <item quantity="many">%1$s ativou o modo lento (%2$d segundos)</item>
-        <item quantity="other">%1$s ativou o modo lento (%2$d segundos)</item>
-    </plurals>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s ativou o modo lento (%2$s)</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s desativou o modo lento</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s ativou o modo apenas subscritores</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s desativou o modo apenas subscritores</string>
@@ -542,6 +561,14 @@
     <string name="room_state_slow_mode">Modo lento</string>
     <string name="room_state_unique_chat">Chat único (R9K)</string>
     <string name="room_state_follower_only">Apenas seguidores</string>
+    <string name="room_state_preset_custom">Personalizado</string>
+    <string name="room_state_follower_any">Qualquer</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Adicione um canal para começar a conversar</string>

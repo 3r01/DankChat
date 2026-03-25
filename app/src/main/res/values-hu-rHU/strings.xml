@@ -80,6 +80,28 @@
 
     <string name="highlight_header_first_time_chat">Első üzenet</string>
     <string name="highlight_header_elevated_chat">Kiemelt üzenet</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d másodperc</item>
+        <item quantity="other">%1$d másodperc</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d perc</item>
+        <item quantity="other">%1$d perc</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d óra</item>
+        <item quantity="other">%1$d óra</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d nap</item>
+        <item quantity="other">%1$d nap</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d hét</item>
+        <item quantity="other">%1$d hét</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Beillesztés</string>
     <string name="add_channel_hint">Csatorna neve</string>
     <string name="emote_menu_tab_recent">Legutóbbi</string>
@@ -501,18 +523,12 @@
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s bekapcsolta a csak hangulatjel módot</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s kikapcsolta a csak hangulatjel módot</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s bekapcsolta a csak követők módot</string>
-    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
-        <item quantity="one">%1$s bekapcsolta a csak követők módot (%2$d perc)</item>
-        <item quantity="other">%1$s bekapcsolta a csak követők módot (%2$d perc)</item>
-    </plurals>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s bekapcsolta a csak követők módot (%2$s)</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s kikapcsolta a csak követők módot</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s bekapcsolta az egyedi chat módot</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s kikapcsolta az egyedi chat módot</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s bekapcsolta a lassú módot</string>
-    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
-        <item quantity="one">%1$s bekapcsolta a lassú módot (%2$d másodperc)</item>
-        <item quantity="other">%1$s bekapcsolta a lassú módot (%2$d másodperc)</item>
-    </plurals>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s bekapcsolta a lassú módot (%2$s)</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s kikapcsolta a lassú módot</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s bekapcsolta a csak feliratkozók módot</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s kikapcsolta a csak feliratkozók módot</string>
@@ -545,6 +561,14 @@
     <string name="room_state_slow_mode">Lassú mód</string>
     <string name="room_state_unique_chat">Egyedi chat (R9K)</string>
     <string name="room_state_follower_only">Csak követők</string>
+    <string name="room_state_preset_custom">Egyéni</string>
+    <string name="room_state_follower_any">Bármely</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Adj hozzá egy csatornát a csevegéshez</string>

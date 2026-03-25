@@ -76,6 +76,33 @@
 
     <string name="highlight_header_first_time_chat">Primer missatge</string>
     <string name="highlight_header_elevated_chat">Missatge destacat</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d segon</item>
+        <item quantity="many">%1$d segons</item>
+        <item quantity="other">%1$d segons</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d minut</item>
+        <item quantity="many">%1$d minuts</item>
+        <item quantity="other">%1$d minuts</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d hora</item>
+        <item quantity="many">%1$d hores</item>
+        <item quantity="other">%1$d hores</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d dia</item>
+        <item quantity="many">%1$d dies</item>
+        <item quantity="other">%1$d dies</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d setmana</item>
+        <item quantity="many">%1$d setmanes</item>
+        <item quantity="other">%1$d setmanes</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Enganxa</string>
     <string name="add_channel_hint">Nom del canal</string>
     <string name="emote_menu_tab_recent">Recent</string>
@@ -397,20 +424,12 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s ha activat el mode emote-only</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s ha desactivat el mode emote-only</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s ha activat el mode followers-only</string>
-    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
-        <item quantity="one">%1$s ha activat el mode followers-only (%2$d minut)</item>
-        <item quantity="many">%1$s ha activat el mode followers-only (%2$d minuts)</item>
-        <item quantity="other">%1$s ha activat el mode followers-only (%2$d minuts)</item>
-    </plurals>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s ha activat el mode followers-only (%2$s)</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s ha desactivat el mode followers-only</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s ha activat el mode unique-chat</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s ha desactivat el mode unique-chat</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s ha activat el mode slow</string>
-    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
-        <item quantity="one">%1$s ha activat el mode slow (%2$d segon)</item>
-        <item quantity="many">%1$s ha activat el mode slow (%2$d segons)</item>
-        <item quantity="other">%1$s ha activat el mode slow (%2$d segons)</item>
-    </plurals>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s ha activat el mode slow (%2$s)</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s ha desactivat el mode slow</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s ha activat el mode subscribers-only</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s ha desactivat el mode subscribers-only</string>
@@ -444,6 +463,14 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="room_state_slow_mode">Mode lent</string>
     <string name="room_state_unique_chat">Xat únic (R9K)</string>
     <string name="room_state_follower_only">Només seguidors</string>
+    <string name="room_state_preset_custom">Personalitzat</string>
+    <string name="room_state_follower_any">Qualsevol</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Afegeix un canal per començar a xatejar</string>

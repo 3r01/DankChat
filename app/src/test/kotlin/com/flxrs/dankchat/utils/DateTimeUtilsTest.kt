@@ -1,5 +1,11 @@
 package com.flxrs.dankchat.utils
 
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationPart
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationUnit.DAYS
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationUnit.HOURS
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationUnit.MINUTES
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationUnit.SECONDS
+import com.flxrs.dankchat.utils.DateTimeUtils.DurationUnit.WEEKS
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -101,5 +107,77 @@ internal class DateTimeUtilsTest {
     fun `parses combination of units with spaces correctly`() {
         val result = DateTimeUtils.durationToSeconds("3s 1h 4d 5m")
         assertEquals(expected = 349503, actual = result)
+    }
+
+    @Test
+    fun `decomposes 30 minutes`() {
+        val result = DateTimeUtils.decomposeMinutes(30)
+        assertEquals(expected = listOf(DurationPart(30, MINUTES)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 60 minutes to 1 hour`() {
+        val result = DateTimeUtils.decomposeMinutes(60)
+        assertEquals(expected = listOf(DurationPart(1, HOURS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 90 minutes to 1 hour 30 minutes`() {
+        val result = DateTimeUtils.decomposeMinutes(90)
+        assertEquals(expected = listOf(DurationPart(1, HOURS), DurationPart(30, MINUTES)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 1440 minutes to 1 day`() {
+        val result = DateTimeUtils.decomposeMinutes(1440)
+        assertEquals(expected = listOf(DurationPart(1, DAYS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 10080 minutes to 1 week`() {
+        val result = DateTimeUtils.decomposeMinutes(10080)
+        assertEquals(expected = listOf(DurationPart(1, WEEKS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 20160 minutes to 2 weeks`() {
+        val result = DateTimeUtils.decomposeMinutes(20160)
+        assertEquals(expected = listOf(DurationPart(2, WEEKS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 11520 minutes to 1 week 1 day`() {
+        val result = DateTimeUtils.decomposeMinutes(11520)
+        assertEquals(expected = listOf(DurationPart(1, WEEKS), DurationPart(1, DAYS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 0 minutes to empty list`() {
+        val result = DateTimeUtils.decomposeMinutes(0)
+        assertEquals(expected = emptyList(), actual = result)
+    }
+
+    @Test
+    fun `decomposes 30 seconds`() {
+        val result = DateTimeUtils.decomposeSeconds(30)
+        assertEquals(expected = listOf(DurationPart(30, SECONDS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 60 seconds to 1 minute`() {
+        val result = DateTimeUtils.decomposeSeconds(60)
+        assertEquals(expected = listOf(DurationPart(1, MINUTES)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 125 seconds to 2 minutes 5 seconds`() {
+        val result = DateTimeUtils.decomposeSeconds(125)
+        assertEquals(expected = listOf(DurationPart(2, MINUTES), DurationPart(5, SECONDS)), actual = result)
+    }
+
+    @Test
+    fun `decomposes 0 seconds to empty list`() {
+        val result = DateTimeUtils.decomposeSeconds(0)
+        assertEquals(expected = emptyList(), actual = result)
     }
 }

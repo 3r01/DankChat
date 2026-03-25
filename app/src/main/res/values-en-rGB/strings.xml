@@ -76,6 +76,28 @@
 
     <string name="highlight_header_first_time_chat">First Time Chat</string>
     <string name="highlight_header_elevated_chat">Elevated Chat</string>
+    <plurals name="duration_seconds">
+        <item quantity="one">%1$d second</item>
+        <item quantity="other">%1$d seconds</item>
+    </plurals>
+    <plurals name="duration_minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <plurals name="duration_hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="duration_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <plurals name="duration_weeks">
+        <item quantity="one">%1$d week</item>
+        <item quantity="other">%1$d weeks</item>
+    </plurals>
+    <string name="duration_join_2">%1$s %2$s</string>
+    <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Paste</string>
     <string name="add_channel_hint">Channel name</string>
     <string name="emote_menu_tab_recent">Recent</string>
@@ -335,18 +357,12 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="mod_emote_only_on" comment="flex3rs turned on emote-only mode">%1$s turned on emote-only mode</string>
     <string name="mod_emote_only_off" comment="flex3rs turned off emote-only mode">%1$s turned off emote-only mode</string>
     <string name="mod_followers_on" comment="flex3rs turned on followers-only mode">%1$s turned on followers-only mode</string>
-    <plurals name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">
-        <item quantity="one">%1$s turned on followers-only mode (%2$d minute)</item>
-        <item quantity="other">%1$s turned on followers-only mode (%2$d minutes)</item>
-    </plurals>
+    <string name="mod_followers_on_duration" comment="flex3rs turned on followers-only mode (10 minutes)">%1$s turned on followers-only mode (%2$s)</string>
     <string name="mod_followers_off" comment="flex3rs turned off followers-only mode">%1$s turned off followers-only mode</string>
     <string name="mod_unique_chat_on" comment="flex3rs turned on unique-chat mode">%1$s turned on unique-chat mode</string>
     <string name="mod_unique_chat_off" comment="flex3rs turned off unique-chat mode">%1$s turned off unique-chat mode</string>
     <string name="mod_slow_on" comment="flex3rs turned on slow mode">%1$s turned on slow mode</string>
-    <plurals name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">
-        <item quantity="one">%1$s turned on slow mode (%2$d second)</item>
-        <item quantity="other">%1$s turned on slow mode (%2$d seconds)</item>
-    </plurals>
+    <string name="mod_slow_on_duration" comment="flex3rs turned on slow mode (30 seconds)">%1$s turned on slow mode (%2$s)</string>
     <string name="mod_slow_off" comment="flex3rs turned off slow mode">%1$s turned off slow mode</string>
     <string name="mod_subscribers_on" comment="flex3rs turned on subscribers-only mode">%1$s turned on subscribers-only mode</string>
     <string name="mod_subscribers_off" comment="flex3rs turned off subscribers-only mode">%1$s turned off subscribers-only mode</string>
@@ -376,6 +392,14 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="room_state_slow_mode">Slow mode</string>
     <string name="room_state_unique_chat">Unique chat (R9K)</string>
     <string name="room_state_follower_only">Follower only</string>
+    <string name="room_state_preset_custom">Custom</string>
+    <string name="room_state_follower_any">Any</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
     <string name="no_channels_added_body">Add a channel to start chatting</string>
     <string name="no_recent_emotes">No recent emotes</string>
     <string name="menu_show_stream">Show stream</string>
