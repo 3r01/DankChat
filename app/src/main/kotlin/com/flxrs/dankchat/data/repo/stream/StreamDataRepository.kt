@@ -44,10 +44,11 @@ class StreamDataRepository(
             }
 
             fetchTimerJob = timer(STREAM_REFRESH_RATE) {
+                val currentSettings = streamsSettingsDataStore.settings.first()
                 val data = dataRepository.getStreams(channels)?.map {
                     val uptime = DateTimeUtils.calculateUptime(it.startedAt)
                     val category = it.category
-                        ?.takeIf { settings.showStreamCategory }
+                        ?.takeIf { currentSettings.showStreamCategory }
                         ?.ifBlank { null }
                     val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
 
