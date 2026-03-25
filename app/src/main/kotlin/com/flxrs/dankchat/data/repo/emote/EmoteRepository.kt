@@ -1,8 +1,10 @@
 package com.flxrs.dankchat.data.repo.emote
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.util.Log
+import androidx.core.graphics.toColorInt
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import com.flxrs.dankchat.data.DisplayName
@@ -18,7 +20,7 @@ import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
-import com.flxrs.dankchat.data.api.helix.HelixApiException
+
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVUserDetails
@@ -332,11 +334,9 @@ class EmoteRepository(
 
     fun getSevenTVUserDetails(channel: UserName): SevenTVUserDetails? = sevenTvChannelDetails[channel]
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
-        try {
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
+        return runCatching {
             loadUserEmotesViaHelix(userId, onFirstPageLoaded)
-        } catch (e: HelixApiException) {
-            Log.e(TAG, "Failed to load user emotes", e)
         }
     }
 
@@ -584,9 +584,9 @@ class EmoteRepository(
                         CheermoteTier(
                             minBits = tier.minBits,
                             color = try {
-                                android.graphics.Color.parseColor(tier.color)
+                                tier.color.toColorInt()
                             } catch (_: IllegalArgumentException) {
-                                android.graphics.Color.GRAY
+                                Color.GRAY
                             },
                             animatedUrl = tier.images.dark.animated["2"] ?: tier.images.dark.animated["1"].orEmpty(),
                             staticUrl = tier.images.dark.static["2"] ?: tier.images.dark.static["1"].orEmpty(),

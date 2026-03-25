@@ -1,51 +1,54 @@
 package com.flxrs.dankchat.data.repo.data
 
+import android.content.res.Resources
+import androidx.annotation.StringRes
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.utils.extensions.partitionIsInstance
 
 sealed interface DataLoadingStep {
+    @get:StringRes val displayNameRes: Int
 
-    data object DankChatBadges : DataLoadingStep
+    data object DankChatBadges : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_dankchat_badges }
+    data object GlobalBadges : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_badges }
+    data object GlobalFFZEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_ffz_emotes }
+    data object GlobalBTTVEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_bttv_emotes }
+    data object GlobalSevenTVEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_7tv_emotes }
+    data object TwitchEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_twitch_emotes }
 
-    data object GlobalBadges : DataLoadingStep
-
-    data object GlobalFFZEmotes : DataLoadingStep
-
-    data object GlobalBTTVEmotes : DataLoadingStep
-
-    data object GlobalSevenTVEmotes : DataLoadingStep
-
-    data class ChannelBadges(val channel: UserName, val channelId: UserId) : DataLoadingStep
-    data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
-    data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep
-    data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
-    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep
+    data class ChannelBadges(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_channel_badges }
+    data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_ffz_emotes }
+    data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_bttv_emotes }
+    data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_7tv_emotes }
+    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_cheermotes }
 }
 
-fun List<DataLoadingStep>.toMergedStrings(): List<String> {
+fun List<DataLoadingStep>.toDisplayStrings(resources: Resources): List<String> {
     val (badges, notBadges) = partitionIsInstance<DataLoadingStep.ChannelBadges, _>()
     val (ffz, notFfz) = notBadges.partitionIsInstance<DataLoadingStep.ChannelFFZEmotes, _>()
     val (bttv, notBttv) = notFfz.partitionIsInstance<DataLoadingStep.ChannelBTTVEmotes, _>()
     val (sevenTv, rest) = notBttv.partitionIsInstance<DataLoadingStep.ChannelSevenTVEmotes, _>()
 
     return buildList {
-        addAll(rest.map(DataLoadingStep::toString))
+        addAll(rest.map { resources.getString(it.displayNameRes) })
 
         if (badges.isNotEmpty()) {
-            add("ChannelBadges(${badges.joinToString(separator = ",") { it.channel.value }})")
+            val channels = badges.joinToString { it.channel.value }
+            add(resources.getString(R.string.data_loading_step_with_channels, resources.getString(R.string.data_loading_step_channel_badges), channels))
         }
         if (ffz.isNotEmpty()) {
-            add("ChannelFFZEmotes(${ffz.joinToString(separator = ",") { it.channel.value }})")
+            val channels = ffz.joinToString { it.channel.value }
+            add(resources.getString(R.string.data_loading_step_with_channels, resources.getString(R.string.data_loading_step_ffz_emotes), channels))
         }
         if (bttv.isNotEmpty()) {
-            add("ChannelBTTVEmotes(${bttv.joinToString(separator = ",") { it.channel.value }})")
+            val channels = bttv.joinToString { it.channel.value }
+            add(resources.getString(R.string.data_loading_step_with_channels, resources.getString(R.string.data_loading_step_bttv_emotes), channels))
         }
         if (sevenTv.isNotEmpty()) {
-            add("ChannelSevenTVEmotes(${sevenTv.joinToString(separator = ",") { it.channel.value }})")
+            val channels = sevenTv.joinToString { it.channel.value }
+            add(resources.getString(R.string.data_loading_step_with_channels, resources.getString(R.string.data_loading_step_7tv_emotes), channels))
         }
     }
 }
-
-

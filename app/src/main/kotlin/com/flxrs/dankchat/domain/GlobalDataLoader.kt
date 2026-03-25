@@ -41,8 +41,8 @@ class GlobalDataLoader(
     suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
     suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
-        dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
+        return dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
     }
 
     suspend fun loadUserStateEmotes(

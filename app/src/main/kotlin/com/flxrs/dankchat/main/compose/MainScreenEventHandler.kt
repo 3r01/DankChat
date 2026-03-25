@@ -15,6 +15,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.auth.AuthEvent
 import com.flxrs.dankchat.auth.AuthStateCoordinator
+import com.flxrs.dankchat.data.repo.chat.toDisplayStrings
+import com.flxrs.dankchat.data.repo.data.toDisplayStrings
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.main.MainActivity
 import com.flxrs.dankchat.main.MainEvent
@@ -113,11 +115,13 @@ fun MainScreenEventHandler(
     val loadingState by mainScreenViewModel.globalLoadingState.collectAsStateWithLifecycle()
     LaunchedEffect(loadingState) {
         val state = loadingState as? GlobalLoadingState.Failed ?: return@LaunchedEffect
-        val failedSteps = state.failures.map { it.step } + state.chatFailures.map { it.step }
-        val stepsText = failedSteps.joinToString(", ") { it::class.simpleName.orEmpty() }
+        val dataSteps = state.failures.map { it.step }.toDisplayStrings(resources)
+        val chatSteps = state.chatFailures.map { it.step }.toDisplayStrings(resources)
+        val allSteps = dataSteps + chatSteps
+        val stepsText = allSteps.joinToString(", ")
         val message = when {
-            failedSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
-            else                  -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
+            allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
+            else               -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
         }
         val result = snackbarHostState.showSnackbar(
             message = message,

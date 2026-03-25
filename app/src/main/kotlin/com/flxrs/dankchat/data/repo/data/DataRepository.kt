@@ -147,8 +147,9 @@ class DataRepository(
         }
     }
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) {
-        emoteRepository.loadUserEmotes(userId, onFirstPageLoaded)
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
+        return emoteRepository.loadUserEmotes(userId, onFirstPageLoaded)
+            .getOrEmitFailure { DataLoadingStep.TwitchEmotes }
     }
 
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {
