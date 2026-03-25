@@ -242,9 +242,18 @@ fun MainScreenDialogs(
             key = emotes.joinToString { it.id },
             parameters = { parametersOf(emotes) }
         )
+        val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+        val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
+        val canUseEmote = isLoggedIn && when (sheetState) {
+            is FullScreenSheetState.Closed,
+            is FullScreenSheetState.Replies -> true
+            is FullScreenSheetState.Mention,
+            is FullScreenSheetState.Whisper -> whisperTarget != null
+            is FullScreenSheetState.History -> false
+        }
         EmoteInfoDialog(
             items = viewModel.items,
-            isLoggedIn = isLoggedIn,
+            isLoggedIn = canUseEmote,
             onUseEmote = { chatInputViewModel.insertText("$it ") },
             onCopyEmote = {
                 scope.launch {
