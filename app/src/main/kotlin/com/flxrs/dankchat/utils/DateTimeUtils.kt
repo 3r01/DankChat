@@ -88,7 +88,8 @@ object DateTimeUtils {
     }
 
     fun decomposeSeconds(totalSeconds: Int): List<DurationPart> = buildList {
-        val mins = totalSeconds / 60; val secs = totalSeconds % 60
+        val mins = totalSeconds / 60
+        val secs = totalSeconds % 60
         if (mins > 0) add(DurationPart(mins, DurationUnit.MINUTES))
         if (secs > 0) add(DurationPart(secs, DurationUnit.SECONDS))
     }

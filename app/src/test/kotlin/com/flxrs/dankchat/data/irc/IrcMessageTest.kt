@@ -3,7 +3,6 @@ package com.flxrs.dankchat.data.irc
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
-
 internal class IrcMessageTest {
 
     // examples from https://github.com/robotty/twitch-irc-rs
@@ -16,10 +15,10 @@ internal class IrcMessageTest {
         assertEquals(expected = "CLEARCHAT", actual = ircMessage.command)
         assertEquals(expected = listOf("#pajlada", "fabzeef"), actual = ircMessage.params)
         assertEquals(expected = "tmi.twitch.tv", actual = ircMessage.prefix)
-        assertEquals(expected = "1", actual = ircMessage.tags["ban-duration"] )
-        assertEquals(expected = "11148817", actual = ircMessage.tags["room-id"] )
-        assertEquals(expected = "148973258", actual = ircMessage.tags["target-user-id"] )
-        assertEquals(expected = "1594553828245", actual = ircMessage.tags["tmi-sent-ts"] )
+        assertEquals(expected = "1", actual = ircMessage.tags["ban-duration"])
+        assertEquals(expected = "11148817", actual = ircMessage.tags["room-id"])
+        assertEquals(expected = "148973258", actual = ircMessage.tags["target-user-id"])
+        assertEquals(expected = "1594553828245", actual = ircMessage.tags["tmi-sent-ts"])
         assertEquals(expected = 4, actual = ircMessage.tags.size)
 
     }
@@ -32,9 +31,9 @@ internal class IrcMessageTest {
         assertEquals(expected = "CLEARCHAT", actual = ircMessage.command)
         assertEquals(expected = listOf("#pajlada", "weeb123"), actual = ircMessage.params)
         assertEquals(expected = "tmi.twitch.tv", actual = ircMessage.prefix)
-        assertEquals(expected = "11148817", actual = ircMessage.tags["room-id"] )
-        assertEquals(expected = "70948394", actual = ircMessage.tags["target-user-id"] )
-        assertEquals(expected = "1594561360331", actual = ircMessage.tags["tmi-sent-ts"] )
+        assertEquals(expected = "11148817", actual = ircMessage.tags["room-id"])
+        assertEquals(expected = "70948394", actual = ircMessage.tags["target-user-id"])
+        assertEquals(expected = "1594561360331", actual = ircMessage.tags["tmi-sent-ts"])
         assertEquals(expected = 3, actual = ircMessage.tags.size)
     }
 
@@ -122,7 +121,8 @@ internal class IrcMessageTest {
 
     @Test
     fun `parse privmsg`() {
-        val msg = "@badge-info=;badges=;color=#0000FF;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada :dank cam"
+        val msg =
+            "@badge-info=;badges=;color=#0000FF;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada :dank cam"
         val ircMessage = IrcMessage.parse(msg)
 
         assertEquals(expected = "PRIVMSG", actual = ircMessage.command)
@@ -139,7 +139,8 @@ internal class IrcMessageTest {
 
     @Test
     fun `parse privmsg without colon`() {
-        val msg = "@badge-info=;badges=;color=#0000FF;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
+        val msg =
+            "@badge-info=;badges=;color=#0000FF;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
         val ircMessage = IrcMessage.parse(msg)
 
         assertEquals(expected = "PRIVMSG", actual = ircMessage.command)
@@ -156,7 +157,8 @@ internal class IrcMessageTest {
 
     @Test
     fun `parse privmsg with tag without value`() {
-        val msg = "@badge-info=;badges=;color=#0000FF;foo=;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
+        val msg =
+            "@badge-info=;badges=;color=#0000FF;foo=;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
         val ircMessage = IrcMessage.parse(msg)
 
         assertEquals(expected = "PRIVMSG", actual = ircMessage.command)
@@ -176,7 +178,8 @@ internal class IrcMessageTest {
 
     @Test
     fun `parse privmsg with character replacement inside tag values`() {
-        val msg = "@badge-info=;badges=;color=#0000FF;foo=\\:;foo2=\\:\\s\\r\\n;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
+        val msg =
+            "@badge-info=;badges=;color=#0000FF;foo=\\:;foo2=\\:\\s\\r\\n;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
         val ircMessage = IrcMessage.parse(msg)
 
         assertEquals(expected = "PRIVMSG", actual = ircMessage.command)

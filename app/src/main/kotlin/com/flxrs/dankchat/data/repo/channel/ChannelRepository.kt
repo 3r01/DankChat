@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.data.repo.channel
 
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.toDisplayName

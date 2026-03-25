@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.data.repo.chat
 
 import android.graphics.Color
-import com.flxrs.dankchat.auth.AuthDataStore
-import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName

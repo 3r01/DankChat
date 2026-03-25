@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository

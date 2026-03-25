@@ -2,8 +2,8 @@ package com.flxrs.dankchat.preferences.developer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.utils.extensions.withTrailingSlash
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted

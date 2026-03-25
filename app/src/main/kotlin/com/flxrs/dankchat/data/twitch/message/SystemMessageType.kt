@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.data.twitch.message
 
-import com.flxrs.dankchat.chat.ChatImportance
-import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.chat.ChatImportance
+import com.flxrs.dankchat.data.chat.ChatItem
 
 sealed interface SystemMessageType {
     data object Connected : SystemMessageType

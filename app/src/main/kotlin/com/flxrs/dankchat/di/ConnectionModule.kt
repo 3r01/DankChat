@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.di
 
-import com.flxrs.dankchat.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ChatConnectionType
 import okhttp3.OkHttpClient

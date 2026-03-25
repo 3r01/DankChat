@@ -1,15 +1,15 @@
 package com.flxrs.dankchat.data.repo.chat
 
 import android.util.Log
-import com.flxrs.dankchat.chat.ChatImportance
-import com.flxrs.dankchat.chat.ChatItem
-import com.flxrs.dankchat.chat.toMentionTabItems
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiClient
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiException
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesError
 import com.flxrs.dankchat.data.api.recentmessages.dto.RecentMessagesDto
+import com.flxrs.dankchat.data.chat.ChatImportance
+import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.chat.toMentionTabItems
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId

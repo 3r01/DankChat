@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
-import com.flxrs.dankchat.theme.DankChatTheme
+import com.flxrs.dankchat.ui.theme.DankChatTheme
 
 @Composable
 fun PreferenceCategory(

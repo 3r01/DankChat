@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.preferences.developer.customlogin
 
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Default
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Failure
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Loading

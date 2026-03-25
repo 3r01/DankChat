@@ -1,7 +1,7 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.WebSocketOkHttpClient

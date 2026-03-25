@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.data.twitch.message
 
-import com.flxrs.dankchat.chat.compose.TextResource
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.utils.TextResource
 
 data class AutomodMessage(
     override val timestamp: Long,

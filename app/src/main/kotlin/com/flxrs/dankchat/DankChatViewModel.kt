@@ -2,8 +2,8 @@ package com.flxrs.dankchat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.auth.AuthDataStore
-import com.flxrs.dankchat.auth.AuthStateCoordinator
+import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository

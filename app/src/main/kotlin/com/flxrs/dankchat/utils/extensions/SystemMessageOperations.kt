@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.utils.extensions
 
-import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.twitch.message.SystemMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.toChatItem

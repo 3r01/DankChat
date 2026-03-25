@@ -1,7 +1,7 @@
 package com.flxrs.dankchat.domain
 
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep

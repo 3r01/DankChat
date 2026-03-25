@@ -4,9 +4,9 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.util.Log
-import androidx.core.graphics.toColorInt
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.toColorInt
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -20,7 +20,6 @@ import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
-
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVUserDetails
@@ -31,7 +30,6 @@ import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserConnection
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
-import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeSet
@@ -52,6 +50,7 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.analyzeCodePoints
 import com.flxrs.dankchat.utils.extensions.appendSpacesBetweenEmojiGroup
 import com.flxrs.dankchat.utils.extensions.chunkedBy
+import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.utils.extensions.concurrentMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

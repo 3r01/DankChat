@@ -1,9 +1,9 @@
 package com.flxrs.dankchat.data.api.auth
 
-import com.flxrs.dankchat.auth.AuthSettings
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
 import com.flxrs.dankchat.data.api.auth.dto.ValidateErrorDto
+import com.flxrs.dankchat.data.auth.AuthSettings
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
 import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsText

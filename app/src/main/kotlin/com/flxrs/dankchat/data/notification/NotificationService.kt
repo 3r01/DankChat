@@ -23,12 +23,12 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
-import com.flxrs.dankchat.main.MainActivity
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.TTSMessageFormat
 import com.flxrs.dankchat.preferences.tools.TTSPlayMode
 import com.flxrs.dankchat.preferences.tools.ToolsSettings
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
+import com.flxrs.dankchat.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -9,20 +9,52 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.utils.extensions.partitionIsInstance
 
 sealed interface DataLoadingStep {
-    @get:StringRes val displayNameRes: Int
+    @get:StringRes
+    val displayNameRes: Int
 
-    data object DankChatBadges : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_dankchat_badges }
-    data object GlobalBadges : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_badges }
-    data object GlobalFFZEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_ffz_emotes }
-    data object GlobalBTTVEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_bttv_emotes }
-    data object GlobalSevenTVEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_global_7tv_emotes }
-    data object TwitchEmotes : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_twitch_emotes }
+    data object DankChatBadges : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_dankchat_badges
+    }
 
-    data class ChannelBadges(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_channel_badges }
-    data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_ffz_emotes }
-    data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_bttv_emotes }
-    data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_7tv_emotes }
-    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep { override val displayNameRes = R.string.data_loading_step_cheermotes }
+    data object GlobalBadges : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_global_badges
+    }
+
+    data object GlobalFFZEmotes : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_global_ffz_emotes
+    }
+
+    data object GlobalBTTVEmotes : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_global_bttv_emotes
+    }
+
+    data object GlobalSevenTVEmotes : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_global_7tv_emotes
+    }
+
+    data object TwitchEmotes : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_twitch_emotes
+    }
+
+    data class ChannelBadges(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_channel_badges
+    }
+
+    data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_ffz_emotes
+    }
+
+    data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_bttv_emotes
+    }
+
+    data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_7tv_emotes
+    }
+
+    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_cheermotes
+    }
 }
 
 fun List<DataLoadingStep>.toDisplayStrings(resources: Resources): List<String> {

@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.api.helix
 
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionRequestDto
@@ -12,6 +11,7 @@ import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth

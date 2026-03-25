@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-
 internal class DateTimeUtilsTest {
 
     @Test

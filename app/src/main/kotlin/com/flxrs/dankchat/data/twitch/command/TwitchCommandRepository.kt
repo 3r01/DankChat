@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.twitch.command
 
 import android.util.Log
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
@@ -16,6 +15,7 @@ import com.flxrs.dankchat.data.api.helix.dto.CommercialRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.chat.UserState
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.toUserName

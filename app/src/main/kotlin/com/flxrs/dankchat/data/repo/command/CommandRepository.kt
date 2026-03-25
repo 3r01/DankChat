@@ -1,10 +1,10 @@
 package com.flxrs.dankchat.data.repo.command
 
 import android.util.Log
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.supibot.SupibotApiClient
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.chat.UserState
 import com.flxrs.dankchat.data.toUserName

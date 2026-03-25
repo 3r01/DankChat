@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.utils.extensions
 
-import com.flxrs.dankchat.chat.ChatItem
+import com.flxrs.dankchat.data.chat.ChatItem
 
 fun List<ChatItem>.addAndLimit(item: ChatItem, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit): List<ChatItem> = toMutableList().apply {
     add(item)

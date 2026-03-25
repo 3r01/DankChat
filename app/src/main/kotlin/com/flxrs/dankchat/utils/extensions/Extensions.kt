@@ -5,9 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.flxrs.dankchat.chat.emotemenu.EmoteItem
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
+import com.flxrs.dankchat.ui.chat.emotemenu.EmoteItem
 import kotlinx.serialization.json.Json
 
 fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> = this

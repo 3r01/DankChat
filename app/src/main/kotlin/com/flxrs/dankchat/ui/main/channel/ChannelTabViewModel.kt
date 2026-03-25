@@ -1,0 +1,101 @@
+package com.flxrs.dankchat.ui.main.channel
+
+import androidx.compose.runtime.Immutable
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
+import com.flxrs.dankchat.data.state.ChannelLoadingState
+import com.flxrs.dankchat.data.state.GlobalLoadingState
+import com.flxrs.dankchat.domain.ChannelDataCoordinator
+import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+import org.koin.android.annotation.KoinViewModel
+
+@KoinViewModel
+class ChannelTabViewModel(
+    private val chatChannelProvider: ChatChannelProvider,
+    private val chatNotificationRepository: ChatNotificationRepository,
+    private val channelDataCoordinator: ChannelDataCoordinator,
+    private val preferenceStore: DankChatPreferenceStore,
+) : ViewModel() {
+
+    val uiState: StateFlow<ChannelTabUiState> = preferenceStore.getChannelsWithRenamesFlow()
+        .flatMapLatest { channels ->
+            if (channels.isEmpty()) {
+                return@flatMapLatest flowOf(ChannelTabUiState(loading = false))
+            }
+
+            val loadingFlows = channels.map {
+                channelDataCoordinator.getChannelLoadingState(it.channel)
+            }
+
+            combine(
+                chatChannelProvider.activeChannel,
+                chatNotificationRepository.unreadMessagesMap,
+                chatNotificationRepository.channelMentionCount,
+                combine(loadingFlows) { it.toList() },
+                channelDataCoordinator.globalLoadingState
+            ) { active, unread, mentions, loadingStates, globalState ->
+                val tabs = channels.mapIndexed { index, channelWithRename ->
+                    ChannelTabItem(
+                        channel = channelWithRename.channel,
+                        displayName = channelWithRename.rename?.value
+                            ?: channelWithRename.channel.value,
+                        isSelected = channelWithRename.channel == active,
+                        hasUnread = unread[channelWithRename.channel] ?: false,
+                        mentionCount = mentions[channelWithRename.channel] ?: 0,
+                        loadingState = loadingStates[index]
+                    )
+                }
+                ChannelTabUiState(
+                    tabs = tabs.toImmutableList(),
+                    selectedIndex = channels
+                        .indexOfFirst { it.channel == active }
+                        .coerceAtLeast(0),
+                    loading = globalState == GlobalLoadingState.Loading
+                            || tabs.any { it.loadingState == ChannelLoadingState.Loading },
+                )
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
+
+    fun selectTab(index: Int) {
+        val channels = preferenceStore.channels
+        if (index in channels.indices) {
+            val channel = channels[index]
+            chatChannelProvider.setActiveChannel(channel)
+            chatNotificationRepository.clearUnreadMessage(channel)
+            chatNotificationRepository.clearMentionCount(channel)
+        }
+    }
+
+    fun clearAllMentionCounts() {
+        chatNotificationRepository.clearMentionCounts()
+    }
+}
+
+@Immutable
+data class ChannelTabUiState(
+    val tabs: ImmutableList<ChannelTabItem> = persistentListOf(),
+    val selectedIndex: Int = 0,
+    val loading: Boolean = true,
+)
+
+@Immutable
+data class ChannelTabItem(
+    val channel: UserName,
+    val displayName: String,
+    val isSelected: Boolean,
+    val hasUnread: Boolean,
+    val mentionCount: Int,
+    val loadingState: ChannelLoadingState
+)

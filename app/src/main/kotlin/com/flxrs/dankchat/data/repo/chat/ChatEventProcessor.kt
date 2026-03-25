@@ -1,13 +1,7 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import android.graphics.Color
 import android.util.Log
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.auth.AuthDataStore
-import com.flxrs.dankchat.chat.ChatImportance
-import com.flxrs.dankchat.chat.ChatItem
-import com.flxrs.dankchat.chat.compose.TextResource
-import com.flxrs.dankchat.chat.toMentionTabItems
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.AutomodHeld
 import com.flxrs.dankchat.data.api.eventapi.AutomodUpdate
@@ -16,6 +10,10 @@ import com.flxrs.dankchat.data.api.eventapi.SystemMessage
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageStatus
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodReasonDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.BlockedTermReasonDto
+import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.chat.ChatImportance
+import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.chat.toMentionTabItems
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.toDisplayName
@@ -38,6 +36,7 @@ import com.flxrs.dankchat.data.twitch.message.hasMention
 import com.flxrs.dankchat.data.twitch.pubsub.PubSubMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope

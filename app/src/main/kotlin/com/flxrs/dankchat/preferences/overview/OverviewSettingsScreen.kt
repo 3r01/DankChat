@@ -43,7 +43,7 @@ import com.flxrs.dankchat.preferences.components.PreferenceCategoryTitle
 import com.flxrs.dankchat.preferences.components.PreferenceCategoryWithSummary
 import com.flxrs.dankchat.preferences.components.PreferenceItem
 import com.flxrs.dankchat.preferences.components.PreferenceSummary
-import com.flxrs.dankchat.theme.DankChatTheme
+import com.flxrs.dankchat.ui.theme.DankChatTheme
 import com.flxrs.dankchat.utils.compose.buildClickableAnnotation
 import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 

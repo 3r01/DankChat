@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.repo.data
 
 import android.util.Log
-import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -17,6 +16,7 @@ import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.api.upload.UploadClient
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.RecentUploadsRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes

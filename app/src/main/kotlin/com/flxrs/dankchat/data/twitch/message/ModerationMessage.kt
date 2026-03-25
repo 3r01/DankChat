@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.chat.compose.TextResource
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateAction
@@ -12,6 +11,7 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionType
 import com.flxrs.dankchat.utils.DateTimeUtils
+import com.flxrs.dankchat.utils.TextResource
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -125,7 +125,7 @@ data class ModerationMessage(
         val source = sourceBroadcasterDisplay.toString()
 
         val message = when (action) {
-            Action.Timeout         -> when (targetUser) {
+            Action.Timeout             -> when (targetUser) {
                 currentUser -> when (creatorUserDisplay) {
                     null -> TextResource.Res(R.string.mod_timeout_self_irc, persistentListOf(dur))
                     else -> when {
@@ -143,9 +143,9 @@ data class ModerationMessage(
                 }
             }
 
-            Action.Untimeout       -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creator, target))
+            Action.Untimeout           -> TextResource.Res(R.string.mod_untimeout, persistentListOf(creator, target))
 
-            Action.Ban             -> when (targetUser) {
+            Action.Ban                 -> when (targetUser) {
                 currentUser -> when (creatorUserDisplay) {
                     null -> TextResource.Res(R.string.mod_ban_self_irc)
                     else -> when {
@@ -163,11 +163,11 @@ data class ModerationMessage(
                 }
             }
 
-            Action.Unban           -> TextResource.Res(R.string.mod_unban, persistentListOf(creator, target))
-            Action.Mod             -> TextResource.Res(R.string.mod_modded, persistentListOf(creator, target))
-            Action.Unmod           -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creator, target))
+            Action.Unban               -> TextResource.Res(R.string.mod_unban, persistentListOf(creator, target))
+            Action.Mod                 -> TextResource.Res(R.string.mod_modded, persistentListOf(creator, target))
+            Action.Unmod               -> TextResource.Res(R.string.mod_unmodded, persistentListOf(creator, target))
 
-            Action.Delete          -> {
+            Action.Delete              -> {
                 val msg = trimmedMessage(showDeletedMessage)
                 when (creatorUserDisplay) {
                     null -> when (msg) {
@@ -182,59 +182,58 @@ data class ModerationMessage(
                 }
             }
 
-            Action.Clear           -> when (creatorUserDisplay) {
+            Action.Clear               -> when (creatorUserDisplay) {
                 null -> TextResource.Res(R.string.mod_clear_no_creator)
                 else -> TextResource.Res(R.string.mod_clear_by_creator, persistentListOf(creator))
             }
 
-            Action.Vip             -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creator, target))
-            Action.Unvip           -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creator, target))
+            Action.Vip                 -> TextResource.Res(R.string.mod_vip_added, persistentListOf(creator, target))
+            Action.Unvip               -> TextResource.Res(R.string.mod_vip_removed, persistentListOf(creator, target))
 
-            Action.Warn            -> when {
+            Action.Warn                -> when {
                 hasReason -> TextResource.Res(R.string.mod_warn_reason, persistentListOf(creator, target, reason.orEmpty()))
                 else      -> TextResource.Res(R.string.mod_warn, persistentListOf(creator, target))
             }
 
-            Action.Raid            -> TextResource.Res(R.string.mod_raid, persistentListOf(creator, target))
-            Action.Unraid          -> TextResource.Res(R.string.mod_unraid, persistentListOf(creator, target))
-            Action.EmoteOnly       -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creator))
-            Action.EmoteOnlyOff    -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creator))
+            Action.Raid                -> TextResource.Res(R.string.mod_raid, persistentListOf(creator, target))
+            Action.Unraid              -> TextResource.Res(R.string.mod_unraid, persistentListOf(creator, target))
+            Action.EmoteOnly           -> TextResource.Res(R.string.mod_emote_only_on, persistentListOf(creator))
+            Action.EmoteOnlyOff        -> TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creator))
 
-            Action.Followers       -> when (val mins = durationInt?.takeIf { it > 0 }) {
+            Action.Followers           -> when (val mins = durationInt?.takeIf { it > 0 }) {
                 null -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creator))
                 else -> TextResource.Res(R.string.mod_followers_on_duration, persistentListOf(creator, formatMinutesDuration(mins)))
             }
 
-            Action.FollowersOff    -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creator))
-            Action.UniqueChat      -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creator))
-            Action.UniqueChatOff   -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creator))
+            Action.FollowersOff        -> TextResource.Res(R.string.mod_followers_off, persistentListOf(creator))
+            Action.UniqueChat          -> TextResource.Res(R.string.mod_unique_chat_on, persistentListOf(creator))
+            Action.UniqueChatOff       -> TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creator))
 
-            Action.Slow            -> when (val secs = durationInt) {
+            Action.Slow                -> when (val secs = durationInt) {
                 null -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creator))
                 else -> TextResource.Res(R.string.mod_slow_on_duration, persistentListOf(creator, formatSecondsDuration(secs)))
             }
 
-            Action.SlowOff         -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creator))
-            Action.Subscribers     -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creator))
-            Action.SubscribersOff  -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creator))
+            Action.SlowOff             -> TextResource.Res(R.string.mod_slow_off, persistentListOf(creator))
+            Action.Subscribers         -> TextResource.Res(R.string.mod_subscribers_on, persistentListOf(creator))
+            Action.SubscribersOff      -> TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creator))
 
-            Action.SharedTimeout   -> when {
+            Action.SharedTimeout       -> when {
                 hasReason -> TextResource.Res(R.string.mod_shared_timeout_reason, persistentListOf(creator, target, dur, source, reason.orEmpty()))
                 else      -> TextResource.Res(R.string.mod_shared_timeout, persistentListOf(creator, target, dur, source))
             }
 
-            Action.SharedUntimeout -> TextResource.Res(R.string.mod_shared_untimeout, persistentListOf(creator, target, source))
+            Action.SharedUntimeout     -> TextResource.Res(R.string.mod_shared_untimeout, persistentListOf(creator, target, source))
 
-            Action.SharedBan       -> when {
+            Action.SharedBan           -> when {
                 hasReason -> TextResource.Res(R.string.mod_shared_ban_reason, persistentListOf(creator, target, source, reason.orEmpty()))
                 else      -> TextResource.Res(R.string.mod_shared_ban, persistentListOf(creator, target, source))
             }
 
-            Action.SharedUnban     -> TextResource.Res(R.string.mod_shared_unban, persistentListOf(creator, target, source))
+            Action.SharedUnban         -> TextResource.Res(R.string.mod_shared_unban, persistentListOf(creator, target, source))
 
-            Action.SharedDelete    -> {
-                val msg = trimmedMessage(showDeletedMessage)
-                when (msg) {
+            Action.SharedDelete        -> {
+                when (val msg = trimmedMessage(showDeletedMessage)) {
                     null -> TextResource.Res(R.string.mod_shared_delete, persistentListOf(creator, target, source))
                     else -> TextResource.Res(R.string.mod_shared_delete_message, persistentListOf(creator, target, source, msg))
                 }
@@ -246,8 +245,7 @@ data class ModerationMessage(
             Action.RemovePermittedTerm -> TextResource.Res(R.string.automod_moderation_removed_permitted_term, persistentListOf(creator, quotedTermsOrBlank))
         }
 
-        val count = countSuffix()
-        return when (count) {
+        return when (val count = countSuffix()) {
             is TextResource.Plain -> message
             else                  -> TextResource.Res(R.string.mod_message_with_count, persistentListOf(message, count))
         }

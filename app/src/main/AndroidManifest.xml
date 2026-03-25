@@ -38,7 +38,7 @@
             android:foregroundServiceType="dataSync" />
 
         <activity
-            android:name=".main.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"
@@ -50,7 +50,7 @@
         </activity>
 
         <activity
-            android:name=".share.ShareUploadActivity"
+            android:name=".ui.share.ShareUploadActivity"
             android:exported="true"
             android:label="@string/share_upload_label"
             android:theme="@style/AppTheme.ShareUpload">

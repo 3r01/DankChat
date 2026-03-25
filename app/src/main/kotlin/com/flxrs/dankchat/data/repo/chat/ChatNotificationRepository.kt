@@ -1,7 +1,7 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import com.flxrs.dankchat.chat.ChatItem
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
