@@ -80,7 +80,7 @@ fun ChatBottomBar(
                 showReplyOverlay = inputState.showReplyOverlay,
                 replyName = inputState.replyName,
                 isEmoteMenuOpen = inputState.isEmoteMenuOpen,
-                helperText = inputState.helperText,
+                helperText = if (isSheetOpen) null else inputState.helperText,
                 isUploading = isUploading,
                 isLoading = isLoading,
                 isFullscreen = isFullscreen,
