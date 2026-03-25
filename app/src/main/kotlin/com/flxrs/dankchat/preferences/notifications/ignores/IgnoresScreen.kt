@@ -60,7 +60,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -121,7 +121,7 @@ private fun IgnoresScreen(
     onPageChanged: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val pagerState = rememberPagerState { IgnoresTab.entries.size }

@@ -83,9 +83,9 @@ fun NoticeMessageComposable(
 @Composable
 fun UserNoticeMessageComposable(
     message: ChatMessageUiState.UserNoticeMessageUi,
-    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
 ) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = MaterialTheme.colorScheme.onSurface

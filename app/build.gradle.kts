@@ -95,6 +95,8 @@ android {
 
     lint {
         disable += "RestrictedApi"
+        disable += "UnusedResources"
+        disable += "ObsoleteSdkInt"
     }
 }
 

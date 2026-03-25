@@ -315,9 +315,9 @@ private fun WhisperMessageText(
 @Composable
 fun PointRedemptionMessageComposable(
     message: ChatMessageUiState.PointRedemptionMessageUi,
-    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
 ) {
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val timestampColor = rememberAdaptiveTextColor(backgroundColor)

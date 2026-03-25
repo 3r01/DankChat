@@ -67,9 +67,9 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 @Composable
 fun PrivMessageComposable(
     message: ChatMessageUiState.PrivMessageUi,
-    highlightShape: Shape = RectangleShape,
     fontSize: Float,
     modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
     showChannelPrefix: Boolean = false,
     animateGifs: Boolean = true,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
