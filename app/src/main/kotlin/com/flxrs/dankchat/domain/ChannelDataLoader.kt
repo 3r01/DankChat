@@ -13,8 +13,6 @@ import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 
@@ -28,32 +26,19 @@ class ChannelDataLoader(
     private val dispatchersProvider: DispatchersProvider
 ) {
 
-    /**
-     * Load all data for a single channel.
-     * Returns a Flow of loading state for this channel.
-     */
-    fun loadChannelData(channel: UserName): Flow<ChannelLoadingState> = flow {
-        emit(ChannelLoadingState.Loading)
-
-        try {
-            // Get channel info - uses GetChannelsUseCase which waits for IRC ROOMSTATE
-            // if not logged in, matching the legacy MainViewModel.loadData behavior
+    suspend fun loadChannelData(channel: UserName): ChannelLoadingState {
+        return try {
             val channelInfo = channelRepository.getChannel(channel)
                 ?: getChannelsUseCase(listOf(channel)).firstOrNull()
             if (channelInfo == null) {
-                emit(ChannelLoadingState.Failed(emptyList()))
-                return@flow
+                return ChannelLoadingState.Failed(emptyList())
             }
 
-            // Create flows if necessary
             dataRepository.createFlowsIfNecessary(listOf(channel))
             chatRepository.createFlowsIfNecessary(channel)
 
-            // Load recent message history first with priority
-            // loadRecentMessagesIfEnabled handles errors internally and posts its own system messages
             chatRepository.loadRecentMessagesIfEnabled(channel)
 
-            // Load other data in parallel
             val failures = withContext(dispatchersProvider.io) {
                 val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
                 val emotesResults = async { loadChannelEmotes(channel, channelInfo) }
@@ -64,7 +49,6 @@ class ChannelDataLoader(
                 )
             }
 
-            // Report failures as system messages like legacy implementation
             failures.forEach { failure ->
                 val status = (failure.error as? ApiException)?.status?.value?.toString() ?: "0"
                 val systemMessageType = when (failure) {
@@ -79,11 +63,11 @@ class ChannelDataLoader(
             }
 
             when {
-                failures.isEmpty() -> emit(ChannelLoadingState.Loaded)
-                else               -> emit(ChannelLoadingState.Failed(failures))
+                failures.isEmpty() -> ChannelLoadingState.Loaded
+                else               -> ChannelLoadingState.Failed(failures)
             }
         } catch (e: Exception) {
-            emit(ChannelLoadingState.Failed(emptyList()))
+            ChannelLoadingState.Failed(emptyList())
         }
     }
 
@@ -136,7 +120,6 @@ class ChannelDataLoader(
     }
 
     suspend fun loadRecentMessages(channel: UserName) {
-        // loadRecentMessagesIfEnabled handles errors internally and posts its own system messages
         chatRepository.loadRecentMessagesIfEnabled(channel)
     }
 }

@@ -1,11 +1,9 @@
 package com.flxrs.dankchat.domain
 
-import android.util.Log
 import com.flxrs.dankchat.auth.AuthDataStore
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
-import com.flxrs.dankchat.data.repo.data.DataLoadingFailure
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.DataUpdateEventMessage
@@ -94,19 +92,17 @@ class ChannelDataCoordinator(
      */
     fun loadChannelData(channel: UserName) {
         scope.launch {
-            val stateFlow = channelStates.getOrPut(channel) {
-                MutableStateFlow(ChannelLoadingState.Idle)
-            }
-
-            channelDataLoader.loadChannelData(channel)
-                .collect { state ->
-                    stateFlow.value = state
-                }
-
-            // Reparse immediately with whatever emotes are available now
-            // Don't wait for globalLoadJob — channel 3rd party emotes should show immediately
-            chatMessageRepository.reparseAllEmotesAndBadges()
+            loadChannelDataSuspend(channel)
         }
+    }
+
+    private suspend fun loadChannelDataSuspend(channel: UserName) {
+        val stateFlow = channelStates.getOrPut(channel) {
+            MutableStateFlow(ChannelLoadingState.Idle)
+        }
+        stateFlow.value = ChannelLoadingState.Loading
+        stateFlow.value = channelDataLoader.loadChannelData(channel)
+        chatMessageRepository.reparseAllEmotesAndBadges()
     }
 
     /**
@@ -128,13 +124,9 @@ class ChannelDataCoordinator(
                 if (userId != null) {
                     val firstPageLoaded = CompletableDeferred<Unit>()
                     launch {
-                        try {
-                            globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
-                            chatMessageRepository.reparseAllEmotesAndBadges()
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Failed to load user emotes", e)
-                            firstPageLoaded.complete(Unit)
-                        }
+                        globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
+                            .onSuccess { chatMessageRepository.reparseAllEmotesAndBadges() }
+                            .onFailure { firstPageLoaded.complete(Unit) }
                     }
                     firstPageLoaded.await()
                     chatMessageRepository.reparseAllEmotesAndBadges()
@@ -166,6 +158,9 @@ class ChannelDataCoordinator(
      */
     fun cleanupChannel(channel: UserName) {
         channelStates.remove(channel)
+        scope.launch {
+            dataRepository.removeChannels(listOf(channel))
+        }
     }
 
     /**
@@ -205,6 +200,20 @@ class ChannelDataCoordinator(
                         is DataLoadingStep.GlobalFFZEmotes      -> globalDataLoader.loadGlobalFFZEmotes()
                         is DataLoadingStep.GlobalBadges         -> globalDataLoader.loadGlobalBadges()
                         is DataLoadingStep.DankChatBadges       -> globalDataLoader.loadDankChatBadges()
+                        is DataLoadingStep.TwitchEmotes         -> {
+                            val userId = authDataStore.userIdString
+                            if (userId != null) {
+                                val firstPageLoaded = CompletableDeferred<Unit>()
+                                launch {
+                                    globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
+                                        .onSuccess { chatMessageRepository.reparseAllEmotesAndBadges() }
+                                        .onFailure { firstPageLoaded.complete(Unit) }
+                                }
+                                firstPageLoaded.await()
+                                chatMessageRepository.reparseAllEmotesAndBadges()
+                            }
+                        }
+
                         is DataLoadingStep.ChannelBadges        -> channelsToRetry.add(step.channel)
                         is DataLoadingStep.ChannelSevenTVEmotes -> channelsToRetry.add(step.channel)
                         is DataLoadingStep.ChannelFFZEmotes     -> channelsToRetry.add(step.channel)
@@ -221,7 +230,9 @@ class ChannelDataCoordinator(
             }
 
             dataResults.awaitAll()
-            channelsToRetry.forEach { loadChannelData(it) }
+            channelsToRetry.map { channel ->
+                async { loadChannelDataSuspend(channel) }
+            }.awaitAll()
 
             val remainingDataFailures = dataRepository.dataLoadingFailures.value
             val remainingChatFailures = chatMessageRepository.chatLoadingFailures.value
@@ -235,7 +246,4 @@ class ChannelDataCoordinator(
         }
     }
 
-    companion object {
-        private val TAG = ChannelDataCoordinator::class.java.simpleName
-    }
 }
