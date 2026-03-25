@@ -37,6 +37,10 @@ class ChatRepository(
     val activeChannel get() = chatChannelProvider.activeChannel
     val channels get() = chatChannelProvider.channels
 
+    init {
+        chatChannelProvider.channels.value?.forEach { createFlowsIfNecessary(it) }
+    }
+
     fun setActiveChannel(channel: UserName?) = chatChannelProvider.setActiveChannel(channel)
 
     fun joinChannel(channel: UserName, listenToPubSub: Boolean = true): List<UserName> {

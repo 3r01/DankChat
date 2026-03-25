@@ -7,7 +7,6 @@ import com.flxrs.dankchat.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,7 +22,6 @@ import kotlin.time.Duration.Companion.seconds
 class DankChatViewModel(
     private val chatChannelProvider: ChatChannelProvider,
     private val chatConnector: ChatConnector,
-    private val preferenceStore: DankChatPreferenceStore,
     private val authDataStore: AuthDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val dataRepository: DataRepository,
@@ -51,9 +49,7 @@ class DankChatViewModel(
         viewModelScope.launch {
             authStateCoordinator.validateOnStartup()
             initialConnectionStarted = true
-            val channels = preferenceStore.channels
-            chatChannelProvider.setChannels(channels)
-            chatConnector.connectAndJoin(channels)
+            chatConnector.connectAndJoin(chatChannelProvider.channels.value.orEmpty())
         }
     }
 
