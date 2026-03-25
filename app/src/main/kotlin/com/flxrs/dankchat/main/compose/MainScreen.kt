@@ -683,12 +683,7 @@ fun MainScreen(
                 }
 
                 ToolbarAction.ClearChat       -> dialogViewModel.showClearChat()
-                ToolbarAction.ToggleStream    -> when {
-                    currentStream != null -> streamViewModel.closeStream()
-                    else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
-                }
                 ToolbarAction.OpenSettings    -> onNavigateToSettings()
-                ToolbarAction.MessageHistory  -> activeChannel?.let { sheetNavigationViewModel.openHistory(it) }
             }
         }
 

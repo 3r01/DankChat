@@ -2,7 +2,6 @@ package com.flxrs.dankchat.main.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -25,6 +24,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LayoutModifier
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
@@ -34,7 +40,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -107,9 +112,7 @@ sealed interface ToolbarAction {
     data object ReloadEmotes : ToolbarAction
     data object Reconnect : ToolbarAction
     data object ClearChat : ToolbarAction
-    data object ToggleStream : ToolbarAction
     data object OpenSettings : ToolbarAction
-    data object MessageHistory : ToolbarAction
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -359,7 +362,7 @@ fun FloatingToolbar(
                                                 onClick = { onAction(ToolbarAction.SelectTab(index)) },
                                                 onLongClick = {
                                                     onAction(ToolbarAction.LongClickTab(index))
-                                                    overflowInitialMenu = AppBarMenu.Channel
+                                                    overflowInitialMenu = AppBarMenu.Main
                                                     showOverflowMenu = true
                                                 }
                                             )
@@ -398,19 +401,9 @@ fun FloatingToolbar(
                     Row(verticalAlignment = Alignment.Top) {
                         Spacer(Modifier.width(8.dp))
 
-                        val pillCornerRadius by animateDpAsState(
-                            targetValue = if (showOverflowMenu) 0.dp else 28.dp,
-                            animationSpec = tween(200),
-                            label = "pillCorner"
-                        )
                         Column(modifier = Modifier.width(IntrinsicSize.Min)) {
                             Surface(
-                                shape = RoundedCornerShape(
-                                    topStart = 28.dp,
-                                    topEnd = 28.dp,
-                                    bottomStart = pillCornerRadius,
-                                    bottomEnd = pillCornerRadius
-                                ),
+                                shape = MaterialTheme.shapes.extraLarge,
                                 color = MaterialTheme.colorScheme.surfaceContainer,
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -495,21 +488,17 @@ fun FloatingToolbar(
                             AnimatedVisibility(
                                 visible = showOverflowMenu,
                                 enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut()
+                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .endAlignedOverflow(),
                             ) {
                                 Surface(
-                                    shape = RoundedCornerShape(
-                                        topStart = 0.dp,
-                                        topEnd = 0.dp,
-                                        bottomStart = 12.dp,
-                                        bottomEnd = 12.dp
-                                    ),
+                                    shape = MaterialTheme.shapes.large,
                                     color = MaterialTheme.colorScheme.surfaceContainer,
                                 ) {
                                     InlineOverflowMenu(
                                         isLoggedIn = isLoggedIn,
-                                        isStreamActive = currentStream != null,
-                                        hasStreamData = hasStreamData,
                                         onDismiss = {
                                             showOverflowMenu = false
                                             overflowInitialMenu = AppBarMenu.Main
@@ -526,6 +515,36 @@ fun FloatingToolbar(
         }
     }
 }
+
+/**
+ * Allows the child to measure at its natural width (up to 3x parent width)
+ * without affecting the parent Column's width.
+ * Reports 0 intrinsic width so [IntrinsicSize.Min] ignores this child.
+ * Places the child end-aligned (right edge matches parent right edge).
+ */
+private fun Modifier.endAlignedOverflow() = this.then(
+    object : LayoutModifier {
+        override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+            val parentWidth = constraints.maxWidth
+            val placeable = measurable.measure(
+                constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE))
+            )
+            return layout(parentWidth, placeable.height) {
+                placeable.place(parentWidth - placeable.width, 0)
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
+            measurable.minIntrinsicHeight(width)
+
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
+            measurable.maxIntrinsicHeight(width)
+    }
+)
+
+private const val MAX_LAYOUT_SIZE = 16_777_215
 
 /** Measures [LazyRow] at full width (for scrolling) but reports actual content width so the pill wraps content. */
 private fun Modifier.wrapLazyRowContent(listState: LazyListState, extraWidth: Int = 0) = layout { measurable, constraints ->
