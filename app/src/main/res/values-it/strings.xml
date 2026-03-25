@@ -76,6 +76,9 @@
     <string name="data_loading_step_cheermotes">Cheermote</string>
     <string name="data_loading_step_recent_messages">Messaggi recenti</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
+
+    <string name="highlight_header_first_time_chat">Primo messaggio</string>
+    <string name="highlight_header_elevated_chat">Messaggio elevato</string>
     <string name="snackbar_paste">Incolla</string>
     <string name="add_channel_hint">Nome del canale</string>
     <string name="emote_menu_tab_recent">Recente</string>

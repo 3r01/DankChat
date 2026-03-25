@@ -68,6 +68,9 @@
     <string name="data_loading_step_cheermotes">Cheermotovi</string>
     <string name="data_loading_step_recent_messages">Nedavne poruke</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
+
+    <string name="highlight_header_first_time_chat">Прва порука</string>
+    <string name="highlight_header_elevated_chat">Истакнута порука</string>
     <string name="snackbar_paste">Paste</string>
     <string name="add_channel_hint">Naziv kanala</string>
     <string name="emote_menu_tab_subs">Pretplatnici</string>

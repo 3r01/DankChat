@@ -77,6 +77,9 @@
     <string name="data_loading_step_cheermotes">Cheermote-ы</string>
     <string name="data_loading_step_recent_messages">Последние сообщения</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
+
+    <string name="highlight_header_first_time_chat">Первое сообщение</string>
+    <string name="highlight_header_elevated_chat">Выделенное сообщение</string>
     <string name="snackbar_paste">Вставить</string>
     <string name="add_channel_hint">Имя канала</string>
     <string name="emote_menu_tab_recent">Недавние</string>

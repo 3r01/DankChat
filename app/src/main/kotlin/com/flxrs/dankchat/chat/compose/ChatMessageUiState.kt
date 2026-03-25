@@ -51,6 +51,7 @@ sealed interface ChatMessageUiState {
         val emotes: ImmutableList<EmoteUi>,
         val isAction: Boolean,
         val thread: ThreadUi?,
+        val highlightHeader: TextResource? = null,
         val fullMessage: String, // For copying
     ) : ChatMessageUiState
 

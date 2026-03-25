@@ -11,6 +11,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Highlight
 import com.flxrs.dankchat.data.twitch.message.HighlightType
+import com.flxrs.dankchat.data.twitch.message.highestPriorityHighlight
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
@@ -387,6 +388,14 @@ class ChatMessageMapper(
             thread.toThreadUi()
         } else null
 
+        val highlightHeader = highlights.highestPriorityHighlight()?.let {
+            when (it.type) {
+                HighlightType.FirstMessage    -> TextResource.Res(R.string.highlight_header_first_time_chat)
+                HighlightType.ElevatedMessage -> TextResource.Res(R.string.highlight_header_elevated_chat)
+                else                          -> null
+            }
+        }
+
         val fullMessage = buildString {
             if (isMentionTab && highlights.any { it.isMention }) {
                 append("#$channel ")
@@ -421,6 +430,7 @@ class ChatMessageMapper(
             emotes = emoteUis,
             isAction = isAction,
             thread = threadUi,
+            highlightHeader = highlightHeader,
             fullMessage = fullMessage
         )
     }

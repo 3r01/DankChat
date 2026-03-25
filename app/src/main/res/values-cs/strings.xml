@@ -77,6 +77,9 @@
     <string name="data_loading_step_cheermotes">Cheermoty</string>
     <string name="data_loading_step_recent_messages">Nedávné zprávy</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
+
+    <string name="highlight_header_first_time_chat">První zpráva</string>
+    <string name="highlight_header_elevated_chat">Zvýrazněná zpráva</string>
     <string name="snackbar_paste">Vložit</string>
     <string name="add_channel_hint">Název kanálu</string>
     <string name="emote_menu_tab_recent">Nedávné</string>

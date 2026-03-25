@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil3.compose.LocalPlatformContext
+import com.flxrs.dankchat.chat.compose.resolve
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
 import com.flxrs.dankchat.chat.compose.EmoteDimensions
@@ -89,6 +91,32 @@ fun PrivMessageComposable(
             .indication(interactionSource, ripple())
             .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
+        // Highlight type header (First Time Chat, Elevated Chat)
+        if (message.highlightHeader != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val headerColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = headerColor
+                )
+                Text(
+                    text = message.highlightHeader.resolve(),
+                    fontSize = (fontSize * 0.9f).sp,
+                    fontWeight = FontWeight.Medium,
+                    color = headerColor,
+                    maxLines = 1,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+
         // Reply thread header
         if (message.thread != null) {
             Row(
