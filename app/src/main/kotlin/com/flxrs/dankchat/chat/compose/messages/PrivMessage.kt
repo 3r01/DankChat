@@ -1,10 +1,6 @@
 package com.flxrs.dankchat.chat.compose.messages
 
-import android.util.Log
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -28,32 +24,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import coil3.compose.LocalPlatformContext
-import com.flxrs.dankchat.chat.compose.resolve
 import com.flxrs.dankchat.chat.compose.BadgeUi
 import com.flxrs.dankchat.chat.compose.ChatMessageUiState
-import com.flxrs.dankchat.chat.compose.EmoteDimensions
-import com.flxrs.dankchat.chat.compose.messages.common.BadgeInlineContent
-import com.flxrs.dankchat.chat.compose.EmoteScaling
-import com.flxrs.dankchat.chat.compose.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.chat.compose.StackedEmote
-import com.flxrs.dankchat.chat.compose.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.chat.compose.appendWithLinks
+import com.flxrs.dankchat.chat.compose.messages.common.MessageTextWithInlineContent
+import com.flxrs.dankchat.chat.compose.messages.common.launchCustomTab
+import com.flxrs.dankchat.chat.compose.messages.common.timestampSpanStyle
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
 import com.flxrs.dankchat.chat.compose.rememberNormalizedColor
+import com.flxrs.dankchat.chat.compose.resolve
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
@@ -172,7 +162,6 @@ private fun PrivMessageText(
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
-    val emoteCoordinator = LocalEmoteAnimationCoordinator.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
     val linkColor = MaterialTheme.colorScheme.primary
@@ -194,15 +183,7 @@ private fun PrivMessageText(
 
             // Timestamp
             if (message.timestamp.isNotEmpty()) {
-                withStyle(
-                    SpanStyle(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = (fontSize * 0.95f).sp,
-                        color = defaultTextColor,
-                        letterSpacing = (-0.03).em
-                    )
-                ) {
+                withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                     append(message.timestamp)
                     append(" ")
                 }
@@ -282,74 +263,15 @@ private fun PrivMessageText(
         }
     }
 
-    // Build inline content providers for SubcomposeLayout
-    val badgeSize = EmoteScaling.getBadgeSize(fontSize)
-    val inlineContentProviders: Map<String, @Composable () -> Unit> = remember(message.badges, message.emotes, fontSize) {
-        buildMap<String, @Composable () -> Unit> {
-            // Badge providers
-            message.badges.forEach { badge ->
-                put("BADGE_${badge.position}") {
-                    BadgeInlineContent(badge = badge, size = badgeSize)
-                }
-            }
-
-            // Emote providers
-            message.emotes.forEach { emote ->
-                put("EMOTE_${emote.code}") {
-                    StackedEmote(
-                        emote = emote,
-                        fontSize = fontSize,
-                        emoteCoordinator = emoteCoordinator,
-                        animateGifs = animateGifs,
-                        modifier = Modifier,
-                        onClick = { onEmoteClick(emote.emotes) }
-                    )
-                }
-            }
-        }
-    }
-
-    // Compute known dimensions from dimension cache to skip measurement subcomposition
-    val density = LocalDensity.current
-    val knownDimensions = remember(message.badges, message.emotes, fontSize, emoteCoordinator) {
-        buildMap {
-            // Badge dimensions are always known (fixed size)
-            val badgeSizePx = with(density) { badgeSize.toPx().toInt() }
-            message.badges.forEach { badge ->
-                put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
-            }
-            // Emote dimensions from cache
-            val baseHeight = EmoteScaling.getBaseHeight(fontSize)
-            val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
-            message.emotes.forEach { emote ->
-                val id = "EMOTE_${emote.code}"
-                if (emote.urls.size == 1) {
-                    val dims = emoteCoordinator.dimensionCache.get(emote.urls.first())
-                    if (dims != null) {
-                        put(id, EmoteDimensions(id, dims.first, dims.second))
-                    }
-                } else {
-                    val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
-                    val dims = emoteCoordinator.dimensionCache.get(cacheKey)
-                    if (dims != null) {
-                        put(id, EmoteDimensions(id, dims.first, dims.second))
-                    }
-                }
-            }
-        }
-    }
-
-    // Use SubcomposeLayout to measure inline content, then render text
-    TextWithMeasuredInlineContent(
-        text = annotatedString,
-        inlineContentProviders = inlineContentProviders,
-        style = TextStyle(fontSize = fontSize.sp),
-        knownDimensions = knownDimensions,
-        modifier = Modifier
-            .fillMaxWidth(),
+    MessageTextWithInlineContent(
+        annotatedString = annotatedString,
+        badges = message.badges,
+        emotes = message.emotes,
+        fontSize = fontSize,
+        animateGifs = animateGifs,
         interactionSource = interactionSource,
+        onEmoteClick = onEmoteClick,
         onTextClick = { offset ->
-            // Handle username clicks
             annotatedString.getStringAnnotations("USER", offset, offset)
                 .firstOrNull()?.let { annotation ->
                     val parts = annotation.item.split("|")
@@ -362,21 +284,13 @@ private fun PrivMessageText(
                     }
                 }
 
-            // Handle URL clicks
             annotatedString.getStringAnnotations("URL", offset, offset)
                 .firstOrNull()?.let { annotation ->
-                    try {
-                        CustomTabsIntent.Builder()
-                            .setShowTitle(true)
-                            .build()
-                            .launchUrl(context, annotation.item.toUri())
-                    } catch (e: Exception) {
-                        Log.e("PrivMessage", "Error launching URL", e)
-                    }
+                    launchCustomTab(context, annotation.item)
                 }
         },
         onTextLongClick = {
             onMessageLongClick(message.id, message.channel.value, message.fullMessage)
-        }
+        },
     )
 }

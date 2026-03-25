@@ -11,6 +11,9 @@ import com.flxrs.dankchat.utils.extensions.clear
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.increment
 import com.flxrs.dankchat.utils.extensions.mutableSharedFlowOf
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,8 +37,8 @@ class ChatNotificationRepository(
 
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
-    private val _mentions = MutableStateFlow<List<ChatItem>>(emptyList())
-    private val _whispers = MutableStateFlow<List<ChatItem>>(emptyList())
+    private val _mentions = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
+    private val _whispers = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
     private val _notificationsFlow = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10)
     private val _channelMentionCount = mutableSharedFlowOf(mutableMapOf<UserName, Int>())
     private val _unreadMessagesMap = mutableSharedFlowOf(mutableMapOf<UserName, Boolean>())
@@ -49,13 +52,13 @@ class ChatNotificationRepository(
     val unreadMessagesMap: SharedFlow<Map<UserName, Boolean>> = _unreadMessagesMap.asSharedFlow()
     val hasMentions = channelMentionCount.map { it.any { (key, value) -> key != WhisperMessage.WHISPER_CHANNEL && value > 0 } }
     val hasWhispers = channelMentionCount.map { it.getOrDefault(WhisperMessage.WHISPER_CHANNEL, 0) > 0 }
-    val mentions: StateFlow<List<ChatItem>> = _mentions
-    val whispers: StateFlow<List<ChatItem>> = _whispers
+    val mentions: StateFlow<ImmutableList<ChatItem>> = _mentions
+    val whispers: StateFlow<ImmutableList<ChatItem>> = _whispers
 
     fun addMentions(items: List<ChatItem>) {
         if (items.isEmpty()) return
         _mentions.update { current ->
-            current.addAndLimit(items, scrollBackLength, messageProcessor::onMessageRemoved)
+            current.addAndLimit(items, scrollBackLength, messageProcessor::onMessageRemoved).toImmutableList()
         }
     }
 
@@ -65,12 +68,13 @@ class ChatNotificationRepository(
             (current + items)
                 .distinctBy { it.message.id }
                 .sortedBy { it.message.timestamp }
+                .toImmutableList()
         }
     }
 
     fun addWhisper(item: ChatItem) {
         _whispers.update { current ->
-            current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved)
+            current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved).toImmutableList()
         }
     }
 

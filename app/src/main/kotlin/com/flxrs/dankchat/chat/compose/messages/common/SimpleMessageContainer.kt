@@ -1,7 +1,5 @@
 package com.flxrs.dankchat.chat.compose.messages.common
 
-import android.util.Log
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,13 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.core.net.toUri
 import com.flxrs.dankchat.chat.compose.appendWithLinks
 import com.flxrs.dankchat.chat.compose.rememberAdaptiveTextColor
 import com.flxrs.dankchat.chat.compose.rememberBackgroundColor
@@ -53,15 +47,7 @@ fun SimpleMessageContainer(
 
     val annotatedString = remember(message, timestamp, textColor, linkColor, timestampColor, fontSize) {
         buildAnnotatedString {
-            withStyle(
-                SpanStyle(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = fontSize * 0.95f,
-                    color = timestampColor,
-                    letterSpacing = (-0.03).em,
-                )
-            ) {
+            withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
                 append(timestamp)
             }
             append(" ")
@@ -86,14 +72,7 @@ fun SimpleMessageContainer(
             onClick = { offset ->
                 annotatedString.getStringAnnotations("URL", offset, offset)
                     .firstOrNull()?.let { annotation ->
-                        try {
-                            CustomTabsIntent.Builder()
-                                .setShowTitle(true)
-                                .build()
-                                .launchUrl(context, annotation.item.toUri())
-                        } catch (e: Exception) {
-                            Log.e("SimpleMessageContainer", "Error launching URL", e)
-                        }
+                        launchCustomTab(context, annotation.item)
                     }
             }
         )

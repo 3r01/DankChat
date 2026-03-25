@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.main.compose
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import com.flxrs.dankchat.chat.message.compose.MessageOptionsParams
 import com.flxrs.dankchat.chat.user.UserPopupStateParams
@@ -145,7 +145,7 @@ class DialogStateViewModel(
     }
 }
 
-@Stable
+@Immutable
 data class DialogState(
     val showAddChannel: Boolean = false,
     val showManageChannels: Boolean = false,

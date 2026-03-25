@@ -85,6 +85,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
@@ -209,36 +210,10 @@ fun ChatInputLayout(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.reply_header, replyName?.value.orEmpty()),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            IconButton(
-                                onClick = onReplyDismiss,
-                                modifier = Modifier.size(24.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.dialog_dismiss),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
+                    InputOverlayHeader(
+                        text = stringResource(R.string.reply_header, replyName?.value.orEmpty()),
+                        onDismiss = onReplyDismiss,
+                    )
                 }
 
                 // Whisper Header
@@ -247,36 +222,10 @@ fun ChatInputLayout(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.whisper_header, whisperTarget?.value.orEmpty()),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            IconButton(
-                                onClick = onWhisperDismiss,
-                                modifier = Modifier.size(24.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = stringResource(R.string.dialog_dismiss),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
-                        }
-                        HorizontalDivider(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-                            modifier = Modifier.padding(horizontal = 16.dp)
-                        )
-                    }
+                    InputOverlayHeader(
+                        text = stringResource(R.string.whisper_header, whisperTarget?.value.orEmpty()),
+                        onDismiss = onWhisperDismiss,
+                    )
                 }
 
                 // Text Field
@@ -367,172 +316,41 @@ fun ChatInputLayout(
                 }
 
                 // Actions Row — uses BoxWithConstraints to hide actions that don't fit
-                val actionsRowContent: @Composable () -> Unit = {
-                    BoxWithConstraints(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                    ) {
-                        val iconSize = 40.dp
-                        // Fixed slots: emote + overflow + send (+ whisper if present)
-                        val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
-                        val availableForActions = maxWidth - iconSize * fixedSlots
-                        val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
-                        visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            // Emote/Keyboard Button (start-aligned, always visible)
-                            IconButton(
-                                onClick = {
-                                    if (isEmoteMenuOpen) {
-                                        focusRequester.requestFocus()
-                                    }
-                                    onEmoteClick()
-                                },
-                                enabled = enabled,
-                                modifier = Modifier.size(iconSize)
-                            ) {
-                                Icon(
-                                    imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
-                                    contentDescription = stringResource(
-                                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
-                                    ),
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            // End-aligned group: overflow + actions + whisper + send
-                            val endAlignedContent: @Composable () -> Unit = {
-                                // Overflow Button (leading the end-aligned group)
-                                if (showQuickActions) {
-                                    val overflowButton: @Composable () -> Unit = {
-                                        IconButton(
-                                            onClick = {
-                                                if (tourState.overflowMenuTooltipState != null) {
-                                                    tourState.onAdvance?.invoke()
-                                                } else {
-                                                    onOverflowExpandedChanged(!quickActionsExpanded)
-                                                }
-                                            },
-                                            modifier = Modifier.size(iconSize)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.MoreVert,
-                                                contentDescription = stringResource(R.string.more),
-                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                            )
-                                        }
-                                    }
-                                    if (tourState.overflowMenuTooltipState != null) {
-                                        TooltipBox(
-                                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                                            tooltip = {
-                                                TourTooltip(
-                                                    text = stringResource(R.string.tour_overflow_menu),
-                                                    onAction = { tourState.onAdvance?.invoke() },
-                                                    onSkip = { tourState.onSkip?.invoke() },
-                                                )
-                                            },
-                                            state = tourState.overflowMenuTooltipState,
-                                            hasAction = true,
-                                        ) {
-                                            overflowButton()
-                                        }
-                                    } else {
-                                        overflowButton()
-                                    }
-                                }
-
-                                // New Whisper Button (only on whisper tab)
-                                if (onNewWhisper != null) {
-                                    IconButton(
-                                        onClick = onNewWhisper,
-                                        modifier = Modifier.size(iconSize)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.AddComment,
-                                            contentDescription = stringResource(R.string.whisper_new),
-                                        )
-                                    }
-                                }
-
-                                // Configurable action icons
-                                for (action in visibleActions) {
-                                    InputActionButton(
-                                        action = action,
-                                        enabled = enabled,
-                                        hasLastMessage = hasLastMessage,
-                                        isStreamActive = isStreamActive,
-                                        isFullscreen = isFullscreen,
-                                        onSearchClick = onSearchClick,
-                                        onLastMessageClick = onLastMessageClick,
-                                        onToggleStream = onToggleStream,
-                                        onChangeRoomState = onChangeRoomState,
-                                        onToggleFullscreen = onToggleFullscreen,
-                                        onToggleInput = onToggleInput,
-                                        modifier = Modifier.size(iconSize),
-                                    )
-                                }
-
-                                // Send Button (Right)
-                                SendButton(
-                                    enabled = canSend,
-                                    onSend = onSend,
-                                )
-                            }
-
-                            if (tourState.inputActionsTooltipState != null) {
-                                TooltipBox(
-                                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                                    tooltip = {
-                                        TourTooltip(
-                                            text = stringResource(R.string.tour_input_actions),
-                                            onAction = { tourState.onAdvance?.invoke() },
-                                            onSkip = { tourState.onSkip?.invoke() },
-                                        )
-                                    },
-                                    state = tourState.inputActionsTooltipState,
-                                    onDismissRequest = {},
-                                    focusable = true,
-                                    hasAction = true,
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        endAlignedContent()
-                                    }
-                                }
-                            } else {
-                                endAlignedContent()
-                            }
-                        }
-                    }
-                }
-
-                actionsRowContent()
+                InputActionsRow(
+                    effectiveActions = effectiveActions,
+                    isEmoteMenuOpen = isEmoteMenuOpen,
+                    enabled = enabled,
+                    showQuickActions = showQuickActions,
+                    tourState = tourState,
+                    quickActionsExpanded = quickActionsExpanded,
+                    canSend = canSend,
+                    hasLastMessage = hasLastMessage,
+                    isStreamActive = isStreamActive,
+                    isFullscreen = isFullscreen,
+                    focusRequester = focusRequester,
+                    onEmoteClick = onEmoteClick,
+                    onOverflowExpandedChanged = onOverflowExpandedChanged,
+                    onNewWhisper = onNewWhisper,
+                    onSearchClick = onSearchClick,
+                    onLastMessageClick = onLastMessageClick,
+                    onToggleStream = onToggleStream,
+                    onChangeRoomState = onChangeRoomState,
+                    onToggleFullscreen = onToggleFullscreen,
+                    onToggleInput = onToggleInput,
+                    onSend = onSend,
+                    onVisibleActionsChanged = { visibleActions = it },
+                )
             }
         }
     }
 
     Box(modifier = modifier.fillMaxWidth()) {
-        if (tourState.swipeGestureTooltipState != null) {
-            TooltipBox(
-                positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                tooltip = {
-                    TourTooltip(
-                        text = stringResource(R.string.tour_swipe_gesture),
-                        onAction = { tourState.onAdvance?.invoke() },
-                        onSkip = { tourState.onSkip?.invoke() },
-                    )
-                },
-                state = tourState.swipeGestureTooltipState,
-                hasAction = true,
-            ) {
-                inputContent()
-            }
-        } else {
+        OptionalTourTooltip(
+            tooltipState = tourState.swipeGestureTooltipState,
+            text = stringResource(R.string.tour_swipe_gesture),
+            onAdvance = tourState.onAdvance,
+            onSkip = tourState.onSkip,
+        ) {
             inputContent()
         }
 
@@ -817,6 +635,266 @@ private fun InputActionButton(
             imageVector = icon,
             contentDescription = stringResource(contentDescription),
         )
+    }
+}
+
+@Composable
+private fun InputOverlayHeader(
+    text: String,
+    onDismiss: () -> Unit,
+) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = stringResource(R.string.dialog_dismiss),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+        HorizontalDivider(
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InputActionsRow(
+    effectiveActions: ImmutableList<InputAction>,
+    isEmoteMenuOpen: Boolean,
+    enabled: Boolean,
+    showQuickActions: Boolean,
+    tourState: TourOverlayState,
+    quickActionsExpanded: Boolean,
+    canSend: Boolean,
+    hasLastMessage: Boolean,
+    isStreamActive: Boolean,
+    isFullscreen: Boolean,
+    focusRequester: FocusRequester,
+    onEmoteClick: () -> Unit,
+    onOverflowExpandedChanged: (Boolean) -> Unit,
+    onNewWhisper: (() -> Unit)?,
+    onSearchClick: () -> Unit,
+    onLastMessageClick: () -> Unit,
+    onToggleStream: () -> Unit,
+    onChangeRoomState: () -> Unit,
+    onToggleFullscreen: () -> Unit,
+    onToggleInput: () -> Unit,
+    onSend: () -> Unit,
+    onVisibleActionsChanged: (ImmutableList<InputAction>) -> Unit,
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+    ) {
+        val iconSize = 40.dp
+        // Fixed slots: emote + overflow + send (+ whisper if present)
+        val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
+        val availableForActions = maxWidth - iconSize * fixedSlots
+        val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
+        val visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
+        onVisibleActionsChanged(visibleActions)
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            // Emote/Keyboard Button (start-aligned, always visible)
+            IconButton(
+                onClick = {
+                    if (isEmoteMenuOpen) {
+                        focusRequester.requestFocus()
+                    }
+                    onEmoteClick()
+                },
+                enabled = enabled,
+                modifier = Modifier.size(iconSize)
+            ) {
+                Icon(
+                    imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
+                    contentDescription = stringResource(
+                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
+                    ),
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // End-aligned group: overflow + actions + whisper + send
+            OptionalTourTooltip(
+                tooltipState = tourState.inputActionsTooltipState,
+                text = stringResource(R.string.tour_input_actions),
+                onAdvance = tourState.onAdvance,
+                onSkip = tourState.onSkip,
+                focusable = true,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    EndAlignedActionGroup(
+                        visibleActions = visibleActions,
+                        iconSize = iconSize,
+                        showQuickActions = showQuickActions,
+                        tourState = tourState,
+                        quickActionsExpanded = quickActionsExpanded,
+                        canSend = canSend,
+                        enabled = enabled,
+                        hasLastMessage = hasLastMessage,
+                        isStreamActive = isStreamActive,
+                        isFullscreen = isFullscreen,
+                        onOverflowExpandedChanged = onOverflowExpandedChanged,
+                        onNewWhisper = onNewWhisper,
+                        onSearchClick = onSearchClick,
+                        onLastMessageClick = onLastMessageClick,
+                        onToggleStream = onToggleStream,
+                        onChangeRoomState = onChangeRoomState,
+                        onToggleFullscreen = onToggleFullscreen,
+                        onToggleInput = onToggleInput,
+                        onSend = onSend,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EndAlignedActionGroup(
+    visibleActions: ImmutableList<InputAction>,
+    iconSize: Dp,
+    showQuickActions: Boolean,
+    tourState: TourOverlayState,
+    quickActionsExpanded: Boolean,
+    canSend: Boolean,
+    enabled: Boolean,
+    hasLastMessage: Boolean,
+    isStreamActive: Boolean,
+    isFullscreen: Boolean,
+    onOverflowExpandedChanged: (Boolean) -> Unit,
+    onNewWhisper: (() -> Unit)?,
+    onSearchClick: () -> Unit,
+    onLastMessageClick: () -> Unit,
+    onToggleStream: () -> Unit,
+    onChangeRoomState: () -> Unit,
+    onToggleFullscreen: () -> Unit,
+    onToggleInput: () -> Unit,
+    onSend: () -> Unit,
+) {
+    // Overflow Button (leading the end-aligned group)
+    if (showQuickActions) {
+        val overflowButton: @Composable () -> Unit = {
+            IconButton(
+                onClick = {
+                    if (tourState.overflowMenuTooltipState != null) {
+                        tourState.onAdvance?.invoke()
+                    } else {
+                        onOverflowExpandedChanged(!quickActionsExpanded)
+                    }
+                },
+                modifier = Modifier.size(iconSize)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = stringResource(R.string.more),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        OptionalTourTooltip(
+            tooltipState = tourState.overflowMenuTooltipState,
+            text = stringResource(R.string.tour_overflow_menu),
+            onAdvance = tourState.onAdvance,
+            onSkip = tourState.onSkip,
+        ) {
+            overflowButton()
+        }
+    }
+
+    // New Whisper Button (only on whisper tab)
+    if (onNewWhisper != null) {
+        IconButton(
+            onClick = onNewWhisper,
+            modifier = Modifier.size(iconSize)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AddComment,
+                contentDescription = stringResource(R.string.whisper_new),
+            )
+        }
+    }
+
+    // Configurable action icons
+    for (action in visibleActions) {
+        InputActionButton(
+            action = action,
+            enabled = enabled,
+            hasLastMessage = hasLastMessage,
+            isStreamActive = isStreamActive,
+            isFullscreen = isFullscreen,
+            onSearchClick = onSearchClick,
+            onLastMessageClick = onLastMessageClick,
+            onToggleStream = onToggleStream,
+            onChangeRoomState = onChangeRoomState,
+            onToggleFullscreen = onToggleFullscreen,
+            onToggleInput = onToggleInput,
+            modifier = Modifier.size(iconSize),
+        )
+    }
+
+    // Send Button (Right)
+    SendButton(
+        enabled = canSend,
+        onSend = onSend,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun OptionalTourTooltip(
+    tooltipState: TooltipState?,
+    text: String,
+    onAdvance: (() -> Unit)?,
+    onSkip: (() -> Unit)?,
+    focusable: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    if (tooltipState != null) {
+        TooltipBox(
+            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = {
+                TourTooltip(
+                    text = text,
+                    onAction = { onAdvance?.invoke() },
+                    onSkip = { onSkip?.invoke() },
+                )
+            },
+            state = tooltipState,
+            onDismissRequest = {},
+            focusable = focusable,
+            hasAction = true,
+        ) {
+            content()
+        }
+    } else {
+        content()
     }
 }
 

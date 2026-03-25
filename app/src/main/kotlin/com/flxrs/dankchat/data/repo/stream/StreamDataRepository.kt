@@ -9,6 +9,9 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.extensions.timer
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -30,8 +33,8 @@ class StreamDataRepository(
 ) {
     private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
     private var fetchTimerJob: Job? = null
-    private val _streamData = MutableStateFlow<List<StreamData>>(emptyList())
-    val streamData: StateFlow<List<StreamData>> = _streamData.asStateFlow()
+    private val _streamData = MutableStateFlow<ImmutableList<StreamData>>(persistentListOf())
+    val streamData: StateFlow<ImmutableList<StreamData>> = _streamData.asStateFlow()
 
     fun fetchStreamData(channels: List<UserName>) {
         cancelStreamData()
@@ -55,7 +58,7 @@ class StreamDataRepository(
                     StreamData(channel = it.userLogin, formattedData = formatted)
                 }.orEmpty()
 
-                _streamData.value = data
+                _streamData.value = data.toImmutableList()
             }
         }
     }
@@ -63,7 +66,7 @@ class StreamDataRepository(
     fun cancelStreamData() {
         fetchTimerJob?.cancel()
         fetchTimerJob = null
-        _streamData.value = emptyList()
+        _streamData.value = persistentListOf()
     }
 
     companion object {

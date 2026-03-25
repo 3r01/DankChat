@@ -65,8 +65,6 @@ fun MainScreenDialogs(
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
     val channelRepository: ChannelRepository = koinInject()
 
-    // region Channel dialogs
-
     if (dialogState.showAddChannel) {
         AddChannelDialog(
             onDismiss = dialogViewModel::dismissAddChannel,
@@ -130,10 +128,6 @@ fun MainScreenDialogs(
         )
     }
 
-    // endregion
-
-    // region Auth dialogs
-
     if (dialogState.showLogout) {
         ConfirmationDialog(
             title = stringResource(R.string.confirm_logout_question),
@@ -187,10 +181,6 @@ fun MainScreenDialogs(
             }
         )
     }
-
-    // endregion
-
-    // region Message interactions
 
     dialogState.messageOptionsParams?.let { params ->
         val viewModel: MessageOptionsComposeViewModel = koinViewModel(
@@ -323,6 +313,4 @@ fun MainScreenDialogs(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
-
-    // endregion
 }
