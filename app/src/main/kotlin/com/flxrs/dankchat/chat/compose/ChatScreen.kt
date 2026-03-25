@@ -192,7 +192,7 @@ fun ChatScreen(
                     // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
                     val highlightedBelow = reversedMessages.getOrNull(index - 1)?.isHighlighted == true
                     val highlightedAbove = reversedMessages.getOrNull(index + 1)?.isHighlighted == true
-                    val highlightShape = message.highlightShape(highlightedAbove, highlightedBelow)
+                    val highlightShape = message.highlightShape(highlightedAbove, highlightedBelow, showLineSeparator)
                     ChatMessageItem(
                         message = message,
                         highlightShape = highlightShape,
@@ -317,8 +317,9 @@ private fun RecoveryFab(
 
 private val HIGHLIGHT_CORNER_RADIUS = 8.dp
 
-private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlightedBelow: Boolean): Shape {
+private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlightedBelow: Boolean, showLineSeparator: Boolean): Shape {
     if (!isHighlighted) return RectangleShape
+    if (showLineSeparator) return RectangleShape
     val top = if (highlightedAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
     val bottom = if (highlightedBelow) 0.dp else HIGHLIGHT_CORNER_RADIUS
     return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
