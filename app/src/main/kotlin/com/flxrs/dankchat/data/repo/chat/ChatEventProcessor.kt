@@ -283,10 +283,14 @@ class ChatEventProcessor(
             isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
             else        -> ConnectionState.CONNECTED
         }
-        val previousState = chatConnector.getConnectionState(channel).value
+        val transitioning = chatChannelProvider.channels.value.orEmpty()
+            .filter { chatConnector.getConnectionState(it).value != state }
+            .toSet()
+
         chatConnector.setAllConnectionStates(state)
-        if (previousState != state) {
-            postSystemMessageAndReconnect(state.toSystemMessageType())
+
+        if (transitioning.isNotEmpty()) {
+            postSystemMessageAndReconnect(state.toSystemMessageType(), transitioning)
         }
     }
 
