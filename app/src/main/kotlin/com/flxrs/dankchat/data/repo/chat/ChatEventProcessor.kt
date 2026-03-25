@@ -283,8 +283,11 @@ class ChatEventProcessor(
             isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
             else        -> ConnectionState.CONNECTED
         }
-        postSystemMessageAndReconnect(state.toSystemMessageType(), setOf(channel))
-        chatConnector.setConnectionState(channel, state)
+        val previousState = chatConnector.getConnectionState(channel).value
+        chatConnector.setAllConnectionStates(state)
+        if (previousState != state) {
+            postSystemMessageAndReconnect(state.toSystemMessageType())
+        }
     }
 
     private fun handleClearChat(msg: IrcMessage) {
