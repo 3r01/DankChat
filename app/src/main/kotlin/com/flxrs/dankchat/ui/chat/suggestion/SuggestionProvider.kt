@@ -3,6 +3,8 @@ package com.flxrs.dankchat.ui.chat.suggestion
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
+import com.flxrs.dankchat.data.repo.emote.EmojiData
+import com.flxrs.dankchat.data.repo.emote.EmojiRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -19,6 +21,7 @@ class SuggestionProvider(
     private val commandRepository: CommandRepository,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val emoteUsageRepository: EmoteUsageRepository,
+    private val emojiRepository: EmojiRepository,
 ) {
 
     fun getSuggestions(
@@ -35,7 +38,7 @@ class SuggestionProvider(
             return flowOf(emptyList())
         }
 
-        // ':' trigger: emote-only mode with reduced min chars
+        // ':' trigger: emote + emoji mode with reduced min chars
         val isEmoteTrigger = currentWord.startsWith(':')
         val emoteQuery = when {
             isEmoteTrigger -> currentWord.removePrefix(":")
@@ -50,7 +53,13 @@ class SuggestionProvider(
         }
 
         if (isEmoteTrigger) {
-            return getEmoteSuggestions(channel, emoteQuery).map { it.take(MAX_SUGGESTIONS) }
+            val emojiSuggestions = filterEmojis(emojiRepository.emojis.value, emoteQuery)
+            return getEmoteSuggestionsScored(channel, emoteQuery).map { emotePairs ->
+                (emotePairs + emojiSuggestions)
+                    .sortedBy { it.second }
+                    .map { it.first }
+                    .take(MAX_SUGGESTIONS)
+            }
         }
 
         return combine(
@@ -73,6 +82,14 @@ class SuggestionProvider(
             val recentIds = emoteUsageRepository.recentEmoteIds.value
             val suggestions = emotes.suggestions.map { Suggestion.EmoteSuggestion(it) }
             filterEmotes(suggestions, constraint, recentIds)
+        }
+    }
+
+    private fun getEmoteSuggestionsScored(channel: UserName, constraint: String): Flow<List<Pair<Suggestion, Int>>> {
+        return emoteRepository.getEmotes(channel).map { emotes ->
+            val recentIds = emoteUsageRepository.recentEmoteIds.value
+            val suggestions = emotes.suggestions.map { Suggestion.EmoteSuggestion(it) }
+            filterEmotesScored(suggestions, constraint, recentIds)
         }
     }
 
@@ -124,13 +141,30 @@ class SuggestionProvider(
         constraint: String,
         recentEmoteIds: Set<String>,
     ): List<Suggestion.EmoteSuggestion> {
+        return filterEmotesScored(suggestions, constraint, recentEmoteIds).map { it.first as Suggestion.EmoteSuggestion }
+    }
+
+    private fun filterEmotesScored(
+        suggestions: List<Suggestion.EmoteSuggestion>,
+        constraint: String,
+        recentEmoteIds: Set<String>,
+    ): List<Pair<Suggestion, Int>> {
         return suggestions
             .mapNotNull { suggestion ->
                 val score = scoreEmote(suggestion.emote.code, constraint, suggestion.emote.id in recentEmoteIds)
-                if (score < 0) null else suggestion to score
+                if (score < 0) null else (suggestion as Suggestion) to score
             }
             .sortedBy { it.second }
-            .map { it.first }
+    }
+
+    internal fun filterEmojis(
+        emojis: List<EmojiData>,
+        constraint: String,
+    ): List<Pair<Suggestion, Int>> {
+        return emojis.mapNotNull { emoji ->
+            val score = scoreEmote(emoji.code, constraint, isRecentlyUsed = false)
+            if (score < 0) null else (Suggestion.EmojiSuggestion(emoji) as Suggestion) to score
+        }
     }
 
     internal fun filterUsers(

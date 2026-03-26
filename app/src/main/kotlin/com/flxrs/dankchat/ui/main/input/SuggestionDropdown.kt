@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.FilterList
@@ -29,10 +31,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import kotlinx.collections.immutable.ImmutableList
@@ -65,6 +69,11 @@ fun SuggestionDropdown(
             targetOffsetY = { fullHeight -> fullHeight / 4 }
         ) + fadeOut() + scaleOut(targetScale = 0.92f)
     ) {
+        val listState = rememberLazyListState()
+        LaunchedEffect(suggestions) {
+            listState.scrollToItem(0)
+        }
+
         OutlinedCard(
             modifier = Modifier
                 .padding(horizontal = 2.dp)
@@ -73,6 +82,7 @@ fun SuggestionDropdown(
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .animateContentSize(),
@@ -127,6 +137,21 @@ private fun SuggestionItem(
                 )
                 Text(
                     text = suggestion.name.value,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+
+            is Suggestion.EmojiSuggestion -> {
+                Text(
+                    text = suggestion.emoji.unicode,
+                    fontSize = 24.sp,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(end = 12.dp)
+                        .wrapContentSize()
+                )
+                Text(
+                    text = ":${suggestion.emoji.code}:",
                     style = MaterialTheme.typography.bodyLarge
                 )
             }

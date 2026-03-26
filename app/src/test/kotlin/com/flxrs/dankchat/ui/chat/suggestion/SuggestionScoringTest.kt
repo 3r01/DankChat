@@ -13,6 +13,7 @@ internal class SuggestionScoringTest {
         commandRepository = mockk(),
         chatSettingsDataStore = mockk(),
         emoteUsageRepository = mockk(),
+        emojiRepository = mockk(),
     )
 
     @Test

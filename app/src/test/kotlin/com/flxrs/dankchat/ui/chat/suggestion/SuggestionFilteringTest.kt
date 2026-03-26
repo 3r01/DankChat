@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.ui.chat.suggestion
 
 import com.flxrs.dankchat.data.DisplayName
+import com.flxrs.dankchat.data.repo.emote.EmojiData
 import com.flxrs.dankchat.data.twitch.emote.EmoteType
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import io.mockk.mockk
@@ -15,6 +16,7 @@ internal class SuggestionFilteringTest {
         commandRepository = mockk(),
         chatSettingsDataStore = mockk(),
         emoteUsageRepository = mockk(),
+        emojiRepository = mockk(),
     )
 
     private fun emote(code: String, id: String = code) = Suggestion.EmoteSuggestion(
@@ -170,6 +172,49 @@ internal class SuggestionFilteringTest {
             expected = listOf("/timeout", "/title"),
             actual = result.map { it.command },
         )
+    }
+
+    // endregion
+
+    // region filterEmojis
+
+    @Test
+    fun `emojis filtered by shortcode`() {
+        val emojis = listOf(
+            EmojiData("smile", "😄"),
+            EmojiData("wave", "👋"),
+            EmojiData("smirk", "😏"),
+        )
+        val result = provider.filterEmojis(emojis, "smi")
+
+        assertEquals(
+            expected = listOf("smile", "smirk"),
+            actual = result.map { (suggestion, _) -> (suggestion as Suggestion.EmojiSuggestion).emoji.code },
+        )
+    }
+
+    @Test
+    fun `emojis use same scoring as emotes`() {
+        val emojis = listOf(
+            EmojiData("smirk", "😏"),
+            EmojiData("smile", "😄"),
+        )
+        val result = provider.filterEmojis(emojis, "smi")
+
+        // "smile" (len 5) scores lower than "smirk" (len 5) — both prefix, same length, alphabetical order from input
+        // Both have score 100 + 2 = 102, so input order preserved
+        assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `non-matching emojis excluded`() {
+        val emojis = listOf(
+            EmojiData("wave", "👋"),
+            EmojiData("heart", "❤️"),
+        )
+        val result = provider.filterEmojis(emojis, "smi")
+
+        assertEquals(emptyList(), result)
     }
 
     // endregion

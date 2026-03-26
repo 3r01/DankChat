@@ -12,6 +12,7 @@ internal class SuggestionProviderExtractWordTest {
         commandRepository = mockk(),
         chatSettingsDataStore = mockk(),
         emoteUsageRepository = mockk(),
+        emojiRepository = mockk(),
     )
 
     @Test
