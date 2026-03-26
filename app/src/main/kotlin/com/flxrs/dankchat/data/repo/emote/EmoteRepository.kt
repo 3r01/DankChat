@@ -168,12 +168,12 @@ class EmoteRepository(
             removedSpaces = removedSpaces,
             replyMentionOffset = replyMentionOffset
         )
-        val twitchEmoteCodes = twitchEmotes.mapTo(HashSet(twitchEmotes.size)) { it.code }
+        val twitchEmoteCodes = twitchEmotes.mapTo(mutableSetOf()) { it.code }
         val cheermotes = when {
             message is PrivMessage && message.tags["bits"] != null -> parseCheermotes(appendedSpaceAdjustedMessage, channel)
             else                                                   -> emptyList()
         }
-        val cheermoteCodes = cheermotes.mapTo(HashSet(cheermotes.size)) { it.code }
+        val cheermoteCodes = cheermotes.mapTo(mutableSetOf()) { it.code }
         val thirdPartyEmotes = parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel)
             .filterNot { it.code in twitchEmoteCodes || it.code in cheermoteCodes }
         val emotes = twitchEmotes + thirdPartyEmotes + cheermotes
@@ -343,7 +343,7 @@ class EmoteRepository(
         userId: UserId,
         onFirstPageLoaded: (() -> Unit)? = null
     ) = withContext(Dispatchers.Default) {
-        val seenIds = HashSet<String>()
+        val seenIds = mutableSetOf<String>()
         val allEmotes = mutableListOf<GenericEmote>()
         var totalCount = 0
         var isFirstPage = true
