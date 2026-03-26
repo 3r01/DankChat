@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
@@ -34,8 +35,10 @@ fun FullScreenSheetOverlay(
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
     modifier: Modifier = Modifier,
     onWhisperReply: (UserName) -> Unit = {},
+    onUserMention: (UserName, DisplayName) -> Unit = { _, _ -> },
     bottomContentPadding: Dp = 0.dp,
 ) {
     val isVisible = sheetState !is FullScreenSheetState.Closed
@@ -49,7 +52,7 @@ fun FullScreenSheetOverlay(
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
-            val userClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, _ ->
+            val popupOnlyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, _ ->
                 onUserClick(
                     UserPopupStateParams(
                         targetUserId = userId?.let { UserId(it) } ?: UserId(""),
@@ -61,6 +64,26 @@ fun FullScreenSheetOverlay(
                 )
             }
 
+            val mentionableClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
+                val shouldOpenPopup = when (userLongClickBehavior) {
+                    UserLongClickBehavior.MentionsUser -> !isLongPress
+                    UserLongClickBehavior.OpensPopup   -> isLongPress
+                }
+                if (shouldOpenPopup) {
+                    onUserClick(
+                        UserPopupStateParams(
+                            targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                            targetUserName = UserName(userName),
+                            targetDisplayName = DisplayName(displayName),
+                            channel = channel?.let { UserName(it) },
+                            badges = badges.map { it.badge }
+                        )
+                    )
+                } else {
+                    onUserMention(UserName(userName), DisplayName(displayName))
+                }
+            }
+
             when (sheetState) {
                 is FullScreenSheetState.Closed -> Unit
                 is FullScreenSheetState.Mention -> {
@@ -69,7 +92,7 @@ fun FullScreenSheetOverlay(
                         initialisWhisperTab = false,
 
                         onDismiss = onDismiss,
-                        onUserClick = userClickHandler,
+                        onUserClick = popupOnlyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
                             onMessageLongClick(
                                 MessageOptionsParams(
@@ -95,7 +118,7 @@ fun FullScreenSheetOverlay(
                         initialisWhisperTab = true,
 
                         onDismiss = onDismiss,
-                        onUserClick = userClickHandler,
+                        onUserClick = popupOnlyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
                             onMessageLongClick(
                                 MessageOptionsParams(
@@ -120,7 +143,7 @@ fun FullScreenSheetOverlay(
                         rootMessageId = sheetState.replyMessageId,
 
                         onDismiss = onDismissReplies,
-                        onUserClick = userClickHandler,
+                        onUserClick = mentionableClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
                             onMessageLongClick(
                                 MessageOptionsParams(
@@ -143,13 +166,32 @@ fun FullScreenSheetOverlay(
                         key = sheetState.channel.value,
                         parameters = { parametersOf(sheetState.channel) },
                     )
+                    val historyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
+                        val shouldOpenPopup = when (userLongClickBehavior) {
+                            UserLongClickBehavior.MentionsUser -> !isLongPress
+                            UserLongClickBehavior.OpensPopup   -> isLongPress
+                        }
+                        if (shouldOpenPopup) {
+                            onUserClick(
+                                UserPopupStateParams(
+                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                    targetUserName = UserName(userName),
+                                    targetDisplayName = DisplayName(displayName),
+                                    channel = channel?.let { UserName(it) },
+                                    badges = badges.map { it.badge }
+                                )
+                            )
+                        } else {
+                            viewModel.insertText("${UserName(userName).valueOrDisplayName(DisplayName(displayName))} ")
+                        }
+                    }
                     MessageHistorySheet(
                         viewModel = viewModel,
                         channel = sheetState.channel,
                         initialFilter = sheetState.initialFilter,
 
                         onDismiss = onDismiss,
-                        onUserClick = userClickHandler,
+                        onUserClick = historyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
                             onMessageLongClick(
                                 MessageOptionsParams(

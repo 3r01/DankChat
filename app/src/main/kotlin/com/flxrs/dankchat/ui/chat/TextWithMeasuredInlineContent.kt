@@ -62,7 +62,7 @@ fun TextWithMeasuredInlineContent(
     style: TextStyle = TextStyle.Default,
     knownDimensions: Map<String, EmoteDimensions> = emptyMap(),
     onTextClick: ((Int) -> Unit)? = null,
-    onTextLongClick: (() -> Unit)? = null,
+    onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
     val density = LocalDensity.current
@@ -143,8 +143,20 @@ fun TextWithMeasuredInlineContent(
                                 }
                             }
                         },
-                        onLongPress = {
-                            onTextLongClick?.invoke()
+                        onLongPress = { offset ->
+                            val layoutResult = textLayoutResultRef.value
+                            if (layoutResult != null) {
+                                val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                val lineLeft = layoutResult.getLineLeft(line)
+                                val lineRight = layoutResult.getLineRight(line)
+                                if (offset.x in lineLeft..lineRight) {
+                                    onTextLongClick?.invoke(layoutResult.getOffsetForPosition(offset))
+                                } else {
+                                    onTextLongClick?.invoke(-1)
+                                }
+                            } else {
+                                onTextLongClick?.invoke(-1)
+                            }
                         }
                     )
                 },

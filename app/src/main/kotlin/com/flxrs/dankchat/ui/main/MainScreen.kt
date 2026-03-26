@@ -102,6 +102,7 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
+import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatComposable
@@ -795,15 +796,24 @@ fun MainScreen(
                                     val channel = pagerState.channels[page]
                                     ChatComposable(
                                         channel = channel,
-                                        onUserClick = { userId, userName, displayName, channel, badges, _ ->
-                                            dialogViewModel.showUserPopup(
-                                                UserPopupStateParams(
-                                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                                    targetUserName = UserName(userName),
-                                                    targetDisplayName = DisplayName(displayName),
-                                                    channel = channel?.let { UserName(it) },
-                                                    badges = badges.map { it.badge }
-                                                ))
+                                        onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
+                                            val shouldOpenPopup = when (inputState.userLongClickBehavior) {
+                                                UserLongClickBehavior.MentionsUser -> !isLongPress
+                                                UserLongClickBehavior.OpensPopup   -> isLongPress
+                                            }
+                                            if (shouldOpenPopup) {
+                                                dialogViewModel.showUserPopup(
+                                                    UserPopupStateParams(
+                                                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+                                                        targetUserName = UserName(userName),
+                                                        targetDisplayName = DisplayName(displayName),
+                                                        channel = channel?.let { UserName(it) },
+                                                        badges = badges.map { it.badge }
+                                                    )
+                                                )
+                                            } else {
+                                                chatInputViewModel.mentionUser(UserName(userName), DisplayName(displayName))
+                                            }
                                         },
                                         onMessageLongClick = { messageId, channel, fullMessage ->
                                             dialogViewModel.showMessageOptions(
@@ -913,7 +923,9 @@ fun MainScreen(
                 onUserClick = dialogViewModel::showUserPopup,
                 onMessageLongClick = dialogViewModel::showMessageOptions,
                 onEmoteClick = dialogViewModel::showEmoteInfo,
+                userLongClickBehavior = inputState.userLongClickBehavior,
                 onWhisperReply = chatInputViewModel::setWhisperTarget,
+                onUserMention = chatInputViewModel::mentionUser,
                 bottomContentPadding = effectiveBottomPadding,
             )
         }

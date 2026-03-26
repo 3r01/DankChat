@@ -221,8 +221,26 @@ private fun WhisperMessageText(
                     launchCustomTab(context, annotation.item)
                 }
         },
-        onTextLongClick = {
-            onMessageLongClick(message.id, message.fullMessage)
+        onTextLongClick = { offset ->
+            val userAnnotation = if (offset >= 0) {
+                annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+            } else {
+                null
+            }
+
+            when {
+                userAnnotation != null -> {
+                    val parts = userAnnotation.item.split("|")
+                    if (parts.size == 3) {
+                        val userId = parts[0].takeIf { it.isNotEmpty() }
+                        val userName = parts[1]
+                        val displayName = parts[2]
+                        onUserClick(userId, userName, displayName, message.badges, true)
+                    }
+                }
+
+                else                   -> onMessageLongClick(message.id, message.fullMessage)
+            }
         },
     )
 }

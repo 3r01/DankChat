@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
@@ -40,7 +42,17 @@ fun BadgeInlineContent(
             }
         }
 
-        else                 -> {
+        is Badge.SharedChatBadge -> {
+            AsyncImage(
+                model = badge.drawableResId ?: badge.url,
+                contentDescription = badge.badge.type.name,
+                modifier = modifier
+                    .size(size)
+                    .clip(CircleShape)
+            )
+        }
+
+        else                     -> {
             AsyncImage(
                 model = badge.drawableResId ?: badge.url,
                 contentDescription = badge.badge.type.name,

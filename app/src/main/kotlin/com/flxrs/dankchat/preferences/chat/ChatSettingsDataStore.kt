@@ -154,6 +154,9 @@ class ChatSettingsDataStore(
     val showChatModes = settings
         .map { it.showChatModes }
         .distinctUntilChanged()
+    val userLongClickBehavior = settings
+        .map { it.userLongClickBehavior }
+        .distinctUntilChanged()
 
     val debouncedScrollBack = settings
         .map { it.scrollbackLength }

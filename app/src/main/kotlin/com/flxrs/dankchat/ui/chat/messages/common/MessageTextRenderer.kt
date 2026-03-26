@@ -38,7 +38,7 @@ fun MessageTextWithInlineContent(
     onTextClick: (Int) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     modifier: Modifier = Modifier,
-    onTextLongClick: (() -> Unit)? = null,
+    onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current

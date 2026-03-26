@@ -126,6 +126,13 @@ class MessageHistoryViewModel(
         }
     }
 
+    fun insertText(text: String) {
+        searchFieldState.edit {
+            append(text)
+            placeCursorAtEnd()
+        }
+    }
+
     fun applySuggestion(suggestion: Suggestion) {
         val currentText = searchFieldState.text.toString()
         val lastSpaceIndex = currentText.trimEnd().lastIndexOf(' ')

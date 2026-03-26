@@ -25,6 +25,7 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
@@ -255,7 +256,8 @@ class ChatInputViewModel(
             inputOverlayFlow,
             helperText,
             codePointCount,
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText, codePoints ->
+            chatSettingsDataStore.userLongClickBehavior,
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText, codePoints, userLongClickBehavior ->
             val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
             val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
             val isInReplyThread = sheetState is FullScreenSheetState.Replies
@@ -310,6 +312,7 @@ class ChatInputViewModel(
                     text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
                     isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
                 ),
+                userLongClickBehavior = userLongClickBehavior,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState()).also { _uiState = it }
     }
@@ -541,6 +544,7 @@ data class ChatInputUiState(
     val whisperTarget: UserName? = null,
     val isWhisperTabActive: Boolean = false,
     val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
+    val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
 )
 
 @Stable

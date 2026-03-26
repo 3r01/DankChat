@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -88,6 +89,7 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
+import kotlin.math.abs
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
@@ -176,7 +178,7 @@ fun FloatingToolbar(
     LaunchedEffect(isTabsExpanded, selectedIndex) {
         if (!isTabsExpanded && hasOverflow) {
             delay(400) // wait for action icons enter animation (350ms tween)
-            tabListState.animateScrollToItem(selectedIndex)
+            tabListState.animateScrollToCenter(selectedIndex)
         }
     }
 
@@ -256,7 +258,7 @@ fun FloatingToolbar(
                     }
                 }.collect { targetIndex ->
                     if (targetIndex >= 0) {
-                        tabListState.animateScrollToItem(targetIndex)
+                        tabListState.animateScrollToCenter(targetIndex)
                     }
                 }
             }
@@ -546,6 +548,20 @@ private fun Modifier.endAlignedOverflow() = this.then(
 )
 
 private const val MAX_LAYOUT_SIZE = 16_777_215
+
+/** Scrolls the list so that [index] is centered in the viewport. */
+private suspend fun LazyListState.animateScrollToCenter(index: Int) {
+    animateScrollToItem(index)
+    val info = layoutInfo
+    val viewportWidth = info.viewportEndOffset - info.viewportStartOffset
+    val itemInfo = info.visibleItemsInfo.find { it.index == index } ?: return
+    val itemCenter = itemInfo.offset + itemInfo.size / 2
+    val viewportCenter = viewportWidth / 2
+    val delta = (itemCenter - viewportCenter).toFloat()
+    if (abs(delta) > 1f) {
+        animateScrollBy(delta)
+    }
+}
 
 /** Measures [LazyRow] at full width (for scrolling) but reports actual content width so the pill wraps content. */
 private fun Modifier.wrapLazyRowContent(listState: LazyListState, extraWidth: Int = 0) = layout { measurable, constraints ->
