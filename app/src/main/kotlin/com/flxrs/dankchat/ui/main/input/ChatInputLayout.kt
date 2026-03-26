@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.ui.main.input
 
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
@@ -70,6 +71,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,6 +79,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.pluralStringResource
@@ -93,6 +96,7 @@ import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.CancellationException
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableColumn
 
@@ -368,7 +372,24 @@ fun ChatInputLayout(
                     }
                 },
         ) {
+            var backProgress by remember { mutableFloatStateOf(0f) }
+            PredictiveBackHandler { progress ->
+                try {
+                    progress.collect { event ->
+                        backProgress = event.progress
+                    }
+                    onOverflowExpandedChanged(false)
+                } catch (_: CancellationException) {
+                    backProgress = 0f
+                }
+            }
             QuickActionsMenu(
+                modifier = Modifier.graphicsLayer {
+                    val scale = 1f - (backProgress * 0.1f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - backProgress
+                },
                 surfaceColor = surfaceColor,
                 visibleActions = visibleActions,
                 enabled = enabled,

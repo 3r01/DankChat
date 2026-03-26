@@ -721,6 +721,8 @@ fun MainScreen(
                 addChannelTooltipState = if (featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) featureTourViewModel.addChannelTooltipState else null,
                 onAddChannelTooltipDismissed = featureTourViewModel::onToolbarHintDismissed,
                 onSkipTour = featureTourViewModel::skipTour,
+                isKeyboardVisible = isKeyboardVisible,
+                keyboardHeightDp = with(density) { currentImeHeight.toDp() },
                 streamToolbarAlpha = streamState.effectiveAlpha,
                 modifier = toolbarModifier,
             )

@@ -57,6 +57,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import kotlinx.coroutines.CancellationException
@@ -73,6 +74,7 @@ fun InlineOverflowMenu(
     onDismiss: () -> Unit,
     initialMenu: AppBarMenu = AppBarMenu.Main,
     onAction: (ToolbarAction) -> Unit,
+    keyboardHeightDp: Dp = 0.dp,
 ) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
     var backProgress by remember { mutableFloatStateOf(0f) }
@@ -113,10 +115,11 @@ fun InlineOverflowMenu(
     ) { menu ->
         val density = LocalDensity.current
         val screenHeight = with(density) { LocalView.current.height.toDp() }
+        val maxHeight = (screenHeight - keyboardHeightDp) * 0.5f
         Column(
             modifier = Modifier
                 .width(200.dp)
-                .heightIn(max = screenHeight * 0.5f)
+                .heightIn(max = maxHeight)
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {

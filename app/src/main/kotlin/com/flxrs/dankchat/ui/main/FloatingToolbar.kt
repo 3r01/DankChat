@@ -89,7 +89,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -152,6 +152,8 @@ fun FloatingToolbar(
     addChannelTooltipState: TooltipState? = null,
     onAddChannelTooltipDismissed: () -> Unit = {},
     onSkipTour: () -> Unit = {},
+    isKeyboardVisible: Boolean = false,
+    keyboardHeightDp: Dp = 0.dp,
     streamToolbarAlpha: Float = 1f,
 ) {
 
@@ -454,14 +456,15 @@ fun FloatingToolbar(
                                         quickSwitchBackProgress = 0f
                                     }
                                 }
-                                val maxMenuHeight = (LocalConfiguration.current.screenHeightDp * 0.3f).dp
+                                val screenHeight = with(density) { LocalView.current.height.toDp() }
+                                val maxMenuHeight = screenHeight * 0.3f
                                 val quickSwitchScrollState = rememberScrollState()
                                 val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
                                 ScrollArea(
                                     state = quickSwitchScrollAreaState,
                                     modifier = Modifier
                                         .width(IntrinsicSize.Min)
-                                        .widthIn(max = 200.dp)
+                                        .widthIn(min = 125.dp, max = 200.dp)
                                         .heightIn(max = maxMenuHeight)
                                 ) {
                                     Column(
@@ -630,6 +633,7 @@ fun FloatingToolbar(
                                         },
                                         initialMenu = overflowInitialMenu,
                                         onAction = onAction,
+                                        keyboardHeightDp = keyboardHeightDp,
                                     )
                                 }
                             }
