@@ -11,7 +11,6 @@ internal class SuggestionScoringTest {
         emoteRepository = mockk(),
         usersRepository = mockk(),
         commandRepository = mockk(),
-        chatSettingsDataStore = mockk(),
         emoteUsageRepository = mockk(),
         emojiRepository = mockk(),
     )

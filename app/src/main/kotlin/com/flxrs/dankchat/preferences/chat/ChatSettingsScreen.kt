@@ -128,7 +128,6 @@ private fun ChatSettingsScreen(
         ) {
             GeneralCategory(
                 suggestions = settings.suggestions,
-                preferEmoteSuggestions = settings.preferEmoteSuggestions,
                 supibotSuggestions = settings.supibotSuggestions,
                 animateGifs = settings.animateGifs,
                 scrollbackLength = settings.scrollbackLength,
@@ -171,7 +170,6 @@ private fun ChatSettingsScreen(
 @Composable
 private fun GeneralCategory(
     suggestions: Boolean,
-    preferEmoteSuggestions: Boolean,
     supibotSuggestions: Boolean,
     animateGifs: Boolean,
     scrollbackLength: Int,
@@ -192,12 +190,6 @@ private fun GeneralCategory(
             summary = stringResource(R.string.preference_suggestions_summary),
             isChecked = suggestions,
             onClick = { onInteraction(ChatSettingsInteraction.Suggestions(it)) },
-        )
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_prefer_emote_suggestions_title),
-            summary = stringResource(R.string.preference_prefer_emote_suggestions_summary),
-            isChecked = preferEmoteSuggestions,
-            onClick = { onInteraction(ChatSettingsInteraction.PreferEmoteSuggestions(it)) },
         )
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_supibot_suggestions_title),

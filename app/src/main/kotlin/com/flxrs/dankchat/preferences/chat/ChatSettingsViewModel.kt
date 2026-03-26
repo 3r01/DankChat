@@ -36,7 +36,6 @@ class ChatSettingsViewModel(
         runCatching {
             when (interaction) {
                 is ChatSettingsInteraction.Suggestions                  -> chatSettingsDataStore.update { it.copy(suggestions = interaction.value) }
-                is ChatSettingsInteraction.PreferEmoteSuggestions       -> chatSettingsDataStore.update { it.copy(preferEmoteSuggestions = interaction.value) }
                 is ChatSettingsInteraction.SupibotSuggestions           -> chatSettingsDataStore.update { it.copy(supibotSuggestions = interaction.value) }
                 is ChatSettingsInteraction.CustomCommands               -> chatSettingsDataStore.update { it.copy(customCommands = interaction.value) }
                 is ChatSettingsInteraction.AnimateGifs                  -> chatSettingsDataStore.update { it.copy(animateGifs = interaction.value) }
@@ -77,7 +76,6 @@ sealed interface ChatSettingsEvent {
 
 sealed interface ChatSettingsInteraction {
     data class Suggestions(val value: Boolean) : ChatSettingsInteraction
-    data class PreferEmoteSuggestions(val value: Boolean) : ChatSettingsInteraction
     data class SupibotSuggestions(val value: Boolean) : ChatSettingsInteraction
     data class CustomCommands(val value: List<CustomCommand>) : ChatSettingsInteraction
     data class AnimateGifs(val value: Boolean) : ChatSettingsInteraction
@@ -100,7 +98,6 @@ sealed interface ChatSettingsInteraction {
 @Immutable
 data class ChatSettingsState(
     val suggestions: Boolean,
-    val preferEmoteSuggestions: Boolean,
     val supibotSuggestions: Boolean,
     val customCommands: ImmutableList<CustomCommand>,
     val animateGifs: Boolean,
@@ -123,7 +120,6 @@ data class ChatSettingsState(
 
 private fun ChatSettings.toState() = ChatSettingsState(
     suggestions = suggestions,
-    preferEmoteSuggestions = preferEmoteSuggestions,
     supibotSuggestions = supibotSuggestions,
     customCommands = customCommands.toImmutableList(),
     animateGifs = animateGifs,

@@ -8,7 +8,6 @@ import com.flxrs.dankchat.data.repo.emote.EmojiRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
-import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -20,7 +19,6 @@ class SuggestionProvider(
     private val emoteRepository: EmoteRepository,
     private val usersRepository: UsersRepository,
     private val commandRepository: CommandRepository,
-    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val emoteUsageRepository: EmoteUsageRepository,
     private val emojiRepository: EmojiRepository,
 ) {
@@ -64,14 +62,8 @@ class SuggestionProvider(
             getEmoteSuggestions(channel, currentWord),
             getUserSuggestions(channel, currentWord),
             getCommandSuggestions(channel, currentWord),
-            chatSettingsDataStore.settings.map { it.preferEmoteSuggestions }
-        ) { emotes, users, commands, preferEmotes ->
-            val orderedSuggestions = when {
-                preferEmotes -> emotes + users + commands
-                else         -> users + emotes + commands
-            }
-
-            orderedSuggestions.take(MAX_SUGGESTIONS)
+        ) { emotes, users, commands ->
+            (emotes + users + commands).take(MAX_SUGGESTIONS)
         }
     }
 

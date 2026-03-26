@@ -9,7 +9,6 @@ import kotlin.uuid.Uuid
 @Serializable
 data class ChatSettings(
     val suggestions: Boolean = true,
-    val preferEmoteSuggestions: Boolean = false,
     val supibotSuggestions: Boolean = false,
     val customCommands: List<CustomCommand> = emptyList(),
     val animateGifs: Boolean = true,

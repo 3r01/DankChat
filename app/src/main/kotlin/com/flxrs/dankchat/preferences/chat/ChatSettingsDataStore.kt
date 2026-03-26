@@ -37,7 +37,6 @@ class ChatSettingsDataStore(
 
     private enum class ChatPreferenceKeys(override val id: Int) : PreferenceKeys {
         Suggestions(R.string.preference_suggestions_key),
-        PreferEmoteSuggestions(R.string.preference_prefer_emote_suggestions_key),
         SupibotSuggestions(R.string.preference_supibot_suggestions_key),
         CustomCommands(R.string.preference_commands_key),
         AnimateGifs(R.string.preference_animate_gifs_key),
@@ -60,7 +59,6 @@ class ChatSettingsDataStore(
     private val initialMigration = dankChatPreferencesMigration<ChatPreferenceKeys, ChatSettings>(context) { acc, key, value ->
         when (key) {
             ChatPreferenceKeys.Suggestions                   -> acc.copy(suggestions = value.booleanOrDefault(acc.suggestions))
-            ChatPreferenceKeys.PreferEmoteSuggestions        -> acc.copy(preferEmoteSuggestions = value.booleanOrDefault(acc.preferEmoteSuggestions))
             ChatPreferenceKeys.SupibotSuggestions            -> acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
             ChatPreferenceKeys.CustomCommands                -> {
                 val commands = value.stringSetOrNull()?.mapNotNull {

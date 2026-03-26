@@ -113,11 +113,16 @@ class ChatInputViewModel(
     // Get suggestions based on current text, cursor position, and active channel
     private val suggestions: StateFlow<List<Suggestion>> = combine(
         debouncedTextAndCursor,
-        chatChannelProvider.activeChannel
-    ) { (text, cursorPos), channel ->
-        Triple(text, cursorPos, channel)
-    }.flatMapLatest { (text, cursorPos, channel) ->
-        suggestionProvider.getSuggestions(text, cursorPos, channel)
+        chatChannelProvider.activeChannel,
+        chatSettingsDataStore.suggestions,
+    ) { (text, cursorPos), channel, enabled ->
+        Triple(text, cursorPos, channel) to enabled
+    }.flatMapLatest { (triple, enabled) ->
+        val (text, cursorPos, channel) = triple
+        when {
+            enabled -> suggestionProvider.getSuggestions(text, cursorPos, channel)
+            else    -> flowOf(emptyList())
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val roomStateDisplayText: StateFlow<String?> = combine(
