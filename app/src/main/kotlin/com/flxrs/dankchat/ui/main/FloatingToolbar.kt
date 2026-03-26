@@ -40,7 +40,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.UnfoldMore
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -377,7 +377,7 @@ fun FloatingToolbar(
                                         }
                                     }
                                     if (hasOverflow) {
-                                        Spacer(Modifier.width(24.dp))
+                                        Spacer(Modifier.width(18.dp))
                                     }
                                 }
 
@@ -390,9 +390,10 @@ fun FloatingToolbar(
                                                 showOverflowMenu = false
                                                 showQuickSwitch = !showQuickSwitch
                                             }
+                                            .defaultMinSize(minHeight = 48.dp)
+                                            .padding(start = 4.dp, end = 8.dp)
                                             .drawBehind {
-                                                val fadeWidth = 24.dp.toPx()
-                                                // Gradient leading into the icon
+                                                val fadeWidth = 12.dp.toPx()
                                                 drawRect(
                                                     brush = Brush.horizontalGradient(
                                                         colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
@@ -401,17 +402,14 @@ fun FloatingToolbar(
                                                     size = Size(fadeWidth, size.height),
                                                     topLeft = Offset(-fadeWidth, 0f),
                                                 )
-                                                // Subtle background behind icon
                                                 drawRect(color = pillColor.copy(alpha = 0.6f))
-                                            }
-                                            .defaultMinSize(minHeight = 48.dp)
-                                            .padding(horizontal = 8.dp),
+                                            },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.UnfoldMore,
+                                            imageVector = Icons.Default.ArrowDropDown,
                                             contentDescription = stringResource(R.string.manage_channels),
-                                            modifier = Modifier.size(18.dp),
+                                            modifier = Modifier.size(28.dp),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     }
