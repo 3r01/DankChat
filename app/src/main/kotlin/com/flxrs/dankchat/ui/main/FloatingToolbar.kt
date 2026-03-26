@@ -1,8 +1,7 @@
 package com.flxrs.dankchat.ui.main
 
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -12,8 +11,10 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,19 +26,21 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -55,10 +58,12 @@ import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -78,10 +83,14 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -89,12 +98,11 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.launch
 import kotlin.math.abs
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
-
-private const val TAB_AUTO_COLLAPSE_DELAY_MS = 1000L
 
 sealed interface ToolbarAction {
     data class SelectTab(val index: Int) : ToolbarAction
@@ -141,57 +149,32 @@ fun FloatingToolbar(
 ) {
 
     val density = LocalDensity.current
-    var isTabsExpanded by remember { mutableStateOf(false) }
     var showOverflowMenu by remember { mutableStateOf(false) }
+    var showQuickSwitch by remember { mutableStateOf(false) }
     var overflowInitialMenu by remember { mutableStateOf<AppBarMenu>(AppBarMenu.Main) }
 
     val totalTabs = tabState.tabs.size
-    val hasOverflow = totalTabs > 3
     val selectedIndex = composePagerState.currentPage
-    val tabListState = rememberLazyListState()
+    val tabScrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
-    // Expand tabs when pager is swiped in a direction with more channels
-    LaunchedEffect(composePagerState.isScrollInProgress) {
-        if (composePagerState.isScrollInProgress && hasOverflow) {
-            val canScroll = tabListState.canScrollForward || tabListState.canScrollBackward
-            if (!canScroll) return@LaunchedEffect // all tabs fit, don't expand
-            val offset = snapshotFlow { composePagerState.currentPageOffsetFraction }
-                .first { it != 0f }
-            val current = composePagerState.currentPage
-            val swipingForward = offset > 0
-            val swipingBackward = offset < 0
-            if ((swipingForward && current < totalTabs - 1) || (swipingBackward && current > 0)) {
-                isTabsExpanded = true
-            }
-        }
-    }
+    val hasOverflow by remember { derivedStateOf { tabScrollState.maxValue > 0 } }
 
-    // Auto-collapse after all scrolling stops
-    LaunchedEffect(isTabsExpanded, composePagerState.isScrollInProgress, tabListState.isScrollInProgress) {
-        if (isTabsExpanded && !composePagerState.isScrollInProgress && !tabListState.isScrollInProgress) {
-            delay(TAB_AUTO_COLLAPSE_DELAY_MS)
-            isTabsExpanded = false
-        }
-    }
+    // Track tab positions after layout for centering calculations
+    val tabOffsets = remember { mutableStateOf(IntArray(0)) }
+    val tabWidths = remember { mutableStateOf(IntArray(0)) }
+    var tabViewportWidth by remember { mutableIntStateOf(0) }
 
-    // Scroll to selected tab after collapse animation settles
-    LaunchedEffect(isTabsExpanded, selectedIndex) {
-        if (!isTabsExpanded && hasOverflow) {
-            delay(400) // wait for action icons enter animation (350ms tween)
-            tabListState.animateScrollToCenter(selectedIndex)
-        }
-    }
-
-    // Reset expanded state when toolbar hides (e.g. keyboard opens in split mode)
+    // Reset menus when toolbar hides
     LaunchedEffect(showAppBar) {
         if (!showAppBar) {
-            isTabsExpanded = false
             showOverflowMenu = false
+            showQuickSwitch = false
         }
     }
 
-    // Dismiss scrim for inline overflow menu
-    if (showOverflowMenu) {
+    // Dismiss scrim for menus
+    if (showOverflowMenu || showQuickSwitch) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -200,6 +183,7 @@ fun FloatingToolbar(
                     interactionSource = remember { MutableInteractionSource() }
                 ) {
                     showOverflowMenu = false
+                    showQuickSwitch = false
                     overflowInitialMenu = AppBarMenu.Main
                 }
         )
@@ -242,41 +226,39 @@ fun FloatingToolbar(
         }
 
         Box(modifier = scrimModifier) {
-            // Auto-scroll whenever the selected tab isn't fully visible
-            LaunchedEffect(Unit) {
-                snapshotFlow {
-                    val currentIndex = composePagerState.currentPage
-                    val layoutInfo = tabListState.layoutInfo
-                    val viewportStart = layoutInfo.viewportStartOffset
-                    val viewportEnd = layoutInfo.viewportEndOffset
-                    val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == currentIndex }
-                    when {
-                        itemInfo == null                              -> currentIndex
-                        itemInfo.offset < viewportStart               -> currentIndex
-                        itemInfo.offset + itemInfo.size > viewportEnd -> currentIndex
-                        else                                          -> -1
-                    }
-                }.collect { targetIndex ->
-                    if (targetIndex >= 0) {
-                        tabListState.animateScrollToCenter(targetIndex)
-                    }
+            // Center selected tab when selection changes
+            LaunchedEffect(selectedIndex, tabOffsets.value, tabWidths.value, tabViewportWidth) {
+                val offsets = tabOffsets.value
+                val widths = tabWidths.value
+                if (selectedIndex !in offsets.indices || tabViewportWidth <= 0) return@LaunchedEffect
+
+                val tabOffset = offsets[selectedIndex]
+                val tabWidth = widths[selectedIndex]
+                val centeredOffset = tabOffset - (tabViewportWidth / 2 - tabWidth / 2)
+                val clampedOffset = centeredOffset.coerceIn(0, tabScrollState.maxValue)
+                if (tabScrollState.value != clampedOffset) {
+                    tabScrollState.animateScrollTo(clampedOffset)
                 }
             }
 
-            // Mention indicators based on visibility (keyed on tabs so the
-            // derivedStateOf recaptures when mention counts change)
+            // Mention indicators based on scroll position and tab positions
             val hasLeftMention by remember(tabState.tabs) {
                 derivedStateOf {
-                    val visibleItems = tabListState.layoutInfo.visibleItemsInfo
-                    val firstVisibleIndex = visibleItems.firstOrNull()?.index ?: 0
-                    tabState.tabs.take(firstVisibleIndex).any { it.mentionCount > 0 }
+                    val scrollPos = tabScrollState.value
+                    val offsets = tabOffsets.value
+                    val widths = tabWidths.value
+                    tabState.tabs.indices.any { i ->
+                        i < offsets.size && offsets[i] + widths[i] < scrollPos && tabState.tabs[i].mentionCount > 0
+                    }
                 }
             }
             val hasRightMention by remember(tabState.tabs) {
                 derivedStateOf {
-                    val visibleItems = tabListState.layoutInfo.visibleItemsInfo
-                    val lastVisibleIndex = visibleItems.lastOrNull()?.index ?: (totalTabs - 1)
-                    tabState.tabs.drop(lastVisibleIndex + 1).any { it.mentionCount > 0 }
+                    val scrollPos = tabScrollState.value
+                    val offsets = tabOffsets.value
+                    tabState.tabs.indices.any { i ->
+                        i < offsets.size && offsets[i] > scrollPos + tabViewportWidth && tabState.tabs[i].mentionCount > 0
+                    }
                 }
             }
 
@@ -302,7 +284,7 @@ fun FloatingToolbar(
                     enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
                     exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
                 ) {
-                    Box(modifier = if (endAligned) Modifier.fillMaxWidth() else Modifier) {
+                    Column(modifier = if (endAligned) Modifier.fillMaxWidth() else Modifier) {
                         val mentionGradientColor = MaterialTheme.colorScheme.error
                         Surface(
                             shape = MaterialTheme.shapes.extraLarge,
@@ -340,47 +322,170 @@ fun FloatingToolbar(
                                     }
                                 },
                         ) {
-                            LazyRow(
-                                state = tabListState,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .wrapLazyRowContent(tabListState, extraWidth = with(density) { 24.dp.roundToPx() })
-                                    .padding(horizontal = 12.dp)
-                                    .clipToBounds()
-                            ) {
-                                itemsIndexed(
-                                    items = tabState.tabs,
-                                    key = { _, tab -> tab.channel.value }
-                                ) { index, tab ->
-                                    val isSelected = index == selectedIndex
-                                    val textColor = when {
-                                        isSelected                            -> MaterialTheme.colorScheme.primary
-                                        tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
-                                        else                                  -> MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .combinedClickable(
-                                                onClick = { onAction(ToolbarAction.SelectTab(index)) },
-                                                onLongClick = {
-                                                    onAction(ToolbarAction.LongClickTab(index))
-                                                    overflowInitialMenu = AppBarMenu.Main
-                                                    showOverflowMenu = true
+                            val pillColor = MaterialTheme.colorScheme.surfaceContainer
+                            Box {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .padding(horizontal = 12.dp)
+                                        .onSizeChanged { tabViewportWidth = it.width }
+                                        .clipToBounds()
+                                        .horizontalScroll(tabScrollState)
+                                ) {
+                                    tabState.tabs.forEachIndexed { index, tab ->
+                                        val isSelected = index == selectedIndex
+                                        val textColor = when {
+                                            isSelected                            -> MaterialTheme.colorScheme.primary
+                                            tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+                                            else                                  -> MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .combinedClickable(
+                                                    onClick = { onAction(ToolbarAction.SelectTab(index)) },
+                                                    onLongClick = {
+                                                        showQuickSwitch = false
+                                                        onAction(ToolbarAction.LongClickTab(index))
+                                                        overflowInitialMenu = AppBarMenu.Main
+                                                        showOverflowMenu = true
+                                                    }
+                                                )
+                                                .defaultMinSize(minHeight = 48.dp)
+                                                .padding(horizontal = 12.dp)
+                                                .onGloballyPositioned { coords ->
+                                                    val offsets = tabOffsets.value
+                                                    val widths = tabWidths.value
+                                                    if (offsets.size != totalTabs) {
+                                                        tabOffsets.value = IntArray(totalTabs)
+                                                        tabWidths.value = IntArray(totalTabs)
+                                                    }
+                                                    tabOffsets.value[index] = coords.positionInParent().x.toInt()
+                                                    tabWidths.value[index] = coords.size.width
                                                 }
+                                        ) {
+                                            Text(
+                                                text = tab.displayName,
+                                                color = textColor,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                             )
+                                            if (tab.mentionCount > 0) {
+                                                Spacer(Modifier.width(4.dp))
+                                                Badge()
+                                            }
+                                        }
+                                    }
+                                    if (hasOverflow) {
+                                        Spacer(Modifier.width(24.dp))
+                                    }
+                                }
+
+                                // Quick switch dropdown indicator (overlays end of tabs)
+                                if (hasOverflow) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterEnd)
+                                            .clickable {
+                                                showOverflowMenu = false
+                                                showQuickSwitch = !showQuickSwitch
+                                            }
+                                            .drawBehind {
+                                                val fadeWidth = 24.dp.toPx()
+                                                // Gradient leading into the icon
+                                                drawRect(
+                                                    brush = Brush.horizontalGradient(
+                                                        colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
+                                                        endX = fadeWidth,
+                                                    ),
+                                                    size = Size(fadeWidth, size.height),
+                                                    topLeft = Offset(-fadeWidth, 0f),
+                                                )
+                                                // Subtle background behind icon
+                                                drawRect(color = pillColor.copy(alpha = 0.6f))
+                                            }
                                             .defaultMinSize(minHeight = 48.dp)
-                                            .padding(horizontal = 12.dp)
+                                            .padding(horizontal = 8.dp),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Text(
-                                            text = tab.displayName,
-                                            color = textColor,
-                                            style = MaterialTheme.typography.labelLarge,
-                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        Icon(
+                                            imageVector = Icons.Default.UnfoldMore,
+                                            contentDescription = stringResource(R.string.manage_channels),
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
-                                        if (tab.mentionCount > 0) {
-                                            Spacer(Modifier.width(4.dp))
-                                            Badge()
+                                    }
+                                }
+                            }
+                        }
+
+                        // Quick switch channel menu
+                        AnimatedVisibility(
+                            visible = showQuickSwitch,
+                            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .endAlignedOverflow(),
+                        ) {
+                            var quickSwitchBackProgress by remember { mutableFloatStateOf(0f) }
+                            Surface(
+                                shape = MaterialTheme.shapes.large,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                modifier = Modifier.graphicsLayer {
+                                    val scale = 1f - (quickSwitchBackProgress * 0.1f)
+                                    scaleX = scale
+                                    scaleY = scale
+                                    alpha = 1f - quickSwitchBackProgress
+                                },
+                            ) {
+                                PredictiveBackHandler { progress ->
+                                    try {
+                                        progress.collect { event ->
+                                            quickSwitchBackProgress = event.progress
+                                        }
+                                        showQuickSwitch = false
+                                    } catch (_: CancellationException) {
+                                        quickSwitchBackProgress = 0f
+                                    }
+                                }
+                                val maxMenuHeight = (LocalConfiguration.current.screenHeightDp * 0.25f).dp
+                                Column(
+                                    modifier = Modifier
+                                        .width(IntrinsicSize.Min)
+                                        .widthIn(max = 200.dp)
+                                        .heightIn(max = maxMenuHeight)
+                                        .verticalScroll(rememberScrollState())
+                                        .padding(vertical = 8.dp)
+                                ) {
+                                    tabState.tabs.forEachIndexed { index, tab ->
+                                        val isSelected = index == selectedIndex
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    onAction(ToolbarAction.SelectTab(index))
+                                                    showQuickSwitch = false
+                                                }
+                                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.Center,
+                                        ) {
+                                            Text(
+                                                text = tab.displayName,
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                color = when {
+                                                    isSelected -> MaterialTheme.colorScheme.primary
+                                                    else       -> MaterialTheme.colorScheme.onSurface
+                                                },
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            if (tab.mentionCount > 0) {
+                                                Spacer(Modifier.width(8.dp))
+                                                Badge()
+                                            }
                                         }
                                     }
                                 }
@@ -389,19 +494,8 @@ fun FloatingToolbar(
                     }
                 }
 
-                // Action icons + inline overflow menu (animated with expand/collapse)
-                AnimatedVisibility(
-                    visible = !isTabsExpanded,
-                    enter = expandHorizontally(
-                        expandFrom = Alignment.Start,
-                        animationSpec = tween(350, easing = FastOutSlowInEasing)
-                    ) + fadeIn(tween(200)),
-                    exit = shrinkHorizontally(
-                        shrinkTowards = Alignment.Start,
-                        animationSpec = tween(350, easing = FastOutSlowInEasing)
-                    ) + fadeOut(tween(150))
-                ) {
-                    Row(verticalAlignment = Alignment.Top) {
+                // Action icons + inline overflow menu
+                Row(verticalAlignment = Alignment.Top) {
                         Spacer(Modifier.width(8.dp))
 
                         Column(modifier = Modifier.width(IntrinsicSize.Min)) {
@@ -477,6 +571,7 @@ fun FloatingToolbar(
                                         }
                                     }
                                     IconButton(onClick = {
+                                        showQuickSwitch = false
                                         overflowInitialMenu = AppBarMenu.Main
                                         showOverflowMenu = !showOverflowMenu
                                     }) {
@@ -513,7 +608,6 @@ fun FloatingToolbar(
                             }
                         }
                     }
-                }
             }
         }
     }
@@ -549,32 +643,3 @@ private fun Modifier.endAlignedOverflow() = this.then(
 
 private const val MAX_LAYOUT_SIZE = 16_777_215
 
-/** Scrolls the list so that [index] is centered in the viewport. */
-private suspend fun LazyListState.animateScrollToCenter(index: Int) {
-    animateScrollToItem(index)
-    val info = layoutInfo
-    val viewportWidth = info.viewportEndOffset - info.viewportStartOffset
-    val itemInfo = info.visibleItemsInfo.find { it.index == index } ?: return
-    val itemCenter = itemInfo.offset + itemInfo.size / 2
-    val viewportCenter = viewportWidth / 2
-    val delta = (itemCenter - viewportCenter).toFloat()
-    if (abs(delta) > 1f) {
-        animateScrollBy(delta)
-    }
-}
-
-/** Measures [LazyRow] at full width (for scrolling) but reports actual content width so the pill wraps content. */
-private fun Modifier.wrapLazyRowContent(listState: LazyListState, extraWidth: Int = 0) = layout { measurable, constraints ->
-    val placeable = measurable.measure(constraints)
-    val items = listState.layoutInfo.visibleItemsInfo
-    val contentWidth = if (items.isNotEmpty()) {
-        val lastItem = items.last()
-        lastItem.offset + lastItem.size + extraWidth
-    } else {
-        placeable.width
-    }
-    val width = contentWidth.coerceAtMost(placeable.width)
-    layout(width, placeable.height) {
-        placeable.place(0, 0)
-    }
-}

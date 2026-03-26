@@ -82,10 +82,12 @@ fun InlineOverflowMenu(
             progress.collect { event ->
                 backProgress = event.progress
             }
-            backProgress = 0f
             when (currentMenu) {
                 AppBarMenu.Main -> onDismiss()
-                else            -> currentMenu = AppBarMenu.Main
+                else            -> {
+                    backProgress = 0f
+                    currentMenu = AppBarMenu.Main
+                }
             }
         } catch (_: CancellationException) {
             backProgress = 0f
