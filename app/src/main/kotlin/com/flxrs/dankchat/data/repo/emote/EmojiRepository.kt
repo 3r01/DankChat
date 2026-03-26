@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
+@Immutable
 @Serializable
 data class EmojiData(val code: String, val unicode: String)
 

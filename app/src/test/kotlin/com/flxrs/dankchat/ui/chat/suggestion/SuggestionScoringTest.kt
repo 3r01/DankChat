@@ -19,28 +19,21 @@ internal class SuggestionScoringTest {
     @Test
     fun `exact full match scores lowest`() {
         val score = provider.scoreEmote("Pog", "Pog", isRecentlyUsed = false)
-        assertEquals(expected = 0, actual = score)
+        assertEquals(expected = -10, actual = score)
     }
 
     @Test
-    fun `prefix exact case scores lower than prefix case-insensitive`() {
-        val prefixExact = provider.scoreEmote("PogChamp", "Pog", isRecentlyUsed = false)
-        val prefixInsensitive = provider.scoreEmote("POGGERS", "Pog", isRecentlyUsed = false)
-        assertTrue(prefixExact < prefixInsensitive)
-    }
-
-    @Test
-    fun `prefix scores lower than substring`() {
-        val prefix = provider.scoreEmote("PogChamp", "Pog", isRecentlyUsed = false)
-        val substring = provider.scoreEmote("wePog", "Pog", isRecentlyUsed = false)
-        assertTrue(prefix < substring)
-    }
-
-    @Test
-    fun `shorter emote beats longer within same tier`() {
-        val shorter = provider.scoreEmote("PogU", "Pog", isRecentlyUsed = false)
-        val longer = provider.scoreEmote("PogChamp", "Pog", isRecentlyUsed = false)
+    fun `shorter match beats longer match regardless of case`() {
+        val shorter = provider.scoreEmote("Wink", "wi", isRecentlyUsed = false)
+        val longer = provider.scoreEmote("wikked", "wi", isRecentlyUsed = false)
         assertTrue(shorter < longer)
+    }
+
+    @Test
+    fun `exact case beats case mismatch at same length`() {
+        val exactCase = provider.scoreEmote("wink", "wi", isRecentlyUsed = false)
+        val caseMismatch = provider.scoreEmote("Wink", "wi", isRecentlyUsed = false)
+        assertTrue(exactCase < caseMismatch)
     }
 
     @Test
@@ -51,21 +44,26 @@ internal class SuggestionScoringTest {
     }
 
     @Test
-    fun `recently used substring does not beat non-used prefix`() {
-        val prefix = provider.scoreEmote("PogChamp", "Pog", isRecentlyUsed = false)
-        val recentSubstring = provider.scoreEmote("wePog", "Pog", isRecentlyUsed = true)
-        assertTrue(prefix < recentSubstring)
-    }
-
-    @Test
-    fun `no match returns negative score`() {
+    fun `no match returns NO_MATCH`() {
         val score = provider.scoreEmote("Kappa", "Pog", isRecentlyUsed = false)
-        assertTrue(score < 0)
+        assertEquals(SuggestionProvider.NO_MATCH, score)
     }
 
     @Test
-    fun `case insensitive substring scores highest tier`() {
-        val score = provider.scoreEmote("pepog", "Pog", isRecentlyUsed = false)
-        assertTrue(score >= 400)
+    fun `substring match has same extra chars cost as prefix`() {
+        val prefix = provider.scoreEmote("wink", "wi", isRecentlyUsed = false)
+        val substring = provider.scoreEmote("owie", "wi", isRecentlyUsed = false)
+        // Both have 2 extra chars, same case match → same score
+        assertEquals(prefix, substring)
+    }
+
+    @Test
+    fun `multiple case diffs add up`() {
+        val noDiff = provider.scoreEmote("pog", "pog", isRecentlyUsed = false)
+        val twoDiffs = provider.scoreEmote("POG", "pog", isRecentlyUsed = false)
+        assertTrue(noDiff < twoDiffs)
+        // noDiff = -10, twoDiffs = 3 (three case diffs)
+        assertEquals(-10, noDiff)
+        assertEquals(3, twoDiffs)
     }
 }

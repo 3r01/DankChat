@@ -19,72 +19,63 @@ internal class SuggestionFilteringTest {
         emojiRepository = mockk(),
     )
 
-    private fun emote(code: String, id: String = code) = Suggestion.EmoteSuggestion(
+    private fun emote(code: String, id: String = code) =
         GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
-    )
 
     // region filterEmotes
 
     @Test
-    fun `emotes sorted by score - prefix before substring`() {
-        val suggestions = listOf(emote("wePog"), emote("PogChamp"), emote("Pog"))
-        val result = provider.filterEmotes(suggestions, "Pog", emptySet())
+    fun `emotes sorted by score - shorter before longer`() {
+        val emotes = listOf(emote("PogChamp"), emote("PogU"), emote("Pog"))
+        val result = provider.filterEmotes(emotes, "Pog", emptySet())
 
         assertEquals(
-            expected = listOf("Pog", "PogChamp", "wePog"),
+            expected = listOf("Pog", "PogU", "PogChamp"),
             actual = result.map { it.emote.code },
         )
     }
 
     @Test
-    fun `emotes sorted by score - shorter before longer in same tier`() {
-        val suggestions = listOf(emote("PogChamp"), emote("PogU"), emote("PogSlide"))
-        val result = provider.filterEmotes(suggestions, "Pog", emptySet())
+    fun `emotes sorted by score - exact case beats case mismatch at same length`() {
+        val emotes = listOf(emote("POGX"), emote("PogX"))
+        val result = provider.filterEmotes(emotes, "Pog", emptySet())
 
+        // PogX: 1 case diff + 1*100 = 101, POGX: 2 case diffs + 1*100 = 102
         assertEquals(
-            expected = listOf("PogU", "PogChamp", "PogSlide"),
+            expected = listOf("PogX", "POGX"),
             actual = result.map { it.emote.code },
         )
     }
 
     @Test
-    fun `emotes sorted by score - exact case prefix before case-insensitive prefix`() {
-        val suggestions = listOf(emote("POGGERS"), emote("PogChamp"))
-        val result = provider.filterEmotes(suggestions, "Pog", emptySet())
+    fun `shorter match beats case mismatch longer match`() {
+        val emotes = listOf(emote("wikked"), emote("Wink"))
+        val result = provider.filterEmotes(emotes, "wi", emptySet())
 
+        // Wink: 1 case diff + 2*100 = 201, wikked: -10 + 4*100 = 390
         assertEquals(
-            expected = listOf("PogChamp", "POGGERS"),
+            expected = listOf("Wink", "wikked"),
             actual = result.map { it.emote.code },
         )
     }
 
     @Test
-    fun `recently used emote boosted within tier`() {
-        val suggestions = listOf(emote("PogChamp", id = "1"), emote("PogU", id = "2"))
-        val result = provider.filterEmotes(suggestions, "Pog", setOf("1"))
+    fun `recently used emote gets boost`() {
+        val emotes = listOf(emote("PogChamp", id = "1"), emote("PogU", id = "2"))
+        val result = provider.filterEmotes(emotes, "Pog", setOf("1"))
 
-        // PogChamp (105 - 50 = 55) beats PogU (101)
+        // PogChamp: -10 + 5*100 - 50 = 440, PogU: -10 + 1*100 = 90
+        // PogU still wins due to length dominance
         assertEquals(
-            expected = listOf("PogChamp", "PogU"),
-            actual = result.map { it.emote.code },
-        )
-    }
-
-    @Test
-    fun `recently used substring does not beat non-used prefix`() {
-        val suggestions = listOf(emote("wePog", id = "1"), emote("PogChamp", id = "2"))
-        val result = provider.filterEmotes(suggestions, "Pog", setOf("1"))
-
-        assertEquals(
-            expected = listOf("PogChamp", "wePog"),
+            expected = listOf("PogU", "PogChamp"),
             actual = result.map { it.emote.code },
         )
     }
 
     @Test
     fun `non-matching emotes are excluded`() {
-        val suggestions = listOf(emote("Kappa"), emote("PogChamp"), emote("LUL"))
-        val result = provider.filterEmotes(suggestions, "Pog", emptySet())
+        val emotes = listOf(emote("Kappa"), emote("PogChamp"), emote("LUL"))
+        val result = provider.filterEmotes(emotes, "Pog", emptySet())
 
         assertEquals(
             expected = listOf("PogChamp"),
@@ -98,12 +89,8 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `users sorted alphabetically`() {
-        val suggestions = listOf(
-            Suggestion.UserSuggestion(DisplayName("Zed")),
-            Suggestion.UserSuggestion(DisplayName("Alice")),
-            Suggestion.UserSuggestion(DisplayName("Mike")),
-        )
-        val result = provider.filterUsers(suggestions, "")
+        val users = setOf(DisplayName("Zed"), DisplayName("Alice"), DisplayName("Mike"))
+        val result = provider.filterUsers(users, "")
 
         assertEquals(
             expected = listOf("Alice", "Mike", "Zed"),
@@ -113,12 +100,8 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `users filtered by prefix and sorted`() {
-        val suggestions = listOf(
-            Suggestion.UserSuggestion(DisplayName("Bob")),
-            Suggestion.UserSuggestion(DisplayName("Anna")),
-            Suggestion.UserSuggestion(DisplayName("Alex")),
-        )
-        val result = provider.filterUsers(suggestions, "A")
+        val users = setOf(DisplayName("Bob"), DisplayName("Anna"), DisplayName("Alex"))
+        val result = provider.filterUsers(users, "A")
 
         assertEquals(
             expected = listOf("Alex", "Anna"),
@@ -128,11 +111,8 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `users with at-prefix get leading at`() {
-        val suggestions = listOf(
-            Suggestion.UserSuggestion(DisplayName("Bob")),
-            Suggestion.UserSuggestion(DisplayName("Bea")),
-        )
-        val result = provider.filterUsers(suggestions, "@B")
+        val users = setOf(DisplayName("Bob"), DisplayName("Bea"))
+        val result = provider.filterUsers(users, "@B")
 
         assertEquals(
             expected = listOf("@Bea", "@Bob"),
@@ -146,12 +126,8 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `commands sorted alphabetically`() {
-        val suggestions = listOf(
-            Suggestion.CommandSuggestion("/timeout"),
-            Suggestion.CommandSuggestion("/ban"),
-            Suggestion.CommandSuggestion("/mod"),
-        )
-        val result = provider.filterCommands(suggestions, "/")
+        val commands = listOf("/timeout", "/ban", "/mod")
+        val result = provider.filterCommands(commands, "/")
 
         assertEquals(
             expected = listOf("/ban", "/mod", "/timeout"),
@@ -161,12 +137,8 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `commands filtered by prefix`() {
-        val suggestions = listOf(
-            Suggestion.CommandSuggestion("/timeout"),
-            Suggestion.CommandSuggestion("/ban"),
-            Suggestion.CommandSuggestion("/title"),
-        )
-        val result = provider.filterCommands(suggestions, "/ti")
+        val commands = listOf("/timeout", "/ban", "/title")
+        val result = provider.filterCommands(commands, "/ti")
 
         assertEquals(
             expected = listOf("/timeout", "/title"),
@@ -181,36 +153,34 @@ internal class SuggestionFilteringTest {
     @Test
     fun `emojis filtered by shortcode`() {
         val emojis = listOf(
-            EmojiData("smile", "😄"),
-            EmojiData("wave", "👋"),
-            EmojiData("smirk", "😏"),
+            EmojiData("smile", "\uD83D\uDE04"),
+            EmojiData("wave", "\uD83D\uDC4B"),
+            EmojiData("smirk", "\uD83D\uDE0F"),
         )
         val result = provider.filterEmojis(emojis, "smi")
 
         assertEquals(
             expected = listOf("smile", "smirk"),
-            actual = result.map { (suggestion, _) -> (suggestion as Suggestion.EmojiSuggestion).emoji.code },
+            actual = result.map { it.suggestion as Suggestion.EmojiSuggestion }.map { it.emoji.code },
         )
     }
 
     @Test
     fun `emojis use same scoring as emotes`() {
         val emojis = listOf(
-            EmojiData("smirk", "😏"),
-            EmojiData("smile", "😄"),
+            EmojiData("smirk", "\uD83D\uDE0F"),
+            EmojiData("smile", "\uD83D\uDE04"),
         )
         val result = provider.filterEmojis(emojis, "smi")
 
-        // "smile" (len 5) scores lower than "smirk" (len 5) — both prefix, same length, alphabetical order from input
-        // Both have score 100 + 2 = 102, so input order preserved
         assertEquals(2, result.size)
     }
 
     @Test
     fun `non-matching emojis excluded`() {
         val emojis = listOf(
-            EmojiData("wave", "👋"),
-            EmojiData("heart", "❤️"),
+            EmojiData("wave", "\uD83D\uDC4B"),
+            EmojiData("heart", "\u2764\uFE0F"),
         )
         val result = provider.filterEmojis(emojis, "smi")
 
