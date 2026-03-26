@@ -12,11 +12,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -95,6 +98,10 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import com.composables.core.ScrollArea
+import com.composables.core.Thumb
+import com.composables.core.VerticalScrollbar
+import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
@@ -447,44 +454,66 @@ fun FloatingToolbar(
                                         quickSwitchBackProgress = 0f
                                     }
                                 }
-                                val maxMenuHeight = (LocalConfiguration.current.screenHeightDp * 0.25f).dp
-                                Column(
+                                val maxMenuHeight = (LocalConfiguration.current.screenHeightDp * 0.3f).dp
+                                val quickSwitchScrollState = rememberScrollState()
+                                val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
+                                ScrollArea(
+                                    state = quickSwitchScrollAreaState,
                                     modifier = Modifier
                                         .width(IntrinsicSize.Min)
                                         .widthIn(max = 200.dp)
                                         .heightIn(max = maxMenuHeight)
-                                        .verticalScroll(rememberScrollState())
-                                        .padding(vertical = 8.dp)
                                 ) {
-                                    tabState.tabs.forEachIndexed { index, tab ->
-                                        val isSelected = index == selectedIndex
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable {
-                                                    onAction(ToolbarAction.SelectTab(index))
-                                                    showQuickSwitch = false
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .verticalScroll(quickSwitchScrollState)
+                                            .padding(vertical = 8.dp)
+                                    ) {
+                                        tabState.tabs.forEachIndexed { index, tab ->
+                                            val isSelected = index == selectedIndex
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable {
+                                                        onAction(ToolbarAction.SelectTab(index))
+                                                        showQuickSwitch = false
+                                                    }
+                                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.Center,
+                                            ) {
+                                                Text(
+                                                    text = tab.displayName,
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = when {
+                                                        isSelected -> MaterialTheme.colorScheme.primary
+                                                        else       -> MaterialTheme.colorScheme.onSurface
+                                                    },
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                )
+                                                if (tab.mentionCount > 0) {
+                                                    Spacer(Modifier.width(8.dp))
+                                                    Badge()
                                                 }
-                                                .padding(horizontal = 16.dp, vertical = 10.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.Center,
-                                        ) {
-                                            Text(
-                                                text = tab.displayName,
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                color = when {
-                                                    isSelected -> MaterialTheme.colorScheme.primary
-                                                    else       -> MaterialTheme.colorScheme.onSurface
-                                                },
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                                maxLines = 1,
-                                                overflow = TextOverflow.Ellipsis,
-                                            )
-                                            if (tab.mentionCount > 0) {
-                                                Spacer(Modifier.width(8.dp))
-                                                Badge()
                                             }
                                         }
+                                    }
+                                    VerticalScrollbar(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .fillMaxHeight()
+                                            .width(3.dp)
+                                            .padding(vertical = 2.dp)
+                                    ) {
+                                        Thumb(
+                                            Modifier.background(
+                                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                                RoundedCornerShape(100)
+                                            )
+                                        )
                                     }
                                 }
                             }

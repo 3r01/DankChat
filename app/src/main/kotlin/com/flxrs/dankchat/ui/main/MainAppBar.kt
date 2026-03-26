@@ -120,7 +120,7 @@ fun InlineOverflowMenu(
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
         ) {
-            when (menu) {
+                when (menu) {
                 AppBarMenu.Main    -> {
                     if (!isLoggedIn) {
                         InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) { onAction(ToolbarAction.Login); onDismiss() }
