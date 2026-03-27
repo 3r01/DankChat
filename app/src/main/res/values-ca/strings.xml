@@ -10,6 +10,7 @@
     <string name="add_dialog_title">Afegir canal</string>
     <string name="edit_dialog_title">Renombrar canal</string>
     <string name="dialog_ok">D\'acord</string>
+    <string name="save">Desa</string>
     <string name="dialog_cancel">Cancel·lar</string>
     <string name="dialog_dismiss">Descartar</string>
     <string name="error_dialog_copy">Copiar</string>
@@ -36,15 +37,20 @@
     <string name="external_upload_disclaimer">Hosting extern proporcionat per %1$s, utilitzar sota el teu propi risc.</string>
     <string name="nuuls_upload_title">Pujada de contingut personalitzat</string>
     <string name="snackbar_message_copied">Missatge copiat</string>
+    <string name="snackbar_message_id_copied">ID del missatge copiat</string>
     <string name="snackbar_error_copied">Error informació copiada</string>
     <string name="notification_stop">Parar</string>
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat obert en segon pla</string>
     <string name="emote_menu_hint">Obrir el menú d\'emotes</string>
+    <string name="close_emote_menu">Tanca el menú d\'emotes</string>
+    <string name="no_recent_emotes">Cap emote recent</string>
+    <string name="emote_menu_title">Emotes</string>
     <string name="login_title">Iniciar sessió a Twitch.tv</string>
     <string name="hint_connected">Comença a xatejar</string>
     <string name="hint_disconnected">Desconnectat</string>
     <string name="hint_not_logged_int">Sessió no iniciada</string>
+    <string name="hint_replying">Resposta</string>
     <string name="notification_new_mentions">Tens noves mencions</string>
     <string name="notification_mention">%1$s t\'acaba de mencionar en #%2$s</string>
     <string name="notification_notify_mention">Has estat mencionat a #%1$s</string>
@@ -60,6 +66,7 @@
     <string name="snackbar_retry">Reintentar</string>
     <string name="snackbar_data_reloaded">Emotes recargats</string>
     <string name="snackbar_data_load_failed_cause">Càrrega de dades fallida: %1$s</string>
+    <string name="snackbar_data_load_failed_multiple_causes">Càrrega de dades fallida amb múltiples errors:\n%1$s</string>
     <string name="data_loading_step_dankchat_badges">Insígnies DankChat</string>
     <string name="data_loading_step_global_badges">Insígnies globals</string>
     <string name="data_loading_step_global_ffz_emotes">Emotes FFZ globals</string>
@@ -121,6 +128,10 @@
     <string name="system_message_ffz_emotes_failed">No han pogut carregar els emotes de FFZ (Error %1$s)</string>
     <string name="system_message_bttv_emotes_failed">No han pogut carregar els emotes de BTTV (Error %1$s)</string>
     <string name="system_message_7tv_emotes_failed">No han pogut carregar els emotes de 7TV (Error %1$s)</string>
+    <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s ha canviat el conjunt d\'emotes 7TV actiu a \"%2$s\".</string>
+    <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s ha afegit l\'emote 7TV %2$s.</string>
+    <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s ha reanomenat l\'emote 7TV %2$s a %3$s.</string>
+    <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s ha eliminat l\'emote 7TV %2$s.</string>
     <string name="timed_out_message">&lt; Missatge eliminat &gt;</string>
     <string name="multi_entry_header_regex">Regex</string>
     <string name="multi_entry_add_entry">Afegeix una entrada</string>
@@ -132,9 +143,11 @@ El servei emmagatzema temporalment missatges per a canals que tu (i altres) visi
 
 - Per a no fer ús d\'aquesta característica, clica Opt-Out a baix o desactiva la càrrega de l\'historial de missatges des de la configuració més tard.
 - Pots aprendre més del teu propi canal visitant https://recent-messages.robotty.de/</string>
+    <string name="dialog_optin">Opt-in</string>
     <string name="dialog_optout">Opt-out</string>
     <string name="more">Més</string>
     <string name="mentions_title">Mencions / Missatges privats</string>
+    <string name="replies_title">Fil de respostes</string>
     <string name="whispers">Missatges privats</string>
     <string name="notification_whisper_mention">%1$s t\'ha enviat un missatge privat</string>
     <string name="mentions">Mencions</string>
@@ -146,6 +159,7 @@ El servei emmagatzema temporalment missatges per a canals que tu (i altres) visi
     <string name="confirm_channel_block_message_named">Esteu segurs que voleu bloquejar el canal \"%1$s\"?</string>
     <string name="user_popup_block">Bloquejar</string>
     <string name="user_popup_unblock">Desbloquejar</string>
+    <string name="user_popup_unban">Desvetar</string>
     <string name="user_popup_mention">Mencionar l\'usuari</string>
     <string name="user_popup_whisper">Xiuxiuejar usuari</string>
     <string name="user_popup_created">Creat: %1$s</string>
@@ -177,8 +191,11 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="change_roomstate">Modes de xat</string>
     <string name="confirm_user_ban_title">Confirmar ban</string>
     <string name="confirm_user_ban_message">Estàs segur que vols vetar aquest usuari?</string>
+    <string name="confirm_user_ban_positive_button">Vetar</string>
     <string name="confirm_user_timeout_title">Confirmar expulsió temporal</string>
+    <string name="confirm_user_timeout_positive_button">Expulsar temporalment</string>
     <string name="confirm_user_delete_title">Confimar eliminació del missatge</string>
+    <string name="confirm_user_delete_message">Estàs segur que vols eliminar aquest missatge?</string>
     <string name="confirm_user_delete_positive_button">Eliminar</string>
     <string name="confirm_user_roomstate_title">Actualitzar modes de xat</string>
     <string name="roomstate_emote">Només emotes.</string>
@@ -190,6 +207,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="minutes">Minuts</string>
     <string name="add_command">Afegir un commandament</string>
     <string name="remove_command">Eliminar el commandament</string>
+    <string name="command_trigger_hint">Disparador</string>
     <string name="command__hint">Commandaments</string>
     <string name="commands_title">Comandaments personalitzats</string>
     <string name="user_popup_report">Reportar</string>
@@ -201,7 +219,20 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="recent_uploads_clear">Esborrar pujades</string>
     <string name="host">Amfitrió</string>
     <string name="reset">Reinicia</string>
+    <string name="oauth_token">Token OAuth</string>
+    <string name="verify_login">Verifica i desa</string>
+    <string name="custom_login_hint">Només es suporten Client IDs que funcionen amb l\'API Helix de Twitch</string>
+    <string name="custom_login_show_scopes">Mostra els permisos requerits</string>
+    <string name="custom_login_required_scopes">Permisos requerits</string>
+    <string name="custom_login_missing_scopes_title">Permisos que falten</string>
+    <string name="custom_login_missing_scopes_text">Alguns permisos requerits per DankChat falten al token i algunes funcionalitats podrien no funcionar correctament. Vols continuar fent servir aquest token?\nFalten: %1$s</string>
+    <string name="custom_login_missing_scopes_continue">Continuar</string>
+    <string name="custom_login_error_missing_scopes">Permisos que falten: %1$s</string>
+    <string name="custom_login_error_fallback">Error: %1$s</string>
+    <string name="custom_login_error_empty_token">El token no pot estar buit</string>
+    <string name="custom_login_error_invalid_token">El token no és vàlid</string>
     <string name="badge_tooltip_moderator">Moderador</string>
+    <string name="badge_tooltip_lead_moderator">Moderador en cap</string>
     <string name="badge_tooltip_predictions">Predit \"%1$s\"</string>
     <string name="badge_tooltip_sub_tier">Nivell %1$s</string>
     <string name="preference_timestamp_title">Mostrar l\'hora</string>
@@ -215,6 +246,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_notification_header">Notificacions</string>
     <string name="preference_chat_header">Xat</string>
     <string name="preference_general_header">General</string>
+    <string name="preference_about_header">Quant a</string>
     <string name="preference_appearance_header">Aparença</string>
     <string name="preference_about_summary">DankChat %1$s creat per @flex3rs i col·laboradors</string>
     <string name="preference_show_input_title">Mostrar entrada</string>
@@ -236,11 +268,14 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_suggestions_title">Suggeriments d\'usuari i emotes</string>
     <string name="preference_suggestions_summary">Mostrar suggeriments per emotes i usuaris actius al escriure</string>
     <string name="preference_load_message_history_title">Carregar historial de missatges a l\'inici</string>
+    <string name="preference_load_messages_on_reconnect_title">Carregar historial de missatges després de reconnectar</string>
+    <string name="preference_load_messages_on_reconnect_summary">Intenta obtenir els missatges perduts que no s\'han rebut durant les caigudes de connexió</string>
     <string name="preference_message_history_header">Historial de missatges</string>
     <string name="preference_message_history_dashboard_title">Obre tauler de control</string>
     <string name="preference_message_history_dashboard_summary">Aprendre més sobre el servei i desactivar historial de missatges pel teu propi canal</string>
     <string name="preference_channel_data_header">Dades del canal</string>
     <string name="preference_developer_header">Opcions de desenvolupador</string>
+    <string name="preference_debug_mode_title">Mode de depuració</string>
     <string name="preference_debug_mode_summary">Proporciona informació per a qualsevol excepció que hagi estat atrapada</string>
     <string name="preference_timestamp_format_title">Format del temps</string>
     <string name="preference_tts_title">Activar TTS</string>
@@ -286,6 +321,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_light_theme_entry_title">Tema clar</string>
     <string name="preference_unlisted_emotes_title">Permetre emotes no allistats</string>
     <string name="preference_unlisted_emotes_summary">Desactiva la filtració d\'emotes no aprovats o allistats</string>
+    <string name="preference_rm_host_title">Host personalitzat de missatges recents</string>
     <string name="preference_fetch_streams_title">Buscar informació de l\'emissió</string>
     <string name="preference_fetch_streams_summary">Busca periòdicament informació de l\'emissió dels canals oberts. Necessari per a iniciar emissions incorporades.</string>
     <string name="preference_auto_disable_input_title">Desactiva l\'entrada si no s\'està connectat al xat</string>
@@ -294,7 +330,30 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="oauth_expired_title">Inici de sessió expirat!</string>
     <string name="oauth_expired_message">L\'inici de sessió ha expirat! Si us plau, accediu de nou.</string>
     <string name="oauth_expired_login_again">Tornar a iniciar sessió</string>
+    <string name="oauth_verify_failed">No s\'ha pogut verificar el token d\'inici de sessió, comprova la connexió.</string>
+    <string name="preference_retain_webview_title">Evita les recàrregues de l\'emissió</string>
     <string name="preference_retain_webview_summary">Permet la prevenció experimental de les recàrregues de l\'emissió després del canvi d\'orientació o tornant a obrir DankChat.</string>
+    <string name="preference_show_changelogs">Mostra els canvis després d\'actualitzar</string>
+    <string name="preference_whats_new_header">Novetats</string>
+    <string name="preference_custom_login_title">Inici de sessió personalitzat</string>
+    <string name="preference_bypass_command_handling_title">Omet la gestió de comandaments de Twitch</string>
+    <string name="preference_bypass_command_handling_summary">Desactiva la intercepció de comandaments de Twitch i els envia al xat</string>
+    <string name="preference_7tv_live_updates_title">Actualitzacions en viu d\'emotes 7TV</string>
+    <string name="preference_7tv_live_updates_timeout_title">Comportament de les actualitzacions d\'emotes en segon pla</string>
+    <string name="preference_7tv_live_updates_timeout_summary_timeout">Les actualitzacions s\'aturen després de %1$s.\nReducir aquest nombre pot millorar la durada de la bateria.</string>
+    <string name="preference_7tv_live_updates_timeout_summary_always_active">Les actualitzacions estan sempre actives.\nAfegir un temps límit pot millorar la durada de la bateria.</string>
+    <string name="preference_7tv_live_updates_timeout_summary_never_active">Les actualitzacions mai estan actives en segon pla.</string>
+    <string name="preference_7tv_live_updates_entry_never">Mai actiu</string>
+    <string name="preference_7tv_live_updates_entry_one_minute">1 minut</string>
+    <string name="preference_7tv_live_updates_entry_five_minutes">5 minuts</string>
+    <string name="preference_7tv_live_updates_entry_thirty_minutes">30 minuts</string>
+    <string name="preference_7tv_live_updates_entry_one_hour">1 hora</string>
+    <string name="preference_7tv_live_updates_entry_always">Sempre actiu</string>
+    <string name="preference_streams_header">Emissions en directe</string>
+    <string name="preference_pip_title">Activa el mode imatge en imatge</string>
+    <string name="preference_pip_summary">Permet que les emissions continuïn reproduint-se mentre l\'app és en segon pla</string>
+    <string name="reset_media_uploader_dialog_title">Reinicia la configuració del pujador de media</string>
+    <string name="reset_media_uploader_dialog_message">Estàs segur que vols reiniciar la configuració del pujador de media als valors per defecte?</string>
     <string name="reset_media_uploader_dialog_positive">Reinicia</string>
     <string name="clear_recent_uploads_dialog_title">Esborrar pujades recents</string>
     <string name="clear_recent_uploads_dialog_message">Voleu esborrar l\'historial de pujada? Els arxius pujats no seran eliminats.</string>
@@ -306,40 +365,48 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="create_notification">Notificació</string>
     <string name="preference_highlights_summary">Editar els missatges destacats</string>
     <string name="preference_highlights_ignores_header">Missatges destacats i ignorats</string>
-    <string name="username">Nom d’usuari</string>
+    <string name="username">Nom d\'usuari</string>
     <string name="block">Bloquejar</string>
     <string name="replacement">Reemplaçament</string>
     <string name="ignores">Ignora</string>
     <string name="preference_ignores_summary">Editar continguts ignorats</string>
     <string name="tab_messages">Missatges</string>
     <string name="tab_users">Usuaris</string>
+    <string name="tab_blacklisted_users">Usuaris a la llista negra</string>
     <string name="tab_twitch">Twitch</string>
+    <string name="tab_badges">Insígnies</string>
     <string name="undo">Desfer</string>
     <string name="item_removed">Element suprimit</string>
     <string name="unblocked_user">Usuari %1$s desbloquejat</string>
     <string name="unblocked_user_failed">Error en desbloquejar l\'usuari %1$s</string>
+    <string name="badge">Insígnia</string>
     <string name="blocked_user_failed">Error en bloquejar l\'usuari %1$s</string>
     <string name="highlights_entry_username">El vostre nom d\'usuari</string>
     <string name="highlights_ignores_entry_subscriptions">Subscripcions i esdeveniments</string>
     <string name="highlights_ignores_entry_announcements">Anuncis</string>
     <string name="highlights_ignores_entry_first_messages">Primers missatges</string>
+    <string name="highlights_ignores_entry_elevated_messages">Missatges destacats</string>
     <string name="highlights_ignores_entry_redemptions">Missatges destacats amb punts de canal</string>
+    <string name="highlights_ignores_entry_replies">Respostes</string>
     <string name="highlights_ignores_entry_custom">Personalitzat</string>
     <string name="highlights_messages_title">Crea notificacions i missatges destacats basats en certes configuracions</string>
     <string name="highlights_users_title">Crea notificacions i destaca missatges de certs usuaris</string>
     <string name="highlights_blacklisted_users_title">Desactiva notificacions i missatges destacats de certs usuaris (p.e. bots)</string>
+    <string name="highlights_badges_title">Crea notificacions i destaca missatges d\'usuaris segons les seves insígnies.</string>
     <string name="ignores_messages_title">Ignora missatges basats en certes configuracions</string>
     <string name="ignores_users_title">Ignora missatges de certs usuaris</string>
     <string name="ignores_twitch_title">Administrar usuaris bloquejats de Twitch</string>
     <string name="preference_notification_whisper_title">Crea notificacions per a missatges privats</string>
     <string name="login_outdated_title">Inici de sessió caducat!</string>
     <string name="login_outdated_message">L\'inici de sessió ha caducat i no té accés a certes funcions. Si us plau, inicieu sessió de nou.</string>
+    <string name="custom_user_display_title">Visualització personalitzada d\'usuari</string>
     <string name="remove_custom_user_display">Eliminar l\'ordenació personalitzada de l\'usuari</string>
     <string name="user_display_alias_input">Àlies</string>
     <string name="user_display_custom_color_enable">Color personalitzat</string>
     <string name="user_display_custom_alias_enable">Àlies personalitzat</string>
     <string name="pick_custom_user_color_title">Escollir color d\'usuari personalitzat</string>
     <string name="custom_user_display_summary">Afegeix un nom i color personalitzat per a usuaris</string>
+    <string name="reply_to">Responent a</string>
     <string name="toggle_app_bar">Mostra/amaga la barra d\'aplicació</string>
     <string name="error_with_message">Error: %s</string>
     <string name="confirm_logout_question">Tancar sessió?</string>
@@ -367,15 +434,126 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="search_filter_has_emote">Missatges amb emotes</string>
     <string name="search_filter_by_badge">Filtra per nom d\'insígnia</string>
     <string name="search_filter_user">Usuari</string>
-    <string name="search_filter_badge">Insígnia</string>    <string name="tour_input_actions">Accions personalitzables per accedir ràpidament a la cerca, les transmissions i més</string>
-    <string name="tour_overflow_menu">Toca aquí per a més accions i per configurar la barra d\'accions</string>
-    <string name="tour_configure_actions">Aquí pots personalitzar quines accions apareixen a la barra d\'accions</string>
-    <string name="tour_swipe_gesture">Llisca cap avall sobre l\'entrada per amagar-la ràpidament</string>
-    <string name="tour_recovery_fab">Toca aquí per recuperar l\'entrada</string>
-    <string name="tour_next">Següent</string>
-    <string name="tour_got_it">Entès</string>
-    <string name="tour_skip">Ometre el tour</string>
-    <string name="tour_add_more_channels_hint">Aquí pots afegir més canals</string>
+    <string name="search_filter_badge">Insígnia</string>
+    <string name="reply_header">Responent a @%1$s</string>
+    <string name="reply_thread_not_found">No s\'ha trobat el fil de respostes</string>
+
+    <!-- Whisper -->
+    <string name="backspace">Retrocés</string>
+    <string name="hint_whispering">Envia un xiuxiueig</string>
+    <string name="whisper_header">Xiuxiuejant a @%1$s</string>
+    <string name="whisper_new">Nou xiuxiueig</string>
+    <string name="whisper_new_dialog_title">Envia xiuxiueig a</string>
+    <string name="whisper_new_dialog_hint">Nom d\'usuari</string>
+    <string name="whisper_new_dialog_start">Enviar</string>
+
+    <!-- Emote Sheet -->
+    <string name="emote_sheet_use">Utilitza l\'emote</string>
+    <string name="emote_sheet_copy">Copia</string>
+    <string name="emote_sheet_open_link">Obre l\'enllaç de l\'emote</string>
+    <string name="emote_sheet_image_description">Imatge de l\'emote</string>
+    <string name="emote_sheet_twitch_emote">Emote de Twitch</string>
+    <string name="emote_sheet_ffz_channel_emote">Emote FFZ del canal</string>
+    <string name="emote_sheet_ffz_global_emote">Emote FFZ global</string>
+    <string name="emote_sheet_bttv_channel_emote">Emote BTTV del canal</string>
+    <string name="emote_sheet_bttv_shared_emote">Emote BTTV compartit</string>
+    <string name="emote_sheet_bttv_global_emote">Emote BTTV global</string>
+    <string name="emote_sheet_seventv_channel_emote">Emote 7TV del canal</string>
+    <string name="emote_sheet_seventv_global_emote">Emote 7TV global</string>
+    <string name="emote_sheet_alias_of">Àlies de %1$s</string>
+    <string name="emote_sheet_created_by">Creat per %1$s</string>
+    <string name="emote_sheet_zero_width_emote">(Amplada zero)</string>
+    <string name="emote_copied">Emote copiat</string>
+
+    <!-- Changelog -->
+    <string name="changelog_sheet_title">DankChat s\'ha actualitzat!</string>
+    <string name="changelog_sheet_subtitle">Novetats de la v%1$s:</string>
+
+    <!-- Login -->
+    <string name="confirm_login_cancel_title">Confirmar cancel·lació de l\'inici de sessió</string>
+    <string name="confirm_login_cancel_message">Estàs segur que vols cancel·lar el procés d\'inici de sessió?</string>
+    <string name="confirm_login_cancel_positive_button">Cancel·la l\'inici de sessió</string>
+    <string name="login_menu_zoom_out">Redueix</string>
+    <string name="login_menu_zoom_in">Amplia</string>
+
+    <!-- Misc -->
+    <string name="back">Enrere</string>
+    <string name="shared_chat">Xat compartit</string>
+    <plurals name="viewers_and_uptime">
+        <item quantity="one">En directe amb %1$d espectador durant %2$s</item>
+        <item quantity="many">En directe amb %1$d espectadors durant %2$s</item>
+        <item quantity="other">En directe amb %1$d espectadors durant %2$s</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d mes</item>
+        <item quantity="many">%d mesos</item>
+        <item quantity="other">%d mesos</item>
+    </plurals>
+    <string name="open_source_licenses">Llicències de codi obert</string>
+    <plurals name="viewers_and_uptime_with_cateogry" comment="Live with 1 viewer in Just Chatting for 1h 1m&#13;&#10;Live with 10 viewers in Just Chatting for 1h 1m">
+        <item quantity="one">En directe amb %1$d espectador a %2$s durant %3$s</item>
+        <item quantity="many">En directe amb %1$d espectadors a %2$s durant %3$s</item>
+        <item quantity="other">En directe amb %1$d espectadors a %2$s durant %3$s</item>
+    </plurals>
+    <string name="preference_streaminfo_category_title">Mostra la categoria de l\'emissió</string>
+    <string name="preference_streaminfo_category_summary">Mostra també la categoria de l\'emissió</string>
+    <string name="toggle_input">Commuta l\'entrada</string>
+
+    <!-- Badges -->
+    <string name="badge_broadcaster">Emissor</string>
+    <string name="badge_admin">Admin</string>
+    <string name="badge_staff">Staff</string>
+    <string name="badge_moderator">Moderador</string>
+    <string name="badge_lead_moderator">Moderador en cap</string>
+    <string name="badge_verified">Verificat</string>
+    <string name="badge_vip">VIP</string>
+    <string name="badge_founder">Fundador</string>
+    <string name="badge_subscriber">Subscriptor</string>
+
+    <!-- Highlight Colors -->
+    <string name="pick_highlight_color_title">Escull un color de ressaltat personalitzat</string>
+    <string name="reset_default_highlight_color">Per defecte</string>
+    <string name="choose_highlight_color">Escull un color</string>
+
+    <!-- Room State -->
+    <string name="room_state_emote_only">Només emotes</string>
+    <string name="room_state_subscriber_only">Només subscriptors</string>
+    <string name="room_state_slow_mode">Mode lent</string>
+    <string name="room_state_unique_chat">Xat únic (R9K)</string>
+    <string name="room_state_follower_only">Només seguidors</string>
+    <string name="room_state_preset_custom">Personalitzat</string>
+    <string name="room_state_follower_any">Qualsevol</string>
+    <string name="room_state_duration_seconds">%1$ds</string>
+    <string name="room_state_duration_minutes">%1$dm</string>
+    <string name="room_state_duration_hours">%1$dh</string>
+    <string name="room_state_duration_days">%1$dd</string>
+    <string name="room_state_duration_weeks">%1$dw</string>
+    <string name="room_state_duration_months">%1$dmo</string>
+
+    <!-- Empty States -->
+    <string name="no_channels_added_body">Afegeix un canal per començar a xatejar</string>
+
+    <!-- Menu -->
+    <string name="menu_show_stream">Mostra l\'emissió</string>
+    <string name="menu_hide_stream">Amaga l\'emissió</string>
+    <string name="menu_fullscreen">Pantalla completa</string>
+    <string name="menu_exit_fullscreen">Surt de la pantalla completa</string>
+    <string name="menu_hide_input">Amaga l\'entrada</string>
+    <string name="menu_room_state">Configuració del canal</string>
+
+    <!-- Input Actions -->
+    <string name="input_action_search">Cerca missatges</string>
+    <string name="input_action_last_message">Últim missatge</string>
+    <string name="input_action_stream">Commuta l\'emissió</string>
+    <string name="input_action_room_state">Configuració del canal</string>
+    <string name="input_action_fullscreen">Pantalla completa</string>
+    <string name="input_action_hide_input">Amaga l\'entrada</string>
+    <string name="input_action_configure">Configura accions</string>
+    <plurals name="input_actions_max">
+        <item quantity="one">Màxim %1$d acció</item>
+        <item quantity="many">Màxim %1$d accions</item>
+        <item quantity="other">Màxim %1$d accions</item>
+    </plurals>
 
     <!-- AutoMod -->
     <string name="automod_header" comment="AutoMod: Held a message for reason: aggressive (level 2). Allow will post it in chat.">S\'ha retingut un missatge per motiu: %1$s. Permetre el publicarà al xat.</string>
@@ -456,56 +634,6 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
         <item quantity="other">\u0020(%1$d vegades)</item>
     </plurals>
 
-    <!-- Whisper -->
-    <string name="backspace">Retrocés</string>
-    <string name="hint_whispering">Envia un xiuxiueig</string>
-    <string name="whisper_header">Xiuxiuejant a @%1$s</string>
-    <string name="whisper_new">Nou xiuxiueig</string>
-    <string name="whisper_new_dialog_title">Envia xiuxiueig a</string>
-    <string name="whisper_new_dialog_hint">Nom d\'usuari</string>
-    <string name="whisper_new_dialog_start">Enviar</string>
-
-    <!-- Room State -->
-    <string name="room_state_emote_only">Només emotes</string>
-    <string name="room_state_subscriber_only">Només subscriptors</string>
-    <string name="room_state_slow_mode">Mode lent</string>
-    <string name="room_state_unique_chat">Xat únic (R9K)</string>
-    <string name="room_state_follower_only">Només seguidors</string>
-    <string name="room_state_preset_custom">Personalitzat</string>
-    <string name="room_state_follower_any">Qualsevol</string>
-    <string name="room_state_duration_seconds">%1$ds</string>
-    <string name="room_state_duration_minutes">%1$dm</string>
-    <string name="room_state_duration_hours">%1$dh</string>
-    <string name="room_state_duration_days">%1$dd</string>
-    <string name="room_state_duration_weeks">%1$dw</string>
-    <string name="room_state_duration_months">%1$dmo</string>
-
-    <!-- Empty States -->
-    <string name="no_channels_added_body">Afegeix un canal per començar a xatejar</string>
-    <string name="no_recent_emotes">Cap emote recent</string>
-
-    <!-- Menu -->
-    <string name="menu_show_stream">Mostra l\'emissió</string>
-    <string name="menu_hide_stream">Amaga l\'emissió</string>
-    <string name="menu_fullscreen">Pantalla completa</string>
-    <string name="menu_exit_fullscreen">Surt de la pantalla completa</string>
-    <string name="menu_hide_input">Amaga l\'entrada</string>
-    <string name="menu_room_state">Configuració del canal</string>
-
-    <!-- Input Actions -->
-    <string name="input_action_search">Cerca missatges</string>
-    <string name="input_action_last_message">Últim missatge</string>
-    <string name="input_action_stream">Commuta l\'emissió</string>
-    <string name="input_action_room_state">Configuració del canal</string>
-    <string name="input_action_fullscreen">Pantalla completa</string>
-    <string name="input_action_hide_input">Amaga l\'entrada</string>
-    <string name="input_action_configure">Configura accions</string>
-    <plurals name="input_actions_max">
-        <item quantity="one">Màxim %1$d acció</item>
-        <item quantity="many">Màxim %1$d accions</item>
-        <item quantity="other">Màxim %1$d accions</item>
-    </plurals>
-
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">DankChat</string>
     <string name="onboarding_welcome_body">Configurem-ho tot.</string>
@@ -525,4 +653,15 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="onboarding_continue">Continua</string>
     <string name="onboarding_get_started">Comença</string>
     <string name="onboarding_skip">Omet</string>
+
+    <!-- Feature Tour -->
+    <string name="tour_input_actions">Accions personalitzables per accedir ràpidament a la cerca, les transmissions i més</string>
+    <string name="tour_overflow_menu">Toca aquí per a més accions i per configurar la barra d\'accions</string>
+    <string name="tour_configure_actions">Aquí pots personalitzar quines accions apareixen a la barra d\'accions</string>
+    <string name="tour_swipe_gesture">Llisca cap avall sobre l\'entrada per amagar-la ràpidament</string>
+    <string name="tour_recovery_fab">Toca aquí per recuperar l\'entrada</string>
+    <string name="tour_next">Següent</string>
+    <string name="tour_got_it">Entès</string>
+    <string name="tour_skip">Ometre el tour</string>
+    <string name="tour_add_more_channels_hint">Aquí pots afegir més canals</string>
 </resources>
