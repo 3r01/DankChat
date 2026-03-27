@@ -8,16 +8,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +63,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.composables.core.ScrollArea
+import com.composables.core.Thumb
+import com.composables.core.VerticalScrollbar
+import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import kotlinx.coroutines.CancellationException
 
@@ -96,33 +104,45 @@ fun InlineOverflowMenu(
         }
     }
 
-    AnimatedContent(
-        targetState = currentMenu,
-        transitionSpec = {
-            if (targetState != AppBarMenu.Main) {
-                (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-            } else {
-                (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
-            }.using(SizeTransform(clip = false))
-        },
-        label = "InlineMenuTransition",
-        modifier = Modifier.graphicsLayer {
-            val scale = 1f - (backProgress * 0.1f)
-            scaleX = scale
-            scaleY = scale
-            alpha = 1f - backProgress
-        },
-    ) { menu ->
-        val density = LocalDensity.current
-        val screenHeight = with(density) { LocalView.current.height.toDp() }
-        val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
-        Column(
-            modifier = Modifier
-                .width(200.dp)
-                .heightIn(max = maxHeight)
-                .verticalScroll(rememberScrollState())
-                .padding(vertical = 8.dp),
-        ) {
+    val density = LocalDensity.current
+    val screenHeight = with(density) { LocalView.current.height.toDp() }
+    val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
+    val scrollState = rememberScrollState()
+    val scrollAreaState = rememberScrollAreaState(scrollState)
+
+    LaunchedEffect(currentMenu) {
+        scrollState.scrollTo(0)
+    }
+
+    ScrollArea(
+        state = scrollAreaState,
+        modifier = Modifier
+            .width(200.dp)
+            .heightIn(max = maxHeight)
+            .graphicsLayer {
+                val scale = 1f - (backProgress * 0.1f)
+                scaleX = scale
+                scaleY = scale
+                alpha = 1f - backProgress
+            },
+    ) {
+        AnimatedContent(
+            targetState = currentMenu,
+            transitionSpec = {
+                if (targetState != AppBarMenu.Main) {
+                    (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+                } else {
+                    (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
+                }.using(SizeTransform(clip = false))
+            },
+            label = "InlineMenuTransition",
+        ) { menu ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .padding(vertical = 8.dp),
+            ) {
                 when (menu) {
                 AppBarMenu.Main    -> {
                     if (!isLoggedIn) {
@@ -165,6 +185,23 @@ fun InlineOverflowMenu(
                     }
                     InlineMenuItem(text = stringResource(R.string.clear_chat), icon = Icons.Default.DeleteSweep) { onAction(ToolbarAction.ClearChat); onDismiss() }
                 }
+            }
+            }
+        }
+        if (scrollState.maxValue > 0) {
+            VerticalScrollbar(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxHeight()
+                    .width(3.dp)
+                    .padding(vertical = 2.dp)
+            ) {
+                Thumb(
+                    Modifier.background(
+                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                        RoundedCornerShape(100)
+                    )
+                )
             }
         }
     }

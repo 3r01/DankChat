@@ -504,19 +504,21 @@ fun FloatingToolbar(
                                             }
                                         }
                                     }
-                                    VerticalScrollbar(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .fillMaxHeight()
-                                            .width(3.dp)
-                                            .padding(vertical = 2.dp)
-                                    ) {
-                                        Thumb(
-                                            Modifier.background(
-                                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                                                RoundedCornerShape(100)
+                                    if (quickSwitchScrollState.maxValue > 0) {
+                                        VerticalScrollbar(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .fillMaxHeight()
+                                                .width(3.dp)
+                                                .padding(vertical = 2.dp)
+                                        ) {
+                                            Thumb(
+                                                Modifier.background(
+                                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                                    RoundedCornerShape(100)
+                                                )
                                             )
-                                        )
+                                        }
                                     }
                                 }
                             }
@@ -618,6 +620,7 @@ fun FloatingToolbar(
                                 enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                                 exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
                                 modifier = Modifier
+                                    .skipIntrinsicHeight()
                                     .padding(top = 4.dp)
                                     .endAlignedOverflow(),
                             ) {
@@ -669,6 +672,30 @@ private fun Modifier.endAlignedOverflow() = this.then(
 
         override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
             measurable.maxIntrinsicHeight(width)
+    }
+)
+
+/**
+ * Prevents intrinsic height queries from propagating to children.
+ * Needed because [com.composables.core.ScrollArea] crashes on intrinsic height measurement,
+ * and [IntrinsicSize.Min] on a parent Column triggers these queries.
+ */
+private fun Modifier.skipIntrinsicHeight() = this.then(
+    object : LayoutModifier {
+        override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                placeable.placeRelative(0, 0)
+            }
+        }
+
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
+            measurable.minIntrinsicWidth(height)
+
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
+            measurable.maxIntrinsicWidth(height)
     }
 )
 
