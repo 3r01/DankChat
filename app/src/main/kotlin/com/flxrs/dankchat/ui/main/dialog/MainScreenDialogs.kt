@@ -89,7 +89,7 @@ fun MainScreenDialogs(
         val roomState = channelRepository.getRoomState(modActionsChannel)
         val isBroadcaster = preferenceStore.userIdString == roomState?.channelId
         val modActionsViewModel: ModActionsViewModel = koinViewModel(
-            key = modActionsChannel.value,
+            key = "mod-actions-${modActionsChannel.value}",
             parameters = { parametersOf(modActionsChannel) }
         )
         val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()

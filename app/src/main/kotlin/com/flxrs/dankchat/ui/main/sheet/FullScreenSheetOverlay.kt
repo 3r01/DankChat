@@ -163,7 +163,7 @@ fun FullScreenSheetOverlay(
 
                 is FullScreenSheetState.History -> {
                     val viewModel: MessageHistoryViewModel = koinViewModel(
-                        key = sheetState.channel.value,
+                        key = "history-${sheetState.channel.value}",
                         parameters = { parametersOf(sheetState.channel) },
                     )
                     val historyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
