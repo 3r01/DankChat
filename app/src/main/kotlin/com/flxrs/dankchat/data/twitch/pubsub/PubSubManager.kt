@@ -2,18 +2,23 @@ package com.flxrs.dankchat.data.twitch.pubsub
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.toUserId
+import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.WebSocketOkHttpClient
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel as CoroutineChannel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
@@ -25,9 +30,9 @@ import org.koin.core.annotation.Single
 @Single
 class PubSubManager(
     private val channelRepository: ChannelRepository,
+    private val chatChannelProvider: ChatChannelProvider,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val authDataStore: AuthDataStore,
-    private val preferenceStore: DankChatPreferenceStore,
     @Named(type = WebSocketOkHttpClient::class) private val client: OkHttpClient,
     private val json: Json,
     dispatchersProvider: DispatchersProvider,
@@ -35,7 +40,7 @@ class PubSubManager(
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val connections = mutableListOf<PubSubConnection>()
     private val collectJobs = mutableListOf<Job>()
-    private val receiveChannel = Channel<PubSubMessage>(capacity = Channel.BUFFERED)
+    private val receiveChannel = CoroutineChannel<PubSubMessage>(capacity = CoroutineChannel.BUFFERED)
 
     val messages = receiveChannel.receiveAsFlow().shareIn(scope, started = SharingStarted.Eagerly)
     val connected: Boolean
@@ -44,67 +49,27 @@ class PubSubManager(
     val connectedAndHasWhisperTopic: Boolean
         get() = connections.any { it.connected && it.hasWhisperTopic }
 
-    fun start() {
-        if (!authDataStore.isLoggedIn) {
-            return
-        }
-
-        val userId = authDataStore.userIdString ?: return
-        val channels = preferenceStore.channels
-
+    init {
         scope.launch {
-            val usePubsub = developerSettingsDataStore.settings.first().shouldUsePubSub
-            val helixChannels = channelRepository.getChannels(channels)
-            val topics = buildSet {
-                when {
-                    usePubsub -> {
-                        add(PubSubTopic.Whispers(userId))
-                        helixChannels.forEach {
-                            add(PubSubTopic.PointRedemptions(channelId = it.id, channelName = it.name))
-                            add(PubSubTopic.ModeratorActions(userId = userId, channelId = it.id, channelName = it.name))
-                        }
-                    }
-
-                    else      -> {
-                        helixChannels.forEach {
-                            add(PubSubTopic.PointRedemptions(channelId = it.id, channelName = it.name))
-                        }
-                    }
-
-                }
+            combine(
+                authDataStore.settings.map { it.isLoggedIn to it.userId }.distinctUntilChanged(),
+                chatChannelProvider.channels.filterNotNull(),
+                developerSettingsDataStore.settings.map { it.shouldUsePubSub }.distinctUntilChanged(),
+            ) { (isLoggedIn, userId), channels, shouldUsePubSub ->
+                Triple(if (isLoggedIn) userId else null, channels, shouldUsePubSub)
+            }.collect { (userId, channels, shouldUsePubSub) ->
+                closeAll()
+                if (userId == null) return@collect
+                val resolved = channelRepository.getChannels(channels)
+                val topics = buildTopics(userId, resolved, shouldUsePubSub)
+                listen(topics)
             }
-            listen(topics)
         }
     }
 
     fun reconnect() = resetCollectionWith { reconnect() }
 
     fun reconnectIfNecessary() = resetCollectionWith { reconnectIfNecessary() }
-
-    fun close() = scope.launch {
-        collectJobs.forEach { it.cancel() }
-        collectJobs.clear()
-        connections.forEach { it.close() }
-    }
-
-    fun addChannel(channel: UserName) = scope.launch {
-        if (!authDataStore.isLoggedIn) {
-            return@launch
-        }
-
-        val userId = authDataStore.userIdString ?: return@launch
-        val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
-        val usePubsub = developerSettingsDataStore.settings.first().shouldUsePubSub
-
-        val topics = buildSet {
-            add(PubSubTopic.PointRedemptions(channelId, channel))
-
-            if (usePubsub) {
-                add(PubSubTopic.ModeratorActions(userId, channelId, channel))
-            }
-        }
-        listen(topics)
-    }
 
     fun removeChannel(channel: UserName) {
         val emptyConnections = connections
@@ -118,6 +83,19 @@ class PubSubManager(
 
         connections.removeAll { conn -> emptyConnections.any { it.tag == conn.tag } }
         resetCollectionWith()
+    }
+
+    private fun buildTopics(userId: String, channels: List<Channel>, shouldUsePubSub: Boolean): Set<PubSubTopic> = buildSet {
+        val uid = userId.toUserId()
+        for (channel in channels) {
+            add(PubSubTopic.PointRedemptions(channelId = channel.id, channelName = channel.name))
+            if (shouldUsePubSub) {
+                add(PubSubTopic.ModeratorActions(userId = uid, channelId = channel.id, channelName = channel.name))
+            }
+        }
+        if (shouldUsePubSub) {
+            add(PubSubTopic.Whispers(uid))
+        }
     }
 
     private fun listen(topics: Set<PubSubTopic>) {
@@ -150,6 +128,13 @@ class PubSubManager(
         }
     }
 
+    private fun closeAll() {
+        collectJobs.forEach { it.cancel() }
+        collectJobs.clear()
+        connections.forEach { it.close() }
+        connections.clear()
+    }
+
     private fun resetCollectionWith(action: PubSubConnection.() -> Unit = {}) = scope.launch {
         collectJobs.forEach { it.cancel() }
         collectJobs.clear()
@@ -169,9 +154,5 @@ class PubSubManager(
                 else                   -> Unit
             }
         }
-    }
-
-    companion object {
-        private val TAG = PubSubManager::class.java.simpleName
     }
 }

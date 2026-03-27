@@ -43,7 +43,7 @@ class ChatRepository(
 
     fun setActiveChannel(channel: UserName?) = chatChannelProvider.setActiveChannel(channel)
 
-    fun joinChannel(channel: UserName, listenToPubSub: Boolean = true): List<UserName> {
+    fun joinChannel(channel: UserName): List<UserName> {
         val currentChannels = channels.value.orEmpty()
         if (channel in currentChannels) {
             return currentChannels
@@ -56,9 +56,6 @@ class ChatRepository(
         chatMessageRepository.clearMessages(channel)
 
         chatConnector.joinIrcChannel(channel)
-        if (listenToPubSub) {
-            chatConnector.addPubSubChannel(channel)
-        }
 
         return updatedChannels
     }

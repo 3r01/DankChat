@@ -56,10 +56,6 @@ class ChatConnector(
     }
 
     fun connectAndJoin(channels: List<UserName>) {
-        if (!pubSubManager.connected) {
-            pubSubManager.start()
-        }
-
         if (!readConnection.connected) {
             readConnection.connect()
             writeConnection.connect()
@@ -73,7 +69,6 @@ class ChatConnector(
     fun closeAndReconnect(channels: List<UserName>) = scope.launch {
         readConnection.close()
         writeConnection.close()
-        pubSubManager.close()
         eventSubManager.close()
         connectAndJoin(channels)
     }
@@ -97,10 +92,6 @@ class ChatConnector(
 
     fun joinIrcChannel(channel: UserName) {
         readConnection.joinChannel(channel)
-    }
-
-    fun addPubSubChannel(channel: UserName) {
-        pubSubManager.addChannel(channel)
     }
 
     fun partChannel(channel: UserName) {
