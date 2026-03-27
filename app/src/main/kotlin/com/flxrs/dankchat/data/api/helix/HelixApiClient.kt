@@ -242,6 +242,14 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
             .throwHelixApiErrorOnFailure()
     }
 
+    suspend fun getShieldMode(broadcastUserId: UserId, moderatorUserId: UserId): Result<ShieldModeStatusDto> = runCatching {
+        helixApi.getShieldMode(broadcastUserId, moderatorUserId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ShieldModeStatusDto>>()
+            .data
+            .first()
+    }
+
     suspend fun putShieldMode(broadcastUserId: UserId, moderatorUserId: UserId, request: ShieldModeRequestDto): Result<ShieldModeStatusDto> = runCatching {
         helixApi.putShieldMode(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()

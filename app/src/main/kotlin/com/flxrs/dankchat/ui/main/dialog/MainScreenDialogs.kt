@@ -44,7 +44,8 @@ fun MainScreenDialogs(
     dialogViewModel: DialogStateViewModel,
     isLoggedIn: Boolean,
     activeChannel: UserName?,
-    roomStateChannel: UserName?,
+    modActionsChannel: UserName?,
+    isStreamActive: Boolean,
     inputSheetState: InputSheetState,
     snackbarHostState: SnackbarHostState,
     onAddChannel: (UserName) -> Unit,
@@ -83,13 +84,24 @@ fun MainScreenDialogs(
         )
     }
 
-    if (dialogState.showRoomState && roomStateChannel != null) {
-        RoomStateDialog(
-            roomState = channelRepository.getRoomState(roomStateChannel),
+    if (dialogState.showModActions && modActionsChannel != null) {
+        val preferenceStore: DankChatPreferenceStore = koinInject()
+        val roomState = channelRepository.getRoomState(modActionsChannel)
+        val isBroadcaster = preferenceStore.userIdString == roomState?.channelId
+        val modActionsViewModel: ModActionsViewModel = koinViewModel(
+            key = modActionsChannel.value,
+            parameters = { parametersOf(modActionsChannel) }
+        )
+        val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()
+        ModActionsDialog(
+            roomState = roomState,
+            isBroadcaster = isBroadcaster,
+            isStreamActive = isStreamActive,
+            shieldModeActive = shieldModeActive,
             onSendCommand = { command ->
                 chatInputViewModel.trySendMessageOrCommand(command)
             },
-            onDismiss = dialogViewModel::dismissRoomState
+            onDismiss = dialogViewModel::dismissModActions
         )
     }
 
@@ -114,18 +126,6 @@ fun MainScreenDialogs(
                 dialogViewModel.dismissBlockChannel()
             },
             onDismiss = dialogViewModel::dismissBlockChannel,
-        )
-    }
-
-    if (dialogState.showClearChat && activeChannel != null) {
-        ConfirmationDialog(
-            title = stringResource(R.string.confirm_clear_chat_question),
-            confirmText = stringResource(R.string.dialog_ok),
-            onConfirm = {
-                channelManagementViewModel.clearChat(activeChannel)
-                dialogViewModel.dismissClearChat()
-            },
-            onDismiss = dialogViewModel::dismissClearChat,
         )
     }
 

@@ -129,7 +129,6 @@ sealed interface ToolbarAction {
     data object ChooseMedia : ToolbarAction
     data object ReloadEmotes : ToolbarAction
     data object Reconnect : ToolbarAction
-    data object ClearChat : ToolbarAction
     data object OpenSettings : ToolbarAction
 }
 

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class InputAction {
-    Search, LastMessage, Stream, RoomState, Fullscreen, HideInput, Debug
+    Search, LastMessage, Stream, ModActions, Fullscreen, HideInput, Debug
 }
 
 @Serializable
@@ -21,7 +21,7 @@ data class AppearanceSettings(
     val showChangelogs: Boolean = true,
     val showCharacterCounter: Boolean = false,
     val inputActions: List<InputAction> = listOf(
-        InputAction.Stream, InputAction.RoomState,
+        InputAction.Stream, InputAction.ModActions,
         InputAction.Search, InputAction.LastMessage,
     ),
 )

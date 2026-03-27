@@ -262,6 +262,13 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
         contentType(ContentType.Application.Json)
     }
 
+    suspend fun getShieldMode(broadcasterUserId: UserId, moderatorUserId: UserId): HttpResponse? = ktorClient.get("moderation/shield_mode") {
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterUserId)
+        parameter("moderator_id", moderatorUserId)
+    }
+
     suspend fun putShieldMode(broadcasterUserId: UserId, moderatorUserId: UserId, request: ShieldModeRequestDto): HttpResponse? = ktorClient.put("moderation/shield_mode") {
         val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
         bearerAuth(oAuth)

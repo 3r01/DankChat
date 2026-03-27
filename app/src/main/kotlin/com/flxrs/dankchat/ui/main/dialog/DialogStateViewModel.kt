@@ -55,20 +55,12 @@ class DialogStateViewModel(
         update { copy(showBlockChannel = false) }
     }
 
-    fun showClearChat() {
-        update { copy(showClearChat = true) }
+    fun showModActions() {
+        update { copy(showModActions = true) }
     }
 
-    fun dismissClearChat() {
-        update { copy(showClearChat = false) }
-    }
-
-    fun showRoomState() {
-        update { copy(showRoomState = true) }
-    }
-
-    fun dismissRoomState() {
-        update { copy(showRoomState = false) }
+    fun dismissModActions() {
+        update { copy(showModActions = false) }
     }
 
     // Auth dialogs
@@ -151,8 +143,7 @@ data class DialogState(
     val showManageChannels: Boolean = false,
     val showRemoveChannel: Boolean = false,
     val showBlockChannel: Boolean = false,
-    val showClearChat: Boolean = false,
-    val showRoomState: Boolean = false,
+    val showModActions: Boolean = false,
     val showLogout: Boolean = false,
     val loginOutdated: UserName? = null,
     val showLoginExpired: Boolean = false,

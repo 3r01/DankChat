@@ -183,7 +183,6 @@ fun InlineOverflowMenu(
                     if (isLoggedIn) {
                         InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) { onAction(ToolbarAction.BlockChannel); onDismiss() }
                     }
-                    InlineMenuItem(text = stringResource(R.string.clear_chat), icon = Icons.Default.DeleteSweep) { onAction(ToolbarAction.ClearChat); onDismiss() }
                 }
             }
             }

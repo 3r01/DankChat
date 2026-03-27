@@ -602,6 +602,21 @@
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
+    <string name="mod_actions_room_state_section">Room state</string>
+    <string name="mod_actions_section">Mod actions</string>
+    <string name="mod_actions_broadcaster_section">Broadcaster</string>
+    <string name="mod_actions_shield_mode">Shield mode</string>
+    <string name="mod_actions_clear_chat">Clear chat</string>
+    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_announce">Announce</string>
+    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_shoutout">Shoutout</string>
+    <string name="mod_actions_commercial">Commercial</string>
+    <string name="mod_actions_raid">Raid</string>
+    <string name="mod_actions_cancel_raid">Cancel raid</string>
+    <string name="mod_actions_stream_marker">Stream marker</string>
+    <string name="mod_actions_username_hint">Username</string>
+    <string name="mod_actions_channel_hint">Channel</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Добавьте канал, чтобы начать общение</string>
@@ -613,13 +628,13 @@
     <string name="menu_fullscreen">На весь экран</string>
     <string name="menu_exit_fullscreen">Выйти из полноэкранного режима</string>
     <string name="menu_hide_input">Скрыть ввод</string>
-    <string name="menu_room_state">Настройки канала</string>
+    <string name="menu_mod_actions">Настройки канала</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Поиск сообщений</string>
     <string name="input_action_last_message">Последнее сообщение</string>
     <string name="input_action_stream">Переключить трансляцию</string>
-    <string name="input_action_room_state">Настройки канала</string>
+    <string name="input_action_mod_actions">Настройки канала</string>
     <string name="input_action_fullscreen">На весь экран</string>
     <string name="input_action_hide_input">Скрыть ввод</string>
     <string name="input_action_configure">Настроить действия</string>

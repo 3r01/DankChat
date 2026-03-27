@@ -147,7 +147,7 @@ fun ChatInputLayout(
     showWhisperOverlay: Boolean,
     whisperTarget: UserName?,
     onWhisperDismiss: () -> Unit,
-    onChangeRoomState: () -> Unit,
+    onModActions: () -> Unit,
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
     onDebugInfoClick: () -> Unit = {},
@@ -190,7 +190,7 @@ fun ChatInputLayout(
         inputActions.filter { action ->
             when (action) {
                 InputAction.Stream    -> hasStreamData || isStreamActive
-                InputAction.RoomState -> isModerator
+                InputAction.ModActions -> isModerator
                 InputAction.Debug     -> debugMode
                 else                  -> true
             }
@@ -346,7 +346,7 @@ fun ChatInputLayout(
                     onSearchClick = onSearchClick,
                     onLastMessageClick = onLastMessageClick,
                     onToggleStream = onToggleStream,
-                    onChangeRoomState = onChangeRoomState,
+                    onModActions = onModActions,
                     onToggleFullscreen = onToggleFullscreen,
                     onToggleInput = onToggleInput,
                     onDebugInfoClick = onDebugInfoClick,
@@ -415,7 +415,7 @@ fun ChatInputLayout(
                         InputAction.Search      -> onSearchClick()
                         InputAction.LastMessage -> onLastMessageClick()
                         InputAction.Stream      -> onToggleStream()
-                        InputAction.RoomState   -> onChangeRoomState()
+                        InputAction.ModActions   -> onModActions()
                         InputAction.Fullscreen  -> onToggleFullscreen()
                         InputAction.HideInput   -> onToggleInput()
                         InputAction.Debug       -> onDebugInfoClick()
@@ -581,7 +581,7 @@ private val InputAction.labelRes: Int
         InputAction.Search      -> R.string.input_action_search
         InputAction.LastMessage -> R.string.input_action_last_message
         InputAction.Stream      -> R.string.input_action_stream
-        InputAction.RoomState   -> R.string.input_action_room_state
+        InputAction.ModActions   -> R.string.input_action_mod_actions
         InputAction.Fullscreen  -> R.string.input_action_fullscreen
         InputAction.HideInput   -> R.string.input_action_hide_input
         InputAction.Debug       -> R.string.input_action_debug
@@ -592,7 +592,7 @@ private val InputAction.icon: ImageVector
         InputAction.Search      -> Icons.Default.Search
         InputAction.LastMessage -> Icons.Default.History
         InputAction.Stream      -> Icons.Default.Videocam
-        InputAction.RoomState   -> Icons.Default.Shield
+        InputAction.ModActions   -> Icons.Default.Shield
         InputAction.Fullscreen  -> Icons.Default.Fullscreen
         InputAction.HideInput   -> Icons.Default.VisibilityOff
         InputAction.Debug       -> Icons.Default.BugReport
@@ -662,7 +662,7 @@ private fun InputActionButton(
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
     onToggleStream: () -> Unit,
-    onChangeRoomState: () -> Unit,
+    onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
@@ -677,7 +677,7 @@ private fun InputActionButton(
             onToggleStream,
         )
 
-        InputAction.RoomState   -> Triple(Icons.Default.Shield, R.string.menu_room_state, onChangeRoomState)
+        InputAction.ModActions   -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
         InputAction.Fullscreen  -> Triple(
             if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
             R.string.toggle_fullscreen,
@@ -691,7 +691,7 @@ private fun InputActionButton(
     val actionEnabled = when (action) {
         InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
         InputAction.LastMessage                                                               -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.RoomState                                             -> enabled
+        InputAction.Stream, InputAction.ModActions                                             -> enabled
     }
 
     IconButton(
@@ -763,7 +763,7 @@ private fun InputActionsRow(
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
     onToggleStream: () -> Unit,
-    onChangeRoomState: () -> Unit,
+    onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
@@ -835,7 +835,7 @@ private fun InputActionsRow(
                         onSearchClick = onSearchClick,
                         onLastMessageClick = onLastMessageClick,
                         onToggleStream = onToggleStream,
-                        onChangeRoomState = onChangeRoomState,
+                        onModActions = onModActions,
                         onToggleFullscreen = onToggleFullscreen,
                         onToggleInput = onToggleInput,
                         onDebugInfoClick = onDebugInfoClick,
@@ -867,7 +867,7 @@ private fun EndAlignedActionGroup(
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
     onToggleStream: () -> Unit,
-    onChangeRoomState: () -> Unit,
+    onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
@@ -929,7 +929,7 @@ private fun EndAlignedActionGroup(
             onSearchClick = onSearchClick,
             onLastMessageClick = onLastMessageClick,
             onToggleStream = onToggleStream,
-            onChangeRoomState = onChangeRoomState,
+            onModActions = onModActions,
             onToggleFullscreen = onToggleFullscreen,
             onToggleInput = onToggleInput,
             onDebugInfoClick = onDebugInfoClick,

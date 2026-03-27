@@ -616,6 +616,21 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
+    <string name="mod_actions_room_state_section">Room state</string>
+    <string name="mod_actions_section">Mod actions</string>
+    <string name="mod_actions_broadcaster_section">Broadcaster</string>
+    <string name="mod_actions_shield_mode">Shield mode</string>
+    <string name="mod_actions_clear_chat">Clear chat</string>
+    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_announce">Announce</string>
+    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_shoutout">Shoutout</string>
+    <string name="mod_actions_commercial">Commercial</string>
+    <string name="mod_actions_raid">Raid</string>
+    <string name="mod_actions_cancel_raid">Cancel raid</string>
+    <string name="mod_actions_stream_marker">Stream marker</string>
+    <string name="mod_actions_username_hint">Username</string>
+    <string name="mod_actions_channel_hint">Channel</string>
 
     <!-- Empty States -->
     <string name="no_channels_added_body">Dodaj kanał, aby zacząć czatować</string>
@@ -627,13 +642,13 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="menu_fullscreen">Pełny ekran</string>
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>
-    <string name="menu_room_state">Ustawienia kanału</string>
+    <string name="menu_mod_actions">Ustawienia kanału</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Szukaj wiadomości</string>
     <string name="input_action_last_message">Ostatnia wiadomość</string>
     <string name="input_action_stream">Przełącz transmisję</string>
-    <string name="input_action_room_state">Ustawienia kanału</string>
+    <string name="input_action_mod_actions">Ustawienia kanału</string>
     <string name="input_action_fullscreen">Pełny ekran</string>
     <string name="input_action_hide_input">Ukryj pole wpisywania</string>
     <string name="input_action_configure">Konfiguruj akcje</string>

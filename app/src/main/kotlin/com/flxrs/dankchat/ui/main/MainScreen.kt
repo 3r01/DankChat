@@ -338,7 +338,8 @@ fun MainScreen(
         dialogViewModel = dialogViewModel,
         isLoggedIn = isLoggedIn,
         activeChannel = activeChannel,
-        roomStateChannel = inputState.activeChannel,
+        modActionsChannel = inputState.activeChannel,
+        isStreamActive = currentStream != null,
         inputSheetState = inputSheetState,
         snackbarHostState = snackbarHostState,
         onAddChannel = {
@@ -576,7 +577,7 @@ fun MainScreen(
         val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
         // Shared scaffold bottom padding calculation
-        val hasDialogWithInput = dialogState.showAddChannel || dialogState.showRoomState || dialogState.showManageChannels || dialogState.showNewWhisper
+        val hasDialogWithInput = dialogState.showAddChannel || dialogState.showModActions || dialogState.showManageChannels || dialogState.showNewWhisper
         val currentImeDp = if (hasDialogWithInput) 0.dp else with(density) { currentImeHeight.toDp() }
         val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
         val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
@@ -626,7 +627,7 @@ fun MainScreen(
                         else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
                     }
                 },
-                onChangeRoomState = dialogViewModel::showRoomState,
+                onModActions = dialogViewModel::showModActions,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                 onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
                 debugMode = mainState.debugMode,
@@ -709,7 +710,6 @@ fun MainScreen(
                     onReconnect()
                 }
 
-                ToolbarAction.ClearChat       -> dialogViewModel.showClearChat()
                 ToolbarAction.OpenSettings    -> onNavigateToSettings()
             }
         }
