@@ -278,7 +278,7 @@
     <string name="preference_channel_data_header">Дані каналу</string>
     <string name="preference_developer_header">Налаштування розробника</string>
     <string name="preference_debug_mode_title">Режим відлагодження</string>
-    <string name="preference_debug_mode_summary">Надає інформацію про помилки</string>
+    <string name="preference_debug_mode_summary">Показувати дію аналітики налагодження в панелі введення</string>
     <string name="preference_timestamp_format_title">Формат часових міток</string>
     <string name="preference_tts_title">Увімкнути синтезатор мовлення</string>
     <string name="preference_tts_summary">Зачитує повідомлення в активному чаті</string>

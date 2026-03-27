@@ -266,7 +266,7 @@
     <string name="preference_channel_data_header">Dados do canal</string>
     <string name="preference_developer_header">Opções de desenvolvedor</string>
     <string name="preference_debug_mode_title">Modo de depuração</string>
-    <string name="preference_debug_mode_summary">Fornece informações para quaisquer exceções que foram capturadas</string>
+    <string name="preference_debug_mode_summary">Mostrar ação de análise de depuração na barra de entrada</string>
     <string name="preference_timestamp_format_title">Formato de data e hora</string>
     <string name="preference_tts_title">Ativar Texto-para-voz</string>
     <string name="preference_tts_summary">Lê as mensagens do canal ativo</string>

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -59,21 +60,46 @@ class MainScreenViewModel(
 
     val uiState: StateFlow<MainScreenUiState> = combine(
         appearanceSettingsDataStore.settings,
-        developerSettingsDataStore.settings.map { it.repeatedSending },
+        developerSettingsDataStore.settings,
         _isFullscreen,
         _gestureInputHidden,
         _gestureToolbarHidden,
-    ) { appearance, repeatedSending, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
+    ) { appearance, developerSettings, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
         MainScreenUiState(
             isFullscreen = isFullscreen,
             showInput = appearance.showInput,
             inputActions = appearance.inputActions.toImmutableList(),
             showCharacterCounter = appearance.showCharacterCounter,
-            isRepeatedSendEnabled = repeatedSending,
+            isRepeatedSendEnabled = developerSettings.repeatedSending,
+            debugMode = developerSettings.debugMode,
             gestureInputHidden = gestureInputHidden,
             gestureToolbarHidden = gestureToolbarHidden,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
+
+    init {
+        viewModelScope.launch {
+            developerSettingsDataStore.settings
+                .map { it.debugMode }
+                .distinctUntilChanged()
+                .collect { enabled ->
+                    appearanceSettingsDataStore.update { appearance ->
+                        val actions = appearance.inputActions
+                        when {
+                            enabled && InputAction.Debug !in actions && actions.size < MAX_INPUT_ACTIONS -> {
+                                appearance.copy(inputActions = actions + InputAction.Debug)
+                            }
+
+                            !enabled && InputAction.Debug in actions -> {
+                                appearance.copy(inputActions = actions - InputAction.Debug)
+                            }
+
+                            else -> appearance
+                        }
+                    }
+                }
+        }
+    }
 
     fun isModeratorInChannel(channel: UserName?): Boolean = userStateRepository.isModeratorInChannel(channel)
 
@@ -147,6 +173,10 @@ class MainScreenViewModel(
     fun retryDataLoading(failedState: GlobalLoadingState.Failed) {
         channelDataCoordinator.retryDataLoading(failedState)
     }
+
+    companion object {
+        private const val MAX_INPUT_ACTIONS = 4
+    }
 }
 
 private data class KeyboardHeightUpdate(val heightPx: Int, val isLandscape: Boolean)
@@ -158,6 +188,7 @@ data class MainScreenUiState(
     val inputActions: ImmutableList<InputAction> = persistentListOf(),
     val showCharacterCounter: Boolean = false,
     val isRepeatedSendEnabled: Boolean = false,
+    val debugMode: Boolean = false,
     val gestureInputHidden: Boolean = false,
     val gestureToolbarHidden: Boolean = false,
 ) {

@@ -381,7 +381,7 @@
     <string name="preference_channel_data_header">ଚ୍ୟାନେଲ ତଥ୍ୟ |</string>
     <string name="preference_developer_header">ଡେଵେଲପର୍ ଵିକଳ୍ପ</string>
     <string name="preference_debug_mode_title">କିବଗ୍ ମୋଡ୍ |</string>
-    <string name="preference_debug_mode_summary">ଧରାପଡିଥିବା ଯେକ any ଣସି ବ୍ୟତିକ୍ରମ ପାଇଁ ସୂଚନା ପ୍ରଦାନ କରେ |</string>
+    <string name="preference_debug_mode_summary">ଇନପୁଟ ବାରରେ ଡିବଗ ଆନାଲିଟିକ୍ସ କାର୍ଯ୍ୟ ଦେଖାନ୍ତୁ</string>
     <string name="preference_timestamp_format_title">ଟାଇମଷ୍ଟ୍ୟାମ୍ପ ଫର୍ମାଟ୍ |</string>
     <string name="preference_tts_title">TTS ସକ୍ଷମ କରନ୍ତୁ |</string>
     <string name="preference_tts_summary">ସକ୍ରିୟ ଚ୍ୟାନେଲର ବାର୍ତ୍ତା ପ Read ଼େ |</string>

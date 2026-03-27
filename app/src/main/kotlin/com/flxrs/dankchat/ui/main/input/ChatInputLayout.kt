@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AddComment
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
@@ -147,6 +148,8 @@ fun ChatInputLayout(
     onChangeRoomState: () -> Unit,
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
+    onDebugInfoClick: () -> Unit = {},
+    debugMode: Boolean = false,
     onNewWhisper: (() -> Unit)? = null,
     overflowExpanded: Boolean = false,
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
@@ -179,11 +182,12 @@ fun ChatInputLayout(
     }
 
     // Filter to actions that would actually render based on current state
-    val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive) {
+    val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive, debugMode) {
         inputActions.filter { action ->
             when (action) {
                 InputAction.Stream    -> hasStreamData || isStreamActive
                 InputAction.RoomState -> isModerator
+                InputAction.Debug     -> debugMode
                 else                  -> true
             }
         }.toImmutableList()
@@ -341,6 +345,7 @@ fun ChatInputLayout(
                     onChangeRoomState = onChangeRoomState,
                     onToggleFullscreen = onToggleFullscreen,
                     onToggleInput = onToggleInput,
+                    onDebugInfoClick = onDebugInfoClick,
                     onSend = onSend,
                     onVisibleActionsChanged = { visibleActions = it },
                 )
@@ -407,6 +412,7 @@ fun ChatInputLayout(
                         InputAction.RoomState   -> onChangeRoomState()
                         InputAction.Fullscreen  -> onToggleFullscreen()
                         InputAction.HideInput   -> onToggleInput()
+                        InputAction.Debug       -> onDebugInfoClick()
                     }
                     onOverflowExpandedChanged(false)
                 },
@@ -421,6 +427,7 @@ fun ChatInputLayout(
     if (showConfigSheet) {
         InputActionConfigSheet(
             inputActions = inputActions,
+            debugMode = debugMode,
             onInputActionsChanged = onInputActionsChanged,
             onDismiss = { showConfigSheet = false },
         )
@@ -431,6 +438,7 @@ fun ChatInputLayout(
 @Composable
 private fun InputActionConfigSheet(
     inputActions: ImmutableList<InputAction>,
+    debugMode: Boolean,
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -438,7 +446,7 @@ private fun InputActionConfigSheet(
 
     val localEnabled = remember { mutableStateListOf(*inputActions.toTypedArray()) }
 
-    val disabledActions = InputAction.entries.filter { it !in localEnabled }
+    val disabledActions = InputAction.entries.filter { it !in localEnabled && (it != InputAction.Debug || debugMode) }
     val atLimit = localEnabled.size >= MAX_INPUT_ACTIONS
 
     ModalBottomSheet(
@@ -570,6 +578,7 @@ private val InputAction.labelRes: Int
         InputAction.RoomState   -> R.string.input_action_room_state
         InputAction.Fullscreen  -> R.string.input_action_fullscreen
         InputAction.HideInput   -> R.string.input_action_hide_input
+        InputAction.Debug       -> R.string.input_action_debug
     }
 
 private val InputAction.icon: ImageVector
@@ -580,6 +589,7 @@ private val InputAction.icon: ImageVector
         InputAction.RoomState   -> Icons.Default.Shield
         InputAction.Fullscreen  -> Icons.Default.Fullscreen
         InputAction.HideInput   -> Icons.Default.VisibilityOff
+        InputAction.Debug       -> Icons.Default.BugReport
     }
 
 @Composable
@@ -620,6 +630,7 @@ private fun InputActionButton(
     onChangeRoomState: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
+    onDebugInfoClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val (icon, contentDescription, onClick) = when (action) {
@@ -639,12 +650,13 @@ private fun InputActionButton(
         )
 
         InputAction.HideInput   -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
+        InputAction.Debug       -> Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
     }
 
     val actionEnabled = when (action) {
-        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
-        InputAction.LastMessage                                           -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.RoomState                         -> enabled
+        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
+        InputAction.LastMessage                                                               -> enabled && hasLastMessage
+        InputAction.Stream, InputAction.RoomState                                             -> enabled
     }
 
     IconButton(
@@ -719,6 +731,7 @@ private fun InputActionsRow(
     onChangeRoomState: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
+    onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
     onVisibleActionsChanged: (ImmutableList<InputAction>) -> Unit,
 ) {
@@ -788,6 +801,7 @@ private fun InputActionsRow(
                         onChangeRoomState = onChangeRoomState,
                         onToggleFullscreen = onToggleFullscreen,
                         onToggleInput = onToggleInput,
+                        onDebugInfoClick = onDebugInfoClick,
                         onSend = onSend,
                     )
                 }
@@ -817,6 +831,7 @@ private fun EndAlignedActionGroup(
     onChangeRoomState: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
+    onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
 ) {
     // Overflow Button (leading the end-aligned group)
@@ -876,6 +891,7 @@ private fun EndAlignedActionGroup(
             onChangeRoomState = onChangeRoomState,
             onToggleFullscreen = onToggleFullscreen,
             onToggleInput = onToggleInput,
+            onDebugInfoClick = onDebugInfoClick,
             modifier = Modifier.size(iconSize),
         )
     }

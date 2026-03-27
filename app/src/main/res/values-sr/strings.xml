@@ -366,7 +366,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_channel_data_header">Podaci o kanalu</string>
     <string name="preference_developer_header">Programerska podešavanja</string>
     <string name="preference_debug_mode_title">Debug mod</string>
-    <string name="preference_debug_mode_summary">Pruža informacije o svim izuzecima koji su uhvaćeni.</string>
+    <string name="preference_debug_mode_summary">Прикажи акцију аналитике за отклањање грешака у траци за унос</string>
     <string name="preference_timestamp_format_title">Format vremenskih markica</string>
     <string name="preference_tts_title">Omogući čitanje (tekst u govor)</string>
     <string name="preference_tts_summary">Čita poruke aktivnog kanala</string>

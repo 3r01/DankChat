@@ -381,7 +381,7 @@
     <string name="preference_channel_data_header">Арна деректері</string>
     <string name="preference_developer_header">Әзірлеуші параметрлері</string>
     <string name="preference_debug_mode_title">Дебью режімі</string>
-    <string name="preference_debug_mode_summary">Ұсталған кез келген ерекшеліктер туралы ақпарат береді</string>
+    <string name="preference_debug_mode_summary">Енгізу жолағында жөндеу аналитикасы әрекетін көрсету</string>
     <string name="preference_timestamp_format_title">Таймстам пішімі</string>
     <string name="preference_tts_title">TTS қосу</string>
     <string name="preference_tts_summary">Белсенді арнаның хабарларын оқиды</string>

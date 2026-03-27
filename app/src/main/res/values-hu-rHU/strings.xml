@@ -261,7 +261,7 @@
     <string name="preference_channel_data_header">Csatorna adatok</string>
     <string name="preference_developer_header">Fejlesztői beállítások</string>
     <string name="preference_debug_mode_title">Hibakeresési mód</string>
-    <string name="preference_debug_mode_summary">Információt biztosít bármilyen kivételre ami el lett kapva</string>
+    <string name="preference_debug_mode_summary">Hibakeresési elemzési művelet megjelenítése a beviteli sávban</string>
     <string name="preference_timestamp_format_title">Időformátum</string>
     <string name="preference_tts_title">TTS engedélyezése</string>
     <string name="preference_tts_summary">Üzeneteket olvas fel az aktív csatornáról</string>

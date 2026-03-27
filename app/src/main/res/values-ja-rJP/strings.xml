@@ -255,7 +255,7 @@
     <string name="preference_channel_data_header">チャンネルデータ</string>
     <string name="preference_developer_header">開発者オプション</string>
     <string name="preference_debug_mode_title">デバッグモード</string>
-    <string name="preference_debug_mode_summary">キャッチされた例外情報の提供</string>
+    <string name="preference_debug_mode_summary">入力バーにデバッグ分析アクションを表示</string>
     <string name="preference_timestamp_format_title">タイムスタンプ形式</string>
     <string name="preference_tts_title">TTSの有効化</string>
     <string name="preference_tts_summary">アクティブなチャンネルのメッセージを読み込む</string>

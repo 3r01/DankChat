@@ -383,7 +383,7 @@
     <string name="preference_channel_data_header">頻道資訊</string>
     <string name="preference_developer_header">開發者選項</string>
     <string name="preference_debug_mode_title">除錯模式</string>
-    <string name="preference_debug_mode_summary">提供已攔截的例外訊息</string>
+    <string name="preference_debug_mode_summary">在輸入欄中顯示除錯分析操作</string>
     <string name="preference_timestamp_format_title">時間戳記格式</string>
     <string name="preference_tts_title">啟用文字朗讀</string>
     <string name="preference_tts_summary">朗讀目前選取頻道的訊息</string>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.History
@@ -198,12 +199,17 @@ private fun getOverflowItem(
         labelRes = R.string.menu_hide_input,
         icon = Icons.Default.VisibilityOff,
     )
+
+    InputAction.Debug       -> OverflowItem(
+        labelRes = R.string.input_action_debug,
+        icon = Icons.Default.BugReport,
+    )
 }
 
 private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
-    InputAction.Search, InputAction.Fullscreen, InputAction.HideInput -> true
-    InputAction.LastMessage                                           -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.RoomState                         -> inputEnabled
+    InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
+    InputAction.LastMessage                                                               -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.RoomState                                             -> inputEnabled
 }
 
 /**

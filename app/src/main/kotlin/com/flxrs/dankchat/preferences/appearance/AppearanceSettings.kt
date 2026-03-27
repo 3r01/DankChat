@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class InputAction {
-    Search, LastMessage, Stream, RoomState, Fullscreen, HideInput
+    Search, LastMessage, Stream, RoomState, Fullscreen, HideInput, Debug
 }
 
 @Serializable

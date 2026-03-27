@@ -268,7 +268,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_channel_data_header">Kanavatiedot</string>
     <string name="preference_developer_header">Kehittäjävaihtoehdot</string>
     <string name="preference_debug_mode_title">Virheenkorjaustila</string>
-    <string name="preference_debug_mode_summary">Antaa tietoa mahdollisista kiinni jääneistä poikkeuksista</string>
+    <string name="preference_debug_mode_summary">Näytä virheenkorjausanalytiikkatoiminto syöttöpalkissa</string>
     <string name="preference_timestamp_format_title">Aikaleiman muoto</string>
     <string name="preference_tts_title">Ota TTS käyttöön</string>
     <string name="preference_tts_summary">Lukee ääneen aktiivisen kanavan viestit</string>

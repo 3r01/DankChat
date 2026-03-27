@@ -275,7 +275,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_channel_data_header">Dane kanału</string>
     <string name="preference_developer_header">Opcje deweloperskie</string>
     <string name="preference_debug_mode_title">Tryb debugowania</string>
-    <string name="preference_debug_mode_summary">Dostarcza informacje o wszelkich wykrytych błędach</string>
+    <string name="preference_debug_mode_summary">Pokaż akcję analityki debugowania na pasku wprowadzania</string>
     <string name="preference_timestamp_format_title">Format znacznika czasu</string>
     <string name="preference_tts_title">Włącz TTS</string>
     <string name="preference_tts_summary">Odczytuje na głos wiadomości aktywnego kanału</string>

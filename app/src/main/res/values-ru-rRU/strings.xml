@@ -276,7 +276,7 @@
     <string name="preference_channel_data_header">Данные канала</string>
     <string name="preference_developer_header">Настройки разработчика</string>
     <string name="preference_debug_mode_title">Режим отладки</string>
-    <string name="preference_debug_mode_summary">Отображать информацию о записанных исключениях</string>
+    <string name="preference_debug_mode_summary">Показывать действие отладочной аналитики в панели ввода</string>
     <string name="preference_timestamp_format_title">Формат временных меток</string>
     <string name="preference_tts_title">Включить синтезатор речи</string>
     <string name="preference_tts_summary">Зачитывает сообщения активного канала</string>

@@ -268,7 +268,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_channel_data_header">Kanalinformationen</string>
     <string name="preference_developer_header">Entwickleroptionen</string>
     <string name="preference_debug_mode_title">Debug-Modus</string>
-    <string name="preference_debug_mode_summary">Enthält Informationen über vorherige Fehlernachrichten</string>
+    <string name="preference_debug_mode_summary">Debug-Analyse-Aktion in der Eingabeleiste anzeigen</string>
     <string name="preference_timestamp_format_title">Formatierung des Zeitstempels</string>
     <string name="preference_tts_title">TTS aktivieren</string>
     <string name="preference_tts_summary">Liest Nachrichten des aktiven Kanals vor</string>

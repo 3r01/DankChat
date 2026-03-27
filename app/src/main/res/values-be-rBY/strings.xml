@@ -271,7 +271,7 @@
     <string name="preference_channel_data_header">Дадзеныя канала</string>
     <string name="preference_developer_header">Налады для распрацоўшчыкаў</string>
     <string name="preference_debug_mode_title">Рэжым адладкі</string>
-    <string name="preference_debug_mode_summary">Адлюстроўваць інфармацыю пра запісаныя выключэнні</string>
+    <string name="preference_debug_mode_summary">Паказваць дзеянне адладкавай аналітыкі ў панэлі ўводу</string>
     <string name="preference_timestamp_format_title">Фармат часавых пазнак</string>
     <string name="preference_tts_title">Уключыць сінтэзатар гаворкі</string>
     <string name="preference_tts_summary">Зачытвае паведамленні актыўнага канала</string>

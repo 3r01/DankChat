@@ -628,6 +628,8 @@ fun MainScreen(
                 },
                 onChangeRoomState = dialogViewModel::showRoomState,
                 onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
+                onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
+                debugMode = mainState.debugMode,
                 onNewWhisper = if (inputState.isWhisperTabActive) {
                     dialogViewModel::showNewWhisper
                 } else null,

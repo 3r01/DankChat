@@ -276,7 +276,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_channel_data_header">Dades del canal</string>
     <string name="preference_developer_header">Opcions de desenvolupador</string>
     <string name="preference_debug_mode_title">Mode de depuració</string>
-    <string name="preference_debug_mode_summary">Proporciona informació per a qualsevol excepció que hagi estat atrapada</string>
+    <string name="preference_debug_mode_summary">Mostra l\'acció d\'analítiques de depuració a la barra d\'entrada</string>
     <string name="preference_timestamp_format_title">Format del temps</string>
     <string name="preference_tts_title">Activar TTS</string>
     <string name="preference_tts_summary">Llegeix en veu alta missatges del canal actiu</string>

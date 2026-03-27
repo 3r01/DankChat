@@ -327,6 +327,10 @@ class SevenTVEventApiClient(
         return runCatching { json.encodeToString(this) }.getOrNull()
     }
 
+    data class Status(val connected: Boolean, val subscriptionCount: Int)
+
+    fun status(): Status = Status(connected = connected, subscriptionCount = subscriptions.size)
+
     companion object {
         private const val MAX_JITTER = 250L
         private const val RECONNECT_BASE_DELAY = 1_000L

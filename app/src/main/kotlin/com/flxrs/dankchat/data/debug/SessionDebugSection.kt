@@ -1,0 +1,51 @@
+package com.flxrs.dankchat.data.debug
+
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import org.koin.core.annotation.Single
+import kotlin.time.TimeSource
+
+@Single
+class SessionDebugSection(
+    private val chatMessageRepository: ChatMessageRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+) : DebugSection {
+
+    private val startMark = TimeSource.Monotonic.markNow()
+
+    override val order = 1
+    override val baseTitle = "Session"
+
+    override fun entries(): Flow<DebugSectionSnapshot> {
+        val ticker = flow {
+            while (true) {
+                emit(Unit)
+                delay(1_000)
+            }
+        }
+        return combine(ticker, chatChannelProvider.channels) { _, channels ->
+            val elapsed = startMark.elapsedNow()
+            val hours = elapsed.inWholeHours
+            val minutes = elapsed.inWholeMinutes % 60
+            val seconds = elapsed.inWholeSeconds % 60
+            val uptime = buildString {
+                if (hours > 0) append("${hours}h ")
+                if (minutes > 0 || hours > 0) append("${minutes}m ")
+                append("${seconds}s")
+            }
+
+            DebugSectionSnapshot(
+                title = baseTitle,
+                entries = listOf(
+                    DebugEntry("Uptime", uptime),
+                    DebugEntry("Total messages received", "${chatMessageRepository.sessionMessageCount}"),
+                    DebugEntry("Active channels", "${channels?.size ?: 0}"),
+                )
+            )
+        }
+    }
+}

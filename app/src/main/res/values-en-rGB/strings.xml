@@ -231,7 +231,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_channel_data_header">Channel data</string>
     <string name="preference_developer_header">Developer options</string>
     <string name="preference_debug_mode_title">Debug mode</string>
-    <string name="preference_debug_mode_summary">Provides information for any exceptions that have been caught</string>
+    <string name="preference_debug_mode_summary">Show debug analytics action in input bar</string>
     <string name="preference_timestamp_format_title">Timestamp format</string>
     <string name="preference_tts_title">Enable TTS</string>
     <string name="preference_tts_summary">Reads out messages of the active channel</string>

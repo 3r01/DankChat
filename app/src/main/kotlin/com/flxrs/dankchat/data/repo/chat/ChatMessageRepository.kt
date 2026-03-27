@@ -38,6 +38,8 @@ class ChatMessageRepository(
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
+    private val _sessionMessageCount = java.util.concurrent.atomic.AtomicInteger(0)
+    val sessionMessageCount: Int get() = _sessionMessageCount.get()
 
     private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
         .onEach { length ->
@@ -60,6 +62,7 @@ class ChatMessageRepository(
         (channel?.let { messages[it] } ?: whispers).value.find { it.message.id == messageId }?.message
 
     fun addMessages(channel: UserName, items: List<ChatItem>) {
+        _sessionMessageCount.addAndGet(items.size)
         messages[channel]?.update { current ->
             current.addAndLimit(items = items, scrollBackLength, messageProcessor::onMessageRemoved)
         }

@@ -29,6 +29,8 @@ import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
 import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.ui.main.sheet.InputSheetState
+import com.flxrs.dankchat.ui.main.sheet.DebugInfoSheet
+import com.flxrs.dankchat.ui.main.sheet.DebugInfoViewModel
 import com.flxrs.dankchat.ui.main.sheet.MoreActionsSheet
 import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import kotlinx.coroutines.launch
@@ -315,6 +317,15 @@ fun MainScreenDialogs(
             },
             onDismiss = sheetNavigationViewModel::closeInputSheet,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        )
+    }
+
+    if (inputSheetState is InputSheetState.DebugInfo) {
+        val debugInfoViewModel: DebugInfoViewModel = koinViewModel()
+        DebugInfoSheet(
+            viewModel = debugInfoViewModel,
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            onDismiss = sheetNavigationViewModel::closeInputSheet,
         )
     }
 }

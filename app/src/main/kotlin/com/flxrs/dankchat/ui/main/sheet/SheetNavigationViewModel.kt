@@ -55,6 +55,10 @@ class SheetNavigationViewModel : ViewModel() {
         _inputSheetState.value = InputSheetState.MoreActions(messageId, fullMessage)
     }
 
+    fun openDebugInfo() {
+        _inputSheetState.value = InputSheetState.DebugInfo
+    }
+
     fun closeInputSheet() {
         _inputSheetState.value = InputSheetState.Closed
     }
@@ -91,6 +95,7 @@ sealed interface FullScreenSheetState {
 sealed interface InputSheetState {
     data object Closed : InputSheetState
     data object EmoteMenu : InputSheetState
+    data object DebugInfo : InputSheetState
 
     @Immutable
     data class MoreActions(val messageId: String, val fullMessage: String) : InputSheetState

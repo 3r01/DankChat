@@ -278,7 +278,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_channel_data_header">Data kanálu</string>
     <string name="preference_developer_header">Nastavení vývojáře</string>
     <string name="preference_debug_mode_title">Režim ladění</string>
-    <string name="preference_debug_mode_summary">Poskytuje informace o všech chybách, které byly zachyceny</string>
+    <string name="preference_debug_mode_summary">Zobrazit akci ladící analytiky ve vstupním panelu</string>
     <string name="preference_timestamp_format_title">Formát časových razítek</string>
     <string name="preference_tts_title">Povolit TTS</string>
     <string name="preference_tts_summary">Čte zprávy aktivního kanálu</string>

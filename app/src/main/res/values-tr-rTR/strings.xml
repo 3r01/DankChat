@@ -267,7 +267,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_channel_data_header">Kanal verisi</string>
     <string name="preference_developer_header">Geliştirici seçenekleri</string>
     <string name="preference_debug_mode_title">Hata ayıklama modu</string>
-    <string name="preference_debug_mode_summary">Yakalanan her hata için bilgi verir</string>
+    <string name="preference_debug_mode_summary">Giriş çubuğunda hata ayıklama analitik eylemini göster</string>
     <string name="preference_timestamp_format_title">Zaman damgası biçimi</string>
     <string name="preference_tts_title">TTS\'i etkinleştir</string>
     <string name="preference_tts_summary">Etkin kanalın mesajlarını okur</string>

@@ -265,7 +265,7 @@
     <string name="preference_channel_data_header">Dati del canale</string>
     <string name="preference_developer_header">Opzioni per sviluppatori</string>
     <string name="preference_debug_mode_title">Modalità di debug</string>
-    <string name="preference_debug_mode_summary">Fornisce informazioni per qualsiasi eccezione rilevata</string>
+    <string name="preference_debug_mode_summary">Mostra l\'azione di analisi di debug nella barra di input</string>
     <string name="preference_timestamp_format_title">Formato marca oraria</string>
     <string name="preference_tts_title">Abilita TTS</string>
     <string name="preference_tts_summary">Legge i messaggi del canale attivo</string>

@@ -271,7 +271,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_channel_data_header">Données de la chaîne</string>
     <string name="preference_developer_header">Options pour les développeurs</string>
     <string name="preference_debug_mode_title">Mode débug</string>
-    <string name="preference_debug_mode_summary">Affiche des infos pour chaque exception interceptée</string>
+    <string name="preference_debug_mode_summary">Afficher l\'action d\'analyse de débogage dans la barre de saisie</string>
     <string name="preference_timestamp_format_title">Format de l\'horodatage</string>
     <string name="preference_tts_title">Activer le TTS</string>
     <string name="preference_tts_summary">Lis les messages à voix haute pour la chaîne actuelle</string>

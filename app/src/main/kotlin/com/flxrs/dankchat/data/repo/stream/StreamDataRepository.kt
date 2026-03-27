@@ -34,6 +34,8 @@ class StreamDataRepository(
     private var fetchTimerJob: Job? = null
     private val _streamData = MutableStateFlow<ImmutableList<StreamData>>(persistentListOf())
     val streamData: StateFlow<ImmutableList<StreamData>> = _streamData.asStateFlow()
+    private val _fetchCount = java.util.concurrent.atomic.AtomicInteger(0)
+    val fetchCount: Int get() = _fetchCount.get()
 
     fun fetchStreamData(channels: List<UserName>) {
         cancelStreamData()
@@ -47,6 +49,7 @@ class StreamDataRepository(
 
             fetchTimerJob = timer(STREAM_REFRESH_RATE) {
                 val currentSettings = streamsSettingsDataStore.settings.first()
+                _fetchCount.incrementAndGet()
                 val data = dataRepository.getStreams(channels)?.map {
                     val uptime = DateTimeUtils.calculateUptime(it.startedAt)
                     val category = it.category
@@ -54,7 +57,13 @@ class StreamDataRepository(
                         ?.ifBlank { null }
                     val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
 
-                    StreamData(channel = it.userLogin, formattedData = formatted)
+                    StreamData(
+                        channel = it.userLogin,
+                        formattedData = formatted,
+                        viewerCount = it.viewerCount,
+                        startedAt = it.startedAt,
+                        category = it.category,
+                    )
                 }.orEmpty()
 
                 _streamData.value = data.toImmutableList()
