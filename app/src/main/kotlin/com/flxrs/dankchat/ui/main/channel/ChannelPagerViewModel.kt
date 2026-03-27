@@ -37,12 +37,22 @@ class ChannelPagerViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
 
     fun onPageChanged(page: Int) {
+        setActivePage(page)
+        clearNotifications(page)
+    }
+
+    fun setActivePage(page: Int) {
         val channels = preferenceStore.channels
         if (page in channels.indices) {
-            val channel = channels[page]
-            chatChannelProvider.setActiveChannel(channel)
-            chatNotificationRepository.clearUnreadMessage(channel)
-            chatNotificationRepository.clearMentionCount(channel)
+            chatChannelProvider.setActiveChannel(channels[page])
+        }
+    }
+
+    fun clearNotifications(page: Int) {
+        val channels = preferenceStore.channels
+        if (page in channels.indices) {
+            chatNotificationRepository.clearUnreadMessage(channels[page])
+            chatNotificationRepository.clearMentionCount(channels[page])
         }
     }
 

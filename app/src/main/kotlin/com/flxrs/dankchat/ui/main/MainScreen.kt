@@ -530,11 +530,18 @@ fun MainScreen(
         }
     }
 
-    // Update ViewModel when user swipes (use settledPage to avoid clearing
-    // unread/mention indicators for pages scrolled through during programmatic jumps)
+    // Eagerly update active channel on page change for snappy UI (room state, stream info)
+    LaunchedEffect(composePagerState.currentPage) {
+        if (composePagerState.currentPage != pagerState.currentPage) {
+            channelPagerViewModel.setActivePage(composePagerState.currentPage)
+        }
+    }
+
+    // Clear unread/mention indicators only on settledPage to avoid clearing
+    // for pages scrolled through during programmatic jumps
     LaunchedEffect(composePagerState.settledPage) {
         if (composePagerState.settledPage != pagerState.currentPage) {
-            channelPagerViewModel.onPageChanged(composePagerState.settledPage)
+            channelPagerViewModel.clearNotifications(composePagerState.settledPage)
         }
     }
 
