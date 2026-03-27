@@ -10,6 +10,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.core.content.getSystemService
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
@@ -81,33 +84,38 @@ fun MainScreenEventHandler(
     }
 
     // Collect auth events from AuthStateCoordinator
+    // Only process when RESUMED to avoid showing dialogs while another screen is on top.
+    // Events are buffered in the Channel and consumed once MainScreen becomes visible again.
+    val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(Unit) {
-        authStateCoordinator.events.collect { event ->
-            when (event) {
-                is AuthEvent.LoggedIn       -> {
-                    launch {
-                        delay(2000)
-                        snackbarHostState.currentSnackbarData?.dismiss()
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            authStateCoordinator.events.collect { event ->
+                when (event) {
+                    is AuthEvent.LoggedIn       -> {
+                        launch {
+                            delay(2000)
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                        }
+                        snackbarHostState.showSnackbar(
+                            message = resources.getString(R.string.snackbar_login, event.userName),
+                            duration = SnackbarDuration.Short,
+                        )
                     }
-                    snackbarHostState.showSnackbar(
-                        message = resources.getString(R.string.snackbar_login, event.userName),
-                        duration = SnackbarDuration.Short,
-                    )
-                }
 
-                is AuthEvent.ScopesOutdated -> {
-                    dialogViewModel.showLoginOutdated(event.userName)
-                }
+                    is AuthEvent.ScopesOutdated -> {
+                        dialogViewModel.showLoginOutdated(event.userName)
+                    }
 
-                AuthEvent.TokenInvalid      -> {
-                    dialogViewModel.showLoginExpired()
-                }
+                    AuthEvent.TokenInvalid      -> {
+                        dialogViewModel.showLoginExpired()
+                    }
 
-                AuthEvent.ValidationFailed  -> {
-                    snackbarHostState.showSnackbar(
-                        message = resources.getString(R.string.oauth_verify_failed),
-                        duration = SnackbarDuration.Short,
-                    )
+                    AuthEvent.ValidationFailed  -> {
+                        snackbarHostState.showSnackbar(
+                            message = resources.getString(R.string.oauth_verify_failed),
+                            duration = SnackbarDuration.Short,
+                        )
+                    }
                 }
             }
         }
