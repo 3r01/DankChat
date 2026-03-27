@@ -63,6 +63,8 @@ fun ChatBottomBar(
     isInSplitLayout: Boolean = false,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
+    isRepeatedSendEnabled: Boolean = false,
+    onRepeatedSendChanged: (Boolean) -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
@@ -111,6 +113,8 @@ fun ChatBottomBar(
                 onOverflowExpandedChanged = onOverflowExpandedChanged,
                 showQuickActions = !isSheetOpen,
                 tourState = tourState,
+                isRepeatedSendEnabled = isRepeatedSendEnabled,
+                onRepeatedSendChanged = onRepeatedSendChanged,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     onInputHeightChanged(coordinates.size.height)
                 }

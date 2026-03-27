@@ -11,6 +11,7 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -80,6 +81,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
@@ -155,6 +157,8 @@ fun ChatInputLayout(
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
     showQuickActions: Boolean = true,
     tourState: TourOverlayState = TourOverlayState(),
+    isRepeatedSendEnabled: Boolean = false,
+    onRepeatedSendChanged: (Boolean) -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
@@ -347,6 +351,8 @@ fun ChatInputLayout(
                     onToggleInput = onToggleInput,
                     onDebugInfoClick = onDebugInfoClick,
                     onSend = onSend,
+                    isRepeatedSendEnabled = isRepeatedSendEnabled,
+                    onRepeatedSendChanged = onRepeatedSendChanged,
                     onVisibleActionsChanged = { visibleActions = it },
                 )
             }
@@ -595,25 +601,54 @@ private val InputAction.icon: ImageVector
 @Composable
 private fun SendButton(
     enabled: Boolean,
+    isRepeatedSendEnabled: Boolean,
     onSend: () -> Unit,
+    onRepeatedSendChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val contentColor = if (enabled) {
-        MaterialTheme.colorScheme.primary
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+    val contentColor = when {
+        !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+        else     -> MaterialTheme.colorScheme.primary
     }
 
-    IconButton(
-        onClick = onSend,
-        enabled = enabled,
-        modifier = modifier.size(40.dp)
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.Send,
-            contentDescription = stringResource(R.string.send_hint),
-            tint = contentColor
-        )
+    when {
+        enabled && isRepeatedSendEnabled -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+                    .size(40.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = { onSend() },
+                            onLongPress = { onRepeatedSendChanged(true) },
+                            onPress = {
+                                tryAwaitRelease()
+                                onRepeatedSendChanged(false)
+                            },
+                        )
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send_hint),
+                    tint = contentColor
+                )
+            }
+        }
+
+        else                             -> {
+            IconButton(
+                onClick = onSend,
+                enabled = enabled,
+                modifier = modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Send,
+                    contentDescription = stringResource(R.string.send_hint),
+                    tint = contentColor
+                )
+            }
+        }
     }
 }
 
@@ -733,6 +768,8 @@ private fun InputActionsRow(
     onToggleInput: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
+    isRepeatedSendEnabled: Boolean = false,
+    onRepeatedSendChanged: (Boolean) -> Unit = {},
     onVisibleActionsChanged: (ImmutableList<InputAction>) -> Unit,
 ) {
     BoxWithConstraints(
@@ -803,6 +840,8 @@ private fun InputActionsRow(
                         onToggleInput = onToggleInput,
                         onDebugInfoClick = onDebugInfoClick,
                         onSend = onSend,
+                        isRepeatedSendEnabled = isRepeatedSendEnabled,
+                        onRepeatedSendChanged = onRepeatedSendChanged,
                     )
                 }
             }
@@ -833,6 +872,8 @@ private fun EndAlignedActionGroup(
     onToggleInput: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
+    isRepeatedSendEnabled: Boolean = false,
+    onRepeatedSendChanged: (Boolean) -> Unit = {},
 ) {
     // Overflow Button (leading the end-aligned group)
     if (showQuickActions) {
@@ -899,7 +940,9 @@ private fun EndAlignedActionGroup(
     // Send Button (Right)
     SendButton(
         enabled = canSend,
+        isRepeatedSendEnabled = isRepeatedSendEnabled,
         onSend = onSend,
+        onRepeatedSendChanged = onRepeatedSendChanged,
     )
 }
 

@@ -640,6 +640,8 @@ fun MainScreen(
                 onHelperTextHeightChanged = { helperTextHeightPx = it },
                 isInSplitLayout = useWideSplitLayout,
                 instantHide = isHistorySheet,
+                isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
+                onRepeatedSendChanged = chatInputViewModel::setRepeatedSend,
                 tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen) {
                     TourOverlayState(
                         inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
