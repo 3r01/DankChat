@@ -48,7 +48,7 @@
     <string name="hint_disconnected">Lecsatlakozva</string>
     <string name="hint_not_logged_int">Nincs bejelentkezve</string>
     <string name="hint_replying">Válasz</string>
-    <string name="notification_new_mentions">Új említéseid vannak</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="notification_new_mentions">Új említéseid vannak</string>
     <string name="notification_mention">%1$s megemlített itt: #%2$s</string>
     <string name="notification_notify_mention">Megemlítették itt #%1$s</string>
     <string name="snackbar_login">Bejelentkezve mint %1$s</string>
@@ -583,7 +583,7 @@
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>

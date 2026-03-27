@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 sealed interface InputState {
     object Default : InputState
     object Replying : InputState
+    object Announcing : InputState
     object Whispering : InputState
     object NotLoggedIn : InputState
     object Disconnected : InputState

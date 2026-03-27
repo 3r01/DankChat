@@ -47,7 +47,7 @@
     <string name="hint_disconnected">切断されました</string>
     <string name="hint_not_logged_int">ログインされていません</string>
     <string name="hint_replying">返信</string>
-    <string name="notification_new_mentions">新しいメンションがあります</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="notification_new_mentions">新しいメンションがあります</string>
     <string name="notification_mention">%1$sが#%2$sであなたに返信しました</string>
     <string name="notification_notify_mention">#%1$s 内であなた宛の返信があります</string>
     <string name="snackbar_login">%1$sとしてログイン</string>
@@ -564,7 +564,7 @@
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>

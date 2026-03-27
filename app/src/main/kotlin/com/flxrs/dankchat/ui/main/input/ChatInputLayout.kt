@@ -124,8 +124,6 @@ fun ChatInputLayout(
     enabled: Boolean,
     hasLastMessage: Boolean,
     canSend: Boolean,
-    showReplyOverlay: Boolean,
-    replyName: UserName?,
     isEmoteMenuOpen: Boolean,
     helperText: String?,
     isUploading: Boolean,
@@ -140,13 +138,11 @@ fun ChatInputLayout(
     onSend: () -> Unit,
     onLastMessageClick: () -> Unit,
     onEmoteClick: () -> Unit,
-    onReplyDismiss: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
     onToggleStream: () -> Unit,
-    showWhisperOverlay: Boolean,
-    whisperTarget: UserName?,
-    onWhisperDismiss: () -> Unit,
+    overlay: InputOverlay,
+    onOverlayDismiss: () -> Unit,
     onModActions: () -> Unit,
     onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     onSearchClick: () -> Unit = {},
@@ -164,6 +160,7 @@ fun ChatInputLayout(
     val hint = when (inputState) {
         InputState.Default      -> stringResource(R.string.hint_connected)
         InputState.Replying     -> stringResource(R.string.hint_replying)
+        InputState.Announcing   -> stringResource(R.string.hint_announcing)
         InputState.Whispering   -> stringResource(R.string.hint_whispering)
         InputState.NotLoggedIn  -> stringResource(R.string.hint_not_logged_int)
         InputState.Disconnected -> stringResource(R.string.hint_disconnected)
@@ -216,27 +213,21 @@ fun ChatInputLayout(
                     .fillMaxWidth()
                     .navigationBarsPadding()
             ) {
-                // Reply Header
+                // Input mode overlay header
                 AnimatedVisibility(
-                    visible = showReplyOverlay && replyName != null,
+                    visible = overlay != InputOverlay.None,
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
+                    val headerText = when (overlay) {
+                        is InputOverlay.Reply    -> stringResource(R.string.reply_header, overlay.name.value)
+                        is InputOverlay.Whisper  -> stringResource(R.string.whisper_header, overlay.target.value)
+                        is InputOverlay.Announce -> stringResource(R.string.mod_actions_announce_header)
+                        InputOverlay.None        -> ""
+                    }
                     InputOverlayHeader(
-                        text = stringResource(R.string.reply_header, replyName?.value.orEmpty()),
-                        onDismiss = onReplyDismiss,
-                    )
-                }
-
-                // Whisper Header
-                AnimatedVisibility(
-                    visible = showWhisperOverlay && whisperTarget != null,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    InputOverlayHeader(
-                        text = stringResource(R.string.whisper_header, whisperTarget?.value.orEmpty()),
-                        onDismiss = onWhisperDismiss,
+                        text = headerText,
+                        onDismiss = onOverlayDismiss,
                     )
                 }
 

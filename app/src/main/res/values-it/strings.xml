@@ -47,7 +47,7 @@
     <string name="hint_disconnected">Disconnesso</string>
     <string name="hint_not_logged_int">Non connesso</string>
     <string name="hint_replying">Rispondi</string>
-    <string name="notification_new_mentions">Hai delle nuove menzioni</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="notification_new_mentions">Hai delle nuove menzioni</string>
     <string name="notification_mention">%1$s ti ha appena menzionato in #%2$s</string>
     <string name="notification_notify_mention">Sei stato menzionato in #%1$s</string>
     <string name="snackbar_login">Accedendo come %1$s</string>
@@ -581,7 +581,7 @@
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>

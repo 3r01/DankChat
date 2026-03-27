@@ -48,7 +48,7 @@
     <string name="hint_disconnected">Від\'єднано</string>
     <string name="hint_not_logged_int">Ви не ввійшли</string>
     <string name="hint_replying">Відповісти</string>
-    <string name="notification_new_mentions">У Вас є нові згадки</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="notification_new_mentions">У Вас є нові згадки</string>
     <string name="notification_mention">%1$s згадав Вас у #%2$s</string>
     <string name="notification_notify_mention">Вас згадали у #%1$s</string>
     <string name="snackbar_login">Ви увійшли під ім\'ям %1$s</string>
@@ -606,7 +606,7 @@
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>

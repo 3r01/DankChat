@@ -118,6 +118,7 @@ import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.dialog.MainScreenDialogs
 import com.flxrs.dankchat.ui.main.input.CharacterCounterState
 import com.flxrs.dankchat.ui.main.input.ChatBottomBar
+import com.flxrs.dankchat.ui.main.input.InputOverlay
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
 import com.flxrs.dankchat.ui.main.input.TourOverlayState
@@ -599,7 +600,7 @@ fun MainScreen(
                     is FullScreenSheetState.Replies -> persistentListOf(InputAction.LastMessage)
                     is FullScreenSheetState.Whisper,
                     is FullScreenSheetState.Mention -> when {
-                        inputState.isWhisperTabActive && inputState.whisperTarget != null -> persistentListOf(InputAction.LastMessage)
+                        inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
                         else                                                              -> persistentListOf()
                     }
 
@@ -617,8 +618,14 @@ fun MainScreen(
                         keyboardController?.show()
                     }
                 },
-                onWhisperDismiss = { chatInputViewModel.setWhisperTarget(null) },
-                onReplyDismiss = { chatInputViewModel.setReplying(false) },
+                onOverlayDismiss = {
+                    when (inputState.overlay) {
+                        is InputOverlay.Reply    -> chatInputViewModel.setReplying(false)
+                        is InputOverlay.Whisper  -> chatInputViewModel.setWhisperTarget(null)
+                        is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
+                        InputOverlay.None        -> Unit
+                    }
+                },
                 onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
                 onToggleInput = mainScreenViewModel::toggleInput,
                 onToggleStream = {

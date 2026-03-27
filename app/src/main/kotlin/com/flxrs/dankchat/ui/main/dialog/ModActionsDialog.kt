@@ -50,7 +50,6 @@ private sealed interface SubView {
     data object SlowMode : SubView
     data object FollowerMode : SubView
     data object CommercialPresets : SubView
-    data object AnnounceInput : SubView
     data object RaidInput : SubView
     data object ShoutoutInput : SubView
 }
@@ -89,6 +88,7 @@ fun ModActionsDialog(
     isStreamActive: Boolean,
     shieldModeActive: Boolean?,
     onSendCommand: (String) -> Unit,
+    onAnnounce: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     var subView by remember { mutableStateOf<SubView?>(null) }
@@ -199,6 +199,7 @@ fun ModActionsDialog(
                         onSendCommand = onSendCommand,
                         onShowSubView = { subView = it },
                         onClearChat = { showClearChatConfirmation = true },
+                        onAnnounce = onAnnounce,
                         onDismiss = onDismiss,
                     )
 
@@ -238,15 +239,6 @@ fun ModActionsDialog(
                         onCustomClick = null,
                     )
 
-                    SubView.AnnounceInput      -> UserInputSubView(
-                        titleRes = R.string.mod_actions_announce,
-                        hintRes = R.string.mod_actions_announce_hint,
-                        onConfirm = { message ->
-                            onSendCommand("/announce $message")
-                            onDismiss()
-                        },
-                    )
-
                     SubView.RaidInput          -> UserInputSubView(
                         titleRes = R.string.mod_actions_raid,
                         hintRes = R.string.mod_actions_channel_hint,
@@ -280,6 +272,7 @@ private fun ModActionsMainView(
     onSendCommand: (String) -> Unit,
     onShowSubView: (SubView) -> Unit,
     onClearChat: () -> Unit,
+    onAnnounce: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     Column(
@@ -325,7 +318,10 @@ private fun ModActionsMainView(
                 label = { Text(stringResource(R.string.mod_actions_clear_chat)) },
             )
             AssistChip(
-                onClick = { onShowSubView(SubView.AnnounceInput) },
+                onClick = {
+                    onAnnounce()
+                    onDismiss()
+                },
                 label = { Text(stringResource(R.string.mod_actions_announce)) },
             )
             if (isStreamActive) {

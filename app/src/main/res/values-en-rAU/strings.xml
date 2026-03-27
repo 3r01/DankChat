@@ -417,7 +417,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>
@@ -467,7 +467,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="close_emote_menu">Close the emote menu</string>
     <string name="emote_menu_title">Emotes</string>
     <string name="hint_replying">Reply</string>
-    <string name="snackbar_data_load_failed_multiple_causes">Data loading failed with multiple errors:\n%1$s</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="snackbar_data_load_failed_multiple_causes">Data loading failed with multiple errors:\n%1$s</string>
     <string name="system_message_reconnected">Reconnected</string>
     <string name="system_message_ffz_emotes_failed">Failed to load FFZ emotes (Error %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Failed to load BTTV emotes (Error %1$s)</string>

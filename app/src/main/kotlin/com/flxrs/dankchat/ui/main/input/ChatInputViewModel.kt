@@ -96,6 +96,8 @@ class ChatInputViewModel(
     private var lastWhisperText: String? = null
     val whisperTarget: StateFlow<UserName?> = _whisperTarget.asStateFlow()
 
+    private val _isAnnouncing = MutableStateFlow(false)
+
     // Create flow from TextFieldState tracking both text and cursor position
     private val codePointCount = snapshotFlow {
         val text = textFieldState.text
@@ -161,6 +163,8 @@ class ChatInputViewModel(
         viewModelScope.launch {
             chatChannelProvider.activeChannel.collect {
                 repeatedSend.update { it.copy(enabled = false) }
+                setReplying(false)
+                _isAnnouncing.value = false
             }
         }
 
@@ -208,7 +212,8 @@ class ChatInputViewModel(
         val replyName: UserName?,
         val replyMessageId: String?,
         val isEmoteMenuOpen: Boolean,
-        val whisperTarget: UserName?
+        val whisperTarget: UserName?,
+        val isAnnouncing: Boolean,
     )
 
     fun uiState(externalSheetState: StateFlow<FullScreenSheetState>, externalMentionTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
@@ -250,10 +255,18 @@ class ChatInputViewModel(
             externalMentionTab,
             replyStateFlow,
             _isEmoteMenuOpen,
-            _whisperTarget
-        ) { sheetState, tab, replyState, isEmoteMenuOpen, whisperTarget ->
+            _whisperTarget,
+            _isAnnouncing,
+        ) { values ->
+            val sheetState = values[0] as FullScreenSheetState
+            val tab = values[1] as Int
+            @Suppress("UNCHECKED_CAST")
+            val replyState = values[2] as Triple<Boolean, UserName?, String?>
+            val isEmoteMenuOpen = values[3] as Boolean
+            val whisperTarget = values[4] as UserName?
+            val isAnnouncing = values[5] as Boolean
             val (isReplying, replyName, replyMessageId) = replyState
-            InputOverlayState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget)
+            InputOverlayState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget, isAnnouncing)
         }
 
         return combine(
@@ -262,7 +275,7 @@ class ChatInputViewModel(
             helperText,
             codePointCount,
             chatSettingsDataStore.userLongClickBehavior,
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget), helperText, codePoints, userLongClickBehavior ->
+        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget, isAnnouncing), helperText, codePoints, userLongClickBehavior ->
             val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
             val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
             val isInReplyThread = sheetState is FullScreenSheetState.Replies
@@ -273,6 +286,7 @@ class ChatInputViewModel(
                 ConnectionState.CONNECTED               -> when {
                     isWhisperTabActive && whisperTarget != null -> InputState.Whispering
                     effectiveIsReplying                         -> InputState.Replying
+                    isAnnouncing                                -> InputState.Announcing
                     else                                        -> InputState.Default
                 }
 
@@ -288,9 +302,13 @@ class ChatInputViewModel(
 
             val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && enabled
 
-            val showReplyOverlay = isReplying && !isInReplyThread
-            val showWhisperOverlay = isWhisperTabActive && whisperTarget != null
             val effectiveReplyName = replyName ?: (sheetState as? FullScreenSheetState.Replies)?.replyName
+            val overlay = when {
+                isReplying && !isInReplyThread && effectiveReplyName != null -> InputOverlay.Reply(effectiveReplyName)
+                isWhisperTabActive && whisperTarget != null                  -> InputOverlay.Whisper(whisperTarget)
+                isAnnouncing                                                 -> InputOverlay.Announce
+                else                                                         -> InputOverlay.None
+            }
 
             ChatInputUiState(
                 text = text,
@@ -305,13 +323,10 @@ class ChatInputViewModel(
                 connectionState = connectionState,
                 isLoggedIn = isLoggedIn,
                 inputState = inputState,
-                showReplyOverlay = showReplyOverlay,
+                overlay = overlay,
                 replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
-                replyName = effectiveReplyName,
                 isEmoteMenuOpen = isEmoteMenuOpen,
                 helperText = helperText,
-                showWhisperOverlay = showWhisperOverlay,
-                whisperTarget = whisperTarget,
                 isWhisperTabActive = isWhisperTabActive,
                 characterCounter = CharacterCounterState.Visible(
                     text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
@@ -326,11 +341,16 @@ class ChatInputViewModel(
         val text = textFieldState.text.toString()
         if (text.isNotBlank()) {
             val whisperTarget = _whisperTarget.value
+            val isAnnouncing = _isAnnouncing.value
             val messageToSend = when {
                 whisperTarget != null -> "/w ${whisperTarget.value} $text"
+                isAnnouncing          -> "/announce $text"
                 else                  -> text
             }
             lastWhisperText = if (whisperTarget != null) text else null
+            if (isAnnouncing) {
+                _isAnnouncing.value = false
+            }
             trySendMessageOrCommand(messageToSend)
             textFieldState.clearText()
         }
@@ -419,6 +439,10 @@ class ChatInputViewModel(
         _isReplying.value = replying || replyMessageId != null
         _replyMessageId.value = replyMessageId
         _replyName.value = replyName
+    }
+
+    fun setAnnouncing(announcing: Boolean) {
+        _isAnnouncing.value = announcing
     }
 
     fun setWhisperTarget(target: UserName?) {
@@ -544,17 +568,22 @@ data class ChatInputUiState(
     val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
     val isLoggedIn: Boolean = false,
     val inputState: InputState = InputState.Disconnected,
-    val showReplyOverlay: Boolean = false,
+    val overlay: InputOverlay = InputOverlay.None,
     val replyMessageId: String? = null,
-    val replyName: UserName? = null,
     val isEmoteMenuOpen: Boolean = false,
     val helperText: String? = null,
-    val showWhisperOverlay: Boolean = false,
-    val whisperTarget: UserName? = null,
     val isWhisperTabActive: Boolean = false,
     val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
     val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
 )
+
+@Stable
+sealed interface InputOverlay {
+    data object None : InputOverlay
+    data class Reply(val name: UserName) : InputOverlay
+    data class Whisper(val target: UserName) : InputOverlay
+    data object Announce : InputOverlay
+}
 
 @Stable
 sealed interface CharacterCounterState {

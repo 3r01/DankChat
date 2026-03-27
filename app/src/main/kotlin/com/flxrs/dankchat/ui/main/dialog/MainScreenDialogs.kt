@@ -101,6 +101,7 @@ fun MainScreenDialogs(
             onSendCommand = { command ->
                 chatInputViewModel.trySendMessageOrCommand(command)
             },
+            onAnnounce = { chatInputViewModel.setAnnouncing(true) },
             onDismiss = dialogViewModel::dismissModActions
         )
     }

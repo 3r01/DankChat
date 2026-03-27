@@ -52,7 +52,7 @@
     <string name="hint_disconnected">Veza nije uspostavljena</string>
     <string name="hint_not_logged_int">Niste prijavljeni</string>
     <string name="hint_replying">Одговор</string>
-    <string name="notification_new_mentions">Neko te je spomenuo</string>
+    <string name="hint_announcing">Send announcement</string>    <string name="notification_new_mentions">Neko te je spomenuo</string>
     <string name="notification_mention">%1$s te je spomenuo u #%2$s</string>
     <string name="notification_notify_mention">Spomenut si u #%1$s</string>
     <string name="snackbar_login">Prijavljen kao %1$s</string>
@@ -604,7 +604,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
     <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_hint">Message</string>
+    <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
     <string name="mod_actions_raid">Raid</string>
