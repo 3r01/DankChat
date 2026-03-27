@@ -182,9 +182,10 @@ sealed interface ChatMessageUiState {
         val badges: ImmutableList<BadgeUi>,
         val userDisplayName: String,
         val rawNameColor: Int,
-        val messageText: String,
+        val messageText: String?,
         val reason: TextResource,
         val status: AutomodMessageStatus,
+        val isUserSide: Boolean = false,
     ) : ChatMessageUiState {
         enum class AutomodMessageStatus { Pending, Approved, Denied, Expired }
     }

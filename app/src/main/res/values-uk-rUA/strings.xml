@@ -495,6 +495,9 @@
     <string name="automod_status_approved">Схвалено</string>
     <string name="automod_status_denied">Відхилено</string>
     <string name="automod_status_expired">Термін минув</string>
+    <string name="automod_user_held">Гей! Твоє повідомлення перевіряється модераторами і ще не надіслане.</string>
+    <string name="automod_user_accepted">Модератори прийняли твоє повідомлення.</string>
+    <string name="automod_user_denied">Модератори відхилили твоє повідомлення.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (рівень %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">збігається з %1$d заблокованим терміном %2$s</item>

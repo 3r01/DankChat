@@ -13,11 +13,12 @@ data class AutomodMessage(
     val heldMessageId: String,
     val userName: UserName,
     val userDisplayName: DisplayName,
-    val messageText: String,
+    val messageText: String?,
     val reason: TextResource,
     val badges: List<Badge> = emptyList(),
     val color: Int = DEFAULT_COLOR,
     val status: Status = Status.Pending,
+    val isUserSide: Boolean = false,
 ) : Message() {
 
     enum class Status { Pending, Approved, Denied, Expired }

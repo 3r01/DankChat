@@ -477,6 +477,9 @@
     <string name="automod_status_approved">Jóváhagyva</string>
     <string name="automod_status_denied">Elutasítva</string>
     <string name="automod_status_expired">Lejárt</string>
+    <string name="automod_user_held">Hé! Az üzenetedet a modok ellenőrzik, és még nem lett elküldve.</string>
+    <string name="automod_user_accepted">A modok elfogadták az üzenetedet.</string>
+    <string name="automod_user_denied">A modok elutasították az üzenetedet.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (%2$d. szint)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">egyezik %1$d blokkolt kifejezéssel: %2$s</item>

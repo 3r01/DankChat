@@ -139,6 +139,9 @@
     <string name="automod_status_approved">Approved</string>
     <string name="automod_status_denied">Denied</string>
     <string name="automod_status_expired">Expired</string>
+    <string name="automod_user_held">Hey! Your message is being checked by mods and has not been sent.</string>
+    <string name="automod_user_accepted">Mods have accepted your message.</string>
+    <string name="automod_user_denied">Mods have denied your message.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (level %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">matches %1$d blocked term %2$s</item>

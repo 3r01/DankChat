@@ -459,6 +459,9 @@
     <string name="automod_status_approved">承認済み</string>
     <string name="automod_status_denied">拒否済み</string>
     <string name="automod_status_expired">期限切れ</string>
+    <string name="automod_user_held">おっと！あなたのメッセージはモデレーターが確認中で、まだ送信されていません。</string>
+    <string name="automod_user_accepted">モデレーターがあなたのメッセージを承認しました。</string>
+    <string name="automod_user_denied">モデレーターがあなたのメッセージを拒否しました。</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (レベル %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="other">%1$d件のブロックされた用語 %2$s に一致</item>

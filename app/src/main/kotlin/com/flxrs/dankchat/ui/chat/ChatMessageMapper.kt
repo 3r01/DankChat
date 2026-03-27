@@ -314,9 +314,10 @@ class ChatMessageMapper(
             }.toImmutableList(),
             userDisplayName = userName.formatWithDisplayName(userDisplayName),
             rawNameColor = color,
-            messageText = messageText,
+            messageText = messageText?.takeIf { it.isNotEmpty() },
             reason = reason,
             status = uiStatus,
+            isUserSide = isUserSide,
         )
     }
 

@@ -498,6 +498,9 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="automod_status_approved">Onaylandı</string>
     <string name="automod_status_denied">Reddedildi</string>
     <string name="automod_status_expired">Süresi Doldu</string>
+    <string name="automod_user_held">Hey! Mesajın modlar tarafından kontrol ediliyor ve henüz gönderilmedi.</string>
+    <string name="automod_user_accepted">Modlar mesajını kabul etti.</string>
+    <string name="automod_user_denied">Modlar mesajını reddetti.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (seviye %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">%1$d engellenen terimle eşleşiyor %2$s</item>

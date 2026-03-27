@@ -141,6 +141,9 @@
     <string name="automod_status_approved">Одобрено</string>
     <string name="automod_status_denied">Одбијено</string>
     <string name="automod_status_expired">Истекло</string>
+    <string name="automod_user_held">Еј! Твоја порука се проверава од стране модератора и још није послата.</string>
+    <string name="automod_user_accepted">Модератори су прихватили твоју поруку.</string>
+    <string name="automod_user_denied">Модератори су одбили твоју поруку.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (ниво %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">подудара се са %1$d блокираним термином %2$s</item>

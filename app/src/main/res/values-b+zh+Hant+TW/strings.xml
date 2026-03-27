@@ -134,6 +134,9 @@
     <string name="automod_status_approved">已允許</string>
     <string name="automod_status_denied">已拒絕</string>
     <string name="automod_status_expired">已過期</string>
+    <string name="automod_user_held">嘿！你的訊息正在被版主審核中，尚未發送。</string>
+    <string name="automod_user_accepted">版主已接受你的訊息。</string>
+    <string name="automod_user_denied">版主已拒絕你的訊息。</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (等級 %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="other">符合 %1$d 個封鎖詞彙 %2$s</item>

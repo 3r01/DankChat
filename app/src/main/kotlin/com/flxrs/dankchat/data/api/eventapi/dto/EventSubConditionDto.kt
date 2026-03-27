@@ -20,3 +20,11 @@ data class EventSubModeratorConditionDto(
     @SerialName("moderator_user_id")
     val moderatorUserId: UserId,
 ) : EventSubConditionDto
+
+@Serializable
+data class EventSubBroadcasterUserConditionDto(
+    @SerialName("broadcaster_user_id")
+    val broadcasterUserId: UserId,
+    @SerialName("user_id")
+    val userId: UserId,
+) : EventSubConditionDto

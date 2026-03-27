@@ -13,5 +13,12 @@ enum class EventSubSubscriptionType {
 
     @SerialName("automod.message.update")
     AutomodMessageUpdate,
+
+    @SerialName("channel.chat.user_message_hold")
+    ChannelChatUserMessageHold,
+
+    @SerialName("channel.chat.user_message_update")
+    ChannelChatUserMessageUpdate,
+
     Unknown,
 }

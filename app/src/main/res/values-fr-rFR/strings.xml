@@ -490,6 +490,9 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="automod_status_approved">Approuvé</string>
     <string name="automod_status_denied">Refusé</string>
     <string name="automod_status_expired">Expiré</string>
+    <string name="automod_user_held">Hey ! Ton message est en cours de vérification par les mods et n\'a pas encore été envoyé.</string>
+    <string name="automod_user_accepted">Les mods ont accepté ton message.</string>
+    <string name="automod_user_denied">Les mods ont refusé ton message.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (niveau %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">correspond à %1$d terme bloqué %2$s</item>

@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -47,13 +46,13 @@ fun AutomodMessageComposable(
     onDeny: (heldMessageId: String, channel: UserName) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh
     val textColor = MaterialTheme.colorScheme.onSurface
     val timestampColor = MaterialTheme.colorScheme.onSurface
     val allowColor = MaterialTheme.colorScheme.primary
     val denyColor = MaterialTheme.colorScheme.error
     val textSize = fontSize.sp
     val isPending = message.status == AutomodMessageStatus.Pending
+    val backgroundColor = MaterialTheme.colorScheme.background
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
 
     // Resolve strings
@@ -63,9 +62,16 @@ fun AutomodMessageComposable(
     val approvedText = stringResource(R.string.automod_status_approved)
     val deniedText = stringResource(R.string.automod_status_denied)
     val expiredText = stringResource(R.string.automod_status_expired)
+    val userHeldText = stringResource(R.string.automod_user_held)
+    val userAcceptedText = stringResource(R.string.automod_user_accepted)
+    val userDeniedText = stringResource(R.string.automod_user_denied)
 
-    // Header line: [badge] "AutoMod: Held a message for reason: {reason}. Allow will post it in chat. Allow  Deny"
-    val headerString = remember(message, textColor, timestampColor, allowColor, denyColor, textSize, headerText, allowText, denyText, approvedText, deniedText, expiredText) {
+    // Header line: [badge] "AutoMod: ..."
+    val headerString = remember(
+        message, textColor, timestampColor, allowColor, denyColor, textSize,
+        headerText, allowText, denyText, approvedText, deniedText, expiredText,
+        userHeldText, userAcceptedText, userDeniedText,
+    ) {
         buildAnnotatedString {
             // Timestamp
             if (message.timestamp.isNotEmpty()) {
@@ -94,42 +100,53 @@ fun AutomodMessageComposable(
                 append("AutoMod: ")
             }
 
-            // Reason text
-            withStyle(SpanStyle(color = textColor)) {
-                append("$headerText ")
-            }
-
-            // Allow / Deny buttons or status text
-            when (message.status) {
-                AutomodMessageStatus.Pending -> {
-                    pushStringAnnotation(tag = ALLOW_TAG, annotation = message.heldMessageId)
-                    withStyle(SpanStyle(color = allowColor, fontWeight = FontWeight.Bold)) {
-                        append(allowText)
-                    }
-                    pop()
-
-                    pushStringAnnotation(tag = DENY_TAG, annotation = message.heldMessageId)
-                    withStyle(SpanStyle(color = denyColor, fontWeight = FontWeight.Bold)) {
-                        append("  $denyText")
-                    }
-                    pop()
+            when {
+                // User-side: simple status messages, no Allow/Deny
+                message.isUserSide -> when (message.status) {
+                    AutomodMessageStatus.Pending  -> withStyle(SpanStyle(color = textColor)) { append(userHeldText) }
+                    AutomodMessageStatus.Approved -> withStyle(SpanStyle(color = textColor)) { append(userAcceptedText) }
+                    AutomodMessageStatus.Denied   -> withStyle(SpanStyle(color = textColor)) { append(userDeniedText) }
+                    AutomodMessageStatus.Expired  -> withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f))) { append(expiredText) }
                 }
 
-                AutomodMessageStatus.Approved -> {
-                    withStyle(SpanStyle(color = allowColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
-                        append(approvedText)
+                // Mod-side: reason text + Allow/Deny buttons or status
+                else -> {
+                    withStyle(SpanStyle(color = textColor)) {
+                        append("$headerText ")
                     }
-                }
 
-                AutomodMessageStatus.Denied -> {
-                    withStyle(SpanStyle(color = denyColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
-                        append(deniedText)
-                    }
-                }
+                    when (message.status) {
+                        AutomodMessageStatus.Pending -> {
+                            pushStringAnnotation(tag = ALLOW_TAG, annotation = message.heldMessageId)
+                            withStyle(SpanStyle(color = allowColor, fontWeight = FontWeight.Bold)) {
+                                append(allowText)
+                            }
+                            pop()
 
-                AutomodMessageStatus.Expired -> {
-                    withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f), fontWeight = FontWeight.Bold)) {
-                        append(expiredText)
+                            pushStringAnnotation(tag = DENY_TAG, annotation = message.heldMessageId)
+                            withStyle(SpanStyle(color = denyColor, fontWeight = FontWeight.Bold)) {
+                                append("  $denyText")
+                            }
+                            pop()
+                        }
+
+                        AutomodMessageStatus.Approved -> {
+                            withStyle(SpanStyle(color = allowColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
+                                append(approvedText)
+                            }
+                        }
+
+                        AutomodMessageStatus.Denied -> {
+                            withStyle(SpanStyle(color = denyColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
+                                append(deniedText)
+                            }
+                        }
+
+                        AutomodMessageStatus.Expired -> {
+                            withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f), fontWeight = FontWeight.Bold)) {
+                                append(expiredText)
+                            }
+                        }
                     }
                 }
             }
@@ -138,31 +155,33 @@ fun AutomodMessageComposable(
 
     // Body line: "timestamp {displayName}: {message}"
     val bodyString = remember(message, textColor, nameColor, timestampColor, textSize) {
-        buildAnnotatedString {
-            // Timestamp for alignment
-            if (message.timestamp.isNotEmpty()) {
-                withStyle(
-                    SpanStyle(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = textSize * 0.95f,
-                        color = timestampColor,
-                        letterSpacing = (-0.03).em,
-                    )
-                ) {
-                    append(message.timestamp)
-                    append(" ")
+        message.messageText?.let { text ->
+            buildAnnotatedString {
+                // Timestamp for alignment
+                if (message.timestamp.isNotEmpty()) {
+                    withStyle(
+                        SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = textSize * 0.95f,
+                            color = timestampColor,
+                            letterSpacing = (-0.03).em,
+                        )
+                    ) {
+                        append(message.timestamp)
+                        append(" ")
+                    }
                 }
-            }
 
-            // Username in bold with user color
-            withStyle(SpanStyle(color = nameColor, fontWeight = FontWeight.Bold)) {
-                append("${message.userDisplayName}: ")
-            }
+                // Username in bold with user color
+                withStyle(SpanStyle(color = nameColor, fontWeight = FontWeight.Bold)) {
+                    append("${message.userDisplayName}: ")
+                }
 
-            // Message text
-            withStyle(SpanStyle(color = textColor)) {
-                append(message.messageText)
+                // Message text
+                withStyle(SpanStyle(color = textColor)) {
+                    append(text)
+                }
             }
         }
     }
@@ -189,9 +208,10 @@ fun AutomodMessageComposable(
         }
     }
 
-    val resolvedAlpha = when (message.status) {
-        AutomodMessageStatus.Pending -> 1f
-        else                         -> 0.5f
+    val resolvedAlpha = when {
+        message.isUserSide                       -> 1f
+        message.status == AutomodMessageStatus.Pending -> 1f
+        else                                     -> 0.5f
     }
 
     Column(
@@ -199,7 +219,6 @@ fun AutomodMessageComposable(
             .fillMaxWidth()
             .wrapContentHeight()
             .alpha(resolvedAlpha)
-            .drawBehind { drawRect(backgroundColor) }
             .padding(horizontal = 2.dp, vertical = 2.dp)
     ) {
         // Header line with badge inline content
@@ -223,12 +242,14 @@ fun AutomodMessageComposable(
             },
         )
 
-        // Body line (no inline content needed)
-        TextWithMeasuredInlineContent(
-            text = bodyString,
-            inlineContentProviders = emptyMap(),
-            style = TextStyle(fontSize = textSize),
-            modifier = Modifier.fillMaxWidth(),
-        )
+        // Body line with held message text
+        bodyString?.let {
+            TextWithMeasuredInlineContent(
+                text = it,
+                inlineContentProviders = emptyMap(),
+                style = TextStyle(fontSize = textSize),
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
     }
 }

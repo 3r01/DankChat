@@ -76,6 +76,55 @@ data class AutomodMessageUpdateDto(
     val blockedTerm: BlockedTermReasonDto? = null,
 ) : NotificationEventDto
 
+/**
+ * EventSub channel.chat.user_message_hold v1 payload.
+ * Fired when the logged-in user's message is caught by AutoMod.
+ */
+@Serializable
+@SerialName("channel.chat.user_message_hold")
+data class ChannelChatUserMessageHoldDto(
+    @SerialName("broadcaster_user_id")
+    val broadcasterUserId: UserId,
+    @SerialName("broadcaster_user_login")
+    val broadcasterUserLogin: UserName,
+    @SerialName("broadcaster_user_name")
+    val broadcasterUserName: DisplayName,
+    @SerialName("user_id")
+    val userId: UserId,
+    @SerialName("user_login")
+    val userLogin: UserName,
+    @SerialName("user_name")
+    val userName: DisplayName,
+    @SerialName("message_id")
+    val messageId: String,
+    val message: AutomodHeldMessageDto,
+) : NotificationEventDto
+
+/**
+ * EventSub channel.chat.user_message_update v1 payload.
+ * Fired when the logged-in user's held message is accepted or denied.
+ */
+@Serializable
+@SerialName("channel.chat.user_message_update")
+data class ChannelChatUserMessageUpdateDto(
+    @SerialName("broadcaster_user_id")
+    val broadcasterUserId: UserId,
+    @SerialName("broadcaster_user_login")
+    val broadcasterUserLogin: UserName,
+    @SerialName("broadcaster_user_name")
+    val broadcasterUserName: DisplayName,
+    @SerialName("user_id")
+    val userId: UserId,
+    @SerialName("user_login")
+    val userLogin: UserName,
+    @SerialName("user_name")
+    val userName: DisplayName,
+    val status: AutomodMessageStatus,
+    @SerialName("message_id")
+    val messageId: String,
+    val message: AutomodHeldMessageDto,
+) : NotificationEventDto
+
 @Serializable
 data class AutomodHeldMessageDto(
     val text: String,

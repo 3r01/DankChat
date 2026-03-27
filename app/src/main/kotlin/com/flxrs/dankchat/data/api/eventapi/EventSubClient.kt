@@ -9,6 +9,8 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.RevocationMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.WelcomeMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageHoldDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageUpdateDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelChatUserMessageHoldDto
+import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelChatUserMessageUpdateDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -277,6 +279,20 @@ class EventSubClient(
             )
 
             is AutomodMessageUpdateDto -> AutomodUpdate(
+                id = message.metadata.messageId,
+                timestamp = message.metadata.messageTimestamp,
+                channelName = event.broadcasterUserLogin,
+                data = event,
+            )
+
+            is ChannelChatUserMessageHoldDto -> UserMessageHeld(
+                id = message.metadata.messageId,
+                timestamp = message.metadata.messageTimestamp,
+                channelName = event.broadcasterUserLogin,
+                data = event,
+            )
+
+            is ChannelChatUserMessageUpdateDto -> UserMessageUpdated(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,

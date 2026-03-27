@@ -498,6 +498,9 @@
     <string name="automod_status_approved">Одобрено</string>
     <string name="automod_status_denied">Отклонено</string>
     <string name="automod_status_expired">Истекло</string>
+    <string name="automod_user_held">Эй! Твоё сообщение проверяется модераторами и ещё не отправлено.</string>
+    <string name="automod_user_accepted">Модераторы приняли твоё сообщение.</string>
+    <string name="automod_user_denied">Модераторы отклонили твоё сообщение.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (уровень %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">совпадает с %1$d заблокированным термином %2$s</item>

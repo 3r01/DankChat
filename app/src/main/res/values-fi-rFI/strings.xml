@@ -490,6 +490,9 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="automod_status_approved">Hyväksytty</string>
     <string name="automod_status_denied">Hylätty</string>
     <string name="automod_status_expired">Vanhentunut</string>
+    <string name="automod_user_held">Hei! Viestisi on modien tarkistettavana eikä sitä ole vielä lähetetty.</string>
+    <string name="automod_user_accepted">Modit ovat hyväksyneet viestisi.</string>
+    <string name="automod_user_denied">Modit ovat hylänneet viestisi.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (taso %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">vastaa %1$d estettyä termiä %2$s</item>

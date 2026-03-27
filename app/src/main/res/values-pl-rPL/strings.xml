@@ -512,6 +512,9 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="automod_status_approved">Zatwierdzono</string>
     <string name="automod_status_denied">Odrzucono</string>
     <string name="automod_status_expired">Wygasło</string>
+    <string name="automod_user_held">Hej! Twoja wiadomość jest sprawdzana przez moderatorów i nie została jeszcze wysłana.</string>
+    <string name="automod_user_accepted">Moderatorzy zaakceptowali Twoją wiadomość.</string>
+    <string name="automod_user_denied">Moderatorzy odrzucili Twoją wiadomość.</string>
     <string name="automod_reason_category" comment="aggressive (level 2)">%1$s (poziom %2$d)</string>
     <plurals name="automod_reason_blocked_terms">
         <item quantity="one">pasuje do %1$d zablokowanego wyrażenia %2$s</item>

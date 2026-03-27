@@ -7,6 +7,8 @@ import com.flxrs.dankchat.data.api.eventapi.AutomodHeld
 import com.flxrs.dankchat.data.api.eventapi.AutomodUpdate
 import com.flxrs.dankchat.data.api.eventapi.ModerationAction
 import com.flxrs.dankchat.data.api.eventapi.SystemMessage
+import com.flxrs.dankchat.data.api.eventapi.UserMessageHeld
+import com.flxrs.dankchat.data.api.eventapi.UserMessageUpdated
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodMessageStatus
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.AutomodReasonDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.BlockedTermReasonDto
@@ -131,10 +133,12 @@ class ChatEventProcessor(
     private suspend fun collectEventSubEvents() {
         chatConnector.eventSubEvents.collect { eventMessage ->
             when (eventMessage) {
-                is ModerationAction -> handleEventSubModeration(eventMessage)
-                is AutomodHeld      -> handleAutomodHeld(eventMessage)
-                is AutomodUpdate    -> handleAutomodUpdate(eventMessage)
-                is SystemMessage    -> postSystemMessageAndReconnect(type = SystemMessageType.Custom(eventMessage.message))
+                is ModerationAction  -> handleEventSubModeration(eventMessage)
+                is AutomodHeld       -> handleAutomodHeld(eventMessage)
+                is AutomodUpdate     -> handleAutomodUpdate(eventMessage)
+                is UserMessageHeld   -> handleUserMessageHeld(eventMessage)
+                is UserMessageUpdated -> handleUserMessageUpdated(eventMessage)
+                is SystemMessage     -> postSystemMessageAndReconnect(type = SystemMessageType.Custom(eventMessage.message))
             }
         }
     }
@@ -251,6 +255,64 @@ class ChatEventProcessor(
         chatMessageRepository.updateAutomodMessageStatus(eventMessage.channelName, eventMessage.data.messageId, newStatus)
     }
 
+    private fun handleUserMessageHeld(eventMessage: UserMessageHeld) {
+        val data = eventMessage.data
+        val automodBadge = Badge.GlobalBadge(
+            title = "AutoMod",
+            badgeTag = "automod/1",
+            badgeInfo = null,
+            url = "",
+            type = BadgeType.Authority,
+        )
+        val automodMsg = AutomodMessage(
+            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+            id = eventMessage.id,
+            channel = eventMessage.channelName,
+            heldMessageId = data.messageId,
+            userName = data.userLogin,
+            userDisplayName = data.userName,
+            messageText = null,
+            reason = TextResource.Res(R.string.automod_user_held),
+            badges = listOf(automodBadge),
+            isUserSide = true,
+        )
+        chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
+    }
+
+    private fun handleUserMessageUpdated(eventMessage: UserMessageUpdated) {
+        val data = eventMessage.data
+        val automodBadge = Badge.GlobalBadge(
+            title = "AutoMod",
+            badgeTag = "automod/1",
+            badgeInfo = null,
+            url = "",
+            type = BadgeType.Authority,
+        )
+        val reason = when (data.status) {
+            AutomodMessageStatus.Approved -> TextResource.Res(R.string.automod_user_accepted)
+            AutomodMessageStatus.Denied   -> TextResource.Res(R.string.automod_user_denied)
+            AutomodMessageStatus.Expired  -> TextResource.Res(R.string.automod_status_expired)
+        }
+        val automodMsg = AutomodMessage(
+            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+            id = eventMessage.id,
+            channel = eventMessage.channelName,
+            heldMessageId = data.messageId,
+            userName = data.userLogin,
+            userDisplayName = data.userName,
+            messageText = null,
+            reason = reason,
+            badges = listOf(automodBadge),
+            isUserSide = true,
+            status = when (data.status) {
+                AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+                AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
+                AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
+            },
+        )
+        chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
+    }
+
     private suspend fun onMessage(msg: IrcMessage) {
         when (msg.command) {
             "CLEARCHAT"       -> handleClearChat(msg)
@@ -336,9 +398,15 @@ class ChatEventProcessor(
     }
 
     private suspend fun handleMessage(ircMessage: IrcMessage) {
-        if (ircMessage.command == "NOTICE" && ircMessage.tags["msg-id"] in NoticeMessage.ROOM_STATE_CHANGE_MSG_IDS) {
-            val channel = ircMessage.params[0].substring(1).toUserName()
-            if (chatConnector.connectedAndHasModerateTopic(channel)) {
+        if (ircMessage.command == "NOTICE") {
+            val msgId = ircMessage.tags["msg-id"]
+            if (msgId in NoticeMessage.ROOM_STATE_CHANGE_MSG_IDS) {
+                val channel = ircMessage.params[0].substring(1).toUserName()
+                if (chatConnector.connectedAndHasModerateTopic(channel)) {
+                    return
+                }
+            }
+            if (msgId in AUTOMOD_NOTICE_MSG_IDS && chatConnector.connectedAndHasUserMessageTopic) {
                 return
             }
         }
@@ -501,5 +569,6 @@ class ChatEventProcessor(
     companion object {
         private val TAG = ChatEventProcessor::class.java.simpleName
         private const val PUBSUB_TIMEOUT = 5000L
+        private val AUTOMOD_NOTICE_MSG_IDS = setOf("msg_rejected", "msg_rejected_mandatory")
     }
 }
