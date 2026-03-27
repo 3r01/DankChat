@@ -115,7 +115,7 @@ fun InlineOverflowMenu(
     ) { menu ->
         val density = LocalDensity.current
         val screenHeight = with(density) { LocalView.current.height.toDp() }
-        val maxHeight = (screenHeight - keyboardHeightDp) * 0.5f
+        val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
         Column(
             modifier = Modifier
                 .width(200.dp)
