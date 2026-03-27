@@ -386,6 +386,7 @@
     <string name="message_copy">メッセージをコピー</string>
     <string name="message_copy_full">メッセージ全体をコピー</string>
     <string name="message_reply">メッセージに返信</string>
+    <string name="message_reply_original">元のメッセージに返信</string>
     <string name="message_view_thread">スレッドを表示</string>
     <string name="message_copy_id">メッセージIDをコピー</string>
     <string name="message_more_actions">もっとみる…</string>

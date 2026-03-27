@@ -402,6 +402,7 @@
     <string name="message_copy">Скапіраваць тэкст</string>
     <string name="message_copy_full">Скапіраваць увесь тэкст</string>
     <string name="message_reply">Адказаць на паведамленне</string>
+    <string name="message_reply_original">Адказаць на зыходнае паведамленне</string>
     <string name="message_view_thread">Паглядзець галіну</string>
     <string name="message_copy_id">Скапіраваць ID паведамлення</string>
     <string name="message_more_actions">Больш…</string>

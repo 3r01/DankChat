@@ -401,6 +401,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="message_copy">Mesajı kopyala</string>
     <string name="message_copy_full">Tüm mesajı kopyala</string>
     <string name="message_reply">Mesajı yanıtla</string>
+    <string name="message_reply_original">Orijinal mesajı yanıtla</string>
     <string name="message_view_thread">Akışı görüntüle</string>
     <string name="message_copy_id">Mesaj ID\'sini kopyala</string>
     <string name="message_more_actions">Daha fazlası…</string>

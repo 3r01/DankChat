@@ -392,6 +392,7 @@
     <string name="message_copy">Üzenet másolása</string>
     <string name="message_copy_full">Teljes üzenet másolása</string>
     <string name="message_reply">Válasz az üzenetre</string>
+    <string name="message_reply_original">Válasz az eredeti üzenetre</string>
     <string name="message_view_thread">Gondolatmenet megtekintése</string>
     <string name="message_copy_id">Üzenet id másolása</string>
     <string name="message_more_actions">Több…</string>

@@ -407,6 +407,7 @@
     <string name="message_copy">Копировать сообщение </string>
     <string name="message_copy_full">Копировать полное сообщения </string>
     <string name="message_reply">Ответить на сообщение</string>
+    <string name="message_reply_original">Ответить на исходное сообщение</string>
     <string name="message_view_thread">Посмотреть ветку</string>
     <string name="message_copy_id">Копировать ID сообщения</string>
     <string name="message_more_actions">Ещё…</string>

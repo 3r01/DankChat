@@ -409,6 +409,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="message_copy">Zkopírovat zprávu</string>
     <string name="message_copy_full">Zkopírovat celou zprávu</string>
     <string name="message_reply">Odpovědět na zprávu</string>
+    <string name="message_reply_original">Odpovědět na původní zprávu</string>
     <string name="message_view_thread">Zobrazit vlákno</string>
     <string name="message_copy_id">Zkopírovat ID zprávy</string>
     <string name="message_more_actions">Více…</string>

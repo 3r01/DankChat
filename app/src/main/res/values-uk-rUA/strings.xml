@@ -409,6 +409,7 @@
     <string name="message_copy">Скопіювати повідомлення</string>
     <string name="message_copy_full">Скопіювати повне повідомлення</string>
     <string name="message_reply">Відповісти на повідомлення</string>
+    <string name="message_reply_original">Відповісти на початкове повідомлення</string>
     <string name="message_view_thread">Переглянути тему</string>
     <string name="message_copy_id">Скопіювати ідентифікатор повідомлення</string>
     <string name="message_more_actions">Більше…</string>

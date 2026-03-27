@@ -396,6 +396,7 @@
     <string name="message_copy">Copia messaggio</string>
     <string name="message_copy_full">Copia il messaggio completo</string>
     <string name="message_reply">Rispondi al messaggio</string>
+    <string name="message_reply_original">Rispondi al messaggio originale</string>
     <string name="message_view_thread">Visualizza thread</string>
     <string name="message_copy_id">Copia id del messaggio</string>
     <string name="message_more_actions">Altro…</string>

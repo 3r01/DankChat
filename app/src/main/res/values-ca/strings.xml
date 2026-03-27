@@ -349,7 +349,15 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="confirm_user_ban_question">Bloquejar aquest usuari?</string>
     <string name="confirm_user_delete_question">Eliminar aquest missatge?</string>
     <string name="confirm_clear_chat_question">Netejar el xat?</string>
+    <string name="message_copy">Copia el missatge</string>
+    <string name="message_copy_full">Copia el missatge complet</string>
+    <string name="message_reply">Respon al missatge</string>
+    <string name="message_reply_original">Respon al missatge original</string>
+    <string name="message_view_thread">Mostra el fil</string>
+    <string name="message_copy_id">Copia l\'ID del missatge</string>
+    <string name="message_more_actions">Més…</string>
     <string name="message_jump_to">Anar al missatge</string>
+    <string name="message_not_found">No s\'ha trobat el missatge</string>
     <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>
     <string name="message_history">Historial de missatges</string>
     <string name="message_history_title">Historial: %1$s</string>

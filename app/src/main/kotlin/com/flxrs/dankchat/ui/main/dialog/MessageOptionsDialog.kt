@@ -52,6 +52,7 @@ fun MessageOptionsDialog(
     canJump: Boolean,
     hasReplyThread: Boolean,
     onReply: () -> Unit,
+    onReplyToOriginal: () -> Unit,
     onJumpToMessage: () -> Unit,
     onViewThread: () -> Unit,
     onCopy: () -> Unit,
@@ -87,7 +88,15 @@ fun MessageOptionsDialog(
             }
             if (canReply && hasReplyThread) {
                 MessageOptionItem(
-                    icon = Icons.AutoMirrored.Filled.Reply, // Using same icon for thread view
+                    icon = Icons.AutoMirrored.Filled.Reply,
+                    text = stringResource(R.string.message_reply_original),
+                    onClick = {
+                        onReplyToOriginal()
+                        onDismiss()
+                    }
+                )
+                MessageOptionItem(
+                    icon = Icons.AutoMirrored.Filled.Reply,
                     text = stringResource(R.string.message_view_thread),
                     onClick = {
                         onViewThread()

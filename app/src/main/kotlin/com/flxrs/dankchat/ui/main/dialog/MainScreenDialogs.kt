@@ -205,6 +205,9 @@ fun MainScreenDialogs(
                 onReply = {
                     chatInputViewModel.setReplying(true, s.messageId, s.replyName)
                 },
+                onReplyToOriginal = {
+                    chatInputViewModel.setReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName)
+                },
                 onViewThread = {
                     sheetNavigationViewModel.openReplies(s.rootThreadId, s.replyName)
                 },

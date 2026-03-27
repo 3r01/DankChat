@@ -308,7 +308,15 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="confirm_user_ban_question">Estetäänkö tämä käyttäjä?</string>
     <string name="confirm_user_delete_question">Poistetaanko tämä viesti?</string>
     <string name="confirm_clear_chat_question">Tyhjennetäänkö chat?</string>
+    <string name="message_copy">Kopioi viesti</string>
+    <string name="message_copy_full">Kopioi koko viesti</string>
+    <string name="message_reply">Vastaa viestiin</string>
+    <string name="message_reply_original">Vastaa alkuperäiseen viestiin</string>
+    <string name="message_view_thread">Näytä ketju</string>
+    <string name="message_copy_id">Kopioi viestin tunnus</string>
+    <string name="message_more_actions">Lisää…</string>
     <string name="message_jump_to">Siirry viestiin</string>
+    <string name="message_not_found">Viestiä ei löytynyt</string>
     <string name="message_not_in_history">Viesti ei ole enää chat-historiassa</string>
     <string name="message_history">Viestihistoria</string>
     <string name="message_history_title">Historia: %1$s</string>

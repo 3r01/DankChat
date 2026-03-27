@@ -254,7 +254,15 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="confirm_user_ban_question">Banovati ovog korisnika?</string>
     <string name="confirm_user_delete_question">Obrisati ovu poruku?</string>
     <string name="confirm_clear_chat_question">Obrisati čet?</string>
+    <string name="message_copy">Копирај поруку</string>
+    <string name="message_copy_full">Копирај целу поруку</string>
+    <string name="message_reply">Одговори на поруку</string>
+    <string name="message_reply_original">Одговори на оригиналну поруку</string>
+    <string name="message_view_thread">Прикажи тему</string>
+    <string name="message_copy_id">Копирај ID поруке</string>
+    <string name="message_more_actions">Још…</string>
     <string name="message_jump_to">Иди на поруку</string>
+    <string name="message_not_found">Порука није пронађена</string>
     <string name="message_not_in_history">Порука више није у историји ћаскања</string>
     <string name="message_history">Историја порука</string>
     <string name="message_history_title">Историја: %1$s</string>

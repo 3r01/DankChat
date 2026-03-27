@@ -402,6 +402,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_copy">Copier le message</string>
     <string name="message_copy_full">Copier le message complet</string>
     <string name="message_reply">Réponse à un message</string>
+    <string name="message_reply_original">Répondre au message original</string>
     <string name="message_view_thread">Afficher le fil de discussion</string>
     <string name="message_copy_id">Copier l\'ID du message</string>
     <string name="message_more_actions">Plus…</string>

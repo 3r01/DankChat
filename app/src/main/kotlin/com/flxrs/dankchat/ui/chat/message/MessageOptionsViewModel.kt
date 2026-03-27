@@ -53,13 +53,15 @@ class MessageOptionsViewModel(
             else -> {
                 val asPrivMessage = message as? PrivMessage
                 val asWhisperMessage = message as? WhisperMessage
-                val rootId = asPrivMessage?.thread?.rootId
+                val thread = asPrivMessage?.thread
+                val rootId = thread?.rootId
                 val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
                 val replyName = name
                 val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
                 MessageOptionsState.Found(
                     messageId = message.id,
                     rootThreadId = rootId ?: message.id,
+                    rootThreadName = thread?.name,
                     replyName = replyName,
                     name = name,
                     originalMessage = originalMessage.orEmpty(),
@@ -127,6 +129,7 @@ sealed interface MessageOptionsState {
     data class Found(
         val messageId: String,
         val rootThreadId: String,
+        val rootThreadName: UserName?,
         val replyName: UserName,
         val name: UserName,
         val originalMessage: String,

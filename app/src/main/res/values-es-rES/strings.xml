@@ -406,6 +406,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="message_copy">Copiar mensaje</string>
     <string name="message_copy_full">Copiar mensaje completo</string>
     <string name="message_reply">Responder mensaje</string>
+    <string name="message_reply_original">Responder al mensaje original</string>
     <string name="message_view_thread">Ver hilo</string>
     <string name="message_copy_id">Copiar id del mensaje</string>
     <string name="message_more_actions">Ver más…</string>
