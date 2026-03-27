@@ -338,6 +338,9 @@
     <string name="preference_custom_login_title">Пользовательский логин</string>
     <string name="preference_bypass_command_handling_title">Обход обработки команд Twitch</string>
     <string name="preference_bypass_command_handling_summary">Отключает перехват команд Twitch и отправляет их в чат</string>
+    <string name="preference_chat_send_protocol_category">Протокол отправки чата</string>
+    <string name="preference_helix_sending_title">Использовать Helix API для отправки</string>
+    <string name="preference_helix_sending_summary">Отправлять сообщения чата через Twitch Helix API вместо IRC</string>
     <string name="preference_7tv_live_updates_title">Обновления 7TV эмоций в реальном времени</string>
     <string name="preference_7tv_live_updates_timeout_title">Фоновые обновления эмоций</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Обновления останавливаются после %1$s.\nУменьшение этого значения может увеличить время автономной работы.</string>

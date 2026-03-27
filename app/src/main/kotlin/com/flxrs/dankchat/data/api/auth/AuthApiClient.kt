@@ -67,6 +67,7 @@ class AuthApiClient(private val authApi: AuthApi, private val json: Json) {
             "user:read:blocked_users",
             "user:read:chat",
             "user:read:emotes",
+            "user:write:chat",
             "whispers:edit",
             "whispers:read",
         )

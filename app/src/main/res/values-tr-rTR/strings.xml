@@ -329,6 +329,9 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_custom_login_title">Özel giriş</string>
     <string name="preference_bypass_command_handling_title">Twitch komut işlemeyi atla</string>
     <string name="preference_bypass_command_handling_summary">Twitch komutlarının yakalanmasını etkisizleştirir ve bunun yerine onları sohbete gönderir</string>
+    <string name="preference_chat_send_protocol_category">Sohbet gönderme protokolü</string>
+    <string name="preference_helix_sending_title">Göndermek için Helix API kullan</string>
+    <string name="preference_helix_sending_summary">Sohbet mesajlarını IRC yerine Twitch Helix API üzerinden gönderir</string>
     <string name="preference_7tv_live_updates_title">7TV canlı ifade güncellemeleri</string>
     <string name="preference_7tv_live_updates_timeout_title">Canlı ifade güncellemeleri arkaplan davranışı</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Güncellemeler %1$s sonra durur.\nBu sayıyı düşürmek pil ömrünü uzatabilir.</string>

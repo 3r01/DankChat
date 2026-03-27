@@ -17,6 +17,8 @@ import com.flxrs.dankchat.data.api.helix.dto.DataListDto
 import com.flxrs.dankchat.data.api.helix.dto.HelixErrorDto
 import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerDto
+import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
+import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageResponseDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ModVipDto
 import com.flxrs.dankchat.data.api.helix.dto.PagedDto
@@ -270,6 +272,14 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
             .data
     }
 
+    suspend fun postChatMessage(request: SendChatMessageRequestDto): Result<SendChatMessageResponseDto> = runCatching {
+        helixApi.postChatMessage(request)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<SendChatMessageResponseDto>>()
+            .data
+            .first()
+    }
+
     private inline fun <reified T> pageAsFlow(amountToFetch: Int, crossinline request: suspend (cursor: String?) -> HttpResponse?): Flow<List<T>> = flow {
         val initialPage = request(null)
             .throwHelixApiErrorOnFailure()
@@ -364,12 +374,14 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
 
             HttpStatusCode.UnprocessableEntity -> when (request.url.encodedPath) {
                 "/helix/moderation/moderators" -> HelixError.TargetIsVip
+                "/helix/chat/messages"         -> HelixError.MessageTooLarge
                 else                           -> HelixError.Forwarded
             }
 
             HttpStatusCode.TooManyRequests     -> when (request.url.encodedPath) {
                 "/helix/whispers"            -> HelixError.WhisperRateLimited
                 "/helix/channels/commercial" -> HelixError.CommercialRateLimited
+                "/helix/chat/messages"       -> HelixError.ChatMessageRateLimited
                 else                         -> HelixError.Forwarded
             }
 

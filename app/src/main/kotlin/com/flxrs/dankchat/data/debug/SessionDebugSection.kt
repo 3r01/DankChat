@@ -2,6 +2,7 @@ package com.flxrs.dankchat.data.debug
 
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -13,6 +14,7 @@ import kotlin.time.TimeSource
 class SessionDebugSection(
     private val chatMessageRepository: ChatMessageRepository,
     private val chatChannelProvider: ChatChannelProvider,
+    private val developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : DebugSection {
 
     private val startMark = TimeSource.Monotonic.markNow()
@@ -42,7 +44,11 @@ class SessionDebugSection(
                 title = baseTitle,
                 entries = listOf(
                     DebugEntry("Uptime", uptime),
+                    DebugEntry("Send protocol", developerSettingsDataStore.current().chatSendProtocol.name),
                     DebugEntry("Total messages received", "${chatMessageRepository.sessionMessageCount}"),
+                    DebugEntry("Messages sent (IRC)", "${chatMessageRepository.ircSentCount}"),
+                    DebugEntry("Messages sent (Helix)", "${chatMessageRepository.helixSentCount}"),
+                    DebugEntry("Send failures", "${chatMessageRepository.sendFailureCount}"),
                     DebugEntry("Active channels", "${channels?.size ?: 0}"),
                 )
             )

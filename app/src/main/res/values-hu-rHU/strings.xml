@@ -323,6 +323,9 @@
     <string name="preference_custom_login_title">Egyéni bejelentkezés</string>
     <string name="preference_bypass_command_handling_title">Twitch parancs kitérés kezelése</string>
     <string name="preference_bypass_command_handling_summary">Letiltja a Twitch parancsok elfogását és a chatbe küldi helyette</string>
+    <string name="preference_chat_send_protocol_category">Chat küldési protokoll</string>
+    <string name="preference_helix_sending_title">Helix API használata küldéshez</string>
+    <string name="preference_helix_sending_summary">Chat üzenetek küldése Twitch Helix API-n keresztül IRC helyett</string>
     <string name="preference_7tv_live_updates_title">7TV élő hangulatjel frissítések</string>
     <string name="preference_7tv_live_updates_timeout_title">Élő hangulatjel frissítések háttér viselkedése</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">A frissítések befejeződnek %1$s után.\nA szám csökkentésével az akkumulátor élettartamát növelheti.</string>

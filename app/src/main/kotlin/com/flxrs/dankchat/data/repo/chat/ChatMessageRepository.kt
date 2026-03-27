@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.preferences.developer.ChatSendProtocol
 import com.flxrs.dankchat.utils.extensions.addAndLimit
 import com.flxrs.dankchat.utils.extensions.addSystemMessage
 import com.flxrs.dankchat.utils.extensions.replaceOrAddModerationMessage
@@ -39,7 +40,25 @@ class ChatMessageRepository(
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
     private val _sessionMessageCount = java.util.concurrent.atomic.AtomicInteger(0)
+    private val _ircSentCount = java.util.concurrent.atomic.AtomicInteger(0)
+    private val _helixSentCount = java.util.concurrent.atomic.AtomicInteger(0)
+    private val _sendFailureCount = java.util.concurrent.atomic.AtomicInteger(0)
+
     val sessionMessageCount: Int get() = _sessionMessageCount.get()
+    val ircSentCount: Int get() = _ircSentCount.get()
+    val helixSentCount: Int get() = _helixSentCount.get()
+    val sendFailureCount: Int get() = _sendFailureCount.get()
+
+    fun incrementSentMessageCount(protocol: ChatSendProtocol) {
+        when (protocol) {
+            ChatSendProtocol.IRC   -> _ircSentCount.incrementAndGet()
+            ChatSendProtocol.Helix -> _helixSentCount.incrementAndGet()
+        }
+    }
+
+    fun incrementSendFailureCount() {
+        _sendFailureCount.incrementAndGet()
+    }
 
     private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
         .onEach { length ->

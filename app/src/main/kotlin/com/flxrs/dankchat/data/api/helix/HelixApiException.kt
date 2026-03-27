@@ -43,4 +43,6 @@ sealed interface HelixError {
     data object ShoutoutTargetNotStreaming : HelixError
     data object MessageAlreadyProcessed : HelixError
     data object MessageNotFound : HelixError
+    data object MessageTooLarge : HelixError
+    data object ChatMessageRateLimited : HelixError
 }

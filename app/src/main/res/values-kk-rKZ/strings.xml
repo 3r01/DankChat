@@ -443,6 +443,9 @@
     <string name="preference_custom_login_title">Арнайы кіру</string>
     <string name="preference_bypass_command_handling_title">Twitch пәрменін өңдеуді айналып өтіңіз</string>
     <string name="preference_bypass_command_handling_summary">Twitch пәрмендерін ұстауды өшіреді және олардың орнына чатқа жібереді</string>
+    <string name="preference_chat_send_protocol_category">Чат жіберу протоколы</string>
+    <string name="preference_helix_sending_title">Жіберу үшін Helix API пайдалану</string>
+    <string name="preference_helix_sending_summary">Чат хабарламаларын IRC орнына Twitch Helix API арқылы жіберу</string>
     <string name="preference_7tv_live_updates_title">7TV тікелей эмоция жаңартулары</string>
     <string name="preference_7tv_live_updates_timeout_title">Тікелей эмоция фондық әрекетті жаңартады</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Жаңартулар %1$s кейін тоқтайды.\nБұл санды азайту батареяның қызмет ету мерзімін ұзартуы мүмкін.</string>

@@ -13,7 +13,6 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.utils.extensions.INVISIBLE_CHAR
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
@@ -30,6 +29,7 @@ class ChatRepository(
     private val emoteRepository: EmoteRepository,
     private val channelRepository: ChannelRepository,
     private val messageProcessor: MessageProcessor,
+    private val chatMessageSender: ChatMessageSender,
     private val authDataStore: AuthDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
 ) {
@@ -78,10 +78,9 @@ class ChatRepository(
         channelRepository.initRoomState(channel)
     }
 
-    fun sendMessage(input: String, replyId: String? = null) {
+    suspend fun sendMessage(input: String, replyId: String? = null, forceIrc: Boolean = false) {
         val channel = chatChannelProvider.activeChannel.value ?: return
-        val preparedMessage = prepareMessage(channel, input, replyId) ?: return
-        chatConnector.sendRaw(preparedMessage)
+        chatMessageSender.send(channel, input, replyId, forceIrc)
     }
 
     fun fakeWhisperIfNecessary(input: String) {
@@ -151,32 +150,4 @@ class ChatRepository(
         messageProcessor.cleanupMessageThreadsInChannel(channel)
     }
 
-    private fun prepareMessage(channel: UserName, message: String, replyId: String?): String? {
-        if (message.isBlank()) {
-            return null
-        }
-
-        val trimmedMessage = message.trimEnd()
-        val replyIdOrBlank = replyId?.let { "@reply-parent-msg-id=$it " }.orEmpty()
-        val currentLastMessage = chatEventProcessor.getLastMessage(channel).orEmpty()
-
-        val messageWithSuffix = if (currentLastMessage == trimmedMessage) {
-            val startIndex = if (trimmedMessage.startsWith('/') || trimmedMessage.startsWith('.')) {
-                trimmedMessage.indexOf(' ').let { if (it == -1) 0 else it + 1 }
-            } else {
-                0
-            }
-            val spaceIndex = trimmedMessage.indexOf(' ', startIndex)
-
-            when {
-                spaceIndex != -1 -> trimmedMessage.replaceRange(spaceIndex, spaceIndex + 1, "  ")
-                else             -> "$trimmedMessage $INVISIBLE_CHAR"
-            }
-        } else {
-            trimmedMessage
-        }
-
-        chatEventProcessor.setLastMessage(channel, messageWithSuffix)
-        return "${replyIdOrBlank}PRIVMSG #$channel :$messageWithSuffix"
-    }
 }

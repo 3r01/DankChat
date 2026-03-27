@@ -364,7 +364,11 @@ class ChatInputViewModel(
             is CommandResult.Accepted,
             is CommandResult.Blocked               -> Unit
 
-            is CommandResult.IrcCommand,
+            is CommandResult.IrcCommand             -> {
+                chatRepository.sendMessage(message, replyIdOrNull, forceIrc = true)
+                setReplying(false)
+            }
+
             is CommandResult.NotFound              -> {
                 chatRepository.sendMessage(message, replyIdOrNull)
                 setReplying(false)

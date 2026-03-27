@@ -334,6 +334,9 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_custom_login_title">Inicio de sesión personalizado</string>
     <string name="preference_bypass_command_handling_title">Omitir la gestión de comandos de Twitch</string>
     <string name="preference_bypass_command_handling_summary">Deshabilita la interceptación de los comandos de Twitch y los envía al chat en su lugar</string>
+    <string name="preference_chat_send_protocol_category">Protocolo de envío del chat</string>
+    <string name="preference_helix_sending_title">Usar Helix API para enviar</string>
+    <string name="preference_helix_sending_summary">Enviar mensajes de chat mediante Twitch Helix API en lugar de IRC</string>
     <string name="preference_7tv_live_updates_title">Actualizaciones de emoticonos 7TV en directo</string>
     <string name="preference_7tv_live_updates_timeout_title">Frecuencia de actualizaciones de emoticonos</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Las actualizaciones se detienen después de %1$s.\nReducir este número puede aumentar la duración de la batería.</string>

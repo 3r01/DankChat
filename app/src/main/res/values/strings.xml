@@ -514,6 +514,9 @@
     <string name="preference_bypass_command_handling_key" translatable="false">bypass_command_handling_key</string>
     <string name="preference_bypass_command_handling_title">Bypass Twitch command handling</string>
     <string name="preference_bypass_command_handling_summary">Disables intercepting of Twitch commands and sends them to chat instead</string>
+    <string name="preference_chat_send_protocol_category">Chat send protocol</string>
+    <string name="preference_helix_sending_title">Use Helix API for sending</string>
+    <string name="preference_helix_sending_summary">Send chat messages via Twitch Helix API instead of IRC</string>
     <string name="preference_7tv_live_updates_key" translatable="false">7tv_live_updates_key</string>
     <string name="preference_7tv_live_updates_title">7TV live emote updates</string>
     <string name="preference_7tv_category_title" translatable="false">7TV</string>

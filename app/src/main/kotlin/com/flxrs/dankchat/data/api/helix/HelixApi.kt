@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.api.helix.dto.ChatSettingsRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
+import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
@@ -296,5 +297,12 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
         val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterId)
+    }
+
+    suspend fun postChatMessage(request: SendChatMessageRequestDto): HttpResponse? = ktorClient.post("chat/messages") {
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        bearerAuth(oAuth)
+        contentType(ContentType.Application.Json)
+        setBody(request)
     }
 }

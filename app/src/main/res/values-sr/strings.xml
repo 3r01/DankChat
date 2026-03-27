@@ -428,6 +428,9 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_custom_login_title">Прилагођена пријава</string>
     <string name="preference_bypass_command_handling_title">Заобиђи Twitch обраду команди</string>
     <string name="preference_bypass_command_handling_summary">Искључује пресретање Twitch команди и шаље их директно у чат</string>
+    <string name="preference_chat_send_protocol_category">Протокол за слање порука</string>
+    <string name="preference_helix_sending_title">Користи Helix API за слање</string>
+    <string name="preference_helix_sending_summary">Шаље поруке у чату преко Twitch Helix API уместо IRC</string>
     <string name="preference_7tv_live_updates_title">7TV ажурирања емотикона уживо</string>
     <string name="preference_7tv_live_updates_timeout_title">Понашање ажурирања емотикона у позадини</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Ажурирања се заустављају после %1$s.\nСмањивање овог броја може продужити трајање батерије.</string>

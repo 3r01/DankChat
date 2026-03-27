@@ -333,6 +333,9 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_custom_login_title">Connexion personnalisée</string>
     <string name="preference_bypass_command_handling_title">Contournez la commande Twitch</string>
     <string name="preference_bypass_command_handling_summary">Désactive l\'interception des commandes Twitch et les envoie dans le chat à la place</string>
+    <string name="preference_chat_send_protocol_category">Protocole d\'envoi du chat</string>
+    <string name="preference_helix_sending_title">Utiliser Helix API pour l\'envoi</string>
+    <string name="preference_helix_sending_summary">Envoyer les messages de chat via Twitch Helix API au lieu d\'IRC</string>
     <string name="preference_7tv_live_updates_title">Mises à jour des emotes 7TV en direct</string>
     <string name="preference_7tv_live_updates_timeout_title">Comportement de l\'arrière-plan des mises à jour des emotes en direct</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Les mises à jour s\'arrêtent après %1$s.\nRéduire ce nombre peut augmenter la durée de vie de la batterie.</string>

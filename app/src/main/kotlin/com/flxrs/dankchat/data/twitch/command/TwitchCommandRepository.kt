@@ -694,6 +694,8 @@ class TwitchCommandRepository(
 
             HelixError.MessageAlreadyProcessed    -> "The message has already been processed."
             HelixError.MessageNotFound            -> "The target message was not found."
+            HelixError.MessageTooLarge            -> "Your message was too long."
+            HelixError.ChatMessageRateLimited     -> "You are being rate-limited. Try again in a moment."
             HelixError.Unknown                    -> GENERIC_ERROR_MESSAGE
         }
     }

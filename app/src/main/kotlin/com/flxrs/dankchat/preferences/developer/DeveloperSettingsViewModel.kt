@@ -55,6 +55,7 @@ class DeveloperSettingsViewModel(
                 }
 
                 is DeveloperSettingsInteraction.EventSubDebugOutput      -> developerSettingsDataStore.update { it.copy(eventSubDebugOutput = interaction.value) }
+                is DeveloperSettingsInteraction.ChatSendProtocolChanged  -> developerSettingsDataStore.update { it.copy(chatSendProtocol = interaction.protocol) }
                 is DeveloperSettingsInteraction.RestartRequired          -> _events.emit(DeveloperSettingsEvent.RestartRequired)
                 is DeveloperSettingsInteraction.ResetOnboarding          -> {
                     onboardingDataStore.update {
@@ -93,6 +94,7 @@ sealed interface DeveloperSettingsInteraction {
     data class CustomRecentMessagesHost(val host: String) : DeveloperSettingsInteraction
     data class EventSubEnabled(val value: Boolean) : DeveloperSettingsInteraction
     data class EventSubDebugOutput(val value: Boolean) : DeveloperSettingsInteraction
+    data class ChatSendProtocolChanged(val protocol: ChatSendProtocol) : DeveloperSettingsInteraction
     data object RestartRequired : DeveloperSettingsInteraction
     data object ResetOnboarding : DeveloperSettingsInteraction
     data object ResetTour : DeveloperSettingsInteraction

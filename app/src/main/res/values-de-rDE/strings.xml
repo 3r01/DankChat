@@ -330,6 +330,9 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_custom_login_title">Benutzerdefinierte Anmeldung</string>
     <string name="preference_bypass_command_handling_title">Twitch-Befehlsbehandlung überspringen</string>
     <string name="preference_bypass_command_handling_summary">Deaktiviert das Abfangen von Twitch-Befehlen und sendet sie stattdessen an den Chat</string>
+    <string name="preference_chat_send_protocol_category">Chat-Sendeprotokoll</string>
+    <string name="preference_helix_sending_title">Helix API zum Senden verwenden</string>
+    <string name="preference_helix_sending_summary">Chatnachrichten über die Twitch Helix API statt IRC senden</string>
     <string name="preference_7tv_live_updates_title">7TV Live-Emote-Updates</string>
     <string name="preference_7tv_live_updates_timeout_title">Live-Emote-Updates Hintergrundverhalten</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Updates stoppen nach %1$s.\nEin niedrigeres Limit kann die Akkulaufzeit verbessern.</string>

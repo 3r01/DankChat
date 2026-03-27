@@ -102,7 +102,7 @@ class MessageOptionsViewModel(
         }.getOrNull() ?: return
 
         when (result) {
-            is CommandResult.IrcCommand            -> chatRepository.sendMessage(message)
+            is CommandResult.IrcCommand            -> chatRepository.sendMessage(message, forceIrc = true)
             is CommandResult.AcceptedTwitchCommand -> result.response?.let { chatRepository.makeAndPostCustomSystemMessage(it, activeChannel) }
             else                                   -> Unit
         }

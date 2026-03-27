@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.api.bttv.BTTVApi
 import com.flxrs.dankchat.data.api.dankchat.DankChatApi
 import com.flxrs.dankchat.data.api.ffz.FFZApi
 import com.flxrs.dankchat.data.api.helix.HelixApi
+import com.flxrs.dankchat.data.api.helix.HelixApiStats
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApi
 import com.flxrs.dankchat.data.api.seventv.SevenTVApi
 import com.flxrs.dankchat.data.api.supibot.SupibotApi
@@ -23,6 +24,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -115,10 +117,15 @@ class NetworkModule {
     })
 
     @Single
-    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore) = HelixApi(ktorClient.config {
+    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats) = HelixApi(ktorClient.config {
         defaultRequest {
             url(HELIX_BASE_URL)
             header("Client-ID", authDataStore.clientId)
+        }
+        install(ResponseObserver) {
+            onResponse { response ->
+                helixApiStats.recordResponse(response.status.value)
+            }
         }
     }, authDataStore)
 

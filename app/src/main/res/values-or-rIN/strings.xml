@@ -443,6 +443,9 @@
     <string name="preference_custom_login_title">କଷ୍ଟମ୍ ଲଗଇନ୍ |</string>
     <string name="preference_bypass_command_handling_title">ଟ୍ୱିଚ୍ କମାଣ୍ଡ ହ୍ୟାଣ୍ଡଲିଂକୁ ବାଇପାସ୍ କରନ୍ତୁ |</string>
     <string name="preference_bypass_command_handling_summary">Twitch ନିର୍ଦ୍ଦେଶଗୁଡ଼ିକର ବାଧା ସୃଷ୍ଟି କରିବାକୁ ଏବଂ ସେଥିପାଇଁ ଚାଟ୍ କରିବାକୁ ସେମାନଙ୍କୁ ପଠାଏ |</string>
+    <string name="preference_chat_send_protocol_category">ଚାଟ୍ ପଠାଇବା ପ୍ରୋଟୋକଲ୍</string>
+    <string name="preference_helix_sending_title">ପଠାଇବା ପାଇଁ Helix API ବ୍ୟବହାର କରନ୍ତୁ</string>
+    <string name="preference_helix_sending_summary">IRC ବଦଳରେ Twitch Helix API ମାଧ୍ୟମରେ ଚାଟ୍ ବାର୍ତ୍ତା ପଠାନ୍ତୁ</string>
     <string name="preference_7tv_live_updates_title">7TV ଲାଇଭ୍ ଇମୋଟେଟ୍ ଅପଡେଟ୍ |</string>
     <string name="preference_7tv_live_updates_timeout_title">ଲାଇଭ୍ ଇମୋଟ୍ ଅପଡେଟ୍ ପୃଷ୍ଠଭୂମି ଆଚରଣ |</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">ପରେ ଅଟକି ଯାଅ | %1$s.\nଏହି ସଂଖ୍ୟା ହ୍ରାସ କରିବା ବ୍ୟାଟେରୀ ଜୀବନ ବୃଦ୍ଧି କରିପାରେ |</string>

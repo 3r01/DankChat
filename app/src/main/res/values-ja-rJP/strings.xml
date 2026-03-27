@@ -317,6 +317,9 @@
     <string name="preference_custom_login_title">カスタムログイン</string>
     <string name="preference_bypass_command_handling_title">Twitchコマンドの処理をバイパスする</string>
     <string name="preference_bypass_command_handling_summary">Twitchコマンドの通信切断を無効にし、代わりにチャットに送信します</string>
+    <string name="preference_chat_send_protocol_category">チャット送信プロトコル</string>
+    <string name="preference_helix_sending_title">Helix APIで送信する</string>
+    <string name="preference_helix_sending_summary">IRCの代わりにTwitch Helix API経由でチャットメッセージを送信します</string>
     <string name="preference_7tv_live_updates_title">7TVライブエモートの更新</string>
     <string name="preference_7tv_live_updates_timeout_title">ライブエモートはバックグラウンドで更新中</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">%1$s後にアップデートを停止します。\n数字を下げることでバッテリー寿命を延ばせるかもしれません。</string>

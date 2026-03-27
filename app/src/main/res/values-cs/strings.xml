@@ -340,6 +340,9 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_custom_login_title">Vlastní přihlášení</string>
     <string name="preference_bypass_command_handling_title">Obejít zpracování Twitch příkazů</string>
     <string name="preference_bypass_command_handling_summary">Zakáže zpracování Twitch příkazů a místo toho je rovnou odešle do chatu</string>
+    <string name="preference_chat_send_protocol_category">Protokol odesílání chatu</string>
+    <string name="preference_helix_sending_title">Použít Helix API k odesílání</string>
+    <string name="preference_helix_sending_summary">Odesílat zprávy přes Twitch Helix API místo IRC</string>
     <string name="preference_7tv_live_updates_title">Aktualizace emotikonů 7TV</string>
     <string name="preference_7tv_live_updates_timeout_title">Chování aktualizací emotikonů na pozadí</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Aktualizace se po uplynutí %1$s zastaví.\nSnížení hodnoty může zvýšit výdrž baterie.</string>

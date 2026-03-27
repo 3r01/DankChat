@@ -330,6 +330,9 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_custom_login_title">Mukautettu kirjautuminen</string>
     <string name="preference_bypass_command_handling_title">Ohita Twitch-komentojen käsittely</string>
     <string name="preference_bypass_command_handling_summary">Poistaa Twitch-komentojen haltuunoton käytöstä ja lähettää ne chattiin sellaisenaan</string>
+    <string name="preference_chat_send_protocol_category">Chatin lähetysprotokolla</string>
+    <string name="preference_helix_sending_title">Käytä Helix API:a lähettämiseen</string>
+    <string name="preference_helix_sending_summary">Lähetä chat-viestit Twitch Helix API:n kautta IRC:n sijaan</string>
     <string name="preference_7tv_live_updates_title">7TV reaaliaikaiset emotepäivitykset</string>
     <string name="preference_7tv_live_updates_timeout_title">Reaaliaikaisten emotepäivitysten taustakäyttäytyminen</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Päivitykset pysähtyvät %1$s jälkeen.\nTämän arvon pienentäminen voi parantaa akun kestoa.</string>

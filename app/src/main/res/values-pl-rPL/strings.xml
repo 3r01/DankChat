@@ -337,6 +337,9 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_custom_login_title">Niestandardowy login</string>
     <string name="preference_bypass_command_handling_title">Pomiń obsługę poleceń Twitcha</string>
     <string name="preference_bypass_command_handling_summary">Wyłącza przechwytywanie poleceń Twitcha i zamiast tego wysyła je na czat.</string>
+    <string name="preference_chat_send_protocol_category">Protokół wysyłania czatu</string>
+    <string name="preference_helix_sending_title">Użyj Helix API do wysyłania</string>
+    <string name="preference_helix_sending_summary">Wysyłaj wiadomości czatu przez Twitch Helix API zamiast IRC</string>
     <string name="preference_7tv_live_updates_title">Aktualizacje emotek 7TV na żywo</string>
     <string name="preference_7tv_live_updates_timeout_title">Zachowanie w tle aktualizacji emotek na żywo</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Aktualizacje zostaną zatrzymane po %1$s.\nZmniejszenie tej liczby może wydłużyć czas pracy baterii.</string>

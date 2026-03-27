@@ -327,6 +327,9 @@
     <string name="preference_custom_login_title">Login personalizzato</string>
     <string name="preference_bypass_command_handling_title">Bypassa la gestione dei comandi di Twitch</string>
     <string name="preference_bypass_command_handling_summary">Disabilità l\'intercettazione dei comandi di Twitch inviandoli invece in chat</string>
+    <string name="preference_chat_send_protocol_category">Protocollo di invio della chat</string>
+    <string name="preference_helix_sending_title">Usa Helix API per l\'invio</string>
+    <string name="preference_helix_sending_summary">Invia messaggi in chat tramite Twitch Helix API invece di IRC</string>
     <string name="preference_7tv_live_updates_title">Aggiornamenti Emote 7tv live</string>
     <string name="preference_7tv_live_updates_timeout_title">Comportamento degli aggiornamenti in background delle emote live</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Gli aggiornamenti si fermano dopo %1$s.\nAbbassare questo numero può aumentare la durata della batteria.</string>

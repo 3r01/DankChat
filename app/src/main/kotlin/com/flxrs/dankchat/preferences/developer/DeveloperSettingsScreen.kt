@@ -189,6 +189,21 @@ private fun DeveloperSettingsContent(
                 )
             }
 
+            PreferenceCategory(title = stringResource(R.string.preference_chat_send_protocol_category)) {
+                SwitchPreferenceItem(
+                    title = stringResource(R.string.preference_helix_sending_title),
+                    summary = stringResource(R.string.preference_helix_sending_summary),
+                    isChecked = settings.chatSendProtocol == ChatSendProtocol.Helix,
+                    onClick = { enabled ->
+                        val protocol = when {
+                            enabled -> ChatSendProtocol.Helix
+                            else    -> ChatSendProtocol.IRC
+                        }
+                        onInteraction(DeveloperSettingsInteraction.ChatSendProtocolChanged(protocol))
+                    },
+                )
+            }
+
             PreferenceCategory(title = "EventSub") {
                 if (!settings.isPubSubShutdown) {
                     SwitchPreferenceItem(
