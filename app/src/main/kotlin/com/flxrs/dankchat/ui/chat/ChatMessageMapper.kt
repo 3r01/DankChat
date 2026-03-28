@@ -143,6 +143,7 @@ class ChatMessageMapper(
             is SystemMessageType.ChannelFFZEmotesFailed        -> TextResource.Res(R.string.system_message_ffz_emotes_failed, persistentListOf(type.status))
             is SystemMessageType.ChannelSevenTVEmotesFailed    -> TextResource.Res(R.string.system_message_7tv_emotes_failed, persistentListOf(type.status))
             is SystemMessageType.Custom                        -> TextResource.Plain(type.message)
+            is SystemMessageType.Debug                        -> TextResource.Plain(type.message)
             is SystemMessageType.MessageHistoryUnavailable     -> when (type.status) {
                 null -> TextResource.Res(R.string.system_message_history_unavailable)
                 else -> TextResource.Res(R.string.system_message_history_unavailable_detailed, persistentListOf(type.status))

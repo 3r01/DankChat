@@ -32,6 +32,7 @@ import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
+import com.flxrs.dankchat.data.twitch.message.toDebugChatItem
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.hasMention
@@ -138,7 +139,7 @@ class ChatEventProcessor(
                 is AutomodUpdate     -> handleAutomodUpdate(eventMessage)
                 is UserMessageHeld   -> handleUserMessageHeld(eventMessage)
                 is UserMessageUpdated -> handleUserMessageUpdated(eventMessage)
-                is SystemMessage     -> postSystemMessageAndReconnect(type = SystemMessageType.Custom(eventMessage.message))
+                is SystemMessage     -> postEventSubDebugMessage(eventMessage.message)
             }
         }
     }
@@ -527,6 +528,14 @@ class ChatEventProcessor(
 
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
         usersRepository.updateUser(message.channel, message.name.lowercase(), userForSuggestion)
+    }
+
+    private fun postEventSubDebugMessage(message: String) {
+        val channels = chatChannelProvider.channels.value.orEmpty()
+        val chatItem = SystemMessageType.Debug(message).toDebugChatItem()
+        channels.forEach { channel ->
+            chatMessageRepository.addMessages(channel, listOf(chatItem))
+        }
     }
 
     private fun postSystemMessageAndReconnect(type: SystemMessageType, channels: Set<UserName> = chatChannelProvider.channels.value.orEmpty().toSet()) {
