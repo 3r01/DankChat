@@ -1,14 +1,26 @@
 package com.flxrs.dankchat.ui.main.dialog
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,8 +29,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,17 +43,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
+import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -51,7 +73,7 @@ fun ManageChannelsDialog(
     onDismiss: () -> Unit,
 ) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
-    var channelToEdit by remember { mutableStateOf<ChannelWithRename?>(null) }
+    var editingChannel by remember { mutableStateOf<UserName?>(null) }
 
     // Local state for smooth reordering and deferred updates
     val localChannels = remember { mutableStateListOf<ChannelWithRename>() }
@@ -75,12 +97,16 @@ fun ManageChannelsDialog(
             onApplyChanges(localChannels.toList())
             onDismiss()
         },
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        contentWindowInsets = { WindowInsets.statusBars },
     ) {
+        val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 32.dp),
-            state = lazyListState
+                .nestedScroll(BottomSheetNestedScrollConnection),
+            state = lazyListState,
+            contentPadding = navBarPadding,
         ) {
             itemsIndexed(localChannels, key = { _, it -> it.channel.value }) { index, channelWithRename ->
                 ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
@@ -88,11 +114,15 @@ fun ManageChannelsDialog(
 
                     Surface(
                         shadowElevation = elevation,
-                        color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent
+                        color = when {
+                            isDragging -> MaterialTheme.colorScheme.surfaceContainerHighest
+                            else       -> Color.Transparent
+                        }
                     ) {
                         Column {
                             ChannelItem(
                                 channelWithRename = channelWithRename,
+                                isEditing = editingChannel == channelWithRename.channel,
                                 modifier = Modifier.longPressDraggableHandle(
                                     onDragStarted = { /* Optional haptic feedback here */ },
                                     onDragStopped = { /* Optional haptic feedback here */ }
@@ -102,7 +132,17 @@ fun ManageChannelsDialog(
                                     onChannelSelected(channelWithRename.channel)
                                     onDismiss()
                                 },
-                                onEdit = { channelToEdit = channelWithRename },
+                                onEdit = {
+                                    editingChannel = when (editingChannel) {
+                                        channelWithRename.channel -> null
+                                        else                      -> channelWithRename.channel
+                                    }
+                                },
+                                onRename = { newName ->
+                                    val rename = newName?.ifBlank { null }?.let { UserName(it) }
+                                    localChannels[index] = localChannels[index].copy(rename = rename)
+                                    editingChannel = null
+                                },
                                 onDelete = { channelToDelete = channelWithRename.channel }
                             )
                             if (index < localChannels.lastIndex) {
@@ -142,78 +182,150 @@ fun ManageChannelsDialog(
             onDismiss = { channelToDelete = null },
         )
     }
-
-    channelToEdit?.let { channel ->
-        EditChannelDialog(
-            channelWithRename = channel,
-            onRename = { userName, newName ->
-                val index = localChannels.indexOfFirst { it.channel == userName }
-                if (index != -1) {
-                    val rename = newName?.ifBlank { null }?.let { UserName(it) }
-                    localChannels[index] = localChannels[index].copy(rename = rename)
-                }
-            },
-            onDismiss = { channelToEdit = null }
-        )
-    }
 }
 
 @Composable
 private fun ChannelItem(
     channelWithRename: ChannelWithRename,
-    modifier: Modifier = Modifier, // This modifier will carry the drag handle semantics
+    isEditing: Boolean,
+    modifier: Modifier = Modifier,
     onNavigate: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onRename: (String?) -> Unit,
+    onDelete: () -> Unit,
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_drag_handle),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(8.dp)
-        )
+    Column {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_drag_handle),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(8.dp)
+            )
 
-        Text(
-            text = buildAnnotatedString {
-                append(channelWithRename.rename?.value ?: channelWithRename.channel.value)
-                if (channelWithRename.rename != null && channelWithRename.rename != channelWithRename.channel) {
-                    append(" ")
-                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), fontStyle = FontStyle.Italic)) {
-                        append(channelWithRename.channel.value)
+            Text(
+                text = buildAnnotatedString {
+                    append(channelWithRename.rename?.value ?: channelWithRename.channel.value)
+                    if (channelWithRename.rename != null && channelWithRename.rename != channelWithRename.channel) {
+                        append(" ")
+                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), fontStyle = FontStyle.Italic)) {
+                            append(channelWithRename.channel.value)
+                        }
                     }
-                }
-            },
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 8.dp)
+                },
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
+            )
+
+            IconButton(onClick = onNavigate) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    contentDescription = stringResource(R.string.open_channel)
+                )
+            }
+
+            IconButton(onClick = onEdit) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_edit),
+                    contentDescription = stringResource(R.string.edit_dialog_title)
+                )
+            }
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_delete_outline),
+                    contentDescription = stringResource(R.string.remove_channel)
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = isEditing,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+            modifier = Modifier.imePadding(),
+        ) {
+            InlineRenameField(
+                channelWithRename = channelWithRename,
+                onRename = onRename,
+            )
+        }
+    }
+}
+
+@Composable
+private fun InlineRenameField(
+    channelWithRename: ChannelWithRename,
+    onRename: (String?) -> Unit,
+) {
+    val initialText = channelWithRename.rename?.value ?: ""
+    var renameText by remember(channelWithRename.channel) {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialText,
+                selection = TextRange(initialText.length)
+            )
+        )
+    }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 56.dp, end = 8.dp, bottom = 8.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.edit_dialog_title),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 4.dp),
         )
 
-        IconButton(onClick = onNavigate) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                contentDescription = stringResource(R.string.open_channel)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedTextField(
+                value = renameText,
+                onValueChange = { renameText = it },
+                placeholder = { Text(channelWithRename.channel.value) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = {
+                    onRename(renameText.text)
+                }),
+                trailingIcon = if (renameText.text.isNotEmpty()) {
+                    {
+                        IconButton(onClick = { onRename(null) }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_clear),
+                                contentDescription = stringResource(R.string.clear)
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .focusRequester(focusRequester),
             )
-        }
 
-        IconButton(onClick = onEdit) {
-            Icon(
-                painter = painterResource(R.drawable.ic_edit),
-                contentDescription = stringResource(R.string.edit_dialog_title)
-            )
-        }
-
-        IconButton(onClick = onDelete) {
-            Icon(
-                painter = painterResource(R.drawable.ic_delete_outline),
-                contentDescription = stringResource(R.string.remove_channel)
-            )
+            TextButton(
+                onClick = { onRename(renameText.text) },
+            ) {
+                Text(stringResource(R.string.save))
+            }
         }
     }
 }

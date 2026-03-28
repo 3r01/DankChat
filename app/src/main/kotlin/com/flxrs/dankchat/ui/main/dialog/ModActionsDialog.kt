@@ -31,6 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,11 +47,11 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.message.RoomState
 import com.flxrs.dankchat.utils.DateTimeUtils
 
-private data class ParameterDialogConfig(val titleRes: Int, val hintRes: Int, val defaultValue: String, val commandPrefix: String)
-
 private sealed interface SubView {
     data object SlowMode : SubView
+    data object SlowModeCustom : SubView
     data object FollowerMode : SubView
+    data object FollowerModeCustom : SubView
     data object CommercialPresets : SubView
     data object RaidInput : SubView
     data object ShoutoutInput : SubView
@@ -92,8 +95,6 @@ fun ModActionsDialog(
     onDismiss: () -> Unit,
 ) {
     var subView by remember { mutableStateOf<SubView?>(null) }
-    var parameterDialog by remember { mutableStateOf<SubView?>(null) }
-    var showSheet by remember { mutableStateOf(true) }
     var showClearChatConfirmation by remember { mutableStateOf(false) }
 
     if (showClearChatConfirmation) {
@@ -118,64 +119,7 @@ fun ModActionsDialog(
         )
     }
 
-    parameterDialog?.let { type ->
-        val (titleRes, hintRes, defaultValue, commandPrefix) = when (type) {
-            SubView.SlowMode     -> ParameterDialogConfig(
-                titleRes = R.string.room_state_slow_mode,
-                hintRes = R.string.seconds,
-                defaultValue = "30",
-                commandPrefix = "/slow"
-            )
-
-            SubView.FollowerMode -> ParameterDialogConfig(
-                titleRes = R.string.room_state_follower_only,
-                hintRes = R.string.minutes,
-                defaultValue = "10",
-                commandPrefix = "/followers"
-            )
-
-            else                 -> return@let
-        }
-
-        var inputValue by remember(type) { mutableStateOf(defaultValue) }
-
-        AlertDialog(
-            onDismissRequest = {
-                parameterDialog = null
-                onDismiss()
-            },
-            title = { Text(stringResource(titleRes)) },
-            text = {
-                OutlinedTextField(
-                    value = inputValue,
-                    onValueChange = { inputValue = it },
-                    label = { Text(stringResource(hintRes)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onSendCommand("$commandPrefix $inputValue")
-                    parameterDialog = null
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.dialog_ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    parameterDialog = null
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        )
-    }
-
-    if (showSheet) {
+    run {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -211,9 +155,17 @@ fun ModActionsDialog(
                             onSendCommand("/slow $value")
                             onDismiss()
                         },
-                        onCustomClick = {
-                            parameterDialog = SubView.SlowMode
-                            showSheet = false
+                        onCustomClick = { subView = SubView.SlowModeCustom },
+                    )
+
+                    SubView.SlowModeCustom     -> UserInputSubView(
+                        titleRes = R.string.room_state_slow_mode,
+                        hintRes = R.string.seconds,
+                        defaultValue = "30",
+                        keyboardType = KeyboardType.Number,
+                        onConfirm = { value ->
+                            onSendCommand("/slow $value")
+                            onDismiss()
                         },
                     )
 
@@ -222,9 +174,17 @@ fun ModActionsDialog(
                             onSendCommand("/followers ${preset.commandArg}")
                             onDismiss()
                         },
-                        onCustomClick = {
-                            parameterDialog = SubView.FollowerMode
-                            showSheet = false
+                        onCustomClick = { subView = SubView.FollowerModeCustom },
+                    )
+
+                    SubView.FollowerModeCustom -> UserInputSubView(
+                        titleRes = R.string.room_state_follower_only,
+                        hintRes = R.string.minutes,
+                        defaultValue = "10",
+                        keyboardType = KeyboardType.Number,
+                        onConfirm = { value ->
+                            onSendCommand("/followers $value")
+                            onDismiss()
                         },
                     )
 
@@ -574,9 +534,16 @@ private fun FollowerPresetChips(
 private fun UserInputSubView(
     titleRes: Int,
     hintRes: Int,
+    defaultValue: String = "",
+    keyboardType: KeyboardType = KeyboardType.Text,
     onConfirm: (String) -> Unit,
 ) {
-    var inputValue by remember { mutableStateOf("") }
+    var inputValue by remember { mutableStateOf(defaultValue) }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Column(
         modifier = Modifier
@@ -597,13 +564,15 @@ private fun UserInputSubView(
             onValueChange = { inputValue = it },
             label = { Text(stringResource(hintRes)) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
                 if (inputValue.isNotBlank()) {
                     onConfirm(inputValue.trim())
                 }
             }),
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
         )
 
         TextButton(
