@@ -41,6 +41,7 @@ import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
 import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
@@ -207,12 +208,8 @@ private fun WhisperMessageText(
         onTextClick = { offset ->
             annotatedString.getStringAnnotations("USER", offset, offset)
                 .firstOrNull()?.let { annotation ->
-                    val parts = annotation.item.split("|")
-                    if (parts.size == 3) {
-                        val userId = parts[0].takeIf { it.isNotEmpty() }
-                        val userName = parts[1]
-                        val displayName = parts[2]
-                        onUserClick(userId, userName, displayName, message.badges, false)
+                    parseUserAnnotation(annotation.item)?.let { user ->
+                        onUserClick(user.userId, user.userName, user.displayName, message.badges, false)
                     }
                 }
 
@@ -222,24 +219,12 @@ private fun WhisperMessageText(
                 }
         },
         onTextLongClick = { offset ->
-            val userAnnotation = if (offset >= 0) {
-                annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
-            } else {
-                null
-            }
+            val user = annotatedString.getStringAnnotations("USER", offset, offset)
+                .firstOrNull()?.let { parseUserAnnotation(it.item) }
 
             when {
-                userAnnotation != null -> {
-                    val parts = userAnnotation.item.split("|")
-                    if (parts.size == 3) {
-                        val userId = parts[0].takeIf { it.isNotEmpty() }
-                        val userName = parts[1]
-                        val displayName = parts[2]
-                        onUserClick(userId, userName, displayName, message.badges, true)
-                    }
-                }
-
-                else                   -> onMessageLongClick(message.id, message.fullMessage)
+                user != null -> onUserClick(user.userId, user.userName, user.displayName, message.badges, true)
+                else         -> onMessageLongClick(message.id, message.fullMessage)
             }
         },
     )
