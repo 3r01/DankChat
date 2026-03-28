@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
+import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 
@@ -52,14 +53,16 @@ fun MentionComposable(
         ChatScreen(
             messages = messages,
             fontSize = displaySettings.fontSize,
+            callbacks = ChatScreenCallbacks(
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick,
+                onWhisperReply = if (isWhisperTab) onWhisperReply else null,
+            ),
             showLineSeparator = displaySettings.showLineSeparator,
             animateGifs = displaySettings.animateGifs,
             showChannelPrefix = !isWhisperTab,
             modifier = modifier,
-            onUserClick = onUserClick,
-            onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick,
-            onWhisperReply = if (isWhisperTab) onWhisperReply else null,
             contentPadding = contentPadding,
             scrollModifier = scrollModifier,
             containerColor = containerColor,

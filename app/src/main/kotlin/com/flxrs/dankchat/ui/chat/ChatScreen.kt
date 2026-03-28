@@ -61,29 +61,26 @@ import com.flxrs.dankchat.ui.chat.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.WhisperMessageComposable
 import com.flxrs.dankchat.ui.main.input.TourTooltip
 
-/**
- * Main composable for rendering chat messages in a scrollable list.
- * 
- * Features:
- * - LazyColumn with reverseLayout for bottom-anchored scrolling
- * - Automatic scroll to bottom when new messages arrive
- * - FAB to manually scroll to bottom
- * - Efficient recomposition with stable keys
- */
+data class ChatScreenCallbacks(
+    val onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
+    val onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
+    val onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
+    val onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
+    val onWhisperReply: ((userName: UserName) -> Unit)? = null,
+    val onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+    val onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     messages: List<ChatMessageUiState>,
     fontSize: Float,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
+    callbacks: ChatScreenCallbacks,
     modifier: Modifier = Modifier,
     showChannelPrefix: Boolean = false,
     showLineSeparator: Boolean = false,
     animateGifs: Boolean = true,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
-    onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
-    onWhisperReply: ((userName: UserName) -> Unit)? = null,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     onRecover: () -> Unit = {},
@@ -93,8 +90,6 @@ fun ChatScreen(
     onScrollDirectionChanged: (isScrollingUp: Boolean) -> Unit = {},
     scrollToMessageId: String? = null,
     onScrollToMessageHandled: () -> Unit = {},
-    onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
-    onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     containerColor: Color = MaterialTheme.colorScheme.background,
     showFabs: Boolean = true,
     recoveryFabTooltipState: TooltipState? = null,
@@ -193,13 +188,7 @@ fun ChatScreen(
                         fontSize = fontSize,
                         showChannelPrefix = showChannelPrefix,
                         animateGifs = animateGifs,
-                        onUserClick = onUserClick,
-                        onMessageLongClick = onMessageLongClick,
-                        onEmoteClick = onEmoteClick,
-                        onReplyClick = onReplyClick,
-                        onWhisperReply = onWhisperReply,
-                        onAutomodAllow = onAutomodAllow,
-                        onAutomodDeny = onAutomodDeny,
+                        callbacks = callbacks,
                     )
 
                     // Add divider after each message if enabled
@@ -330,13 +319,7 @@ private fun ChatMessageItem(
     fontSize: Float,
     showChannelPrefix: Boolean,
     animateGifs: Boolean,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
-    onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
-    onWhisperReply: ((userName: UserName) -> Unit)? = null,
-    onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
-    onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+    callbacks: ChatScreenCallbacks,
 ) {
     when (message) {
         is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
@@ -363,8 +346,8 @@ private fun ChatMessageItem(
         is ChatMessageUiState.AutomodMessageUi         -> AutomodMessageComposable(
             message = message,
             fontSize = fontSize,
-            onAllow = onAutomodAllow,
-            onDeny = onAutomodDeny,
+            onAllow = callbacks.onAutomodAllow,
+            onDeny = callbacks.onAutomodDeny,
         )
 
         is ChatMessageUiState.PrivMessageUi            -> PrivMessageComposable(
@@ -373,10 +356,10 @@ private fun ChatMessageItem(
             fontSize = fontSize,
             showChannelPrefix = showChannelPrefix,
             animateGifs = animateGifs,
-            onUserClick = onUserClick,
-            onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick,
-            onReplyClick = onReplyClick
+            onUserClick = callbacks.onUserClick,
+            onMessageLongClick = callbacks.onMessageLongClick,
+            onEmoteClick = callbacks.onEmoteClick,
+            onReplyClick = callbacks.onReplyClick
         )
 
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
@@ -395,13 +378,13 @@ private fun ChatMessageItem(
             fontSize = fontSize,
             animateGifs = animateGifs,
             onUserClick = { userId, userName, displayName, badges, isLongPress ->
-                onUserClick(userId, userName, displayName, null, badges, isLongPress)
+                callbacks.onUserClick(userId, userName, displayName, null, badges, isLongPress)
             },
             onMessageLongClick = { messageId, fullMessage ->
-                onMessageLongClick(messageId, null, fullMessage)
+                callbacks.onMessageLongClick(messageId, null, fullMessage)
             },
-            onEmoteClick = onEmoteClick,
-            onWhisperReply = onWhisperReply
+            onEmoteClick = callbacks.onEmoteClick,
+            onWhisperReply = callbacks.onWhisperReply
         )
     }
 }

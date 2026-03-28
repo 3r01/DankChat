@@ -66,6 +66,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
+import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
@@ -154,12 +155,14 @@ fun MessageHistorySheet(
             ChatScreen(
                 messages = messages,
                 fontSize = displaySettings.fontSize,
+                callbacks = ChatScreenCallbacks(
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                ),
                 showLineSeparator = displaySettings.showLineSeparator,
                 animateGifs = displaySettings.animateGifs,
                 modifier = Modifier.fillMaxSize(),
-                onUserClick = onUserClick,
-                onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
                 scrollModifier = scrollModifier,
                 containerColor = sheetBackgroundColor,

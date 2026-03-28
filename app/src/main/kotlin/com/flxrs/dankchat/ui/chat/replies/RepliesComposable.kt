@@ -12,6 +12,7 @@ import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
+import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 
@@ -49,12 +50,13 @@ fun RepliesComposable(
                 ChatScreen(
                     messages = (uiState as RepliesUiState.Found).items,
                     fontSize = displaySettings.fontSize,
+                    callbacks = ChatScreenCallbacks(
+                        onUserClick = onUserClick,
+                        onMessageLongClick = onMessageLongClick,
+                    ),
                     showLineSeparator = displaySettings.showLineSeparator,
                     animateGifs = displaySettings.animateGifs,
                     modifier = modifier,
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = { /* no-op for replies */ },
                     contentPadding = contentPadding,
                     scrollModifier = scrollModifier,
                     containerColor = containerColor,
