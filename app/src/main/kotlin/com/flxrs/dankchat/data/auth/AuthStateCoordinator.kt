@@ -43,6 +43,7 @@ class AuthStateCoordinator(
     private val ignoresRepository: IgnoresRepository,
     private val userStateRepository: UserStateRepository,
     private val emoteUsageRepository: EmoteUsageRepository,
+    private val startupValidationHolder: StartupValidationHolder,
     dispatchersProvider: DispatchersProvider,
 ) {
 
@@ -61,6 +62,7 @@ class AuthStateCoordinator(
                 .collect { settings ->
                     when {
                         settings.isLoggedIn -> {
+                            startupValidationHolder.update(StartupValidation.Validated)
                             chatConnector.reconnect()
                             channelDataCoordinator.reloadGlobalData()
                             settings.userName?.let { name ->
@@ -79,10 +81,13 @@ class AuthStateCoordinator(
         }
     }
 
-    suspend fun validateOnStartup() {
-        if (!authDataStore.isLoggedIn) return
+    suspend fun validateOnStartup(): AuthEvent? {
+        if (!authDataStore.isLoggedIn) {
+            startupValidationHolder.update(StartupValidation.Validated)
+            return null
+        }
 
-        val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return
+        val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
         val result = authApiClient.validateUser(token).fold(
             onSuccess = { validateDto ->
                 // Update username from validation response
@@ -95,7 +100,6 @@ class AuthStateCoordinator(
             onFailure = { throwable ->
                 when {
                     throwable is ApiException && throwable.status == HttpStatusCode.Unauthorized -> {
-                        authDataStore.clearLogin()
                         AuthEvent.TokenInvalid
                     }
 
@@ -106,7 +110,26 @@ class AuthStateCoordinator(
                 }
             }
         )
-        _events.send(result)
+
+        startupValidationHolder.update(
+            when (result) {
+                is AuthEvent.LoggedIn,
+                is AuthEvent.ValidationFailed  -> StartupValidation.Validated
+
+                is AuthEvent.ScopesOutdated    -> StartupValidation.ScopesOutdated(result.userName)
+                AuthEvent.TokenInvalid         -> StartupValidation.TokenInvalid
+            }
+        )
+
+        // Only send snackbar-worthy events through the channel
+        when (result) {
+            is AuthEvent.LoggedIn,
+            is AuthEvent.ValidationFailed -> _events.send(result)
+
+            else                          -> Unit
+        }
+
+        return result
     }
 
     fun logout() {

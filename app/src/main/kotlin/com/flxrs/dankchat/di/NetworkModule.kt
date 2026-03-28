@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApi
 import com.flxrs.dankchat.data.api.seventv.SevenTVApi
 import com.flxrs.dankchat.data.api.supibot.SupibotApi
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -117,7 +118,7 @@ class NetworkModule {
     })
 
     @Single
-    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats) = HelixApi(ktorClient.config {
+    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats, startupValidationHolder: StartupValidationHolder) = HelixApi(ktorClient.config {
         defaultRequest {
             url(HELIX_BASE_URL)
             header("Client-ID", authDataStore.clientId)
@@ -127,7 +128,7 @@ class NetworkModule {
                 helixApiStats.recordResponse(response.status.value)
             }
         }
-    }, authDataStore)
+    }, authDataStore, startupValidationHolder)
 
     @Single
     fun provideBadgesApi(ktorClient: HttpClient) = BadgesApi(ktorClient.config {

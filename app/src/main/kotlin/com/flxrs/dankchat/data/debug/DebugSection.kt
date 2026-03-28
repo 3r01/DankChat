@@ -10,4 +10,4 @@ interface DebugSection {
 
 data class DebugSectionSnapshot(val title: String, val entries: List<DebugEntry>)
 
-data class DebugEntry(val label: String, val value: String)
+data class DebugEntry(val label: String, val value: String, val copyValue: String? = null)

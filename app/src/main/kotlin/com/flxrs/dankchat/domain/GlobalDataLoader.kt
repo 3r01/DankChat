@@ -23,12 +23,18 @@ class GlobalDataLoader(
     suspend fun loadGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
         val results = awaitAll(
             async { loadDankChatBadges() },
-            async { loadGlobalBadges() },
             async { loadGlobalBTTVEmotes() },
             async { loadGlobalFFZEmotes() },
             async { loadGlobalSevenTVEmotes() },
         )
         launch { loadSupibotCommands() }
+        results
+    }
+
+    suspend fun loadAuthGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
+        val results = awaitAll(
+            async { loadGlobalBadges() },
+        )
         launch { loadUserBlocks() }
         results
     }

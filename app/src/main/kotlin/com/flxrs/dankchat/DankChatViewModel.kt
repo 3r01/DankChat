@@ -3,6 +3,7 @@ package com.flxrs.dankchat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
@@ -47,7 +48,14 @@ class DankChatViewModel(
 
     init {
         viewModelScope.launch {
-            authStateCoordinator.validateOnStartup()
+            val result = authStateCoordinator.validateOnStartup()
+            when (result) {
+                // Don't connect with an invalid token — the logout/re-login flow
+                // triggers closeAndReconnect via the AuthStateCoordinator settings observer.
+                is AuthEvent.TokenInvalid -> return@launch
+                else                      -> Unit
+            }
+
             initialConnectionStarted = true
             chatConnector.connectAndJoin(chatChannelProvider.channels.value.orEmpty())
         }

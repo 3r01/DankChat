@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.Velocity
 object BottomSheetNestedScrollConnection : NestedScrollConnection {
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset =
         when (source) {
-            NestedScrollSource.Fling -> available.copy(x = 0f)
+            NestedScrollSource.SideEffect -> available.copy(x = 0f)
             else                     -> Offset.Zero
         }
 

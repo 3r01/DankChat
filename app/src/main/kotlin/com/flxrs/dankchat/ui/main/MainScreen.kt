@@ -649,13 +649,15 @@ fun MainScreen(
                 instantHide = isHistorySheet,
                 isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
                 onRepeatedSendChanged = chatInputViewModel::setRepeatedSend,
-                tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen) {
+                tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
                     TourOverlayState(
                         inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
                         overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
                         configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
                         swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
                         forceOverflowOpen = featureTourState.forceOverflowOpen,
+                        isTourActive = featureTourState.isTourActive
+                            || featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
                         onAdvance = featureTourViewModel::advance,
                         onSkip = featureTourViewModel::skipTour,
                     )

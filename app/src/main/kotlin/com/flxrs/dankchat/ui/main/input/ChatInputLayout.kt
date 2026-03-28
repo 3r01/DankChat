@@ -113,6 +113,7 @@ data class TourOverlayState(
     val configureActionsTooltipState: TooltipState? = null,
     val swipeGestureTooltipState: TooltipState? = null,
     val forceOverflowOpen: Boolean = false,
+    val isTourActive: Boolean = false,
     val onAdvance: (() -> Unit)? = null,
     val onSkip: (() -> Unit)? = null,
 )
@@ -234,7 +235,7 @@ fun ChatInputLayout(
                 // Text Field
                 TextField(
                     state = textFieldState,
-                    enabled = enabled,
+                    enabled = enabled && !tourState.isTourActive,
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
@@ -788,7 +789,7 @@ private fun InputActionsRow(
                     }
                     onEmoteClick()
                 },
-                enabled = enabled,
+                enabled = enabled && !tourState.isTourActive,
                 modifier = Modifier.size(iconSize)
             ) {
                 Icon(
@@ -977,7 +978,14 @@ internal fun TooltipScope.TourTooltip(
     onSkip: () -> Unit,
     isLast: Boolean = false,
 ) {
+    val tourColors = TooltipDefaults.richTooltipColors(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        actionContentColor = MaterialTheme.colorScheme.secondary,
+    )
     RichTooltip(
+        colors = tourColors,
         caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
         action = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

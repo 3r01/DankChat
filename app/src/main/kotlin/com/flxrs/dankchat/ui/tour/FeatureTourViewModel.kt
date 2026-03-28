@@ -5,6 +5,8 @@ import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.data.auth.StartupValidation
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingSettings
 import kotlinx.coroutines.delay
@@ -55,6 +57,7 @@ data class FeatureTourUiState(
 @KoinViewModel
 class FeatureTourViewModel(
     private val onboardingDataStore: OnboardingDataStore,
+    startupValidationHolder: StartupValidationHolder,
 ) : ViewModel() {
 
     // Material3 tooltip states — UI objects exposed directly, not in the StateFlow.
@@ -87,7 +90,8 @@ class FeatureTourViewModel(
         _tourState,
         _channelState,
         _toolbarHintDone,
-    ) { settings, tour, channel, hintDone ->
+        startupValidationHolder.state,
+    ) { settings, tour, channel, hintDone, validation ->
         val currentStep = when {
             !tour.isActive                          -> null
             tour.stepIndex >= TourStep.entries.size -> null
@@ -101,6 +105,7 @@ class FeatureTourViewModel(
                 toolbarHintDone = hintDone || settings.hasShownToolbarHint,
                 tourActive = tour.isActive,
                 tourCompleted = tour.completed,
+                authValidated = validation is StartupValidation.Validated,
             ),
             currentTourStep = currentStep,
             isTourActive = tour.isActive,
@@ -238,10 +243,12 @@ class FeatureTourViewModel(
         toolbarHintDone: Boolean,
         tourActive: Boolean,
         tourCompleted: Boolean,
+        authValidated: Boolean,
     ): PostOnboardingStep = when {
         tourCompleted                                                          -> PostOnboardingStep.Complete
         settings.featureTourVersion >= CURRENT_TOUR_VERSION && toolbarHintDone -> PostOnboardingStep.Complete
         !settings.hasCompletedOnboarding                                       -> PostOnboardingStep.Idle
+        !authValidated                                                         -> PostOnboardingStep.Idle
         !channelReady                                                          -> PostOnboardingStep.Idle
         channelEmpty                                                           -> PostOnboardingStep.Idle
         tourActive                                                             -> PostOnboardingStep.FeatureTour

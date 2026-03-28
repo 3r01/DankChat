@@ -222,7 +222,7 @@ private fun EndCaretTourTooltip(
     onAction: () -> Unit,
     onSkip: () -> Unit,
 ) {
-    val containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val containerColor = MaterialTheme.colorScheme.secondaryContainer
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
             shape = RoundedCornerShape(12.dp),
@@ -239,7 +239,7 @@ private fun EndCaretTourTooltip(
                 Text(
                     text = text,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

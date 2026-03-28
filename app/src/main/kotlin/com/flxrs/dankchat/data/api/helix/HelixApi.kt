@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
@@ -27,10 +28,15 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
-class HelixApi(private val ktorClient: HttpClient, private val authDataStore: AuthDataStore) {
+class HelixApi(private val ktorClient: HttpClient, private val authDataStore: AuthDataStore, private val startupValidationHolder: StartupValidationHolder) {
+
+    private fun getValidToken(): String? {
+        if (!startupValidationHolder.isAuthAvailable) return null
+        return authDataStore.oAuthKey?.withoutOAuthPrefix
+    }
 
     suspend fun getUsersByName(logins: List<UserName>): HttpResponse? = ktorClient.get("users") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         logins.forEach {
             parameter("login", it)
@@ -38,7 +44,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getUsersByIds(ids: List<UserId>): HttpResponse? = ktorClient.get("users") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         ids.forEach {
             parameter("id", it)
@@ -46,7 +52,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getChannelFollowers(broadcasterUserId: UserId, targetUserId: UserId? = null, first: Int? = null, after: String? = null): HttpResponse? = ktorClient.get("channels/followers") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         if (targetUserId != null) {
@@ -61,7 +67,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getStreams(channels: List<UserName>): HttpResponse? = ktorClient.get("streams") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         channels.forEach {
             parameter("user_login", it)
@@ -69,7 +75,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getUserBlocks(userId: UserId, first: Int, after: String? = null): HttpResponse? = ktorClient.get("users/blocks") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", userId)
         parameter("first", first)
@@ -79,19 +85,19 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun putUserBlock(targetUserId: UserId): HttpResponse? = ktorClient.put("users/blocks") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("target_user_id", targetUserId)
     }
 
     suspend fun deleteUserBlock(targetUserId: UserId): HttpResponse? = ktorClient.delete("users/blocks") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("target_user_id", targetUserId)
     }
 
     suspend fun postAnnouncement(broadcasterUserId: UserId, moderatorUserId: UserId, request: AnnouncementRequestDto): HttpResponse? = ktorClient.post("chat/announcements") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -100,7 +106,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getModerators(broadcasterUserId: UserId, first: Int, after: String? = null): HttpResponse? = ktorClient.get("moderation/moderators") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("first", first)
@@ -110,21 +116,21 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun postModerator(broadcasterUserId: UserId, userId: UserId): HttpResponse? = ktorClient.post("moderation/moderators") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("user_id", userId)
     }
 
     suspend fun deleteModerator(broadcasterUserId: UserId, userId: UserId): HttpResponse? = ktorClient.delete("moderation/moderators") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("user_id", userId)
     }
 
     suspend fun postWhisper(fromUserId: UserId, toUserId: UserId, request: WhisperRequestDto): HttpResponse? = ktorClient.post("whispers") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("from_user_id", fromUserId)
         parameter("to_user_id", toUserId)
@@ -133,7 +139,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getVips(broadcasterUserId: UserId, first: Int, after: String? = null): HttpResponse? = ktorClient.get("channels/vips") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("first", first)
@@ -143,21 +149,21 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun postVip(broadcasterUserId: UserId, userId: UserId): HttpResponse? = ktorClient.post("channels/vips") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("user_id", userId)
     }
 
     suspend fun deleteVip(broadcasterUserId: UserId, userId: UserId): HttpResponse? = ktorClient.delete("channels/vips") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("user_id", userId)
     }
 
     suspend fun postBan(broadcasterUserId: UserId, moderatorUserId: UserId, request: BanRequestDto): HttpResponse? = ktorClient.post("moderation/bans") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -166,7 +172,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun deleteBan(broadcasterUserId: UserId, moderatorUserId: UserId, targetUserId: UserId): HttpResponse? = ktorClient.delete("moderation/bans") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -174,7 +180,7 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun deleteMessages(broadcasterUserId: UserId, moderatorUserId: UserId, messageId: String?): HttpResponse? = ktorClient.delete("moderation/chat") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -184,41 +190,41 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun putUserChatColor(targetUserId: UserId, color: String): HttpResponse? = ktorClient.put("chat/color") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("user_id", targetUserId)
         parameter("color", color)
     }
 
     suspend fun postMarker(request: MarkerRequestDto): HttpResponse? = ktorClient.post("streams/markers") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
         setBody(request)
     }
 
     suspend fun postCommercial(request: CommercialRequestDto): HttpResponse? = ktorClient.post("channels/commercial") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
         setBody(request)
     }
 
     suspend fun postRaid(broadcasterUserId: UserId, targetUserId: UserId): HttpResponse? = ktorClient.post("raids") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("from_broadcaster_id", broadcasterUserId)
         parameter("to_broadcaster_id", targetUserId)
     }
 
     suspend fun deleteRaid(broadcasterUserId: UserId): HttpResponse? = ktorClient.delete("raids") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
     }
 
     suspend fun patchChatSettings(broadcasterUserId: UserId, moderatorUserId: UserId, request: ChatSettingsRequestDto): HttpResponse? = ktorClient.patch("chat/settings") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -227,34 +233,34 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getGlobalBadges(): HttpResponse? = ktorClient.get("chat/badges/global") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
     }
 
     suspend fun getChannelBadges(broadcasterUserId: UserId): HttpResponse? = ktorClient.get("chat/badges") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         contentType(ContentType.Application.Json)
     }
 
     suspend fun getCheermotes(broadcasterId: UserId): HttpResponse? = ktorClient.get("bits/cheermotes") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterId)
         contentType(ContentType.Application.Json)
     }
 
     suspend fun postManageAutomodMessage(request: ManageAutomodMessageRequestDto): HttpResponse? = ktorClient.post("moderation/automod/message") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
         setBody(request)
     }
 
     suspend fun postShoutout(broadcasterUserId: UserId, targetUserId: UserId, moderatorUserId: UserId): HttpResponse? = ktorClient.post("chat/shoutouts") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("from_broadcaster_id", broadcasterUserId)
         parameter("to_broadcaster_id", targetUserId)
@@ -263,14 +269,14 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getShieldMode(broadcasterUserId: UserId, moderatorUserId: UserId): HttpResponse? = ktorClient.get("moderation/shield_mode") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
     }
 
     suspend fun putShieldMode(broadcasterUserId: UserId, moderatorUserId: UserId, request: ShieldModeRequestDto): HttpResponse? = ktorClient.put("moderation/shield_mode") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterUserId)
         parameter("moderator_id", moderatorUserId)
@@ -279,20 +285,20 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun postEventSubSubscription(eventSubSubscriptionRequestDto: EventSubSubscriptionRequestDto): HttpResponse? = ktorClient.post("eventsub/subscriptions") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
         setBody(eventSubSubscriptionRequestDto)
     }
 
     suspend fun deleteEventSubSubscription(id: String): HttpResponse? = ktorClient.delete("eventsub/subscriptions") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("id", id)
     }
 
     suspend fun getUserEmotes(userId: UserId, after: String? = null): HttpResponse? = ktorClient.get("chat/emotes/user") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("user_id", userId)
         if (after != null) {
@@ -301,13 +307,13 @@ class HelixApi(private val ktorClient: HttpClient, private val authDataStore: Au
     }
 
     suspend fun getChannelEmotes(broadcasterId: UserId): HttpResponse? = ktorClient.get("chat/emotes") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", broadcasterId)
     }
 
     suspend fun postChatMessage(request: SendChatMessageRequestDto): HttpResponse? = ktorClient.post("chat/messages") {
-        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
+        val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)
         contentType(ContentType.Application.Json)
         setBody(request)

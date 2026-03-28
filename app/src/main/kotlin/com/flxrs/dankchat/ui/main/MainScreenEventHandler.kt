@@ -18,6 +18,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
+import com.flxrs.dankchat.data.auth.StartupValidation
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.chat.toDisplayStrings
 import com.flxrs.dankchat.data.repo.data.toDisplayStrings
 import com.flxrs.dankchat.data.state.GlobalLoadingState
@@ -83,15 +85,14 @@ fun MainScreenEventHandler(
         }
     }
 
-    // Collect auth events from AuthStateCoordinator
-    // Only process when RESUMED to avoid showing dialogs while another screen is on top.
-    // Events are buffered in the Channel and consumed once MainScreen becomes visible again.
+    // Collect auth events from AuthStateCoordinator (snackbar-only events like LoggedIn, ValidationFailed).
+    // Startup validation dialogs (ScopesOutdated, TokenInvalid) are driven by startupValidation state directly.
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(Unit) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             authStateCoordinator.events.collect { event ->
                 when (event) {
-                    is AuthEvent.LoggedIn       -> {
+                    is AuthEvent.LoggedIn      -> {
                         launch {
                             delay(2000)
                             snackbarHostState.currentSnackbarData?.dismiss()
@@ -102,27 +103,24 @@ fun MainScreenEventHandler(
                         )
                     }
 
-                    is AuthEvent.ScopesOutdated -> {
-                        dialogViewModel.showLoginOutdated(event.userName)
-                    }
-
-                    AuthEvent.TokenInvalid      -> {
-                        dialogViewModel.showLoginExpired()
-                    }
-
-                    AuthEvent.ValidationFailed  -> {
+                    AuthEvent.ValidationFailed -> {
                         snackbarHostState.showSnackbar(
                             message = resources.getString(R.string.oauth_verify_failed),
                             duration = SnackbarDuration.Short,
                         )
                     }
+
+                    else                       -> Unit
                 }
             }
         }
     }
 
+    val startupValidationHolder: StartupValidationHolder = koinInject()
+    val startupValidation by startupValidationHolder.state.collectAsStateWithLifecycle()
     val loadingState by mainScreenViewModel.globalLoadingState.collectAsStateWithLifecycle()
-    LaunchedEffect(loadingState) {
+    LaunchedEffect(loadingState, startupValidation) {
+        if (startupValidation !is StartupValidation.Validated) return@LaunchedEffect
         val state = loadingState as? GlobalLoadingState.Failed ?: return@LaunchedEffect
         val dataSteps = state.failures.map { it.step }.toDisplayStrings(resources)
         val chatSteps = state.chatFailures.map { it.step }.toDisplayStrings(resources)

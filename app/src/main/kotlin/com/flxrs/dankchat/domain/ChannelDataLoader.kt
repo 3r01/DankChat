@@ -28,16 +28,17 @@ class ChannelDataLoader(
 
     suspend fun loadChannelData(channel: UserName): ChannelLoadingState {
         return try {
+            // Phase 1: No auth needed — create flows and load message history
+            dataRepository.createFlowsIfNecessary(listOf(channel))
+            chatRepository.createFlowsIfNecessary(channel)
+            chatRepository.loadRecentMessagesIfEnabled(channel)
+
+            // Phase 2: Needs channel info (Helix or IRC fallback) for emotes/badges
             val channelInfo = channelRepository.getChannel(channel)
                 ?: getChannelsUseCase(listOf(channel)).firstOrNull()
             if (channelInfo == null) {
                 return ChannelLoadingState.Failed(emptyList())
             }
-
-            dataRepository.createFlowsIfNecessary(listOf(channel))
-            chatRepository.createFlowsIfNecessary(channel)
-
-            chatRepository.loadRecentMessagesIfEnabled(channel)
 
             val failures = withContext(dispatchersProvider.io) {
                 val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }

@@ -2,6 +2,7 @@ package com.flxrs.dankchat.domain
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.chat.ChatLoadingStep
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.data.DataLoadingStep
@@ -34,6 +35,7 @@ class ChannelDataCoordinator(
     private val dataRepository: DataRepository,
     private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    private val startupValidationHolder: StartupValidationHolder,
     dispatchersProvider: DispatchersProvider
 ) {
 
@@ -97,6 +99,7 @@ class ChannelDataCoordinator(
     }
 
     private suspend fun loadChannelDataSuspend(channel: UserName) {
+        startupValidationHolder.awaitResolved()
         val stateFlow = channelStates.getOrPut(channel) {
             MutableStateFlow(ChannelLoadingState.Idle)
         }
@@ -113,13 +116,16 @@ class ChannelDataCoordinator(
             _globalLoadingState.value = GlobalLoadingState.Loading
             dataRepository.clearDataLoadingFailures()
 
+            // Phase 1: Non-auth data (3rd-party emotes, DankChat badges) — loads immediately
             globalDataLoader.loadGlobalData()
-
-            // Reparse after global emotes load so 3rd party globals are visible immediately
             chatMessageRepository.reparseAllEmotesAndBadges()
 
-            // Load user emotes if logged in — only block on first page, rest loads async
-            if (authDataStore.isLoggedIn) {
+            // Phase 2: Auth-gated data (badges, user emotes, blocks) — wait for validation to resolve
+            startupValidationHolder.awaitResolved()
+            if (startupValidationHolder.isAuthAvailable && authDataStore.isLoggedIn) {
+                globalDataLoader.loadAuthGlobalData()
+                chatMessageRepository.reparseAllEmotesAndBadges()
+
                 val userId = authDataStore.userIdString
                 if (userId != null) {
                     val firstPageLoaded = CompletableDeferred<Unit>()

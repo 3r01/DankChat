@@ -1,5 +1,7 @@
 package com.flxrs.dankchat.ui.main.sheet
 
+import android.content.ClipData
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,14 +21,18 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.data.debug.DebugEntry
 import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,8 +83,19 @@ fun DebugInfoSheet(
 
 @Composable
 private fun DebugEntryRow(entry: DebugEntry) {
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val copyModifier = when {
+        entry.copyValue != null -> Modifier.clickable {
+            scope.launch {
+                clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText(entry.label, entry.copyValue)))
+            }
+        }
+
+        else                    -> Modifier
+    }
     Row(
-        modifier = Modifier
+        modifier = copyModifier
             .fillMaxWidth()
             .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

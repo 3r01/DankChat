@@ -2,7 +2,6 @@ package com.flxrs.dankchat.ui.main.dialog
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
@@ -72,22 +71,6 @@ class DialogStateViewModel(
         update { copy(showLogout = false) }
     }
 
-    fun showLoginOutdated(username: UserName) {
-        update { copy(loginOutdated = username) }
-    }
-
-    fun dismissLoginOutdated() {
-        update { copy(loginOutdated = null) }
-    }
-
-    fun showLoginExpired() {
-        update { copy(showLoginExpired = true) }
-    }
-
-    fun dismissLoginExpired() {
-        update { copy(showLoginExpired = false) }
-    }
-
     // Whisper dialog
     fun showNewWhisper() {
         update { copy(showNewWhisper = true) }
@@ -145,8 +128,6 @@ data class DialogState(
     val showBlockChannel: Boolean = false,
     val showModActions: Boolean = false,
     val showLogout: Boolean = false,
-    val loginOutdated: UserName? = null,
-    val showLoginExpired: Boolean = false,
     val showNewWhisper: Boolean = false,
     val pendingUploadAction: (() -> Unit)? = null,
     val isUploading: Boolean = false,

@@ -1,11 +1,8 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import android.content.ClipData
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,9 +14,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.auth.StartupValidation
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
@@ -65,6 +65,8 @@ fun MainScreenDialogs(
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
     val channelRepository: ChannelRepository = koinInject()
+    val startupValidationHolder: StartupValidationHolder = koinInject()
+    val startupValidation by startupValidationHolder.state.collectAsStateWithLifecycle()
 
     if (dialogState.showAddChannel) {
         AddChannelDialog(
@@ -142,45 +144,29 @@ fun MainScreenDialogs(
         )
     }
 
-    if (dialogState.loginOutdated != null) {
-        AlertDialog(
-            onDismissRequest = dialogViewModel::dismissLoginOutdated,
-            title = { Text(stringResource(R.string.login_outdated_title)) },
-            text = { Text(stringResource(R.string.login_outdated_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    dialogViewModel.dismissLoginOutdated()
-                    onLogin()
-                }) {
-                    Text(stringResource(R.string.oauth_expired_login_again))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = dialogViewModel::dismissLoginOutdated) {
-                    Text(stringResource(R.string.dialog_dismiss))
-                }
-            }
+    if (startupValidation is StartupValidation.ScopesOutdated) {
+        InfoBottomSheet(
+            title = stringResource(R.string.login_outdated_title),
+            message = stringResource(R.string.login_outdated_message),
+            confirmText = stringResource(R.string.oauth_expired_login_again),
+            dismissible = false,
+            onConfirm = onLogin,
+            onDismiss = startupValidationHolder::acknowledge,
         )
     }
 
-    if (dialogState.showLoginExpired) {
-        AlertDialog(
-            onDismissRequest = dialogViewModel::dismissLoginExpired,
-            title = { Text(stringResource(R.string.oauth_expired_title)) },
-            text = { Text(stringResource(R.string.oauth_expired_message)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    dialogViewModel.dismissLoginExpired()
-                    onLogin()
-                }) {
-                    Text(stringResource(R.string.oauth_expired_login_again))
-                }
+    if (startupValidation is StartupValidation.TokenInvalid) {
+        InfoBottomSheet(
+            title = stringResource(R.string.oauth_expired_title),
+            message = stringResource(R.string.oauth_expired_message),
+            confirmText = stringResource(R.string.oauth_expired_login_again),
+            dismissText = stringResource(R.string.confirm_logout_positive_button),
+            dismissible = false,
+            onConfirm = onLogin,
+            onDismiss = {
+                startupValidationHolder.acknowledge()
+                onLogout()
             },
-            dismissButton = {
-                TextButton(onClick = dialogViewModel::dismissLoginExpired) {
-                    Text(stringResource(R.string.dialog_dismiss))
-                }
-            }
         )
     }
 
