@@ -115,8 +115,8 @@ import com.flxrs.dankchat.ui.main.channel.ChannelPagerViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelTabViewModel
 import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.dialog.MainScreenDialogs
-import com.flxrs.dankchat.ui.main.input.CharacterCounterState
 import com.flxrs.dankchat.ui.main.input.ChatBottomBar
+import com.flxrs.dankchat.ui.main.input.ChatInputCallbacks
 import com.flxrs.dankchat.ui.main.input.InputOverlay
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
@@ -579,7 +579,43 @@ fun MainScreen(
             ChatBottomBar(
                 showInput = effectiveShowInput && !isHistorySheet,
                 textFieldState = chatInputViewModel.textFieldState,
-                inputState = inputState,
+                uiState = inputState,
+                callbacks = ChatInputCallbacks(
+                    onSend = chatInputViewModel::sendMessage,
+                    onLastMessageClick = chatInputViewModel::getLastMessage,
+                    onEmoteClick = {
+                        if (!inputState.isEmoteMenuOpen) {
+                            keyboardController?.hide()
+                            chatInputViewModel.setEmoteMenuOpen(true)
+                        } else {
+                            keyboardController?.show()
+                        }
+                    },
+                    onOverlayDismiss = {
+                        when (inputState.overlay) {
+                            is InputOverlay.Reply    -> chatInputViewModel.setReplying(false)
+                            is InputOverlay.Whisper  -> chatInputViewModel.setWhisperTarget(null)
+                            is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
+                            InputOverlay.None        -> Unit
+                        }
+                    },
+                    onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
+                    onToggleInput = mainScreenViewModel::toggleInput,
+                    onToggleStream = {
+                        when {
+                            currentStream != null -> streamViewModel.closeStream()
+                            else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                        }
+                    },
+                    onModActions = dialogViewModel::showModActions,
+                    onInputActionsChanged = mainScreenViewModel::updateInputActions,
+                    onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
+                    onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
+                    onNewWhisper = if (inputState.isWhisperTabActive) {
+                        dialogViewModel::showNewWhisper
+                    } else null,
+                    onRepeatedSendChanged = chatInputViewModel::setRepeatedSend,
+                ),
                 isUploading = dialogState.isUploading,
                 isLoading = tabState.loading,
                 isFullscreen = isFullscreen,
@@ -598,49 +634,14 @@ fun MainScreen(
                     is FullScreenSheetState.History,
                     is FullScreenSheetState.Closed  -> mainState.inputActions
                 },
-                characterCounter = if (mainState.showCharacterCounter) inputState.characterCounter else CharacterCounterState.Hidden,
-                onSend = chatInputViewModel::sendMessage,
-                onLastMessageClick = chatInputViewModel::getLastMessage,
-                onEmoteClick = {
-                    if (!inputState.isEmoteMenuOpen) {
-                        keyboardController?.hide()
-                        chatInputViewModel.setEmoteMenuOpen(true)
-                    } else {
-                        keyboardController?.show()
-                    }
-                },
-                onOverlayDismiss = {
-                    when (inputState.overlay) {
-                        is InputOverlay.Reply    -> chatInputViewModel.setReplying(false)
-                        is InputOverlay.Whisper  -> chatInputViewModel.setWhisperTarget(null)
-                        is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
-                        InputOverlay.None        -> Unit
-                    }
-                },
-                onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                onToggleInput = mainScreenViewModel::toggleInput,
-                onToggleStream = {
-                    when {
-                        currentStream != null -> streamViewModel.closeStream()
-                        else                  -> activeChannel?.let { streamViewModel.toggleStream(it) }
-                    }
-                },
-                onModActions = dialogViewModel::showModActions,
-                onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
-                onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
+                onInputHeightChanged = { inputHeightPx = it },
                 debugMode = mainState.debugMode,
-                onNewWhisper = if (inputState.isWhisperTabActive) {
-                    dialogViewModel::showNewWhisper
-                } else null,
-                onInputActionsChanged = mainScreenViewModel::updateInputActions,
                 overflowExpanded = inputOverflowExpanded,
                 onOverflowExpandedChanged = { inputOverflowExpanded = it },
-                onInputHeightChanged = { inputHeightPx = it },
                 onHelperTextHeightChanged = { helperTextHeightPx = it },
                 isInSplitLayout = useWideSplitLayout,
                 instantHide = isHistorySheet,
                 isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
-                onRepeatedSendChanged = chatInputViewModel::setRepeatedSend,
                 tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
                     TourOverlayState(
                         inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,

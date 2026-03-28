@@ -118,15 +118,28 @@ data class TourOverlayState(
     val onSkip: (() -> Unit)? = null,
 )
 
+data class ChatInputCallbacks(
+    val onSend: () -> Unit,
+    val onLastMessageClick: () -> Unit,
+    val onEmoteClick: () -> Unit,
+    val onOverlayDismiss: () -> Unit,
+    val onToggleFullscreen: () -> Unit,
+    val onToggleInput: () -> Unit,
+    val onToggleStream: () -> Unit,
+    val onModActions: () -> Unit,
+    val onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
+    val onSearchClick: () -> Unit = {},
+    val onDebugInfoClick: () -> Unit = {},
+    val onNewWhisper: (() -> Unit)? = null,
+    val onRepeatedSendChanged: (Boolean) -> Unit = {},
+)
+
 @Composable
 fun ChatInputLayout(
     textFieldState: TextFieldState,
-    inputState: InputState,
-    enabled: Boolean,
-    hasLastMessage: Boolean,
-    canSend: Boolean,
-    isEmoteMenuOpen: Boolean,
-    helperText: String?,
+    uiState: ChatInputUiState,
+    callbacks: ChatInputCallbacks,
+    isSheetOpen: Boolean,
     isUploading: Boolean,
     isLoading: Boolean,
     isFullscreen: Boolean,
@@ -135,28 +148,35 @@ fun ChatInputLayout(
     hasStreamData: Boolean,
     inputActions: ImmutableList<InputAction>,
     modifier: Modifier = Modifier,
-    characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
-    onSend: () -> Unit,
-    onLastMessageClick: () -> Unit,
-    onEmoteClick: () -> Unit,
-    onToggleFullscreen: () -> Unit,
-    onToggleInput: () -> Unit,
-    onToggleStream: () -> Unit,
-    overlay: InputOverlay,
-    onOverlayDismiss: () -> Unit,
-    onModActions: () -> Unit,
-    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
-    onSearchClick: () -> Unit = {},
-    onDebugInfoClick: () -> Unit = {},
     debugMode: Boolean = false,
-    onNewWhisper: (() -> Unit)? = null,
     overflowExpanded: Boolean = false,
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
-    showQuickActions: Boolean = true,
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
-    onRepeatedSendChanged: (Boolean) -> Unit = {},
 ) {
+    val inputState = uiState.inputState
+    val enabled = uiState.enabled
+    val hasLastMessage = uiState.hasLastMessage
+    val canSend = uiState.canSend
+    val isEmoteMenuOpen = uiState.isEmoteMenuOpen
+    val helperText = if (isSheetOpen) null else uiState.helperText
+    val overlay = uiState.overlay
+    val characterCounter = uiState.characterCounter
+    val showQuickActions = !isSheetOpen
+    val onSend = callbacks.onSend
+    val onLastMessageClick = callbacks.onLastMessageClick
+    val onEmoteClick = callbacks.onEmoteClick
+    val onOverlayDismiss = callbacks.onOverlayDismiss
+    val onToggleFullscreen = callbacks.onToggleFullscreen
+    val onToggleInput = callbacks.onToggleInput
+    val onToggleStream = callbacks.onToggleStream
+    val onModActions = callbacks.onModActions
+    val onInputActionsChanged = callbacks.onInputActionsChanged
+    val onSearchClick = callbacks.onSearchClick
+    val onDebugInfoClick = callbacks.onDebugInfoClick
+    val onNewWhisper = callbacks.onNewWhisper
+    val onRepeatedSendChanged = callbacks.onRepeatedSendChanged
+
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
         InputState.Default      -> stringResource(R.string.hint_connected)

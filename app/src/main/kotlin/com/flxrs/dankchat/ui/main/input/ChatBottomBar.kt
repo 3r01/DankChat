@@ -32,7 +32,8 @@ import kotlinx.collections.immutable.ImmutableList
 fun ChatBottomBar(
     showInput: Boolean,
     textFieldState: TextFieldState,
-    inputState: ChatInputUiState,
+    uiState: ChatInputUiState,
+    callbacks: ChatInputCallbacks,
     isUploading: Boolean,
     isLoading: Boolean,
     isFullscreen: Boolean,
@@ -41,29 +42,16 @@ fun ChatBottomBar(
     hasStreamData: Boolean,
     isSheetOpen: Boolean,
     inputActions: ImmutableList<InputAction>,
-    characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
-    onSend: () -> Unit,
-    onLastMessageClick: () -> Unit,
-    onEmoteClick: () -> Unit,
-    onOverlayDismiss: () -> Unit,
-    onToggleFullscreen: () -> Unit,
-    onToggleInput: () -> Unit,
-    onToggleStream: () -> Unit,
-    onModActions: () -> Unit,
-    onSearchClick: () -> Unit,
-    onDebugInfoClick: () -> Unit = {},
+    onInputHeightChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     debugMode: Boolean = false,
-    onNewWhisper: (() -> Unit)?,
-    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
     overflowExpanded: Boolean = false,
     onOverflowExpandedChanged: (Boolean) -> Unit = {},
-    onInputHeightChanged: (Int) -> Unit,
     onHelperTextHeightChanged: (Int) -> Unit = {},
     isInSplitLayout: Boolean = false,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
-    onRepeatedSendChanged: (Boolean) -> Unit = {},
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(
@@ -76,12 +64,9 @@ fun ChatBottomBar(
         ) {
             ChatInputLayout(
                 textFieldState = textFieldState,
-                inputState = inputState.inputState,
-                enabled = inputState.enabled,
-                hasLastMessage = inputState.hasLastMessage,
-                canSend = inputState.canSend,
-                isEmoteMenuOpen = inputState.isEmoteMenuOpen,
-                helperText = if (isSheetOpen) null else inputState.helperText,
+                uiState = uiState,
+                callbacks = callbacks,
+                isSheetOpen = isSheetOpen,
                 isUploading = isUploading,
                 isLoading = isLoading,
                 isFullscreen = isFullscreen,
@@ -89,27 +74,11 @@ fun ChatBottomBar(
                 isStreamActive = isStreamActive,
                 hasStreamData = hasStreamData,
                 inputActions = inputActions,
-                characterCounter = characterCounter,
-                onSend = onSend,
-                onLastMessageClick = onLastMessageClick,
-                onEmoteClick = onEmoteClick,
-                overlay = inputState.overlay,
-                onOverlayDismiss = onOverlayDismiss,
-                onToggleFullscreen = onToggleFullscreen,
-                onToggleInput = onToggleInput,
-                onToggleStream = onToggleStream,
-                onModActions = onModActions,
-                onInputActionsChanged = onInputActionsChanged,
-                onSearchClick = onSearchClick,
-                onDebugInfoClick = onDebugInfoClick,
                 debugMode = debugMode,
-                onNewWhisper = onNewWhisper,
                 overflowExpanded = overflowExpanded,
                 onOverflowExpandedChanged = onOverflowExpandedChanged,
-                showQuickActions = !isSheetOpen,
                 tourState = tourState,
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
-                onRepeatedSendChanged = onRepeatedSendChanged,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     onInputHeightChanged(coordinates.size.height)
                 }
@@ -118,7 +87,7 @@ fun ChatBottomBar(
 
         // Sticky helper text + nav bar spacer when input is hidden
         if (!showInput && !isSheetOpen) {
-            val helperText = inputState.helperText
+            val helperText = uiState.helperText
             if (!helperText.isNullOrEmpty()) {
                 val horizontalPadding = when {
                     isFullscreen && isInSplitLayout -> {
