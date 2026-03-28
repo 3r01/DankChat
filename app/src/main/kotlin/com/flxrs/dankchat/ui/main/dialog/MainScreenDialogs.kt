@@ -69,7 +69,8 @@ fun MainScreenDialogs(
     if (dialogState.showAddChannel) {
         AddChannelDialog(
             onDismiss = dialogViewModel::dismissAddChannel,
-            onAddChannel = onAddChannel
+            onAddChannel = onAddChannel,
+            isChannelAlreadyAdded = channelManagementViewModel::isChannelAdded,
         )
     }
 
