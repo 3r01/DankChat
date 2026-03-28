@@ -56,7 +56,7 @@ class ChatConnector(
     }
 
     fun connectAndJoin(channels: List<UserName>) {
-        if (!readConnection.connected) {
+        if (!readConnection.connected.value) {
             readConnection.connect()
             writeConnection.connect()
 

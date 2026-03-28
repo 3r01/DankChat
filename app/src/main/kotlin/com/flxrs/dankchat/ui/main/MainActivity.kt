@@ -512,10 +512,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        if (!isChangingConfigurations) {
-            viewModel.reconnectIfNecessary()
-        }
-
         val hasCompletedOnboarding = onboardingDataStore.current().hasCompletedOnboarding
         val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {

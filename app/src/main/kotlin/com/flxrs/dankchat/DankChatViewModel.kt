@@ -3,10 +3,8 @@ package com.flxrs.dankchat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.auth.AuthDataStore
-import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
-import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import kotlinx.coroutines.flow.Flow
@@ -15,23 +13,19 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class DankChatViewModel(
-    private val chatChannelProvider: ChatChannelProvider,
-    private val chatConnector: ChatConnector,
     private val authDataStore: AuthDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val dataRepository: DataRepository,
+    private val chatChannelProvider: ChatChannelProvider,
     private val authStateCoordinator: AuthStateCoordinator,
 ) : ViewModel() {
 
     val serviceEvents = dataRepository.serviceEvents
-    private var initialConnectionStarted = false
-
     val activeChannel = chatChannelProvider.activeChannel
     val isLoggedIn: Flow<Boolean> = authDataStore.settings
         .map { it.isLoggedIn }
@@ -45,30 +39,6 @@ class DankChatViewModel(
             started = SharingStarted.WhileSubscribed(5.seconds),
             initialValue = appearanceSettingsDataStore.current().keepScreenOn,
         )
-
-    init {
-        viewModelScope.launch {
-            val result = authStateCoordinator.validateOnStartup()
-            when (result) {
-                // Don't connect with an invalid token — the logout/re-login flow
-                // triggers closeAndReconnect via the AuthStateCoordinator settings observer.
-                is AuthEvent.TokenInvalid -> return@launch
-                else                      -> Unit
-            }
-
-            initialConnectionStarted = true
-            chatConnector.connectAndJoin(chatChannelProvider.channels.value.orEmpty())
-        }
-    }
-
-    fun reconnectIfNecessary() {
-        if (!initialConnectionStarted) return
-
-        viewModelScope.launch {
-            chatConnector.reconnectIfNecessary()
-            dataRepository.reconnectIfNecessary()
-        }
-    }
 
     fun checkLogin() {
         if (authDataStore.isLoggedIn && authDataStore.oAuthKey.isNullOrBlank()) {

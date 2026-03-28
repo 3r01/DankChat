@@ -3,15 +3,21 @@ package com.flxrs.dankchat.data.debug
 import com.flxrs.dankchat.data.api.eventapi.EventSubClient
 import com.flxrs.dankchat.data.api.eventapi.EventSubClientState
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
+import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.pubsub.PubSubManager
+import com.flxrs.dankchat.di.ReadConnection
+import com.flxrs.dankchat.di.WriteConnection
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
 @Single
 class ConnectionDebugSection(
+    @Named(type = ReadConnection::class) private val readConnection: ChatConnection,
+    @Named(type = WriteConnection::class) private val writeConnection: ChatConnection,
     private val eventSubClient: EventSubClient,
     private val pubSubManager: PubSubManager,
     private val sevenTVEventApiClient: SevenTVEventApiClient,
@@ -27,7 +33,7 @@ class ConnectionDebugSection(
                 delay(2_000)
             }
         }
-        return combine(eventSubClient.state, eventSubClient.topics, ticker) { state, topics, _ ->
+        return combine(eventSubClient.state, eventSubClient.topics, readConnection.connected, writeConnection.connected, ticker) { state, topics, ircRead, ircWrite, _ ->
             val eventSubStatus = when (state) {
                 is EventSubClientState.Connected    -> "Connected (${state.sessionId.take(8)}...)"
                 is EventSubClientState.Connecting   -> "Connecting"
@@ -47,9 +53,14 @@ class ConnectionDebugSection(
                 else                    -> "Disconnected"
             }
 
+            val ircReadStatus = if (ircRead) "Connected" else "Disconnected"
+            val ircWriteStatus = if (ircWrite) "Connected" else "Disconnected"
+
             DebugSectionSnapshot(
                 title = baseTitle,
                 entries = listOf(
+                    DebugEntry("IRC (read)", ircReadStatus),
+                    DebugEntry("IRC (write)", ircWriteStatus),
                     DebugEntry("PubSub", pubSubStatus),
                     DebugEntry("EventSub", eventSubStatus),
                     DebugEntry("EventSub topics", "${topics.size}"),

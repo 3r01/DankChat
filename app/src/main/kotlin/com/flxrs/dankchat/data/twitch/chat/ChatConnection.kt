@@ -15,6 +15,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -84,8 +87,8 @@ class ChatConnection(
     private val isAnonymous: Boolean
         get() = (currentUserName?.value.isNullOrBlank() || currentOAuth.isNullOrBlank() || currentOAuth?.startsWith("oauth:") == false)
 
-    var connected = false
-        private set
+    private val _connected = MutableStateFlow(false)
+    val connected: StateFlow<Boolean> = _connected.asStateFlow()
 
     val messages = receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
         (old.isDisconnected && new.isDisconnected) || old == new
@@ -94,7 +97,7 @@ class ChatConnection(
     init {
         scope.launch {
             channelsToJoin.consumeAsFlow().collect { channelsToJoin ->
-                if (!connected) return@collect
+                if (!_connected.value) return@collect
 
                 channelsToJoin.filter { it in channels }
                     .chunked(JOIN_CHUNK_SIZE)
@@ -109,7 +112,7 @@ class ChatConnection(
     }
 
     fun sendMessage(msg: String) {
-        if (connected) {
+        if (_connected.value) {
             socket?.sendMessage(msg)
         }
     }
@@ -118,7 +121,7 @@ class ChatConnection(
         val newChannels = channelList - channels
         channels.addAll(newChannels)
 
-        if (connected) {
+        if (_connected.value) {
             scope.launch {
                 channelsToJoin.send(newChannels)
             }
@@ -129,7 +132,7 @@ class ChatConnection(
         if (channel in channels) return
         channels += channel
 
-        if (connected) {
+        if (_connected.value) {
             scope.launch {
                 channelsToJoin.send(listOf(channel))
             }
@@ -140,13 +143,13 @@ class ChatConnection(
         if (channel !in channels) return
 
         channels.remove(channel)
-        if (connected) {
+        if (_connected.value) {
             socket?.sendMessage("PART #$channel")
         }
     }
 
     fun connect() {
-        if (connected || connecting) return
+        if (_connected.value || connecting) return
 
         currentUserName = authDataStore.userName
         currentOAuth = authDataStore.oAuthKey
@@ -156,7 +159,7 @@ class ChatConnection(
     }
 
     fun close() {
-        connected = false
+        _connected.value = false
         socket?.close(1000, null) ?: socket?.cancel()
     }
 
@@ -166,7 +169,7 @@ class ChatConnection(
     }
 
     fun reconnectIfNecessary() {
-        if (connected || connecting) return
+        if (_connected.value || connecting) return
         reconnect()
     }
 
@@ -188,7 +191,7 @@ class ChatConnection(
             return@timer
         }
 
-        if (connected) {
+        if (_connected.value) {
             awaitingPong = true
             webSocket.sendMessage("PING")
         }
@@ -197,12 +200,12 @@ class ChatConnection(
     private fun setupJoinCheckInterval(channelsToCheck: List<UserName>) = scope.launch {
         Log.d(TAG, "[$chatConnectionType] setting up join check for $channelsToCheck")
         // only send a ChannelNonExistent event if we are actually connected or there are attempted joins
-        if (socket == null || !connected || channelsAttemptedToJoin.isEmpty()) {
+        if (socket == null || !_connected.value || channelsAttemptedToJoin.isEmpty()) {
             return@launch
         }
 
         delay(JOIN_CHECK_DELAY)
-        if (socket == null || !connected) {
+        if (socket == null || !_connected.value) {
             channelsAttemptedToJoin.removeAll(channelsToCheck.toSet())
             return@launch
         }
@@ -219,7 +222,7 @@ class ChatConnection(
         private var pingJob: Job? = null
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            connected = false
+            _connected.value = false
             pingJob?.cancel()
             channelsAttemptedToJoin.clear()
             scope.launch { receiveChannel.send(ChatEvent.Closed) }
@@ -228,7 +231,7 @@ class ChatConnection(
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e(TAG, "[$chatConnectionType] connection failed: $t")
             Log.e(TAG, "[$chatConnectionType] attempting to reconnect #${reconnectAttempts}..")
-            connected = false
+            _connected.value = false
             connecting = false
             pingJob?.cancel()
             channelsAttemptedToJoin.clear()
@@ -238,7 +241,7 @@ class ChatConnection(
         }
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
-            connected = true
+            _connected.value = true
             connecting = false
             reconnectAttempts = 1
 

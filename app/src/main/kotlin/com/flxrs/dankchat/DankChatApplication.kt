@@ -14,6 +14,7 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.di.DankChatModule
+import com.flxrs.dankchat.domain.ConnectionCoordinator
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
@@ -40,6 +41,7 @@ class DankChatApplication : Application(), SingletonImageLoader.Factory {
     private val highlightsRepository: HighlightsRepository by inject()
     private val ignoresRepository: IgnoresRepository by inject()
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore by inject()
+    private val connectionCoordinator: ConnectionCoordinator by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -47,6 +49,8 @@ class DankChatApplication : Application(), SingletonImageLoader.Factory {
             androidContext(this@DankChatApplication)
             modules(DankChatModule().module)
         }
+
+        connectionCoordinator.initialize()
 
         scope.launch(dispatchersProvider.immediate) {
             setupThemeMode()
