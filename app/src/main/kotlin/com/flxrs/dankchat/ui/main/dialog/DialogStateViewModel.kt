@@ -92,6 +92,10 @@ class DialogStateViewModel(
         update { copy(pendingUploadAction = action) }
     }
 
+    fun acknowledgeExternalHosting() {
+        preferenceStore.hasExternalHostingAcknowledged = true
+    }
+
     fun setUploading(uploading: Boolean) {
         update { copy(isUploading = uploading) }
     }

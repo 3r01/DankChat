@@ -43,7 +43,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
@@ -362,67 +361,6 @@ fun MainScreen(
             }
         },
     )
-
-    // External hosting upload disclaimer dialog
-    if (dialogState.pendingUploadAction != null) {
-        AlertDialog(
-            onDismissRequest = { dialogViewModel.setPendingUploadAction(null) },
-            title = { Text(stringResource(R.string.nuuls_upload_title)) },
-            text = { Text(stringResource(R.string.external_upload_disclaimer, dialogViewModel.uploadHost)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        preferenceStore.hasExternalHostingAcknowledged = true
-                        val action = dialogState.pendingUploadAction
-                        dialogViewModel.setPendingUploadAction(null)
-                        action?.invoke()
-                    }
-                ) {
-                    Text(stringResource(R.string.dialog_ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { dialogViewModel.setPendingUploadAction(null) }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        )
-    }
-
-    // New Whisper dialog
-    if (dialogState.showNewWhisper) {
-        var whisperUsername by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = dialogViewModel::dismissNewWhisper,
-            title = { Text(stringResource(R.string.whisper_new_dialog_title)) },
-            text = {
-                OutlinedTextField(
-                    value = whisperUsername,
-                    onValueChange = { whisperUsername = it },
-                    label = { Text(stringResource(R.string.whisper_new_dialog_hint)) },
-                    singleLine = true,
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val username = whisperUsername.trim()
-                        if (username.isNotBlank()) {
-                            chatInputViewModel.setWhisperTarget(UserName(username))
-                            dialogViewModel.dismissNewWhisper()
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.whisper_new_dialog_start))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = dialogViewModel::dismissNewWhisper) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        )
-    }
 
     val isFullscreen = mainState.isFullscreen
     val effectiveShowInput = mainState.effectiveShowInput

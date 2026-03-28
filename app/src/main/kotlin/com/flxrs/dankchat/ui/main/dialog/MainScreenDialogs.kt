@@ -1,12 +1,19 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import android.content.ClipData
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
@@ -135,6 +142,65 @@ fun MainScreenDialogs(
                 dialogViewModel.dismissLogout()
             },
             onDismiss = dialogViewModel::dismissLogout,
+        )
+    }
+
+    if (dialogState.pendingUploadAction != null) {
+        AlertDialog(
+            onDismissRequest = { dialogViewModel.setPendingUploadAction(null) },
+            title = { Text(stringResource(R.string.nuuls_upload_title)) },
+            text = { Text(stringResource(R.string.external_upload_disclaimer, dialogViewModel.uploadHost)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        dialogViewModel.acknowledgeExternalHosting()
+                        val action = dialogState.pendingUploadAction
+                        dialogViewModel.setPendingUploadAction(null)
+                        action?.invoke()
+                    }
+                ) {
+                    Text(stringResource(R.string.dialog_ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { dialogViewModel.setPendingUploadAction(null) }) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
+        )
+    }
+
+    if (dialogState.showNewWhisper) {
+        var whisperUsername by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = dialogViewModel::dismissNewWhisper,
+            title = { Text(stringResource(R.string.whisper_new_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = whisperUsername,
+                    onValueChange = { whisperUsername = it },
+                    label = { Text(stringResource(R.string.whisper_new_dialog_hint)) },
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val username = whisperUsername.trim()
+                        if (username.isNotBlank()) {
+                            chatInputViewModel.setWhisperTarget(UserName(username))
+                            dialogViewModel.dismissNewWhisper()
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.whisper_new_dialog_start))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = dialogViewModel::dismissNewWhisper) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+            }
         )
     }
 
