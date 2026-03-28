@@ -659,4 +659,14 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="onboarding_continue">Weiter</string>
     <string name="onboarding_get_started">Loslegen</string>
     <string name="onboarding_skip">Überspringen</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Allgemein</string>
+    <string name="preference_developer_category_auth">Authentifizierung</string>
+    <string name="preference_eventsub_title">Twitch EventSub aktivieren</string>
+    <string name="preference_eventsub_summary">Verwendet EventSub für verschiedene Echtzeit-Ereignisse anstelle des veralteten PubSub</string>
+    <string name="preference_eventsub_debug_title">EventSub-Debug-Ausgabe aktivieren</string>
+    <string name="preference_eventsub_debug_summary">Gibt Debug-Informationen zu EventSub als Systemnachrichten aus</string>
+    <string name="preference_revoke_token_title">Token widerrufen und neu starten</string>
+    <string name="preference_revoke_token_summary">Macht den aktuellen Token ungültig und startet die App neu</string>
 </resources>

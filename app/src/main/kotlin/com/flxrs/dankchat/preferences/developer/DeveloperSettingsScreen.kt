@@ -98,7 +98,7 @@ fun DeveloperSettingsScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collectLatest {
             when (it) {
-                DeveloperSettingsEvent.RestartRequired -> {
+                DeveloperSettingsEvent.RestartRequired  -> {
                     val result = snackbarHostState.showSnackbar(
                         message = restartRequiredTitle,
                         actionLabel = restartRequiredAction,
@@ -107,6 +107,10 @@ fun DeveloperSettingsScreen(
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)
                     }
+                }
+
+                DeveloperSettingsEvent.ImmediateRestart -> {
+                    ProcessPhoenix.triggerRebirth(context)
                 }
             }
         }
@@ -152,44 +156,37 @@ private fun DeveloperSettingsContent(
                 .padding(padding)
                 .verticalScroll(rememberScrollState()),
         ) {
-            SwitchPreferenceItem(
-                title = stringResource(R.string.preference_debug_mode_title),
-                summary = stringResource(R.string.preference_debug_mode_summary),
-                isChecked = settings.debugMode,
-                onClick = { onInteraction(DeveloperSettingsInteraction.DebugMode(it)) },
-            )
-            SwitchPreferenceItem(
-                title = stringResource(R.string.preference_repeated_sending_title),
-                summary = stringResource(R.string.preference_repeated_sending_summary),
-                isChecked = settings.repeatedSending,
-                onClick = { onInteraction(DeveloperSettingsInteraction.RepeatedSending(it)) },
-            )
-            SwitchPreferenceItem(
-                title = stringResource(R.string.preference_bypass_command_handling_title),
-                summary = stringResource(R.string.preference_bypass_command_handling_summary),
-                isChecked = settings.bypassCommandHandling,
-                onClick = { onInteraction(DeveloperSettingsInteraction.BypassCommandHandling(it)) },
-            )
-            ExpandablePreferenceItem(title = stringResource(R.string.preference_custom_login_title)) {
-                CustomLoginBottomSheet(
-                    onDismissRequested = ::dismiss,
-                    onRestartRequiredRequested = {
-                        dismiss()
-                        onInteraction(DeveloperSettingsInteraction.RestartRequired)
-                    }
+            PreferenceCategory(title = stringResource(R.string.preference_developer_category_general)) {
+                SwitchPreferenceItem(
+                    title = stringResource(R.string.preference_debug_mode_title),
+                    summary = stringResource(R.string.preference_debug_mode_summary),
+                    isChecked = settings.debugMode,
+                    onClick = { onInteraction(DeveloperSettingsInteraction.DebugMode(it)) },
                 )
-            }
-            ExpandablePreferenceItem(title = stringResource(R.string.preference_rm_host_title)) {
-                CustomRecentMessagesHostBottomSheet(
-                    initialHost = settings.customRecentMessagesHost,
-                    onInteraction = {
-                        dismiss()
-                        onInteraction(it)
-                    },
+                SwitchPreferenceItem(
+                    title = stringResource(R.string.preference_repeated_sending_title),
+                    summary = stringResource(R.string.preference_repeated_sending_summary),
+                    isChecked = settings.repeatedSending,
+                    onClick = { onInteraction(DeveloperSettingsInteraction.RepeatedSending(it)) },
                 )
+                ExpandablePreferenceItem(title = stringResource(R.string.preference_rm_host_title)) {
+                    CustomRecentMessagesHostBottomSheet(
+                        initialHost = settings.customRecentMessagesHost,
+                        onInteraction = {
+                            dismiss()
+                            onInteraction(it)
+                        },
+                    )
+                }
             }
 
-            PreferenceCategory(title = stringResource(R.string.preference_chat_send_protocol_category)) {
+            PreferenceCategory(title = stringResource(R.string.preference_developer_category_twitch)) {
+                SwitchPreferenceItem(
+                    title = stringResource(R.string.preference_bypass_command_handling_title),
+                    summary = stringResource(R.string.preference_bypass_command_handling_summary),
+                    isChecked = settings.bypassCommandHandling,
+                    onClick = { onInteraction(DeveloperSettingsInteraction.BypassCommandHandling(it)) },
+                )
                 SwitchPreferenceItem(
                     title = stringResource(R.string.preference_helix_sending_title),
                     summary = stringResource(R.string.preference_helix_sending_summary),
@@ -202,23 +199,37 @@ private fun DeveloperSettingsContent(
                         onInteraction(DeveloperSettingsInteraction.ChatSendProtocolChanged(protocol))
                     },
                 )
-            }
-
-            PreferenceCategory(title = "EventSub") {
                 if (!settings.isPubSubShutdown) {
                     SwitchPreferenceItem(
-                        title = "Enable Twitch EventSub",
-                        summary = "Uses EventSub for various real-time events instead of deprecated PubSub",
+                        title = stringResource(R.string.preference_eventsub_title),
+                        summary = stringResource(R.string.preference_eventsub_summary),
                         isChecked = settings.shouldUseEventSub,
                         onClick = { onInteraction(EventSubEnabled(it)) },
                     )
                 }
                 SwitchPreferenceItem(
-                    title = "Enable EventSub debug output",
-                    summary = "Prints debug output related to EventSub as system messages",
+                    title = stringResource(R.string.preference_eventsub_debug_title),
+                    summary = stringResource(R.string.preference_eventsub_debug_summary),
                     isEnabled = settings.shouldUseEventSub,
                     isChecked = settings.eventSubDebugOutput,
                     onClick = { onInteraction(EventSubDebugOutput(it)) },
+                )
+            }
+
+            PreferenceCategory(title = stringResource(R.string.preference_developer_category_auth)) {
+                ExpandablePreferenceItem(title = stringResource(R.string.preference_custom_login_title)) {
+                    CustomLoginBottomSheet(
+                        onDismissRequested = ::dismiss,
+                        onRestartRequiredRequested = {
+                            dismiss()
+                            onInteraction(DeveloperSettingsInteraction.RestartRequired)
+                        }
+                    )
+                }
+                PreferenceItem(
+                    title = stringResource(R.string.preference_revoke_token_title),
+                    summary = stringResource(R.string.preference_revoke_token_summary),
+                    onClick = { onInteraction(DeveloperSettingsInteraction.RevokeToken) },
                 )
             }
 

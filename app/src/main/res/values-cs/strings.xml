@@ -661,4 +661,14 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="onboarding_continue">Pokračovat</string>
     <string name="onboarding_get_started">Začít</string>
     <string name="onboarding_skip">Přeskočit</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Obecné</string>
+    <string name="preference_developer_category_auth">Ověření</string>
+    <string name="preference_eventsub_title">Povolit Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Používá EventSub pro různé události v reálném čase místo zastaralého PubSub</string>
+    <string name="preference_eventsub_debug_title">Povolit ladící výstup EventSub</string>
+    <string name="preference_eventsub_debug_summary">Zobrazuje ladící výstup týkající se EventSub jako systémové zprávy</string>
+    <string name="preference_revoke_token_title">Zrušit token a restartovat</string>
+    <string name="preference_revoke_token_summary">Zneplatní aktuální token a restartuje aplikaci</string>
 </resources>

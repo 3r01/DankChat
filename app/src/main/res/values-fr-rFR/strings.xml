@@ -653,4 +653,14 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="onboarding_continue">Continuer</string>
     <string name="onboarding_get_started">Commencer</string>
     <string name="onboarding_skip">Passer</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Général</string>
+    <string name="preference_developer_category_auth">Authentification</string>
+    <string name="preference_eventsub_title">Activer Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Utilise EventSub pour divers événements en temps réel au lieu de l\'ancien PubSub</string>
+    <string name="preference_eventsub_debug_title">Activer la sortie de débogage EventSub</string>
+    <string name="preference_eventsub_debug_summary">Affiche les informations de débogage liées à EventSub sous forme de messages système</string>
+    <string name="preference_revoke_token_title">Révoquer le jeton et redémarrer</string>
+    <string name="preference_revoke_token_summary">Invalide le jeton actuel et redémarre l\'application</string>
 </resources>

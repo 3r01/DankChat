@@ -26,6 +26,10 @@ class AuthApiClient(private val authApi: AuthApi, private val json: Json) {
         }
     }
 
+    suspend fun revokeToken(token: String, clientId: String): Result<Unit> = runCatching {
+        authApi.revokeToken(token, clientId)
+    }
+
     fun validateScopes(scopes: List<String>): Boolean = scopes.containsAll(SCOPES)
     fun missingScopes(scopes: List<String>): Set<String> = SCOPES - scopes.toSet()
 

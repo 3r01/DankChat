@@ -660,4 +660,14 @@
     <string name="onboarding_continue">Працягнуць</string>
     <string name="onboarding_get_started">Пачаць</string>
     <string name="onboarding_skip">Прапусціць</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Агульныя</string>
+    <string name="preference_developer_category_auth">Аўтарызацыя</string>
+    <string name="preference_eventsub_title">Уключыць Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Выкарыстоўвае EventSub для розных падзей у рэальным часе замест састарэлага PubSub</string>
+    <string name="preference_eventsub_debug_title">Уключыць адладачны вывад EventSub</string>
+    <string name="preference_eventsub_debug_summary">Выводзіць адладачную інфармацыю пра EventSub як сістэмныя паведамленні</string>
+    <string name="preference_revoke_token_title">Адклікаць токен і перазапусціць</string>
+    <string name="preference_revoke_token_summary">Робіць бягучы токен несапраўдным і перазапускае праграму</string>
 </resources>

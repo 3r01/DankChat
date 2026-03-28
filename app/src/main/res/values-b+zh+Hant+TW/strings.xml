@@ -643,4 +643,14 @@
     <string name="tour_got_it">了解</string>
     <string name="tour_skip">略過導覽</string>
     <string name="tour_add_more_channels_hint">您可以在此新增更多頻道</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">一般</string>
+    <string name="preference_developer_category_auth">驗證</string>
+    <string name="preference_eventsub_title">啟用 Twitch EventSub</string>
+    <string name="preference_eventsub_summary">使用 EventSub 取代已棄用的 PubSub 來接收各種即時事件</string>
+    <string name="preference_eventsub_debug_title">啟用 EventSub 除錯輸出</string>
+    <string name="preference_eventsub_debug_summary">將 EventSub 相關除錯資訊以系統訊息顯示</string>
+    <string name="preference_revoke_token_title">撤銷權杖並重新啟動</string>
+    <string name="preference_revoke_token_summary">使目前的權杖失效並重新啟動應用程式</string>
 </resources>

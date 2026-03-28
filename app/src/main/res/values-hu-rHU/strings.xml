@@ -637,4 +637,14 @@
     <string name="onboarding_continue">Tovább</string>
     <string name="onboarding_get_started">Kezdjük</string>
     <string name="onboarding_skip">Kihagyás</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Általános</string>
+    <string name="preference_developer_category_auth">Hitelesítés</string>
+    <string name="preference_eventsub_title">Twitch EventSub engedélyezése</string>
+    <string name="preference_eventsub_summary">EventSub használata valós idejű eseményekhez az elavult PubSub helyett</string>
+    <string name="preference_eventsub_debug_title">EventSub hibakeresési kimenet engedélyezése</string>
+    <string name="preference_eventsub_debug_summary">EventSubhoz kapcsolódó hibakeresési adatokat jelenít meg rendszerüzenetként</string>
+    <string name="preference_revoke_token_title">Token visszavonása és újraindítás</string>
+    <string name="preference_revoke_token_summary">Érvényteleníti a jelenlegi tokent és újraindítja az alkalmazást</string>
 </resources>

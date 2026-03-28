@@ -617,4 +617,14 @@
     <string name="onboarding_continue">続ける</string>
     <string name="onboarding_get_started">始める</string>
     <string name="onboarding_skip">スキップ</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">一般</string>
+    <string name="preference_developer_category_auth">認証</string>
+    <string name="preference_eventsub_title">Twitch EventSubを有効にする</string>
+    <string name="preference_eventsub_summary">非推奨のPubSubの代わりにEventSubを使用してリアルタイムイベントを処理します</string>
+    <string name="preference_eventsub_debug_title">EventSubデバッグ出力を有効にする</string>
+    <string name="preference_eventsub_debug_summary">EventSub関連のデバッグ情報をシステムメッセージとして表示します</string>
+    <string name="preference_revoke_token_title">トークンを失効させて再起動</string>
+    <string name="preference_revoke_token_summary">現在のトークンを無効化してアプリを再起動します</string>
 </resources>

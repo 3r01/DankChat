@@ -638,4 +638,14 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="pick_highlight_color_title">Pick custom highlight color</string>
     <string name="reset_default_highlight_color">Default</string>
     <string name="choose_highlight_color">Choose Color</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">General</string>
+    <string name="preference_developer_category_auth">Auth</string>
+    <string name="preference_eventsub_title">Enable Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Uses EventSub for various real-time events instead of deprecated PubSub</string>
+    <string name="preference_eventsub_debug_title">Enable EventSub debug output</string>
+    <string name="preference_eventsub_debug_summary">Prints debug output related to EventSub as system messages</string>
+    <string name="preference_revoke_token_title">Revoke token and restart</string>
+    <string name="preference_revoke_token_summary">Invalidates the current token and restarts the app</string>
 </resources>

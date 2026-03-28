@@ -642,4 +642,14 @@
     <string name="tour_got_it">Түсіндім</string>
     <string name="tour_skip">Турды өткізу</string>
     <string name="tour_add_more_channels_hint">Мұнда қосымша арналар қосуға болады</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Жалпы</string>
+    <string name="preference_developer_category_auth">Аутентификация</string>
+    <string name="preference_eventsub_title">Twitch EventSub қосу</string>
+    <string name="preference_eventsub_summary">Ескірген PubSub орнына нақты уақыттағы оқиғалар үшін EventSub пайдаланады</string>
+    <string name="preference_eventsub_debug_title">EventSub жөндеу шығысын қосу</string>
+    <string name="preference_eventsub_debug_summary">EventSubқа қатысты жөндеу ақпаратын жүйелік хабарлар ретінде көрсетеді</string>
+    <string name="preference_revoke_token_title">Токенді қайтарып алу және қайта іске қосу</string>
+    <string name="preference_revoke_token_summary">Ағымдағы токенді жарамсыз етіп, қолданбаны қайта іске қосады</string>
 </resources>

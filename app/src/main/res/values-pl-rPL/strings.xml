@@ -679,4 +679,14 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="onboarding_continue">Dalej</string>
     <string name="onboarding_get_started">Rozpocznij</string>
     <string name="onboarding_skip">Pomiń</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Ogólne</string>
+    <string name="preference_developer_category_auth">Autoryzacja</string>
+    <string name="preference_eventsub_title">Włącz Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Używa EventSub do różnych zdarzeń w czasie rzeczywistym zamiast przestarzałego PubSub</string>
+    <string name="preference_eventsub_debug_title">Włącz dane debugowania EventSub</string>
+    <string name="preference_eventsub_debug_summary">Wyświetla dane debugowania związane z EventSub jako wiadomości systemowe</string>
+    <string name="preference_revoke_token_title">Unieważnij token i uruchom ponownie</string>
+    <string name="preference_revoke_token_summary">Unieważnia bieżący token i restartuje aplikację</string>
 </resources>

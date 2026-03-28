@@ -690,4 +690,14 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="tour_got_it">Разумем</string>
     <string name="tour_skip">Прескочи обилазак</string>
     <string name="tour_add_more_channels_hint">Овде можете додати више канала</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Опште</string>
+    <string name="preference_developer_category_auth">Аутентификација</string>
+    <string name="preference_eventsub_title">Укључи Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Користи EventSub за различите догађаје у реалном времену уместо застарелог PubSub</string>
+    <string name="preference_eventsub_debug_title">Укључи дебаг излаз за EventSub</string>
+    <string name="preference_eventsub_debug_summary">Приказује дебаг излаз везан за EventSub као системске поруке</string>
+    <string name="preference_revoke_token_title">Опозови токен и рестартуј</string>
+    <string name="preference_revoke_token_summary">Поништава тренутни токен и рестартује апликацију</string>
 </resources>

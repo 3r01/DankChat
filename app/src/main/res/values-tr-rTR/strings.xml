@@ -658,4 +658,14 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="onboarding_continue">Devam et</string>
     <string name="onboarding_get_started">Başla</string>
     <string name="onboarding_skip">Atla</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Genel</string>
+    <string name="preference_developer_category_auth">Kimlik doğrulama</string>
+    <string name="preference_eventsub_title">Twitch EventSub\'u etkinleştir</string>
+    <string name="preference_eventsub_summary">Kullanımdan kaldırılan PubSub yerine çeşitli gerçek zamanlı olaylar için EventSub kullanır</string>
+    <string name="preference_eventsub_debug_title">EventSub hata ayıklama çıktısını etkinleştir</string>
+    <string name="preference_eventsub_debug_summary">EventSub ile ilgili hata ayıklama çıktısını sistem mesajları olarak gösterir</string>
+    <string name="preference_revoke_token_title">Jetonu iptal et ve yeniden başlat</string>
+    <string name="preference_revoke_token_summary">Mevcut jetonu geçersiz kılar ve uygulamayı yeniden başlatır</string>
 </resources>

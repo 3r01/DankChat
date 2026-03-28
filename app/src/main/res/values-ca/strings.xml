@@ -686,4 +686,14 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="tour_got_it">Entès</string>
     <string name="tour_skip">Ometre el tour</string>
     <string name="tour_add_more_channels_hint">Aquí pots afegir més canals</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">General</string>
+    <string name="preference_developer_category_auth">Autenticació</string>
+    <string name="preference_eventsub_title">Activa Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Utilitza EventSub per a diversos esdeveniments en temps real en lloc del PubSub obsolet</string>
+    <string name="preference_eventsub_debug_title">Activa la sortida de depuració d\'EventSub</string>
+    <string name="preference_eventsub_debug_summary">Mostra la sortida de depuració relacionada amb EventSub com a missatges del sistema</string>
+    <string name="preference_revoke_token_title">Revoca el token i reinicia</string>
+    <string name="preference_revoke_token_summary">Invalida el token actual i reinicia l\'aplicació</string>
 </resources>

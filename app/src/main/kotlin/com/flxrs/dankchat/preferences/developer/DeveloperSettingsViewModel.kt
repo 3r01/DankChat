@@ -2,9 +2,12 @@ package com.flxrs.dankchat.preferences.developer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.data.api.auth.AuthApiClient
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.utils.extensions.withTrailingSlash
+import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -20,6 +23,8 @@ class DeveloperSettingsViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val dankchatPreferenceStore: DankChatPreferenceStore,
     private val onboardingDataStore: OnboardingDataStore,
+    private val authApiClient: AuthApiClient,
+    private val authDataStore: AuthDataStore,
 ) : ViewModel() {
 
     private val initial = developerSettingsDataStore.current()
@@ -78,6 +83,13 @@ class DeveloperSettingsViewModel(
                     }
                     _events.emit(DeveloperSettingsEvent.RestartRequired)
                 }
+
+                is DeveloperSettingsInteraction.RevokeToken              -> {
+                    val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return@launch
+                    val clientId = authDataStore.clientId
+                    authApiClient.revokeToken(token, clientId)
+                    _events.emit(DeveloperSettingsEvent.ImmediateRestart)
+                }
             }
         }
     }
@@ -85,6 +97,7 @@ class DeveloperSettingsViewModel(
 
 sealed interface DeveloperSettingsEvent {
     data object RestartRequired : DeveloperSettingsEvent
+    data object ImmediateRestart : DeveloperSettingsEvent
 }
 
 sealed interface DeveloperSettingsInteraction {
@@ -98,6 +111,7 @@ sealed interface DeveloperSettingsInteraction {
     data object RestartRequired : DeveloperSettingsInteraction
     data object ResetOnboarding : DeveloperSettingsInteraction
     data object ResetTour : DeveloperSettingsInteraction
+    data object RevokeToken : DeveloperSettingsInteraction
 }
 
 

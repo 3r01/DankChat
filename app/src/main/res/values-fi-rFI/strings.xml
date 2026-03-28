@@ -661,4 +661,14 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="tour_got_it">Selvä</string>
     <string name="tour_skip">Ohita esittely</string>
     <string name="tour_add_more_channels_hint">Voit lisätä lisää kanavia täältä</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Yleiset</string>
+    <string name="preference_developer_category_auth">Todennus</string>
+    <string name="preference_eventsub_title">Ota Twitch EventSub käyttöön</string>
+    <string name="preference_eventsub_summary">Käyttää EventSubia reaaliaikaisiin tapahtumiin vanhentuneen PubSubin sijaan</string>
+    <string name="preference_eventsub_debug_title">Ota EventSub-virheenkorjaustuloste käyttöön</string>
+    <string name="preference_eventsub_debug_summary">Tulostaa EventSubiin liittyvää virheenkorjaustietoa järjestelmäviesteinä</string>
+    <string name="preference_revoke_token_title">Peruuta tunnus ja käynnistä uudelleen</string>
+    <string name="preference_revoke_token_summary">Mitätöi nykyisen tunnuksen ja käynnistää sovelluksen uudelleen</string>
 </resources>

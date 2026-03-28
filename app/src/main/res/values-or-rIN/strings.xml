@@ -642,4 +642,14 @@
     <string name="tour_got_it">ବୁଝିଗଲି</string>
     <string name="tour_skip">ଟୁର୍ ଛାଡି ଦିଅନ୍ତୁ</string>
     <string name="tour_add_more_channels_hint">ଆପଣ ଏଠାରେ ଅଧିକ ଚ୍ୟାନେଲ ଯୋଡିପାରିବେ</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">ସାଧାରଣ</string>
+    <string name="preference_developer_category_auth">ପ୍ରମାଣୀକରଣ</string>
+    <string name="preference_eventsub_title">Twitch EventSub ସକ୍ରିୟ କରନ୍ତୁ</string>
+    <string name="preference_eventsub_summary">ଅଚଳ PubSub ବଦଳରେ ବିଭିନ୍ନ ରିଅଲ-ଟାଇମ ଇଭେଣ୍ଟ ପାଇଁ EventSub ବ୍ୟବହାର କରେ</string>
+    <string name="preference_eventsub_debug_title">EventSub ଡିବଗ୍ ଆଉଟପୁଟ୍ ସକ୍ରିୟ କରନ୍ତୁ</string>
+    <string name="preference_eventsub_debug_summary">EventSub ସମ୍ବନ୍ଧୀୟ ଡିବଗ୍ ତଥ୍ୟ ସିଷ୍ଟମ ମେସେଜ୍ ଭାବରେ ଦେଖାଏ</string>
+    <string name="preference_revoke_token_title">ଟୋକେନ୍ ବାତିଲ କରନ୍ତୁ ଏବଂ ପୁନଃଆରମ୍ଭ କରନ୍ତୁ</string>
+    <string name="preference_revoke_token_summary">ବର୍ତ୍ତମାନର ଟୋକେନ୍ ଅବୈଧ କରି ଆପ୍ ପୁନଃଆରମ୍ଭ କରେ</string>
 </resources>

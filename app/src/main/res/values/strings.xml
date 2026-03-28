@@ -505,6 +505,15 @@
     <string name="preference_unlisted_emotes_summary">Disables filtering of unapproved or unlisted emotes</string>
     <string name="preference_rm_host_key" translatable="false">rm_host_key</string>
     <string name="preference_rm_host_title">Custom recent messages host</string>
+    <string name="preference_developer_category_general">General</string>
+    <string name="preference_developer_category_twitch" translatable="false">Twitch</string>
+    <string name="preference_developer_category_auth">Auth</string>
+    <string name="preference_eventsub_title">Enable Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Uses EventSub for various real-time events instead of deprecated PubSub</string>
+    <string name="preference_eventsub_debug_title">Enable EventSub debug output</string>
+    <string name="preference_eventsub_debug_summary">Prints debug output related to EventSub as system messages</string>
+    <string name="preference_revoke_token_title">Revoke token and restart</string>
+    <string name="preference_revoke_token_summary">Invalidates the current token and restarts the app</string>
     <string name="preference_reset_onboarding_category" translatable="false">Onboarding</string>
     <string name="preference_reset_onboarding_title" translatable="false">Reset onboarding</string>
     <string name="preference_reset_onboarding_summary" translatable="false">Clears onboarding completion, shows onboarding flow on next restart</string>

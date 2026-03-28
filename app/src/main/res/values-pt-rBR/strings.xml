@@ -648,4 +648,14 @@
     <string name="onboarding_continue">Continuar</string>
     <string name="onboarding_get_started">Começar</string>
     <string name="onboarding_skip">Pular</string>
+
+    <!-- Developer Settings -->
+    <string name="preference_developer_category_general">Geral</string>
+    <string name="preference_developer_category_auth">Autenticação</string>
+    <string name="preference_eventsub_title">Ativar Twitch EventSub</string>
+    <string name="preference_eventsub_summary">Usa EventSub para diversos eventos em tempo real em vez do PubSub descontinuado</string>
+    <string name="preference_eventsub_debug_title">Ativar saída de depuração do EventSub</string>
+    <string name="preference_eventsub_debug_summary">Exibe saída de depuração relacionada ao EventSub como mensagens do sistema</string>
+    <string name="preference_revoke_token_title">Revogar token e reiniciar</string>
+    <string name="preference_revoke_token_summary">Invalida o token atual e reinicia o aplicativo</string>
 </resources>
