@@ -104,7 +104,6 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
-import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatComposable
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
@@ -280,8 +279,6 @@ fun MainScreen(
 
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
 
-    val toolsSettingsDataStore: ToolsSettingsDataStore = koinInject()
-
     val sheetNavState by sheetNavigationViewModel.sheetState.collectAsStateWithLifecycle()
     val fullScreenSheetState = sheetNavState.fullScreenSheet
     val isSheetOpen = fullScreenSheetState !is FullScreenSheetState.Closed
@@ -368,15 +365,10 @@ fun MainScreen(
 
     // External hosting upload disclaimer dialog
     if (dialogState.pendingUploadAction != null) {
-        val uploadHost = remember {
-            runCatching {
-                java.net.URL(toolsSettingsDataStore.current().uploaderConfig.uploadUrl).host
-            }.getOrElse { "" }
-        }
         AlertDialog(
             onDismissRequest = { dialogViewModel.setPendingUploadAction(null) },
             title = { Text(stringResource(R.string.nuuls_upload_title)) },
-            text = { Text(stringResource(R.string.external_upload_disclaimer, uploadHost)) },
+            text = { Text(stringResource(R.string.external_upload_disclaimer, dialogViewModel.uploadHost)) },
             confirmButton = {
                 TextButton(
                     onClick = {

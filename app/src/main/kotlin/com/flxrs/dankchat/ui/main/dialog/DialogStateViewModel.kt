@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import kotlinx.collections.immutable.ImmutableList
@@ -16,6 +17,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class DialogStateViewModel(
     private val preferenceStore: DankChatPreferenceStore,
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DialogState())
@@ -81,6 +83,11 @@ class DialogStateViewModel(
     }
 
     // Upload
+    val uploadHost: String
+        get() = runCatching {
+            java.net.URL(toolsSettingsDataStore.current().uploaderConfig.uploadUrl).host
+        }.getOrDefault("")
+
     fun setPendingUploadAction(action: (() -> Unit)?) {
         update { copy(pendingUploadAction = action) }
     }

@@ -16,7 +16,6 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.StartupValidation
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
-import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
@@ -64,7 +63,6 @@ fun MainScreenDialogs(
     val channelManagementViewModel: ChannelManagementViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
-    val channelRepository: ChannelRepository = koinInject()
     val startupValidationHolder: StartupValidationHolder = koinInject()
     val startupValidation by startupValidationHolder.state.collectAsStateWithLifecycle()
 
@@ -87,17 +85,14 @@ fun MainScreenDialogs(
     }
 
     if (dialogState.showModActions && modActionsChannel != null) {
-        val preferenceStore: DankChatPreferenceStore = koinInject()
-        val roomState = channelRepository.getRoomState(modActionsChannel)
-        val isBroadcaster = preferenceStore.userIdString == roomState?.channelId
         val modActionsViewModel: ModActionsViewModel = koinViewModel(
             key = "mod-actions-${modActionsChannel.value}",
             parameters = { parametersOf(modActionsChannel) }
         )
         val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()
         ModActionsDialog(
-            roomState = roomState,
-            isBroadcaster = isBroadcaster,
+            roomState = modActionsViewModel.roomState,
+            isBroadcaster = modActionsViewModel.isBroadcaster,
             isStreamActive = isStreamActive,
             shieldModeActive = shieldModeActive,
             onSendCommand = { command ->

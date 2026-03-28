@@ -6,6 +6,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.twitch.message.RoomState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,9 @@ class ModActionsViewModel(
 
     private val _shieldModeActive = MutableStateFlow<Boolean?>(null)
     val shieldModeActive: StateFlow<Boolean?> = _shieldModeActive.asStateFlow()
+
+    val roomState: RoomState? get() = channelRepository.getRoomState(channel)
+    val isBroadcaster: Boolean get() = authDataStore.userIdString == roomState?.channelId
 
     init {
         fetchShieldMode()
