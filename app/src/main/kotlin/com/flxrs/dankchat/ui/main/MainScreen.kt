@@ -349,7 +349,6 @@ fun MainScreen(
         },
         onLogout = onLogout,
         onLogin = onLogin,
-        onOpenChannel = onOpenChannel,
         onReportChannel = onReportChannel,
         onOpenUrl = onOpenUrl,
         onJumpToMessage = { messageId, channel ->
