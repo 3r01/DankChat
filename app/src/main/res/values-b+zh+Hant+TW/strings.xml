@@ -618,12 +618,13 @@
     <string name="onboarding_get_started">開始使用</string>
     <string name="onboarding_login_title">使用 Twitch 登入</string>
     <string name="onboarding_login_body">登入以傳送訊息、使用您的表情符號、接收悄悄話，並解鎖所有功能。</string>
+    <string name="onboarding_login_disclaimer">系統會一次性要求您授予數項 Twitch 權限，這樣您在使用不同功能時就不需要重新授權。DankChat 僅在您主動要求時才會執行管理或直播相關操作。</string>
     <string name="onboarding_login_button">使用 Twitch 登入</string>
     <string name="onboarding_login_success">登入成功</string>
     <string name="onboarding_skip">略過</string>
     <string name="onboarding_continue">繼續</string>
     <string name="onboarding_history_title">訊息紀錄</string>
-    <string name="onboarding_history_body">DankChat 可於啟動時透過第三方服務載入歷史訊息。\n為了取得這些訊息，DankChat 會將您開啟的頻道名稱傳送至該服務。\n該服務會暫時儲存您（及其他人）造訪的頻道訊息以提供此功能。\n\n您可以稍後在設定中變更此選項，或透過 https://recent-messages.robotty.de/ 了解更多資訊</string>
+    <string name="onboarding_history_body">DankChat 可於啟動時透過第三方服務載入歷史訊息。 為了取得這些訊息，DankChat 會將您開啟的頻道名稱傳送至該服務。 該服務會暫時儲存您（及其他人）造訪的頻道訊息以提供此功能。\n\n您可以稍後在設定中變更此選項，或透過 https://recent-messages.robotty.de/ 了解更多資訊</string>
     <string name="onboarding_history_enable">啟用</string>
     <string name="onboarding_history_disable">停用</string>
     <string name="onboarding_notifications_title">通知</string>

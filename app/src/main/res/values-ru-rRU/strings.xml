@@ -650,6 +650,7 @@
     <string name="onboarding_welcome_body">Давайте настроим всё.</string>
     <string name="onboarding_login_title">Войти через Twitch</string>
     <string name="onboarding_login_body">Войдите, чтобы отправлять сообщения, использовать свои эмоуты, получать личные сообщения и разблокировать все функции.</string>
+    <string name="onboarding_login_disclaimer">Вам будет предложено предоставить сразу несколько разрешений Twitch, чтобы вам не пришлось повторно авторизоваться при использовании различных функций. DankChat выполняет действия по модерации и управлению трансляцией только по вашему запросу.</string>
     <string name="onboarding_login_button">Войти через Twitch</string>
     <string name="onboarding_login_success">Вход выполнен</string>
     <string name="onboarding_notifications_title">Уведомления</string>
@@ -658,7 +659,7 @@
     <string name="onboarding_notifications_open_settings">Открыть настройки уведомлений</string>
     <string name="onboarding_notifications_rationale">Без уведомлений вы не узнаете, когда кто-то упоминает вас в чате, пока приложение работает в фоне.</string>
     <string name="onboarding_history_title">История сообщений</string>
-    <string name="onboarding_history_body">DankChat загружает историю сообщений из стороннего сервиса при запуске.\nДля получения сообщений DankChat отправляет названия открытых каналов этому сервису.\nСервис временно хранит сообщения посещённых каналов.\n\nВы можете изменить это позже в настройках или узнать больше на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat загружает историю сообщений из стороннего сервиса при запуске. Для получения сообщений DankChat отправляет названия открытых каналов этому сервису. Сервис временно хранит сообщения посещённых каналов.\n\nВы можете изменить это позже в настройках или узнать больше на https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Включить</string>
     <string name="onboarding_history_disable">Отключить</string>
     <string name="onboarding_continue">Продолжить</string>

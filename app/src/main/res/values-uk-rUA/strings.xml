@@ -647,6 +647,7 @@
     <string name="onboarding_welcome_body">Давайте все налаштуємо.</string>
     <string name="onboarding_login_title">Увійти через Twitch</string>
     <string name="onboarding_login_body">Увійдіть, щоб надсилати повідомлення, використовувати свої емоути, отримувати шепіт та розблокувати всі функції.</string>
+    <string name="onboarding_login_disclaimer">Вам буде запропоновано надати кілька дозволів Twitch одразу, щоб вам не довелося повторно авторизуватися при використанні різних функцій. DankChat виконує дії з модерації та керування трансляцією лише за вашим запитом.</string>
     <string name="onboarding_login_button">Увійти через Twitch</string>
     <string name="onboarding_login_success">Вхід виконано</string>
     <string name="onboarding_notifications_title">Сповіщення</string>
@@ -655,7 +656,7 @@
     <string name="onboarding_notifications_open_settings">Відкрити налаштування сповіщень</string>
     <string name="onboarding_notifications_rationale">Без сповіщень ви не дізнаєтесь, коли хтось згадує вас у чаті, поки застосунок працює у фоні.</string>
     <string name="onboarding_history_title">Історія повідомлень</string>
-    <string name="onboarding_history_body">DankChat завантажує історичні повідомлення зі стороннього сервісу при запуску.\nДля отримання повідомлень DankChat надсилає назви відкритих каналів цьому сервісу.\nСервіс тимчасово зберігає повідомлення відвіданих каналів.\n\nВи можете змінити це пізніше в налаштуваннях або дізнатися більше на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat завантажує історичні повідомлення зі стороннього сервісу при запуску. Для отримання повідомлень DankChat надсилає назви відкритих каналів цьому сервісу. Сервіс тимчасово зберігає повідомлення відвіданих каналів.\n\nВи можете змінити це пізніше в налаштуваннях або дізнатися більше на https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Увімкнути</string>
     <string name="onboarding_history_disable">Вимкнути</string>
     <string name="onboarding_continue">Продовжити</string>

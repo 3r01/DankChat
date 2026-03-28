@@ -645,6 +645,7 @@
     <string name="onboarding_welcome_body">Давайце ўсё наладзім.</string>
     <string name="onboarding_login_title">Увайсці праз Twitch</string>
     <string name="onboarding_login_body">Увайдзіце, каб адпраўляць паведамленні, выкарыстоўваць свае эмоуты, атрымліваць шэпты і разблакаваць усе функцыі.</string>
+    <string name="onboarding_login_disclaimer">Вам будзе прапанавана даць некалькі дазволаў Twitch адразу, каб вам не давялося паўторна аўтарызавацца пры выкарыстанні розных функцый. DankChat выконвае дзеянні мадэрацыі і кіравання стрымам толькі тады, калі вы самі гэта запытваеце.</string>
     <string name="onboarding_login_button">Увайсці праз Twitch</string>
     <string name="onboarding_login_success">Уваход паспяховы</string>
     <string name="onboarding_notifications_title">Апавяшчэнні</string>
@@ -653,7 +654,7 @@
     <string name="onboarding_notifications_open_settings">Адкрыць налады апавяшчэнняў</string>
     <string name="onboarding_notifications_rationale">Без апавяшчэнняў вы не даведаецеся, калі нехта згадвае вас у чаце, пакуль праграма працуе ў фоне.</string>
     <string name="onboarding_history_title">Гісторыя паведамленняў</string>
-    <string name="onboarding_history_body">DankChat загружае гістарычныя паведамленні са старонняга сэрвісу пры запуску.\nДля атрымання паведамленняў DankChat адпраўляе назвы адкрытых каналаў гэтаму сэрвісу.\nСэрвіс часова захоўвае паведамленні наведаных каналаў.\n\nВы можаце змяніць гэта пазней у наладах або даведацца больш на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat загружае гістарычныя паведамленні са старонняга сэрвісу пры запуску. Для атрымання паведамленняў DankChat адпраўляе назвы адкрытых каналаў гэтаму сэрвісу. Сэрвіс часова захоўвае паведамленні наведаных каналаў.\n\nВы можаце змяніць гэта пазней у наладах або даведацца больш на https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Уключыць</string>
     <string name="onboarding_history_disable">Адключыць</string>
     <string name="onboarding_continue">Працягнуць</string>

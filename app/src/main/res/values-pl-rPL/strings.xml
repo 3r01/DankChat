@@ -664,6 +664,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="onboarding_welcome_body">Skonfigurujmy wszystko.</string>
     <string name="onboarding_login_title">Zaloguj się przez Twitch</string>
     <string name="onboarding_login_body">Zaloguj się, aby wysyłać wiadomości, używać swoich emotek, otrzymywać szepty i odblokować wszystkie funkcje.</string>
+    <string name="onboarding_login_disclaimer">Zostaniesz poproszony o przyznanie kilku uprawnień Twitch jednocześnie, dzięki czemu nie będziesz musiał ponownie autoryzować dostępu przy korzystaniu z różnych funkcji. DankChat wykonuje działania moderacyjne i dotyczące transmisji tylko na Twoje polecenie.</string>
     <string name="onboarding_login_button">Zaloguj się przez Twitch</string>
     <string name="onboarding_login_success">Logowanie udane</string>
     <string name="onboarding_notifications_title">Powiadomienia</string>
@@ -672,7 +673,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="onboarding_notifications_open_settings">Otwórz ustawienia powiadomień</string>
     <string name="onboarding_notifications_rationale">Bez powiadomień nie będziesz wiedzieć, gdy ktoś wspomni o Tobie na czacie, gdy aplikacja działa w tle.</string>
     <string name="onboarding_history_title">Historia wiadomości</string>
-    <string name="onboarding_history_body">DankChat ładuje historyczne wiadomości z zewnętrznego serwisu przy uruchomieniu.\nAby pobrać wiadomości, DankChat wysyła nazwy otwartych kanałów do tego serwisu.\nSerwis tymczasowo przechowuje wiadomości odwiedzanych kanałów.\n\nMożesz to zmienić później w ustawieniach lub dowiedzieć się więcej na https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat ładuje historyczne wiadomości z zewnętrznego serwisu przy uruchomieniu. Aby pobrać wiadomości, DankChat wysyła nazwy otwartych kanałów do tego serwisu. Serwis tymczasowo przechowuje wiadomości odwiedzanych kanałów.\n\nMożesz to zmienić później w ustawieniach lub dowiedzieć się więcej na https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Włącz</string>
     <string name="onboarding_history_disable">Wyłącz</string>
     <string name="onboarding_continue">Dalej</string>

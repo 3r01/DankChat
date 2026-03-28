@@ -623,6 +623,7 @@
     <string name="onboarding_welcome_body">Vamos configurar tudo.</string>
     <string name="onboarding_login_title">Iniciar sessão com Twitch</string>
     <string name="onboarding_login_body">Inicie sessão para enviar mensagens, usar os seus emotes, receber sussurros e desbloquear todas as funcionalidades.</string>
+    <string name="onboarding_login_disclaimer">Ser-lhe-á pedido que conceda várias permissões do Twitch de uma só vez para que não precise de reautorizar ao utilizar diferentes funcionalidades. O DankChat só executa ações de moderação e transmissão quando o solicita.</string>
     <string name="onboarding_login_button">Iniciar sessão com Twitch</string>
     <string name="onboarding_login_success">Sessão iniciada com sucesso</string>
     <string name="onboarding_notifications_title">Notificações</string>
@@ -631,7 +632,7 @@
     <string name="onboarding_notifications_open_settings">Abrir definições de notificações</string>
     <string name="onboarding_notifications_rationale">Sem notificações, não saberá quando alguém o mencionar no chat enquanto a app está em segundo plano.</string>
     <string name="onboarding_history_title">Histórico de mensagens</string>
-    <string name="onboarding_history_body">O DankChat carrega mensagens históricas de um serviço externo ao iniciar.\nPara obter as mensagens, o DankChat envia os nomes dos canais abertos para esse serviço.\nO serviço armazena temporariamente as mensagens dos canais visitados.\n\nPode alterar isto mais tarde nas definições ou saber mais em https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">O DankChat carrega mensagens históricas de um serviço externo ao iniciar. Para obter as mensagens, o DankChat envia os nomes dos canais abertos para esse serviço. O serviço armazena temporariamente as mensagens dos canais visitados.\n\nPode alterar isto mais tarde nas definições ou saber mais em https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Ativar</string>
     <string name="onboarding_history_disable">Desativar</string>
     <string name="onboarding_continue">Continuar</string>

@@ -664,6 +664,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="onboarding_welcome_body">Хајде да подесимо све.</string>
     <string name="onboarding_login_title">Пријави се преко Twitch-а</string>
     <string name="onboarding_login_body">Пријавите се да бисте слали поруке, користили емотиконе, примали шапате и откључали све функције.</string>
+    <string name="onboarding_login_disclaimer">Бићете замољени да одобрите неколико Twitch дозвола одједном како не бисте морали поново да се ауторизујете при коришћењу различитих функција. DankChat извршава радње модерације и управљања преносом само када то затражите.</string>
     <string name="onboarding_login_button">Пријави се преко Twitch-а</string>
     <string name="onboarding_login_success">Пријава успешна</string>
     <string name="onboarding_notifications_title">Обавештења</string>
@@ -672,7 +673,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="onboarding_notifications_open_settings">Отвори подешавања обавештења</string>
     <string name="onboarding_notifications_rationale">Без обавештења нећете знати када вас неко помене у чату док апликација ради у позадини.</string>
     <string name="onboarding_history_title">Историја порука</string>
-    <string name="onboarding_history_body">DankChat учитава историјске поруке из услуге треће стране при покретању.\nДа би добио поруке, DankChat шаље имена отворених канала овој услузи.\nУслуга привремено чува поруке посећених канала.\n\nОво можете касније променити у подешавањима или сазнати више на https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat учитава историјске поруке из услуге треће стране при покретању. Да би добио поруке, DankChat шаље имена отворених канала овој услузи. Услуга привремено чува поруке посећених канала.\n\nОво можете касније променити у подешавањима или сазнати више на https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Укључи</string>
     <string name="onboarding_history_disable">Искључи</string>
     <string name="onboarding_continue">Настави</string>

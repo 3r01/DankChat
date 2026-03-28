@@ -635,6 +635,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="onboarding_welcome_body">Aloitetaan käyttöönotto.</string>
     <string name="onboarding_login_title">Kirjaudu Twitchillä</string>
     <string name="onboarding_login_body">Kirjaudu sisään lähettääksesi viestejä, käyttääksesi hymiöitäsi, vastaanottaaksesi kuiskauksia ja avataksesi kaikki ominaisuudet.</string>
+    <string name="onboarding_login_disclaimer">Sinua pyydetään myöntämään useita Twitch-oikeuksia kerralla, joten sinun ei tarvitse valtuuttaa uudelleen eri ominaisuuksia käyttäessäsi. DankChat suorittaa moderointi- ja lähetystoimintoja vain silloin, kun pyydät sitä.</string>
     <string name="onboarding_login_button">Kirjaudu Twitchillä</string>
     <string name="onboarding_login_success">Kirjautuminen onnistui</string>
     <string name="onboarding_notifications_title">Ilmoitukset</string>
@@ -643,7 +644,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="onboarding_notifications_open_settings">Avaa ilmoitusasetukset</string>
     <string name="onboarding_notifications_rationale">Ilman ilmoituksia et tiedä, kun joku mainitsee sinut chatissa sovelluksen ollessa taustalla.</string>
     <string name="onboarding_history_title">Viestihistoria</string>
-    <string name="onboarding_history_body">DankChat lataa historiallisia viestejä kolmannen osapuolen palvelusta käynnistyksen yhteydessä.\nViestien hakemiseksi DankChat lähettää avattujen kanavien nimet tälle palvelulle.\nPalvelu tallentaa tilapäisesti vierailtujen kanavien viestejä.\n\nVoit muuttaa tätä myöhemmin asetuksista tai lukea lisää osoitteessa https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat lataa historiallisia viestejä kolmannen osapuolen palvelusta käynnistyksen yhteydessä. Viestien hakemiseksi DankChat lähettää avattujen kanavien nimet tälle palvelulle. Palvelu tallentaa tilapäisesti vierailtujen kanavien viestejä.\n\nVoit muuttaa tätä myöhemmin asetuksista tai lukea lisää osoitteessa https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Ota käyttöön</string>
     <string name="onboarding_history_disable">Poista käytöstä</string>
     <string name="onboarding_continue">Jatka</string>

@@ -618,12 +618,13 @@
     <string name="onboarding_get_started">Бастау</string>
     <string name="onboarding_login_title">Twitch арқылы кіру</string>
     <string name="onboarding_login_body">Хабарлар жіберу, эмоцияларды пайдалану, сыбырлар алу және барлық мүмкіндіктерді ашу үшін жүйеге кіріңіз.</string>
+    <string name="onboarding_login_disclaimer">Сізден бірнеше Twitch рұқсаттарын бірден беру сұралады, сондықтан әртүрлі мүмкіндіктерді пайдаланғанда қайта рұқсат берудің қажеті болмайды. DankChat модерация мен трансляция әрекеттерін тек сіз сұраған кезде ғана орындайды.</string>
     <string name="onboarding_login_button">Twitch арқылы кіру</string>
     <string name="onboarding_login_success">Кіру сәтті аяқталды</string>
     <string name="onboarding_skip">Өткізіп жіберу</string>
     <string name="onboarding_continue">Жалғастыру</string>
     <string name="onboarding_history_title">Хабар тарихы</string>
-    <string name="onboarding_history_body">DankChat іске қосылған кезде үшінші тарап қызметінен тарихи хабарларды жүктейді.\nХабарларды алу үшін DankChat сол қызметке ашылған арналардың атауларын жібереді.\nҚызмет көрсету үшін сіз (және басқалар) баратын арналар үшін хабарларды уақытша сақтайды.\n\nБұны кейінірек параметрлерден өзгертуге немесе https://recent-messages.robotty.de/ сайтында толығырақ білуге болады</string>
+    <string name="onboarding_history_body">DankChat іске қосылған кезде үшінші тарап қызметінен тарихи хабарларды жүктейді. Хабарларды алу үшін DankChat сол қызметке ашылған арналардың атауларын жібереді. Қызмет көрсету үшін сіз (және басқалар) баратын арналар үшін хабарларды уақытша сақтайды.\n\nБұны кейінірек параметрлерден өзгертуге немесе https://recent-messages.robotty.de/ сайтында толығырақ білуге болады</string>
     <string name="onboarding_history_enable">Қосу</string>
     <string name="onboarding_history_disable">Өшіру</string>
     <string name="onboarding_notifications_title">Хабарландырулар</string>

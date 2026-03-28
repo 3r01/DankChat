@@ -621,6 +621,7 @@
     <string name="onboarding_welcome_body">Configuriamo tutto.</string>
     <string name="onboarding_login_title">Accedi con Twitch</string>
     <string name="onboarding_login_body">Accedi per inviare messaggi, usare le tue emote, ricevere sussurri e sbloccare tutte le funzionalità.</string>
+    <string name="onboarding_login_disclaimer">Ti verrà chiesto di concedere diversi permessi Twitch tutti insieme, così non dovrai autorizzare di nuovo quando usi funzionalità diverse. DankChat esegue azioni di moderazione e stream solo quando glielo chiedi.</string>
     <string name="onboarding_login_button">Accedi con Twitch</string>
     <string name="onboarding_login_success">Accesso riuscito</string>
     <string name="onboarding_notifications_title">Notifiche</string>
@@ -629,7 +630,7 @@
     <string name="onboarding_notifications_open_settings">Apri impostazioni notifiche</string>
     <string name="onboarding_notifications_rationale">Senza notifiche, non saprai quando qualcuno ti menziona in chat mentre l\'app è in background.</string>
     <string name="onboarding_history_title">Cronologia messaggi</string>
-    <string name="onboarding_history_body">DankChat carica messaggi storici da un servizio di terze parti all\'avvio.\nPer ottenere i messaggi, DankChat invia i nomi dei canali aperti a questo servizio.\nIl servizio memorizza temporaneamente i messaggi dei canali visitati.\n\nPuoi cambiare questa impostazione nelle impostazioni o saperne di più su https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat carica messaggi storici da un servizio di terze parti all\'avvio. Per ottenere i messaggi, DankChat invia i nomi dei canali aperti a questo servizio. Il servizio memorizza temporaneamente i messaggi dei canali visitati.\n\nPuoi cambiare questa impostazione nelle impostazioni o saperne di più su https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Attiva</string>
     <string name="onboarding_history_disable">Disattiva</string>
     <string name="onboarding_continue">Continua</string>

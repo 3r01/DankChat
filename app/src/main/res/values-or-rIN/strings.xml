@@ -618,12 +618,13 @@
     <string name="onboarding_get_started">ଆରମ୍ଭ କରନ୍ତୁ</string>
     <string name="onboarding_login_title">Twitch ସହ ଲଗଇନ୍ କରନ୍ତୁ</string>
     <string name="onboarding_login_body">ବାର୍ତ୍ତା ପଠାଇବାକୁ, ଆପଣଙ୍କ ଇମୋଟ୍ ବ୍ୟବହାର କରିବାକୁ, ଫୁସ୍ଫୁସ୍ ଗ୍ରହଣ କରିବାକୁ ଏବଂ ସମସ୍ତ ବୈଶିଷ୍ଟ୍ୟ ଅନଲକ୍ କରିବାକୁ ଲଗ ଇନ କରନ୍ତୁ।</string>
+    <string name="onboarding_login_disclaimer">ଆପଣଙ୍କୁ ଏକାସାଥରେ ଅନେକ Twitch ଅନୁମତି ପ୍ରଦାନ କରିବାକୁ କୁହାଯିବ, ଯାହାଫଳରେ ବିଭିନ୍ନ ବୈଶିଷ୍ଟ୍ୟ ବ୍ୟବହାର କରିବାବେଳେ ଆପଣଙ୍କୁ ପୁନଃ ଅନୁମୋଦନ କରିବାକୁ ପଡ଼ିବ ନାହିଁ। DankChat କେବଳ ଆପଣ କହିଲେ ମଡରେସନ୍ ଏବଂ ଷ୍ଟ୍ରିମ୍ କାର୍ଯ୍ୟ କରିଥାଏ।</string>
     <string name="onboarding_login_button">Twitch ସହ ଲଗଇନ୍ କରନ୍ତୁ</string>
     <string name="onboarding_login_success">ଲଗଇନ୍ ସଫଳ</string>
     <string name="onboarding_skip">ଛାଡି ଦିଅନ୍ତୁ</string>
     <string name="onboarding_continue">ଜାରି ରଖନ୍ତୁ</string>
     <string name="onboarding_history_title">ବାର୍ତ୍ତା ଇତିହାସ</string>
-    <string name="onboarding_history_body">DankChat ଆରମ୍ଭରେ ତୃତୀୟ-ପକ୍ଷ ସେବାରୁ ଐତିହାସିକ ବାର୍ତ୍ତା ଲୋଡ୍ କରେ।\nବାର୍ତ୍ତା ପାଇବାକୁ, DankChat ଆପଣ ସେହି ସେବାରେ ଖୋଲିଥିବା ଚ୍ୟାନେଲଗୁଡ଼ିକର ନାମ ପଠାଏ।\nସେବା ସାମୟିକ ଭାବରେ ସେବା ପ୍ରଦାନ ପାଇଁ ଆପଣ (ଏବଂ ଅନ୍ୟମାନେ) ପରିଦର୍ଶନ କରୁଥିବା ଚ୍ୟାନେଲଗୁଡ଼ିକର ବାର୍ତ୍ତା ସଂରକ୍ଷଣ କରେ।\n\nଆପଣ ଏହାକୁ ପରବର୍ତ୍ତୀ ସମୟରେ ସେଟିଂସରେ ବଦଳାଇ ପାରିବେ କିମ୍ବା https://recent-messages.robotty.de/ ରେ ଅଧିକ ଜାଣିପାରିବେ</string>
+    <string name="onboarding_history_body">DankChat ଆରମ୍ଭରେ ତୃତୀୟ-ପକ୍ଷ ସେବାରୁ ଐତିହାସିକ ବାର୍ତ୍ତା ଲୋଡ୍ କରେ। ବାର୍ତ୍ତା ପାଇବାକୁ, DankChat ଆପଣ ସେହି ସେବାରେ ଖୋଲିଥିବା ଚ୍ୟାନେଲଗୁଡ଼ିକର ନାମ ପଠାଏ। ସେବା ସାମୟିକ ଭାବରେ ସେବା ପ୍ରଦାନ ପାଇଁ ଆପଣ (ଏବଂ ଅନ୍ୟମାନେ) ପରିଦର୍ଶନ କରୁଥିବା ଚ୍ୟାନେଲଗୁଡ଼ିକର ବାର୍ତ୍ତା ସଂରକ୍ଷଣ କରେ।\n\nଆପଣ ଏହାକୁ ପରବର୍ତ୍ତୀ ସମୟରେ ସେଟିଂସରେ ବଦଳାଇ ପାରିବେ କିମ୍ବା https://recent-messages.robotty.de/ ରେ ଅଧିକ ଜାଣିପାରିବେ</string>
     <string name="onboarding_history_enable">ସକ୍ଷମ କରନ୍ତୁ</string>
     <string name="onboarding_history_disable">ଅକ୍ଷମ କରନ୍ତୁ</string>
     <string name="onboarding_notifications_title">ଵିଜ୍ଞପ୍ତି</string>

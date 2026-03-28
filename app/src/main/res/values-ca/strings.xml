@@ -660,6 +660,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="onboarding_welcome_body">Configurem-ho tot.</string>
     <string name="onboarding_login_title">Inicia sessió amb Twitch</string>
     <string name="onboarding_login_body">Inicia sessió per enviar missatges, fer servir els teus emotes, rebre xiuxiueigs i desbloquejar totes les funcions.</string>
+    <string name="onboarding_login_disclaimer">Se t\'demanarà que concedeixis diversos permisos de Twitch alhora perquè no hagis de tornar a autoritzar quan facis servir funcions diferents. DankChat només realitza accions de moderació i gestió de transmissions quan tu ho demanes.</string>
     <string name="onboarding_login_button">Inicia sessió amb Twitch</string>
     <string name="onboarding_login_success">Inici de sessió correcte</string>
     <string name="onboarding_notifications_title">Notificacions</string>
@@ -668,7 +669,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="onboarding_notifications_open_settings">Obre la configuració de notificacions</string>
     <string name="onboarding_notifications_rationale">Sense notificacions, no sabràs quan algú et menciona al xat mentre l\'aplicació és en segon pla.</string>
     <string name="onboarding_history_title">Historial de missatges</string>
-    <string name="onboarding_history_body">DankChat carrega missatges històrics d\'un servei de tercers en iniciar.\nPer obtenir els missatges, DankChat envia els noms dels canals oberts a aquest servei.\nEl servei emmagatzema temporalment els missatges dels canals visitats.\n\nPots canviar això més tard a la configuració o saber-ne més a https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat carrega missatges històrics d\'un servei de tercers en iniciar. Per obtenir els missatges, DankChat envia els noms dels canals oberts a aquest servei. El servei emmagatzema temporalment els missatges dels canals visitats.\n\nPots canviar això més tard a la configuració o saber-ne més a https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Activa</string>
     <string name="onboarding_history_disable">Desactiva</string>
     <string name="onboarding_continue">Continua</string>

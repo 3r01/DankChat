@@ -25,12 +25,13 @@ class OnboardingDataStore(
     // If so, they've used the app before and should skip onboarding.
     private val existingUserMigration = object : DataMigration<OnboardingSettings> {
         override suspend fun shouldMigrate(currentData: OnboardingSettings): Boolean {
-            return !currentData.hasCompletedOnboarding && dankChatPreferenceStore.hasMessageHistoryAcknowledged
+            return !currentData.hasRunExistingUserMigration && dankChatPreferenceStore.hasMessageHistoryAcknowledged
         }
 
         override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings {
             return currentData.copy(
                 hasCompletedOnboarding = true,
+                hasRunExistingUserMigration = true,
                 hasShownAddChannelHint = true,
                 hasShownToolbarHint = true,
             )

@@ -654,6 +654,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="onboarding_welcome_body">Vamos a configurar todo.</string>
     <string name="onboarding_login_title">Iniciar sesión con Twitch</string>
     <string name="onboarding_login_body">Inicia sesión para enviar mensajes, usar tus emotes, recibir susurros y desbloquear todas las funciones.</string>
+    <string name="onboarding_login_disclaimer">Se te pedirá que concedas varios permisos de Twitch a la vez para que no tengas que volver a autorizar cuando uses distintas funciones. DankChat solo realiza acciones de moderación y de stream cuando tú se lo pides.</string>
     <string name="onboarding_login_button">Iniciar sesión con Twitch</string>
     <string name="onboarding_login_success">Inicio de sesión exitoso</string>
     <string name="onboarding_notifications_title">Notificaciones</string>
@@ -662,7 +663,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="onboarding_notifications_open_settings">Abrir ajustes de notificaciones</string>
     <string name="onboarding_notifications_rationale">Sin notificaciones, no sabrás cuando alguien te menciona en el chat mientras la app está en segundo plano.</string>
     <string name="onboarding_history_title">Historial de mensajes</string>
-    <string name="onboarding_history_body">DankChat carga mensajes históricos de un servicio externo al iniciar.\nPara obtener los mensajes, DankChat envía los nombres de los canales abiertos a ese servicio.\nEl servicio almacena temporalmente los mensajes de los canales visitados.\n\nPuedes cambiar esto más tarde en los ajustes o saber más en https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat carga mensajes históricos de un servicio externo al iniciar. Para obtener los mensajes, DankChat envía los nombres de los canales abiertos a ese servicio. El servicio almacena temporalmente los mensajes de los canales visitados.\n\nPuedes cambiar esto más tarde en los ajustes o saber más en https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Activar</string>
     <string name="onboarding_history_disable">Desactivar</string>
     <string name="onboarding_continue">Continuar</string>

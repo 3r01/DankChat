@@ -643,6 +643,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="onboarding_welcome_body">Hadi her şeyi ayarlayalım.</string>
     <string name="onboarding_login_title">Twitch ile giriş yap</string>
     <string name="onboarding_login_body">Mesaj göndermek, emote\'larınızı kullanmak, fısıltı almak ve tüm özelliklerin kilidini açmak için giriş yapın.</string>
+    <string name="onboarding_login_disclaimer">Farklı özellikleri kullanırken tekrar yetkilendirme yapmanız gerekmemesi için birkaç Twitch izni tek seferde istenecektir. DankChat moderasyon ve yayın işlemlerini yalnızca siz istediğinizde gerçekleştirir.</string>
     <string name="onboarding_login_button">Twitch ile giriş yap</string>
     <string name="onboarding_login_success">Giriş başarılı</string>
     <string name="onboarding_notifications_title">Bildirimler</string>
@@ -651,7 +652,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="onboarding_notifications_open_settings">Bildirim ayarlarını aç</string>
     <string name="onboarding_notifications_rationale">Bildirimler olmadan, uygulama arka planda çalışırken sohbette biri sizden bahsettiğinde haberiniz olmaz.</string>
     <string name="onboarding_history_title">Mesaj Geçmişi</string>
-    <string name="onboarding_history_body">DankChat başlangıçta üçüncü taraf bir hizmetten geçmiş mesajları yükler.\nMesajları almak için DankChat, açık kanalların adlarını bu hizmete gönderir.\nHizmet, ziyaret edilen kanalların mesajlarını geçici olarak depolar.\n\nBunu daha sonra ayarlardan değiştirebilir veya https://recent-messages.robotty.de/ adresinden daha fazla bilgi edinebilirsiniz.</string>
+    <string name="onboarding_history_body">DankChat başlangıçta üçüncü taraf bir hizmetten geçmiş mesajları yükler. Mesajları almak için DankChat, açık kanalların adlarını bu hizmete gönderir. Hizmet, ziyaret edilen kanalların mesajlarını geçici olarak depolar.\n\nBunu daha sonra ayarlardan değiştirebilir veya https://recent-messages.robotty.de/ adresinden daha fazla bilgi edinebilirsiniz.</string>
     <string name="onboarding_history_enable">Etkinleştir</string>
     <string name="onboarding_history_disable">Devre dışı bırak</string>
     <string name="onboarding_continue">Devam et</string>

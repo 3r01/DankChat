@@ -448,6 +448,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="onboarding_welcome_body">Let\'s get you set up.</string>
     <string name="onboarding_login_title">Login with Twitch</string>
     <string name="onboarding_login_body">Log in to send messages, use your emotes, receive whispers, and unlock all features.</string>
+    <string name="onboarding_login_disclaimer">You will be asked to grant several Twitch permissions at once so you won\'t need to re-authorize when using different features. DankChat only performs moderation and stream actions when you ask it to.</string>
     <string name="onboarding_login_button">Login with Twitch</string>
     <string name="onboarding_login_success">Login successful</string>
     <string name="onboarding_notifications_title">Notifications</string>
@@ -456,7 +457,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="onboarding_notifications_open_settings">Open Notification Settings</string>
     <string name="onboarding_notifications_rationale">Without notifications, you won\'t know when someone mentions you in chat while the app is in the background.</string>
     <string name="onboarding_history_title">Message History</string>
-    <string name="onboarding_history_body">DankChat loads historical messages from a third-party service on startup.\nTo get the messages, DankChat sends the names of the channels you have open to that service.\nThe service temporarily stores messages for channels you (and others) visit to provide the service.\n\nYou can change this later in the settings or learn more at https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat loads historical messages from a third-party service on startup. To get the messages, DankChat sends the names of the channels you have open to that service. The service temporarily stores messages for channels you (and others) visit to provide the service.\n\nYou can change this later in the settings or learn more at https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Enable</string>
     <string name="onboarding_history_disable">Disable</string>
     <string name="onboarding_continue">Continue</string>

@@ -638,6 +638,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="onboarding_welcome_body">Configurons tout ensemble.</string>
     <string name="onboarding_login_title">Connexion avec Twitch</string>
     <string name="onboarding_login_body">Connectez-vous pour envoyer des messages, utiliser vos emotes, recevoir des chuchotements et débloquer toutes les fonctionnalités.</string>
+    <string name="onboarding_login_disclaimer">Il vous sera demandé d\'accorder plusieurs autorisations Twitch en une seule fois afin que vous n\'ayez pas à réautoriser lorsque vous utilisez différentes fonctionnalités. DankChat n\'effectue des actions de modération et de stream que lorsque vous le lui demandez.</string>
     <string name="onboarding_login_button">Connexion avec Twitch</string>
     <string name="onboarding_login_success">Connexion réussie</string>
     <string name="onboarding_notifications_title">Notifications</string>
@@ -646,7 +647,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="onboarding_notifications_open_settings">Ouvrir les paramètres de notification</string>
     <string name="onboarding_notifications_rationale">Sans notifications, vous ne saurez pas quand quelqu\'un vous mentionne dans le chat alors que l\'application est en arrière-plan.</string>
     <string name="onboarding_history_title">Historique des messages</string>
-    <string name="onboarding_history_body">DankChat charge l\'historique des messages depuis un service tiers au démarrage.\nPour obtenir les messages, DankChat envoie les noms des chaînes ouvertes à ce service.\nLe service stocke temporairement les messages des chaînes visitées.\n\nVous pouvez changer cela plus tard dans les paramètres ou en savoir plus sur https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat charge l\'historique des messages depuis un service tiers au démarrage. Pour obtenir les messages, DankChat envoie les noms des chaînes ouvertes à ce service. Le service stocke temporairement les messages des chaînes visitées.\n\nVous pouvez changer cela plus tard dans les paramètres ou en savoir plus sur https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Activer</string>
     <string name="onboarding_history_disable">Désactiver</string>
     <string name="onboarding_continue">Continuer</string>

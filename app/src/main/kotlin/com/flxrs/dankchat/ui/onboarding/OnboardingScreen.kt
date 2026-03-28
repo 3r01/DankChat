@@ -225,7 +225,16 @@ private fun LoginPage(
             )
         },
         title = stringResource(R.string.onboarding_login_title),
-        body = { OnboardingBody(stringResource(R.string.onboarding_login_body)) },
+        body = {
+            OnboardingBody(stringResource(R.string.onboarding_login_body))
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = stringResource(R.string.onboarding_login_disclaimer),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
         modifier = modifier,
     ) {
         AnimatedContent(
@@ -308,7 +317,7 @@ private fun MessageHistoryPage(
             }
             Text(
                 text = annotatedBody,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

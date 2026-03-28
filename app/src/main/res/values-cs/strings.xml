@@ -646,6 +646,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="onboarding_welcome_body">Pojďme vše nastavit.</string>
     <string name="onboarding_login_title">Přihlásit se přes Twitch</string>
     <string name="onboarding_login_body">Přihlaste se pro odesílání zpráv, používání emotikonů, příjem šepotů a odemknutí všech funkcí.</string>
+    <string name="onboarding_login_disclaimer">Budete požádáni o udělení několika oprávnění pro Twitch najednou, abyste nemuseli znovu autorizovat při používání různých funkcí. DankChat provádí moderátorské akce a akce správy vysílání pouze tehdy, když o to sami požádáte.</string>
     <string name="onboarding_login_button">Přihlásit se přes Twitch</string>
     <string name="onboarding_login_success">Přihlášení úspěšné</string>
     <string name="onboarding_notifications_title">Oznámení</string>
@@ -654,7 +655,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="onboarding_notifications_open_settings">Otevřít nastavení oznámení</string>
     <string name="onboarding_notifications_rationale">Bez oznámení se nedozvíte, když vás někdo zmíní v chatu, zatímco aplikace běží na pozadí.</string>
     <string name="onboarding_history_title">Historie zpráv</string>
-    <string name="onboarding_history_body">DankChat načítá historické zprávy ze služby třetí strany při spuštění.\nPro získání zpráv DankChat odesílá názvy otevřených kanálů této službě.\nSlužba dočasně ukládá zprávy navštívených kanálů.\n\nToto můžete později změnit v nastavení nebo se dozvědět více na https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat načítá historické zprávy ze služby třetí strany při spuštění. Pro získání zpráv DankChat odesílá názvy otevřených kanálů této službě. Služba dočasně ukládá zprávy navštívených kanálů.\n\nToto můžete později změnit v nastavení nebo se dozvědět více na https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Povolit</string>
     <string name="onboarding_history_disable">Zakázat</string>
     <string name="onboarding_continue">Pokračovat</string>

@@ -644,6 +644,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="onboarding_welcome_body">Lass uns loslegen.</string>
     <string name="onboarding_login_title">Mit Twitch anmelden</string>
     <string name="onboarding_login_body">Melde dich an, um Nachrichten zu senden, deine Emotes zu nutzen, Flüsternachrichten zu empfangen und alle Funktionen freizuschalten.</string>
+    <string name="onboarding_login_disclaimer">Du wirst gebeten, mehrere Twitch-Berechtigungen auf einmal zu erteilen, damit du bei der Nutzung verschiedener Funktionen nicht erneut autorisieren musst. DankChat führt Moderations- und Stream-Aktionen nur aus, wenn du es verlangst.</string>
     <string name="onboarding_login_button">Mit Twitch anmelden</string>
     <string name="onboarding_login_success">Anmeldung erfolgreich</string>
     <string name="onboarding_notifications_title">Benachrichtigungen</string>
@@ -652,7 +653,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="onboarding_notifications_open_settings">Benachrichtigungseinstellungen öffnen</string>
     <string name="onboarding_notifications_rationale">Ohne Benachrichtigungen erfährst du nicht, wenn dich jemand im Chat erwähnt, während die App im Hintergrund ist.</string>
     <string name="onboarding_history_title">Nachrichtenverlauf</string>
-    <string name="onboarding_history_body">DankChat lädt beim Start historische Nachrichten von einem Drittanbieter-Dienst.\nUm die Nachrichten abzurufen, sendet DankChat die Namen der geöffneten Kanäle an diesen Dienst.\nDer Dienst speichert Nachrichten für besuchte Kanäle vorübergehend.\n\nDu kannst dies später in den Einstellungen ändern oder mehr erfahren unter https://recent-messages.robotty.de/</string>
+    <string name="onboarding_history_body">DankChat lädt beim Start historische Nachrichten von einem Drittanbieter-Dienst. Um die Nachrichten abzurufen, sendet DankChat die Namen der geöffneten Kanäle an diesen Dienst. Der Dienst speichert Nachrichten für besuchte Kanäle vorübergehend.\n\nDu kannst dies später in den Einstellungen ändern oder mehr erfahren unter https://recent-messages.robotty.de/</string>
     <string name="onboarding_history_enable">Aktivieren</string>
     <string name="onboarding_history_disable">Deaktivieren</string>
     <string name="onboarding_continue">Weiter</string>

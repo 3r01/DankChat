@@ -602,6 +602,7 @@
     <string name="onboarding_welcome_body">セットアップを始めましょう。</string>
     <string name="onboarding_login_title">Twitchでログイン</string>
     <string name="onboarding_login_body">ログインして、メッセージの送信、エモートの使用、ウィスパーの受信、すべての機能をお楽しみください。</string>
+    <string name="onboarding_login_disclaimer">複数のTwitch権限をまとめて許可するよう求められます。これにより、異なる機能を使うたびに再認証する必要がなくなります。DankChatがモデレーションや配信の操作を行うのは、あなたが指示したときだけです。</string>
     <string name="onboarding_login_button">Twitchでログイン</string>
     <string name="onboarding_login_success">ログイン成功</string>
     <string name="onboarding_notifications_title">通知</string>
@@ -610,7 +611,7 @@
     <string name="onboarding_notifications_open_settings">通知設定を開く</string>
     <string name="onboarding_notifications_rationale">通知がないと、アプリがバックグラウンドにある時にチャットで誰かがあなたをメンションしても気づけません。</string>
     <string name="onboarding_history_title">メッセージ履歴</string>
-    <string name="onboarding_history_body">DankChatは起動時にサードパーティサービスから過去のメッセージを読み込みます。\nメッセージを取得するために、DankChatは開いているチャンネル名をそのサービスに送信します。\nサービスは訪問されたチャンネルのメッセージを一時的に保存します。\n\nこれは後で設定から変更できます。詳細は https://recent-messages.robotty.de/ をご覧ください。</string>
+    <string name="onboarding_history_body">DankChatは起動時にサードパーティサービスから過去のメッセージを読み込みます。 メッセージを取得するために、DankChatは開いているチャンネル名をそのサービスに送信します。 サービスは訪問されたチャンネルのメッセージを一時的に保存します。\n\nこれは後で設定から変更できます。詳細は https://recent-messages.robotty.de/ をご覧ください。</string>
     <string name="onboarding_history_enable">有効にする</string>
     <string name="onboarding_history_disable">無効にする</string>
     <string name="onboarding_continue">続ける</string>

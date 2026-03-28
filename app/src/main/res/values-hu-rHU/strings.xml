@@ -622,6 +622,7 @@
     <string name="onboarding_welcome_body">Állítsunk be mindent.</string>
     <string name="onboarding_login_title">Bejelentkezés Twitch-csel</string>
     <string name="onboarding_login_body">Jelentkezz be üzenetek küldéséhez, emoték használatához, suttogások fogadásához és az összes funkció feloldásához.</string>
+    <string name="onboarding_login_disclaimer">Több Twitch-engedély megadására lesz szükség egyszerre, így nem kell újra engedélyezned a különböző funkciók használatakor. A DankChat csak akkor végez moderálási és közvetítési műveleteket, amikor te kéred.</string>
     <string name="onboarding_login_button">Bejelentkezés Twitch-csel</string>
     <string name="onboarding_login_success">Sikeres bejelentkezés</string>
     <string name="onboarding_notifications_title">Értesítések</string>
@@ -630,7 +631,7 @@
     <string name="onboarding_notifications_open_settings">Értesítési beállítások megnyitása</string>
     <string name="onboarding_notifications_rationale">Értesítések nélkül nem fogod tudni, ha valaki megemlít a chatben, miközben az alkalmazás a háttérben fut.</string>
     <string name="onboarding_history_title">Üzenetelőzmények</string>
-    <string name="onboarding_history_body">A DankChat induláskor betölti a korábbi üzeneteket egy harmadik féltől származó szolgáltatásból.\nAz üzenetek lekéréséhez a DankChat elküldi a megnyitott csatornák neveit ennek a szolgáltatásnak.\nA szolgáltatás ideiglenesen tárolja a meglátogatott csatornák üzeneteit.\n\nEzt később módosíthatod a beállításokban, vagy többet tudhatsz meg a https://recent-messages.robotty.de/ oldalon.</string>
+    <string name="onboarding_history_body">A DankChat induláskor betölti a korábbi üzeneteket egy harmadik féltől származó szolgáltatásból. Az üzenetek lekéréséhez a DankChat elküldi a megnyitott csatornák neveit ennek a szolgáltatásnak. A szolgáltatás ideiglenesen tárolja a meglátogatott csatornák üzeneteit.\n\nEzt később módosíthatod a beállításokban, vagy többet tudhatsz meg a https://recent-messages.robotty.de/ oldalon.</string>
     <string name="onboarding_history_enable">Engedélyezés</string>
     <string name="onboarding_history_disable">Letiltás</string>
     <string name="onboarding_continue">Tovább</string>
