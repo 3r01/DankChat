@@ -95,12 +95,12 @@ class ChatConnector(
     }
 
     fun partChannel(channel: UserName) {
-        readConnection.partChannel(channel)
+        scope.launch { readConnection.partChannel(channel) }
         pubSubManager.removeChannel(channel)
         eventSubManager.removeChannel(channel)
     }
 
-    fun sendRaw(message: String) {
+    suspend fun sendRaw(message: String) {
         writeConnection.sendMessage(message)
     }
 

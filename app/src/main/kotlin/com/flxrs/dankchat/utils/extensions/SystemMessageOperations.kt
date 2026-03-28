@@ -13,15 +13,19 @@ fun List<ChatItem>.addSystemMessage(type: SystemMessageType, scrollBackLength: I
 }
 
 private fun List<ChatItem>.replaceLastSystemMessageIfNecessary(scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, onReconnect: () -> Unit): List<ChatItem> {
-    val item = lastOrNull()
-    val message = item?.message
-    return when ((message as? SystemMessage)?.type) {
-        SystemMessageType.Disconnected          -> {
-            onReconnect()
-            dropLast(1) + item.copy(message = SystemMessage(SystemMessageType.Reconnected))
+    // Scan backwards for a Disconnected message that may be separated from Connected by debug messages
+    val disconnectedIdx = indexOfLast { (it.message as? SystemMessage)?.type == SystemMessageType.Disconnected }
+    if (disconnectedIdx >= 0) {
+        onReconnect()
+        return toMutableList().apply {
+            this[disconnectedIdx] = this[disconnectedIdx].copy(message = SystemMessage(SystemMessageType.Reconnected))
         }
-
-        is SystemMessageType.ChannelNonExistent -> dropLast(1) + SystemMessageType.Connected.toChatItem()
-        else                                    -> addAndLimit(SystemMessageType.Connected.toChatItem(), scrollBackLength, onMessageRemoved)
     }
+
+    val lastType = (lastOrNull()?.message as? SystemMessage)?.type
+    if (lastType is SystemMessageType.ChannelNonExistent) {
+        return dropLast(1) + SystemMessageType.Connected.toChatItem()
+    }
+
+    return addAndLimit(SystemMessageType.Connected.toChatItem(), scrollBackLength, onMessageRemoved)
 }

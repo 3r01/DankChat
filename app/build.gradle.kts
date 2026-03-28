@@ -53,6 +53,10 @@ android {
         }
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
@@ -205,6 +209,7 @@ dependencies {
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.logging)
     implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.websockets)
     implementation(libs.ktor.serialization.kotlinx.json)
 
 // Other
@@ -221,6 +226,17 @@ dependencies {
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
+    testImplementation(libs.ktor.client.okhttp)
+    testImplementation(libs.ktor.client.websockets)
+    testImplementation(libs.okhttp.mockwebserver)
+}
+
+junitPlatform {
+    filters {
+        if (!project.hasProperty("includeIntegration")) {
+            excludeTags("integration")
+        }
+    }
 }
 
 fun gradleLocalProperties(projectRootDir: File, providers: ProviderFactory): Properties {

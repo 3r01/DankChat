@@ -1,15 +1,18 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
+import android.util.Log
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.di.WebSocketOkHttpClient
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -23,8 +26,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
 @Single
@@ -33,11 +34,15 @@ class PubSubManager(
     private val chatChannelProvider: ChatChannelProvider,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val authDataStore: AuthDataStore,
-    @Named(type = WebSocketOkHttpClient::class) private val client: OkHttpClient,
+    private val startupValidationHolder: StartupValidationHolder,
+    httpClient: HttpClient,
     private val json: Json,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
+    private val client = httpClient.config {
+        install(WebSockets)
+    }
     private val connections = mutableListOf<PubSubConnection>()
     private val collectJobs = mutableListOf<Job>()
     private val receiveChannel = CoroutineChannel<PubSubMessage>(capacity = CoroutineChannel.BUFFERED)
@@ -51,6 +56,7 @@ class PubSubManager(
 
     init {
         scope.launch {
+            startupValidationHolder.awaitResolved()
             combine(
                 authDataStore.settings.map { it.isLoggedIn to it.userId }.distinctUntilChanged(),
                 chatChannelProvider.channels.filterNotNull(),
@@ -59,9 +65,13 @@ class PubSubManager(
                 Triple(if (isLoggedIn) userId else null, channels, shouldUsePubSub)
             }.collect { (userId, channels, shouldUsePubSub) ->
                 closeAll()
-                if (userId == null) return@collect
+                if (userId == null) {
+                    Log.d(TAG, "[PubSub] skipping connection, not logged in")
+                    return@collect
+                }
                 val resolved = channelRepository.getChannels(channels)
                 val topics = buildTopics(userId, resolved, shouldUsePubSub)
+                Log.i(TAG, "[PubSub] rebuilding connections for ${resolved.size} channels, ${topics.size} topics (pubsub=$shouldUsePubSub)")
                 listen(topics)
             }
         }
@@ -154,5 +164,9 @@ class PubSubManager(
                 else                   -> Unit
             }
         }
+    }
+
+    companion object {
+        private val TAG = PubSubManager::class.java.simpleName
     }
 }

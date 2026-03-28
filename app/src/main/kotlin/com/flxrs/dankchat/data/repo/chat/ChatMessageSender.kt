@@ -37,7 +37,7 @@ class ChatMessageSender(
         }
     }
 
-    private fun sendViaIrc(channel: UserName, message: String, replyId: String?) {
+    private suspend fun sendViaIrc(channel: UserName, message: String, replyId: String?) {
         val trimmedMessage = message.trimEnd()
         val replyIdOrBlank = replyId?.let { "@reply-parent-msg-id=$it " }.orEmpty()
         val currentLastMessage = chatEventProcessor.getLastMessage(channel).orEmpty()

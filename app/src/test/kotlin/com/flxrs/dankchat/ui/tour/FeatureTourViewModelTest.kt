@@ -1,6 +1,8 @@
 package com.flxrs.dankchat.ui.tour
 
 import app.cash.turbine.test
+import com.flxrs.dankchat.data.auth.StartupValidation
+import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingSettings
 import io.mockk.coEvery
@@ -45,7 +47,8 @@ internal class FeatureTourViewModelTest {
             settingsFlow.value = transform(settingsFlow.value)
         }
 
-        viewModel = FeatureTourViewModel(onboardingDataStore)
+        val startupValidationHolder = StartupValidationHolder().apply { update(StartupValidation.Validated) }
+        viewModel = FeatureTourViewModel(onboardingDataStore, startupValidationHolder)
     }
 
     @AfterEach
