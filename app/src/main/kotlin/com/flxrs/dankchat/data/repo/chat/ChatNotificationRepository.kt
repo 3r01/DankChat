@@ -55,6 +55,25 @@ class ChatNotificationRepository(
     val mentions: StateFlow<ImmutableList<ChatItem>> = _mentions
     val whispers: StateFlow<ImmutableList<ChatItem>> = _whispers
 
+    suspend fun reparseAll() {
+        _mentions.update { items ->
+            items.map {
+                it.copy(
+                    tag = it.tag + 1,
+                    message = messageProcessor.reparseEmotesAndBadges(it.message),
+                )
+            }.toImmutableList()
+        }
+        _whispers.update { items ->
+            items.map {
+                it.copy(
+                    tag = it.tag + 1,
+                    message = messageProcessor.reparseEmotesAndBadges(it.message),
+                )
+            }.toImmutableList()
+        }
+    }
+
     fun addMentions(items: List<ChatItem>) {
         if (items.isEmpty()) return
         _mentions.update { current ->

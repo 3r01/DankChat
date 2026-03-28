@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Single
 class ChatMessageRepository(
     private val messageProcessor: MessageProcessor,
+    private val chatNotificationRepository: ChatNotificationRepository,
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -137,6 +138,7 @@ class ChatMessageRepository(
                 }
             }
         }.awaitAll()
+        chatNotificationRepository.reparseAll()
     }
 
     fun addSystemMessage(channel: UserName, type: SystemMessageType) {
