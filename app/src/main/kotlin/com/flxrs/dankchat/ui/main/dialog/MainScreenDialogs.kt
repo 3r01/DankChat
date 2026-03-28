@@ -16,7 +16,6 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.StartupValidation
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
@@ -249,12 +248,10 @@ fun MainScreenDialogs(
             parameters = { parametersOf(params) }
         )
         val state by viewModel.userPopupState.collectAsStateWithLifecycle()
-        val preferenceStore: DankChatPreferenceStore = koinInject()
-        val isOwnUser = preferenceStore.userIdString == params.targetUserId
         UserPopupDialog(
             state = state,
             badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) },
-            isOwnUser = isOwnUser,
+            isOwnUser = viewModel.isOwnUser,
             onBlockUser = viewModel::blockUser,
             onUnblockUser = viewModel::unblockUser,
             onDismiss = dialogViewModel::dismissUserPopup,

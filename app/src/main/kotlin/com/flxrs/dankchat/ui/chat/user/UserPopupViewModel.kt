@@ -32,6 +32,7 @@ class UserPopupViewModel(
 
     private val _userPopupState = MutableStateFlow<UserPopupState>(UserPopupState.Loading(params.targetUserName, params.targetDisplayName))
     val userPopupState: StateFlow<UserPopupState> = _userPopupState.asStateFlow()
+    val isOwnUser: Boolean get() = preferenceStore.userIdString == params.targetUserId
 
     init {
         loadData()
