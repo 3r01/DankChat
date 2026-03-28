@@ -63,7 +63,7 @@ class AuthStateCoordinator(
                     when {
                         settings.isLoggedIn -> {
                             startupValidationHolder.update(StartupValidation.Validated)
-                            chatConnector.reconnect()
+                            chatConnector.closeAndReconnect(chatChannelProvider.channels.value.orEmpty())
                             channelDataCoordinator.reloadGlobalData()
                             settings.userName?.let { name ->
                                 _events.send(AuthEvent.LoggedIn(UserName(name)))
