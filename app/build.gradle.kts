@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.about.libraries.android)
     alias(libs.plugins.android.junit5)
-    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
 }
 
@@ -233,9 +233,22 @@ junitPlatform {
     }
 }
 
-ktfmt {
-    kotlinLangStyle()
-    maxWidth.set(250)
+spotless {
+    kotlin {
+        target("src/**/*.kt")
+        targetExclude("${layout.buildDirectory}/**/*.kt")
+        ktlint(libs.versions.ktlint.get())
+            .editorConfigOverride(mapOf(
+                "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+                "ktlint_standard_backing-property-naming" to "disabled",
+                "ktlint_standard_filename" to "disabled",
+                "ktlint_standard_property-naming" to "disabled",
+            ))
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint(libs.versions.ktlint.get())
+    }
 }
 
 detekt {

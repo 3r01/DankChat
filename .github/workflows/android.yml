@@ -44,8 +44,8 @@ jobs:
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: ktfmt check
-        run: bash ./gradlew :app:ktfmtCheck
+      - name: Spotless check
+        run: bash ./gradlew :app:spotlessCheck
 
       - name: Detekt
         run: bash ./gradlew :app:detekt

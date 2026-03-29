@@ -32,7 +32,7 @@ style:
   MagicNumber:
     active: false
   MaxLineLength:
-    maxLineLength: 250
+    maxLineLength: 200
     excludeCommentStatements: true
   ReturnCount:
     max: 8

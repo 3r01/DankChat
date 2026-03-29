@@ -4,7 +4,7 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 insert_final_newline = true
-max_line_length = 250
+max_line_length = 200
 tab_width = 4
 ij_continuation_indent_size = 8
 ij_formatter_off_tag = @formatter:off
@@ -40,7 +40,9 @@ ij_xml_text_wrap = normal
 ij_xml_use_custom_settings = true
 
 [{*.kt,*.kts,*.main.kts}]
-# ktfmt kotlinlang-style compatible settings
+# ktlint configuration
+ktlint_code_style = ktlint_official
+ktlint_function_naming_ignore_when_annotated_with = Composable
 ij_continuation_indent_size = 4
 ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 ij_kotlin_align_in_columns_case_branch = false
