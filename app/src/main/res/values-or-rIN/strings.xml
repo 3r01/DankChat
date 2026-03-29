@@ -655,4 +655,13 @@
     <string name="preference_eventsub_debug_summary">EventSub ସମ୍ବନ୍ଧୀୟ ଡିବଗ୍ ତଥ୍ୟ ସିଷ୍ଟମ ମେସେଜ୍ ଭାବରେ ଦେଖାଏ</string>
     <string name="preference_revoke_token_title">ଟୋକେନ୍ ବାତିଲ କରନ୍ତୁ ଏବଂ ପୁନଃଆରମ୍ଭ କରନ୍ତୁ</string>
     <string name="preference_revoke_token_summary">ବର୍ତ୍ତମାନର ଟୋକେନ୍ ଅବୈଧ କରି ଆପ୍ ପୁନଃଆରମ୍ଭ କରେ</string>
+    <string name="system_message_send_not_logged_in">ଲଗ୍ ଇନ୍ ହୋଇନାହାଁନ୍ତି</string>
+    <string name="system_message_send_channel_not_resolved">%1$s ପାଇଁ ଚ୍ୟାନେଲ ID ସମାଧାନ ହୋଇପାରିଲା ନାହିଁ</string>
+    <string name="system_message_send_not_delivered">ମେସେଜ୍ ପଠାଯାଇନାହିଁ</string>
+    <string name="system_message_send_dropped">ମେସେଜ୍ ବାଦ୍ ପଡ଼ିଲା: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">user:write:chat ଅନୁମତି ନାହିଁ, ଦୟାକରି ପୁନଃ ଲଗ୍ ଇନ୍ କରନ୍ତୁ</string>
+    <string name="system_message_send_not_authorized">ଏହି ଚ୍ୟାନେଲରେ ମେସେଜ୍ ପଠାଇବାକୁ ଅନୁମତି ନାହିଁ</string>
+    <string name="system_message_send_message_too_large">ମେସେଜ୍ ବହୁତ ବଡ଼</string>
+    <string name="system_message_send_rate_limited">ହାର ସୀମିତ, କିଛି ସମୟ ପରେ ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ</string>
+    <string name="system_message_send_failed">ପଠାଇବା ବିଫଳ: %1$s</string>
 </resources>

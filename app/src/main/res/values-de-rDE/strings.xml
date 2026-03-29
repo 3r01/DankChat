@@ -672,4 +672,13 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_eventsub_debug_summary">Gibt Debug-Informationen zu EventSub als Systemnachrichten aus</string>
     <string name="preference_revoke_token_title">Token widerrufen und neu starten</string>
     <string name="preference_revoke_token_summary">Macht den aktuellen Token ungültig und startet die App neu</string>
+    <string name="system_message_send_not_logged_in">Nicht angemeldet</string>
+    <string name="system_message_send_channel_not_resolved">Kanal-ID für %1$s konnte nicht aufgelöst werden</string>
+    <string name="system_message_send_not_delivered">Nachricht wurde nicht gesendet</string>
+    <string name="system_message_send_dropped">Nachricht verworfen: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Fehlende Berechtigung user:write:chat, bitte erneut anmelden</string>
+    <string name="system_message_send_not_authorized">Keine Berechtigung, Nachrichten in diesem Kanal zu senden</string>
+    <string name="system_message_send_message_too_large">Nachricht ist zu groß</string>
+    <string name="system_message_send_rate_limited">Ratenbegrenzung erreicht, versuche es gleich nochmal</string>
+    <string name="system_message_send_failed">Senden fehlgeschlagen: %1$s</string>
 </resources>

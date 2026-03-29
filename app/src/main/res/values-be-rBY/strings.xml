@@ -673,4 +673,13 @@
     <string name="preference_eventsub_debug_summary">Выводзіць адладачную інфармацыю пра EventSub як сістэмныя паведамленні</string>
     <string name="preference_revoke_token_title">Адклікаць токен і перазапусціць</string>
     <string name="preference_revoke_token_summary">Робіць бягучы токен несапраўдным і перазапускае праграму</string>
+    <string name="system_message_send_not_logged_in">Не ўвайшлі ў сістэму</string>
+    <string name="system_message_send_channel_not_resolved">Не ўдалося вызначыць ID канала для %1$s</string>
+    <string name="system_message_send_not_delivered">Паведамленне не было адпраўлена</string>
+    <string name="system_message_send_dropped">Паведамленне адхілена: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Адсутнічае дазвол user:write:chat, калі ласка, увайдзіце зноў</string>
+    <string name="system_message_send_not_authorized">Няма дазволу адпраўляць паведамленні ў гэтым канале</string>
+    <string name="system_message_send_message_too_large">Паведамленне занадта вялікае</string>
+    <string name="system_message_send_rate_limited">Перавышаны ліміт запытаў, паспрабуйце пазней</string>
+    <string name="system_message_send_failed">Памылка адпраўкі: %1$s</string>
 </resources>

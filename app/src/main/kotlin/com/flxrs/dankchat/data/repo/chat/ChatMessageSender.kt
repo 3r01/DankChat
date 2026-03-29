@@ -55,11 +55,11 @@ class ChatMessageSender(
     private suspend fun sendViaHelix(channel: UserName, message: String, replyId: String?) {
         val trimmedMessage = message.trimEnd()
         val senderId = authDataStore.userIdString ?: run {
-            postError(channel, "Not logged in.")
+            postError(channel, SystemMessageType.SendNotLoggedIn)
             return
         }
         val broadcasterId = channelRepository.getChannel(channel)?.id ?: run {
-            postError(channel, "Could not resolve channel ID for $channel.")
+            postError(channel, SystemMessageType.SendChannelNotResolved(channel))
             return
         }
 
@@ -79,23 +79,23 @@ class ChatMessageSender(
                     }
 
                     else            -> {
-                        val msg = when (val reason = response.dropReason) {
-                            null -> "Message was not sent."
-                            else -> "Message dropped: ${reason.message} (${reason.code})"
+                        val type = when (val reason = response.dropReason) {
+                            null -> SystemMessageType.SendNotDelivered
+                            else -> SystemMessageType.SendDropped(reason.message, reason.code)
                         }
-                        postError(channel, msg)
+                        postError(channel, type)
                     }
                 }
             },
             onFailure = { throwable ->
                 Log.e(TAG, "Helix send failed", throwable)
-                postError(channel, throwable.toSendErrorMessage())
+                postError(channel, throwable.toSendErrorType())
             },
         )
     }
 
-    private fun postError(channel: UserName, message: String) {
-        chatMessageRepository.addSystemMessage(channel, SystemMessageType.Custom(message))
+    private fun postError(channel: UserName, type: SystemMessageType) {
+        chatMessageRepository.addSystemMessage(channel, type)
         chatMessageRepository.incrementSendFailureCount()
     }
 
@@ -112,18 +112,17 @@ class ChatMessageSender(
         }
     }
 
-    private fun Throwable.toSendErrorMessage(): String = when (this) {
+    private fun Throwable.toSendErrorType(): SystemMessageType = when (this) {
         is HelixApiException -> when (error) {
-            HelixError.NotLoggedIn            -> "Not logged in."
-            HelixError.MissingScopes          -> "Missing user:write:chat scope. Please re-login."
-            HelixError.UserNotAuthorized      -> "Not authorized to send messages in this channel."
-            HelixError.MessageTooLarge        -> "Message is too large."
-            HelixError.ChatMessageRateLimited -> "Rate limited. Try again in a moment."
-            HelixError.Forwarded              -> message ?: "Unknown error."
-            else                              -> message ?: "Unknown error."
+            HelixError.NotLoggedIn            -> SystemMessageType.SendNotLoggedIn
+            HelixError.MissingScopes          -> SystemMessageType.SendMissingScopes
+            HelixError.UserNotAuthorized      -> SystemMessageType.SendNotAuthorized
+            HelixError.MessageTooLarge        -> SystemMessageType.SendMessageTooLarge
+            HelixError.ChatMessageRateLimited -> SystemMessageType.SendRateLimited
+            else                              -> SystemMessageType.SendFailed(message)
         }
 
-        else                 -> message ?: "Unknown error."
+        else                 -> SystemMessageType.SendFailed(message)
     }
 
     companion object {

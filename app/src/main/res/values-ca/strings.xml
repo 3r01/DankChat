@@ -699,4 +699,13 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_eventsub_debug_summary">Mostra la sortida de depuració relacionada amb EventSub com a missatges del sistema</string>
     <string name="preference_revoke_token_title">Revoca el token i reinicia</string>
     <string name="preference_revoke_token_summary">Invalida el token actual i reinicia l\'aplicació</string>
+    <string name="system_message_send_not_logged_in">No s\'ha iniciat sessió</string>
+    <string name="system_message_send_channel_not_resolved">No s\'ha pogut resoldre l\'ID del canal per a %1$s</string>
+    <string name="system_message_send_not_delivered">El missatge no s\'ha enviat</string>
+    <string name="system_message_send_dropped">Missatge descartat: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Falta el permís user:write:chat, torneu a iniciar sessió</string>
+    <string name="system_message_send_not_authorized">No teniu autorització per enviar missatges en aquest canal</string>
+    <string name="system_message_send_message_too_large">El missatge és massa gran</string>
+    <string name="system_message_send_rate_limited">Límit de freqüència superat, torneu-ho a provar d\'aquí a un moment</string>
+    <string name="system_message_send_failed">Error d\'enviament: %1$s</string>
 </resources>

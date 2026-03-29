@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.plusAssign
 
 @Single
 class ChatMessageRepository(
@@ -40,25 +42,25 @@ class ChatMessageRepository(
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
-    private val _sessionMessageCount = java.util.concurrent.atomic.AtomicInteger(0)
-    private val _ircSentCount = java.util.concurrent.atomic.AtomicInteger(0)
-    private val _helixSentCount = java.util.concurrent.atomic.AtomicInteger(0)
-    private val _sendFailureCount = java.util.concurrent.atomic.AtomicInteger(0)
+    private val _sessionMessageCount = AtomicInt(0)
+    private val _ircSentCount = AtomicInt(0)
+    private val _helixSentCount = AtomicInt(0)
+    private val _sendFailureCount = AtomicInt(0)
 
-    val sessionMessageCount: Int get() = _sessionMessageCount.get()
-    val ircSentCount: Int get() = _ircSentCount.get()
-    val helixSentCount: Int get() = _helixSentCount.get()
-    val sendFailureCount: Int get() = _sendFailureCount.get()
+    val sessionMessageCount: Int get() = _sessionMessageCount.load()
+    val ircSentCount: Int get() = _ircSentCount.load()
+    val helixSentCount: Int get() = _helixSentCount.load()
+    val sendFailureCount: Int get() = _sendFailureCount.load()
 
     fun incrementSentMessageCount(protocol: ChatSendProtocol) {
         when (protocol) {
-            ChatSendProtocol.IRC   -> _ircSentCount.incrementAndGet()
-            ChatSendProtocol.Helix -> _helixSentCount.incrementAndGet()
+            ChatSendProtocol.IRC -> _ircSentCount += 1
+            ChatSendProtocol.Helix -> _helixSentCount += 1
         }
     }
 
     fun incrementSendFailureCount() {
-        _sendFailureCount.incrementAndGet()
+        _sendFailureCount += 1
     }
 
     private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
@@ -82,7 +84,7 @@ class ChatMessageRepository(
         (channel?.let { messages[it] } ?: whispers).value.find { it.message.id == messageId }?.message
 
     fun addMessages(channel: UserName, items: List<ChatItem>) {
-        _sessionMessageCount.addAndGet(items.size)
+        _sessionMessageCount += items.size
         messages[channel]?.update { current ->
             current.addAndLimit(items = items, scrollBackLength, messageProcessor::onMessageRemoved)
         }
@@ -92,9 +94,10 @@ class ChatMessageRepository(
         messages[message.channel]?.update { current ->
             when (message.action) {
                 ModerationMessage.Action.Delete,
-                ModerationMessage.Action.SharedDelete -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
+                ModerationMessage.Action.SharedDelete,
+                    -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
 
-                else                                  -> current.replaceOrAddModerationMessage(message, scrollBackLength, messageProcessor::onMessageRemoved)
+                else -> current.replaceOrAddModerationMessage(message, scrollBackLength, messageProcessor::onMessageRemoved)
             }
         }
     }
@@ -119,7 +122,7 @@ class ChatMessageRepository(
                     msg is AutomodMessage && msg.heldMessageId == heldMessageId ->
                         item.copy(tag = item.tag + 1, message = msg.copy(status = status))
 
-                    else                                                        -> item
+                    else -> item
                 }
             }
         }

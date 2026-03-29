@@ -41,8 +41,6 @@ class ChatRepository(
         chatChannelProvider.channels.value?.forEach { createFlowsIfNecessary(it) }
     }
 
-    fun setActiveChannel(channel: UserName?) = chatChannelProvider.setActiveChannel(channel)
-
     fun joinChannel(channel: UserName): List<UserName> {
         val currentChannels = channels.value.orEmpty()
         if (channel in currentChannels) {
@@ -121,16 +119,12 @@ class ChatRepository(
     suspend fun loadRecentMessagesIfEnabled(channel: UserName) {
         when {
             chatSettingsDataStore.settings.first().loadMessageHistory -> chatEventProcessor.loadRecentMessages(channel)
-            else                                                      -> {
+            else -> {
                 chatMessageRepository.getMessagesFlow(channel)?.update { current ->
                     current + SystemMessageType.NoHistoryLoaded.toChatItem()
                 }
             }
         }
-    }
-
-    fun makeAndPostSystemMessage(type: SystemMessageType, channel: UserName) {
-        chatMessageRepository.addSystemMessage(channel, type)
     }
 
     fun makeAndPostCustomSystemMessage(msg: String, channel: UserName) {
@@ -149,5 +143,4 @@ class ChatRepository(
         emoteRepository.removeChannel(channel)
         messageProcessor.cleanupMessageThreadsInChannel(channel)
     }
-
 }

@@ -656,4 +656,13 @@
     <string name="preference_eventsub_debug_summary">將 EventSub 相關除錯資訊以系統訊息顯示</string>
     <string name="preference_revoke_token_title">撤銷權杖並重新啟動</string>
     <string name="preference_revoke_token_summary">使目前的權杖失效並重新啟動應用程式</string>
+    <string name="system_message_send_not_logged_in">未登入</string>
+    <string name="system_message_send_channel_not_resolved">無法解析 %1$s 的頻道 ID</string>
+    <string name="system_message_send_not_delivered">訊息未送出</string>
+    <string name="system_message_send_dropped">訊息被丟棄：%1$s（%2$s）</string>
+    <string name="system_message_send_missing_scopes">缺少 user:write:chat 權限，請重新登入</string>
+    <string name="system_message_send_not_authorized">無權在此頻道發送訊息</string>
+    <string name="system_message_send_message_too_large">訊息過長</string>
+    <string name="system_message_send_rate_limited">已被限速，請稍後再試</string>
+    <string name="system_message_send_failed">發送失敗：%1$s</string>
 </resources>

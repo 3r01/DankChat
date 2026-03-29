@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
+import kotlin.concurrent.atomics.AtomicInt
+import kotlin.concurrent.atomics.plusAssign
 import kotlin.time.Duration.Companion.seconds
 
 @Single
@@ -34,8 +36,8 @@ class StreamDataRepository(
     private var fetchTimerJob: Job? = null
     private val _streamData = MutableStateFlow<ImmutableList<StreamData>>(persistentListOf())
     val streamData: StateFlow<ImmutableList<StreamData>> = _streamData.asStateFlow()
-    private val _fetchCount = java.util.concurrent.atomic.AtomicInteger(0)
-    val fetchCount: Int get() = _fetchCount.get()
+    private val _fetchCount = AtomicInt(0)
+    val fetchCount: Int get() = _fetchCount.load()
 
     fun fetchStreamData(channels: List<UserName>) {
         cancelStreamData()
@@ -55,7 +57,7 @@ class StreamDataRepository(
 
     suspend fun fetchOnce(channels: List<UserName>) {
         val currentSettings = streamsSettingsDataStore.settings.first()
-        _fetchCount.incrementAndGet()
+        _fetchCount += 1
         val data = dataRepository.getStreams(channels)?.map {
             val uptime = DateTimeUtils.calculateUptime(it.startedAt)
             val category = it.category

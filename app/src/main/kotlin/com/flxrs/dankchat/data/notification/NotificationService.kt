@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicInteger
+import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
 
 class NotificationService : Service(), CoroutineScope {
@@ -117,7 +117,7 @@ class NotificationService : Service(), CoroutineScope {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             STOP_COMMAND -> launch { dataRepository.sendShutdownCommand() }
-            else         -> startForeground()
+            else -> startForeground()
         }
 
         return START_NOT_STICKY
@@ -145,7 +145,7 @@ class NotificationService : Service(), CoroutineScope {
 
     private suspend fun setTTSEnabled(enabled: Boolean) = when {
         enabled -> initTTS()
-        else    -> shutdownTTS()
+        else -> shutdownTTS()
     }
 
     private suspend fun initTTS() {
@@ -154,7 +154,7 @@ class NotificationService : Service(), CoroutineScope {
         tts = TextToSpeech(this) { status ->
             when (status) {
                 TextToSpeech.SUCCESS -> setTTSVoice(forceEnglish = forceEnglish)
-                else                 -> shutdownAndDisableTTS()
+                else -> shutdownAndDisableTTS()
             }
         }
     }
@@ -162,7 +162,7 @@ class NotificationService : Service(), CoroutineScope {
     private fun setTTSVoice(forceEnglish: Boolean) {
         val voice = when {
             forceEnglish -> tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
-            else         -> tts?.defaultVoice
+            else -> tts?.defaultVoice
         }
 
         voice?.takeUnless { tts?.setVoice(it) == TextToSpeech.ERROR } ?: shutdownAndDisableTTS()
@@ -235,10 +235,10 @@ class NotificationService : Service(), CoroutineScope {
                     }
 
                     val channel = when (message) {
-                        is PrivMessage       -> message.channel
+                        is PrivMessage -> message.channel
                         is UserNoticeMessage -> message.channel
-                        is NoticeMessage     -> message.channel
-                        else                 -> return@forEach
+                        is NoticeMessage -> message.channel
+                        else -> return@forEach
                     }
 
                     if (!toolSettings.ttsEnabled || channel != activeTTSChannel || (audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) <= 0) {
@@ -264,8 +264,8 @@ class NotificationService : Service(), CoroutineScope {
     private fun Message.playTTSMessage() {
         val message = when (this) {
             is UserNoticeMessage -> message
-            is NoticeMessage     -> message
-            else                 -> {
+            is NoticeMessage -> message
+            else -> {
                 if (this !is PrivMessage) return
                 val filtered = message
                     .filterEmotes(emotes)
@@ -278,14 +278,14 @@ class NotificationService : Service(), CoroutineScope {
 
                 when {
                     toolSettings.ttsMessageFormat == TTSMessageFormat.Message || name == previousTTSUser -> filtered
-                    tts?.voice?.locale?.language == Locale.ENGLISH.language                              -> "$name said $filtered"
-                    else                                                                                 -> "$name. $filtered"
+                    tts?.voice?.locale?.language == Locale.ENGLISH.language -> "$name said $filtered"
+                    else -> "$name. $filtered"
                 }.also { previousTTSUser = name }
             }
         }
 
         val queueMode = when (toolSettings.ttsPlayMode) {
-            TTSPlayMode.Queue  -> TextToSpeech.QUEUE_ADD
+            TTSPlayMode.Queue -> TextToSpeech.QUEUE_ADD
             TTSPlayMode.Newest -> TextToSpeech.QUEUE_FLUSH
         }
         tts?.speak(message, queueMode, null, null)
@@ -296,25 +296,25 @@ class NotificationService : Service(), CoroutineScope {
             acc.replace(emote.code, newValue = "", ignoreCase = true)
         }
 
-        else                         -> this
+        else -> this
     }
 
     private fun String.filterUnicodeSymbols(): String = when {
         // Replaces all unicode character that are: So - Symbol Other, Sc - Symbol Currency, Sm - Symbol Math, Cn - Unassigned.
         // This will not filter out non latin script (Arabic and Japanese for example works fine.)
         toolSettings.ttsIgnoreEmotes -> replace(UNICODE_SYMBOL_REGEX, replacement = "")
-        else                         -> this
+        else -> this
     }
 
     private fun String.filterUrls(): String = when {
         toolSettings.ttsIgnoreUrls -> replace(URL_REGEX, replacement = "")
-        else                       -> this
+        else -> this
     }
 
     private fun NotificationData.createMentionNotification() {
         val pendingStartActivityIntent = Intent(this@NotificationService, MainActivity::class.java).let {
             it.putExtra(MainActivity.OPEN_CHANNEL_KEY, channel)
-            PendingIntent.getActivity(this@NotificationService, notificationIntentCode.getAndIncrement(), it, pendingIntentFlag)
+            PendingIntent.getActivity(this@NotificationService, notificationIntentCode.fetchAndAdd(1), it, pendingIntentFlag)
         }
 
         val summary = NotificationCompat.Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
@@ -328,8 +328,8 @@ class NotificationService : Service(), CoroutineScope {
 
         val title = when {
             isWhisper -> getString(R.string.notification_whisper_mention, name)
-            isNotify  -> getString(R.string.notification_notify_mention, channel)
-            else      -> getString(R.string.notification_mention, name, channel)
+            isNotify -> getString(R.string.notification_notify_mention, channel)
+            else -> getString(R.string.notification_mention, name, channel)
         }
 
         val notification = NotificationCompat.Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
@@ -340,7 +340,7 @@ class NotificationService : Service(), CoroutineScope {
             .setGroup(MENTION_GROUP)
             .build()
 
-        val id = notificationId.getAndIncrement()
+        val id = notificationId.fetchAndAdd(1)
         notifications.getOrPut(channel) { mutableListOf() } += id
 
         manager.notify(id, notification)
@@ -364,7 +364,7 @@ class NotificationService : Service(), CoroutineScope {
 
         private const val MAX_NOTIFIED_IDS = 500
 
-        private val notificationId = AtomicInteger(42)
-        private val notificationIntentCode = AtomicInteger(420)
+        private val notificationId = AtomicInt(42)
+        private val notificationIntentCode = AtomicInt(420)
     }
 }

@@ -650,4 +650,13 @@
     <string name="preference_eventsub_debug_summary">EventSubhoz kapcsolódó hibakeresési adatokat jelenít meg rendszerüzenetként</string>
     <string name="preference_revoke_token_title">Token visszavonása és újraindítás</string>
     <string name="preference_revoke_token_summary">Érvényteleníti a jelenlegi tokent és újraindítja az alkalmazást</string>
+    <string name="system_message_send_not_logged_in">Nincs bejelentkezve</string>
+    <string name="system_message_send_channel_not_resolved">Nem sikerült feloldani a csatorna azonosítót ehhez: %1$s</string>
+    <string name="system_message_send_not_delivered">Az üzenet nem lett elküldve</string>
+    <string name="system_message_send_dropped">Üzenet eldobva: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Hiányzó user:write:chat jogosultság, kérjük jelentkezz be újra</string>
+    <string name="system_message_send_not_authorized">Nincs jogosultságod üzeneteket küldeni ezen a csatornán</string>
+    <string name="system_message_send_message_too_large">Az üzenet túl nagy</string>
+    <string name="system_message_send_rate_limited">Sebességkorlát elérve, próbáld újra egy pillanat múlva</string>
+    <string name="system_message_send_failed">Küldés sikertelen: %1$s</string>
 </resources>

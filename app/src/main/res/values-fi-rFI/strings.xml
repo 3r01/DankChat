@@ -674,4 +674,13 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_eventsub_debug_summary">Tulostaa EventSubiin liittyvää virheenkorjaustietoa järjestelmäviesteinä</string>
     <string name="preference_revoke_token_title">Peruuta tunnus ja käynnistä uudelleen</string>
     <string name="preference_revoke_token_summary">Mitätöi nykyisen tunnuksen ja käynnistää sovelluksen uudelleen</string>
+    <string name="system_message_send_not_logged_in">Ei kirjautunut sisään</string>
+    <string name="system_message_send_channel_not_resolved">Kanavan tunnusta ei voitu selvittää kanavalle %1$s</string>
+    <string name="system_message_send_not_delivered">Viestiä ei lähetetty</string>
+    <string name="system_message_send_dropped">Viesti hylätty: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Puuttuva user:write:chat-oikeus, kirjaudu uudelleen</string>
+    <string name="system_message_send_not_authorized">Ei oikeutta lähettää viestejä tällä kanavalla</string>
+    <string name="system_message_send_message_too_large">Viesti on liian suuri</string>
+    <string name="system_message_send_rate_limited">Nopeusrajoitus, yritä hetken kuluttua uudelleen</string>
+    <string name="system_message_send_failed">Lähetys epäonnistui: %1$s</string>
 </resources>

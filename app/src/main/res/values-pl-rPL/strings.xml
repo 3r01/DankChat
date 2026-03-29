@@ -692,4 +692,13 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_eventsub_debug_summary">Wyświetla dane debugowania związane z EventSub jako wiadomości systemowe</string>
     <string name="preference_revoke_token_title">Unieważnij token i uruchom ponownie</string>
     <string name="preference_revoke_token_summary">Unieważnia bieżący token i restartuje aplikację</string>
+    <string name="system_message_send_not_logged_in">Nie zalogowano</string>
+    <string name="system_message_send_channel_not_resolved">Nie udało się uzyskać ID kanału dla %1$s</string>
+    <string name="system_message_send_not_delivered">Wiadomość nie została wysłana</string>
+    <string name="system_message_send_dropped">Wiadomość odrzucona: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Brak uprawnienia user:write:chat, zaloguj się ponownie</string>
+    <string name="system_message_send_not_authorized">Brak uprawnień do wysyłania wiadomości na tym kanale</string>
+    <string name="system_message_send_message_too_large">Wiadomość jest zbyt duża</string>
+    <string name="system_message_send_rate_limited">Osiągnięto limit częstotliwości, spróbuj ponownie za chwilę</string>
+    <string name="system_message_send_failed">Wysyłanie nie powiodło się: %1$s</string>
 </resources>

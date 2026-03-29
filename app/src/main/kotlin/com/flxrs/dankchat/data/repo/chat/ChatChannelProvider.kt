@@ -13,7 +13,7 @@ import org.koin.core.annotation.Single
 class ChatChannelProvider(preferenceStore: DankChatPreferenceStore) {
 
     private val _activeChannel = MutableStateFlow<UserName?>(null)
-    private val _channels = MutableStateFlow<ImmutableList<UserName>?>(preferenceStore.channels.takeIf { it.isNotEmpty() }?.toImmutableList())
+    private val _channels = MutableStateFlow(preferenceStore.channels.takeIf { it.isNotEmpty() }?.toImmutableList())
 
     val activeChannel: StateFlow<UserName?> = _activeChannel.asStateFlow()
     val channels: StateFlow<ImmutableList<UserName>?> = _channels.asStateFlow()

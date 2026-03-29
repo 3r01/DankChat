@@ -37,10 +37,6 @@ class ChatConnector(
     fun getConnectionState(channel: UserName): StateFlow<ConnectionState> =
         connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }
 
-    fun setConnectionState(channel: UserName, state: ConnectionState) {
-        connectionState.getOrPut(channel) { MutableStateFlow(state) }.value = state
-    }
-
     fun setAllConnectionStates(state: ConnectionState) {
         connectionState.forEach { (_, flow) ->
             flow.value = state

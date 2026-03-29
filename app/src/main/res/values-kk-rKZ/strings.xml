@@ -655,4 +655,13 @@
     <string name="preference_eventsub_debug_summary">EventSubқа қатысты жөндеу ақпаратын жүйелік хабарлар ретінде көрсетеді</string>
     <string name="preference_revoke_token_title">Токенді қайтарып алу және қайта іске қосу</string>
     <string name="preference_revoke_token_summary">Ағымдағы токенді жарамсыз етіп, қолданбаны қайта іске қосады</string>
+    <string name="system_message_send_not_logged_in">Жүйеге кірілмеген</string>
+    <string name="system_message_send_channel_not_resolved">%1$s үшін арна ID анықталмады</string>
+    <string name="system_message_send_not_delivered">Хабарлама жіберілмеді</string>
+    <string name="system_message_send_dropped">Хабарлама тасталды: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">user:write:chat рұқсаты жоқ, қайта кіріңіз</string>
+    <string name="system_message_send_not_authorized">Бұл арнада хабарлама жіберуге рұқсат жоқ</string>
+    <string name="system_message_send_message_too_large">Хабарлама тым үлкен</string>
+    <string name="system_message_send_rate_limited">Жылдамдық шектелді, біраз уақыттан кейін қайталаңыз</string>
+    <string name="system_message_send_failed">Жіберу сәтсіз: %1$s</string>
 </resources>

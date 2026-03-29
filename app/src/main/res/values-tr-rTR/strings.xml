@@ -671,4 +671,13 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_eventsub_debug_summary">EventSub ile ilgili hata ayıklama çıktısını sistem mesajları olarak gösterir</string>
     <string name="preference_revoke_token_title">Jetonu iptal et ve yeniden başlat</string>
     <string name="preference_revoke_token_summary">Mevcut jetonu geçersiz kılar ve uygulamayı yeniden başlatır</string>
+    <string name="system_message_send_not_logged_in">Giriş yapılmadı</string>
+    <string name="system_message_send_channel_not_resolved">%1$s için kanal kimliği çözülemedi</string>
+    <string name="system_message_send_not_delivered">Mesaj gönderilemedi</string>
+    <string name="system_message_send_dropped">Mesaj düşürüldü: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">user:write:chat izni eksik, lütfen tekrar giriş yapın</string>
+    <string name="system_message_send_not_authorized">Bu kanalda mesaj gönderme yetkiniz yok</string>
+    <string name="system_message_send_message_too_large">Mesaj çok büyük</string>
+    <string name="system_message_send_rate_limited">Hız sınırına ulaşıldı, biraz sonra tekrar deneyin</string>
+    <string name="system_message_send_failed">Gönderim başarısız: %1$s</string>
 </resources>

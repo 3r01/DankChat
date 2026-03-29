@@ -649,4 +649,13 @@
     <string name="preference_eventsub_debug_summary">Mostra informazioni di debug relative a EventSub come messaggi di sistema</string>
     <string name="preference_revoke_token_title">Revoca token e riavvia</string>
     <string name="preference_revoke_token_summary">Invalida il token attuale e riavvia l\'applicazione</string>
+    <string name="system_message_send_not_logged_in">Non connesso</string>
+    <string name="system_message_send_channel_not_resolved">Impossibile risolvere l\'ID del canale per %1$s</string>
+    <string name="system_message_send_not_delivered">Il messaggio non è stato inviato</string>
+    <string name="system_message_send_dropped">Messaggio scartato: %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Permesso user:write:chat mancante, effettua nuovamente l\'accesso</string>
+    <string name="system_message_send_not_authorized">Non autorizzato a inviare messaggi in questo canale</string>
+    <string name="system_message_send_message_too_large">Il messaggio è troppo grande</string>
+    <string name="system_message_send_rate_limited">Limite di frequenza raggiunto, riprova tra un momento</string>
+    <string name="system_message_send_failed">Invio fallito: %1$s</string>
 </resources>

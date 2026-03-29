@@ -666,4 +666,13 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_eventsub_debug_summary">Affiche les informations de débogage liées à EventSub sous forme de messages système</string>
     <string name="preference_revoke_token_title">Révoquer le jeton et redémarrer</string>
     <string name="preference_revoke_token_summary">Invalide le jeton actuel et redémarre l\'application</string>
+    <string name="system_message_send_not_logged_in">Non connecté</string>
+    <string name="system_message_send_channel_not_resolved">Impossible de résoudre l\'ID du canal pour %1$s</string>
+    <string name="system_message_send_not_delivered">Le message n\'a pas été envoyé</string>
+    <string name="system_message_send_dropped">Message abandonné : %1$s (%2$s)</string>
+    <string name="system_message_send_missing_scopes">Permission user:write:chat manquante, veuillez vous reconnecter</string>
+    <string name="system_message_send_not_authorized">Non autorisé à envoyer des messages dans ce canal</string>
+    <string name="system_message_send_message_too_large">Le message est trop volumineux</string>
+    <string name="system_message_send_rate_limited">Limite de débit atteinte, réessayez dans un instant</string>
+    <string name="system_message_send_failed">Échec de l\'envoi : %1$s</string>
 </resources>
