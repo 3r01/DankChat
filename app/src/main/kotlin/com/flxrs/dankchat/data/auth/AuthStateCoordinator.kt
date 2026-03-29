@@ -54,7 +54,7 @@ class AuthStateCoordinator(
     init {
         // React to login state changes — handles both login and logout.
         // distinctUntilChangedBy on isLoggedIn+oAuthKey solves re-login (new token = new oAuthKey).
-        // drop(1) skips initial emission (startup connection handled by DankChatViewModel.init).
+        // drop(1) skips initial emission (startup connection handled by ConnectionCoordinator).
         scope.launch {
             authDataStore.settings
                 .distinctUntilChangedBy { it.isLoggedIn to it.oAuthKey }

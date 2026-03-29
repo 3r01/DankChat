@@ -120,7 +120,4 @@ class ChannelDataLoader(
         }
     }
 
-    suspend fun loadRecentMessages(channel: UserName) {
-        chatRepository.loadRecentMessagesIfEnabled(channel)
-    }
 }

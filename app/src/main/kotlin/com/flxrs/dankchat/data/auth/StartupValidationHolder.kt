@@ -33,10 +33,6 @@ class StartupValidationHolder {
         _state.value = StartupValidation.Validated
     }
 
-    suspend fun awaitValidated() {
-        _state.first { it is StartupValidation.Validated }
-    }
-
     suspend fun awaitResolved() {
         _state.first { it !is StartupValidation.Pending }
     }

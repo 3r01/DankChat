@@ -50,11 +50,4 @@ class GlobalDataLoader(
     suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
         return dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
     }
-
-    suspend fun loadUserStateEmotes(
-        globalEmoteSets: List<String>,
-        followerEmoteSets: Map<UserName, List<String>>
-    ) {
-        dataRepository.loadUserStateEmotes(globalEmoteSets, followerEmoteSets)
-    }
 }
