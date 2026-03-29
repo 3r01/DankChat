@@ -1,9 +1,9 @@
 import com.android.build.api.artifact.ArtifactTransformationRequest
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.gradle.internal.PropertiesValueSource
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.StringReader
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -13,6 +13,8 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.about.libraries.android)
     alias(libs.plugins.android.junit5)
+    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.detekt)
 }
 
 android {
@@ -27,9 +29,7 @@ android {
         versionName = "3.11.11"
     }
 
-    androidResources {
-        generateLocaleConfig = true
-    }
+    androidResources { generateLocaleConfig = true }
 
     val localProperties = gradleLocalProperties(rootDir, providers)
     signingConfigs {
@@ -53,9 +53,7 @@ android {
         }
     }
 
-    testOptions {
-        unitTests.isReturnDefaultValues = true
-    }
+    testOptions { unitTests.isReturnDefaultValues = true }
 
     buildTypes {
         getByName("release") {
@@ -80,15 +78,9 @@ android {
     }
 
     androidComponents.onVariants { variant ->
-        val renameTask = tasks.register<RenameApkTask>("renameApk${variant.name.replaceFirstChar { it.uppercase() }}") {
-            apkName.set("DankChat-${variant.name}.apk")
-        }
-        val transformationRequest = variant.artifacts.use(renameTask)
-            .wiredWithDirectories(RenameApkTask::inputDirs, RenameApkTask::outputDirs)
-            .toTransformMany(SingleArtifact.APK)
-        renameTask.configure {
-            this.transformationRequest = transformationRequest
-        }
+        val renameTask = tasks.register<RenameApkTask>("renameApk${variant.name.replaceFirstChar { it.uppercase() }}") { apkName.set("DankChat-${variant.name}.apk") }
+        val transformationRequest = variant.artifacts.use(renameTask).wiredWithDirectories(RenameApkTask::inputDirs, RenameApkTask::outputDirs).toTransformMany(SingleArtifact.APK)
+        renameTask.configure { this.transformationRequest = transformationRequest }
     }
 
     compileOptions {
@@ -111,9 +103,7 @@ ksp {
     arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
+tasks.withType<Test> { useJUnitPlatform() }
 
 kotlin {
     jvmToolchain(jdkVersion = 21)
@@ -136,10 +126,13 @@ kotlin {
 }
 
 dependencies {
-// D8 desugaring
+    // Detekt plugins
+    detektPlugins(libs.detekt.compose.rules)
+
+    // D8 desugaring
     coreLibraryDesugaring(libs.android.desugar.libs)
 
-// Kotlin
+    // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
@@ -148,7 +141,7 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.immutable.collections)
 
-// AndroidX
+    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
@@ -167,7 +160,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-// Compose
+    // Compose
     implementation(libs.compose.animation)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
@@ -181,11 +174,11 @@ dependencies {
     implementation(libs.compose.unstyled)
     implementation(libs.compose.material3.adaptive)
 
-// Material
+    // Material
     implementation(libs.android.material)
     implementation(libs.android.flexbox)
 
-// Dependency injection
+    // Dependency injection
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
@@ -195,14 +188,14 @@ dependencies {
     implementation(libs.koin.ksp.compiler)
     ksp(libs.koin.ksp.compiler)
 
-// Image loading
+    // Image loading
     implementation(libs.coil)
     implementation(libs.coil.gif)
     implementation(libs.coil.ktor)
     implementation(libs.coil.cache.control)
     implementation(libs.coil.compose)
 
-// HTTP clients
+    // HTTP clients
     implementation(libs.okhttp)
     implementation(libs.okhttp.sse)
     implementation(libs.ktor.client.core)
@@ -212,14 +205,14 @@ dependencies {
     implementation(libs.ktor.client.websockets)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-// Other
+    // Other
     implementation(libs.colorpicker.android)
     implementation(libs.process.phoenix)
     implementation(libs.autolinktext)
     implementation(libs.aboutlibraries.compose.m3)
     implementation(libs.reorderable)
 
-// Test
+    // Test
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
     testImplementation(libs.mockk)
@@ -239,32 +232,34 @@ junitPlatform {
     }
 }
 
+ktfmt {
+    kotlinLangStyle()
+    maxWidth.set(200)
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom("$projectDir/config/detekt.yml")
+    parallel = true
+}
+
 fun gradleLocalProperties(projectRootDir: File, providers: ProviderFactory): Properties {
     val properties = Properties()
-    val propertiesContent =
-        providers.of(PropertiesValueSource::class.java) {
-            parameters.projectRoot.set(projectRootDir)
-        }.get()
+    val propertiesContent = providers.of(PropertiesValueSource::class.java) { parameters.projectRoot.set(projectRootDir) }.get()
 
-    StringReader(propertiesContent).use { reader ->
-        properties.load(reader)
-    }
+    StringReader(propertiesContent).use { reader -> properties.load(reader) }
 
     return properties
 }
 
 abstract class RenameApkTask : DefaultTask() {
-    @get:InputDirectory
-    abstract val inputDirs: DirectoryProperty
+    @get:InputDirectory abstract val inputDirs: DirectoryProperty
 
-    @get:OutputDirectory
-    abstract val outputDirs: DirectoryProperty
+    @get:OutputDirectory abstract val outputDirs: DirectoryProperty
 
-    @get:Input
-    abstract val apkName: Property<String>
+    @get:Input abstract val apkName: Property<String>
 
-    @get:Internal
-    lateinit var transformationRequest: ArtifactTransformationRequest<RenameApkTask>
+    @get:Internal lateinit var transformationRequest: ArtifactTransformationRequest<RenameApkTask>
 
     @TaskAction
     fun taskAction() {

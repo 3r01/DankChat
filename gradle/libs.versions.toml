@@ -44,6 +44,10 @@ processPhoenix = "3.0.0"
 colorPicker = "3.1.0"
 reorderable = "2.4.3"
 
+ktfmt = "0.26.0"
+detekt = "1.23.8"
+composeRules = "0.4.23"
+
 junit = "6.0.3"
 androidJunit5 = "2.0.1"
 mockk = "1.14.9"
@@ -133,6 +137,8 @@ process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "p
 
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "about-libraries" }
 
+detekt-compose-rules = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRules" }
+
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
@@ -150,4 +156,6 @@ nav-safeargs-kotlin = { id = "androidx.navigation.safeargs.kotlin", version.ref 
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 about-libraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "about-libraries" }
 android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "androidJunit5" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 androidx-room = { id = "androidx.room", version.ref = "androidxRoom" }  #TODO use me when working

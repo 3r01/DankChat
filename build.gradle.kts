@@ -12,4 +12,6 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.about.libraries.android) apply false
     alias(libs.plugins.android.junit5) apply false
+    alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.detekt) apply false
 }
