@@ -294,8 +294,10 @@
     <string name="room_state_emote_only">Emote only</string>
     <string name="room_state_subscriber_only">Subscriber only</string>
     <string name="room_state_slow_mode">Slow mode</string>
+    <string name="room_state_slow_mode_duration">Slow mode (%1$s)</string>
     <string name="room_state_unique_chat">Unique chat (R9K)</string>
     <string name="room_state_follower_only">Follower only</string>
+    <string name="room_state_follower_only_duration">Follower only (%1$s)</string>
     <string name="room_state_preset_custom">Custom</string>
     <string name="room_state_follower_any">Any</string>
     <string name="room_state_duration_seconds">%1$ds</string>

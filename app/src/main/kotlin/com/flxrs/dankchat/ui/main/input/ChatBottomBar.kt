@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
+import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -87,8 +88,11 @@ fun ChatBottomBar(
 
         // Sticky helper text + nav bar spacer when input is hidden
         if (!showInput && !isSheetOpen) {
-            val helperText = uiState.helperText
-            if (!helperText.isNullOrEmpty()) {
+            val helperTextState = uiState.helperText
+            val resolvedRoomState = helperTextState.roomStateParts.map { it.resolve() }
+            val roomStateText = resolvedRoomState.joinToString(separator = ", ")
+            val helperText = listOfNotNull(roomStateText.ifEmpty { null }, helperTextState.streamInfo).joinToString(separator = " - ")
+            if (helperText.isNotEmpty()) {
                 val horizontalPadding = when {
                     isFullscreen && isInSplitLayout -> {
                         val rcPadding = rememberRoundedCornerHorizontalPadding(fallback = 16.dp)

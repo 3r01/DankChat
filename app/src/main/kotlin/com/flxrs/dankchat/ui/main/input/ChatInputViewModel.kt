@@ -3,8 +3,6 @@ package com.flxrs.dankchat.ui.main.input
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.placeCursorAtEnd
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
@@ -36,6 +34,7 @@ import com.flxrs.dankchat.ui.main.MainEvent
 import com.flxrs.dankchat.ui.main.MainEventBus
 import com.flxrs.dankchat.ui.main.RepeatedSendData
 import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
+import com.flxrs.dankchat.utils.TextResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -127,16 +126,16 @@ class ChatInputViewModel(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val roomStateDisplayText: StateFlow<String?> = combine(
+    private val roomStateResources: StateFlow<List<TextResource>> = combine(
         chatSettingsDataStore.showChatModes,
         chatChannelProvider.activeChannel
     ) { showModes, channel ->
         showModes to channel
     }.flatMapLatest { (showModes, channel) ->
-        if (!showModes || channel == null) flowOf(null)
-        else channelRepository.getRoomStateFlow(channel).map { it.toDisplayText().ifEmpty { null } }
+        if (!showModes || channel == null) flowOf(emptyList())
+        else channelRepository.getRoomStateFlow(channel).map { it.toDisplayTextResources() }
     }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val currentStreamInfo: StateFlow<String?> = combine(
         streamsSettingsDataStore.showStreamsInfo,
@@ -147,15 +146,16 @@ class ChatInputViewModel(
     }.distinctUntilChanged()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
-    private val helperText: StateFlow<String?> = combine(
-        roomStateDisplayText,
+    private val helperText: StateFlow<HelperText> = combine(
+        roomStateResources,
         currentStreamInfo
     ) { roomState, streamInfo ->
-        listOfNotNull(roomState, streamInfo)
-            .joinToString(separator = " - ")
-            .ifEmpty { null }
+        HelperText(
+            roomStateParts = roomState.toImmutableList(),
+            streamInfo = streamInfo,
+        )
     }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HelperText())
 
     private var _uiState: StateFlow<ChatInputUiState>? = null
 
@@ -558,38 +558,3 @@ internal fun computeSuggestionReplacement(text: String, cursorPos: Int, suggesti
     )
 }
 
-@Immutable
-data class ChatInputUiState(
-    val text: String = "",
-    val canSend: Boolean = false,
-    val enabled: Boolean = false,
-    val hasLastMessage: Boolean = false,
-    val suggestions: ImmutableList<Suggestion> = persistentListOf(),
-    val activeChannel: UserName? = null,
-    val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
-    val isLoggedIn: Boolean = false,
-    val inputState: InputState = InputState.Disconnected,
-    val overlay: InputOverlay = InputOverlay.None,
-    val replyMessageId: String? = null,
-    val isEmoteMenuOpen: Boolean = false,
-    val helperText: String? = null,
-    val isWhisperTabActive: Boolean = false,
-    val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
-    val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
-)
-
-@Stable
-sealed interface InputOverlay {
-    data object None : InputOverlay
-    data class Reply(val name: UserName) : InputOverlay
-    data class Whisper(val target: UserName) : InputOverlay
-    data object Announce : InputOverlay
-}
-
-@Stable
-sealed interface CharacterCounterState {
-    data object Hidden : CharacterCounterState
-
-    @Immutable
-    data class Visible(val text: String, val isOverLimit: Boolean) : CharacterCounterState
-}

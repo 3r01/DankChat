@@ -48,27 +48,31 @@ class StreamDataRepository(
             }
 
             fetchTimerJob = timer(STREAM_REFRESH_RATE) {
-                val currentSettings = streamsSettingsDataStore.settings.first()
-                _fetchCount.incrementAndGet()
-                val data = dataRepository.getStreams(channels)?.map {
-                    val uptime = DateTimeUtils.calculateUptime(it.startedAt)
-                    val category = it.category
-                        ?.takeIf { currentSettings.showStreamCategory }
-                        ?.ifBlank { null }
-                    val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
-
-                    StreamData(
-                        channel = it.userLogin,
-                        formattedData = formatted,
-                        viewerCount = it.viewerCount,
-                        startedAt = it.startedAt,
-                        category = it.category,
-                    )
-                }.orEmpty()
-
-                _streamData.value = data.toImmutableList()
+                fetchOnce(channels)
             }
         }
+    }
+
+    suspend fun fetchOnce(channels: List<UserName>) {
+        val currentSettings = streamsSettingsDataStore.settings.first()
+        _fetchCount.incrementAndGet()
+        val data = dataRepository.getStreams(channels)?.map {
+            val uptime = DateTimeUtils.calculateUptime(it.startedAt)
+            val category = it.category
+                ?.takeIf { currentSettings.showStreamCategory }
+                ?.ifBlank { null }
+            val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
+
+            StreamData(
+                channel = it.userLogin,
+                formattedData = formatted,
+                viewerCount = it.viewerCount,
+                startedAt = it.startedAt,
+                category = it.category,
+            )
+        }.orEmpty()
+
+        _streamData.value = data.toImmutableList()
     }
 
     fun cancelStreamData() {

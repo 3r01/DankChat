@@ -1,8 +1,14 @@
 package com.flxrs.dankchat.data.twitch.message
 
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.irc.IrcMessage
+import com.flxrs.dankchat.utils.DateTimeUtils
+import com.flxrs.dankchat.utils.TextResource
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 
 data class RoomState(
     val channel: UserName,
@@ -29,15 +35,34 @@ data class RoomState(
     val followerModeDuration get() = tags[RoomStateTag.FOLLOW]?.takeIf { it >= 0 }
     val slowModeWaitTime get() = tags[RoomStateTag.SLOW]?.takeIf { it > 0 }
 
-    fun toDisplayText(): String = tags
+    fun toDebugText(): String = tags
         .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
-        .map {
-            when (it.key) {
-                RoomStateTag.FOLLOW -> if (it.value == 0) "follow" else "follow(${it.value})"
-                RoomStateTag.SLOW   -> "slow(${it.value})"
-                else                -> it.key.name.lowercase()
+        .map { (tag, value) ->
+            when (tag) {
+                RoomStateTag.FOLLOW -> when (value) {
+                    0    -> "follow"
+                    else -> "follow(${DateTimeUtils.formatSeconds(value * 60)})"
+                }
+
+                RoomStateTag.SLOW   -> "slow(${DateTimeUtils.formatSeconds(value)})"
+                else                -> tag.name.lowercase()
             }
         }.joinToString()
+
+    fun toDisplayTextResources(): ImmutableList<TextResource> = tags
+        .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
+        .map { (tag, value) ->
+            when (tag) {
+                RoomStateTag.EMOTE  -> TextResource.Res(R.string.room_state_emote_only)
+                RoomStateTag.SUBS   -> TextResource.Res(R.string.room_state_subscriber_only)
+                RoomStateTag.R9K    -> TextResource.Res(R.string.room_state_unique_chat)
+                RoomStateTag.SLOW   -> TextResource.Res(R.string.room_state_slow_mode_duration, persistentListOf(DateTimeUtils.formatSeconds(value)))
+                RoomStateTag.FOLLOW -> when (value) {
+                    0    -> TextResource.Res(R.string.room_state_follower_only)
+                    else -> TextResource.Res(R.string.room_state_follower_only_duration, persistentListOf(DateTimeUtils.formatSeconds(value * 60)))
+                }
+            }
+        }.toImmutableList()
 
     fun copyFromIrcMessage(msg: IrcMessage): RoomState = copy(
         tags = tags.mapValues { (key, value) -> msg.getRoomStateTag(key, value) },

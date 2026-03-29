@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.repo.data.DataLoadingStep
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.DataUpdateEventMessage
 import com.flxrs.dankchat.data.state.ChannelLoadingState
+import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -36,6 +37,7 @@ class ChannelDataCoordinator(
     private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
     private val startupValidationHolder: StartupValidationHolder,
+    private val streamDataRepository: StreamDataRepository,
     dispatchersProvider: DispatchersProvider
 ) {
 
@@ -123,6 +125,13 @@ class ChannelDataCoordinator(
             // Phase 2: Auth-gated data (badges, user emotes, blocks) — wait for validation to resolve
             startupValidationHolder.awaitResolved()
             if (startupValidationHolder.isAuthAvailable && authDataStore.isLoggedIn) {
+                // Fetch stream data first — single lightweight call before heavy emote pagination
+                val channels = preferenceStore.channels
+                if (channels.isNotEmpty()) {
+                    runCatching { streamDataRepository.fetchOnce(channels) }
+                    streamDataRepository.fetchStreamData(channels)
+                }
+
                 globalDataLoader.loadAuthGlobalData()
                 chatMessageRepository.reparseAllEmotesAndBadges()
 

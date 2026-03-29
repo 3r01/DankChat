@@ -418,7 +418,7 @@ fun MainScreen(
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
     if (!effectiveShowInput) inputHeightPx = 0
-    if (effectiveShowInput || inputState.helperText.isNullOrEmpty()) helperTextHeightPx = 0
+    if (effectiveShowInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
     // scaffoldBottomContentPadding removed — input bar rendered outside Scaffold

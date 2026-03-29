@@ -30,7 +30,7 @@ class ChannelDebugSection(
                         when (roomState) {
                             null -> add(DebugEntry("Room state", "Unknown"))
                             else -> {
-                                val display = roomState.toDisplayText()
+                                val display = roomState.toDebugText()
                                 add(DebugEntry("Room state", display.ifEmpty { "None" }))
                             }
                         }

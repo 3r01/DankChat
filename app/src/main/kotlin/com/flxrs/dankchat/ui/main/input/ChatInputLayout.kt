@@ -4,6 +4,7 @@ import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -94,6 +95,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.utils.resolve
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
@@ -158,7 +163,7 @@ fun ChatInputLayout(
     val hasLastMessage = uiState.hasLastMessage
     val canSend = uiState.canSend
     val isEmoteMenuOpen = uiState.isEmoteMenuOpen
-    val helperText = if (isSheetOpen) null else uiState.helperText
+    val helperText = if (isSheetOpen) HelperText() else uiState.helperText
     val overlay = uiState.overlay
     val characterCounter = uiState.characterCounter
     val showQuickActions = !isSheetOpen
@@ -306,23 +311,60 @@ fun ChatInputLayout(
                 )
 
                 // Helper text (roomstate + live info)
+                val resolvedRoomState = helperText.roomStateParts.map { it.resolve() }
+                val roomStateText = resolvedRoomState.joinToString(separator = ", ")
+                val streamInfoText = helperText.streamInfo
                 AnimatedVisibility(
-                    visible = !helperText.isNullOrEmpty(),
+                    visible = !helperText.isEmpty,
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
-                    Text(
-                        text = helperText.orEmpty(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                    val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
+                    val textMeasurer = rememberTextMeasurer()
+                    val style = MaterialTheme.typography.labelSmall
+                    val density = LocalDensity.current
+                    BoxWithConstraints(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
                             .padding(bottom = 4.dp)
-                            .basicMarquee(),
-                        textAlign = TextAlign.Start
-                    )
+                            .animateContentSize(),
+                    ) {
+                        val maxWidthPx = with(density) { maxWidth.roundToPx() }
+                        val fitsOnOneLine = remember(combinedText, style, maxWidthPx) {
+                            textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
+                        }
+                        when {
+                            fitsOnOneLine || streamInfoText == null || roomStateText.isEmpty() -> {
+                                Text(
+                                    text = combinedText,
+                                    style = style,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                )
+                            }
+
+                            else -> {
+                                Column {
+                                    Text(
+                                        text = roomStateText,
+                                        style = style,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                    )
+                                    Text(
+                                        text = streamInfoText,
+                                        style = style,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Progress indicator for uploads and data loading
