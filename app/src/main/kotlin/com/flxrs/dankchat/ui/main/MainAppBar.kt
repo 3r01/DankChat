@@ -46,6 +46,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -69,6 +70,7 @@ import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import kotlinx.coroutines.CancellationException
 
+@Immutable
 sealed interface AppBarMenu {
     data object Main : AppBarMenu
     data object Upload : AppBarMenu

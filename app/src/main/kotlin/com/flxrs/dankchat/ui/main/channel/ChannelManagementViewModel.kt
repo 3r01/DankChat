@@ -107,6 +107,7 @@ class ChannelManagementViewModel(
 
     fun reloadEmotes(channel: UserName) {
         channelDataCoordinator.loadChannelData(channel)
+        channelDataCoordinator.reloadUserEmotes()
     }
 
     fun reconnect() {

@@ -257,12 +257,6 @@ class MainActivity : AppCompatActivity() {
                                     startActivity(it)
                                 }
                             },
-                            onReloadEmotes = {
-                                // Handled in MainScreen with ViewModel
-                            },
-                            onReconnect = {
-                                // Handled in MainScreen with ViewModel
-                            },
                             onCaptureImage = {
                                 startCameraCapture(captureVideo = false)
                             },

@@ -48,7 +48,6 @@ class MainScreenViewModel(
     private val userStateRepository: UserStateRepository,
 ) : ViewModel() {
 
-    // Only expose truly global state
     val globalLoadingState: StateFlow<GlobalLoadingState> =
         channelDataCoordinator.globalLoadingState
 
@@ -148,9 +147,7 @@ class MainScreenViewModel(
         }
     }
 
-    fun reloadGlobalData() {
-        channelDataCoordinator.reloadGlobalData()
-    }
+
 
     fun toggleInput() {
         viewModelScope.launch {

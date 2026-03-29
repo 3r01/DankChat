@@ -106,26 +106,6 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.cancellation.CancellationException
 
-sealed interface ToolbarAction {
-    data class SelectTab(val index: Int) : ToolbarAction
-    data class LongClickTab(val index: Int) : ToolbarAction
-    data object AddChannel : ToolbarAction
-    data object OpenMentions : ToolbarAction
-    data object Login : ToolbarAction
-    data object Relogin : ToolbarAction
-    data object Logout : ToolbarAction
-    data object ManageChannels : ToolbarAction
-    data object OpenChannel : ToolbarAction
-    data object RemoveChannel : ToolbarAction
-    data object ReportChannel : ToolbarAction
-    data object BlockChannel : ToolbarAction
-    data object CaptureImage : ToolbarAction
-    data object CaptureVideo : ToolbarAction
-    data object ChooseMedia : ToolbarAction
-    data object ReloadEmotes : ToolbarAction
-    data object Reconnect : ToolbarAction
-    data object OpenSettings : ToolbarAction
-}
 
 @Suppress("MultipleEmitters")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)

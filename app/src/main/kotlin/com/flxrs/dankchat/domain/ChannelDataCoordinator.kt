@@ -189,6 +189,20 @@ class ChannelDataCoordinator(
         }
     }
 
+    fun reloadUserEmotes() {
+        scope.launch {
+            val userId = authDataStore.userIdString ?: return@launch
+            val firstPageLoaded = CompletableDeferred<Unit>()
+            launch {
+                globalDataLoader.loadUserEmotes(userId) { firstPageLoaded.complete(Unit) }
+                    .onSuccess { chatMessageRepository.reparseAllEmotesAndBadges() }
+                    .onFailure { firstPageLoaded.complete(Unit) }
+            }
+            firstPageLoaded.await()
+            chatMessageRepository.reparseAllEmotesAndBadges()
+        }
+    }
+
     /**
      * Reload global data
      */
