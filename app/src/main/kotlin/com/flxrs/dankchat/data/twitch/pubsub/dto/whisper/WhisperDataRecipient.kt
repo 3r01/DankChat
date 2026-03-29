@@ -9,9 +9,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class WhisperDataRecipient(
-    val id: UserId,
-    val color: String,
-    @SerialName("username") val name: UserName,
-    @SerialName("display_name") val displayName: DisplayName,
-)
+data class WhisperDataRecipient(val id: UserId, val color: String, @SerialName("username") val name: UserName, @SerialName("display_name") val displayName: DisplayName)

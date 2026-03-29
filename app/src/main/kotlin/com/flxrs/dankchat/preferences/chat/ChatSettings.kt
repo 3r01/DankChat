@@ -28,7 +28,6 @@ data class ChatSettings(
     val showChatModes: Boolean = true,
     val sharedChatMigration: Boolean = false,
 ) {
-
     @Transient
     val visibleBadgeTypes = visibleBadges.map { BadgeType.entries[it.ordinal] }
 

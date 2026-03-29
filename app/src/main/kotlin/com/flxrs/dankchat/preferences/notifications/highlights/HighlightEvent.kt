@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Immutable
 sealed interface HighlightEvent {
     data class ItemRemoved(val item: HighlightItem, val position: Int) : HighlightEvent
+
     data class ItemAdded(val position: Int, val isLast: Boolean) : HighlightEvent
 }
 

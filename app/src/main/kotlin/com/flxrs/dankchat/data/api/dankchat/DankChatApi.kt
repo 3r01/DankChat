@@ -5,7 +5,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
 class DankChatApi(private val ktorClient: HttpClient) {
-
     suspend fun getSets(ids: String) = ktorClient.get("sets") {
         parameter("id", ids)
     }

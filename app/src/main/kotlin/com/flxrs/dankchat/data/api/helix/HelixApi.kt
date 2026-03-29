@@ -29,7 +29,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 
 class HelixApi(private val ktorClient: HttpClient, private val authDataStore: AuthDataStore, private val startupValidationHolder: StartupValidationHolder) {
-
     private fun getValidToken(): String? {
         if (!startupValidationHolder.isAuthAvailable) return null
         return authDataStore.oAuthKey?.withoutOAuthPrefix

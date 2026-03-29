@@ -26,12 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 
 @Composable
-fun EmptyStateContent(
-    isLoggedIn: Boolean,
-    onAddChannel: () -> Unit,
-    onLogin: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun EmptyStateContent(isLoggedIn: Boolean, onAddChannel: () -> Unit, onLogin: () -> Unit, modifier: Modifier = Modifier) {
     Surface(modifier = modifier) {
         Column(
             modifier = Modifier

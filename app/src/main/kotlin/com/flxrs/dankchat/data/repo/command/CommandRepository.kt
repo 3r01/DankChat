@@ -48,7 +48,6 @@ class CommandRepository(
     private val authDataStore: AuthDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val customCommands = chatSettingsDataStore.commands.stateIn(scope, SharingStarted.Eagerly, emptyList())
     private val supibotCommands = mutableMapOf<UserName, MutableStateFlow<List<String>>>()
@@ -56,9 +55,10 @@ class CommandRepository(
     private val defaultCommands = Command.entries
     private val defaultCommandTriggers = defaultCommands.map { it.trigger }
 
-    private val commandTriggers = chatSettingsDataStore.commands.map { customCommands ->
-        defaultCommandTriggers + TwitchCommandRepository.ALL_COMMAND_TRIGGERS + customCommands.map(CustomCommand::trigger)
-    }
+    private val commandTriggers =
+        chatSettingsDataStore.commands.map { customCommands ->
+            defaultCommandTriggers + TwitchCommandRepository.ALL_COMMAND_TRIGGERS + customCommands.map(CustomCommand::trigger)
+        }
 
     init {
         scope.launch {
@@ -68,7 +68,7 @@ class CommandRepository(
                 .collect { enabled ->
                     when {
                         enabled -> loadSupibotCommands()
-                        else    -> clearSupibotCommands()
+                        else -> clearSupibotCommands()
                     }
                 }
         }
@@ -76,7 +76,7 @@ class CommandRepository(
 
     fun getCommandTriggers(channel: UserName): Flow<List<String>> = when (channel) {
         WhisperMessage.WHISPER_CHANNEL -> flowOf(TwitchCommandRepository.asCommandTriggers(TwitchCommand.Whisper.trigger))
-        else                           -> commandTriggers
+        else -> commandTriggers
     }
 
     fun getSupibotCommands(channel: UserName): StateFlow<List<String>> = supibotCommands.getOrPut(channel) { MutableStateFlow(emptyList()) }
@@ -112,11 +112,14 @@ class CommandRepository(
             }
 
             return when (defaultCommand) {
-                Command.Block   -> blockUserCommand(args)
+                Command.Block -> blockUserCommand(args)
+
                 Command.Unblock -> unblockUserCommand(args)
-                //Command.Chatters -> chattersCommand(channel)
-                Command.Uptime  -> uptimeCommand(channel)
-                Command.Help    -> helpCommand(roomState, userState)
+
+                // Command.Chatters -> chattersCommand(channel)
+                Command.Uptime -> uptimeCommand(channel)
+
+                Command.Help -> helpCommand(roomState, userState)
             }
         }
 
@@ -131,16 +134,19 @@ class CommandRepository(
         val (trigger, args) = triggerAndArgsOrNull(message) ?: return CommandResult.NotFound
         return when (val twitchCommand = twitchCommandRepository.findTwitchCommand(trigger)) {
             TwitchCommand.Whisper -> {
-                val currentUserId = authDataStore.userIdString
-                    ?.takeIf { authDataStore.isLoggedIn }
-                    ?: return CommandResult.AcceptedTwitchCommand(
-                        command = twitchCommand,
-                        response = "You must be logged in to use the $trigger command"
-                    )
+                val currentUserId =
+                    authDataStore.userIdString
+                        ?.takeIf { authDataStore.isLoggedIn }
+                        ?: return CommandResult.AcceptedTwitchCommand(
+                            command = twitchCommand,
+                            response = "You must be logged in to use the $trigger command",
+                        )
                 twitchCommandRepository.sendWhisper(twitchCommand, currentUserId, trigger, args)
             }
 
-            else                  -> CommandResult.NotFound
+            else -> {
+                CommandResult.NotFound
+            }
         }
     }
 
@@ -180,27 +186,26 @@ class CommandRepository(
         return trigger to words.drop(1)
     }
 
-    private suspend fun getSupibotChannels(): List<UserName> {
-        return supibotApiClient.getSupibotChannels()
-            .getOrNull()
-            ?.let { (data) ->
-                data.filter { it.isActive }.map { it.name }
-            }.orEmpty()
-    }
+    private suspend fun getSupibotChannels(): List<UserName> = supibotApiClient
+        .getSupibotChannels()
+        .getOrNull()
+        ?.let { (data) ->
+            data.filter { it.isActive }.map { it.name }
+        }.orEmpty()
 
-    private suspend fun getSupibotCommands(): List<String> {
-        return supibotApiClient.getSupibotCommands()
-            .getOrNull()
-            ?.let { (data) ->
-                data.flatMap { command ->
-                    listOf("$${command.name}") + command.aliases.map { "$$it" }
-                }
-            }.orEmpty()
-    }
+    private suspend fun getSupibotCommands(): List<String> = supibotApiClient
+        .getSupibotCommands()
+        .getOrNull()
+        ?.let { (data) ->
+            data.flatMap { command ->
+                listOf("$${command.name}") + command.aliases.map { "$$it" }
+            }
+        }.orEmpty()
 
     private suspend fun getSupibotUserAliases(): List<String> {
         val user = authDataStore.userName ?: return emptyList()
-        return supibotApiClient.getSupibotUserAliases(user)
+        return supibotApiClient
+            .getSupibotUserAliases(user)
             .getOrNull()
             ?.let { (data) ->
                 data.map { alias -> "$$${alias.name}" }
@@ -217,8 +222,10 @@ class CommandRepository(
         }
 
         val target = args.first().toUserName()
-        val targetId = helixApiClient.getUserIdByName(target)
-            .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be blocked, no user with that name found!")
+        val targetId =
+            helixApiClient
+                .getUserIdByName(target)
+                .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be blocked, no user with that name found!")
 
         val result = helixApiClient.blockUser(targetId)
         return when {
@@ -227,7 +234,9 @@ class CommandRepository(
                 CommandResult.AcceptedWithResponse("You successfully blocked user $target")
             }
 
-            else             -> CommandResult.AcceptedWithResponse("User $target couldn't be blocked, an unknown error occurred!")
+            else -> {
+                CommandResult.AcceptedWithResponse("User $target couldn't be blocked, an unknown error occurred!")
+            }
         }
     }
 
@@ -237,13 +246,16 @@ class CommandRepository(
         }
 
         val target = args.first().toUserName()
-        val targetId = helixApiClient.getUserIdByName(target)
-            .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be unblocked, no user with that name found!")
+        val targetId =
+            helixApiClient
+                .getUserIdByName(target)
+                .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be unblocked, no user with that name found!")
 
-        val result = runCatching {
-            ignoresRepository.removeUserBlock(targetId, target)
-            CommandResult.AcceptedWithResponse("You successfully unblocked user $target")
-        }
+        val result =
+            runCatching {
+                ignoresRepository.removeUserBlock(targetId, target)
+                CommandResult.AcceptedWithResponse("You successfully unblocked user $target")
+            }
 
         return result.getOrElse {
             CommandResult.AcceptedWithResponse("User $target couldn't be unblocked, an unknown error occurred!")
@@ -251,19 +263,22 @@ class CommandRepository(
     }
 
     private suspend fun uptimeCommand(channel: UserName): CommandResult.AcceptedWithResponse {
-        val result = helixApiClient.getStreams(listOf(channel))
-            .getOrNull()
-            ?.getOrNull(0) ?: return CommandResult.AcceptedWithResponse("Channel is not live.")
+        val result =
+            helixApiClient
+                .getStreams(listOf(channel))
+                .getOrNull()
+                ?.getOrNull(0) ?: return CommandResult.AcceptedWithResponse("Channel is not live.")
 
         val uptime = calculateUptime(result.startedAt)
         return CommandResult.AcceptedWithResponse("Uptime: $uptime")
     }
 
     private fun helpCommand(roomState: RoomState, userState: UserState): CommandResult.AcceptedWithResponse {
-        val commands = twitchCommandRepository
-            .getAvailableCommandTriggers(roomState, userState)
-            .plus(defaultCommandTriggers)
-            .joinToString(separator = " ")
+        val commands =
+            twitchCommandRepository
+                .getAvailableCommandTriggers(roomState, userState)
+                .plus(defaultCommandTriggers)
+                .joinToString(separator = " ")
 
         val response = "Commands available to you in this room: $commands"
         return CommandResult.AcceptedWithResponse(response)

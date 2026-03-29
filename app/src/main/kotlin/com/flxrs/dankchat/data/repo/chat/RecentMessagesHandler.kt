@@ -35,13 +35,9 @@ class RecentMessagesHandler(
     private val chatMessageRepository: ChatMessageRepository,
     private val usersRepository: UsersRepository,
 ) {
-
     private val loadedChannels = mutableSetOf<UserName>()
 
-    data class Result(
-        val mentionItems: List<ChatItem>,
-        val userSuggestions: List<Pair<UserName, DisplayName>>,
-    )
+    data class Result(val mentionItems: List<ChatItem>, val userSuggestions: List<Pair<UserName, DisplayName>>)
 
     @Suppress("LoopWithTooManyJumpStatements")
     suspend fun load(channel: UserName, isReconnect: Boolean = false): Result = withContext(Dispatchers.IO) {
@@ -50,12 +46,13 @@ class RecentMessagesHandler(
         }
 
         val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
-        val result = recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
-            if (!isReconnect) {
-                handleFailure(throwable, channel)
+        val result =
+            recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
+                if (!isReconnect) {
+                    handleFailure(throwable, channel)
+                }
+                return@withContext Result(emptyList(), emptyList())
             }
-            return@withContext Result(emptyList(), emptyList())
-        }
 
         loadedChannels += channel
         val recentMessages = result.messages.orEmpty()
@@ -73,25 +70,28 @@ class RecentMessagesHandler(
 
                 when (parsedIrc.command) {
                     "CLEARCHAT" -> {
-                        val parsed = runCatching {
-                            ModerationMessage.parseClearChat(parsedIrc)
-                        }.getOrNull() ?: continue
+                        val parsed =
+                            runCatching {
+                                ModerationMessage.parseClearChat(parsedIrc)
+                            }.getOrNull() ?: continue
 
                         items.replaceOrAddHistoryModerationMessage(parsed)
                     }
 
-                    "CLEARMSG"  -> {
-                        val parsed = runCatching {
-                            ModerationMessage.parseClearMessage(parsedIrc)
-                        }.getOrNull() ?: continue
+                    "CLEARMSG" -> {
+                        val parsed =
+                            runCatching {
+                                ModerationMessage.parseClearMessage(parsedIrc)
+                            }.getOrNull() ?: continue
 
                         items += ChatItem(parsed, importance = ChatImportance.SYSTEM)
                     }
 
-                    else        -> {
-                        val message = runCatching {
-                            messageProcessor.processIrcMessage(parsedIrc) { _, id -> messageIndex[id] }
-                        }.getOrNull() ?: continue
+                    else -> {
+                        val message =
+                            runCatching {
+                                messageProcessor.processIrcMessage(parsedIrc) { _, id -> messageIndex[id] }
+                            }.getOrNull() ?: continue
 
                         messageIndex[message.id] = message
                         if (message is PrivMessage) {
@@ -102,11 +102,12 @@ class RecentMessagesHandler(
                             }
                         }
 
-                        val importance = when {
-                            isDeleted   -> ChatImportance.DELETED
-                            isReconnect -> ChatImportance.SYSTEM
-                            else        -> ChatImportance.REGULAR
-                        }
+                        val importance =
+                            when {
+                                isDeleted -> ChatImportance.DELETED
+                                isReconnect -> ChatImportance.SYSTEM
+                                else -> ChatImportance.REGULAR
+                            }
                         if (message is UserNoticeMessage && message.childMessage != null) {
                             items += ChatItem(message.childMessage, importance = importance)
                         }
@@ -118,13 +119,16 @@ class RecentMessagesHandler(
 
         val messagesFlow = chatMessageRepository.getMessagesFlow(channel)
         messagesFlow?.update { current ->
-            val withIncompleteWarning = when {
-                !isReconnect && recentMessages.isNotEmpty() && result.errorCode == RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> {
-                    current + SystemMessageType.MessageHistoryIncomplete.toChatItem()
-                }
+            val withIncompleteWarning =
+                when {
+                    !isReconnect && recentMessages.isNotEmpty() && result.errorCode == RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> {
+                        current + SystemMessageType.MessageHistoryIncomplete.toChatItem()
+                    }
 
-                else                                                                                                          -> current
-            }
+                    else -> {
+                        current
+                    }
+                }
 
             withIncompleteWarning.addAndLimit(items, chatMessageRepository.scrollBackLength, messageProcessor::onMessageRemoved, checkForDuplications = true)
         }
@@ -134,21 +138,30 @@ class RecentMessagesHandler(
     }
 
     private fun handleFailure(throwable: Throwable, channel: UserName) {
-        val type = when (throwable) {
-            !is RecentMessagesApiException -> {
-                chatMessageRepository.addLoadingFailure(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), throwable))
-                SystemMessageType.MessageHistoryUnavailable(status = null)
-            }
-
-            else                           -> when (throwable.error) {
-                RecentMessagesError.ChannelNotJoined -> return
-                RecentMessagesError.ChannelIgnored   -> SystemMessageType.MessageHistoryIgnored
-                else                                 -> {
+        val type =
+            when (throwable) {
+                !is RecentMessagesApiException -> {
                     chatMessageRepository.addLoadingFailure(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), throwable))
-                    SystemMessageType.MessageHistoryUnavailable(status = throwable.status.value.toString())
+                    SystemMessageType.MessageHistoryUnavailable(status = null)
+                }
+
+                else -> {
+                    when (throwable.error) {
+                        RecentMessagesError.ChannelNotJoined -> {
+                            return
+                        }
+
+                        RecentMessagesError.ChannelIgnored -> {
+                            SystemMessageType.MessageHistoryIgnored
+                        }
+
+                        else -> {
+                            chatMessageRepository.addLoadingFailure(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), throwable))
+                            SystemMessageType.MessageHistoryUnavailable(status = throwable.status.value.toString())
+                        }
+                    }
                 }
             }
-        }
         chatMessageRepository.addSystemMessageToChannels(type, setOf(channel))
     }
 

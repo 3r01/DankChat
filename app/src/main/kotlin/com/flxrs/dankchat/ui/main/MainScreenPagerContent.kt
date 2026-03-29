@@ -23,16 +23,16 @@ import androidx.compose.ui.unit.max
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatComposable
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import kotlinx.collections.immutable.ImmutableMap
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.tour.TourStep
+import kotlinx.collections.immutable.ImmutableMap
 
 /**
  * Callbacks for chat message interactions within the pager.
@@ -86,7 +86,7 @@ internal fun MainScreenPagerContent(
             LinearProgressIndicator(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
             )
             return@Box
         }
@@ -101,13 +101,13 @@ internal fun MainScreenPagerContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding())
+                    .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     HorizontalPager(
                         state = composePagerState,
                         modifier = Modifier.fillMaxSize(),
-                        key = { index -> pagerState.channels.getOrNull(index)?.value ?: index }
+                        key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
                         if (page in pagerState.channels.indices) {
                             val channel = pagerState.channels[page]
@@ -116,7 +116,7 @@ internal fun MainScreenPagerContent(
                                 onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
                                     val shouldOpenPopup = when (userLongClickBehavior) {
                                         UserLongClickBehavior.MentionsUser -> !isLongPress
-                                        UserLongClickBehavior.OpensPopup   -> isLongPress
+                                        UserLongClickBehavior.OpensPopup -> isLongPress
                                     }
                                     if (shouldOpenPopup) {
                                         callbacks.onShowUserPopup(
@@ -125,8 +125,8 @@ internal fun MainScreenPagerContent(
                                                 targetUserName = UserName(userName),
                                                 targetDisplayName = DisplayName(displayName),
                                                 channel = channel?.let { UserName(it) },
-                                                badges = badges.map { it.badge }
-                                            )
+                                                badges = badges.map { it.badge },
+                                            ),
                                         )
                                     } else {
                                         callbacks.onMentionUser(UserName(userName), DisplayName(displayName))
@@ -140,8 +140,8 @@ internal fun MainScreenPagerContent(
                                             fullMessage = fullMessage,
                                             canModerate = isLoggedIn,
                                             canReply = isLoggedIn,
-                                            canCopy = true
-                                        )
+                                            canCopy = true,
+                                        ),
                                     )
                                 },
                                 onEmoteClick = { emotes ->
@@ -158,16 +158,17 @@ internal fun MainScreenPagerContent(
                                     top = chatTopPadding + 56.dp,
                                     bottom = paddingValues.calculateBottomPadding() + when {
                                         effectiveShowInput -> inputHeightDp
-                                        !isFullscreen      -> when {
+
+                                        !isFullscreen -> when {
                                             helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                            else                      -> max(navBarHeightDp, effectiveRoundedCorner)
+                                            else -> max(navBarHeightDp, effectiveRoundedCorner)
                                         }
 
-                                        else               -> when {
+                                        else -> when {
                                             helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                            else                      -> effectiveRoundedCorner
+                                            else -> effectiveRoundedCorner
                                         }
-                                    }
+                                    },
                                 ),
                                 scrollModifier = if (callbacks.scrollConnection != null) Modifier.nestedScroll(callbacks.scrollConnection) else Modifier,
                                 onScrollToBottom = callbacks.onScrollToBottom,

@@ -72,7 +72,7 @@ fun WhisperMessageComposable(
             .alpha(message.textAlpha)
             .background(backgroundColor)
             .indication(interactionSource, ripple())
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         Box(modifier = Modifier.weight(1f)) {
             WhisperMessageText(
@@ -82,19 +82,19 @@ fun WhisperMessageComposable(
                 backgroundColor = backgroundColor,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick
+                onEmoteClick = onEmoteClick,
             )
         }
         if (onWhisperReply != null) {
             IconButton(
                 onClick = { onWhisperReply(message.replyTargetName) },
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(28.dp),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Reply,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -138,12 +138,12 @@ private fun WhisperMessageText(
             withStyle(
                 SpanStyle(
                     fontWeight = FontWeight.Bold,
-                    color = senderColor
-                )
+                    color = senderColor,
+                ),
             ) {
                 pushStringAnnotation(
                     tag = "USER",
-                    annotation = "${message.userId.value}|${message.userName.value}|${message.displayName.value}"
+                    annotation = "${message.userId.value}|${message.userName.value}|${message.displayName.value}",
                 )
                 append(message.senderName)
                 pop()
@@ -156,8 +156,8 @@ private fun WhisperMessageText(
             withStyle(
                 SpanStyle(
                     fontWeight = FontWeight.Bold,
-                    color = recipientColor
-                )
+                    color = recipientColor,
+                ),
             ) {
                 append(message.recipientName)
             }
@@ -224,7 +224,7 @@ private fun WhisperMessageText(
 
             when {
                 user != null -> onUserClick(user.userId, user.userName, user.displayName, message.badges, true)
-                else         -> onMessageLongClick(message.id, message.fullMessage)
+                else -> onMessageLongClick(message.id, message.fullMessage)
             }
         },
     )
@@ -234,12 +234,7 @@ private fun WhisperMessageText(
  * Renders a channel point redemption message
  */
 @Composable
-fun PointRedemptionMessageComposable(
-    message: ChatMessageUiState.PointRedemptionMessageUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-    highlightShape: Shape = RectangleShape,
-) {
+fun PointRedemptionMessageComposable(message: ChatMessageUiState.PointRedemptionMessageUi, fontSize: Float, modifier: Modifier = Modifier, highlightShape: Shape = RectangleShape) {
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val timestampColor = rememberAdaptiveTextColor(backgroundColor)
 
@@ -249,11 +244,11 @@ fun PointRedemptionMessageComposable(
             .wrapContentHeight()
             .alpha(message.textAlpha)
             .background(backgroundColor, highlightShape)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             val annotatedString = remember(message, timestampColor) {
                 buildAnnotatedString {
@@ -270,7 +265,7 @@ fun PointRedemptionMessageComposable(
                             append("Redeemed ")
                         }
 
-                        message.nameText != null  -> {
+                        message.nameText != null -> {
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                                 append(message.nameText)
                             }
@@ -288,19 +283,19 @@ fun PointRedemptionMessageComposable(
             BasicText(
                 text = annotatedString,
                 style = TextStyle(fontSize = fontSize.sp),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
 
             AsyncImage(
                 model = message.rewardImageUrl,
                 contentDescription = message.title,
-                modifier = Modifier.size((fontSize * 1.5f).dp)
+                modifier = Modifier.size((fontSize * 1.5f).dp),
             )
 
             BasicText(
                 text = " ${message.cost}",
                 style = TextStyle(fontSize = fontSize.sp),
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 4.dp),
             )
         }
     }

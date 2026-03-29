@@ -11,6 +11,7 @@ import org.koin.core.annotation.Single
 class AppLifecycleListener(val app: Application) {
     sealed interface AppLifecycle {
         data object Background : AppLifecycle
+
         data object Foreground : AppLifecycle
     }
 
@@ -37,9 +38,13 @@ class AppLifecycleListener(val app: Application) {
         }
 
         override fun onActivityStarted(activity: Activity) = Unit
+
         override fun onActivityDestroyed(activity: Activity) = Unit
+
         override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+
         override fun onActivityStopped(activity: Activity) = Unit
+
         override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
     }
 }

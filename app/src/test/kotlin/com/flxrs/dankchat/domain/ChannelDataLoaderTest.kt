@@ -32,14 +32,14 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 internal class ChannelDataLoaderTest {
-
     private val testDispatcher = UnconfinedTestDispatcher()
-    private val dispatchersProvider = object : DispatchersProvider {
-        override val default: CoroutineDispatcher = testDispatcher
-        override val io: CoroutineDispatcher = testDispatcher
-        override val main: CoroutineDispatcher = testDispatcher
-        override val immediate: CoroutineDispatcher = testDispatcher
-    }
+    private val dispatchersProvider =
+        object : DispatchersProvider {
+            override val default: CoroutineDispatcher = testDispatcher
+            override val io: CoroutineDispatcher = testDispatcher
+            override val main: CoroutineDispatcher = testDispatcher
+            override val immediate: CoroutineDispatcher = testDispatcher
+        }
 
     private val dataRepository: DataRepository = mockk(relaxed = true)
     private val chatRepository: ChatRepository = mockk(relaxed = true)
@@ -51,23 +51,25 @@ internal class ChannelDataLoaderTest {
 
     private val testChannel = UserName("testchannel")
     private val testChannelId = UserId("123")
-    private val testChannelInfo = Channel(
-        id = testChannelId,
-        name = testChannel,
-        displayName = DisplayName("TestChannel"),
-        avatarUrl = null,
-    )
+    private val testChannelInfo =
+        Channel(
+            id = testChannelId,
+            name = testChannel,
+            displayName = DisplayName("TestChannel"),
+            avatarUrl = null,
+        )
 
     @BeforeEach
     fun setup() {
-        loader = ChannelDataLoader(
-            dataRepository = dataRepository,
-            chatRepository = chatRepository,
-            chatMessageRepository = chatMessageRepository,
-            channelRepository = channelRepository,
-            getChannelsUseCase = getChannelsUseCase,
-            dispatchersProvider = dispatchersProvider,
-        )
+        loader =
+            ChannelDataLoader(
+                dataRepository = dataRepository,
+                chatRepository = chatRepository,
+                chatMessageRepository = chatMessageRepository,
+                channelRepository = channelRepository,
+                getChannelsUseCase = getChannelsUseCase,
+                dispatchersProvider = dispatchersProvider,
+            )
     }
 
     private fun stubAllEmotesAndBadgesSuccess() {

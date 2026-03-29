@@ -55,21 +55,22 @@ class ChatViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
+        combine(
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { appearance, chat ->
+            ChatDisplaySettings(
+                fontSize = appearance.fontSize.toFloat(),
+                showLineSeparator = appearance.lineSeparator,
+                animateGifs = chat.animateGifs,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
-    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { appearance, chat ->
-        ChatDisplaySettings(
-            fontSize = appearance.fontSize.toFloat(),
-            showLineSeparator = appearance.lineSeparator,
-            animateGifs = chat.animateGifs,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
-
-    private val chat: StateFlow<List<ChatItem>> = chatMessageRepository
-        .getChat(channel)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
+    private val chat: StateFlow<List<ChatItem>> =
+        chatMessageRepository
+            .getChat(channel)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 
     // Mapping cache: keyed on "${message.id}-${tag}-${altBg}" to avoid re-mapping unchanged messages
     private val mappingCache = HashMap<String, ChatMessageUiState>(256)
@@ -78,79 +79,89 @@ class ChatViewModel(
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.getDefault())
 
-    val chatUiStates: StateFlow<ImmutableList<ChatMessageUiState>> = combine(
-        chat,
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings
-    ) { messages, appearanceSettings, chatSettings ->
-        // Clear cache when settings change (affects all mapped results)
-        if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
-            mappingCache.clear()
-            lastAppearanceSettings = appearanceSettings
-            lastChatSettings = chatSettings
-        }
-
-        val zone = ZoneId.systemDefault()
-        val result = ArrayList<ChatMessageUiState>(messages.size + 8)
-        var messageCount = 0
-
-        for (index in messages.indices) {
-            val item = messages[index]
-            val isAlternateBackground = when (index) {
-                messages.lastIndex -> messageCount++.isEven
-                else               -> (index - messages.size - 1).isEven
+    val chatUiStates: StateFlow<ImmutableList<ChatMessageUiState>> =
+        combine(
+            chat,
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { messages, appearanceSettings, chatSettings ->
+            // Clear cache when settings change (affects all mapped results)
+            if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
+                mappingCache.clear()
+                lastAppearanceSettings = appearanceSettings
+                lastChatSettings = chatSettings
             }
-            val altBg = isAlternateBackground && appearanceSettings.checkeredMessages
-            val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
-            val mapped = mappingCache.getOrPut(cacheKey) {
-                chatMessageMapper.mapToUiState(
-                    item = item,
-                    chatSettings = chatSettings,
-                    preferenceStore = preferenceStore,
-                    isAlternateBackground = altBg
-                )
-            }
-            result += mapped
+            val zone = ZoneId.systemDefault()
+            val result = ArrayList<ChatMessageUiState>(messages.size + 8)
+            var messageCount = 0
 
-            // Insert date separator between messages on different days
-            if (index < messages.lastIndex) {
-                val currentDay = Instant.ofEpochMilli(item.message.timestamp).atZone(zone).toLocalDate()
-                val nextDay = Instant.ofEpochMilli(messages[index + 1].message.timestamp).atZone(zone).toLocalDate()
-                if (currentDay != nextDay) {
-                    val timestamp = if (chatSettings.showTimestamps) {
-                        DateTimeUtils.timestampToLocalTime(
-                            nextDay.atTime(LocalTime.MIDNIGHT).atZone(zone).toInstant().toEpochMilli(),
-                            chatSettings.formatter
-                        )
-                    } else {
-                        ""
+            for (index in messages.indices) {
+                val item = messages[index]
+                val isAlternateBackground =
+                    when (index) {
+                        messages.lastIndex -> messageCount++.isEven
+                        else -> (index - messages.size - 1).isEven
                     }
-                    result += ChatMessageUiState.DateSeparatorUi(
-                        id = "date-sep-$nextDay",
-                        timestamp = timestamp,
-                        dateText = nextDay.format(dateFormatter),
-                    )
+                val altBg = isAlternateBackground && appearanceSettings.checkeredMessages
+                val cacheKey = "${item.message.id}-${item.tag}-$altBg"
+
+                val mapped =
+                    mappingCache.getOrPut(cacheKey) {
+                        chatMessageMapper.mapToUiState(
+                            item = item,
+                            chatSettings = chatSettings,
+                            preferenceStore = preferenceStore,
+                            isAlternateBackground = altBg,
+                        )
+                    }
+                result += mapped
+
+                // Insert date separator between messages on different days
+                if (index < messages.lastIndex) {
+                    val currentDay = Instant.ofEpochMilli(item.message.timestamp).atZone(zone).toLocalDate()
+                    val nextDay = Instant.ofEpochMilli(messages[index + 1].message.timestamp).atZone(zone).toLocalDate()
+                    if (currentDay != nextDay) {
+                        val timestamp =
+                            if (chatSettings.showTimestamps) {
+                                DateTimeUtils.timestampToLocalTime(
+                                    nextDay
+                                        .atTime(LocalTime.MIDNIGHT)
+                                        .atZone(zone)
+                                        .toInstant()
+                                        .toEpochMilli(),
+                                    chatSettings.formatter,
+                                )
+                            } else {
+                                ""
+                            }
+                        result +=
+                            ChatMessageUiState.DateSeparatorUi(
+                                id = "date-sep-$nextDay",
+                                timestamp = timestamp,
+                                dateText = nextDay.format(dateFormatter),
+                            )
+                    }
                 }
             }
-        }
 
-        result.toImmutableList()
-    }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
+            result.toImmutableList()
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
 
     fun manageAutomodMessage(heldMessageId: String, channel: UserName, allow: Boolean) {
         viewModelScope.launch {
             val userId = authDataStore.userIdString ?: return@launch
             val action = if (allow) "ALLOW" else "DENY"
 
-            helixApiClient.manageAutomodMessage(userId, heldMessageId, action)
+            helixApiClient
+                .manageAutomodMessage(userId, heldMessageId, action)
                 .onFailure { error ->
                     Log.e(TAG, "Failed to $action automod message $heldMessageId", error)
                     val statusCode = (error as? HelixApiException)?.status?.value
                     chatMessageRepository.addSystemMessage(
                         channel,
-                        SystemMessageType.AutomodActionFailed(statusCode = statusCode, allow = allow)
+                        SystemMessageType.AutomodActionFailed(statusCode = statusCode, allow = allow),
                     )
                 }
         }
@@ -162,8 +173,4 @@ class ChatViewModel(
 }
 
 @Immutable
-data class ChatDisplaySettings(
-    val fontSize: Float = 14f,
-    val showLineSeparator: Boolean = false,
-    val animateGifs: Boolean = true,
-)
+data class ChatDisplaySettings(val fontSize: Float = 14f, val showLineSeparator: Boolean = false, val animateGifs: Boolean = true)

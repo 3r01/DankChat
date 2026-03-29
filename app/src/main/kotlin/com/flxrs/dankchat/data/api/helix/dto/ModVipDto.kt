@@ -9,8 +9,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class ModVipDto(
-    @SerialName("user_id") val userId: UserId,
-    @SerialName("user_login") val userLogin: UserName,
-    @SerialName("user_name") val userName: DisplayName,
-)
+data class ModVipDto(@SerialName("user_id") val userId: UserId, @SerialName("user_login") val userLogin: UserName, @SerialName("user_name") val userName: DisplayName)

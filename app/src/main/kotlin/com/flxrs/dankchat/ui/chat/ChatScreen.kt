@@ -107,7 +107,7 @@ fun ChatScreen(
     val isAtBottom by remember {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
-                    listState.firstVisibleItemScrollOffset == 0
+                listState.firstVisibleItemScrollOffset == 0
         }
     }
 
@@ -150,7 +150,7 @@ fun ChatScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = containerColor
+        color = containerColor,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
@@ -159,24 +159,24 @@ fun ChatScreen(
                 contentPadding = contentPadding,
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(scrollModifier)
+                    .then(scrollModifier),
             ) {
                 itemsIndexed(
                     items = reversedMessages,
                     key = { _, message -> message.id },
                     contentType = { _, message ->
                         when (message) {
-                            is ChatMessageUiState.SystemMessageUi          -> "system"
-                            is ChatMessageUiState.NoticeMessageUi          -> "notice"
-                            is ChatMessageUiState.UserNoticeMessageUi      -> "usernotice"
-                            is ChatMessageUiState.ModerationMessageUi      -> "moderation"
-                            is ChatMessageUiState.AutomodMessageUi         -> "automod"
-                            is ChatMessageUiState.PrivMessageUi            -> "privmsg"
-                            is ChatMessageUiState.WhisperMessageUi         -> "whisper"
+                            is ChatMessageUiState.SystemMessageUi -> "system"
+                            is ChatMessageUiState.NoticeMessageUi -> "notice"
+                            is ChatMessageUiState.UserNoticeMessageUi -> "usernotice"
+                            is ChatMessageUiState.ModerationMessageUi -> "moderation"
+                            is ChatMessageUiState.AutomodMessageUi -> "automod"
+                            is ChatMessageUiState.PrivMessageUi -> "privmsg"
+                            is ChatMessageUiState.WhisperMessageUi -> "whisper"
                             is ChatMessageUiState.PointRedemptionMessageUi -> "redemption"
-                            is ChatMessageUiState.DateSeparatorUi          -> "datesep"
+                            is ChatMessageUiState.DateSeparatorUi -> "datesep"
                         }
-                    }
+                    },
                 ) { index, message ->
                     // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
                     val highlightedBelow = reversedMessages.getOrNull(index - 1)?.isHighlighted == true
@@ -205,18 +205,18 @@ fun ChatScreen(
                 val fabBottomPadding by animateDpAsState(
                     targetValue = bottomContentPadding,
                     animationSpec = if (showInput) snap() else spring(),
-                    label = "fabBottomPadding"
+                    label = "fabBottomPadding",
                 )
                 val recoveryBottomPadding by animateDpAsState(
                     targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
-                    label = "recoveryBottomPadding"
+                    label = "recoveryBottomPadding",
                 )
 
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
-                    contentAlignment = Alignment.BottomEnd
+                    contentAlignment = Alignment.BottomEnd,
                 ) {
                     if (recoveryFabTooltipState != null) {
                         TooltipBox(
@@ -236,7 +236,7 @@ fun ChatScreen(
                                 isFullscreen = isFullscreen,
                                 showInput = showInput,
                                 onRecover = onRecover,
-                                modifier = Modifier.padding(bottom = recoveryBottomPadding)
+                                modifier = Modifier.padding(bottom = recoveryBottomPadding),
                             )
                         }
                     } else {
@@ -244,7 +244,7 @@ fun ChatScreen(
                             isFullscreen = isFullscreen,
                             showInput = showInput,
                             onRecover = onRecover,
-                            modifier = Modifier.padding(bottom = recoveryBottomPadding)
+                            modifier = Modifier.padding(bottom = recoveryBottomPadding),
                         )
                     }
                     AnimatedVisibility(
@@ -261,7 +261,7 @@ fun ChatScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Scroll to bottom"
+                                contentDescription = "Scroll to bottom",
                             )
                         }
                     }
@@ -272,27 +272,22 @@ fun ChatScreen(
 }
 
 @Composable
-private fun RecoveryFab(
-    isFullscreen: Boolean,
-    showInput: Boolean,
-    onRecover: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun RecoveryFab(isFullscreen: Boolean, showInput: Boolean, onRecover: () -> Unit, modifier: Modifier = Modifier) {
     val visible = isFullscreen || !showInput
     AnimatedVisibility(
         visible = visible,
         enter = scaleIn() + fadeIn(),
         exit = scaleOut() + fadeOut(),
-        modifier = modifier
+        modifier = modifier,
     ) {
         SmallFloatingActionButton(
             onClick = onRecover,
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
         ) {
             Icon(
                 imageVector = Icons.Default.FullscreenExit,
-                contentDescription = stringResource(R.string.menu_exit_fullscreen)
+                contentDescription = stringResource(R.string.menu_exit_fullscreen),
             )
         }
     }
@@ -313,44 +308,37 @@ private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlig
  */
 
 @Composable
-private fun ChatMessageItem(
-    message: ChatMessageUiState,
-    highlightShape: Shape,
-    fontSize: Float,
-    showChannelPrefix: Boolean,
-    animateGifs: Boolean,
-    callbacks: ChatScreenCallbacks,
-) {
+private fun ChatMessageItem(message: ChatMessageUiState, highlightShape: Shape, fontSize: Float, showChannelPrefix: Boolean, animateGifs: Boolean, callbacks: ChatScreenCallbacks) {
     when (message) {
-        is ChatMessageUiState.SystemMessageUi          -> SystemMessageComposable(
+        is ChatMessageUiState.SystemMessageUi -> SystemMessageComposable(
             message = message,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.NoticeMessageUi          -> NoticeMessageComposable(
+        is ChatMessageUiState.NoticeMessageUi -> NoticeMessageComposable(
             message = message,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.UserNoticeMessageUi      -> UserNoticeMessageComposable(
+        is ChatMessageUiState.UserNoticeMessageUi -> UserNoticeMessageComposable(
             message = message,
             highlightShape = highlightShape,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.ModerationMessageUi      -> ModerationMessageComposable(
+        is ChatMessageUiState.ModerationMessageUi -> ModerationMessageComposable(
             message = message,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.AutomodMessageUi         -> AutomodMessageComposable(
+        is ChatMessageUiState.AutomodMessageUi -> AutomodMessageComposable(
             message = message,
             fontSize = fontSize,
             onAllow = callbacks.onAutomodAllow,
             onDeny = callbacks.onAutomodDeny,
         )
 
-        is ChatMessageUiState.PrivMessageUi            -> PrivMessageComposable(
+        is ChatMessageUiState.PrivMessageUi -> PrivMessageComposable(
             message = message,
             highlightShape = highlightShape,
             fontSize = fontSize,
@@ -359,21 +347,21 @@ private fun ChatMessageItem(
             onUserClick = callbacks.onUserClick,
             onMessageLongClick = callbacks.onMessageLongClick,
             onEmoteClick = callbacks.onEmoteClick,
-            onReplyClick = callbacks.onReplyClick
+            onReplyClick = callbacks.onReplyClick,
         )
 
         is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
             message = message,
             highlightShape = highlightShape,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.DateSeparatorUi          -> DateSeparatorComposable(
+        is ChatMessageUiState.DateSeparatorUi -> DateSeparatorComposable(
             message = message,
-            fontSize = fontSize
+            fontSize = fontSize,
         )
 
-        is ChatMessageUiState.WhisperMessageUi         -> WhisperMessageComposable(
+        is ChatMessageUiState.WhisperMessageUi -> WhisperMessageComposable(
             message = message,
             fontSize = fontSize,
             animateGifs = animateGifs,
@@ -384,7 +372,7 @@ private fun ChatMessageItem(
                 callbacks.onMessageLongClick(messageId, null, fullMessage)
             },
             onEmoteClick = callbacks.onEmoteClick,
-            onWhisperReply = callbacks.onWhisperReply
+            onWhisperReply = callbacks.onWhisperReply,
         )
     }
 }

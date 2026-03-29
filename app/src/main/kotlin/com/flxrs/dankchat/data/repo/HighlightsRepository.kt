@@ -48,43 +48,49 @@ class HighlightsRepository(
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val currentUserAndDisplay = preferences.currentUserAndDisplayFlow.stateIn(coroutineScope, SharingStarted.Eagerly, null)
-    private val currentUserRegex = currentUserAndDisplay
-        .map(::createUserAndDisplayRegex)
-        .stateIn(coroutineScope, SharingStarted.Eagerly, null)
+    private val currentUserRegex =
+        currentUserAndDisplay
+            .map(::createUserAndDisplayRegex)
+            .stateIn(coroutineScope, SharingStarted.Eagerly, null)
 
-    val messageHighlights = messageHighlightDao.getMessageHighlightsFlow()
-        .map { it.addDefaultsIfNecessary() }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    val messageHighlights =
+        messageHighlightDao
+            .getMessageHighlightsFlow()
+            .map { it.addDefaultsIfNecessary() }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
     val userHighlights = userHighlightDao.getUserHighlightsFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
-    val badgeHighlights = badgeHighlightDao.getBadgeHighlightsFlow()
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    val badgeHighlights =
+        badgeHighlightDao
+            .getBadgeHighlightsFlow()
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val blacklistedUsers = blacklistedUserDao.getBlacklistedUserFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
-    private val validMessageHighlights = messageHighlights
-        .map { highlights -> highlights.filter { it.enabled && (it.type != MessageHighlightEntityType.Custom || it.pattern.isNotBlank()) } }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
-    private val validUserHighlights = userHighlights
-        .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
-    private val validBadgeHighlights = badgeHighlights
-        .map { highlights -> highlights.filter { it.enabled && it.badgeName.isNotBlank() } }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
-    private val validBlacklistedUsers = blacklistedUsers
-        .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
-        .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val validMessageHighlights =
+        messageHighlights
+            .map { highlights -> highlights.filter { it.enabled && (it.type != MessageHighlightEntityType.Custom || it.pattern.isNotBlank()) } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val validUserHighlights =
+        userHighlights
+            .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val validBadgeHighlights =
+        badgeHighlights
+            .map { highlights -> highlights.filter { it.enabled && it.badgeName.isNotBlank() } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val validBlacklistedUsers =
+        blacklistedUsers
+            .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
-    suspend fun calculateHighlightState(message: Message): Message {
-        return when (message) {
-            is UserNoticeMessage      -> message.calculateHighlightState()
-            is PointRedemptionMessage -> message.calculateHighlightState()
-            is PrivMessage            -> message.calculateHighlightState()
-            is WhisperMessage         -> message.calculateHighlightState()
-            else                      -> message
-        }
+    suspend fun calculateHighlightState(message: Message): Message = when (message) {
+        is UserNoticeMessage -> message.calculateHighlightState()
+        is PointRedemptionMessage -> message.calculateHighlightState()
+        is PrivMessage -> message.calculateHighlightState()
+        is WhisperMessage -> message.calculateHighlightState()
+        else -> message
     }
 
     fun runMigrationsIfNeeded() = coroutineScope.launch {
@@ -113,12 +119,13 @@ class HighlightsRepository(
     }
 
     suspend fun addMessageHighlight(): MessageHighlightEntity {
-        val entity = MessageHighlightEntity(
-            id = 0,
-            enabled = true,
-            type = MessageHighlightEntityType.Custom,
-            pattern = ""
-        )
+        val entity =
+            MessageHighlightEntity(
+                id = 0,
+                enabled = true,
+                type = MessageHighlightEntityType.Custom,
+                pattern = "",
+            )
         val id = messageHighlightDao.addHighlight(entity)
         return entity.copy(id = id)
     }
@@ -136,11 +143,12 @@ class HighlightsRepository(
     }
 
     suspend fun addUserHighlight(): UserHighlightEntity {
-        val entity = UserHighlightEntity(
-            id = 0,
-            enabled = true,
-            username = ""
-        )
+        val entity =
+            UserHighlightEntity(
+                id = 0,
+                enabled = true,
+                username = "",
+            )
         val id = userHighlightDao.addHighlight(entity)
         return entity.copy(id = id)
     }
@@ -158,12 +166,13 @@ class HighlightsRepository(
     }
 
     suspend fun addBadgeHighlight(): BadgeHighlightEntity {
-        val entity = BadgeHighlightEntity(
-            id = 0,
-            enabled = true,
-            badgeName = "",
-            isCustom = true,
-        )
+        val entity =
+            BadgeHighlightEntity(
+                id = 0,
+                enabled = true,
+                badgeName = "",
+                isCustom = true,
+            )
         val id = badgeHighlightDao.addHighlight(entity)
         return entity.copy(id = id)
     }
@@ -181,11 +190,12 @@ class HighlightsRepository(
     }
 
     suspend fun addBlacklistedUser(): BlacklistedUserEntity {
-        val entity = BlacklistedUserEntity(
-            id = 0,
-            enabled = true,
-            username = ""
-        )
+        val entity =
+            BlacklistedUserEntity(
+                id = 0,
+                enabled = true,
+                username = "",
+            )
         val id = blacklistedUserDao.addBlacklistedUser(entity)
         return entity.copy(id = id)
     }
@@ -205,21 +215,22 @@ class HighlightsRepository(
     private fun UserNoticeMessage.calculateHighlightState(): UserNoticeMessage {
         val messageHighlights = validMessageHighlights.value
 
-        val highlights = buildSet {
-            val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
-            if (isSub && subsHighlight != null) {
-                add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
-            }
+        val highlights =
+            buildSet {
+                val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
+                if (isSub && subsHighlight != null) {
+                    add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
+                }
 
-            val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
-            if (isAnnouncement && announcementsHighlight != null) {
-                add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
+                val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
+                if (isAnnouncement && announcementsHighlight != null) {
+                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
+                }
             }
-        }
 
         return copy(
             highlights = highlights,
-            childMessage = childMessage?.calculateHighlightState()
+            childMessage = childMessage?.calculateHighlightState(),
         )
     }
 
@@ -244,93 +255,94 @@ class HighlightsRepository(
         val userHighlights = validUserHighlights.value
         val badgeHighlights = validBadgeHighlights.value
         val messageHighlights = validMessageHighlights.value
-        val highlights = buildSet {
-            val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
-            if (isSub && subsHighlight != null) {
-                add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
-            }
-
-            val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
-            if (isAnnouncement && announcementsHighlight != null) {
-                add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
-            }
-
-            val rewardsHighlight = messageHighlights.ofType(MessageHighlightEntityType.ChannelPointRedemption)
-            if (isReward && rewardsHighlight != null) {
-                add(Highlight(HighlightType.ChannelPointRedemption, rewardsHighlight.customColor))
-            }
-
-            val firstMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.FirstMessage)
-            if (isFirstMessage && firstMessageHighlight != null) {
-                add(Highlight(HighlightType.FirstMessage, firstMessageHighlight.customColor))
-            }
-
-            val elevatedMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.ElevatedMessage)
-            if (isElevatedMessage && elevatedMessageHighlight != null) {
-                add(Highlight(HighlightType.ElevatedMessage, elevatedMessageHighlight.customColor))
-            }
-
-            if (containsCurrentUserName) {
-                val highlight = messageHighlights.ofType(MessageHighlightEntityType.Username)
-                if (highlight?.enabled == true) {
-                    add(Highlight(HighlightType.Username, highlight.customColor))
-                    addNotificationHighlightIfEnabled(highlight.createNotification)
+        val highlights =
+            buildSet {
+                val subsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Subscription)
+                if (isSub && subsHighlight != null) {
+                    add(Highlight(HighlightType.Subscription, subsHighlight.customColor))
                 }
-            }
 
-            if (containsParticipatedReply) {
-                val highlight = messageHighlights.ofType(MessageHighlightEntityType.Reply)
-                if (highlight?.enabled == true) {
-                    add(Highlight(HighlightType.Reply, highlight.customColor))
-                    addNotificationHighlightIfEnabled(highlight.createNotification)
+                val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
+                if (isAnnouncement && announcementsHighlight != null) {
+                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
                 }
-            }
 
-            messageHighlights
-                .filter { it.type == MessageHighlightEntityType.Custom }
-                .forEach {
-                    val regex = it.regex ?: return@forEach
+                val rewardsHighlight = messageHighlights.ofType(MessageHighlightEntityType.ChannelPointRedemption)
+                if (isReward && rewardsHighlight != null) {
+                    add(Highlight(HighlightType.ChannelPointRedemption, rewardsHighlight.customColor))
+                }
 
-                    if (message.contains(regex)) {
+                val firstMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.FirstMessage)
+                if (isFirstMessage && firstMessageHighlight != null) {
+                    add(Highlight(HighlightType.FirstMessage, firstMessageHighlight.customColor))
+                }
+
+                val elevatedMessageHighlight = messageHighlights.ofType(MessageHighlightEntityType.ElevatedMessage)
+                if (isElevatedMessage && elevatedMessageHighlight != null) {
+                    add(Highlight(HighlightType.ElevatedMessage, elevatedMessageHighlight.customColor))
+                }
+
+                if (containsCurrentUserName) {
+                    val highlight = messageHighlights.ofType(MessageHighlightEntityType.Username)
+                    if (highlight?.enabled == true) {
+                        add(Highlight(HighlightType.Username, highlight.customColor))
+                        addNotificationHighlightIfEnabled(highlight.createNotification)
+                    }
+                }
+
+                if (containsParticipatedReply) {
+                    val highlight = messageHighlights.ofType(MessageHighlightEntityType.Reply)
+                    if (highlight?.enabled == true) {
+                        add(Highlight(HighlightType.Reply, highlight.customColor))
+                        addNotificationHighlightIfEnabled(highlight.createNotification)
+                    }
+                }
+
+                messageHighlights
+                    .filter { it.type == MessageHighlightEntityType.Custom }
+                    .forEach {
+                        val regex = it.regex ?: return@forEach
+
+                        if (message.contains(regex)) {
+                            add(Highlight(HighlightType.Custom, it.customColor))
+                            addNotificationHighlightIfEnabled(it.createNotification)
+                        }
+                    }
+
+                userHighlights.forEach {
+                    if (name.matches(it.username)) {
                         add(Highlight(HighlightType.Custom, it.customColor))
                         addNotificationHighlightIfEnabled(it.createNotification)
                     }
                 }
-
-            userHighlights.forEach {
-                if (name.matches(it.username)) {
-                    add(Highlight(HighlightType.Custom, it.customColor))
-                    addNotificationHighlightIfEnabled(it.createNotification)
-                }
-            }
-            badgeHighlights.forEach { highlight ->
-                badges.forEach { badge ->
-                    val tag = badge.badgeTag ?: return@forEach
-                    if (tag.isNotBlank()) {
-                        val match = if (highlight.badgeName.contains("/")) {
-                            tag == highlight.badgeName
-                        } else {
-                            tag.startsWith(highlight.badgeName + "/")
-                        }
-                        if (match) {
-                            add(Highlight(HighlightType.Badge, highlight.customColor))
-                            addNotificationHighlightIfEnabled(highlight.createNotification)
+                badgeHighlights.forEach { highlight ->
+                    badges.forEach { badge ->
+                        val tag = badge.badgeTag ?: return@forEach
+                        if (tag.isNotBlank()) {
+                            val match =
+                                if (highlight.badgeName.contains("/")) {
+                                    tag == highlight.badgeName
+                                } else {
+                                    tag.startsWith(highlight.badgeName + "/")
+                                }
+                            if (match) {
+                                add(Highlight(HighlightType.Badge, highlight.customColor))
+                                addNotificationHighlightIfEnabled(highlight.createNotification)
+                            }
                         }
                     }
                 }
             }
-        }
 
         return copy(highlights = highlights)
     }
 
     private suspend fun WhisperMessage.calculateHighlightState(): WhisperMessage = when {
         notificationsSettingsDataStore.settings.first().showWhisperNotifications -> copy(highlights = setOf(Highlight(HighlightType.Notification)))
-        else                                                                     -> this
+        else -> this
     }
 
-    private fun List<MessageHighlightEntity>.ofType(type: MessageHighlightEntityType): MessageHighlightEntity? =
-        find { it.type == type }
+    private fun List<MessageHighlightEntity>.ofType(type: MessageHighlightEntityType): MessageHighlightEntity? = find { it.type == type }
 
     private fun MutableCollection<Highlight>.addNotificationHighlightIfEnabled(createNotification: Boolean) {
         if (createNotification) {
@@ -355,19 +367,22 @@ class HighlightsRepository(
     private fun createUserAndDisplayRegex(values: Pair<UserName?, DisplayName?>?): Regex? {
         val (user, display) = values ?: return null
         user ?: return null
-        val displayRegex = display
-            ?.takeIf { !user.matches(it) }
-            ?.let { "|$it" }.orEmpty()
+        val displayRegex =
+            display
+                ?.takeIf { !user.matches(it) }
+                ?.let { "|$it" }
+                .orEmpty()
         return """\b$user$displayRegex\b""".toRegex(RegexOption.IGNORE_CASE)
     }
 
     private fun isUserBlacklisted(name: UserName): Boolean {
         validBlacklistedUsers.value
             .forEach {
-                val hasMatch = when {
-                    it.isRegex -> it.regex?.let { regex -> name.matches(regex) } ?: false
-                    else       -> name.matches(it.username)
-                }
+                val hasMatch =
+                    when {
+                        it.isRegex -> it.regex?.let { regex -> name.matches(regex) } ?: false
+                        else -> name.matches(it.username)
+                    }
 
                 if (hasMatch) {
                     return true
@@ -377,36 +392,37 @@ class HighlightsRepository(
         return false
     }
 
-    private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> {
-        return (this + DEFAULT_MESSAGE_HIGHLIGHTS).distinctBy {
+    private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> = (this + DEFAULT_MESSAGE_HIGHLIGHTS)
+        .distinctBy {
             when (it.type) {
                 MessageHighlightEntityType.Custom -> it.id
-                else                              -> it.type
+                else -> it.type
             }
         }.sortedBy { it.type.ordinal }
-    }
 
     companion object {
         private val TAG = HighlightsRepository::class.java.simpleName
-        private val DEFAULT_MESSAGE_HIGHLIGHTS = listOf(
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Username, pattern = ""),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Subscription, pattern = "", createNotification = false),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Announcement, pattern = "", createNotification = false),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ChannelPointRedemption, pattern = "", createNotification = false),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.FirstMessage, pattern = "", createNotification = false),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ElevatedMessage, pattern = "", createNotification = false),
-            MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Reply, pattern = ""),
-        )
-        private val DEFAULT_BADGE_HIGHLIGHTS = listOf(
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "broadcaster", isCustom = false, customColor = 0x7f7f3f49.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "admin", isCustom = false, customColor = 0x7f8f3018.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "staff", isCustom = false, customColor = 0x7f8f3018.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "lead_moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "partner", isCustom = false, customColor = 0x64c466ff.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "vip", isCustom = false, customColor = 0x7fc12ea9.toInt()),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "founder", isCustom = false),
-            BadgeHighlightEntity(id = 0, enabled = false, badgeName = "subscriber", isCustom = false),
-        )
+        private val DEFAULT_MESSAGE_HIGHLIGHTS =
+            listOf(
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Username, pattern = ""),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Subscription, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Announcement, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ChannelPointRedemption, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.FirstMessage, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ElevatedMessage, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Reply, pattern = ""),
+            )
+        private val DEFAULT_BADGE_HIGHLIGHTS =
+            listOf(
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "broadcaster", isCustom = false, customColor = 0x7f7f3f49.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "admin", isCustom = false, customColor = 0x7f8f3018.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "staff", isCustom = false, customColor = 0x7f8f3018.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "lead_moderator", isCustom = false, customColor = 0x731f8d2b.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "partner", isCustom = false, customColor = 0x64c466ff.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "vip", isCustom = false, customColor = 0x7fc12ea9.toInt()),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "founder", isCustom = false),
+                BadgeHighlightEntity(id = 0, enabled = false, badgeName = "subscriber", isCustom = false),
+            )
     }
 }

@@ -45,10 +45,10 @@ import org.koin.core.annotation.Single
 
 @Single
 class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
-
     suspend fun getUsersByNames(names: List<UserName>): Result<List<UserDto>> = runCatching {
         names.chunked(DEFAULT_PAGE_SIZE).flatMap {
-            helixApi.getUsersByName(it)
+            helixApi
+                .getUsersByName(it)
                 .throwHelixApiErrorOnFailure()
                 .body<DataListDto<UserDto>>()
                 .data
@@ -57,7 +57,8 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
 
     suspend fun getUsersByIds(ids: List<UserId>): Result<List<UserDto>> = runCatching {
         ids.chunked(DEFAULT_PAGE_SIZE).flatMap {
-            helixApi.getUsersByIds(it)
+            helixApi
+                .getUsersByIds(it)
                 .throwHelixApiErrorOnFailure()
                 .body<DataListDto<UserDto>>()
                 .data
@@ -74,14 +75,16 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
         .mapCatching { it.id }
 
     suspend fun getChannelFollowers(broadcastUserId: UserId, targetUserId: UserId): Result<UserFollowsDto> = runCatching {
-        helixApi.getChannelFollowers(broadcastUserId, targetUserId)
+        helixApi
+            .getChannelFollowers(broadcastUserId, targetUserId)
             .throwHelixApiErrorOnFailure()
             .body()
     }
 
     suspend fun getStreams(channels: List<UserName>): Result<List<StreamDto>> = runCatching {
         channels.chunked(DEFAULT_PAGE_SIZE).flatMap {
-            helixApi.getStreams(it)
+            helixApi
+                .getStreams(it)
                 .throwHelixApiErrorOnFailure()
                 .body<DataListDto<StreamDto>>()
                 .data
@@ -95,30 +98,26 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun blockUser(targetUserId: UserId): Result<Unit> = runCatching {
-        helixApi.putUserBlock(targetUserId)
+        helixApi
+            .putUserBlock(targetUserId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun unblockUser(targetUserId: UserId): Result<Unit> = runCatching {
-        helixApi.deleteUserBlock(targetUserId)
+        helixApi
+            .deleteUserBlock(targetUserId)
             .throwHelixApiErrorOnFailure()
     }
 
-    suspend fun postAnnouncement(
-        broadcastUserId: UserId,
-        moderatorUserId: UserId,
-        request: AnnouncementRequestDto
-    ): Result<Unit> = runCatching {
-        helixApi.postAnnouncement(broadcastUserId, moderatorUserId, request)
+    suspend fun postAnnouncement(broadcastUserId: UserId, moderatorUserId: UserId, request: AnnouncementRequestDto): Result<Unit> = runCatching {
+        helixApi
+            .postAnnouncement(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()
     }
 
-    suspend fun postWhisper(
-        fromUserId: UserId,
-        toUserId: UserId,
-        request: WhisperRequestDto
-    ): Result<Unit> = runCatching {
-        helixApi.postWhisper(fromUserId, toUserId, request)
+    suspend fun postWhisper(fromUserId: UserId, toUserId: UserId, request: WhisperRequestDto): Result<Unit> = runCatching {
+        helixApi
+            .postWhisper(fromUserId, toUserId, request)
             .throwHelixApiErrorOnFailure()
     }
 
@@ -129,12 +128,14 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun postModerator(broadcastUserId: UserId, userId: UserId): Result<Unit> = runCatching {
-        helixApi.postModerator(broadcastUserId, userId)
+        helixApi
+            .postModerator(broadcastUserId, userId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun deleteModerator(broadcastUserId: UserId, userId: UserId): Result<Unit> = runCatching {
-        helixApi.deleteModerator(broadcastUserId, userId)
+        helixApi
+            .deleteModerator(broadcastUserId, userId)
             .throwHelixApiErrorOnFailure()
     }
 
@@ -145,37 +146,44 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun postVip(broadcastUserId: UserId, userId: UserId): Result<Unit> = runCatching {
-        helixApi.postVip(broadcastUserId, userId)
+        helixApi
+            .postVip(broadcastUserId, userId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun deleteVip(broadcastUserId: UserId, userId: UserId): Result<Unit> = runCatching {
-        helixApi.deleteVip(broadcastUserId, userId)
+        helixApi
+            .deleteVip(broadcastUserId, userId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun postBan(broadcastUserId: UserId, moderatorUserId: UserId, requestDto: BanRequestDto): Result<Unit> = runCatching {
-        helixApi.postBan(broadcastUserId, moderatorUserId, requestDto)
+        helixApi
+            .postBan(broadcastUserId, moderatorUserId, requestDto)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun deleteBan(broadcastUserId: UserId, moderatorUserId: UserId, targetUserId: UserId): Result<Unit> = runCatching {
-        helixApi.deleteBan(broadcastUserId, moderatorUserId, targetUserId)
+        helixApi
+            .deleteBan(broadcastUserId, moderatorUserId, targetUserId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun deleteMessages(broadcastUserId: UserId, moderatorUserId: UserId, messageId: String? = null): Result<Unit> = runCatching {
-        helixApi.deleteMessages(broadcastUserId, moderatorUserId, messageId)
+        helixApi
+            .deleteMessages(broadcastUserId, moderatorUserId, messageId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun putUserChatColor(targetUserId: UserId, color: String): Result<Unit> = runCatching {
-        helixApi.putUserChatColor(targetUserId, color)
+        helixApi
+            .putUserChatColor(targetUserId, color)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun postMarker(requestDto: MarkerRequestDto): Result<MarkerDto> = runCatching {
-        helixApi.postMarker(requestDto)
+        helixApi
+            .postMarker(requestDto)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<MarkerDto>>()
             .data
@@ -183,7 +191,8 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun postCommercial(request: CommercialRequestDto): Result<CommercialDto> = runCatching {
-        helixApi.postCommercial(request)
+        helixApi
+            .postCommercial(request)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<CommercialDto>>()
             .data
@@ -191,7 +200,8 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun postRaid(broadcastUserId: UserId, targetUserId: UserId): Result<RaidDto> = runCatching {
-        helixApi.postRaid(broadcastUserId, targetUserId)
+        helixApi
+            .postRaid(broadcastUserId, targetUserId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<RaidDto>>()
             .data
@@ -199,12 +209,14 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun deleteRaid(broadcastUserId: UserId): Result<Unit> = runCatching {
-        helixApi.deleteRaid(broadcastUserId)
+        helixApi
+            .deleteRaid(broadcastUserId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun patchChatSettings(broadcastUserId: UserId, moderatorUserId: UserId, request: ChatSettingsRequestDto): Result<ChatSettingsDto> = runCatching {
-        helixApi.patchChatSettings(broadcastUserId, moderatorUserId, request)
+        helixApi
+            .patchChatSettings(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<ChatSettingsDto>>()
             .data
@@ -212,38 +224,44 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun getGlobalBadges(): Result<List<BadgeSetDto>> = runCatching {
-        helixApi.getGlobalBadges()
+        helixApi
+            .getGlobalBadges()
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<BadgeSetDto>>()
             .data
     }
 
     suspend fun getChannelBadges(broadcastUserId: UserId): Result<List<BadgeSetDto>> = runCatching {
-        helixApi.getChannelBadges(broadcastUserId)
+        helixApi
+            .getChannelBadges(broadcastUserId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<BadgeSetDto>>()
             .data
     }
 
     suspend fun getCheermotes(broadcasterId: UserId): Result<List<CheermoteSetDto>> = runCatching {
-        helixApi.getCheermotes(broadcasterId)
+        helixApi
+            .getCheermotes(broadcasterId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<CheermoteSetDto>>()
             .data
     }
 
     suspend fun manageAutomodMessage(userId: UserId, msgId: String, action: String): Result<Unit> = runCatching {
-        helixApi.postManageAutomodMessage(ManageAutomodMessageRequestDto(userId = userId, msgId = msgId, action = action))
+        helixApi
+            .postManageAutomodMessage(ManageAutomodMessageRequestDto(userId = userId, msgId = msgId, action = action))
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun postShoutout(broadcastUserId: UserId, targetUserId: UserId, moderatorUserId: UserId): Result<Unit> = runCatching {
-        helixApi.postShoutout(broadcastUserId, targetUserId, moderatorUserId)
+        helixApi
+            .postShoutout(broadcastUserId, targetUserId, moderatorUserId)
             .throwHelixApiErrorOnFailure()
     }
 
     suspend fun getShieldMode(broadcastUserId: UserId, moderatorUserId: UserId): Result<ShieldModeStatusDto> = runCatching {
-        helixApi.getShieldMode(broadcastUserId, moderatorUserId)
+        helixApi
+            .getShieldMode(broadcastUserId, moderatorUserId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<ShieldModeStatusDto>>()
             .data
@@ -251,7 +269,8 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun putShieldMode(broadcastUserId: UserId, moderatorUserId: UserId, request: ShieldModeRequestDto): Result<ShieldModeStatusDto> = runCatching {
-        helixApi.putShieldMode(broadcastUserId, moderatorUserId, request)
+        helixApi
+            .putShieldMode(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<ShieldModeStatusDto>>()
             .data
@@ -259,13 +278,15 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun postEventSubSubscription(request: EventSubSubscriptionRequestDto): Result<EventSubSubscriptionResponseListDto> = runCatching {
-        helixApi.postEventSubSubscription(request)
+        helixApi
+            .postEventSubSubscription(request)
             .throwHelixApiErrorOnFailure()
             .body<EventSubSubscriptionResponseListDto>()
     }
 
     suspend fun deleteEventSubSubscription(id: String): Result<Unit> = runCatching {
-        helixApi.deleteEventSubSubscription(id)
+        helixApi
+            .deleteEventSubSubscription(id)
             .throwHelixApiErrorOnFailure()
     }
 
@@ -274,14 +295,16 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     suspend fun getChannelEmotes(broadcasterId: UserId): Result<List<ChannelEmoteDto>> = runCatching {
-        helixApi.getChannelEmotes(broadcasterId)
+        helixApi
+            .getChannelEmotes(broadcasterId)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<ChannelEmoteDto>>()
             .data
     }
 
     suspend fun postChatMessage(request: SendChatMessageRequestDto): Result<SendChatMessageResponseDto> = runCatching {
-        helixApi.postChatMessage(request)
+        helixApi
+            .postChatMessage(request)
             .throwHelixApiErrorOnFailure()
             .body<DataListDto<SendChatMessageResponseDto>>()
             .data
@@ -289,16 +312,18 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     private inline fun <reified T> pageAsFlow(amountToFetch: Int, crossinline request: suspend (cursor: String?) -> HttpResponse?): Flow<List<T>> = flow {
-        val initialPage = request(null)
-            .throwHelixApiErrorOnFailure()
-            .body<PagedDto<T>>()
+        val initialPage =
+            request(null)
+                .throwHelixApiErrorOnFailure()
+                .body<PagedDto<T>>()
         emit(initialPage.data)
         var cursor = initialPage.pagination.cursor
         var count = initialPage.data.size
         while (cursor != null && count < amountToFetch) {
-            val result = request(cursor)
-                .throwHelixApiErrorOnFailure()
-                .body<PagedDto<T>>()
+            val result =
+                request(cursor)
+                    .throwHelixApiErrorOnFailure()
+                    .body<PagedDto<T>>()
             emit(result.data)
             count += result.data.size
             cursor = result.pagination.cursor
@@ -306,17 +331,19 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     private suspend inline fun <reified T> pageUntil(amountToFetch: Int, request: (cursor: String?) -> HttpResponse?): List<T> {
-        val initialPage = request(null)
-            .throwHelixApiErrorOnFailure()
-            .body<PagedDto<T>>()
+        val initialPage =
+            request(null)
+                .throwHelixApiErrorOnFailure()
+                .body<PagedDto<T>>()
 
         var cursor = initialPage.pagination.cursor
         val entries = initialPage.data.toMutableList()
 
         while (cursor != null && entries.size < amountToFetch) {
-            val result = request(cursor)
-                .throwHelixApiErrorOnFailure()
-                .body<PagedDto<T>>()
+            val result =
+                request(cursor)
+                    .throwHelixApiErrorOnFailure()
+                    .body<PagedDto<T>>()
 
             entries.addAll(result.data)
             cursor = result.pagination.cursor
@@ -335,73 +362,131 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
         val errorBody = json.decodeOrNull<HelixErrorDto>(bodyAsText()) ?: throw HelixApiException(HelixError.Unknown, status, request.url, status.description)
         val message = errorBody.message
         val betterStatus = HttpStatusCode.fromValue(status.value)
-        val error = when (betterStatus) {
-            HttpStatusCode.BadRequest          -> when {
-                message.startsWith(WHISPER_SELF_ERROR, ignoreCase = true)           -> HelixError.WhisperSelf
-                message.startsWith(USER_ALREADY_MOD_ERROR, ignoreCase = true)       -> HelixError.TargetAlreadyModded
-                message.startsWith(USER_NOT_MOD_ERROR, ignoreCase = true)           -> HelixError.TargetNotModded
-                message.startsWith(USER_ALREADY_BANNED_ERROR, ignoreCase = true)    -> HelixError.TargetAlreadyBanned
-                message.startsWith(USER_MAY_NOT_BE_BANNED_ERROR, ignoreCase = true) -> HelixError.TargetCannotBeBanned
-                message.startsWith(USER_NOT_BANNED_ERROR, ignoreCase = true)        -> HelixError.TargetNotBanned
-                message.startsWith(INVALID_COLOR_ERROR, ignoreCase = true)          -> HelixError.InvalidColor
-                message.startsWith(BROADCASTER_NOT_LIVE_ERROR, ignoreCase = true)   -> HelixError.CommercialNotStreaming
-                message.startsWith(MISSING_REQUIRED_PARAM_ERROR, ignoreCase = true) -> HelixError.MissingLengthParameter
-                message.startsWith(RAID_SELF_ERROR, ignoreCase = true)              -> HelixError.RaidSelf
-                message.startsWith(SHOUTOUT_SELF_ERROR, ignoreCase = true)          -> HelixError.ShoutoutSelf
-                message.startsWith(SHOUTOUT_NOT_LIVE_ERROR, ignoreCase = true)      -> HelixError.ShoutoutTargetNotStreaming
-                message.contains(NOT_IN_RANGE_ERROR, ignoreCase = true)             -> {
-                    val match = INVALID_RANGE_REGEX.find(message)?.groupValues
-                    val start = match?.getOrNull(1)?.toIntOrNull()
-                    val end = match?.getOrNull(2)?.toIntOrNull()
+        val error =
+            when (betterStatus) {
+                HttpStatusCode.BadRequest -> {
                     when {
-                        start != null && end != null -> HelixError.NotInRange(validRange = start..end)
-                        else                         -> HelixError.NotInRange(validRange = null)
+                        message.startsWith(WHISPER_SELF_ERROR, ignoreCase = true) -> {
+                            HelixError.WhisperSelf
+                        }
+
+                        message.startsWith(USER_ALREADY_MOD_ERROR, ignoreCase = true) -> {
+                            HelixError.TargetAlreadyModded
+                        }
+
+                        message.startsWith(USER_NOT_MOD_ERROR, ignoreCase = true) -> {
+                            HelixError.TargetNotModded
+                        }
+
+                        message.startsWith(USER_ALREADY_BANNED_ERROR, ignoreCase = true) -> {
+                            HelixError.TargetAlreadyBanned
+                        }
+
+                        message.startsWith(USER_MAY_NOT_BE_BANNED_ERROR, ignoreCase = true) -> {
+                            HelixError.TargetCannotBeBanned
+                        }
+
+                        message.startsWith(USER_NOT_BANNED_ERROR, ignoreCase = true) -> {
+                            HelixError.TargetNotBanned
+                        }
+
+                        message.startsWith(INVALID_COLOR_ERROR, ignoreCase = true) -> {
+                            HelixError.InvalidColor
+                        }
+
+                        message.startsWith(BROADCASTER_NOT_LIVE_ERROR, ignoreCase = true) -> {
+                            HelixError.CommercialNotStreaming
+                        }
+
+                        message.startsWith(MISSING_REQUIRED_PARAM_ERROR, ignoreCase = true) -> {
+                            HelixError.MissingLengthParameter
+                        }
+
+                        message.startsWith(RAID_SELF_ERROR, ignoreCase = true) -> {
+                            HelixError.RaidSelf
+                        }
+
+                        message.startsWith(SHOUTOUT_SELF_ERROR, ignoreCase = true) -> {
+                            HelixError.ShoutoutSelf
+                        }
+
+                        message.startsWith(SHOUTOUT_NOT_LIVE_ERROR, ignoreCase = true) -> {
+                            HelixError.ShoutoutTargetNotStreaming
+                        }
+
+                        message.contains(NOT_IN_RANGE_ERROR, ignoreCase = true) -> {
+                            val match = INVALID_RANGE_REGEX.find(message)?.groupValues
+                            val start = match?.getOrNull(1)?.toIntOrNull()
+                            val end = match?.getOrNull(2)?.toIntOrNull()
+                            when {
+                                start != null && end != null -> HelixError.NotInRange(validRange = start..end)
+                                else -> HelixError.NotInRange(validRange = null)
+                            }
+                        }
+
+                        else -> {
+                            HelixError.Forwarded
+                        }
                     }
                 }
 
-                else                                                                -> HelixError.Forwarded
-            }
+                HttpStatusCode.Forbidden -> {
+                    when {
+                        message.startsWith(RECIPIENT_BLOCKED_USER_ERROR, ignoreCase = true) -> HelixError.RecipientBlockedUser
+                        else -> HelixError.UserNotAuthorized
+                    }
+                }
 
-            HttpStatusCode.Forbidden           -> when {
-                message.startsWith(RECIPIENT_BLOCKED_USER_ERROR, ignoreCase = true) -> HelixError.RecipientBlockedUser
-                else                                                                -> HelixError.UserNotAuthorized
-            }
+                HttpStatusCode.Unauthorized -> {
+                    when {
+                        message.startsWith(MISSING_SCOPE_ERROR, ignoreCase = true) -> HelixError.MissingScopes
+                        message.startsWith(NO_VERIFIED_PHONE_ERROR, ignoreCase = true) -> HelixError.NoVerifiedPhone
+                        message.startsWith(BROADCASTER_OAUTH_TOKEN_ERROR, ignoreCase = true) -> HelixError.BroadcasterTokenRequired
+                        message.startsWith(USER_AUTH_ERROR, ignoreCase = true) -> HelixError.UserNotAuthorized
+                        else -> HelixError.Forwarded
+                    }
+                }
 
-            HttpStatusCode.Unauthorized        -> when {
-                message.startsWith(MISSING_SCOPE_ERROR, ignoreCase = true)           -> HelixError.MissingScopes
-                message.startsWith(NO_VERIFIED_PHONE_ERROR, ignoreCase = true)       -> HelixError.NoVerifiedPhone
-                message.startsWith(BROADCASTER_OAUTH_TOKEN_ERROR, ignoreCase = true) -> HelixError.BroadcasterTokenRequired
-                message.startsWith(USER_AUTH_ERROR, ignoreCase = true)               -> HelixError.UserNotAuthorized
-                else                                                                 -> HelixError.Forwarded
-            }
+                HttpStatusCode.NotFound -> {
+                    when (request.url.encodedPath) {
+                        "/helix/streams/markers" -> HelixError.MarkerError(message.substringAfter("message:\"", "").substringBeforeLast('"').ifBlank { null })
+                        "helix/raids" -> HelixError.NoRaidPending
+                        else -> HelixError.Forwarded
+                    }
+                }
 
-            HttpStatusCode.NotFound            -> when (request.url.encodedPath) {
-                "/helix/streams/markers" -> HelixError.MarkerError(message.substringAfter("message:\"", "").substringBeforeLast('"').ifBlank { null })
-                "helix/raids"            -> HelixError.NoRaidPending
-                else                     -> HelixError.Forwarded
-            }
+                HttpStatusCode.UnprocessableEntity -> {
+                    when (request.url.encodedPath) {
+                        "/helix/moderation/moderators" -> HelixError.TargetIsVip
+                        "/helix/chat/messages" -> HelixError.MessageTooLarge
+                        else -> HelixError.Forwarded
+                    }
+                }
 
-            HttpStatusCode.UnprocessableEntity -> when (request.url.encodedPath) {
-                "/helix/moderation/moderators" -> HelixError.TargetIsVip
-                "/helix/chat/messages"         -> HelixError.MessageTooLarge
-                else                           -> HelixError.Forwarded
-            }
+                HttpStatusCode.TooManyRequests -> {
+                    when (request.url.encodedPath) {
+                        "/helix/whispers" -> HelixError.WhisperRateLimited
+                        "/helix/channels/commercial" -> HelixError.CommercialRateLimited
+                        "/helix/chat/messages" -> HelixError.ChatMessageRateLimited
+                        else -> HelixError.Forwarded
+                    }
+                }
 
-            HttpStatusCode.TooManyRequests     -> when (request.url.encodedPath) {
-                "/helix/whispers"            -> HelixError.WhisperRateLimited
-                "/helix/channels/commercial" -> HelixError.CommercialRateLimited
-                "/helix/chat/messages"       -> HelixError.ChatMessageRateLimited
-                else                         -> HelixError.Forwarded
-            }
+                HttpStatusCode.Conflict -> {
+                    when (request.url.encodedPath) {
+                        "helix/moderation/bans" -> HelixError.ConflictingBanOperation
+                        else -> HelixError.Forwarded
+                    }
+                }
 
-            HttpStatusCode.Conflict            -> when (request.url.encodedPath) {
-                "helix/moderation/bans" -> HelixError.ConflictingBanOperation
-                else                    -> HelixError.Forwarded
-            }
+                HttpStatusCode.TooEarly -> {
+                    HelixError.Forwarded
+                }
 
-            HttpStatusCode.TooEarly            -> HelixError.Forwarded
-            else                               -> HelixError.Unknown
-        }
+                else -> {
+                    HelixError.Unknown
+                }
+            }
         throw HelixApiException(error, betterStatus, request.url, message)
     }
 

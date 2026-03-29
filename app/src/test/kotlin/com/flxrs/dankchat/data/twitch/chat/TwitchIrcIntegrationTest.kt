@@ -49,10 +49,7 @@ internal class ChatConnectionTest {
         httpClient.close()
     }
 
-    private fun createConnection(
-        userName: String? = null,
-        oAuth: String? = null,
-    ): ChatConnection {
+    private fun createConnection(userName: String? = null, oAuth: String? = null): ChatConnection {
         val authDataStore: AuthDataStore = mockk {
             every { this@mockk.userName } returns userName?.toUserName()
             every { oAuthKey } returns oAuth

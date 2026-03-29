@@ -8,25 +8,24 @@ import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
 @Single
-class ApiDebugSection(
-    private val helixApiStats: HelixApiStats,
-) : DebugSection {
-
+class ApiDebugSection(private val helixApiStats: HelixApiStats) : DebugSection {
     override val order = 10
     override val baseTitle = "API"
 
     override fun entries(): Flow<DebugSectionSnapshot> {
-        val ticker = flow {
-            while (true) {
-                emit(Unit)
-                delay(2_000)
+        val ticker =
+            flow {
+                while (true) {
+                    emit(Unit)
+                    delay(2_000)
+                }
             }
-        }
         return combine(ticker) {
-            val statusCounts = helixApiStats.statusCounts
-                .entries
-                .sortedBy { it.key }
-                .map { (code, count) -> DebugEntry("HTTP $code", "$count") }
+            val statusCounts =
+                helixApiStats.statusCounts
+                    .entries
+                    .sortedBy { it.key }
+                    .map { (code, count) -> DebugEntry("HTTP $code", "$count") }
 
             DebugSectionSnapshot(
                 title = baseTitle,

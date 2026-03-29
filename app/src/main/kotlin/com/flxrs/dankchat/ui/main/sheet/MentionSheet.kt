@@ -71,7 +71,7 @@ fun MentionSheet(
     val density = LocalDensity.current
     val pagerState = rememberPagerState(
         initialPage = if (initialisWhisperTab) 1 else 0,
-        pageCount = { 2 }
+        pageCount = { 2 },
     )
     var backProgress by remember { mutableFloatStateOf(0f) }
     var toolbarVisible by remember { mutableStateOf(true) }
@@ -119,7 +119,7 @@ fun MentionSheet(
                 scaleY = scale
                 alpha = 1f - backProgress
                 translationY = backProgress * 100f
-            }
+            },
     ) {
         HorizontalPager(
             state = pagerState,
@@ -153,8 +153,8 @@ fun MentionSheet(
                         brush = Brush.verticalGradient(
                             0f to sheetBackgroundColor.copy(alpha = 0.7f),
                             0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            1f to sheetBackgroundColor.copy(alpha = 0f)
-                        )
+                            1f to sheetBackgroundColor.copy(alpha = 0f),
+                        ),
                     )
                     .padding(top = statusBarHeight + 8.dp)
                     .padding(bottom = 16.dp)
@@ -163,7 +163,7 @@ fun MentionSheet(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.Top,
                 ) {
                     Surface(
                         shape = MaterialTheme.shapes.extraLarge,
@@ -172,7 +172,7 @@ fun MentionSheet(
                         IconButton(onClick = onDismiss) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
+                                contentDescription = stringResource(R.string.back),
                             )
                         }
                     }
@@ -187,14 +187,14 @@ fun MentionSheet(
                                 val isSelected = pagerState.currentPage == index
                                 val textColor = when {
                                     isSelected -> MaterialTheme.colorScheme.primary
-                                    else       -> MaterialTheme.colorScheme.onSurfaceVariant
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
                                 }
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
                                         .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
                                         .defaultMinSize(minHeight = 48.dp)
-                                        .padding(horizontal = 16.dp)
+                                        .padding(horizontal = 16.dp),
                                 ) {
                                     Text(
                                         text = stringResource(stringRes),
@@ -215,7 +215,7 @@ fun MentionSheet(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .height(statusBarHeight)
-                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
             )
         }
     }

@@ -14,16 +14,14 @@ import org.koin.core.annotation.Single
 import java.time.Instant
 
 @Single
-class EmoteUsageRepository(
-    private val emoteUsageDao: EmoteUsageDao,
-    dispatchersProvider: DispatchersProvider,
-) {
-
+class EmoteUsageRepository(private val emoteUsageDao: EmoteUsageDao, dispatchersProvider: DispatchersProvider) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
-    val recentEmoteIds: StateFlow<Set<String>> = emoteUsageDao.getRecentUsages()
-        .map { usages -> usages.mapTo(mutableSetOf()) { it.emoteId } }
-        .stateIn(scope, SharingStarted.Eagerly, emptySet())
+    val recentEmoteIds: StateFlow<Set<String>> =
+        emoteUsageDao
+            .getRecentUsages()
+            .map { usages -> usages.mapTo(mutableSetOf()) { it.emoteId } }
+            .stateIn(scope, SharingStarted.Eagerly, emptySet())
 
     init {
         scope.launch {
@@ -34,13 +32,15 @@ class EmoteUsageRepository(
     }
 
     suspend fun addEmoteUsage(emoteId: String) {
-        val entity = EmoteUsageEntity(
-            emoteId = emoteId,
-            lastUsed = Instant.now()
-        )
+        val entity =
+            EmoteUsageEntity(
+                emoteId = emoteId,
+                lastUsed = Instant.now(),
+            )
         emoteUsageDao.addUsage(entity)
     }
 
     suspend fun clearUsages() = emoteUsageDao.clearUsages()
+
     fun getRecentUsages() = emoteUsageDao.getRecentUsages()
 }

@@ -10,15 +10,16 @@ import org.koin.core.annotation.Single
 
 @Single
 class BadgesApiClient(private val badgesApi: BadgesApi, private val json: Json) {
-
     suspend fun getChannelBadges(channelId: UserId): Result<TwitchBadgeSetsDto> = runCatching<BadgesApiClient, TwitchBadgeSetsDto> {
-        badgesApi.getChannelBadges(channelId)
+        badgesApi
+            .getChannelBadges(channelId)
             .throwApiErrorOnFailure(json)
             .body()
     }.recoverNotFoundWith(TwitchBadgeSetsDto(sets = emptyMap()))
 
     suspend fun getGlobalBadges(): Result<TwitchBadgeSetsDto> = runCatching<BadgesApiClient, TwitchBadgeSetsDto> {
-        badgesApi.getGlobalBadges()
+        badgesApi
+            .getGlobalBadges()
             .throwApiErrorOnFailure(json)
             .body()
     }.recoverNotFoundWith(TwitchBadgeSetsDto(sets = emptyMap()))

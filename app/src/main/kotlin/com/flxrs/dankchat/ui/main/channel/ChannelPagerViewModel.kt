@@ -24,17 +24,19 @@ class ChannelPagerViewModel(
     private val chatNotificationRepository: ChatNotificationRepository,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
-
-    val uiState: StateFlow<ChannelPagerUiState> = combine(
-        preferenceStore.getChannelsWithRenamesFlow(),
-        chatChannelProvider.activeChannel,
-    ) { channels, active ->
-        ChannelPagerUiState(
-            channels = channels.map { it.channel }.toImmutableList(),
-            currentPage = channels.indexOfFirst { it.channel == active }
-                .coerceAtLeast(0)
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
+    val uiState: StateFlow<ChannelPagerUiState> =
+        combine(
+            preferenceStore.getChannelsWithRenamesFlow(),
+            chatChannelProvider.activeChannel,
+        ) { channels, active ->
+            ChannelPagerUiState(
+                channels = channels.map { it.channel }.toImmutableList(),
+                currentPage =
+                channels
+                    .indexOfFirst { it.channel == active }
+                    .coerceAtLeast(0),
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
 
     fun onPageChanged(page: Int) {
         setActivePage(page)
@@ -74,7 +76,4 @@ class ChannelPagerViewModel(
 data class JumpTarget(val channelIndex: Int, val channel: UserName, val messageId: String)
 
 @Immutable
-data class ChannelPagerUiState(
-    val channels: ImmutableList<UserName> = persistentListOf(),
-    val currentPage: Int = 0
-)
+data class ChannelPagerUiState(val channels: ImmutableList<UserName> = persistentListOf(), val currentPage: Int = 0)

@@ -29,13 +29,13 @@ import org.koin.android.annotation.KoinViewModel
 
 /**
  * Minimal coordinator ViewModel for MainScreen.
- * 
+ *
  * Individual components have their own ViewModels:
  * - ChannelTabViewModel - Tab row state
  * - ChannelPagerViewModel - Pager state
  * - ChatInputViewModel - Input state
  * - ChannelManagementViewModel - Channel operations
- * 
+ *
  * This ViewModel only handles truly global concerns.
  */
 @OptIn(FlowPreview::class)
@@ -87,11 +87,11 @@ class MainScreenViewModel(
                                 appearance.copy(inputActions = actions + InputAction.Debug)
                             }
 
-                            !enabled && InputAction.Debug in actions                                     -> {
+                            !enabled && InputAction.Debug in actions -> {
                                 appearance.copy(inputActions = actions - InputAction.Debug)
                             }
 
-                            else                                                                         -> appearance
+                            else -> appearance
                         }
                     }
                 }
@@ -146,8 +146,6 @@ class MainScreenViewModel(
             _keyboardHeightUpdates.tryEmit(KeyboardHeightUpdate(heightPx, isLandscape))
         }
     }
-
-
 
     fun toggleInput() {
         viewModelScope.launch {

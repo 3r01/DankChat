@@ -10,25 +10,25 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class MockIrcServer : AutoCloseable {
-
     private val server = MockWebServer()
     private var serverSocket: WebSocket? = null
     val sentFrames = CopyOnWriteArrayList<String>()
     private val connectedLatch = CountDownLatch(1)
 
-    private val listener = object : WebSocketListener() {
-        override fun onOpen(webSocket: WebSocket, response: Response) {
-            serverSocket = webSocket
-            connectedLatch.countDown()
-        }
+    private val listener =
+        object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                serverSocket = webSocket
+                connectedLatch.countDown()
+            }
 
-        override fun onMessage(webSocket: WebSocket, text: String) {
-            text.trimEnd('\r', '\n').split("\r\n").forEach { line ->
-                sentFrames.add(line)
-                handleIrcCommand(webSocket, line)
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                text.trimEnd('\r', '\n').split("\r\n").forEach { line ->
+                    sentFrames.add(line)
+                    handleIrcCommand(webSocket, line)
+                }
             }
         }
-    }
 
     val url: String get() = server.url("/").toString().replace("http://", "ws://")
 
@@ -37,9 +37,7 @@ class MockIrcServer : AutoCloseable {
         server.start()
     }
 
-    fun awaitConnection(timeout: Long = 5, unit: TimeUnit = TimeUnit.SECONDS): Boolean {
-        return connectedLatch.await(timeout, unit)
-    }
+    fun awaitConnection(timeout: Long = 5, unit: TimeUnit = TimeUnit.SECONDS): Boolean = connectedLatch.await(timeout, unit)
 
     fun sendToClient(ircLine: String) {
         serverSocket?.send("$ircLine\r\n")

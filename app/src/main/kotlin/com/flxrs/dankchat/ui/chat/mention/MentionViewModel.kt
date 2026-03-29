@@ -33,17 +33,17 @@ class MentionViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
-
-    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { appearance, chat ->
-        ChatDisplaySettings(
-            fontSize = appearance.fontSize.toFloat(),
-            showLineSeparator = appearance.lineSeparator,
-            animateGifs = chat.animateGifs,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
+        combine(
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { appearance, chat ->
+            ChatDisplaySettings(
+                fontSize = appearance.fontSize.toFloat(),
+                showLineSeparator = appearance.lineSeparator,
+                animateGifs = chat.animateGifs,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab
@@ -52,47 +52,53 @@ class MentionViewModel(
         _currentTab.value = index
     }
 
-    val mentions: StateFlow<ImmutableList<ChatItem>> = chatNotificationRepository.mentions
-        .map { it.toImmutableList() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
-    val whispers: StateFlow<ImmutableList<ChatItem>> = chatNotificationRepository.whispers
-        .map { it.toImmutableList() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
+    val mentions: StateFlow<ImmutableList<ChatItem>> =
+        chatNotificationRepository.mentions
+            .map { it.toImmutableList() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
+    val whispers: StateFlow<ImmutableList<ChatItem>> =
+        chatNotificationRepository.whispers
+            .map { it.toImmutableList() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
 
-    val mentionsUiStates: Flow<List<ChatMessageUiState>> = combine(
-        mentions,
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { messages, appearanceSettings, chatSettings ->
-        messages.mapIndexed { index, item ->
-            val altBg = index.isEven && appearanceSettings.checkeredMessages
-            chatMessageMapper.mapToUiState(
-                item = item,
-                chatSettings = chatSettings,
-                preferenceStore = preferenceStore,
-                isAlternateBackground = altBg
-            )
-        }
-    }.flowOn(Dispatchers.Default)
+    val mentionsUiStates: Flow<List<ChatMessageUiState>> =
+        combine(
+            mentions,
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { messages, appearanceSettings, chatSettings ->
+            messages.mapIndexed { index, item ->
+                val altBg = index.isEven && appearanceSettings.checkeredMessages
+                chatMessageMapper.mapToUiState(
+                    item = item,
+                    chatSettings = chatSettings,
+                    preferenceStore = preferenceStore,
+                    isAlternateBackground = altBg,
+                )
+            }
+        }.flowOn(Dispatchers.Default)
 
-    val whispersUiStates: Flow<List<ChatMessageUiState>> = combine(
-        whispers,
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { messages, appearanceSettings, chatSettings ->
-        messages.mapIndexed { index, item ->
-            val altBg = index.isEven && appearanceSettings.checkeredMessages
-            chatMessageMapper.mapToUiState(
-                item = item,
-                chatSettings = chatSettings,
-                preferenceStore = preferenceStore,
-                isAlternateBackground = altBg
-            )
-        }
-    }.flowOn(Dispatchers.Default)
+    val whispersUiStates: Flow<List<ChatMessageUiState>> =
+        combine(
+            whispers,
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { messages, appearanceSettings, chatSettings ->
+            messages.mapIndexed { index, item ->
+                val altBg = index.isEven && appearanceSettings.checkeredMessages
+                chatMessageMapper.mapToUiState(
+                    item = item,
+                    chatSettings = chatSettings,
+                    preferenceStore = preferenceStore,
+                    isAlternateBackground = altBg,
+                )
+            }
+        }.flowOn(Dispatchers.Default)
 
-    val hasMentions: StateFlow<Boolean> = chatNotificationRepository.hasMentions
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
-    val hasWhispers: StateFlow<Boolean> = chatNotificationRepository.hasWhispers
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
+    val hasMentions: StateFlow<Boolean> =
+        chatNotificationRepository.hasMentions
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
+    val hasWhispers: StateFlow<Boolean> =
+        chatNotificationRepository.hasWhispers
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
 }

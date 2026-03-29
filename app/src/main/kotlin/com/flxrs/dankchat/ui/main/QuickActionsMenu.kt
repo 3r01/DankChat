@@ -112,7 +112,7 @@ fun QuickActionsMenu(
                     onClick = {
                         when {
                             tourState.configureActionsTooltipState != null -> tourState.onAdvance?.invoke()
-                            else                                           -> onConfigureClick()
+                            else -> onConfigureClick()
                         }
                     },
                     leadingIcon = {
@@ -143,26 +143,17 @@ fun QuickActionsMenu(
                     }
                 }
 
-                else                                           -> configureItem()
+                else -> configureItem()
             }
         }
     }
 }
 
 @Immutable
-private data class OverflowItem(
-    val labelRes: Int,
-    val icon: ImageVector,
-)
+private data class OverflowItem(val labelRes: Int, val icon: ImageVector)
 
-private fun getOverflowItem(
-    action: InputAction,
-    isStreamActive: Boolean,
-    hasStreamData: Boolean,
-    isFullscreen: Boolean,
-    isModerator: Boolean,
-): OverflowItem? = when (action) {
-    InputAction.Search      -> OverflowItem(
+private fun getOverflowItem(action: InputAction, isStreamActive: Boolean, hasStreamData: Boolean, isFullscreen: Boolean, isModerator: Boolean): OverflowItem? = when (action) {
+    InputAction.Search -> OverflowItem(
         labelRes = R.string.input_action_search,
         icon = Icons.Default.Search,
     )
@@ -172,35 +163,35 @@ private fun getOverflowItem(
         icon = Icons.Default.History,
     )
 
-    InputAction.Stream      -> when {
+    InputAction.Stream -> when {
         hasStreamData || isStreamActive -> OverflowItem(
             labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
             icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
         )
 
-        else                            -> null
+        else -> null
     }
 
-    InputAction.ModActions  -> when {
+    InputAction.ModActions -> when {
         isModerator -> OverflowItem(
             labelRes = R.string.menu_mod_actions,
             icon = Icons.Default.Shield,
         )
 
-        else        -> null
+        else -> null
     }
 
-    InputAction.Fullscreen  -> OverflowItem(
+    InputAction.Fullscreen -> OverflowItem(
         labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
         icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
     )
 
-    InputAction.HideInput   -> OverflowItem(
+    InputAction.HideInput -> OverflowItem(
         labelRes = R.string.menu_hide_input,
         icon = Icons.Default.VisibilityOff,
     )
 
-    InputAction.Debug       -> OverflowItem(
+    InputAction.Debug -> OverflowItem(
         labelRes = R.string.input_action_debug,
         icon = Icons.Default.BugReport,
     )
@@ -208,8 +199,8 @@ private fun getOverflowItem(
 
 private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
     InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-    InputAction.LastMessage                                                              -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.ModActions                                           -> inputEnabled
+    InputAction.LastMessage -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.ModActions -> inputEnabled
 }
 
 /**
@@ -217,11 +208,7 @@ private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastM
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EndCaretTourTooltip(
-    text: String,
-    onAction: () -> Unit,
-    onSkip: () -> Unit,
-) {
+private fun EndCaretTourTooltip(text: String, onAction: () -> Unit, onSkip: () -> Unit) {
     val containerColor = MaterialTheme.colorScheme.secondaryContainer
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
@@ -234,7 +221,7 @@ private fun EndCaretTourTooltip(
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp, bottom = 8.dp)
+                    .padding(top = 12.dp, bottom = 8.dp),
             ) {
                 Text(
                     text = text,
@@ -272,18 +259,11 @@ private fun EndCaretTourTooltip(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun rememberStartAlignedTooltipPositionProvider(
-    spacingBetweenTooltipAndAnchor: Dp = 4.dp,
-): PopupPositionProvider {
+private fun rememberStartAlignedTooltipPositionProvider(spacingBetweenTooltipAndAnchor: Dp = 4.dp): PopupPositionProvider {
     val spacingPx = with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
     return remember(spacingPx) {
         object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize,
-            ): IntOffset {
+            override fun calculatePosition(anchorBounds: IntRect, windowSize: IntSize, layoutDirection: LayoutDirection, popupContentSize: IntSize): IntOffset {
                 val startX = anchorBounds.left - popupContentSize.width - spacingPx
                 return if (startX >= 0) {
                     // Fits to the start — vertically center on anchor

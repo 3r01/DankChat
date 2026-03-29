@@ -20,7 +20,7 @@ import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 /**
  * Standalone composable for mentions/whispers display.
  * Extracted from MentionChatFragment to enable pure Compose integration.
- * 
+ *
  * This composable:
  * - Collects mentions or whispers from MentionViewModel based on isWhisperTab
  * - Collects appearance settings
@@ -43,7 +43,7 @@ fun MentionComposable(
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
         isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
-        else         -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
+        else -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     }
 
     val context = LocalPlatformContext.current

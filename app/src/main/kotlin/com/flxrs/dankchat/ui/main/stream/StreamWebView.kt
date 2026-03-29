@@ -10,13 +10,10 @@ import androidx.core.view.isVisible
 import com.flxrs.dankchat.data.UserName
 
 @SuppressLint("SetJavaScriptEnabled")
-class StreamWebView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.webViewStyle,
-    defStyleRes: Int = 0
-) : WebView(context, attrs, defStyleAttr, defStyleRes) {
-
+class StreamWebView
+@JvmOverloads
+constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = android.R.attr.webViewStyle, defStyleRes: Int = 0) :
+    WebView(context, attrs, defStyleAttr, defStyleRes) {
     init {
         with(settings) {
             javaScriptEnabled = true
@@ -30,10 +27,11 @@ class StreamWebView @JvmOverloads constructor(
     fun setStream(channel: UserName?) {
         val isActive = channel != null
         isVisible = isActive
-        val url = when {
-            isActive -> "https://player.twitch.tv/?channel=$channel&enableExtensions=true&muted=false&parent=twitch.tv"
-            else     -> BLANK_URL
-        }
+        val url =
+            when {
+                isActive -> "https://player.twitch.tv/?channel=$channel&enableExtensions=true&muted=false&parent=twitch.tv"
+                else -> BLANK_URL
+            }
 
         stopLoading()
         loadUrl(url)
@@ -61,12 +59,12 @@ class StreamWebView @JvmOverloads constructor(
 
     companion object {
         private const val BLANK_URL = "about:blank"
-        private val ALLOWED_PATHS = listOf(
-            BLANK_URL,
-            "https://id.twitch.tv/",
-            "https://www.twitch.tv/passport-callback",
-            "https://player.twitch.tv/",
-        )
+        private val ALLOWED_PATHS =
+            listOf(
+                BLANK_URL,
+                "https://id.twitch.tv/",
+                "https://www.twitch.tv/passport-callback",
+                "https://player.twitch.tv/",
+            )
     }
-
 }

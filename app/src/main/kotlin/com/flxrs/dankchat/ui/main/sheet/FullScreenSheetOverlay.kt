@@ -47,10 +47,10 @@ fun FullScreenSheetOverlay(
         visible = isVisible,
         enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             val popupOnlyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, _ ->
                 onUserClick(
@@ -59,15 +59,15 @@ fun FullScreenSheetOverlay(
                         targetUserName = UserName(userName),
                         targetDisplayName = DisplayName(displayName),
                         channel = channel?.let { UserName(it) },
-                        badges = badges.map { it.badge }
-                    )
+                        badges = badges.map { it.badge },
+                    ),
                 )
             }
 
             val mentionableClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
                 val shouldOpenPopup = when (userLongClickBehavior) {
                     UserLongClickBehavior.MentionsUser -> !isLongPress
-                    UserLongClickBehavior.OpensPopup   -> isLongPress
+                    UserLongClickBehavior.OpensPopup -> isLongPress
                 }
                 if (shouldOpenPopup) {
                     onUserClick(
@@ -76,8 +76,8 @@ fun FullScreenSheetOverlay(
                             targetUserName = UserName(userName),
                             targetDisplayName = DisplayName(displayName),
                             channel = channel?.let { UserName(it) },
-                            badges = badges.map { it.badge }
-                        )
+                            badges = badges.map { it.badge },
+                        ),
                     )
                 } else {
                     onUserMention(UserName(userName), DisplayName(displayName))
@@ -86,6 +86,7 @@ fun FullScreenSheetOverlay(
 
             when (sheetState) {
                 is FullScreenSheetState.Closed -> Unit
+
                 is FullScreenSheetState.Mention -> {
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
@@ -103,7 +104,7 @@ fun FullScreenSheetOverlay(
                                     canReply = false,
                                     canCopy = true,
                                     canJump = true,
-                                )
+                                ),
                             )
                         },
                         onEmoteClick = onEmoteClick,
@@ -129,7 +130,7 @@ fun FullScreenSheetOverlay(
                                     canReply = false,
                                     canCopy = true,
                                     canJump = false,
-                                )
+                                ),
                             )
                         },
                         onEmoteClick = onEmoteClick,
@@ -154,7 +155,7 @@ fun FullScreenSheetOverlay(
                                     canReply = false,
                                     canCopy = true,
                                     canJump = true,
-                                )
+                                ),
                             )
                         },
                         bottomContentPadding = bottomContentPadding,
@@ -169,7 +170,7 @@ fun FullScreenSheetOverlay(
                     val historyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
                         val shouldOpenPopup = when (userLongClickBehavior) {
                             UserLongClickBehavior.MentionsUser -> !isLongPress
-                            UserLongClickBehavior.OpensPopup   -> isLongPress
+                            UserLongClickBehavior.OpensPopup -> isLongPress
                         }
                         if (shouldOpenPopup) {
                             onUserClick(
@@ -178,8 +179,8 @@ fun FullScreenSheetOverlay(
                                     targetUserName = UserName(userName),
                                     targetDisplayName = DisplayName(displayName),
                                     channel = channel?.let { UserName(it) },
-                                    badges = badges.map { it.badge }
-                                )
+                                    badges = badges.map { it.badge },
+                                ),
                             )
                         } else {
                             viewModel.insertText("${UserName(userName).valueOrDisplayName(DisplayName(displayName))} ")
@@ -202,7 +203,7 @@ fun FullScreenSheetOverlay(
                                     canReply = false,
                                     canCopy = true,
                                     canJump = true,
-                                )
+                                ),
                             )
                         },
                         onEmoteClick = onEmoteClick,

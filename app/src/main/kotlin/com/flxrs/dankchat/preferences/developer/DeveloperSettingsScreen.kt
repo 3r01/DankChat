@@ -84,9 +84,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DeveloperSettingsScreen(
-    onBack: () -> Unit,
-) {
+fun DeveloperSettingsScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<DeveloperSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
 
@@ -98,7 +96,7 @@ fun DeveloperSettingsScreen(
     LaunchedEffect(viewModel) {
         viewModel.events.collectLatest {
             when (it) {
-                DeveloperSettingsEvent.RestartRequired  -> {
+                DeveloperSettingsEvent.RestartRequired -> {
                     val result = snackbarHostState.showSnackbar(
                         message = restartRequiredTitle,
                         actionLabel = restartRequiredAction,
@@ -126,12 +124,7 @@ fun DeveloperSettingsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DeveloperSettingsContent(
-    settings: DeveloperSettings,
-    snackbarHostState: SnackbarHostState,
-    onInteraction: (DeveloperSettingsInteraction) -> Unit,
-    onBack: () -> Unit,
-) {
+private fun DeveloperSettingsContent(settings: DeveloperSettings, snackbarHostState: SnackbarHostState, onInteraction: (DeveloperSettingsInteraction) -> Unit, onBack: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -146,9 +139,9 @@ private fun DeveloperSettingsContent(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -194,7 +187,7 @@ private fun DeveloperSettingsContent(
                     onClick = { enabled ->
                         val protocol = when {
                             enabled -> ChatSendProtocol.Helix
-                            else    -> ChatSendProtocol.IRC
+                            else -> ChatSendProtocol.IRC
                         }
                         onInteraction(DeveloperSettingsInteraction.ChatSendProtocolChanged(protocol))
                     },
@@ -223,7 +216,7 @@ private fun DeveloperSettingsContent(
                         onRequestRestart = {
                             dismiss()
                             onInteraction(DeveloperSettingsInteraction.RestartRequired)
-                        }
+                        },
                     )
                 }
                 PreferenceItem(
@@ -253,10 +246,7 @@ private fun DeveloperSettingsContent(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomRecentMessagesHostBottomSheet(
-    initialHost: String,
-    onInteraction: (DeveloperSettingsInteraction) -> Unit,
-) {
+private fun CustomRecentMessagesHostBottomSheet(initialHost: String, onInteraction: (DeveloperSettingsInteraction) -> Unit) {
     var host by remember(initialHost) { mutableStateOf(initialHost) }
     ModalBottomSheet(
         onDismissRequest = { onInteraction(DeveloperSettingsInteraction.CustomRecentMessagesHost(host)) },
@@ -297,10 +287,7 @@ private fun CustomRecentMessagesHostBottomSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomLoginBottomSheet(
-    onDismissRequest: () -> Unit,
-    onRequestRestart: () -> Unit,
-) {
+private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestart: () -> Unit) {
     val scope = rememberCoroutineScope()
     val customLoginViewModel = koinInject<CustomLoginViewModel>()
     val state = customLoginViewModel.customLoginState.collectAsStateWithLifecycle().value
@@ -308,11 +295,11 @@ private fun CustomLoginBottomSheet(
     var showScopesDialog by remember { mutableStateOf(false) }
 
     val error = when (state) {
-        is CustomLoginState.Failure       -> stringResource(R.string.custom_login_error_fallback, state.error.truncate())
-        CustomLoginState.TokenEmpty       -> stringResource(R.string.custom_login_error_empty_token)
-        CustomLoginState.TokenInvalid     -> stringResource(R.string.custom_login_error_invalid_token)
+        is CustomLoginState.Failure -> stringResource(R.string.custom_login_error_fallback, state.error.truncate())
+        CustomLoginState.TokenEmpty -> stringResource(R.string.custom_login_error_empty_token)
+        CustomLoginState.TokenInvalid -> stringResource(R.string.custom_login_error_invalid_token)
         is CustomLoginState.MissingScopes -> stringResource(R.string.custom_login_error_missing_scopes, state.missingScopes.truncate())
-        else                              -> null
+        else -> null
     }
 
     LaunchedEffect(state) {
@@ -332,7 +319,7 @@ private fun CustomLoginBottomSheet(
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 8.dp),
             )
             Text(
                 text = stringResource(R.string.custom_login_hint),
@@ -366,7 +353,7 @@ private fun CustomLoginBottomSheet(
                 state = token,
                 textObfuscationMode = when {
                     showPassword -> TextObfuscationMode.Visible
-                    else         -> TextObfuscationMode.Hidden
+                    else -> TextObfuscationMode.Hidden
                 },
                 label = { Text(stringResource(R.string.oauth_token)) },
                 isError = error != null,
@@ -379,7 +366,7 @@ private fun CustomLoginBottomSheet(
                                 imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                 contentDescription = null,
                             )
-                        }
+                        },
                     )
                 },
                 keyboardOptions = KeyboardOptions(
@@ -447,7 +434,7 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) 
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp)
+                    .padding(bottom = 8.dp),
             )
             OutlinedTextField(
                 value = scopes,
@@ -460,9 +447,9 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) 
                                 clipboard.setClipEntry(ClipEntry(ClipData.newPlainText("scopes", scopes)))
                             }
                         },
-                        content = { Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null) }
+                        content = { Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null) },
                     )
-                }
+                },
             )
         }
         Spacer(Modifier.height(16.dp))

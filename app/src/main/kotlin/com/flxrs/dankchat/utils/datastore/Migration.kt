@@ -31,6 +31,7 @@ inline fun <reified K, T> dankChatMigration(
     crossinline migrateValue: suspend (currentData: T, key: K, value: Any?) -> T,
 ): DataMigration<T> where K : Enum<K> = object : DataMigration<T> {
     val map = enumEntries<K>().associateBy(keyMapper)
+
     override suspend fun migrate(currentData: T): T {
         return runCatching {
             prefs.all.filterKeys { it in map.keys }.entries.fold(currentData) { acc, (key, value) ->
@@ -41,25 +42,30 @@ inline fun <reified K, T> dankChatMigration(
     }
 
     override suspend fun shouldMigrate(currentData: T): Boolean = map.keys.any(prefs::contains)
+
     override suspend fun cleanUp() = prefs.edit { map.keys.forEach(::remove) }
 }
 
 fun Any?.booleanOrNull() = this as? Boolean
+
 fun Any?.booleanOrDefault(default: Boolean) = this as? Boolean ?: default
+
 fun Any?.intOrDefault(default: Int) = this as? Int ?: default
+
 fun Any?.intOrNull() = this as? Int
 
 fun Any?.stringOrNull() = this as? String
+
 fun Any?.stringOrDefault(default: String) = this as? String ?: default
-fun <T : Enum<T>> Any?.mappedStringOrDefault(original: Array<String>, enumEntries: EnumEntries<T>, default: T): T {
-    return stringOrNull()?.let { enumEntries.getOrNull(original.indexOf(it)) } ?: default
-}
+
+fun <T : Enum<T>> Any?.mappedStringOrDefault(original: Array<String>, enumEntries: EnumEntries<T>, default: T): T = stringOrNull()?.let { enumEntries.getOrNull(original.indexOf(it)) } ?: default
 
 @Suppress("UNCHECKED_CAST")
 fun Any?.stringSetOrNull() = this as? Set<String>
 
 @Suppress("UNCHECKED_CAST")
 fun Any?.stringSetOrDefault(default: Set<String>) = this as? Set<String> ?: default
-fun <T : Enum<T>> Any?.mappedStringSetOrDefault(original: Array<String>, enumEntries: EnumEntries<T>, default: List<T>): List<T> {
-    return stringSetOrNull()?.toList()?.mapNotNull { enumEntries.getOrNull(original.indexOf(it)) } ?: default
-}
+
+fun <T : Enum<T>> Any?.mappedStringSetOrDefault(original: Array<String>, enumEntries: EnumEntries<T>, default: List<T>): List<T> = stringSetOrNull()?.toList()?.mapNotNull {
+    enumEntries.getOrNull(original.indexOf(it))
+} ?: default

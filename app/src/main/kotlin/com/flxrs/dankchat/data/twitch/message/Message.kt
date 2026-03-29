@@ -11,6 +11,7 @@ sealed class Message {
     abstract val highlights: Set<Highlight>
 
     data class EmoteData(val message: String, val channel: UserName, val emotesWithPositions: List<EmoteWithPositions>)
+
     data class BadgeData(val userId: UserId?, val channel: UserName?, val badgeTag: String?, val badgeInfoTag: String?)
 
     open val emoteData: EmoteData? = null
@@ -19,12 +20,13 @@ sealed class Message {
     companion object {
         private const val DEFAULT_COLOR_TAG = "#717171"
         val DEFAULT_COLOR = DEFAULT_COLOR_TAG.toColorInt()
+
         fun parse(message: IrcMessage, findChannel: (UserId) -> UserName?): Message? = with(message) {
             return when (command) {
-                "PRIVMSG"    -> PrivMessage.parsePrivMessage(message, findChannel)
-                "NOTICE"     -> NoticeMessage.parseNotice(message)
+                "PRIVMSG" -> PrivMessage.parsePrivMessage(message, findChannel)
+                "NOTICE" -> NoticeMessage.parseNotice(message)
                 "USERNOTICE" -> UserNoticeMessage.parseUserNotice(message, findChannel)
-                else         -> null
+                else -> null
             }
         }
 
@@ -40,21 +42,20 @@ sealed class Message {
                 if (pairs.isEmpty()) return@mapNotNull null
 
                 // skip over invalid parsed data
-                val parsedPositions = pairs.mapNotNull positions@{ pos ->
-                    val pair = pos.split('-')
-                    if (pair.size != 2) return@positions null
+                val parsedPositions =
+                    pairs.mapNotNull positions@{ pos ->
+                        val pair = pos.split('-')
+                        if (pair.size != 2) return@positions null
 
-                    val start = pair[0].toIntOrNull() ?: return@positions null
-                    val end = pair[1].toIntOrNull() ?: return@positions null
+                        val start = pair[0].toIntOrNull() ?: return@positions null
+                        val end = pair[1].toIntOrNull() ?: return@positions null
 
-                    // be extra safe in case twitch sends invalid emote ranges :)
-                    start.coerceAtLeast(minimumValue = 0)..end.coerceAtMost(message.length)
-                }
+                        // be extra safe in case twitch sends invalid emote ranges :)
+                        start.coerceAtLeast(minimumValue = 0)..end.coerceAtMost(message.length)
+                    }
 
                 EmoteWithPositions(id, parsedPositions)
             }
         }
     }
 }
-
-

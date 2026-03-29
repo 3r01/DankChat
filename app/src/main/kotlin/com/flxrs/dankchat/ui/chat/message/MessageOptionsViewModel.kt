@@ -39,39 +39,42 @@ class MessageOptionsViewModel(
     private val commandRepository: CommandRepository,
     private val repliesRepository: RepliesRepository,
 ) : ViewModel() {
-
     private val messageFlow = flowOf(chatMessageRepository.findMessage(messageId, channel, chatNotificationRepository.whispers))
     private val connectionStateFlow = chatConnector.getConnectionState(channel ?: WhisperMessage.WHISPER_CHANNEL)
 
-    val state: StateFlow<MessageOptionsState> = combine(
-        userStateRepository.userState,
-        connectionStateFlow,
-        messageFlow
-    ) { userState, connectionState, message ->
-        when (message) {
-            null -> MessageOptionsState.NotFound
-            else -> {
-                val asPrivMessage = message as? PrivMessage
-                val asWhisperMessage = message as? WhisperMessage
-                val thread = asPrivMessage?.thread
-                val rootId = thread?.rootId
-                val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
-                val replyName = name
-                val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
-                MessageOptionsState.Found(
-                    messageId = message.id,
-                    rootThreadId = rootId ?: message.id,
-                    rootThreadName = thread?.name,
-                    replyName = replyName,
-                    name = name,
-                    originalMessage = originalMessage.orEmpty(),
-                    canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
-                    hasReplyThread = canReplyParam && rootId != null && repliesRepository.hasMessageThread(rootId),
-                    canReply = connectionState == ConnectionState.CONNECTED && canReplyParam
-                )
+    val state: StateFlow<MessageOptionsState> =
+        combine(
+            userStateRepository.userState,
+            connectionStateFlow,
+            messageFlow,
+        ) { userState, connectionState, message ->
+            when (message) {
+                null -> {
+                    MessageOptionsState.NotFound
+                }
+
+                else -> {
+                    val asPrivMessage = message as? PrivMessage
+                    val asWhisperMessage = message as? WhisperMessage
+                    val thread = asPrivMessage?.thread
+                    val rootId = thread?.rootId
+                    val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
+                    val replyName = name
+                    val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
+                    MessageOptionsState.Found(
+                        messageId = message.id,
+                        rootThreadId = rootId ?: message.id,
+                        rootThreadName = thread?.name,
+                        replyName = replyName,
+                        name = name,
+                        originalMessage = originalMessage.orEmpty(),
+                        canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
+                        hasReplyThread = canReplyParam && rootId != null && repliesRepository.hasMessageThread(rootId),
+                        canReply = connectionState == ConnectionState.CONNECTED && canReplyParam,
+                    )
+                }
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MessageOptionsState.Loading)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MessageOptionsState.Loading)
 
     fun timeoutUser(index: Int) = viewModelScope.launch {
         val duration = TIMEOUT_MAP[index] ?: return@launch
@@ -97,28 +100,30 @@ class MessageOptionsViewModel(
         val activeChannel = channel ?: return
         val roomState = channelRepository.getRoomState(activeChannel) ?: return
         val userState = userStateRepository.userState.value
-        val result = runCatching {
-            commandRepository.checkForCommands(message, activeChannel, roomState, userState)
-        }.getOrNull() ?: return
+        val result =
+            runCatching {
+                commandRepository.checkForCommands(message, activeChannel, roomState, userState)
+            }.getOrNull() ?: return
 
         when (result) {
-            is CommandResult.IrcCommand            -> chatRepository.sendMessage(message, forceIrc = true)
+            is CommandResult.IrcCommand -> chatRepository.sendMessage(message, forceIrc = true)
             is CommandResult.AcceptedTwitchCommand -> result.response?.let { chatRepository.makeAndPostCustomSystemMessage(it, activeChannel) }
-            else                                   -> Unit
+            else -> Unit
         }
     }
 
     companion object {
-        private val TIMEOUT_MAP = mapOf(
-            0 to "1",
-            1 to "30",
-            2 to "60",
-            3 to "300",
-            4 to "600",
-            5 to "1800",
-            6 to "3600",
-            7 to "86400",
-            8 to "604800",
-        )
+        private val TIMEOUT_MAP =
+            mapOf(
+                0 to "1",
+                1 to "30",
+                2 to "60",
+                3 to "300",
+                4 to "600",
+                5 to "1800",
+                6 to "3600",
+                7 to "86400",
+                8 to "604800",
+            )
     }
 }

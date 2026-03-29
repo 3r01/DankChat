@@ -9,12 +9,7 @@ fun List<ChatItem>.addAndLimit(item: ChatItem, scrollBackLength: Int, onMessageR
     }
 }
 
-fun List<ChatItem>.addAndLimit(
-    items: Collection<ChatItem>,
-    scrollBackLength: Int,
-    onMessageRemoved: (ChatItem) -> Unit,
-    checkForDuplications: Boolean = false
-): List<ChatItem> = when {
+fun List<ChatItem>.addAndLimit(items: Collection<ChatItem>, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, checkForDuplications: Boolean = false): List<ChatItem> = when {
     checkForDuplications -> {
         // Single-pass dedup via LinkedHashMap, then sort and trim.
         // putIfAbsent keeps existing (live) messages over history duplicates.
@@ -32,14 +27,16 @@ fun List<ChatItem>.addAndLimit(
         }
         when {
             excess > 0 -> sorted.subList(excess, sorted.size)
-            else       -> sorted
+            else -> sorted
         }
     }
 
-    else                 -> toMutableList().apply {
-        addAll(items)
-        while (size > scrollBackLength) {
-            onMessageRemoved(removeAt(index = 0))
+    else -> {
+        toMutableList().apply {
+            addAll(items)
+            while (size > scrollBackLength) {
+                onMessageRemoved(removeAt(index = 0))
+            }
         }
     }
 }

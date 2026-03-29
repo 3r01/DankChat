@@ -21,7 +21,6 @@ class ModActionsViewModel(
     private val authDataStore: AuthDataStore,
     private val channelRepository: ChannelRepository,
 ) : ViewModel() {
-
     private val _shieldModeActive = MutableStateFlow<Boolean?>(null)
     val shieldModeActive: StateFlow<Boolean?> = _shieldModeActive.asStateFlow()
 
@@ -36,7 +35,8 @@ class ModActionsViewModel(
         viewModelScope.launch {
             val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
             val moderatorId = authDataStore.userIdString ?: return@launch
-            helixApiClient.getShieldMode(channelId, moderatorId)
+            helixApiClient
+                .getShieldMode(channelId, moderatorId)
                 .onSuccess { _shieldModeActive.value = it.isActive }
         }
     }

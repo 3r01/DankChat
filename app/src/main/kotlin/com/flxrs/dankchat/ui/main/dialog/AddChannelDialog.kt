@@ -7,11 +7,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
 
 @Composable
-fun AddChannelDialog(
-    onDismiss: () -> Unit,
-    onAddChannel: (UserName) -> Unit,
-    isChannelAlreadyAdded: (String) -> Boolean,
-) {
+fun AddChannelDialog(onDismiss: () -> Unit, onAddChannel: (UserName) -> Unit, isChannelAlreadyAdded: (String) -> Boolean) {
     val alreadyAddedError = stringResource(R.string.add_channel_already_added)
     InputBottomSheet(
         title = stringResource(R.string.add_channel),
@@ -20,7 +16,7 @@ fun AddChannelDialog(
         validate = { input ->
             when {
                 isChannelAlreadyAdded(input) -> alreadyAddedError
-                else                         -> null
+                else -> null
             }
         },
         onConfirm = { name ->

@@ -23,68 +23,66 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class AuthDataStore(
-    context: Context,
-    dispatchersProvider: DispatchersProvider,
-) {
+class AuthDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
+    private val legacyPrefs: SharedPreferences =
+        context.getSharedPreferences(
+            "com.flxrs.dankchat_preferences",
+            Context.MODE_PRIVATE,
+        )
 
-    private val legacyPrefs: SharedPreferences = context.getSharedPreferences(
-        "com.flxrs.dankchat_preferences",
-        Context.MODE_PRIVATE,
-    )
+    private val sharedPrefsMigration =
+        object : DataMigration<AuthSettings> {
+            override suspend fun shouldMigrate(currentData: AuthSettings): Boolean = legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
+                legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
+                legacyPrefs.contains(LEGACY_NAME_KEY)
 
-    private val sharedPrefsMigration = object : DataMigration<AuthSettings> {
-        override suspend fun shouldMigrate(currentData: AuthSettings): Boolean {
-            return legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
-                    legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
-                    legacyPrefs.contains(LEGACY_NAME_KEY)
-        }
+            override suspend fun migrate(currentData: AuthSettings): AuthSettings {
+                val isLoggedIn = legacyPrefs.getBoolean(LEGACY_LOGGED_IN_KEY, false)
+                val oAuthKey = legacyPrefs.getString(LEGACY_OAUTH_KEY, null)
+                val userName = legacyPrefs.getString(LEGACY_NAME_KEY, null)?.ifBlank { null }
+                val displayName = legacyPrefs.getString(LEGACY_DISPLAY_NAME_KEY, null)?.ifBlank { null }
+                val userId = legacyPrefs.getString(LEGACY_ID_STRING_KEY, null)?.ifBlank { null }
+                val clientId = legacyPrefs.getString(LEGACY_CLIENT_ID_KEY, null) ?: AuthSettings.DEFAULT_CLIENT_ID
 
-        override suspend fun migrate(currentData: AuthSettings): AuthSettings {
-            val isLoggedIn = legacyPrefs.getBoolean(LEGACY_LOGGED_IN_KEY, false)
-            val oAuthKey = legacyPrefs.getString(LEGACY_OAUTH_KEY, null)
-            val userName = legacyPrefs.getString(LEGACY_NAME_KEY, null)?.ifBlank { null }
-            val displayName = legacyPrefs.getString(LEGACY_DISPLAY_NAME_KEY, null)?.ifBlank { null }
-            val userId = legacyPrefs.getString(LEGACY_ID_STRING_KEY, null)?.ifBlank { null }
-            val clientId = legacyPrefs.getString(LEGACY_CLIENT_ID_KEY, null) ?: AuthSettings.DEFAULT_CLIENT_ID
+                return currentData.copy(
+                    oAuthKey = oAuthKey,
+                    userName = userName,
+                    displayName = displayName,
+                    userId = userId,
+                    clientId = clientId,
+                    isLoggedIn = isLoggedIn,
+                )
+            }
 
-            return currentData.copy(
-                oAuthKey = oAuthKey,
-                userName = userName,
-                displayName = displayName,
-                userId = userId,
-                clientId = clientId,
-                isLoggedIn = isLoggedIn,
-            )
-        }
-
-        override suspend fun cleanUp() {
-            legacyPrefs.edit {
-                remove(LEGACY_LOGGED_IN_KEY)
-                remove(LEGACY_OAUTH_KEY)
-                remove(LEGACY_NAME_KEY)
-                remove(LEGACY_DISPLAY_NAME_KEY)
-                remove(LEGACY_ID_STRING_KEY)
-                remove(LEGACY_CLIENT_ID_KEY)
+            override suspend fun cleanUp() {
+                legacyPrefs.edit {
+                    remove(LEGACY_LOGGED_IN_KEY)
+                    remove(LEGACY_OAUTH_KEY)
+                    remove(LEGACY_NAME_KEY)
+                    remove(LEGACY_DISPLAY_NAME_KEY)
+                    remove(LEGACY_ID_STRING_KEY)
+                    remove(LEGACY_CLIENT_ID_KEY)
+                }
             }
         }
-    }
 
-    private val dataStore = createDataStore(
-        fileName = "auth",
-        context = context,
-        defaultValue = AuthSettings(),
-        serializer = AuthSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-        migrations = listOf(sharedPrefsMigration),
-    )
+    private val dataStore =
+        createDataStore(
+            fileName = "auth",
+            context = context,
+            defaultValue = AuthSettings(),
+            serializer = AuthSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(sharedPrefsMigration),
+        )
 
     val settings = dataStore.safeData(AuthSettings())
-    val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() },
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
     private val persistScope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
 

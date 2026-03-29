@@ -13,5 +13,3 @@ fun UserDisplayEntity.toUserDisplay() = UserDisplay(
 
 @ColorInt
 fun UserDisplay?.colorOrElse(@ColorInt fallback: Int): Int = this?.color ?: fallback
-
-

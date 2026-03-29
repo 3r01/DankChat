@@ -13,7 +13,6 @@ data class MessageIgnoreEntity(
     val enabled: Boolean,
     val type: MessageIgnoreEntityType,
     val pattern: String,
-
     @ColumnInfo(name = "is_regex")
     val isRegex: Boolean = false,
     @ColumnInfo(name = "is_case_sensitive")
@@ -25,13 +24,14 @@ data class MessageIgnoreEntity(
     @delegate:Ignore
     val regex: Regex? by lazy {
         runCatching {
-            val options = when {
-                isCaseSensitive -> emptySet()
-                else            -> setOf(RegexOption.IGNORE_CASE)
-            }
+            val options =
+                when {
+                    isCaseSensitive -> emptySet()
+                    else -> setOf(RegexOption.IGNORE_CASE)
+                }
             when {
                 isRegex -> pattern.toRegex(options)
-                else    -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
+                else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
             }
         }.getOrElse {
             Log.e(TAG, "Failed to create regex for pattern $pattern", it)
@@ -57,5 +57,5 @@ enum class MessageIgnoreEntityType {
     ChannelPointRedemption,
     FirstMessage,
     ElevatedMessage,
-    Custom
+    Custom,
 }

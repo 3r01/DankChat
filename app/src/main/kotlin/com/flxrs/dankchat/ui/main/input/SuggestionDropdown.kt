@@ -42,11 +42,7 @@ import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun SuggestionDropdown(
-    suggestions: ImmutableList<Suggestion>,
-    onSuggestionClick: (Suggestion) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun SuggestionDropdown(suggestions: ImmutableList<Suggestion>, onSuggestionClick: (Suggestion) -> Unit, modifier: Modifier = Modifier) {
     AnimatedVisibility(
         visible = suggestions.isNotEmpty(),
         modifier = modifier,
@@ -54,20 +50,20 @@ fun SuggestionDropdown(
             initialOffsetY = { fullHeight -> fullHeight / 4 },
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium
-            )
+                stiffness = Spring.StiffnessMedium,
+            ),
         ) + fadeIn(
-            animationSpec = spring(stiffness = Spring.StiffnessMedium)
+            animationSpec = spring(stiffness = Spring.StiffnessMedium),
         ) + scaleIn(
             initialScale = 0.92f,
             animationSpec = spring(
                 dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium
-            )
+                stiffness = Spring.StiffnessMedium,
+            ),
         ),
         exit = slideOutVertically(
-            targetOffsetY = { fullHeight -> fullHeight / 4 }
-        ) + fadeOut() + scaleOut(targetScale = 0.92f)
+            targetOffsetY = { fullHeight -> fullHeight / 4 },
+        ) + fadeOut() + scaleOut(targetScale = 0.92f),
     ) {
         val listState = rememberLazyListState()
         LaunchedEffect(suggestions) {
@@ -79,7 +75,7 @@ fun SuggestionDropdown(
                 .padding(horizontal = 2.dp)
                 .fillMaxWidth(0.66f)
                 .heightIn(max = 250.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
         ) {
             LazyColumn(
                 state = listState,
@@ -99,17 +95,13 @@ fun SuggestionDropdown(
 }
 
 @Composable
-private fun SuggestionItem(
-    suggestion: Suggestion,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Icon/Image based on suggestion type
         when (suggestion) {
@@ -119,11 +111,11 @@ private fun SuggestionItem(
                     contentDescription = suggestion.emote.code,
                     modifier = Modifier
                         .size(48.dp)
-                        .padding(end = 12.dp)
+                        .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.emote.code,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
@@ -133,11 +125,11 @@ private fun SuggestionItem(
                     contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)
-                        .padding(end = 12.dp)
+                        .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.name.value,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
@@ -148,11 +140,11 @@ private fun SuggestionItem(
                     modifier = Modifier
                         .size(32.dp)
                         .padding(end = 12.dp)
-                        .wrapContentSize()
+                        .wrapContentSize(),
                 )
                 Text(
                     text = ":${suggestion.emoji.code}:",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
@@ -162,11 +154,11 @@ private fun SuggestionItem(
                     contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)
-                        .padding(end = 12.dp)
+                        .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.command,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
 
@@ -176,17 +168,17 @@ private fun SuggestionItem(
                     contentDescription = null,
                     modifier = Modifier
                         .size(32.dp)
-                        .padding(end = 12.dp)
+                        .padding(end = 12.dp),
                 )
                 Column {
                     Text(
                         text = suggestion.displayText ?: suggestion.keyword,
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Text(
                         text = stringResource(suggestion.descriptionRes),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

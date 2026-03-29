@@ -28,47 +28,53 @@ class RepliesViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
+        combine(
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { appearance, chat ->
+            ChatDisplaySettings(
+                fontSize = appearance.fontSize.toFloat(),
+                showLineSeparator = appearance.lineSeparator,
+                animateGifs = chat.animateGifs,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
-    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { appearance, chat ->
-        ChatDisplaySettings(
-            fontSize = appearance.fontSize.toFloat(),
-            showLineSeparator = appearance.lineSeparator,
-            animateGifs = chat.animateGifs,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
-
-    val state = repliesRepository.getThreadItemsFlow(rootMessageId)
-        .map {
-            when {
-                it.isEmpty() -> RepliesState.NotFound
-                else         -> RepliesState.Found(it)
-            }
-        }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesState.Found(emptyList()))
-
-    val uiState: StateFlow<RepliesUiState> = combine(
-        state,
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings
-    ) { repliesState, appearanceSettings, chatSettings ->
-        when (repliesState) {
-            is RepliesState.NotFound -> RepliesUiState.NotFound
-            is RepliesState.Found    -> {
-                val uiMessages = repliesState.items.mapIndexed { index, item ->
-                    val altBg = index.isEven && appearanceSettings.checkeredMessages
-                    chatMessageMapper.mapToUiState(
-                        item = item,
-                        chatSettings = chatSettings,
-                        preferenceStore = preferenceStore,
-                        isAlternateBackground = altBg
-                    )
+    val state =
+        repliesRepository
+            .getThreadItemsFlow(rootMessageId)
+            .map {
+                when {
+                    it.isEmpty() -> RepliesState.NotFound
+                    else -> RepliesState.Found(it)
                 }
-                RepliesUiState.Found(uiMessages)
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesState.Found(emptyList()))
+
+    val uiState: StateFlow<RepliesUiState> =
+        combine(
+            state,
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { repliesState, appearanceSettings, chatSettings ->
+            when (repliesState) {
+                is RepliesState.NotFound -> {
+                    RepliesUiState.NotFound
+                }
+
+                is RepliesState.Found -> {
+                    val uiMessages =
+                        repliesState.items.mapIndexed { index, item ->
+                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                            chatMessageMapper.mapToUiState(
+                                item = item,
+                                chatSettings = chatSettings,
+                                preferenceStore = preferenceStore,
+                                isAlternateBackground = altBg,
+                            )
+                        }
+                    RepliesUiState.Found(uiMessages)
+                }
             }
-        }
-    }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesUiState.Found(emptyList()))
+        }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesUiState.Found(emptyList()))
 }

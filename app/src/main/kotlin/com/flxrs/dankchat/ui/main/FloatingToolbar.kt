@@ -106,7 +106,6 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.cancellation.CancellationException
 
-
 @Suppress("MultipleEmitters")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -129,7 +128,6 @@ fun FloatingToolbar(
     keyboardHeightDp: Dp = 0.dp,
     streamToolbarAlpha: Float = 1f,
 ) {
-
     val density = LocalDensity.current
     var showOverflowMenu by remember { mutableStateOf(false) }
     var showQuickSwitch by remember { mutableStateOf(false) }
@@ -162,12 +160,12 @@ fun FloatingToolbar(
                 .fillMaxSize()
                 .clickable(
                     indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
+                    interactionSource = remember { MutableInteractionSource() },
                 ) {
                     showOverflowMenu = false
                     showQuickSwitch = false
                     overflowInitialMenu = AppBarMenu.Main
-                }
+                },
         )
     }
 
@@ -180,7 +178,7 @@ fun FloatingToolbar(
         modifier = modifier
             .fillMaxWidth()
             .padding(top = if (hasStream) streamHeightDp + 8.dp else 0.dp)
-            .graphicsLayer { alpha = streamToolbarAlpha }
+            .graphicsLayer { alpha = streamToolbarAlpha },
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
@@ -198,9 +196,9 @@ fun FloatingToolbar(
                                 0f to scrimColor,
                                 0.75f to scrimColor,
                                 1f to scrimColor.copy(alpha = 0f),
-                                endY = gradientHeight
+                                endY = gradientHeight,
                             ),
-                            size = Size(size.width, gradientHeight)
+                            size = Size(size.width, gradientHeight),
                         )
                     }
                 }
@@ -252,7 +250,7 @@ fun FloatingToolbar(
                         val h = it.height.toFloat()
                         if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
                     },
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.Top,
             ) {
                 // Push action pill to end when no tabs are shown
                 if (endAligned && (!showTabs || tabState.tabs.isEmpty())) {
@@ -281,11 +279,11 @@ fun FloatingToolbar(
                                             brush = Brush.horizontalGradient(
                                                 colors = listOf(
                                                     mentionGradientColor.copy(alpha = 0.5f),
-                                                    mentionGradientColor.copy(alpha = 0f)
+                                                    mentionGradientColor.copy(alpha = 0f),
                                                 ),
-                                                endX = gradientWidth
+                                                endX = gradientWidth,
                                             ),
-                                            size = Size(gradientWidth, size.height)
+                                            size = Size(gradientWidth, size.height),
                                         )
                                     }
                                     if (hasRightMention) {
@@ -293,13 +291,13 @@ fun FloatingToolbar(
                                             brush = Brush.horizontalGradient(
                                                 colors = listOf(
                                                     mentionGradientColor.copy(alpha = 0f),
-                                                    mentionGradientColor.copy(alpha = 0.5f)
+                                                    mentionGradientColor.copy(alpha = 0.5f),
                                                 ),
                                                 startX = size.width - gradientWidth,
-                                                endX = size.width
+                                                endX = size.width,
                                             ),
                                             topLeft = Offset(size.width - gradientWidth, 0f),
-                                            size = Size(gradientWidth, size.height)
+                                            size = Size(gradientWidth, size.height),
                                         )
                                     }
                                 },
@@ -312,7 +310,7 @@ fun FloatingToolbar(
                                         .padding(horizontal = 12.dp)
                                         .onSizeChanged { tabViewportWidth = it.width }
                                         .clipToBounds()
-                                        .horizontalScroll(tabScrollState)
+                                        .horizontalScroll(tabScrollState),
                                 ) {
                                     tabState.tabs.forEachIndexed { index, tab ->
                                         val isSelected = index == selectedIndex
@@ -331,7 +329,7 @@ fun FloatingToolbar(
                                                         onAction(ToolbarAction.LongClickTab(index))
                                                         overflowInitialMenu = AppBarMenu.Main
                                                         showOverflowMenu = true
-                                                    }
+                                                    },
                                                 )
                                                 .defaultMinSize(minHeight = 48.dp)
                                                 .padding(horizontal = 12.dp)
@@ -344,7 +342,7 @@ fun FloatingToolbar(
                                                     }
                                                     tabOffsets.value[index] = coords.positionInParent().x.toInt()
                                                     tabWidths.value[index] = coords.size.width
-                                                }
+                                                },
                                         ) {
                                             Text(
                                                 text = tab.displayName,
@@ -386,7 +384,7 @@ fun FloatingToolbar(
                                                 )
                                                 drawRect(color = pillColor.copy(alpha = 0.6f))
                                             },
-                                        contentAlignment = Alignment.Center
+                                        contentAlignment = Alignment.Center,
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ArrowDropDown,
@@ -438,13 +436,13 @@ fun FloatingToolbar(
                                     modifier = Modifier
                                         .width(IntrinsicSize.Min)
                                         .widthIn(min = 125.dp, max = 200.dp)
-                                        .heightIn(max = maxMenuHeight)
+                                        .heightIn(max = maxMenuHeight),
                                 ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .verticalScroll(quickSwitchScrollState)
-                                            .padding(vertical = 8.dp)
+                                            .padding(vertical = 8.dp),
                                     ) {
                                         tabState.tabs.forEachIndexed { index, tab ->
                                             val isSelected = index == selectedIndex
@@ -464,7 +462,7 @@ fun FloatingToolbar(
                                                     style = MaterialTheme.typography.bodyLarge,
                                                     color = when {
                                                         isSelected -> MaterialTheme.colorScheme.primary
-                                                        else       -> MaterialTheme.colorScheme.onSurface
+                                                        else -> MaterialTheme.colorScheme.onSurface
                                                     },
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                                     maxLines = 1,
@@ -483,13 +481,13 @@ fun FloatingToolbar(
                                                 .align(Alignment.TopEnd)
                                                 .fillMaxHeight()
                                                 .width(3.dp)
-                                                .padding(vertical = 2.dp)
+                                                .padding(vertical = 2.dp),
                                         ) {
                                             Thumb(
                                                 Modifier.background(
                                                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                                                    RoundedCornerShape(100)
-                                                )
+                                                    RoundedCornerShape(100),
+                                                ),
                                             )
                                         }
                                     }
@@ -518,7 +516,7 @@ fun FloatingToolbar(
                                     IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
                                         Icon(
                                             imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(R.string.add_channel)
+                                            contentDescription = stringResource(R.string.add_channel),
                                         )
                                     }
                                 }
@@ -528,8 +526,8 @@ fun FloatingToolbar(
                                     }
                                     LaunchedEffect(Unit) {
                                         snapshotFlow { addChannelTooltipState.isVisible }
-                                            .dropWhile { !it }  // skip initial false
-                                            .first { !it }      // wait for dismiss (any cause)
+                                            .dropWhile { !it } // skip initial false
+                                            .first { !it } // wait for dismiss (any cause)
                                         onAddChannelTooltipDismiss()
                                     }
                                     TooltipBox(
@@ -549,14 +547,21 @@ fun FloatingToolbar(
                                                 caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
                                                 action = {
                                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismiss(); onSkipTour() }) {
+                                                        TextButton(onClick = {
+                                                            addChannelTooltipState.dismiss()
+                                                            onAddChannelTooltipDismiss()
+                                                            onSkipTour()
+                                                        }) {
                                                             Text(stringResource(R.string.tour_skip))
                                                         }
-                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismiss() }) {
+                                                        TextButton(onClick = {
+                                                            addChannelTooltipState.dismiss()
+                                                            onAddChannelTooltipDismiss()
+                                                        }) {
                                                             Text(stringResource(R.string.tour_next))
                                                         }
                                                     }
-                                                }
+                                                },
                                             ) {
                                                 Text(stringResource(R.string.tour_add_more_channels_hint))
                                             }
@@ -578,7 +583,7 @@ fun FloatingToolbar(
                                                 MaterialTheme.colorScheme.error
                                             } else {
                                                 LocalContentColor.current
-                                            }
+                                            },
                                         )
                                     }
                                 }
@@ -589,7 +594,7 @@ fun FloatingToolbar(
                                 }) {
                                     Icon(
                                         imageVector = Icons.Default.MoreVert,
-                                        contentDescription = stringResource(R.string.more)
+                                        contentDescription = stringResource(R.string.more),
                                     )
                                 }
                             }
@@ -638,7 +643,7 @@ private fun Modifier.endAlignedOverflow() = this.then(
         override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
             val parentWidth = constraints.maxWidth
             val placeable = measurable.measure(
-                constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE))
+                constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE)),
             )
             return layout(parentWidth, placeable.height) {
                 placeable.place(parentWidth - placeable.width, 0)
@@ -647,12 +652,10 @@ private fun Modifier.endAlignedOverflow() = this.then(
 
         override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
         override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
-            measurable.minIntrinsicHeight(width)
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = measurable.minIntrinsicHeight(width)
 
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int =
-            measurable.maxIntrinsicHeight(width)
-    }
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = measurable.maxIntrinsicHeight(width)
+    },
 )
 
 /**
@@ -671,13 +674,10 @@ private fun Modifier.skipIntrinsicHeight() = this.then(
 
         override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
         override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
-            measurable.minIntrinsicWidth(height)
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = measurable.minIntrinsicWidth(height)
 
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int =
-            measurable.maxIntrinsicWidth(height)
-    }
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = measurable.maxIntrinsicWidth(height)
+    },
 )
 
 private const val MAX_LAYOUT_SIZE = 16_777_215
-

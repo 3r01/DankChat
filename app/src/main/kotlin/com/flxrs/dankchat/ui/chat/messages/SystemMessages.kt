@@ -37,11 +37,7 @@ import com.flxrs.dankchat.utils.resolve
  * Renders a system message (connected, disconnected, emote loading failures, etc.)
  */
 @Composable
-fun SystemMessageComposable(
-    message: ChatMessageUiState.SystemMessageUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-) {
+fun SystemMessageComposable(message: ChatMessageUiState.SystemMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
     SimpleMessageContainer(
         message = message.message.resolve(),
         timestamp = message.timestamp,
@@ -57,11 +53,7 @@ fun SystemMessageComposable(
  * Renders a notice message from Twitch
  */
 @Composable
-fun NoticeMessageComposable(
-    message: ChatMessageUiState.NoticeMessageUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-) {
+fun NoticeMessageComposable(message: ChatMessageUiState.NoticeMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
     SimpleMessageContainer(
         message = message.message,
         timestamp = message.timestamp,
@@ -79,12 +71,7 @@ fun NoticeMessageComposable(
  */
 @Suppress("DEPRECATION")
 @Composable
-fun UserNoticeMessageComposable(
-    message: ChatMessageUiState.UserNoticeMessageUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-    highlightShape: Shape = RectangleShape,
-) {
+fun UserNoticeMessageComposable(message: ChatMessageUiState.UserNoticeMessageUi, fontSize: Float, modifier: Modifier = Modifier, highlightShape: Shape = RectangleShape) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = MaterialTheme.colorScheme.onSurface
     val linkColor = MaterialTheme.colorScheme.primary
@@ -108,7 +95,7 @@ fun UserNoticeMessageComposable(
             val msgText = message.message
             val nameIndex = when {
                 displayName.isNotEmpty() -> msgText.indexOf(displayName, ignoreCase = true)
-                else                     -> -1
+                else -> -1
             }
 
             when {
@@ -134,7 +121,7 @@ fun UserNoticeMessageComposable(
                     }
                 }
 
-                else           -> {
+                else -> {
                     // No display name found, render as plain text
                     withStyle(SpanStyle(color = textColor)) {
                         appendWithLinks(msgText, linkColor)
@@ -150,7 +137,7 @@ fun UserNoticeMessageComposable(
             .wrapContentHeight()
             .alpha(message.textAlpha)
             .background(bgColor, highlightShape)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
@@ -161,7 +148,7 @@ fun UserNoticeMessageComposable(
                     .firstOrNull()?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
-            }
+            },
         )
     }
 }
@@ -170,11 +157,7 @@ fun UserNoticeMessageComposable(
  * Renders a date separator between messages from different days
  */
 @Composable
-fun DateSeparatorComposable(
-    message: ChatMessageUiState.DateSeparatorUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-) {
+fun DateSeparatorComposable(message: ChatMessageUiState.DateSeparatorUi, fontSize: Float, modifier: Modifier = Modifier) {
     SimpleMessageContainer(
         message = message.dateText,
         timestamp = message.timestamp,
@@ -194,11 +177,7 @@ private data class StyledRange(val start: Int, val length: Int, val color: Color
  */
 @Suppress("DEPRECATION")
 @Composable
-fun ModerationMessageComposable(
-    message: ChatMessageUiState.ModerationMessageUi,
-    fontSize: Float,
-    modifier: Modifier = Modifier,
-) {
+fun ModerationMessageComposable(message: ChatMessageUiState.ModerationMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -212,7 +191,7 @@ fun ModerationMessageComposable(
     val dimmedTextColor = textColor.copy(alpha = 0.7f)
 
     val annotatedString = remember(
-        message, resolvedMessage, textColor, dimmedTextColor, creatorColor, targetColor, linkColor, timestampColor, textSize
+        message, resolvedMessage, textColor, dimmedTextColor, creatorColor, targetColor, linkColor, timestampColor, textSize,
     ) {
         // Collect all highlighted ranges: usernames (bold+colored) and arguments (regular text color)
         val ranges = buildList {
@@ -259,7 +238,7 @@ fun ModerationMessageComposable(
                 }
                 val style = when {
                     range.bold -> SpanStyle(color = range.color, fontWeight = FontWeight.Bold)
-                    else       -> SpanStyle(color = range.color)
+                    else -> SpanStyle(color = range.color)
                 }
                 withStyle(style) {
                     append(resolvedMessage.substring(range.start, range.start + range.length))
@@ -280,7 +259,7 @@ fun ModerationMessageComposable(
             .wrapContentHeight()
             .alpha(message.textAlpha)
             .background(bgColor)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
@@ -291,7 +270,7 @@ fun ModerationMessageComposable(
                     .firstOrNull()?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
-            }
+            },
         )
     }
 }

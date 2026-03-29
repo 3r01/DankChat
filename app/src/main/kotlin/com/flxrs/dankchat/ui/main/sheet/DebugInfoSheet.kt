@@ -36,11 +36,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DebugInfoSheet(
-    viewModel: DebugInfoViewModel,
-    sheetState: SheetState,
-    onDismiss: () -> Unit,
-) {
+fun DebugInfoSheet(viewModel: DebugInfoViewModel, sheetState: SheetState, onDismiss: () -> Unit) {
     val sections by viewModel.sections.collectAsStateWithLifecycle()
 
     ModalBottomSheet(
@@ -93,7 +89,7 @@ private fun DebugEntryRow(entry: DebugEntry) {
             }
         }
 
-        else                    -> Modifier
+        else -> Modifier
     }
     Row(
         modifier = copyModifier

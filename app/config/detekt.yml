@@ -13,6 +13,8 @@ complexity:
     active: false
   NestedBlockDepth:
     active: false
+  LargeClass:
+    active: false
   ComplexCondition:
     threshold: 5
 
@@ -32,8 +34,9 @@ style:
   MagicNumber:
     active: false
   MaxLineLength:
-    maxLineLength: 200
+    maxLineLength: 210
     excludeCommentStatements: true
+    excludeRawStrings: true
   ReturnCount:
     max: 8
   ForbiddenComment:

@@ -38,7 +38,6 @@ class ChatMessageRepository(
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
@@ -63,15 +62,15 @@ class ChatMessageRepository(
         _sendFailureCount += 1
     }
 
-    private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
-        .onEach { length ->
-            messages.forEach { (_, flow) ->
-                if (flow.value.size > length) {
-                    flow.update { it.takeLast(length) }
+    private val scrollBackLengthFlow =
+        chatSettingsDataStore.debouncedScrollBack
+            .onEach { length ->
+                messages.forEach { (_, flow) ->
+                    if (flow.value.size > length) {
+                        flow.update { it.takeLast(length) }
+                    }
                 }
-            }
-        }
-        .stateIn(scope, SharingStarted.Eagerly, 500)
+            }.stateIn(scope, SharingStarted.Eagerly, 500)
     val scrollBackLength get() = scrollBackLengthFlow.value
 
     val chatLoadingFailures = _chatLoadingFailures.asStateFlow()
@@ -95,7 +94,7 @@ class ChatMessageRepository(
             when (message.action) {
                 ModerationMessage.Action.Delete,
                 ModerationMessage.Action.SharedDelete,
-                    -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
+                -> current.replaceWithTimeout(message, scrollBackLength, messageProcessor::onMessageRemoved)
 
                 else -> current.replaceOrAddModerationMessage(message, scrollBackLength, messageProcessor::onMessageRemoved)
             }
@@ -119,28 +118,32 @@ class ChatMessageRepository(
             current.map { item ->
                 val msg = item.message
                 when {
-                    msg is AutomodMessage && msg.heldMessageId == heldMessageId ->
+                    msg is AutomodMessage && msg.heldMessageId == heldMessageId -> {
                         item.copy(tag = item.tag + 1, message = msg.copy(status = status))
+                    }
 
-                    else -> item
+                    else -> {
+                        item
+                    }
                 }
             }
         }
     }
 
     suspend fun reparseAllEmotesAndBadges() = withContext(Dispatchers.Default) {
-        messages.values.map { flow ->
-            async {
-                flow.update { items ->
-                    items.map {
-                        it.copy(
-                            tag = it.tag + 1,
-                            message = messageProcessor.reparseEmotesAndBadges(it.message),
-                        )
+        messages.values
+            .map { flow ->
+                async {
+                    flow.update { items ->
+                        items.map {
+                            it.copy(
+                                tag = it.tag + 1,
+                                message = messageProcessor.reparseEmotesAndBadges(it.message),
+                            )
+                        }
                     }
                 }
-            }
-        }.awaitAll()
+            }.awaitAll()
         chatNotificationRepository.reparseAll()
     }
 
@@ -155,9 +158,10 @@ class ChatMessageRepository(
         channels.forEach { channel ->
             val flow = messages[channel] ?: return@forEach
             val current = flow.value
-            flow.value = current.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved) {
-                reconnectedChannels += channel
-            }
+            flow.value =
+                current.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved) {
+                    reconnectedChannels += channel
+                }
         }
         return reconnectedChannels
     }

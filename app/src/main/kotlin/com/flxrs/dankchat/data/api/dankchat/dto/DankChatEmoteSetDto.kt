@@ -13,5 +13,5 @@ data class DankChatEmoteSetDto(
     @SerialName(value = "channel_name") val channelName: UserName,
     @SerialName(value = "channel_id") val channelId: UserId,
     @SerialName(value = "tier") val tier: Int,
-    @SerialName(value = "emotes") val emotes: List<DankChatEmoteDto>?
+    @SerialName(value = "emotes") val emotes: List<DankChatEmoteDto>?,
 )

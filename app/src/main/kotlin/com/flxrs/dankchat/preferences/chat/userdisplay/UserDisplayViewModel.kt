@@ -13,10 +13,7 @@ import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class UserDisplayViewModel(
-    private val userDisplayRepository: UserDisplayRepository
-) : ViewModel() {
-
+class UserDisplayViewModel(private val userDisplayRepository: UserDisplayRepository) : ViewModel() {
     private val eventChannel = Channel<UserDisplayEvent>(Channel.BUFFERED)
 
     val events = eventChannel.receiveAsFlow()

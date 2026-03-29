@@ -13,11 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class DialogStateViewModel(
-    private val preferenceStore: DankChatPreferenceStore,
-    private val toolsSettingsDataStore: ToolsSettingsDataStore,
-) : ViewModel() {
-
+class DialogStateViewModel(private val preferenceStore: DankChatPreferenceStore, private val toolsSettingsDataStore: ToolsSettingsDataStore) : ViewModel() {
     private val _state = MutableStateFlow(DialogState())
     val state: StateFlow<DialogState> = _state.asStateFlow()
 
@@ -82,9 +78,10 @@ class DialogStateViewModel(
 
     // Upload
     val uploadHost: String
-        get() = runCatching {
-            java.net.URL(toolsSettingsDataStore.current().uploaderConfig.uploadUrl).host
-        }.getOrDefault("")
+        get() =
+            runCatching {
+                java.net.URL(toolsSettingsDataStore.current().uploaderConfig.uploadUrl).host
+            }.getOrDefault("")
 
     fun setPendingUploadAction(action: (() -> Unit)?) {
         update { copy(pendingUploadAction = action) }

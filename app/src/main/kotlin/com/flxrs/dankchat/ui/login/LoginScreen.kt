@@ -38,10 +38,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
-    onLoginSuccess: () -> Unit,
-    onCancel: () -> Unit,
-) {
+fun LoginScreen(onLoginSuccess: () -> Unit, onCancel: () -> Unit) {
     val viewModel: LoginViewModel = koinViewModel()
     var isLoading by remember { mutableStateOf(true) }
     var isZoomedOut by remember { mutableStateOf(false) }
@@ -77,12 +74,12 @@ fun LoginScreen(
                     }
                 },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
             if (isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -93,7 +90,7 @@ fun LoginScreen(
                     WebView(context).also { webViewRef = it }.apply {
                         layoutParams = ViewGroup.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
+                            ViewGroup.LayoutParams.MATCH_PARENT,
                         )
                         @SuppressLint("SetJavaScriptEnabled")
                         settings.javaScriptEnabled = true
@@ -126,7 +123,7 @@ fun LoginScreen(
                         loadUrl(viewModel.loginUrl)
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

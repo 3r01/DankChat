@@ -29,8 +29,9 @@ class EventSubManager(
     private val isEnabled = developerSettingsDataStore.current().shouldUseEventSub
     private var debugOutput = developerSettingsDataStore.current().eventSubDebugOutput
 
-    val events = eventSubClient.events
-        .filter { it !is SystemMessage || debugOutput }
+    val events =
+        eventSubClient.events
+            .filter { it !is SystemMessage || debugOutput }
 
     init {
         scope.launch {
@@ -77,9 +78,10 @@ class EventSubManager(
 
     fun connectedAndHasModerateTopic(channel: UserName): Boolean {
         val topics = eventSubClient.topics.value
-        return eventSubClient.connected && topics.isNotEmpty() && topics.any {
-            it.topic is EventSubTopic.ChannelModerate && it.topic.channel == channel
-        }
+        return eventSubClient.connected && topics.isNotEmpty() &&
+            topics.any {
+                it.topic is EventSubTopic.ChannelModerate && it.topic.channel == channel
+            }
     }
 
     val connectedAndHasUserMessageTopic: Boolean
@@ -94,15 +96,16 @@ class EventSubManager(
         }
 
         scope.launch {
-            val topics = eventSubClient.topics.value.filter { subscribedTopic ->
-                when (val topic = subscribedTopic.topic) {
-                    is EventSubTopic.ChannelModerate      -> topic.channel == channel
-                    is EventSubTopic.AutomodMessageHold   -> topic.channel == channel
-                    is EventSubTopic.AutomodMessageUpdate -> topic.channel == channel
-                    is EventSubTopic.UserMessageHold      -> topic.channel == channel
-                    is EventSubTopic.UserMessageUpdate    -> topic.channel == channel
+            val topics =
+                eventSubClient.topics.value.filter { subscribedTopic ->
+                    when (val topic = subscribedTopic.topic) {
+                        is EventSubTopic.ChannelModerate -> topic.channel == channel
+                        is EventSubTopic.AutomodMessageHold -> topic.channel == channel
+                        is EventSubTopic.AutomodMessageUpdate -> topic.channel == channel
+                        is EventSubTopic.UserMessageHold -> topic.channel == channel
+                        is EventSubTopic.UserMessageUpdate -> topic.channel == channel
+                    }
                 }
-            }
             topics.forEach { eventSubClient.unsubscribe(it) }
         }
     }

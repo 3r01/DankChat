@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserHighlightDao {
-
     @Query("SELECT * FROM user_highlight WHERE id = :id")
     suspend fun getUserHighlight(id: Long): UserHighlightEntity
 

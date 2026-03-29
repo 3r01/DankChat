@@ -54,11 +54,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun ChatSettingsScreen(
-    onNavToCommands: () -> Unit,
-    onNavToUserDisplays: () -> Unit,
-    onNavBack: () -> Unit,
-) {
+fun ChatSettingsScreen(onNavToCommands: () -> Unit, onNavToUserDisplays: () -> Unit, onNavBack: () -> Unit) {
     val viewModel = koinViewModel<ChatSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
     val restartRequiredTitle = stringResource(R.string.restart_required)
@@ -116,15 +112,15 @@ private fun ChatSettingsScreen(
                         onClick = onNavBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
             GeneralCategory(
                 suggestions = settings.suggestions,
@@ -235,7 +231,7 @@ private fun GeneralCategory(
             values = UserLongClickBehavior.entries.toImmutableList(),
             entries = longClickEntries,
             selected = userLongClickBehavior,
-            onChange ={ onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
+            onChange = { onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
         )
 
         PreferenceItem(
@@ -262,7 +258,7 @@ private fun GeneralCategory(
             values = timestampFormats,
             entries = timestampFormats,
             selected = timestampFormat,
-            onChange ={ onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
+            onChange = { onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
         )
 
         val entries = stringArrayResource(R.array.badges_entries)
@@ -274,14 +270,14 @@ private fun GeneralCategory(
             initialSelected = visibleBadges,
             values = VisibleBadges.entries.toImmutableList(),
             entries = entries,
-            onChange ={ onInteraction(ChatSettingsInteraction.Badges(it)) },
+            onChange = { onInteraction(ChatSettingsInteraction.Badges(it)) },
         )
         PreferenceMultiListDialog(
             title = stringResource(R.string.preference_visible_emotes_title),
             initialSelected = visibleEmotes,
             values = VisibleThirdPartyEmotes.entries.toImmutableList(),
             entries = stringArrayResource(R.array.emotes_entries).toImmutableList(),
-            onChange ={ onInteraction(ChatSettingsInteraction.Emotes(it)) },
+            onChange = { onInteraction(ChatSettingsInteraction.Emotes(it)) },
         )
     }
 }
@@ -321,18 +317,13 @@ private fun SevenTVCategory(
             values = LiveUpdatesBackgroundBehavior.entries.toImmutableList(),
             entries = liveUpdateEntries,
             selected = sevenTVLiveEmoteUpdatesBehavior,
-            onChange ={ onInteraction(ChatSettingsInteraction.LiveEmoteUpdatesBehavior(it)) },
+            onChange = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdatesBehavior(it)) },
         )
     }
 }
 
 @Composable
-private fun MessageHistoryCategory(
-    loadMessageHistory: Boolean,
-    loadMessageHistoryAfterReconnect: Boolean,
-    messageHistoryDashboardUrl: String,
-    onInteraction: (ChatSettingsInteraction) -> Unit,
-) {
+private fun MessageHistoryCategory(loadMessageHistory: Boolean, loadMessageHistoryAfterReconnect: Boolean, messageHistoryDashboardUrl: String, onInteraction: (ChatSettingsInteraction) -> Unit) {
     val launcher = LocalUriHandler.current
     PreferenceCategory(title = stringResource(R.string.preference_message_history_header)) {
         SwitchPreferenceItem(
@@ -355,10 +346,7 @@ private fun MessageHistoryCategory(
 }
 
 @Composable
-private fun ChannelDataCategory(
-    showChatModes: Boolean,
-    onInteraction: (ChatSettingsInteraction) -> Unit,
-) {
+private fun ChannelDataCategory(showChatModes: Boolean, onInteraction: (ChatSettingsInteraction) -> Unit) {
     PreferenceCategory(title = stringResource(R.string.preference_channel_data_header)) {
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_roomstate_title),

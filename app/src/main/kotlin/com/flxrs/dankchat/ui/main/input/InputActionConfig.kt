@@ -49,12 +49,7 @@ private const val MAX_INPUT_ACTIONS = 4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InputActionConfigSheet(
-    inputActions: ImmutableList<InputAction>,
-    debugMode: Boolean,
-    onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
-    onDismiss: () -> Unit,
-) {
+internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, debugMode: Boolean, onInputActionsChange: (ImmutableList<InputAction>) -> Unit, onDismiss: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val localEnabled = remember { mutableStateListOf(*inputActions.toTypedArray()) }
@@ -73,13 +68,13 @@ internal fun InputActionConfigSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
+                .padding(bottom = 16.dp),
         ) {
             Text(
                 text = if (atLimit) pluralStringResource(R.plurals.input_actions_max, MAX_INPUT_ACTIONS, MAX_INPUT_ACTIONS) else "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             )
 
             // Enabled actions (reorderable, drag constrained to this section)
@@ -145,7 +140,7 @@ internal fun InputActionConfigSheet(
                                 Modifier.clickable { localEnabled.add(action) }
                             } else {
                                 Modifier
-                            }
+                            },
                         )
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .height(40.dp),
@@ -186,22 +181,22 @@ internal fun InputActionConfigSheet(
 
 internal val InputAction.labelRes: Int
     get() = when (this) {
-        InputAction.Search     -> R.string.input_action_search
+        InputAction.Search -> R.string.input_action_search
         InputAction.LastMessage -> R.string.input_action_last_message
-        InputAction.Stream     -> R.string.input_action_stream
+        InputAction.Stream -> R.string.input_action_stream
         InputAction.ModActions -> R.string.input_action_mod_actions
         InputAction.Fullscreen -> R.string.input_action_fullscreen
-        InputAction.HideInput  -> R.string.input_action_hide_input
-        InputAction.Debug      -> R.string.input_action_debug
+        InputAction.HideInput -> R.string.input_action_hide_input
+        InputAction.Debug -> R.string.input_action_debug
     }
 
 internal val InputAction.icon: ImageVector
     get() = when (this) {
-        InputAction.Search     -> Icons.Default.Search
+        InputAction.Search -> Icons.Default.Search
         InputAction.LastMessage -> Icons.Default.History
-        InputAction.Stream     -> Icons.Default.Videocam
+        InputAction.Stream -> Icons.Default.Videocam
         InputAction.ModActions -> Icons.Default.Shield
         InputAction.Fullscreen -> Icons.Default.Fullscreen
-        InputAction.HideInput  -> Icons.Default.VisibilityOff
-        InputAction.Debug      -> Icons.Default.BugReport
+        InputAction.HideInput -> Icons.Default.VisibilityOff
+        InputAction.Debug -> Icons.Default.BugReport
     }

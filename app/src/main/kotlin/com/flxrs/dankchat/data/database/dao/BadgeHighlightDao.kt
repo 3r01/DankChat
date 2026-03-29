@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BadgeHighlightDao {
-
     @Query("SELECT * FROM badge_highlight WHERE id = :id")
     suspend fun getBadgeHighlight(id: Long): BadgeHighlightEntity
 

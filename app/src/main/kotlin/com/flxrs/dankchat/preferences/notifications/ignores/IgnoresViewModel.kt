@@ -16,10 +16,7 @@ import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class IgnoresViewModel(
-    private val ignoresRepository: IgnoresRepository
-) : ViewModel() {
-
+class IgnoresViewModel(private val ignoresRepository: IgnoresRepository) : ViewModel() {
     private val _currentTab = MutableStateFlow(IgnoresTab.Messages)
     private val eventChannel = Channel<IgnoreEvent>(Channel.BUFFERED)
 
@@ -53,13 +50,15 @@ class IgnoresViewModel(
                 position = messageIgnores.lastIndex
             }
 
-            IgnoresTab.Users    -> {
+            IgnoresTab.Users -> {
                 val entity = ignoresRepository.addUserIgnore()
                 userIgnores += entity.toItem()
                 position = userIgnores.lastIndex
             }
 
-            IgnoresTab.Twitch   -> return@launch
+            IgnoresTab.Twitch -> {
+                return@launch
+            }
         }
         sendEvent(IgnoreEvent.ItemAdded(position, isLast = true))
     }
@@ -73,13 +72,13 @@ class IgnoresViewModel(
                 isLast = position == messageIgnores.lastIndex
             }
 
-            is UserIgnoreItem    -> {
+            is UserIgnoreItem -> {
                 ignoresRepository.updateUserIgnore(item.toEntity())
                 userIgnores.add(position, item)
                 isLast = position == userIgnores.lastIndex
             }
 
-            is TwitchBlockItem   -> {
+            is TwitchBlockItem -> {
                 runCatching {
                     ignoresRepository.addUserBlock(item.userId, item.username)
                     twitchBlocks.add(position, item)
@@ -102,18 +101,17 @@ class IgnoresViewModel(
                 messageIgnores.removeAt(position)
             }
 
-            is UserIgnoreItem    -> {
+            is UserIgnoreItem -> {
                 position = userIgnores.indexOfFirst { it.id == item.id }
                 ignoresRepository.removeUserIgnore(item.toEntity())
                 userIgnores.removeAt(position)
             }
 
-            is TwitchBlockItem   -> {
+            is TwitchBlockItem -> {
                 position = twitchBlocks.indexOfFirst { it.id == item.id }
                 runCatching {
                     ignoresRepository.removeUserBlock(item.userId, item.username)
                     twitchBlocks.removeAt(position)
-
                 }.getOrElse {
                     eventChannel.trySend(IgnoreEvent.UnblockError(item))
                     return@launch
@@ -123,10 +121,7 @@ class IgnoresViewModel(
         sendEvent(IgnoreEvent.ItemRemoved(item, position))
     }
 
-    fun updateIgnores(
-        messageIgnoreItems: List<MessageIgnoreItem>,
-        userIgnoreItems: List<UserIgnoreItem>,
-    ) = viewModelScope.launch {
+    fun updateIgnores(messageIgnoreItems: List<MessageIgnoreItem>, userIgnoreItems: List<UserIgnoreItem>) = viewModelScope.launch {
         filterMessageIgnores(messageIgnoreItems).let { (blankEntities, entities) ->
             ignoresRepository.updateMessageIgnores(entities)
             blankEntities.forEach { ignoresRepository.removeMessageIgnore(it) }

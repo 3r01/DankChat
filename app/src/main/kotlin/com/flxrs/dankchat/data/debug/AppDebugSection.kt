@@ -9,17 +9,17 @@ import org.koin.core.annotation.Single
 
 @Single
 class AppDebugSection : DebugSection {
-
     override val order = 11
     override val baseTitle = "App"
 
     override fun entries(): Flow<DebugSectionSnapshot> {
-        val ticker = flow {
-            while (true) {
-                emit(Unit)
-                delay(2_000)
+        val ticker =
+            flow {
+                while (true) {
+                    emit(Unit)
+                    delay(2_000)
+                }
             }
-        }
         return ticker.map {
             val runtime = Runtime.getRuntime()
             val heapUsed = runtime.totalMemory() - runtime.freeMemory()
@@ -30,7 +30,8 @@ class AppDebugSection : DebugSection {
 
             DebugSectionSnapshot(
                 title = baseTitle,
-                entries = listOf(
+                entries =
+                listOf(
                     DebugEntry("Total app memory", formatBytes(totalAppMemory)),
                     DebugEntry("JVM heap", "${formatBytes(heapUsed)} / ${formatBytes(heapMax)}"),
                     DebugEntry("Native heap", "${formatBytes(nativeAllocated)} / ${formatBytes(nativeTotal)}"),

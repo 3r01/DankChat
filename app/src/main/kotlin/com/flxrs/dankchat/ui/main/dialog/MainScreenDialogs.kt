@@ -98,14 +98,14 @@ fun MainScreenDialogs(
             channels = channels,
             onApplyChanges = channelManagementViewModel::applyChanges,
             onChannelSelect = channelManagementViewModel::selectChannel,
-            onDismiss = dialogViewModel::dismissManageChannels
+            onDismiss = dialogViewModel::dismissManageChannels,
         )
     }
 
     if (dialogState.showModActions && modActionsChannel != null) {
         val modActionsViewModel: ModActionsViewModel = koinViewModel(
             key = "mod-actions-${modActionsChannel.value}",
-            parameters = { parametersOf(modActionsChannel) }
+            parameters = { parametersOf(modActionsChannel) },
         )
         val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()
         ModActionsDialog(
@@ -117,7 +117,7 @@ fun MainScreenDialogs(
                 chatInputViewModel.trySendMessageOrCommand(command)
             },
             onAnnounce = { chatInputViewModel.setAnnouncing(true) },
-            onDismiss = dialogViewModel::dismissModActions
+            onDismiss = dialogViewModel::dismissModActions,
         )
     }
 
@@ -213,7 +213,7 @@ fun MainScreenDialogs(
     dialogState.messageOptionsParams?.let { params ->
         val viewModel: MessageOptionsViewModel = koinViewModel(
             key = params.messageId,
-            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) }
+            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
         )
         val state by viewModel.state.collectAsStateWithLifecycle()
         (state as? MessageOptionsState.Found)?.let { s ->
@@ -260,7 +260,7 @@ fun MainScreenDialogs(
                 onTimeout = viewModel::timeoutUser,
                 onBan = viewModel::banUser,
                 onUnban = viewModel::unbanUser,
-                onDismiss = dialogViewModel::dismissMessageOptions
+                onDismiss = dialogViewModel::dismissMessageOptions,
             )
         }
     }
@@ -268,16 +268,18 @@ fun MainScreenDialogs(
     dialogState.emoteInfoEmotes?.let { emotes ->
         val viewModel: EmoteInfoViewModel = koinViewModel(
             key = emotes.joinToString { it.id },
-            parameters = { parametersOf(emotes) }
+            parameters = { parametersOf(emotes) },
         )
         val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
         val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
         val canUseEmote = isLoggedIn && when (sheetState) {
             is FullScreenSheetState.Closed,
-            is FullScreenSheetState.Replies -> true
+            is FullScreenSheetState.Replies,
+            -> true
 
             is FullScreenSheetState.Mention,
-            is FullScreenSheetState.Whisper -> whisperTarget != null
+            is FullScreenSheetState.Whisper,
+            -> whisperTarget != null
 
             is FullScreenSheetState.History -> false
         }
@@ -291,14 +293,14 @@ fun MainScreenDialogs(
                 }
             },
             onOpenLink = { onOpenUrl(it) },
-            onDismiss = dialogViewModel::dismissEmoteInfo
+            onDismiss = dialogViewModel::dismissEmoteInfo,
         )
     }
 
     dialogState.userPopupParams?.let { params ->
         val viewModel: UserPopupViewModel = koinViewModel(
             key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
-            parameters = { parametersOf(params) }
+            parameters = { parametersOf(params) },
         )
         val state by viewModel.userPopupState.collectAsStateWithLifecycle()
         UserPopupDialog(
@@ -342,11 +344,7 @@ fun MainScreenDialogs(
 }
 
 @Composable
-private fun UploadDisclaimerSheet(
-    host: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+private fun UploadDisclaimerSheet(host: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     LocalUriHandler.current
     val disclaimerTemplate = stringResource(R.string.external_upload_disclaimer, host)
     val hostStart = disclaimerTemplate.indexOf(host)

@@ -39,7 +39,7 @@ object ContentAlpha {
         get() =
             resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.high,
-                lowContrastAlpha = LowContrastContentAlpha.high
+                lowContrastAlpha = LowContrastContentAlpha.high,
             )
 
     /**
@@ -51,7 +51,7 @@ object ContentAlpha {
         get() =
             resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.medium,
-                lowContrastAlpha = LowContrastContentAlpha.medium
+                lowContrastAlpha = LowContrastContentAlpha.medium,
             )
 
     /**
@@ -63,7 +63,7 @@ object ContentAlpha {
         get() =
             resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.disabled,
-                lowContrastAlpha = LowContrastContentAlpha.disabled
+                lowContrastAlpha = LowContrastContentAlpha.disabled,
             )
 
     /**
@@ -75,10 +75,7 @@ object ContentAlpha {
      * for, and under what circumstances.
      */
     @Composable
-    private fun resolveAlpha(
-        @FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float,
-        @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float
-    ): Float {
+    private fun resolveAlpha(@FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float, @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float): Float {
         val contentColor = LocalContentColor.current
         val isDarkTheme = isSystemInDarkTheme()
         return if (isDarkTheme) {

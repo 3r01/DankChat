@@ -34,20 +34,21 @@ data class PrivMessage(
     val userDisplay: UserDisplay? = null,
     val thread: MessageThreadHeader? = null,
     val replyMentionOffset: Int = 0,
-    override val emoteData: EmoteData = EmoteData(
-        message = originalMessage,
-        channel = sourceChannel ?: channel,
-        emotesWithPositions = parseEmoteTag(originalMessage, tags["emotes"].orEmpty()),
-    ),
+    override val emoteData: EmoteData =
+        EmoteData(
+            message = originalMessage,
+            channel = sourceChannel ?: channel,
+            emotesWithPositions = parseEmoteTag(originalMessage, tags["emotes"].orEmpty()),
+        ),
     override val badgeData: BadgeData = BadgeData(userId, channel, badgeTag = tags["badges"], badgeInfoTag = tags["badge-info"]),
 ) : Message() {
-
     companion object {
         fun parsePrivMessage(ircMessage: IrcMessage, findChannel: (UserId) -> UserName?): PrivMessage = with(ircMessage) {
-            val (name, id) = when (ircMessage.command) {
-                "USERNOTICE" -> tags.getValue("login") to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
-                else         -> prefix.substringBefore('!') to (tags["id"] ?: UUID.randomUUID().toString())
-            }
+            val (name, id) =
+                when (ircMessage.command) {
+                    "USERNOTICE" -> tags.getValue("login") to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
+                    else -> prefix.substringBefore('!') to (tags["id"] ?: UUID.randomUUID().toString())
+                }
 
             val displayName = tags["display-name"] ?: name
             val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
@@ -55,20 +56,24 @@ data class PrivMessage(
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
             var isAction = false
             val messageParam = params.getOrElse(1) { "" }
-            val message = when {
-                params.size > 1 && messageParam.startsWith("\u0001ACTION") && messageParam.endsWith("\u0001") -> {
-                    isAction = true
-                    messageParam.substring("\u0001ACTION ".length, messageParam.length - "\u0001".length)
+            val message =
+                when {
+                    params.size > 1 && messageParam.startsWith("\u0001ACTION") && messageParam.endsWith("\u0001") -> {
+                        isAction = true
+                        messageParam.substring("\u0001ACTION ".length, messageParam.length - "\u0001".length)
+                    }
+
+                    else -> {
+                        messageParam
+                    }
                 }
 
-                else                                                                                          -> messageParam
-            }
-
             val channel = params[0].substring(1).toUserName()
-            val sourceChannel = tags["source-room-id"]
-                ?.takeIf { it.isNotEmpty() && it != tags["room-id"] }
-                ?.toUserId()
-                ?.let(findChannel)
+            val sourceChannel =
+                tags["source-room-id"]
+                    ?.takeIf { it.isNotEmpty() && it != tags["room-id"] }
+                    ?.toUserId()
+                    ?.let(findChannel)
 
             return PrivMessage(
                 timestamp = ts,

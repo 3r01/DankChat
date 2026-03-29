@@ -11,16 +11,8 @@ import io.ktor.http.isSuccess
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-open class ApiException(
-    open val status: HttpStatusCode,
-    open val url: Url?,
-    override val message: String?,
-    override val cause: Throwable? = null
-) : Throwable(message, cause) {
-
-    override fun toString(): String {
-        return "ApiException(status=$status, url=$url, message=$message, cause=$cause)"
-    }
+open class ApiException(open val status: HttpStatusCode, open val url: Url?, override val message: String?, override val cause: Throwable? = null) : Throwable(message, cause) {
+    override fun toString(): String = "ApiException(status=$status, url=$url, message=$message, cause=$cause)"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,7 +38,7 @@ open class ApiException(
 fun <R, T : R> Result<T>.recoverNotFoundWith(default: R): Result<R> = recoverCatching {
     when {
         it is ApiException && it.status == HttpStatusCode.NotFound -> default
-        else                                                       -> throw it
+        else -> throw it
     }
 }
 

@@ -5,7 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("session_keepalive")
-data class KeepAliveMessageDto(
-    override val metadata: EventSubMessageMetadataDto,
-    override val payload: EmptyPayload,
-) : EventSubMessageDto
+data class KeepAliveMessageDto(override val metadata: EventSubMessageMetadataDto, override val payload: EmptyPayload) : EventSubMessageDto

@@ -51,7 +51,7 @@ fun InfoBottomSheet(
             }
         }
 
-        else        -> {
+        else -> {
             val sheetState = rememberUnstyledSheetState(
                 initialDetent = SheetDetent.FullyExpanded,
                 detents = listOf(SheetDetent.Hidden, SheetDetent.FullyExpanded),
@@ -98,14 +98,7 @@ fun InfoBottomSheet(
 }
 
 @Composable
-private fun InfoSheetContent(
-    title: String,
-    message: String,
-    confirmText: String,
-    dismissText: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+private fun InfoSheetContent(title: String, message: String, confirmText: String, dismissText: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

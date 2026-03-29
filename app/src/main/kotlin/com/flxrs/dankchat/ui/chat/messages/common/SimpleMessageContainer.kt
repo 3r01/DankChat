@@ -30,15 +30,7 @@ import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
  */
 @Suppress("DEPRECATION")
 @Composable
-fun SimpleMessageContainer(
-    message: String,
-    timestamp: String,
-    fontSize: TextUnit,
-    lightBackgroundColor: Color,
-    darkBackgroundColor: Color,
-    textAlpha: Float,
-    modifier: Modifier = Modifier,
-) {
+fun SimpleMessageContainer(message: String, timestamp: String, fontSize: TextUnit, lightBackgroundColor: Color, darkBackgroundColor: Color, textAlpha: Float, modifier: Modifier = Modifier) {
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val linkColor = MaterialTheme.colorScheme.primary
@@ -63,7 +55,7 @@ fun SimpleMessageContainer(
             .wrapContentHeight()
             .alpha(textAlpha)
             .background(bgColor)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
@@ -74,7 +66,7 @@ fun SimpleMessageContainer(
                     .firstOrNull()?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
-            }
+            },
         )
     }
 }

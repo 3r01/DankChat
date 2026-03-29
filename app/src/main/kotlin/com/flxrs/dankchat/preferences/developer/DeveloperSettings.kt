@@ -12,7 +12,6 @@ data class DeveloperSettings(
     val eventSubDebugOutput: Boolean = false,
     val chatSendProtocol: ChatSendProtocol = ChatSendProtocol.IRC,
 ) {
-
     val isPubSubShutdown: Boolean get() = System.currentTimeMillis() > PUBSUB_SHUTDOWN_MILLIS
     val shouldUseEventSub: Boolean get() = eventSubEnabled || isPubSubShutdown
     val shouldUsePubSub: Boolean get() = !shouldUseEventSub

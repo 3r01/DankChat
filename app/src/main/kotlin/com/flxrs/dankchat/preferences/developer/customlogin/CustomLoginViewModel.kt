@@ -19,11 +19,7 @@ import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
 @Factory
-class CustomLoginViewModel(
-    private val authApiClient: AuthApiClient,
-    private val authDataStore: AuthDataStore,
-) {
-
+class CustomLoginViewModel(private val authApiClient: AuthApiClient, private val authDataStore: AuthDataStore) {
     private val _customLoginState = MutableStateFlow<CustomLoginState>(Default)
     val customLoginState = _customLoginState.asStateFlow()
 
@@ -36,30 +32,33 @@ class CustomLoginViewModel(
         _customLoginState.update { Loading }
 
         val token = oAuthToken.withoutOAuthPrefix
-        val result = authApiClient.validateUser(token).fold(
-            onSuccess = { result ->
-                val scopes = result.scopes.orEmpty()
-                when {
-                    !authApiClient.validateScopes(scopes) -> MissingScopes(
-                        missingScopes = authApiClient.missingScopes(scopes).joinToString(),
-                        validation = result,
-                        token = token,
-                        dialogOpen = true,
-                    )
+        val result =
+            authApiClient.validateUser(token).fold(
+                onSuccess = { result ->
+                    val scopes = result.scopes.orEmpty()
+                    when {
+                        !authApiClient.validateScopes(scopes) -> {
+                            MissingScopes(
+                                missingScopes = authApiClient.missingScopes(scopes).joinToString(),
+                                validation = result,
+                                token = token,
+                                dialogOpen = true,
+                            )
+                        }
 
-                    else                                  -> {
-                        saveLogin(token, result)
-                        Validated
+                        else -> {
+                            saveLogin(token, result)
+                            Validated
+                        }
                     }
-                }
-            },
-            onFailure = {
-                when {
-                    it is ApiException && it.status == HttpStatusCode.Unauthorized -> TokenInvalid
-                    else                                                           -> Failure(it.message.orEmpty())
-                }
-            }
-        )
+                },
+                onFailure = {
+                    when {
+                        it is ApiException && it.status == HttpStatusCode.Unauthorized -> TokenInvalid
+                        else -> Failure(it.message.orEmpty())
+                    }
+                },
+            )
 
         _customLoginState.update { result }
     }
@@ -81,5 +80,6 @@ class CustomLoginViewModel(
     }
 
     fun getScopes() = AuthApiClient.SCOPES.joinToString(separator = "+")
+
     fun getToken() = authDataStore.oAuthKey?.withoutOAuthPrefix.orEmpty()
 }

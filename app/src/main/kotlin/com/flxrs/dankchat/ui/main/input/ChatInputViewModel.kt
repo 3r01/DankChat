@@ -126,8 +126,11 @@ class ChatInputViewModel(
     ) { showModes, channel ->
         showModes to channel
     }.flatMapLatest { (showModes, channel) ->
-        if (!showModes || channel == null) flowOf(emptyList())
-        else channelRepository.getRoomStateFlow(channel).map { it.toDisplayTextResources() }
+        if (!showModes || channel == null) {
+            flowOf(emptyList())
+        } else {
+            channelRepository.getRoomStateFlow(channel).map { it.toDisplayTextResources() }
+        }
     }.distinctUntilChanged()
         .map { it.toImmutableList() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
@@ -188,7 +191,6 @@ class ChatInputViewModel(
                 }
             }
         }
-
     }
 
     fun uiState(externalSheetState: StateFlow<FullScreenSheetState>, externalMentionTab: StateFlow<Int>): StateFlow<ChatInputUiState> {
@@ -209,8 +211,11 @@ class ChatInputViewModel(
             suggestions,
             chatChannelProvider.activeChannel,
             chatChannelProvider.activeChannel.flatMapLatest { channel ->
-                if (channel == null) flowOf(ConnectionState.DISCONNECTED)
-                else chatConnector.getConnectionState(channel)
+                if (channel == null) {
+                    flowOf(ConnectionState.DISCONNECTED)
+                } else {
+                    chatConnector.getConnectionState(channel)
+                }
             },
             combine(preferenceStore.isLoggedInFlow, appearanceSettingsDataStore.settings.map { it.autoDisableInput }) { a, b -> a to b },
         ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, autoDisableInput) ->
@@ -267,6 +272,7 @@ class ChatInputViewModel(
                 }
 
                 ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
+
                 ConnectionState.DISCONNECTED -> InputState.Disconnected
             }
 
@@ -344,6 +350,7 @@ class ChatInputViewModel(
         val commandResult = runCatching {
             when (chatState) {
                 FullScreenSheetState.Whisper -> commandRepository.checkForWhisperCommand(message, skipSuspendingCommands)
+
                 else -> {
                     val roomState = channelRepository.getRoomState(channel) ?: return@launch
                     val userState = userStateRepository.userState.value
@@ -359,7 +366,7 @@ class ChatInputViewModel(
         when (commandResult) {
             is CommandResult.Accepted,
             is CommandResult.Blocked,
-                -> Unit
+            -> Unit
 
             is CommandResult.IrcCommand -> {
                 chatRepository.sendMessage(message, replyIdOrNull, forceIrc = true)
@@ -383,6 +390,7 @@ class ChatInputViewModel(
             }
 
             is CommandResult.AcceptedWithResponse -> chatRepository.makeAndPostCustomSystemMessage(commandResult.response, channel)
+
             is CommandResult.Message -> {
                 chatRepository.sendMessage(commandResult.message, replyIdOrNull)
                 setReplying(false)
@@ -496,12 +504,7 @@ class ChatInputViewModel(
     }
 }
 
-internal data class SuggestionReplacementResult(
-    val replaceStart: Int,
-    val replaceEnd: Int,
-    val replacement: String,
-    val newCursorPos: Int,
-)
+internal data class SuggestionReplacementResult(val replaceStart: Int, val replaceEnd: Int, val replacement: String, val newCursorPos: Int)
 
 internal fun computeSuggestionReplacement(text: String, cursorPos: Int, suggestionText: String): SuggestionReplacementResult {
     val separator = ' '

@@ -163,12 +163,12 @@ private fun HighlightsScreen(
                         }
                     }
 
-                    is HighlightEvent.ItemAdded   -> {
+                    is HighlightEvent.ItemAdded -> {
                         val listState = listStates[pagerState.currentPage]
                         when {
                             event.isLast && listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            event.isLast                               -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            else                                       -> listState.animateScrollToItem(event.position)
+                            event.isLast -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                            else -> listState.animateScrollToItem(event.position)
                         }
                     }
                 }
@@ -199,7 +199,7 @@ private fun HighlightsScreen(
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -223,9 +223,9 @@ private fun HighlightsScreen(
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp),
             ) {
                 val subtitle = when (currentTab) {
-                    HighlightsTab.Messages         -> stringResource(R.string.highlights_messages_title)
-                    HighlightsTab.Users            -> stringResource(R.string.highlights_users_title)
-                    HighlightsTab.Badges           -> stringResource(R.string.highlights_badges_title)
+                    HighlightsTab.Messages -> stringResource(R.string.highlights_messages_title)
+                    HighlightsTab.Users -> stringResource(R.string.highlights_users_title)
+                    HighlightsTab.Badges -> stringResource(R.string.highlights_badges_title)
                     HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
                 }
                 Text(
@@ -242,12 +242,12 @@ private fun HighlightsScreen(
                     tabCount = HighlightsTab.entries.size,
                     tabText = {
                         when (HighlightsTab.entries[it]) {
-                            HighlightsTab.Messages         -> stringResource(R.string.tab_messages)
-                            HighlightsTab.Users            -> stringResource(R.string.tab_users)
-                            HighlightsTab.Badges           -> stringResource(R.string.tab_badges)
+                            HighlightsTab.Messages -> stringResource(R.string.tab_messages)
+                            HighlightsTab.Users -> stringResource(R.string.tab_users)
+                            HighlightsTab.Badges -> stringResource(R.string.tab_badges)
                             HighlightsTab.BlacklistedUsers -> stringResource(R.string.tab_blacklisted_users)
                         }
-                    }
+                    },
                 )
             }
 
@@ -259,7 +259,7 @@ private fun HighlightsScreen(
             ) { page ->
                 val listState = listStates[page]
                 when (HighlightsTab.entries[page]) {
-                    HighlightsTab.Messages         -> HighlightsList(
+                    HighlightsTab.Messages -> HighlightsList(
                         highlights = messageHighlights,
                         listState = listState,
                     ) { idx, item ->
@@ -274,7 +274,7 @@ private fun HighlightsScreen(
                         )
                     }
 
-                    HighlightsTab.Users            -> HighlightsList(
+                    HighlightsTab.Users -> HighlightsList(
                         highlights = userHighlights,
                         listState = listState,
                     ) { idx, item ->
@@ -289,7 +289,7 @@ private fun HighlightsScreen(
                         )
                     }
 
-                    HighlightsTab.Badges           -> HighlightsList(
+                    HighlightsTab.Badges -> HighlightsList(
                         highlights = badgeHighlights,
                         listState = listState,
                     ) { idx, item ->
@@ -325,12 +325,7 @@ private fun HighlightsScreen(
 }
 
 @Composable
-private fun <T : HighlightItem> HighlightsList(
-    highlights: SnapshotStateList<T>,
-    listState: LazyListState,
-    itemContent: @Composable LazyItemScope.(Int, T) -> Unit,
-) {
-
+private fun <T : HighlightItem> HighlightsList(highlights: SnapshotStateList<T>, listState: LazyListState, itemContent: @Composable LazyItemScope.(Int, T) -> Unit) {
     DankBackground(visible = highlights.isEmpty())
 
     LazyColumn(
@@ -351,34 +346,29 @@ private fun <T : HighlightItem> HighlightsList(
 }
 
 @Composable
-private fun MessageHighlightItem(
-    item: MessageHighlightItem,
-    onChange: (MessageHighlightItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val launcher = LocalUriHandler.current
     val titleText = when (item.type) {
-        MessageHighlightItem.Type.Username               -> R.string.highlights_entry_username
-        MessageHighlightItem.Type.Subscription           -> R.string.highlights_ignores_entry_subscriptions
-        MessageHighlightItem.Type.Announcement           -> R.string.highlights_ignores_entry_announcements
-        MessageHighlightItem.Type.FirstMessage           -> R.string.highlights_ignores_entry_first_messages
-        MessageHighlightItem.Type.ElevatedMessage        -> R.string.highlights_ignores_entry_elevated_messages
+        MessageHighlightItem.Type.Username -> R.string.highlights_entry_username
+        MessageHighlightItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
+        MessageHighlightItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
+        MessageHighlightItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
+        MessageHighlightItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
         MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
-        MessageHighlightItem.Type.Reply                  -> R.string.highlights_ignores_entry_replies
-        MessageHighlightItem.Type.Custom                 -> R.string.highlights_ignores_entry_custom
+        MessageHighlightItem.Type.Reply -> R.string.highlights_ignores_entry_replies
+        MessageHighlightItem.Type.Custom -> R.string.highlights_ignores_entry_custom
     }
     val isCustom = item.type == MessageHighlightItem.Type.Custom
     ElevatedCard(modifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 8.dp),
         ) {
             Text(
                 text = stringResource(titleText),
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
             if (isCustom) {
                 IconButton(
@@ -447,11 +437,11 @@ private fun MessageHighlightItem(
         }
         val defaultColor = when (item.type) {
             MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
-            MessageHighlightItem.Type.ChannelPointRedemption                               -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
-            MessageHighlightItem.Type.ElevatedMessage                                      -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
-            MessageHighlightItem.Type.FirstMessage                                         -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
-            MessageHighlightItem.Type.Username                                             -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-            MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom              -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+            MessageHighlightItem.Type.ChannelPointRedemption -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
+            MessageHighlightItem.Type.ElevatedMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
+            MessageHighlightItem.Type.FirstMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
+            MessageHighlightItem.Type.Username -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+            MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
         }
         HighlightColorPicker(
             color = item.customColor ?: defaultColor,
@@ -463,12 +453,7 @@ private fun MessageHighlightItem(
 }
 
 @Composable
-private fun UserHighlightItem(
-    item: UserHighlightItem,
-    onChange: (UserHighlightItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun UserHighlightItem(item: UserHighlightItem, onChange: (UserHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     ElevatedCard(modifier) {
         Row {
             Column(
@@ -518,12 +503,7 @@ private fun UserHighlightItem(
 }
 
 @Composable
-private fun BadgeHighlightItem(
-    item: BadgeHighlightItem,
-    onChange: (BadgeHighlightItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun BadgeHighlightItem(item: BadgeHighlightItem, onChange: (BadgeHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     ElevatedCard(modifier) {
         Row {
             Column(
@@ -543,25 +523,25 @@ private fun BadgeHighlightItem(
                 } else {
                     var name = ""
                     when (item.badgeName) {
-                        "broadcaster"    -> name = stringResource(R.string.badge_broadcaster)
-                        "admin"          -> name = stringResource(R.string.badge_admin)
-                        "staff"          -> name = stringResource(R.string.badge_staff)
-                        "moderator"      -> name = stringResource(R.string.badge_moderator)
+                        "broadcaster" -> name = stringResource(R.string.badge_broadcaster)
+                        "admin" -> name = stringResource(R.string.badge_admin)
+                        "staff" -> name = stringResource(R.string.badge_staff)
+                        "moderator" -> name = stringResource(R.string.badge_moderator)
                         "lead_moderator" -> name = stringResource(R.string.badge_lead_moderator)
-                        "partner"        -> name = stringResource(R.string.badge_verified)
-                        "vip"            -> name = stringResource(R.string.badge_vip)
-                        "founder"        -> name = stringResource(R.string.badge_founder)
-                        "subscriber"     -> name = stringResource(R.string.badge_subscriber)
+                        "partner" -> name = stringResource(R.string.badge_verified)
+                        "vip" -> name = stringResource(R.string.badge_vip)
+                        "founder" -> name = stringResource(R.string.badge_founder)
+                        "subscriber" -> name = stringResource(R.string.badge_subscriber)
                     }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp)
+                            .padding(top = 8.dp),
                     ) {
                         Text(
                             text = name,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
                         )
                     }
                 }
@@ -601,12 +581,7 @@ private fun BadgeHighlightItem(
 }
 
 @Composable
-private fun BlacklistedUserItem(
-    item: BlacklistedUserItem,
-    onChange: (BlacklistedUserItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun BlacklistedUserItem(item: BlacklistedUserItem, onChange: (BlacklistedUserItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val launcher = LocalUriHandler.current
     ElevatedCard(modifier) {
         Row {
@@ -655,12 +630,7 @@ private fun BlacklistedUserItem(
 }
 
 @Composable
-private fun HighlightColorPicker(
-    color: Int,
-    defaultColor: Int,
-    enabled: Boolean,
-    onColorSelect: (Int) -> Unit,
-) {
+private fun HighlightColorPicker(color: Int, defaultColor: Int, enabled: Boolean, onColorSelect: (Int) -> Unit) {
     var showColorPicker by remember { mutableStateOf(false) }
     var selectedColor by remember(color) { mutableIntStateOf(color) }
     OutlinedButton(
@@ -671,12 +641,12 @@ private fun HighlightColorPicker(
             Spacer(
                 Modifier
                     .size(ButtonDefaults.IconSize)
-                    .background(color = Color(color), shape = CircleShape)
+                    .background(color = Color(color), shape = CircleShape),
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(text = stringResource(R.string.choose_highlight_color))
         },
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier.padding(12.dp),
     )
     if (showColorPicker) {
         ModalBottomSheet(
@@ -697,7 +667,7 @@ private fun HighlightColorPicker(
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 TextButton(
                     onClick = { selectedColor = defaultColor },
@@ -721,7 +691,7 @@ private fun HighlightColorPicker(
                 },
                 update = {
                     it.setCurrentColor(selectedColor)
-                }
+                },
             )
         }
     }

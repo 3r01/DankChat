@@ -7,7 +7,6 @@ import org.koin.core.annotation.Single
 
 @Single
 class DebugSectionRegistry(sections: List<DebugSection>) {
-
     private val sorted = sections.sortedBy { it.order }
 
     fun allSections(): Flow<List<DebugSectionSnapshot>> {

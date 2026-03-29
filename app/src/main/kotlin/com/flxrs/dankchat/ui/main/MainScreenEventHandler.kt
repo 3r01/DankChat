@@ -50,8 +50,10 @@ fun MainScreenEventHandler(
         mainEventBus.events.collect { event ->
             when (event) {
                 is MainEvent.LogOutRequested -> dialogViewModel.showLogout()
-                is MainEvent.UploadLoading   -> dialogViewModel.setUploading(true)
-                is MainEvent.UploadSuccess   -> {
+
+                is MainEvent.UploadLoading -> dialogViewModel.setUploading(true)
+
+                is MainEvent.UploadSuccess -> {
                     dialogViewModel.setUploading(false)
                     context.getSystemService<ClipboardManager>()
                         ?.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", event.url))
@@ -59,28 +61,28 @@ fun MainScreenEventHandler(
                     val result = snackbarHostState.showSnackbar(
                         message = resources.getString(R.string.snackbar_image_uploaded, event.url),
                         actionLabel = resources.getString(R.string.snackbar_paste),
-                        duration = SnackbarDuration.Long
+                        duration = SnackbarDuration.Long,
                     )
                     if (result == SnackbarResult.ActionPerformed) {
                         chatInputViewModel.insertText(event.url)
                     }
                 }
 
-                is MainEvent.UploadFailed    -> {
+                is MainEvent.UploadFailed -> {
                     dialogViewModel.setUploading(false)
                     val message = event.errorMessage?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
                         ?: resources.getString(R.string.snackbar_upload_failed)
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
                 }
 
-                is MainEvent.OpenChannel     -> {
+                is MainEvent.OpenChannel -> {
                     channelTabViewModel.selectTab(
-                        preferenceStore.channels.indexOf(event.channel)
+                        preferenceStore.channels.indexOf(event.channel),
                     )
                     (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
 
-                else                         -> Unit
+                else -> Unit
             }
         }
     }
@@ -92,7 +94,7 @@ fun MainScreenEventHandler(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             authStateCoordinator.events.collect { event ->
                 when (event) {
-                    is AuthEvent.LoggedIn      -> {
+                    is AuthEvent.LoggedIn -> {
                         launch {
                             delay(2000)
                             snackbarHostState.currentSnackbarData?.dismiss()
@@ -110,7 +112,7 @@ fun MainScreenEventHandler(
                         )
                     }
 
-                    else                       -> Unit
+                    else -> Unit
                 }
             }
         }
@@ -128,12 +130,12 @@ fun MainScreenEventHandler(
         val stepsText = allSteps.joinToString(", ")
         val message = when {
             allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
-            else               -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
+            else -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
         }
         val result = snackbarHostState.showSnackbar(
             message = message,
             actionLabel = resources.getString(R.string.snackbar_retry),
-            duration = SnackbarDuration.Long
+            duration = SnackbarDuration.Long,
         )
         if (result == SnackbarResult.ActionPerformed) {
             mainScreenViewModel.retryDataLoading(state)

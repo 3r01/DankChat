@@ -60,9 +60,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun AppearanceSettingsScreen(
-    onBack: () -> Unit,
-) {
+fun AppearanceSettingsScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<AppearanceSettingsViewModel>()
     val uiState = viewModel.settings.collectAsStateWithLifecycle().value
 
@@ -70,7 +68,7 @@ fun AppearanceSettingsScreen(
         settings = uiState.settings,
         onInteraction = { viewModel.onInteraction(it) },
         onSuspendingInteraction = { viewModel.onSuspendingInteraction(it) },
-        onBack = onBack
+        onBack = onBack,
     )
 }
 
@@ -94,7 +92,7 @@ private fun AppearanceSettingsContent(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
@@ -129,11 +127,7 @@ private fun AppearanceSettingsContent(
 }
 
 @Composable
-private fun ComponentsCategory(
-    autoDisableInput: Boolean,
-    showCharacterCounter: Boolean,
-    onInteraction: (AppearanceSettingsInteraction) -> Unit,
-) {
+private fun ComponentsCategory(autoDisableInput: Boolean, showCharacterCounter: Boolean, onInteraction: (AppearanceSettingsInteraction) -> Unit) {
     PreferenceCategory(
         title = stringResource(R.string.preference_components_group_title),
     ) {
@@ -152,13 +146,7 @@ private fun ComponentsCategory(
 }
 
 @Composable
-private fun DisplayCategory(
-    fontSize: Int,
-    keepScreenOn: Boolean,
-    lineSeparator: Boolean,
-    checkeredMessages: Boolean,
-    onInteraction: (AppearanceSettingsInteraction) -> Unit,
-) {
+private fun DisplayCategory(fontSize: Int, keepScreenOn: Boolean, lineSeparator: Boolean, checkeredMessages: Boolean, onInteraction: (AppearanceSettingsInteraction) -> Unit) {
     PreferenceCategory(
         title = stringResource(R.string.preference_display_group_title),
     ) {
@@ -194,11 +182,7 @@ private fun DisplayCategory(
 }
 
 @Composable
-private fun ThemeCategory(
-    theme: ThemePreference,
-    trueDarkTheme: Boolean,
-    onInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
-) {
+private fun ThemeCategory(theme: ThemePreference, trueDarkTheme: Boolean, onInteraction: suspend (AppearanceSettingsInteraction) -> Unit) {
     val scope = rememberCoroutineScope()
     val themeState = rememberThemeState(theme, trueDarkTheme, isSystemInDarkTheme())
     PreferenceCategory(
@@ -212,13 +196,13 @@ private fun ThemeCategory(
             values = themeState.values,
             entries = themeState.entries,
             selected = themeState.preference,
-            onChange ={
+            onChange = {
                 scope.launch {
                     activity ?: return@launch
                     onInteraction(Theme(it))
                     setDarkMode(it, activity)
                 }
-            }
+            },
         )
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_true_dark_theme_title),
@@ -231,7 +215,7 @@ private fun ThemeCategory(
                     onInteraction(TrueDarkTheme(it))
                     ActivityCompat.recreate(activity)
                 }
-            }
+            },
         )
     }
 }
@@ -275,22 +259,20 @@ private fun rememberThemeState(theme: ThemePreference, trueDark: Boolean, system
     }
 }
 
-private fun getFontSizeSummary(value: Int, context: Context): String {
-    return when {
-        value < 13 -> context.getString(R.string.preference_font_size_summary_very_small)
-        value in 13..17 -> context.getString(R.string.preference_font_size_summary_small)
-        value in 18..22 -> context.getString(R.string.preference_font_size_summary_large)
-        else -> context.getString(R.string.preference_font_size_summary_very_large)
-    }
+private fun getFontSizeSummary(value: Int, context: Context): String = when {
+    value < 13 -> context.getString(R.string.preference_font_size_summary_very_small)
+    value in 13..17 -> context.getString(R.string.preference_font_size_summary_small)
+    value in 18..22 -> context.getString(R.string.preference_font_size_summary_large)
+    else -> context.getString(R.string.preference_font_size_summary_very_large)
 }
 
 private fun setDarkMode(themePreference: ThemePreference, activity: Activity) {
     AppCompatDelegate.setDefaultNightMode(
         when (themePreference) {
             ThemePreference.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            ThemePreference.Dark   -> AppCompatDelegate.MODE_NIGHT_YES
-            else                   -> AppCompatDelegate.MODE_NIGHT_NO
-        }
+            ThemePreference.Dark -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_NO
+        },
     )
     ActivityCompat.recreate(activity)
 }

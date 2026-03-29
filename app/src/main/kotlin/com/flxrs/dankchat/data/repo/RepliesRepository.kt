@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Single
 class RepliesRepository(private val authDataStore: AuthDataStore) {
-
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
     fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
@@ -58,38 +57,44 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
 
         val strippedMessage = message.stripLeadingReplyMention()
         val rootId = message.tags.getValue(THREAD_ROOT_MESSAGE_ID_TAG)
-        val thread = when (val existing = threads[rootId]?.value) {
-            null -> {
-                val rootMessage = findMessageById(strippedMessage.channel, rootId) as? PrivMessage
-                    ?: createPlaceholderRootMessage(strippedMessage, rootId)
-                    ?: return message
-                MessageThread(
-                    rootMessageId = rootId,
-                    rootMessage = rootMessage,
-                    replies = listOf(strippedMessage),
-                    participated = strippedMessage.isParticipating()
-                )
-            }
-
-            else -> {
-                // Message already exists in thread
-                if (existing.replies.any { it.id == strippedMessage.id }) {
-                    return strippedMessage
+        val thread =
+            when (val existing = threads[rootId]?.value) {
+                null -> {
+                    val rootMessage =
+                        findMessageById(strippedMessage.channel, rootId) as? PrivMessage
+                            ?: createPlaceholderRootMessage(strippedMessage, rootId)
+                            ?: return message
+                    MessageThread(
+                        rootMessageId = rootId,
+                        rootMessage = rootMessage,
+                        replies = listOf(strippedMessage),
+                        participated = strippedMessage.isParticipating(),
+                    )
                 }
 
-                existing.copy(replies = existing.replies + strippedMessage, participated = existing.updateParticipated(strippedMessage))
+                else -> {
+                    // Message already exists in thread
+                    if (existing.replies.any { it.id == strippedMessage.id }) {
+                        return strippedMessage
+                    }
+
+                    existing.copy(replies = existing.replies + strippedMessage, participated = existing.updateParticipated(strippedMessage))
+                }
             }
-        }
         when {
             !threads.containsKey(rootId) -> threads[rootId] = MutableStateFlow(thread)
-            else                         -> threads.getValue(rootId).update { thread }
+            else -> threads.getValue(rootId).update { thread }
         }
 
         val parentMessageId = message.tags[PARENT_MESSAGE_ID_TAG]
-        val parentInThread = parentMessageId?.let { id ->
-            if (id == thread.rootMessageId) thread.rootMessage
-            else thread.replies.find { it.id == id }
-        }
+        val parentInThread =
+            parentMessageId?.let { id ->
+                if (id == thread.rootMessageId) {
+                    thread.rootMessage
+                } else {
+                    thread.replies.find { it.id == id }
+                }
+            }
 
         val parentName: UserName
         val parentBody: String
@@ -119,7 +124,7 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
                 }
             }
 
-            else            -> {
+            else -> {
                 val flow = threads[message.id] ?: return message
                 flow.update { thread -> thread.copy(rootMessage = message) }
             }
@@ -136,9 +141,7 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
         return message.isParticipating()
     }
 
-    private fun PrivMessage.isParticipating(): Boolean {
-        return name == authDataStore.userName || (PARENT_MESSAGE_LOGIN_TAG in tags && tags[PARENT_MESSAGE_LOGIN_TAG] == authDataStore.userName?.value)
-    }
+    private fun PrivMessage.isParticipating(): Boolean = name == authDataStore.userName || (PARENT_MESSAGE_LOGIN_TAG in tags && tags[PARENT_MESSAGE_LOGIN_TAG] == authDataStore.userName?.value)
 
     private fun PrivMessage.stripLeadingReplyMention(): PrivMessage {
         val displayName = tags[PARENT_MESSAGE_DISPLAY_TAG] ?: return this
@@ -149,7 +152,7 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
                 message = stripped,
                 originalMessage = stripped,
                 replyMentionOffset = displayName.length + 2,
-                emoteData = emoteData.copy(message = stripped)
+                emoteData = emoteData.copy(message = stripped),
             )
         }
 
@@ -175,9 +178,7 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
         )
     }
 
-    private fun PrivMessage.clearHighlight(): PrivMessage {
-        return copy(highlights = highlights.filter { it.type != HighlightType.Reply }.toSet())
-    }
+    private fun PrivMessage.clearHighlight(): PrivMessage = copy(highlights = highlights.filter { it.type != HighlightType.Reply }.toSet())
 
     companion object {
         private const val PARENT_MESSAGE_ID_TAG = "reply-parent-msg-id"

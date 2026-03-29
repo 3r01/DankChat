@@ -41,14 +41,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmoteInfoDialog(
-    items: List<EmoteSheetItem>,
-    isLoggedIn: Boolean,
-    onUseEmote: (String) -> Unit,
-    onCopyEmote: (String) -> Unit,
-    onOpenLink: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun EmoteInfoDialog(items: List<EmoteSheetItem>, isLoggedIn: Boolean, onUseEmote: (String) -> Unit, onCopyEmote: (String) -> Unit, onOpenLink: (String) -> Unit, onDismiss: () -> Unit) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { items.size })
 
@@ -66,7 +59,7 @@ fun EmoteInfoDialog(
                             onClick = {
                                 scope.launch { pagerState.animateScrollToPage(index) }
                             },
-                            text = { Text(item.name) }
+                            text = { Text(item.name) },
                         )
                     }
                 }
@@ -74,7 +67,7 @@ fun EmoteInfoDialog(
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) { page ->
                 val item = items[page]
                 EmoteInfoContent(
@@ -91,7 +84,7 @@ fun EmoteInfoDialog(
                     onOpenLink = {
                         onOpenLink(item.providerUrl)
                         onDismiss()
-                    }
+                    },
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -100,27 +93,21 @@ fun EmoteInfoDialog(
 }
 
 @Composable
-private fun EmoteInfoContent(
-    item: EmoteSheetItem,
-    showUseEmote: Boolean,
-    onUseEmote: () -> Unit,
-    onCopyEmote: () -> Unit,
-    onOpenLink: () -> Unit,
-) {
+private fun EmoteInfoContent(item: EmoteSheetItem, showUseEmote: Boolean, onUseEmote: () -> Unit, onCopyEmote: () -> Unit, onOpenLink: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.Top,
         ) {
             AsyncImage(
                 model = item.imageUrl,
                 contentDescription = stringResource(R.string.emote_sheet_image_description),
-                modifier = Modifier.size(96.dp)
+                modifier = Modifier.size(96.dp),
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
@@ -128,31 +115,31 @@ private fun EmoteInfoContent(
                     text = item.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 Text(
                     text = stringResource(item.emoteType),
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
                 item.baseName?.let {
                     Text(
                         text = stringResource(R.string.emote_sheet_alias_of, it),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
                 item.creatorName?.let {
                     Text(
                         text = stringResource(R.string.emote_sheet_created_by, it),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
                 Text(
                     text = if (item.isZeroWidth) stringResource(R.string.emote_sheet_zero_width_emote) else "",
                     style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -162,20 +149,20 @@ private fun EmoteInfoContent(
                 headlineContent = { Text(stringResource(R.string.emote_sheet_use)) },
                 leadingContent = { Icon(Icons.Default.InsertEmoticon, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onUseEmote),
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             )
         }
         ListItem(
             headlineContent = { Text(stringResource(R.string.emote_sheet_copy)) },
             leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onCopyEmote),
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         )
         ListItem(
             headlineContent = { Text(stringResource(R.string.emote_sheet_open_link)) },
             leadingContent = { Icon(Icons.Default.OpenInBrowser, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenLink),
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         )
     }
 }

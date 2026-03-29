@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
 import org.koin.android.annotation.KoinViewModel
 
 data class OnboardingState(
@@ -30,22 +29,22 @@ class OnboardingViewModel(
     private val dankChatPreferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
 ) : ViewModel() {
-
     private val _state: MutableStateFlow<OnboardingState>
     val state: StateFlow<OnboardingState>
 
     init {
         val savedPage = onboardingDataStore.current().onboardingPage
         val isLoggedIn = authDataStore.isLoggedIn
-        _state = MutableStateFlow(
-            OnboardingState(
-                initialPage = savedPage,
-                currentPage = savedPage,
-                loginCompleted = isLoggedIn,
-                // If we're past the history page, the decision was already made in a previous session
-                messageHistoryDecided = savedPage > 2,
+        _state =
+            MutableStateFlow(
+                OnboardingState(
+                    initialPage = savedPage,
+                    currentPage = savedPage,
+                    loginCompleted = isLoggedIn,
+                    // If we're past the history page, the decision was already made in a previous session
+                    messageHistoryDecided = savedPage > 2,
+                ),
             )
-        )
         state = _state.asStateFlow()
 
         // Observe auth state changes so we detect login during onboarding

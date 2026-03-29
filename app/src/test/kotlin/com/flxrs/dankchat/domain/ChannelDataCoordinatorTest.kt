@@ -42,14 +42,14 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 internal class ChannelDataCoordinatorTest {
-
     private val testDispatcher = UnconfinedTestDispatcher()
-    private val dispatchersProvider = object : DispatchersProvider {
-        override val default: CoroutineDispatcher = testDispatcher
-        override val io: CoroutineDispatcher = testDispatcher
-        override val main: CoroutineDispatcher = testDispatcher
-        override val immediate: CoroutineDispatcher = testDispatcher
-    }
+    private val dispatchersProvider =
+        object : DispatchersProvider {
+            override val default: CoroutineDispatcher = testDispatcher
+            override val io: CoroutineDispatcher = testDispatcher
+            override val main: CoroutineDispatcher = testDispatcher
+            override val immediate: CoroutineDispatcher = testDispatcher
+        }
 
     private val channelDataLoader: ChannelDataLoader = mockk()
     private val globalDataLoader: GlobalDataLoader = mockk()
@@ -74,17 +74,18 @@ internal class ChannelDataCoordinatorTest {
 
         startupValidationHolder.update(StartupValidation.Validated)
 
-        coordinator = ChannelDataCoordinator(
-            channelDataLoader = channelDataLoader,
-            globalDataLoader = globalDataLoader,
-            chatMessageRepository = chatMessageRepository,
-            dataRepository = dataRepository,
-            authDataStore = authDataStore,
-            preferenceStore = preferenceStore,
-            startupValidationHolder = startupValidationHolder,
-            streamDataRepository = streamDataRepository,
-            dispatchersProvider = dispatchersProvider,
-        )
+        coordinator =
+            ChannelDataCoordinator(
+                channelDataLoader = channelDataLoader,
+                globalDataLoader = globalDataLoader,
+                chatMessageRepository = chatMessageRepository,
+                dataRepository = dataRepository,
+                authDataStore = authDataStore,
+                preferenceStore = preferenceStore,
+                startupValidationHolder = startupValidationHolder,
+                streamDataRepository = streamDataRepository,
+                dispatchersProvider = dispatchersProvider,
+            )
     }
 
     @Test
@@ -181,9 +182,10 @@ internal class ChannelDataCoordinatorTest {
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
         coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
 
-        val failedState = GlobalLoadingState.Failed(
-            failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
-        )
+        val failedState =
+            GlobalLoadingState.Failed(
+                failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
+            )
 
         coordinator.retryDataLoading(failedState)
 
@@ -197,9 +199,10 @@ internal class ChannelDataCoordinatorTest {
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
         coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
 
-        val failedState = GlobalLoadingState.Failed(
-            failures = setOf(DataLoadingFailure(DataLoadingStep.ChannelBTTVEmotes(channel, DisplayName("testchannel"), UserId("123")), RuntimeException("fail"))),
-        )
+        val failedState =
+            GlobalLoadingState.Failed(
+                failures = setOf(DataLoadingFailure(DataLoadingStep.ChannelBTTVEmotes(channel, DisplayName("testchannel"), UserId("123")), RuntimeException("fail"))),
+            )
 
         coordinator.retryDataLoading(failedState)
 
@@ -213,9 +216,10 @@ internal class ChannelDataCoordinatorTest {
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
         coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
 
-        val failedState = GlobalLoadingState.Failed(
-            chatFailures = setOf(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), RuntimeException("fail"))),
-        )
+        val failedState =
+            GlobalLoadingState.Failed(
+                chatFailures = setOf(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), RuntimeException("fail"))),
+            )
 
         coordinator.retryDataLoading(failedState)
 
@@ -228,9 +232,10 @@ internal class ChannelDataCoordinatorTest {
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
         coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
 
-        val failedState = GlobalLoadingState.Failed(
-            failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
-        )
+        val failedState =
+            GlobalLoadingState.Failed(
+                failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
+            )
 
         coordinator.retryDataLoading(failedState)
 

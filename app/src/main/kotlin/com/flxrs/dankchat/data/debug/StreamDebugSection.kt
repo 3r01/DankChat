@@ -8,27 +8,26 @@ import kotlinx.coroutines.flow.combine
 import org.koin.core.annotation.Single
 
 @Single
-class StreamDebugSection(
-    private val streamDataRepository: StreamDataRepository,
-    private val chatChannelProvider: ChatChannelProvider,
-) : DebugSection {
-
+class StreamDebugSection(private val streamDataRepository: StreamDataRepository, private val chatChannelProvider: ChatChannelProvider) : DebugSection {
     override val order = 5
     override val baseTitle = "Stream"
 
-    override fun entries(): Flow<DebugSectionSnapshot> {
-        return combine(chatChannelProvider.activeChannel, streamDataRepository.streamData) { channel, streams ->
-            val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
-            val stream = channel?.let { ch -> streams.find { it.channel == ch } }
-            when (stream) {
-                null -> DebugSectionSnapshot(
+    override fun entries(): Flow<DebugSectionSnapshot> = combine(chatChannelProvider.activeChannel, streamDataRepository.streamData) { channel, streams ->
+        val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
+        val stream = channel?.let { ch -> streams.find { it.channel == ch } }
+        when (stream) {
+            null -> {
+                DebugSectionSnapshot(
                     title = "$baseTitle$channelSuffix",
                     entries = listOf(DebugEntry("Status", "Offline")),
                 )
+            }
 
-                else -> DebugSectionSnapshot(
+            else -> {
+                DebugSectionSnapshot(
                     title = "$baseTitle$channelSuffix",
-                    entries = listOf(
+                    entries =
+                    listOf(
                         DebugEntry("Status", "Live"),
                         DebugEntry("Viewers", "${stream.viewerCount}"),
                         DebugEntry("Uptime", DateTimeUtils.calculateUptime(stream.startedAt)),

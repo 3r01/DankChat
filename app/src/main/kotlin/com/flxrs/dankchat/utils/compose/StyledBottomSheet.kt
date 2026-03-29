@@ -37,12 +37,7 @@ import com.composables.core.rememberModalBottomSheetState
 import java.util.concurrent.CancellationException
 
 @Composable
-fun StyledBottomSheet(
-    onDismiss: () -> Unit,
-    addBottomSpacing: Boolean = true,
-    dismissOnKeyboardClose: Boolean = false,
-    content: @Composable ColumnScope.() -> Unit,
-) {
+fun StyledBottomSheet(onDismiss: () -> Unit, addBottomSpacing: Boolean = true, dismissOnKeyboardClose: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
     val sheetState = rememberModalBottomSheetState(
         initialDetent = SheetDetent.FullyExpanded,
         detents = listOf(SheetDetent.Hidden, SheetDetent.FullyExpanded),

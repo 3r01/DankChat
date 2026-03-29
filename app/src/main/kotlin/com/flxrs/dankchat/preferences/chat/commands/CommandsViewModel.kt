@@ -15,13 +15,14 @@ import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
 class CommandsViewModel(private val chatSettingsDataStore: ChatSettingsDataStore) : ViewModel() {
-    val commands = chatSettingsDataStore.settings
-        .map { it.customCommands.toImmutableList() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = chatSettingsDataStore.current().customCommands.toImmutableList(),
-        )
+    val commands =
+        chatSettingsDataStore.settings
+            .map { it.customCommands.toImmutableList() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.seconds),
+                initialValue = chatSettingsDataStore.current().customCommands.toImmutableList(),
+            )
 
     fun save(commands: List<CustomCommand>) = viewModelScope.launch {
         val filtered = commands.filter { it.trigger.isNotBlank() && it.command.isNotBlank() }

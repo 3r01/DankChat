@@ -24,22 +24,18 @@ private val FfzModGreen = Color(0xFF34AE0A)
  * FFZ mod badges get a green background fill since the badge image is foreground-only.
  */
 @Composable
-fun BadgeInlineContent(
-    badge: BadgeUi,
-    size: Dp,
-    modifier: Modifier = Modifier
-) {
+fun BadgeInlineContent(badge: BadgeUi, size: Dp, modifier: Modifier = Modifier) {
     when (badge.badge) {
-        is Badge.FFZModBadge     -> {
+        is Badge.FFZModBadge -> {
             Box(
                 modifier = modifier
                     .size(size)
-                    .background(FfzModGreen)
+                    .background(FfzModGreen),
             ) {
                 AsyncImage(
                     model = badge.url,
                     contentDescription = badge.badge.type.name,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
         }
@@ -50,15 +46,15 @@ fun BadgeInlineContent(
                 contentDescription = badge.badge.type.name,
                 modifier = modifier
                     .size(size)
-                    .clip(CircleShape)
+                    .clip(CircleShape),
             )
         }
 
-        else                     -> {
+        else -> {
             AsyncImage(
                 model = badge.drawableResId ?: badge.url,
                 contentDescription = badge.badge.type.name,
-                modifier = modifier.size(size)
+                modifier = modifier.size(size),
             )
         }
     }
@@ -68,20 +64,13 @@ fun BadgeInlineContent(
  * Renders an emote (potentially stacked) as inline content in a message.
  */
 @Composable
-fun EmoteInlineContent(
-    emote: EmoteUi,
-    fontSize: Float,
-    coordinator: EmoteAnimationCoordinator,
-    animateGifs: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun EmoteInlineContent(emote: EmoteUi, fontSize: Float, coordinator: EmoteAnimationCoordinator, animateGifs: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     StackedEmote(
         emote = emote,
         fontSize = fontSize,
         emoteCoordinator = coordinator,
         animateGifs = animateGifs,
         modifier = modifier,
-        onClick = onClick
+        onClick = onClick,
     )
 }

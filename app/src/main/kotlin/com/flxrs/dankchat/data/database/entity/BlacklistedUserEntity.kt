@@ -12,11 +12,9 @@ data class BlacklistedUserEntity(
     val id: Long,
     val enabled: Boolean,
     val username: String,
-
     @ColumnInfo(name = "is_regex")
-    val isRegex: Boolean = false
+    val isRegex: Boolean = false,
 ) {
-
     @delegate:Ignore
     val regex: Regex? by lazy {
         runCatching {

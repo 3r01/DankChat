@@ -26,26 +26,22 @@ import kotlinx.coroutines.launch
 /**
  * Data class to hold measured emote dimensions
  */
-data class EmoteDimensions(
-    val id: String,
-    val widthPx: Int,
-    val heightPx: Int
-)
+data class EmoteDimensions(val id: String, val widthPx: Int, val heightPx: Int)
 
 /**
  * Renders text with inline images (badges, emotes) using SubcomposeLayout.
- * 
+ *
  * This solves the fundamental problem with InlineTextContent: we need to know
  * the size of images before creating Placeholder objects, but images load asynchronously.
- * 
+ *
  * SubcomposeLayout allows us to:
  * 1. First measure all inline images to get their actual dimensions
  * 2. Create InlineTextContent with correct Placeholder sizes
  * 3. Finally compose the text with properly sized placeholders
- * 
+ *
  * This maintains natural text flow (like TextView) while supporting variable-sized
  * inline content (like ImageSpans with different drawable sizes).
- * 
+ *
  * @param text The AnnotatedString with annotations marking where inline content goes
  * @param inlineContentProviders Map of content IDs to composables that will be measured
  * @param modifier Modifier for the text
@@ -86,13 +82,13 @@ fun TextWithMeasuredInlineContent(
                     val placeable = measurables.first().measure(
                         Constraints(
                             maxWidth = constraints.maxWidth,
-                            maxHeight = Constraints.Infinity
-                        )
+                            maxHeight = Constraints.Infinity,
+                        ),
                     )
                     measuredDimensions[id] = EmoteDimensions(
                         id = id,
                         widthPx = placeable.width,
-                        heightPx = placeable.height
+                        heightPx = placeable.height,
                     )
                 }
             }
@@ -104,8 +100,8 @@ fun TextWithMeasuredInlineContent(
                 placeholder = Placeholder(
                     width = with(density) { dimensions.widthPx.toDp() }.value.sp,
                     height = with(density) { dimensions.heightPx.toDp() }.value.sp,
-                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
-                )
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
+                ),
             ) {
                 // Render the actual content (re-compose with same provider)
                 inlineContentProviders[id]?.invoke()
@@ -157,12 +153,12 @@ fun TextWithMeasuredInlineContent(
                             } else {
                                 onTextLongClick?.invoke(-1)
                             }
-                        }
+                        },
                     )
                 },
                 onTextLayout = { layoutResult ->
                     textLayoutResultRef.value = layoutResult
-                }
+                },
             )
         }
 
@@ -184,15 +180,11 @@ fun TextWithMeasuredInlineContent(
  * Use this when you already have the dimensions or don't need click handling.
  */
 @Composable
-fun MeasuredInlineText(
-    text: AnnotatedString,
-    inlineContent: Map<String, InlineTextContent>,
-    modifier: Modifier = Modifier,
-) {
+fun MeasuredInlineText(text: AnnotatedString, inlineContent: Map<String, InlineTextContent>, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         BasicText(
             text = text,
-            inlineContent = inlineContent
+            inlineContent = inlineContent,
         )
     }
 }

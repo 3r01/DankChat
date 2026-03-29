@@ -30,7 +30,8 @@ data class PointRedemptionMessage(
                 name = data.user.name,
                 displayName = data.user.displayName,
                 title = data.reward.title,
-                rewardImageUrl = data.reward.images?.imageLarge
+                rewardImageUrl =
+                data.reward.images?.imageLarge
                     ?: data.reward.defaultImages.imageLarge,
                 cost = data.reward.cost,
                 requiresUserInput = data.reward.requiresUserInput,

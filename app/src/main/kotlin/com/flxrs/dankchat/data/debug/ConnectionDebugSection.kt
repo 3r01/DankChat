@@ -22,42 +22,46 @@ class ConnectionDebugSection(
     private val pubSubManager: PubSubManager,
     private val sevenTVEventApiClient: SevenTVEventApiClient,
 ) : DebugSection {
-
     override val order = 3
     override val baseTitle = "Connection"
 
     override fun entries(): Flow<DebugSectionSnapshot> {
-        val ticker = flow {
-            while (true) {
-                emit(Unit)
-                delay(2_000)
+        val ticker =
+            flow {
+                while (true) {
+                    emit(Unit)
+                    delay(2_000)
+                }
             }
-        }
         return combine(eventSubClient.state, eventSubClient.topics, readConnection.connected, writeConnection.connected, ticker) { state, topics, ircRead, ircWrite, _ ->
-            val eventSubStatus = when (state) {
-                is EventSubClientState.Connected -> "Connected (${state.sessionId.take(8)}...)"
-                is EventSubClientState.Connecting -> "Connecting"
-                is EventSubClientState.Disconnected -> "Disconnected"
-                is EventSubClientState.Failed -> "Failed"
-            }
+            val eventSubStatus =
+                when (state) {
+                    is EventSubClientState.Connected -> "Connected (${state.sessionId.take(8)}...)"
+                    is EventSubClientState.Connecting -> "Connecting"
+                    is EventSubClientState.Disconnected -> "Disconnected"
+                    is EventSubClientState.Failed -> "Failed"
+                }
 
-            val pubSubStatus = when {
-                pubSubManager.connected -> "Connected"
-                else -> "Disconnected"
-            }
+            val pubSubStatus =
+                when {
+                    pubSubManager.connected -> "Connected"
+                    else -> "Disconnected"
+                }
 
             val sevenTvStatus = sevenTVEventApiClient.status()
-            val sevenTvText = when {
-                sevenTvStatus.connected -> "Connected (${sevenTvStatus.subscriptionCount} subs)"
-                else -> "Disconnected"
-            }
+            val sevenTvText =
+                when {
+                    sevenTvStatus.connected -> "Connected (${sevenTvStatus.subscriptionCount} subs)"
+                    else -> "Disconnected"
+                }
 
             val ircReadStatus = if (ircRead) "Connected" else "Disconnected"
             val ircWriteStatus = if (ircWrite) "Connected" else "Disconnected"
 
             DebugSectionSnapshot(
                 title = baseTitle,
-                entries = listOf(
+                entries =
+                listOf(
                     DebugEntry("IRC (read)", ircReadStatus),
                     DebugEntry("IRC (write)", ircWriteStatus),
                     DebugEntry("PubSub", pubSubStatus),

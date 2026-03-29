@@ -5,12 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVEmoteDto(
-    val id: String,
-    val name: String,
-    val flags: Long,
-    val data: SevenTVEmoteDataDto?
-) {
+data class SevenTVEmoteDto(val id: String, val name: String, val flags: Long, val data: SevenTVEmoteDataDto?) {
     val isZeroWidth get() = (ZERO_WIDTH_FLAG and flags) == ZERO_WIDTH_FLAG
 
     companion object {

@@ -42,8 +42,9 @@ import java.util.Locale
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
 
-class NotificationService : Service(), CoroutineScope {
-
+class NotificationService :
+    Service(),
+    CoroutineScope {
     private val binder = LocalBinder()
     private val manager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
 
@@ -90,11 +91,12 @@ class NotificationService : Service(), CoroutineScope {
         super.onCreate()
         // minSdk 30 guarantees notification channel support (API 26+)
         val name = getString(R.string.app_name)
-        val channel = NotificationChannel(CHANNEL_ID_LOW, name, NotificationManager.IMPORTANCE_LOW).apply {
-            enableVibration(false)
-            enableLights(false)
-            setShowBadge(false)
-        }
+        val channel =
+            NotificationChannel(CHANNEL_ID_LOW, name, NotificationManager.IMPORTANCE_LOW).apply {
+                enableVibration(false)
+                enableLights(false)
+                setShowBadge(false)
+            }
 
         val mentionChannel = NotificationChannel(CHANNEL_ID_DEFAULT, "Mentions", NotificationManager.IMPORTANCE_DEFAULT)
         manager.createNotificationChannel(mentionChannel)
@@ -151,19 +153,21 @@ class NotificationService : Service(), CoroutineScope {
     private suspend fun initTTS() {
         val forceEnglish = toolsSettingsDataStore.settings.first().ttsForceEnglish
         audioManager = getSystemService()
-        tts = TextToSpeech(this) { status ->
-            when (status) {
-                TextToSpeech.SUCCESS -> setTTSVoice(forceEnglish = forceEnglish)
-                else -> shutdownAndDisableTTS()
+        tts =
+            TextToSpeech(this) { status ->
+                when (status) {
+                    TextToSpeech.SUCCESS -> setTTSVoice(forceEnglish = forceEnglish)
+                    else -> shutdownAndDisableTTS()
+                }
             }
-        }
     }
 
     private fun setTTSVoice(forceEnglish: Boolean) {
-        val voice = when {
-            forceEnglish -> tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
-            else -> tts?.defaultVoice
-        }
+        val voice =
+            when {
+                forceEnglish -> tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
+                else -> tts?.defaultVoice
+            }
 
         voice?.takeUnless { tts?.setVoice(it) == TextToSpeech.ERROR } ?: shutdownAndDisableTTS()
     }
@@ -186,25 +190,29 @@ class NotificationService : Service(), CoroutineScope {
         val title = getString(R.string.notification_title)
         val message = getString(R.string.notification_message)
 
-        val pendingStartActivityIntent = Intent(this, MainActivity::class.java).let {
-            PendingIntent.getActivity(this, NOTIFICATION_START_INTENT_CODE, it, pendingIntentFlag)
-        }
+        val pendingStartActivityIntent =
+            Intent(this, MainActivity::class.java).let {
+                PendingIntent.getActivity(this, NOTIFICATION_START_INTENT_CODE, it, pendingIntentFlag)
+            }
 
-        val pendingStopIntent = Intent(this, NotificationService::class.java).let {
-            it.action = STOP_COMMAND
-            PendingIntent.getService(this, NOTIFICATION_STOP_INTENT_CODE, it, pendingIntentFlag)
-        }
+        val pendingStopIntent =
+            Intent(this, NotificationService::class.java).let {
+                it.action = STOP_COMMAND
+                PendingIntent.getService(this, NOTIFICATION_STOP_INTENT_CODE, it, pendingIntentFlag)
+            }
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID_LOW)
-            .setSound(null)
-            .setVibrate(null)
-            .setContentTitle(title)
-            .setContentText(message)
-            .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent)
-            .setStyle(MediaStyle().setShowActionsInCompactView(0)) // minSdk 30 guarantees MediaStyle support
-            .setContentIntent(pendingStartActivityIntent)
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(this, CHANNEL_ID_LOW)
+                .setSound(null)
+                .setVibrate(null)
+                .setContentTitle(title)
+                .setContentText(message)
+                .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent)
+                .setStyle(MediaStyle().setShowActionsInCompactView(0)) // minSdk 30 guarantees MediaStyle support
+                .setContentIntent(pendingStartActivityIntent)
+                .setSmallIcon(R.drawable.ic_notification_icon)
+                .build()
 
         startForeground(NOTIFICATION_ID, notification)
     }
@@ -214,95 +222,111 @@ class NotificationService : Service(), CoroutineScope {
         notifiedMessageIds.clear()
 
         notificationsJob?.cancel()
-        notificationsJob = launch {
-            chatNotificationRepository.notificationsFlow.collect { items ->
-                items.forEach { (message) ->
-                    if (shouldNotifyOnMention && notificationsEnabled) {
-                        if (!notifiedMessageIds.add(message.id)) {
-                            return@forEach // Already notified for this message
+        notificationsJob =
+            launch {
+                chatNotificationRepository.notificationsFlow.collect { items ->
+                    items.forEach { (message) ->
+                        if (shouldNotifyOnMention && notificationsEnabled) {
+                            if (!notifiedMessageIds.add(message.id)) {
+                                return@forEach // Already notified for this message
+                            }
+                            if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
+                                val iterator = notifiedMessageIds.iterator()
+                                iterator.next()
+                                iterator.remove()
+                            }
+                            val data = message.toNotificationData()
+                            data?.createMentionNotification()
                         }
-                        if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
-                            val iterator = notifiedMessageIds.iterator()
-                            iterator.next()
-                            iterator.remove()
+
+                        if (!message.shouldPlayTTS()) {
+                            return@forEach
                         }
-                        val data = message.toNotificationData()
-                        data?.createMentionNotification()
-                    }
 
-                    if (!message.shouldPlayTTS()) {
-                        return@forEach
-                    }
+                        val channel =
+                            when (message) {
+                                is PrivMessage -> message.channel
+                                is UserNoticeMessage -> message.channel
+                                is NoticeMessage -> message.channel
+                                else -> return@forEach
+                            }
 
-                    val channel = when (message) {
-                        is PrivMessage -> message.channel
-                        is UserNoticeMessage -> message.channel
-                        is NoticeMessage -> message.channel
-                        else -> return@forEach
-                    }
+                        if (!toolSettings.ttsEnabled || channel != activeTTSChannel || (audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) <= 0) {
+                            return@forEach
+                        }
 
-                    if (!toolSettings.ttsEnabled || channel != activeTTSChannel || (audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) <= 0) {
-                        return@forEach
-                    }
+                        if (tts == null) {
+                            initTTS()
+                        }
 
-                    if (tts == null) {
-                        initTTS()
-                    }
+                        if (message is PrivMessage && toolSettings.ttsUserNameIgnores.any { it.matches(message.name) || it.matches(message.displayName) }) {
+                            return@forEach
+                        }
 
-                    if (message is PrivMessage && toolSettings.ttsUserNameIgnores.any { it.matches(message.name) || it.matches(message.displayName) }) {
-                        return@forEach
+                        message.playTTSMessage()
                     }
-
-                    message.playTTSMessage()
                 }
             }
-        }
     }
 
     private fun Message.shouldPlayTTS(): Boolean = this is PrivMessage || this is NoticeMessage || this is UserNoticeMessage
 
     private fun Message.playTTSMessage() {
-        val message = when (this) {
-            is UserNoticeMessage -> message
-            is NoticeMessage -> message
-            else -> {
-                if (this !is PrivMessage) return
-                val filtered = message
-                    .filterEmotes(emotes)
-                    .filterUnicodeSymbols()
-                    .filterUrls()
-
-                if (filtered.isBlank()) {
-                    return
+        val message =
+            when (this) {
+                is UserNoticeMessage -> {
+                    message
                 }
 
-                when {
-                    toolSettings.ttsMessageFormat == TTSMessageFormat.Message || name == previousTTSUser -> filtered
-                    tts?.voice?.locale?.language == Locale.ENGLISH.language -> "$name said $filtered"
-                    else -> "$name. $filtered"
-                }.also { previousTTSUser = name }
-            }
-        }
+                is NoticeMessage -> {
+                    message
+                }
 
-        val queueMode = when (toolSettings.ttsPlayMode) {
-            TTSPlayMode.Queue -> TextToSpeech.QUEUE_ADD
-            TTSPlayMode.Newest -> TextToSpeech.QUEUE_FLUSH
-        }
+                else -> {
+                    if (this !is PrivMessage) return
+                    val filtered =
+                        message
+                            .filterEmotes(emotes)
+                            .filterUnicodeSymbols()
+                            .filterUrls()
+
+                    if (filtered.isBlank()) {
+                        return
+                    }
+
+                    when {
+                        toolSettings.ttsMessageFormat == TTSMessageFormat.Message || name == previousTTSUser -> filtered
+                        tts?.voice?.locale?.language == Locale.ENGLISH.language -> "$name said $filtered"
+                        else -> "$name. $filtered"
+                    }.also { previousTTSUser = name }
+                }
+            }
+
+        val queueMode =
+            when (toolSettings.ttsPlayMode) {
+                TTSPlayMode.Queue -> TextToSpeech.QUEUE_ADD
+                TTSPlayMode.Newest -> TextToSpeech.QUEUE_FLUSH
+            }
         tts?.speak(message, queueMode, null, null)
     }
 
     private fun String.filterEmotes(emotes: List<ChatMessageEmote>): String = when {
-        toolSettings.ttsIgnoreEmotes -> emotes.fold(this) { acc, emote ->
-            acc.replace(emote.code, newValue = "", ignoreCase = true)
+        toolSettings.ttsIgnoreEmotes -> {
+            emotes.fold(this) { acc, emote ->
+                acc.replace(emote.code, newValue = "", ignoreCase = true)
+            }
         }
 
-        else -> this
+        else -> {
+            this
+        }
     }
 
     private fun String.filterUnicodeSymbols(): String = when {
         // Replaces all unicode character that are: So - Symbol Other, Sc - Symbol Currency, Sm - Symbol Math, Cn - Unassigned.
         // This will not filter out non latin script (Arabic and Japanese for example works fine.)
         toolSettings.ttsIgnoreEmotes -> replace(UNICODE_SYMBOL_REGEX, replacement = "")
+
         else -> this
     }
 
@@ -312,33 +336,39 @@ class NotificationService : Service(), CoroutineScope {
     }
 
     private fun NotificationData.createMentionNotification() {
-        val pendingStartActivityIntent = Intent(this@NotificationService, MainActivity::class.java).let {
-            it.putExtra(MainActivity.OPEN_CHANNEL_KEY, channel)
-            PendingIntent.getActivity(this@NotificationService, notificationIntentCode.fetchAndAdd(1), it, pendingIntentFlag)
-        }
+        val pendingStartActivityIntent =
+            Intent(this@NotificationService, MainActivity::class.java).let {
+                it.putExtra(MainActivity.OPEN_CHANNEL_KEY, channel)
+                PendingIntent.getActivity(this@NotificationService, notificationIntentCode.fetchAndAdd(1), it, pendingIntentFlag)
+            }
 
-        val summary = NotificationCompat.Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
-            .setContentTitle(getString(R.string.notification_new_mentions))
-            .setContentText("")
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .setGroup(MENTION_GROUP)
-            .setGroupSummary(true)
-            .setAutoCancel(true)
-            .build()
+        val summary =
+            NotificationCompat
+                .Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
+                .setContentTitle(getString(R.string.notification_new_mentions))
+                .setContentText("")
+                .setSmallIcon(R.drawable.ic_notification_icon)
+                .setGroup(MENTION_GROUP)
+                .setGroupSummary(true)
+                .setAutoCancel(true)
+                .build()
 
-        val title = when {
-            isWhisper -> getString(R.string.notification_whisper_mention, name)
-            isNotify -> getString(R.string.notification_notify_mention, channel)
-            else -> getString(R.string.notification_mention, name, channel)
-        }
+        val title =
+            when {
+                isWhisper -> getString(R.string.notification_whisper_mention, name)
+                isNotify -> getString(R.string.notification_notify_mention, channel)
+                else -> getString(R.string.notification_mention, name, channel)
+            }
 
-        val notification = NotificationCompat.Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setContentIntent(pendingStartActivityIntent)
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .setGroup(MENTION_GROUP)
-            .build()
+        val notification =
+            NotificationCompat
+                .Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setContentIntent(pendingStartActivityIntent)
+                .setSmallIcon(R.drawable.ic_notification_icon)
+                .setGroup(MENTION_GROUP)
+                .build()
 
         val id = notificationId.fetchAndAdd(1)
         notifications.getOrPut(channel) { mutableListOf() } += id

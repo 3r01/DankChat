@@ -1,9 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
-data class Highlight(
-    val type: HighlightType,
-    val customColor: Int? = null
-) {
+data class Highlight(val type: HighlightType, val customColor: Int? = null) {
     val isMention = type in MENTION_TYPES
     val shouldNotify = type == HighlightType.Notification
 
@@ -13,7 +10,9 @@ data class Highlight(
 }
 
 fun Collection<Highlight>.hasMention(): Boolean = any(Highlight::isMention)
+
 fun Collection<Highlight>.shouldNotify(): Boolean = any(Highlight::shouldNotify)
+
 fun Collection<Highlight>.highestPriorityHighlight(): Highlight? = maxByOrNull { it.type.priority.value }
 
 enum class HighlightType(val priority: HighlightPriority) {

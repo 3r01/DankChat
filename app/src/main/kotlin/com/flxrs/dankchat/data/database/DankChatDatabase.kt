@@ -51,22 +51,31 @@ import com.flxrs.dankchat.data.database.entity.UserIgnoreEntity
 @TypeConverters(InstantConverter::class)
 abstract class DankChatDatabase : RoomDatabase() {
     abstract fun badgeHighlightDao(): BadgeHighlightDao
+
     abstract fun emoteUsageDao(): EmoteUsageDao
+
     abstract fun recentUploadsDao(): RecentUploadsDao
+
     abstract fun userDisplayDao(): UserDisplayDao
+
     abstract fun messageHighlightDao(): MessageHighlightDao
+
     abstract fun userHighlightDao(): UserHighlightDao
+
     abstract fun userIgnoreDao(): UserIgnoreDao
+
     abstract fun messageIgnoreDao(): MessageIgnoreDao
+
     abstract fun blacklistedUserDao(): BlacklistedUserDao
 
     companion object {
-        val MIGRATION_4_5 = object : Migration(4, 5) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE user_highlight ADD COLUMN create_notification INTEGER DEFAULT 1 NOT NUll")
-                db.execSQL("ALTER TABLE message_highlight ADD COLUMN create_notification INTEGER DEFAULT 0 NOT NUll")
-                db.execSQL("UPDATE message_highlight SET create_notification=1 WHERE type = 'Username' OR type = 'Custom'")
+        val MIGRATION_4_5 =
+            object : Migration(4, 5) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE user_highlight ADD COLUMN create_notification INTEGER DEFAULT 1 NOT NUll")
+                    db.execSQL("ALTER TABLE message_highlight ADD COLUMN create_notification INTEGER DEFAULT 0 NOT NUll")
+                    db.execSQL("UPDATE message_highlight SET create_notification=1 WHERE type = 'Username' OR type = 'Custom'")
+                }
             }
-        }
     }
 }

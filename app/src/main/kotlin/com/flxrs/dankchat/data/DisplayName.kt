@@ -12,4 +12,5 @@ value class DisplayName(val value: String) : Parcelable {
 }
 
 fun DisplayName.toUserName() = UserName(value)
+
 fun String.toDisplayName() = DisplayName(this)

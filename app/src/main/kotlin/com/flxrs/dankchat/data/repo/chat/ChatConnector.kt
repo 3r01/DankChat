@@ -25,7 +25,6 @@ class ChatConnector(
     private val eventSubManager: EventSubManager,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val connectionState = ConcurrentHashMap<UserName, MutableStateFlow<ConnectionState>>()
 
@@ -34,8 +33,7 @@ class ChatConnector(
     val pubSubEvents get() = pubSubManager.messages
     val eventSubEvents get() = eventSubManager.events
 
-    fun getConnectionState(channel: UserName): StateFlow<ConnectionState> =
-        connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }
+    fun getConnectionState(channel: UserName): StateFlow<ConnectionState> = connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }
 
     fun setAllConnectionStates(state: ConnectionState) {
         connectionState.forEach { (_, flow) ->

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserIgnoreDao {
-
     @Query("SELECT * FROM blacklisted_user WHERE id = :id")
     suspend fun getUserIgnore(id: Long): UserIgnoreEntity
 

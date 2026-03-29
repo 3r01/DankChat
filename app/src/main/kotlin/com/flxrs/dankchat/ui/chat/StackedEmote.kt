@@ -25,7 +25,7 @@ import kotlin.math.roundToInt
 
 /**
  * Renders stacked emotes exactly like old ChatAdapter using LayerDrawable.
- * 
+ *
  * Key differences from previous approaches:
  * - Creates actual LayerDrawable like ChatAdapter did
  * - Uses LruCache for LayerDrawables (not individual drawables)
@@ -58,7 +58,7 @@ fun StackedEmote(
             animateGifs = animateGifs,
             alpha = alpha,
             modifier = modifier,
-            onClick = onClick
+            onClick = onClick,
         )
         return
     }
@@ -104,7 +104,7 @@ fun StackedEmote(
                 // Store dimensions for future placeholder sizing
                 emoteCoordinator.dimensionCache.put(
                     cacheKey,
-                    layerDrawable.bounds.width() to layerDrawable.bounds.height()
+                    layerDrawable.bounds.width() to layerDrawable.bounds.height(),
                 )
                 value = layerDrawable
                 // Control animation
@@ -131,7 +131,7 @@ fun StackedEmote(
             alpha = alpha,
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
-                .clickable { onClick() }
+                .clickable { onClick() },
         )
     } else {
         // Placeholder with estimated size to prevent layout shift
@@ -140,7 +140,7 @@ fun StackedEmote(
         Box(
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
-                .clickable { onClick() }
+                .clickable { onClick() },
         )
     }
 }
@@ -185,7 +185,7 @@ private fun SingleEmoteDrawable(
                     // Store dimensions for future placeholder sizing
                     emoteCoordinator.dimensionCache.put(
                         url,
-                        transformed.bounds.width() to transformed.bounds.height()
+                        transformed.bounds.width() to transformed.bounds.height(),
                     )
                     value = transformed
                 }
@@ -215,7 +215,7 @@ private fun SingleEmoteDrawable(
             alpha = alpha,
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
-                .clickable { onClick() }
+                .clickable { onClick() },
         )
     } else if (cachedDims != null) {
         // Placeholder with cached size to prevent layout shift
@@ -224,7 +224,7 @@ private fun SingleEmoteDrawable(
         Box(
             modifier = modifier
                 .size(width = widthDp, height = heightDp)
-                .clickable { onClick() }
+                .clickable { onClick() },
         )
     }
 }
@@ -233,13 +233,7 @@ private fun SingleEmoteDrawable(
  * Transform emote drawable exactly like old ChatAdapter.transformEmoteDrawable().
  * Phase 1: Individual scaling without maxWidth/maxHeight.
  */
-private fun transformEmoteDrawable(
-    drawable: Drawable,
-    scale: Double,
-    emote: ChatMessageEmote,
-    maxWidth: Int = 0,
-    maxHeight: Int = 0
-): Drawable {
+private fun transformEmoteDrawable(drawable: Drawable, scale: Double, emote: ChatMessageEmote, maxWidth: Int = 0, maxHeight: Int = 0): Drawable {
     val ratio = drawable.intrinsicWidth / drawable.intrinsicHeight.toFloat()
     val height = when {
         drawable.intrinsicHeight < 55 && emote.isTwitch -> (70 * scale).roundToInt()
@@ -261,10 +255,7 @@ private fun transformEmoteDrawable(
 /**
  * Create LayerDrawable from array of drawables exactly like old ChatAdapter.toLayerDrawable().
  */
-private fun Array<Drawable>.toLayerDrawable(
-    scaleFactor: Double,
-    emotes: List<ChatMessageEmote>
-): LayerDrawable = LayerDrawable(this).apply {
+private fun Array<Drawable>.toLayerDrawable(scaleFactor: Double, emotes: List<ChatMessageEmote>): LayerDrawable = LayerDrawable(this).apply {
     val bounds = this@toLayerDrawable.map { it.bounds }
     val maxWidth = bounds.maxOf { it.width() }
     val maxHeight = bounds.maxOf { it.height() }

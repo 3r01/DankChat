@@ -15,48 +15,42 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class OnboardingDataStore(
-    context: Context,
-    dispatchersProvider: DispatchersProvider,
-    dankChatPreferenceStore: DankChatPreferenceStore,
-) {
-
+class OnboardingDataStore(context: Context, dispatchersProvider: DispatchersProvider, dankChatPreferenceStore: DankChatPreferenceStore) {
     // Detect existing users by checking if they already acknowledged the message history disclaimer.
     // If so, they've used the app before and should skip onboarding.
-    private val existingUserMigration = object : DataMigration<OnboardingSettings> {
-        override suspend fun shouldMigrate(currentData: OnboardingSettings): Boolean {
-            return !currentData.hasRunExistingUserMigration && dankChatPreferenceStore.hasMessageHistoryAcknowledged
-        }
+    private val existingUserMigration =
+        object : DataMigration<OnboardingSettings> {
+            override suspend fun shouldMigrate(currentData: OnboardingSettings): Boolean = !currentData.hasRunExistingUserMigration && dankChatPreferenceStore.hasMessageHistoryAcknowledged
 
-        override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings {
-            return currentData.copy(
+            override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings = currentData.copy(
                 hasCompletedOnboarding = true,
                 hasRunExistingUserMigration = true,
                 hasShownAddChannelHint = true,
                 hasShownToolbarHint = true,
             )
-        }
 
-        override suspend fun cleanUp() = Unit
-    }
+            override suspend fun cleanUp() = Unit
+        }
 
     private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
 
-    private val dataStore = createDataStore(
-        fileName = "onboarding",
-        context = context,
-        defaultValue = OnboardingSettings(),
-        serializer = OnboardingSettings.serializer(),
-        scope = scope,
-        migrations = listOf(existingUserMigration),
-    )
+    private val dataStore =
+        createDataStore(
+            fileName = "onboarding",
+            context = context,
+            defaultValue = OnboardingSettings(),
+            serializer = OnboardingSettings.serializer(),
+            scope = scope,
+            migrations = listOf(existingUserMigration),
+        )
 
     val settings = dataStore.safeData(OnboardingSettings())
-    val currentSettings = settings.stateIn(
-        scope = scope,
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() }
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
     fun current() = currentSettings.value
 

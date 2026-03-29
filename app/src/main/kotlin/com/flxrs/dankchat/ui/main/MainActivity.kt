@@ -86,7 +86,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
-
     private val viewModel: DankChatViewModel by viewModel()
     private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val mainEventBus: MainEventBus by inject()
@@ -95,40 +94,44 @@ class MainActivity : AppCompatActivity() {
     private val pendingChannelsToClear = mutableListOf<UserName>()
     private var currentMediaUri: Uri = Uri.EMPTY
 
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
-        startService()
-    }
-
-    private val requestImageCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = true)
-    }
-
-    private val requestVideoCapture = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = false)
-    }
-
-    private val requestGalleryMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-        uri ?: return@registerForActivityResult
-        val contentResolver = contentResolver
-        val mimeType = contentResolver.getType(uri)
-        val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
-        if (extension == null) {
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(getString(R.string.snackbar_upload_failed), createMediaFile(this@MainActivity), false)) }
-            return@registerForActivityResult
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+            startService()
         }
 
-        val copy = createMediaFile(this, extension)
-        try {
-            contentResolver.openInputStream(uri)?.use { input -> copy.outputStream().use { input.copyTo(it) } }
-            if (copy.extension == "jpg" || copy.extension == "jpeg") {
-                copy.removeExifAttributes()
+    private val requestImageCapture =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = true)
+        }
+
+    private val requestVideoCapture =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) handleCaptureRequest(imageCapture = false)
+        }
+
+    private val requestGalleryMedia =
+        registerForActivityResult(PickVisualMedia()) { uri ->
+            uri ?: return@registerForActivityResult
+            val contentResolver = contentResolver
+            val mimeType = contentResolver.getType(uri)
+            val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+            if (extension == null) {
+                lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(getString(R.string.snackbar_upload_failed), createMediaFile(this@MainActivity), false)) }
+                return@registerForActivityResult
             }
-            uploadMedia(copy, imageCapture = false)
-        } catch (_: Throwable) {
-            copy.delete()
-            lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(null, copy, false)) }
+
+            val copy = createMediaFile(this, extension)
+            try {
+                contentResolver.openInputStream(uri)?.use { input -> copy.outputStream().use { input.copyTo(it) } }
+                if (copy.extension == "jpg" || copy.extension == "jpeg") {
+                    copy.removeExifAttributes()
+                }
+                uploadMedia(copy, imageCapture = false)
+            } catch (_: Throwable) {
+                copy.delete()
+                lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.UploadFailed(null, copy, false)) }
+            }
         }
-    }
 
     private val twitchServiceConnection = TwitchServiceConnection()
     var notificationService: NotificationService? = null
@@ -139,21 +142,33 @@ class MainActivity : AppCompatActivity() {
         val isDynamicColorAvailable = DynamicColors.isDynamicColorAvailable()
         when {
             isTrueDarkModeEnabled && isDynamicColorAvailable -> {
-                val dynamicColorsOptions = DynamicColorsOptions.Builder()
-                    .setThemeOverlay(R.style.AppTheme_TrueDarkOverlay)
-                    .build()
+                val dynamicColorsOptions =
+                    DynamicColorsOptions
+                        .Builder()
+                        .setThemeOverlay(R.style.AppTheme_TrueDarkOverlay)
+                        .build()
                 DynamicColors.applyToActivityIfAvailable(this, dynamicColorsOptions)
                 // TODO check if still neded in future material alphas
                 theme.applyStyle(R.style.AppTheme_TrueDarkOverlay, true)
-                window.peekDecorView()?.context?.theme?.applyStyle(R.style.AppTheme_TrueDarkOverlay, true)
+                window
+                    .peekDecorView()
+                    ?.context
+                    ?.theme
+                    ?.applyStyle(R.style.AppTheme_TrueDarkOverlay, true)
             }
 
-            isTrueDarkModeEnabled                            -> {
+            isTrueDarkModeEnabled -> {
                 theme.applyStyle(R.style.AppTheme_TrueDarkTheme, true)
-                window.peekDecorView()?.context?.theme?.applyStyle(R.style.AppTheme_TrueDarkTheme, true)
+                window
+                    .peekDecorView()
+                    ?.context
+                    ?.theme
+                    ?.applyStyle(R.style.AppTheme_TrueDarkTheme, true)
             }
 
-            else                                             -> DynamicColors.applyToActivityIfAvailable(this)
+            else -> {
+                DynamicColors.applyToActivityIfAvailable(this)
+            }
         }
 
         enableEdgeToEdge()
@@ -174,16 +189,14 @@ class MainActivity : AppCompatActivity() {
                 when (it) {
                     ServiceEvent.Shutdown -> handleShutDown()
                 }
-            }
-            .launchIn(lifecycleScope)
+            }.launchIn(lifecycleScope)
 
         viewModel.keepScreenOn
             .flowWithLifecycle(lifecycle, minActiveState = Lifecycle.State.CREATED)
             .onEach {
                 Log.i(TAG, "Setting FLAG_KEEP_SCREEN_ON to $it")
                 keepScreenOn(it)
-            }
-            .launchIn(lifecycleScope)
+            }.launchIn(lifecycleScope)
     }
 
     private fun setupComposeUi() {
@@ -191,7 +204,7 @@ class MainActivity : AppCompatActivity() {
             DankChatTheme {
                 val navController = rememberNavController()
                 val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(
-                    initialValue = dankChatPreferenceStore.isLoggedIn
+                    initialValue = dankChatPreferenceStore.isLoggedIn,
                 )
 
                 val onboardingCompleted = onboardingDataStore.current().hasCompletedOnboarding
@@ -204,7 +217,7 @@ class MainActivity : AppCompatActivity() {
                         enterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
                         exitTransition = { fadeOut(animationSpec = tween(90)) },
                         popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
-                        popExitTransition = { fadeOut(animationSpec = tween(90)) }
+                        popExitTransition = { fadeOut(animationSpec = tween(90)) },
                     ) {
                         OnboardingScreen(
                             onNavigateToLogin = {
@@ -265,18 +278,18 @@ class MainActivity : AppCompatActivity() {
                             },
                             onChooseMedia = {
                                 requestGalleryMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageAndVideo))
-                            }
+                            },
                         )
                     }
                     composable<Login>(
                         enterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
                         exitTransition = { fadeOut(animationSpec = tween(90)) },
                         popEnterTransition = { fadeIn(animationSpec = tween(220, delayMillis = 90)) },
-                        popExitTransition = { fadeOut(animationSpec = tween(90)) }
+                        popExitTransition = { fadeOut(animationSpec = tween(90)) },
                     ) {
                         LoginScreen(
                             onLoginSuccess = { navController.popBackStack() },
-                            onCancel = { navController.popBackStack() }
+                            onCancel = { navController.popBackStack() },
                         )
                     }
                     composable<Settings>(
@@ -306,7 +319,7 @@ class MainActivity : AppCompatActivity() {
                                     SettingsNavigation.Changelog -> navController.navigate(ChangelogSettings)
                                     SettingsNavigation.About -> navController.navigate(AboutSettings)
                                 }
-                            }
+                            },
                         )
                     }
 
@@ -327,146 +340,146 @@ class MainActivity : AppCompatActivity() {
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         AppearanceSettingsScreen(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                     composable<NotificationsSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         NotificationsSettingsScreen(
                             onNavToHighlights = { navController.navigate(HighlightsSettings) },
                             onNavToIgnores = { navController.navigate(IgnoresSettings) },
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<HighlightsSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         HighlightsScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<IgnoresSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         IgnoresScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<ChatSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         ChatSettingsScreen(
                             onNavToCommands = { navController.navigate(CustomCommandsSettings) },
                             onNavToUserDisplays = { navController.navigate(UserDisplaySettings) },
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<CustomCommandsSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         CustomCommandsScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<UserDisplaySettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         UserDisplayScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<StreamsSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         StreamsSettingsScreen(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                     composable<ToolsSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         ToolsSettingsScreen(
                             onNavToImageUploader = { navController.navigate(ImageUploaderSettings) },
                             onNavToTTSUserIgnoreList = { navController.navigate(TTSUserIgnoreListSettings) },
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<ImageUploaderSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         ImageUploaderScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<TTSUserIgnoreListSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         TTSUserIgnoreListScreen(
-                            onNavBack = { navController.popBackStack() }
+                            onNavBack = { navController.popBackStack() },
                         )
                     }
                     composable<DeveloperSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         DeveloperSettingsScreen(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                     composable<ChangelogSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         ChangelogScreen(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                     composable<AboutSettings>(
                         enterTransition = subEnter,
                         exitTransition = subExit,
                         popEnterTransition = subPopEnter,
-                        popExitTransition = subPopExit
+                        popExitTransition = subPopExit,
                     ) {
                         AboutScreen(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
                         )
                     }
                 }
@@ -490,18 +503,20 @@ class MainActivity : AppCompatActivity() {
         val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
             needsNotificationPermission -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            else                        -> startService()
+            else -> startService()
         }
     }
 
     private fun startService() {
-        if (!isBound) Intent(this, NotificationService::class.java).also {
-            try {
-                isBound = true
-                ContextCompat.startForegroundService(this, it)
-                bindService(it, twitchServiceConnection, BIND_AUTO_CREATE)
-            } catch (t: Throwable) {
-                Log.e(TAG, Log.getStackTraceString(t))
+        if (!isBound) {
+            Intent(this, NotificationService::class.java).also {
+                try {
+                    isBound = true
+                    ContextCompat.startForegroundService(this, it)
+                    bindService(it, twitchServiceConnection, BIND_AUTO_CREATE)
+                } catch (t: Throwable) {
+                    Log.e(TAG, Log.getStackTraceString(t))
+                }
             }
         }
     }
@@ -535,7 +550,7 @@ class MainActivity : AppCompatActivity() {
 
     fun clearNotificationsOfChannel(channel: UserName) = when {
         isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
-        else                                   -> pendingChannelsToClear += channel
+        else -> pendingChannelsToClear += channel
     }
 
     private fun handleShutDown() {
@@ -545,10 +560,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startCameraCapture(captureVideo: Boolean = false) {
-        val (action, extension) = when {
-            captureVideo -> MediaStore.ACTION_VIDEO_CAPTURE to "mp4"
-            else         -> MediaStore.ACTION_IMAGE_CAPTURE to "jpg"
-        }
+        val (action, extension) =
+            when {
+                captureVideo -> MediaStore.ACTION_VIDEO_CAPTURE to "mp4"
+                else -> MediaStore.ACTION_IMAGE_CAPTURE to "jpg"
+            }
         Intent(action).also { captureIntent ->
             captureIntent.resolveActivity(packageManager)?.also {
                 try {
@@ -560,7 +576,7 @@ class MainActivity : AppCompatActivity() {
                     captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
                     when {
                         captureVideo -> requestVideoCapture.launch(captureIntent)
-                        else         -> requestImageCapture.launch(captureIntent)
+                        else -> requestImageCapture.launch(captureIntent)
                     }
                 }
             }
@@ -597,12 +613,13 @@ class MainActivity : AppCompatActivity() {
                     mainEventBus.emitEvent(MainEvent.UploadSuccess(url))
                 },
                 onFailure = { throwable ->
-                    val message = when (throwable) {
-                        is ApiException -> "${throwable.status} ${throwable.message}"
-                        else            -> throwable.message
-                    }
+                    val message =
+                        when (throwable) {
+                            is ApiException -> "${throwable.status} ${throwable.message}"
+                            else -> throwable.message
+                        }
                     mainEventBus.emitEvent(MainEvent.UploadFailed(message, file, imageCapture))
-                }
+                },
             )
         }
     }

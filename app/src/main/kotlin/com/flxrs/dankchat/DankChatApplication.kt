@@ -32,7 +32,9 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.ksp.generated.module
 
-class DankChatApplication : Application(), SingletonImageLoader.Factory {
+class DankChatApplication :
+    Application(),
+    SingletonImageLoader.Factory {
     // Dummy comment to force KSP re-run
 
     private val dispatchersProvider: DispatchersProvider by inject()
@@ -66,36 +68,37 @@ class DankChatApplication : Application(), SingletonImageLoader.Factory {
     private suspend fun setupThemeMode() {
         val theme = appearanceSettingsDataStore.settings.first().theme
 
-        val nightMode = when {
-            theme == Dark   -> AppCompatDelegate.MODE_NIGHT_YES
-            theme == System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-            else            -> AppCompatDelegate.MODE_NIGHT_NO
-        }
+        val nightMode =
+            when {
+                theme == Dark -> AppCompatDelegate.MODE_NIGHT_YES
+                theme == System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                else -> AppCompatDelegate.MODE_NIGHT_NO
+            }
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
     @OptIn(ExperimentalCoilApi::class)
-    override fun newImageLoader(context: PlatformContext): ImageLoader {
-        return ImageLoader.Builder(this)
-            .diskCache {
-                DiskCache.Builder()
-                    .directory(context.cacheDir.resolve("image_cache"))
-                    .build()
-            }
-            .components {
-                // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
-                add(AnimatedImageDecoder.Factory())
-                val client = HttpClient(OkHttp) {
+    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader
+        .Builder(this)
+        .diskCache {
+            DiskCache
+                .Builder()
+                .directory(context.cacheDir.resolve("image_cache"))
+                .build()
+        }.components {
+            // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
+            add(AnimatedImageDecoder.Factory())
+            val client =
+                HttpClient(OkHttp) {
                     install(UserAgent) {
                         agent = "dankchat/${BuildConfig.VERSION_NAME}"
                     }
                 }
-                val fetcher = KtorNetworkFetcherFactory(
+            val fetcher =
+                KtorNetworkFetcherFactory(
                     httpClient = { client },
                     cacheStrategy = { CacheControlCacheStrategy() },
                 )
-                add(fetcher)
-            }
-            .build()
-    }
+            add(fetcher)
+        }.build()
 }

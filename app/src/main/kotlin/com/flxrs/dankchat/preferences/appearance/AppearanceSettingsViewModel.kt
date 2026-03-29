@@ -11,29 +11,27 @@ import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class AppearanceSettingsViewModel(
-    private val dataStore: AppearanceSettingsDataStore,
-) : ViewModel() {
-
-    val settings = dataStore.settings
-        .map { AppearanceSettingsUiState(settings = it) }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = AppearanceSettingsUiState(settings = dataStore.current()),
-        )
+class AppearanceSettingsViewModel(private val dataStore: AppearanceSettingsDataStore) : ViewModel() {
+    val settings =
+        dataStore.settings
+            .map { AppearanceSettingsUiState(settings = it) }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.seconds),
+                initialValue = AppearanceSettingsUiState(settings = dataStore.current()),
+            )
 
     suspend fun onSuspendingInteraction(interaction: AppearanceSettingsInteraction) {
         runCatching {
             when (interaction) {
-                is AppearanceSettingsInteraction.Theme                -> dataStore.update { it.copy(theme = interaction.theme) }
-                is AppearanceSettingsInteraction.TrueDarkTheme        -> dataStore.update { it.copy(trueDarkTheme = interaction.trueDarkTheme) }
-                is AppearanceSettingsInteraction.FontSize             -> dataStore.update { it.copy(fontSize = interaction.fontSize) }
-                is AppearanceSettingsInteraction.KeepScreenOn         -> dataStore.update { it.copy(keepScreenOn = interaction.value) }
-                is AppearanceSettingsInteraction.LineSeparator        -> dataStore.update { it.copy(lineSeparator = interaction.value) }
-                is AppearanceSettingsInteraction.CheckeredMessages    -> dataStore.update { it.copy(checkeredMessages = interaction.value) }
-                is AppearanceSettingsInteraction.AutoDisableInput     -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
-                is AppearanceSettingsInteraction.ShowChangelogs       -> dataStore.update { it.copy(showChangelogs = interaction.value) }
+                is AppearanceSettingsInteraction.Theme -> dataStore.update { it.copy(theme = interaction.theme) }
+                is AppearanceSettingsInteraction.TrueDarkTheme -> dataStore.update { it.copy(trueDarkTheme = interaction.trueDarkTheme) }
+                is AppearanceSettingsInteraction.FontSize -> dataStore.update { it.copy(fontSize = interaction.fontSize) }
+                is AppearanceSettingsInteraction.KeepScreenOn -> dataStore.update { it.copy(keepScreenOn = interaction.value) }
+                is AppearanceSettingsInteraction.LineSeparator -> dataStore.update { it.copy(lineSeparator = interaction.value) }
+                is AppearanceSettingsInteraction.CheckeredMessages -> dataStore.update { it.copy(checkeredMessages = interaction.value) }
+                is AppearanceSettingsInteraction.AutoDisableInput -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
+                is AppearanceSettingsInteraction.ShowChangelogs -> dataStore.update { it.copy(showChangelogs = interaction.value) }
                 is AppearanceSettingsInteraction.ShowCharacterCounter -> dataStore.update { it.copy(showCharacterCounter = interaction.value) }
             }
         }

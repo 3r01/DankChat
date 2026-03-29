@@ -30,10 +30,7 @@ private val TrueDarkColorScheme = darkColorScheme(
  * Additional color values needed for dynamic text color selection
  * based on background brightness.
  */
-data class AdaptiveColors(
-    val onSurfaceLight: Color,
-    val onSurfaceDark: Color
-)
+data class AdaptiveColors(val onSurfaceLight: Color, val onSurfaceDark: Color)
 
 val LocalAdaptiveColors = staticCompositionLocalOf {
     AdaptiveColors(
@@ -43,10 +40,7 @@ val LocalAdaptiveColors = staticCompositionLocalOf {
 }
 
 @Composable
-fun DankChatTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun DankChatTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val inspectionMode = LocalInspectionMode.current
     val appearanceSettings = if (!inspectionMode) koinInject<AppearanceSettingsDataStore>() else null
     val trueDarkTheme = remember { appearanceSettings?.current()?.trueDarkTheme == true }
@@ -56,7 +50,7 @@ fun DankChatTheme(
 
     val lightColorScheme = when {
         dynamicColor -> dynamicLightColorScheme(LocalContext.current)
-        else         -> expressiveLightColorScheme()
+        else -> expressiveLightColorScheme()
     }
     val darkColorScheme = when {
         dynamicColor && trueDarkTheme -> dynamicDarkColorScheme(LocalContext.current).copy(
@@ -64,8 +58,9 @@ fun DankChatTheme(
             background = TrueDarkColorScheme.background,
         )
 
-        dynamicColor                  -> dynamicDarkColorScheme(LocalContext.current)
-        else                          -> darkColorScheme()
+        dynamicColor -> dynamicDarkColorScheme(LocalContext.current)
+
+        else -> darkColorScheme()
     }
 
     val adaptiveColors = AdaptiveColors(
@@ -74,7 +69,7 @@ fun DankChatTheme(
     )
     val colors = when {
         darkTheme -> darkColorScheme
-        else      -> lightColorScheme
+        else -> lightColorScheme
     }
 
     MaterialExpressiveTheme(

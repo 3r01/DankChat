@@ -63,7 +63,6 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
-@Suppress("LargeClass")
 @Single
 class EmoteRepository(
     private val dankChatApiClient: DankChatApiClient,
@@ -129,15 +128,16 @@ class EmoteRepository(
         return buildList {
             message.split(WHITESPACE_REGEX).forEach { word ->
                 emoteMap[word]?.let { emote ->
-                    this += ChatMessageEmote(
-                        position = currentPosition..currentPosition + word.length,
-                        url = emote.url,
-                        id = emote.id,
-                        code = emote.code,
-                        scale = emote.scale,
-                        type = emote.emoteType.toChatMessageEmoteType() ?: ChatMessageEmoteType.TwitchEmote,
-                        isOverlayEmote = emote.isOverlayEmote
-                    )
+                    this +=
+                        ChatMessageEmote(
+                            position = currentPosition..currentPosition + word.length,
+                            url = emote.url,
+                            id = emote.id,
+                            code = emote.code,
+                            scale = emote.scale,
+                            type = emote.emoteType.toChatMessageEmoteType() ?: ChatMessageEmoteType.TwitchEmote,
+                            isOverlayEmote = emote.isOverlayEmote,
+                        )
                 }
                 currentPosition += word.length + 1
             }
@@ -149,47 +149,63 @@ class EmoteRepository(
         val emoteData = message.emoteData ?: return message
         val (messageString, channel, emotesWithPositions) = emoteData
 
-        val withEmojiFix = messageString.replace(
-            ESCAPE_TAG_REGEX,
-            ZERO_WIDTH_JOINER
-        )
+        val withEmojiFix =
+            messageString.replace(
+                ESCAPE_TAG_REGEX,
+                ZERO_WIDTH_JOINER,
+            )
 
         // Combined single-pass: find supplementary codepoint positions AND remove duplicate whitespace
         val (supplementaryCodePointPositions, duplicateSpaceAdjustedMessage, removedSpaces) = withEmojiFix.analyzeCodePoints()
         val (appendedSpaceAdjustedMessage, appendedSpaces) = duplicateSpaceAdjustedMessage.appendSpacesBetweenEmojiGroup()
 
-        val twitchEmotes = parseTwitchEmotes(
-            emotesWithPositions = emotesWithPositions,
-            message = appendedSpaceAdjustedMessage,
-            supplementaryCodePointPositions = supplementaryCodePointPositions,
-            appendedSpaces = appendedSpaces,
-            removedSpaces = removedSpaces,
-            replyMentionOffset = replyMentionOffset
-        )
+        val twitchEmotes =
+            parseTwitchEmotes(
+                emotesWithPositions = emotesWithPositions,
+                message = appendedSpaceAdjustedMessage,
+                supplementaryCodePointPositions = supplementaryCodePointPositions,
+                appendedSpaces = appendedSpaces,
+                removedSpaces = removedSpaces,
+                replyMentionOffset = replyMentionOffset,
+            )
         val twitchEmoteCodes = twitchEmotes.mapTo(mutableSetOf()) { it.code }
-        val cheermotes = when {
-            message is PrivMessage && message.tags["bits"] != null -> parseCheermotes(appendedSpaceAdjustedMessage, channel)
-            else                                                   -> emptyList()
-        }
+        val cheermotes =
+            when {
+                message is PrivMessage && message.tags["bits"] != null -> parseCheermotes(appendedSpaceAdjustedMessage, channel)
+                else -> emptyList()
+            }
         val cheermoteCodes = cheermotes.mapTo(mutableSetOf()) { it.code }
-        val thirdPartyEmotes = parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel)
-            .filterNot { it.code in twitchEmoteCodes || it.code in cheermoteCodes }
+        val thirdPartyEmotes =
+            parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel)
+                .filterNot { it.code in twitchEmoteCodes || it.code in cheermoteCodes }
         val emotes = twitchEmotes + thirdPartyEmotes + cheermotes
 
         val (adjustedMessage, adjustedEmotes) = adjustOverlayEmotes(appendedSpaceAdjustedMessage, emotes)
-        val messageWithEmotes = when (message) {
-            is PrivMessage       -> message.copy(message = adjustedMessage, emotes = adjustedEmotes, originalMessage = withEmojiFix)
-            is WhisperMessage    -> message.copy(message = adjustedMessage, emotes = adjustedEmotes, originalMessage = withEmojiFix)
-            is UserNoticeMessage -> message.copy(
-                childMessage = message.childMessage?.copy(
-                    message = adjustedMessage,
-                    emotes = adjustedEmotes,
-                    originalMessage = withEmojiFix,
-                )
-            )
+        val messageWithEmotes =
+            when (message) {
+                is PrivMessage -> {
+                    message.copy(message = adjustedMessage, emotes = adjustedEmotes, originalMessage = withEmojiFix)
+                }
 
-            else                 -> message
-        }
+                is WhisperMessage -> {
+                    message.copy(message = adjustedMessage, emotes = adjustedEmotes, originalMessage = withEmojiFix)
+                }
+
+                is UserNoticeMessage -> {
+                    message.copy(
+                        childMessage =
+                        message.childMessage?.copy(
+                            message = adjustedMessage,
+                            emotes = adjustedEmotes,
+                            originalMessage = withEmojiFix,
+                        ),
+                    )
+                }
+
+                else -> {
+                    message
+                }
+            }
 
         return parseBadges(messageWithEmotes)
     }
@@ -198,73 +214,94 @@ class EmoteRepository(
         val badgeData = message.badgeData ?: return message
         val (userId, channel, badgeTag, badgeInfoTag) = badgeData
 
-        val badgeInfos = badgeInfoTag
-            ?.parseTagList()
-            ?.associate { it.key to it.value }
-            .orEmpty()
+        val badgeInfos =
+            badgeInfoTag
+                ?.parseTagList()
+                ?.associate { it.key to it.value }
+                .orEmpty()
 
-        val badges = badgeTag
-            ?.parseTagList()
-            ?.mapNotNull { (badgeKey, badgeValue, tag) ->
-                val badgeInfo = badgeInfos[badgeKey]
+        val badges =
+            badgeTag
+                ?.parseTagList()
+                ?.mapNotNull { (badgeKey, badgeValue, tag) ->
+                    val badgeInfo = badgeInfos[badgeKey]
 
-                val globalBadgeUrl = getGlobalBadgeUrl(badgeKey, badgeValue)
-                val channelBadgeUrl = getChannelBadgeUrl(channel, badgeKey, badgeValue)
-                val ffzModBadgeUrl = getFfzModBadgeUrl(channel)
-                val ffzVipBadgeUrl = getFfzVipBadgeUrl(channel)
+                    val globalBadgeUrl = getGlobalBadgeUrl(badgeKey, badgeValue)
+                    val channelBadgeUrl = getChannelBadgeUrl(channel, badgeKey, badgeValue)
+                    val ffzModBadgeUrl = getFfzModBadgeUrl(channel)
+                    val ffzVipBadgeUrl = getFfzVipBadgeUrl(channel)
 
-                val title = getBadgeTitle(channel, badgeKey, badgeValue)
-                val type = BadgeType.parseFromBadgeId(badgeKey)
-                when {
-                    badgeKey.startsWith("moderator") && ffzModBadgeUrl != null -> Badge.FFZModBadge(
-                        title = title,
-                        badgeTag = tag,
-                        badgeInfo = badgeInfo,
-                        url = ffzModBadgeUrl,
-                        type = type
-                    )
+                    val title = getBadgeTitle(channel, badgeKey, badgeValue)
+                    val type = BadgeType.parseFromBadgeId(badgeKey)
+                    when {
+                        badgeKey.startsWith("moderator") && ffzModBadgeUrl != null -> {
+                            Badge.FFZModBadge(
+                                title = title,
+                                badgeTag = tag,
+                                badgeInfo = badgeInfo,
+                                url = ffzModBadgeUrl,
+                                type = type,
+                            )
+                        }
 
-                    badgeKey.startsWith("vip") && ffzVipBadgeUrl != null       -> Badge.FFZVipBadge(
-                        title = title,
-                        badgeTag = tag,
-                        badgeInfo = badgeInfo,
-                        url = ffzVipBadgeUrl,
-                        type = type
-                    )
+                        badgeKey.startsWith("vip") && ffzVipBadgeUrl != null -> {
+                            Badge.FFZVipBadge(
+                                title = title,
+                                badgeTag = tag,
+                                badgeInfo = badgeInfo,
+                                url = ffzVipBadgeUrl,
+                                type = type,
+                            )
+                        }
 
-                    (badgeKey.startsWith("subscriber") || badgeKey.startsWith("bits"))
-                            && channelBadgeUrl != null                         -> Badge.ChannelBadge(
-                        title = title,
-                        badgeTag = tag,
-                        badgeInfo = badgeInfo,
-                        url = channelBadgeUrl,
-                        type = type
-                    )
+                        (badgeKey.startsWith("subscriber") || badgeKey.startsWith("bits")) &&
+                            channelBadgeUrl != null -> {
+                            Badge.ChannelBadge(
+                                title = title,
+                                badgeTag = tag,
+                                badgeInfo = badgeInfo,
+                                url = channelBadgeUrl,
+                                type = type,
+                            )
+                        }
 
-                    else                                                       -> globalBadgeUrl?.let { Badge.GlobalBadge(title, tag, badgeInfo, it, type) }
-                }
-            }.orEmpty()
+                        else -> {
+                            globalBadgeUrl?.let { Badge.GlobalBadge(title, tag, badgeInfo, it, type) }
+                        }
+                    }
+                }.orEmpty()
 
         val sharedChatBadge = getSharedChatBadge(message)
-        val allBadges = buildList {
-            if (sharedChatBadge != null) {
-                add(sharedChatBadge)
+        val allBadges =
+            buildList {
+                if (sharedChatBadge != null) {
+                    add(sharedChatBadge)
+                }
+                addAll(badges)
+                val badge = getDankChatBadgeTitleAndUrl(userId)
+                if (badge != null) {
+                    add(Badge.DankChatBadge(title = badge.first, badgeTag = null, badgeInfo = null, url = badge.second, type = BadgeType.DankChat))
+                }
             }
-            addAll(badges)
-            val badge = getDankChatBadgeTitleAndUrl(userId)
-            if (badge != null) {
-                add(Badge.DankChatBadge(title = badge.first, badgeTag = null, badgeInfo = null, url = badge.second, type = BadgeType.DankChat))
-            }
-        }
 
         return when (message) {
-            is PrivMessage       -> message.copy(badges = allBadges)
-            is WhisperMessage    -> message.copy(badges = allBadges)
-            is UserNoticeMessage -> message.copy(
-                childMessage = message.childMessage?.copy(badges = allBadges)
-            )
+            is PrivMessage -> {
+                message.copy(badges = allBadges)
+            }
 
-            else                 -> message
+            is WhisperMessage -> {
+                message.copy(badges = allBadges)
+            }
+
+            is UserNoticeMessage -> {
+                message.copy(
+                    childMessage = message.childMessage?.copy(badges = allBadges),
+                )
+            }
+
+            else -> {
+                message
+            }
         }
     }
 
@@ -281,14 +318,24 @@ class EmoteRepository(
             TagListEntry(key, value, it)
         }
 
-    private fun getChannelBadgeUrl(channel: UserName?, set: String, version: String) = channel?.let { channelBadges[channel]?.get(set)?.versions?.get(version)?.imageUrlHigh }
+    private fun getChannelBadgeUrl(channel: UserName?, set: String, version: String) = channel?.let {
+        channelBadges[channel]
+            ?.get(set)
+            ?.versions
+            ?.get(version)
+            ?.imageUrlHigh
+    }
 
     private fun getGlobalBadgeUrl(set: String, version: String) = globalBadges[set]?.versions?.get(version)?.imageUrlHigh
 
-    private fun getBadgeTitle(channel: UserName?, set: String, version: String): String? {
-        return channel?.let { channelBadges[channel]?.get(set)?.versions?.get(version)?.title }
-            ?: globalBadges[set]?.versions?.get(version)?.title
+    private fun getBadgeTitle(channel: UserName?, set: String, version: String): String? = channel?.let {
+        channelBadges[channel]
+            ?.get(set)
+            ?.versions
+            ?.get(version)
+            ?.title
     }
+        ?: globalBadges[set]?.versions?.get(version)?.title
 
     private fun getFfzModBadgeUrl(channel: UserName?): String? = channel?.let { ffzModBadges[channel] }
 
@@ -308,7 +355,7 @@ class EmoteRepository(
         }
         return Badge.SharedChatBadge(
             url = channel?.avatarUrl?.replace(oldValue = "300x300", newValue = "70x70").orEmpty(),
-            title = "Shared Message${channel?.displayName?.let { " from $it" }.orEmpty()}"
+            title = "Shared Message${channel?.displayName?.let { " from $it" }.orEmpty()}",
         )
     }
 
@@ -331,16 +378,11 @@ class EmoteRepository(
 
     fun getSevenTVUserDetails(channel: UserName): SevenTVUserDetails? = sevenTvChannelDetails[channel]
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
-        return runCatching {
-            loadUserEmotesViaHelix(userId, onFirstPageLoaded)
-        }
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> = runCatching {
+        loadUserEmotesViaHelix(userId, onFirstPageLoaded)
     }
 
-    private suspend fun loadUserEmotesViaHelix(
-        userId: UserId,
-        onFirstPageLoaded: (() -> Unit)? = null
-    ) = withContext(Dispatchers.Default) {
+    private suspend fun loadUserEmotesViaHelix(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null) = withContext(Dispatchers.Default) {
         val seenIds = mutableSetOf<String>()
         val allEmotes = mutableListOf<GenericEmote>()
         var totalCount = 0
@@ -365,33 +407,39 @@ class EmoteRepository(
             // Resolve channel emotes from this page — getChannelsByIds caches results,
             // so repeated owner IDs across pages are cheap lookups
             if (newChannelDtos.isNotEmpty()) {
-                val ownerIds = newChannelDtos
-                    .filter { it.ownerId.isNotBlank() }
-                    .map { it.ownerId.toUserId() }
-                    .distinct()
+                val ownerIds =
+                    newChannelDtos
+                        .filter { it.ownerId.isNotBlank() }
+                        .map { it.ownerId.toUserId() }
+                        .distinct()
 
-                val channelsByIdMap = channelRepository.getChannelsByIds(ownerIds)
-                    .associateBy { it.id }
+                val channelsByIdMap =
+                    channelRepository
+                        .getChannelsByIds(ownerIds)
+                        .associateBy { it.id }
 
                 for (emote in newChannelDtos) {
-                    val type = when (emote.emoteType) {
-                        "subscriptions" -> {
-                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
-                            channel?.name?.let { EmoteType.ChannelTwitchEmote(it) } ?: EmoteType.GlobalTwitchEmote
-                        }
+                    val type =
+                        when (emote.emoteType) {
+                            "subscriptions" -> {
+                                val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                                channel?.name?.let { EmoteType.ChannelTwitchEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                            }
 
-                        "bitstier"      -> {
-                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
-                            channel?.name?.let { EmoteType.ChannelTwitchBitEmote(it) } ?: EmoteType.GlobalTwitchEmote
-                        }
+                            "bitstier" -> {
+                                val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                                channel?.name?.let { EmoteType.ChannelTwitchBitEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                            }
 
-                        "follower"      -> {
-                            val channel = channelsByIdMap[emote.ownerId.toUserId()]
-                            channel?.name?.let { EmoteType.ChannelTwitchFollowerEmote(it) } ?: EmoteType.GlobalTwitchEmote
-                        }
+                            "follower" -> {
+                                val channel = channelsByIdMap[emote.ownerId.toUserId()]
+                                channel?.name?.let { EmoteType.ChannelTwitchFollowerEmote(it) } ?: EmoteType.GlobalTwitchEmote
+                            }
 
-                        else            -> EmoteType.GlobalTwitchEmote
-                    }
+                            else -> {
+                                EmoteType.GlobalTwitchEmote
+                            }
+                        }
                     newGlobalEmotes.add(emote.toGenericEmote(type))
                 }
             }
@@ -411,30 +459,36 @@ class EmoteRepository(
     }
 
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) = withContext(Dispatchers.Default) {
-        val sets = (globalEmoteSetIds + followerEmoteSetIds.values.flatten())
-            .distinct()
-            .chunkedBy(maxSize = MAX_PARAMS_LENGTH) { it.length + 3 }
-            .concurrentMap {
-                dankChatApiClient.getUserSets(it)
-                    .getOrNull()
-                    .orEmpty()
-            }
-            .flatten()
+        val sets =
+            (globalEmoteSetIds + followerEmoteSetIds.values.flatten())
+                .distinct()
+                .chunkedBy(maxSize = MAX_PARAMS_LENGTH) { it.length + 3 }
+                .concurrentMap {
+                    dankChatApiClient
+                        .getUserSets(it)
+                        .getOrNull()
+                        .orEmpty()
+                }.flatten()
 
-        val twitchEmotes = sets.flatMap { emoteSet ->
-            val type = when (val set = emoteSet.id) {
-                "0", "42" -> EmoteType.GlobalTwitchEmote // 42 == monkey emote set, move them to the global emote section
-                else      -> {
-                    followerEmoteSetIds.entries
-                        .find { (_, sets) ->
-                            set in sets
+        val twitchEmotes =
+            sets.flatMap { emoteSet ->
+                val type =
+                    when (val set = emoteSet.id) {
+                        "0", "42" -> {
+                            EmoteType.GlobalTwitchEmote
                         }
-                        ?.let { EmoteType.ChannelTwitchFollowerEmote(it.key) }
-                        ?: emoteSet.channelName.twitchEmoteType
-                }
+
+                        // 42 == monkey emote set, move them to the global emote section
+                        else -> {
+                            followerEmoteSetIds.entries
+                                .find { (_, sets) ->
+                                    set in sets
+                                }?.let { EmoteType.ChannelTwitchFollowerEmote(it.key) }
+                                ?: emoteSet.channelName.twitchEmoteType
+                        }
+                    }
+                emoteSet.emotes.mapToGenericEmotes(type)
             }
-            emoteSet.emotes.mapToGenericEmotes(type)
-        }
 
         val globalTwitchEmotes = twitchEmotes.filter { it.emoteType is EmoteType.GlobalTwitchEmote || it.emoteType is EmoteType.ChannelTwitchEmote }
         val followerEmotes = twitchEmotes.filter { it.emoteType is EmoteType.ChannelTwitchFollowerEmote }
@@ -444,19 +498,20 @@ class EmoteRepository(
         channelEmoteStates.forEach { (channel, flow) ->
             flow.update {
                 it.copy(
-                    twitchEmotes = followerEmotes.filterNot { emote -> emote.emoteType is EmoteType.ChannelTwitchFollowerEmote && emote.emoteType.channel != channel }
+                    twitchEmotes = followerEmotes.filterNot { emote -> emote.emoteType is EmoteType.ChannelTwitchFollowerEmote && emote.emoteType.channel != channel },
                 )
             }
         }
     }
 
     suspend fun setFFZEmotes(channel: UserName, ffzResult: FFZChannelDto) = withContext(Dispatchers.Default) {
-        val ffzEmotes = ffzResult.sets
-            .flatMap { set ->
-                set.value.emotes.mapNotNull {
-                    parseFFZEmote(it, channel)
+        val ffzEmotes =
+            ffzResult.sets
+                .flatMap { set ->
+                    set.value.emotes.mapNotNull {
+                        parseFFZEmote(it, channel)
+                    }
                 }
-            }
         channelEmoteStates[channel]?.update {
             it.copy(ffzEmotes = ffzEmotes)
         }
@@ -471,13 +526,14 @@ class EmoteRepository(
     }
 
     suspend fun setFFZGlobalEmotes(ffzResult: FFZGlobalDto) = withContext(Dispatchers.Default) {
-        val ffzGlobalEmotes = ffzResult.sets
-            .filter { it.key in ffzResult.defaultSets }
-            .flatMap { (_, emoteSet) ->
-                emoteSet.emotes.mapNotNull { emote ->
-                    parseFFZEmote(emote, channel = null)
+        val ffzGlobalEmotes =
+            ffzResult.sets
+                .filter { it.key in ffzResult.defaultSets }
+                .flatMap { (_, emoteSet) ->
+                    emoteSet.emotes.mapNotNull { emote ->
+                        parseFFZEmote(emote, channel = null)
+                    }
                 }
-            }
         globalEmoteState.update { it.copy(ffzEmotes = ffzGlobalEmotes) }
     }
 
@@ -497,16 +553,18 @@ class EmoteRepository(
         val emoteSetId = userDto.emoteSet?.id ?: return@withContext
         val emoteList = userDto.emoteSet.emotes.orEmpty()
 
-        sevenTvChannelDetails[channel] = SevenTVUserDetails(
-            id = userDto.user.id,
-            activeEmoteSetId = emoteSetId,
-            connectionIndex = userDto.user.connections.indexOfFirst { it.platform == SevenTVUserConnection.twitch }
-        )
-        val sevenTvEmotes = emoteList
-            .filterUnlistedIfEnabled()
-            .mapNotNull { emote ->
-                parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
-            }
+        sevenTvChannelDetails[channel] =
+            SevenTVUserDetails(
+                id = userDto.user.id,
+                activeEmoteSetId = emoteSetId,
+                connectionIndex = userDto.user.connections.indexOfFirst { it.platform == SevenTVUserConnection.twitch },
+            )
+        val sevenTvEmotes =
+            emoteList
+                .filterUnlistedIfEnabled()
+                .mapNotNull { emote ->
+                    parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
+                }
 
         channelEmoteStates[channel]?.update {
             it.copy(sevenTvEmotes = sevenTvEmotes)
@@ -518,12 +576,13 @@ class EmoteRepository(
             sevenTvChannelDetails[channel] = details.copy(activeEmoteSetId = emoteSet.id)
         }
 
-        val sevenTvEmotes = emoteSet.emotes
-            .orEmpty()
-            .filterUnlistedIfEnabled()
-            .mapNotNull { emote ->
-                parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
-            }
+        val sevenTvEmotes =
+            emoteSet.emotes
+                .orEmpty()
+                .filterUnlistedIfEnabled()
+                .mapNotNull { emote ->
+                    parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
+                }
 
         channelEmoteStates[channel]?.update {
             it.copy(sevenTvEmotes = sevenTvEmotes)
@@ -531,29 +590,32 @@ class EmoteRepository(
     }
 
     suspend fun updateSevenTVEmotes(channel: UserName, event: SevenTVEventMessage.EmoteSetUpdated) = withContext(Dispatchers.Default) {
-        val addedEmotes = event.added
-            .filterUnlistedIfEnabled()
-            .mapNotNull { emote ->
-                parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
-            }
+        val addedEmotes =
+            event.added
+                .filterUnlistedIfEnabled()
+                .mapNotNull { emote ->
+                    parseSevenTVEmote(emote, EmoteType.ChannelSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
+                }
 
         channelEmoteStates[channel]?.update { state ->
-            val updated = state.sevenTvEmotes.mapNotNull { emote ->
+            val updated =
+                state.sevenTvEmotes.mapNotNull { emote ->
 
-                if (event.removed.any { emote.id == it.id }) {
-                    null
-                } else {
-                    event.updated.find { emote.id == it.id }?.let { update ->
-                        val mapNewBaseName = { oldBase: String? -> (oldBase ?: emote.code).takeIf { it != update.name } }
-                        val newType = when (emote.emoteType) {
-                            is EmoteType.ChannelSevenTVEmote -> emote.emoteType.copy(baseName = mapNewBaseName(emote.emoteType.baseName))
-                            is EmoteType.GlobalSevenTVEmote  -> emote.emoteType.copy(baseName = mapNewBaseName(emote.emoteType.baseName))
-                            else                             -> emote.emoteType
-                        }
-                        emote.copy(code = update.name, emoteType = newType)
-                    } ?: emote
+                    if (event.removed.any { emote.id == it.id }) {
+                        null
+                    } else {
+                        event.updated.find { emote.id == it.id }?.let { update ->
+                            val mapNewBaseName = { oldBase: String? -> (oldBase ?: emote.code).takeIf { it != update.name } }
+                            val newType =
+                                when (emote.emoteType) {
+                                    is EmoteType.ChannelSevenTVEmote -> emote.emoteType.copy(baseName = mapNewBaseName(emote.emoteType.baseName))
+                                    is EmoteType.GlobalSevenTVEmote -> emote.emoteType.copy(baseName = mapNewBaseName(emote.emoteType.baseName))
+                                    else -> emote.emoteType
+                                }
+                            emote.copy(code = update.name, emoteType = newType)
+                        } ?: emote
+                    }
                 }
-            }
             state.copy(sevenTvEmotes = updated + addedEmotes)
         }
     }
@@ -561,36 +623,44 @@ class EmoteRepository(
     suspend fun setSevenTVGlobalEmotes(sevenTvResult: List<SevenTVEmoteDto>) = withContext(Dispatchers.Default) {
         if (sevenTvResult.isEmpty()) return@withContext
 
-        val sevenTvGlobalEmotes = sevenTvResult
-            .filterUnlistedIfEnabled()
-            .mapNotNull { emote ->
-                parseSevenTVEmote(emote, EmoteType.GlobalSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
-            }
+        val sevenTvGlobalEmotes =
+            sevenTvResult
+                .filterUnlistedIfEnabled()
+                .mapNotNull { emote ->
+                    parseSevenTVEmote(emote, EmoteType.GlobalSevenTVEmote(emote.data?.owner?.displayName, emote.data?.baseName?.takeIf { emote.name != it }))
+                }
 
         globalEmoteState.update { it.copy(sevenTvEmotes = sevenTvGlobalEmotes) }
     }
 
     suspend fun setCheermotes(channel: UserName, cheermoteDtos: List<CheermoteSetDto>) = withContext(Dispatchers.Default) {
-        val cheermoteSets = cheermoteDtos.map { dto ->
-            CheermoteSet(
-                prefix = dto.prefix,
-                regex = Regex("^${Regex.escape(dto.prefix)}([1-9][0-9]*)$", RegexOption.IGNORE_CASE),
-                tiers = dto.tiers
-                    .sortedByDescending { it.minBits }
-                    .map { tier ->
-                        CheermoteTier(
-                            minBits = tier.minBits,
-                            color = try {
-                                tier.color.toColorInt()
-                            } catch (_: IllegalArgumentException) {
-                                Color.GRAY
-                            },
-                            animatedUrl = tier.images.dark.animated["2"] ?: tier.images.dark.animated["1"].orEmpty(),
-                            staticUrl = tier.images.dark.static["2"] ?: tier.images.dark.static["1"].orEmpty(),
-                        )
-                    }
-            )
-        }
+        val cheermoteSets =
+            cheermoteDtos.map { dto ->
+                CheermoteSet(
+                    prefix = dto.prefix,
+                    regex = Regex("^${Regex.escape(dto.prefix)}([1-9][0-9]*)$", RegexOption.IGNORE_CASE),
+                    tiers =
+                    dto.tiers
+                        .sortedByDescending { it.minBits }
+                        .map { tier ->
+                            CheermoteTier(
+                                minBits = tier.minBits,
+                                color =
+                                try {
+                                    tier.color.toColorInt()
+                                } catch (_: IllegalArgumentException) {
+                                    Color.GRAY
+                                },
+                                animatedUrl =
+                                tier.images.dark.animated["2"] ?: tier.images.dark.animated["1"]
+                                    .orEmpty(),
+                                staticUrl =
+                                tier.images.dark.static["2"] ?: tier.images.dark.static["1"]
+                                    .orEmpty(),
+                            )
+                        },
+                )
+            }
         channelEmoteStates[channel]?.update {
             it.copy(cheermoteSets = cheermoteSets)
         }
@@ -608,16 +678,17 @@ class EmoteRepository(
                     if (match != null) {
                         val bits = match.groupValues[1].toIntOrNull() ?: break
                         val tier = set.tiers.firstOrNull { bits >= it.minBits } ?: break
-                        this += ChatMessageEmote(
-                            position = currentPosition..currentPosition + word.length,
-                            url = tier.animatedUrl,
-                            id = "${set.prefix}_$bits",
-                            code = word,
-                            scale = 1,
-                            type = ChatMessageEmoteType.Cheermote,
-                            cheerAmount = bits,
-                            cheerColor = tier.color,
-                        )
+                        this +=
+                            ChatMessageEmote(
+                                position = currentPosition..currentPosition + word.length,
+                                url = tier.animatedUrl,
+                                id = "${set.prefix}_$bits",
+                                code = word,
+                                scale = 1,
+                                type = ChatMessageEmoteType.Cheermote,
+                                cheerAmount = bits,
+                                cheerColor = tier.color,
+                            )
                         break
                     }
                 }
@@ -627,43 +698,47 @@ class EmoteRepository(
     }
 
     private val UserName?.twitchEmoteType: EmoteType
-        get() = when {
-            this == null || isGlobalTwitchChannel -> EmoteType.GlobalTwitchEmote
-            else                                  -> EmoteType.ChannelTwitchEmote(this)
-        }
+        get() =
+            when {
+                this == null || isGlobalTwitchChannel -> EmoteType.GlobalTwitchEmote
+                else -> EmoteType.ChannelTwitchEmote(this)
+            }
 
     private val UserName.isGlobalTwitchChannel: Boolean
         get() = value.equals("qa_TW_Partner", ignoreCase = true) || value.equals("Twitch", ignoreCase = true)
 
     private fun UserEmoteDto.toGenericEmote(type: EmoteType): GenericEmote {
-        val code = when (type) {
-            is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
-            else                           -> name
-        }
+        val code =
+            when (type) {
+                is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
+                else -> name
+            }
         return GenericEmote(
             code = code,
             url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
             lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
             id = id,
             scale = 1,
-            emoteType = type
+            emoteType = type,
         )
     }
 
-    private fun List<DankChatEmoteDto>?.mapToGenericEmotes(type: EmoteType): List<GenericEmote> = this?.map { (name, id) ->
-        val code = when (type) {
-            is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
-            else                           -> name
-        }
-        GenericEmote(
-            code = code,
-            url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
-            lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
-            id = id,
-            scale = 1,
-            emoteType = type
-        )
-    }.orEmpty()
+    private fun List<DankChatEmoteDto>?.mapToGenericEmotes(type: EmoteType): List<GenericEmote> = this
+        ?.map { (name, id) ->
+            val code =
+                when (type) {
+                    is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
+                    else -> name
+                }
+            GenericEmote(
+                code = code,
+                url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
+                lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
+                id = id,
+                scale = 1,
+                emoteType = type,
+            )
+        }.orEmpty()
 
     @VisibleForTesting
     fun adjustOverlayEmotes(message: String, emotes: List<ChatMessageEmote>): Pair<String, List<ChatMessageEmote>> {
@@ -694,10 +769,11 @@ class EmoteRepository(
                         break
                     }
 
-                    adjustedMessage = when (emote.position.last) {
-                        adjustedMessage.length -> adjustedMessage.substring(0, emote.position.first)
-                        else                   -> adjustedMessage.removeRange(emote.position)
-                    }
+                    adjustedMessage =
+                        when (emote.position.last) {
+                            adjustedMessage.length -> adjustedMessage.substring(0, emote.position.first)
+                            else -> adjustedMessage.removeRange(emote.position)
+                        }
                     adjustedEmotes[i] = emote.copy(position = previousEmote.position)
                     foundEmote = true
 
@@ -761,7 +837,7 @@ class EmoteRepository(
                 code = code,
                 scale = 1,
                 type = ChatMessageEmoteType.TwitchEmote,
-                isTwitch = true
+                isTwitch = true,
             )
         }
     }
@@ -803,17 +879,19 @@ class EmoteRepository(
         val id = emote.id
         val urlMap = emote.animated ?: emote.urls
 
-        val (scale, url) = when {
-            urlMap["4"] != null -> 1 to urlMap.getValue("4")
-            urlMap["2"] != null -> 2 to urlMap.getValue("2")
-            else                -> 4 to urlMap["1"]
-        }
+        val (scale, url) =
+            when {
+                urlMap["4"] != null -> 1 to urlMap.getValue("4")
+                urlMap["2"] != null -> 2 to urlMap.getValue("2")
+                else -> 4 to urlMap["1"]
+            }
         url ?: return null
         val lowResUrl = urlMap["2"] ?: urlMap["1"] ?: return null
-        val type = when (channel) {
-            null -> EmoteType.GlobalFFZEmote(emote.owner?.displayName)
-            else -> EmoteType.ChannelFFZEmote(emote.owner?.displayName)
-        }
+        val type =
+            when (channel) {
+                null -> EmoteType.GlobalFFZEmote(emote.owner?.displayName)
+                else -> EmoteType.ChannelFFZEmote(emote.owner?.displayName)
+            }
         return GenericEmote(name, url.withLeadingHttps, lowResUrl.withLeadingHttps, "$id", scale, type)
     }
 
@@ -824,12 +902,13 @@ class EmoteRepository(
         }
 
         val base = "${data.host.url}/".withLeadingHttps
-        val urls = data.host.files
-            .filter { it.format == "WEBP" }
-            .associate {
-                val size = it.name.substringBeforeLast('.')
-                size to it.emoteUrlWithFallback(base)
-            }
+        val urls =
+            data.host.files
+                .filter { it.format == "WEBP" }
+                .associate {
+                    val size = it.name.substringBeforeLast('.')
+                    size to it.emoteUrlWithFallback(base)
+                }
 
         return GenericEmote(
             code = emote.name,
@@ -842,20 +921,19 @@ class EmoteRepository(
         )
     }
 
-    private fun SevenTVEmoteFileDto.emoteUrlWithFallback(base: String): String {
-        return "$base$name"
-    }
+    private fun SevenTVEmoteFileDto.emoteUrlWithFallback(base: String): String = "$base$name"
 
     private suspend fun List<SevenTVEmoteDto>.filterUnlistedIfEnabled(): List<SevenTVEmoteDto> = when {
         chatSettingsDataStore.settings.first().allowUnlistedSevenTvEmotes -> this
-        else                                                              -> filter { it.data?.listed == true }
+        else -> filter { it.data?.listed == true }
     }
 
     private val String.withLeadingHttps: String
-        get() = when {
-            startsWith(prefix = "https:") -> this
-            else                          -> "https:$this"
-        }
+        get() =
+            when {
+                startsWith(prefix = "https:") -> this
+                else -> "https:$this"
+            }
 
     companion object {
         private val TAG = EmoteRepository::class.java.simpleName
@@ -876,30 +954,38 @@ class EmoteRepository(
         private const val BTTV_LOW_RES_EMOTE_SIZE = "2x"
 
         private val WHITESPACE_REGEX = "\\s".toRegex()
-        private val EMOTE_REPLACEMENTS = mapOf(
-            "[oO](_|\\.)[oO]" to "O_o",
-            "\\&lt\\;3" to "<3",
-            "\\:-?(p|P)" to ":P",
-            "\\:-?[z|Z|\\|]" to ":Z",
-            "\\:-?\\)" to ":)",
-            "\\;-?(p|P)" to ";P",
-            "R-?\\)" to "R)",
-            "\\&gt\\;\\(" to ">(",
-            "\\:-?(o|O)" to ":O",
-            "\\:-?[\\\\/]" to ":/",
-            "\\:-?\\(" to ":(",
-            "\\:-?D" to ":D",
-            "\\;-?\\)" to ";)",
-            "B-?\\)" to "B)",
-            "#-?[\\/]" to "#/",
-            ":-?(?:7|L)" to ":7",
-            "\\&lt\\;\\]" to "<]",
-            "\\:-?(S|s)" to ":s",
-            "\\:\\&gt\\;" to ":>"
-        )
-        private val OVERLAY_EMOTES = listOf(
-            "SoSnowy", "IceCold", "SantaHat", "TopHat",
-            "ReinDeer", "CandyCane", "cvMask", "cvHazmat",
-        )
+        private val EMOTE_REPLACEMENTS =
+            mapOf(
+                "[oO](_|\\.)[oO]" to "O_o",
+                "\\&lt\\;3" to "<3",
+                "\\:-?(p|P)" to ":P",
+                "\\:-?[z|Z|\\|]" to ":Z",
+                "\\:-?\\)" to ":)",
+                "\\;-?(p|P)" to ";P",
+                "R-?\\)" to "R)",
+                "\\&gt\\;\\(" to ">(",
+                "\\:-?(o|O)" to ":O",
+                "\\:-?[\\\\/]" to ":/",
+                "\\:-?\\(" to ":(",
+                "\\:-?D" to ":D",
+                "\\;-?\\)" to ";)",
+                "B-?\\)" to "B)",
+                "#-?[\\/]" to "#/",
+                ":-?(?:7|L)" to ":7",
+                "\\&lt\\;\\]" to "<]",
+                "\\:-?(S|s)" to ":s",
+                "\\:\\&gt\\;" to ":>",
+            )
+        private val OVERLAY_EMOTES =
+            listOf(
+                "SoSnowy",
+                "IceCold",
+                "SantaHat",
+                "TopHat",
+                "ReinDeer",
+                "CandyCane",
+                "cvMask",
+                "cvHazmat",
+            )
     }
 }

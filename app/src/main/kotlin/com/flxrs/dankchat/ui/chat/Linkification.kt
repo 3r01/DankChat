@@ -37,10 +37,11 @@ fun AnnotatedString.Builder.appendWithLinks(text: String, linkColor: Color, prev
         end = fixedEnd
 
         val rawUrl = text.substring(start, end)
-        val url = when {
-            rawUrl.contains("://") -> rawUrl
-            else                   -> "https://$rawUrl"
-        }
+        val url =
+            when {
+                rawUrl.contains("://") -> rawUrl
+                else -> "https://$rawUrl"
+            }
 
         // Append text before URL
         if (start > lastIndex) {

@@ -9,17 +9,16 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class SuggestionFilteringTest {
+    private val provider =
+        SuggestionProvider(
+            emoteRepository = mockk(),
+            usersRepository = mockk(),
+            commandRepository = mockk(),
+            emoteUsageRepository = mockk(),
+            emojiRepository = mockk(),
+        )
 
-    private val provider = SuggestionProvider(
-        emoteRepository = mockk(),
-        usersRepository = mockk(),
-        commandRepository = mockk(),
-        emoteUsageRepository = mockk(),
-        emojiRepository = mockk(),
-    )
-
-    private fun emote(code: String, id: String = code) =
-        GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
+    private fun emote(code: String, id: String = code) = GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
 
     // region filterEmotes
 
@@ -151,11 +150,12 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `emojis filtered by shortcode`() {
-        val emojis = listOf(
-            EmojiData("smile", "\uD83D\uDE04"),
-            EmojiData("wave", "\uD83D\uDC4B"),
-            EmojiData("smirk", "\uD83D\uDE0F"),
-        )
+        val emojis =
+            listOf(
+                EmojiData("smile", "\uD83D\uDE04"),
+                EmojiData("wave", "\uD83D\uDC4B"),
+                EmojiData("smirk", "\uD83D\uDE0F"),
+            )
         val result = provider.filterEmojis(emojis, "smi")
 
         assertEquals(
@@ -166,10 +166,11 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `emojis use same scoring as emotes`() {
-        val emojis = listOf(
-            EmojiData("smirk", "\uD83D\uDE0F"),
-            EmojiData("smile", "\uD83D\uDE04"),
-        )
+        val emojis =
+            listOf(
+                EmojiData("smirk", "\uD83D\uDE0F"),
+                EmojiData("smile", "\uD83D\uDE04"),
+            )
         val result = provider.filterEmojis(emojis, "smi")
 
         assertEquals(2, result.size)
@@ -177,10 +178,11 @@ internal class SuggestionFilteringTest {
 
     @Test
     fun `non-matching emojis excluded`() {
-        val emojis = listOf(
-            EmojiData("wave", "\uD83D\uDC4B"),
-            EmojiData("heart", "\u2764\uFE0F"),
-        )
+        val emojis =
+            listOf(
+                EmojiData("wave", "\uD83D\uDC4B"),
+                EmojiData("heart", "\u2764\uFE0F"),
+            )
         val result = provider.filterEmojis(emojis, "smi")
 
         assertEquals(emptyList(), result)

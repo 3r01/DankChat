@@ -458,7 +458,9 @@ fun MainScreen(
                     onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
                     onNewWhisper = if (inputState.isWhisperTabActive) {
                         dialogViewModel::showNewWhisper
-                    } else null,
+                    } else {
+                        null
+                    },
                     onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
                 ),
                 isUploading = dialogState.isUploading,
@@ -470,16 +472,17 @@ fun MainScreen(
                 isSheetOpen = isSheetOpen,
                 inputActions = when (fullScreenSheetState) {
                     is FullScreenSheetState.Replies -> persistentListOf(InputAction.LastMessage)
+
                     is FullScreenSheetState.Whisper,
                     is FullScreenSheetState.Mention,
-                        -> when {
+                    -> when {
                         inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
                         else -> persistentListOf()
                     }
 
                     is FullScreenSheetState.History,
                     is FullScreenSheetState.Closed,
-                        -> mainState.inputActions
+                    -> mainState.inputActions
                 },
                 onInputHeightChange = { inputHeightPx = it },
                 debugMode = mainState.debugMode,
@@ -496,8 +499,8 @@ fun MainScreen(
                         configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
                         swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
                         forceOverflowOpen = featureTourState.forceOverflowOpen,
-                        isTourActive = featureTourState.isTourActive
-                            || featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
+                        isTourActive = featureTourState.isTourActive ||
+                            featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
                         onAdvance = featureTourViewModel::advance,
                         onSkip = featureTourViewModel::skipTour,
                     )
@@ -529,13 +532,21 @@ fun MainScreen(
                 }
 
                 ToolbarAction.Login -> onLogin()
+
                 ToolbarAction.Relogin -> onRelogin()
+
                 ToolbarAction.Logout -> dialogViewModel.showLogout()
+
                 ToolbarAction.ManageChannels -> dialogViewModel.showManageChannels()
+
                 ToolbarAction.OpenChannel -> onOpenChannel()
+
                 ToolbarAction.RemoveChannel -> dialogViewModel.showRemoveChannel()
+
                 ToolbarAction.ReportChannel -> onReportChannel()
+
                 ToolbarAction.BlockChannel -> dialogViewModel.showBlockChannel()
+
                 ToolbarAction.CaptureImage -> {
                     if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else dialogViewModel.setPendingUploadAction(onCaptureImage)
                 }
@@ -862,12 +873,14 @@ fun MainScreen(
             }
 
             // Floating Toolbars - collapsible tabs (expand on swipe) + actions
-            if (!isInPipMode) floatingToolbar(
-                Modifier.align(Alignment.TopCenter),
-                (!isWideWindow || (!isKeyboardVisible && !inputState.isEmoteMenuOpen)) && !isSheetOpen,
-                true,
-                true,
-            )
+            if (!isInPipMode) {
+                floatingToolbar(
+                    Modifier.align(Alignment.TopCenter),
+                    (!isWideWindow || (!isKeyboardVisible && !inputState.isEmoteMenuOpen)) && !isSheetOpen,
+                    true,
+                    true,
+                )
+            }
 
             // Status bar scrim when toolbar is gesture-hidden — keeps status bar readable
             if (!isInPipMode && !isFullscreen && mainState.gestureToolbarHidden) {

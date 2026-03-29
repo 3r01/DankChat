@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EmoteUsageDao {
-
     @Query("SELECT * FROM emote_usage ORDER BY last_used DESC LIMIT $RECENT_EMOTE_USAGE_LIMIT")
     fun getRecentUsages(): Flow<List<EmoteUsageEntity>>
 

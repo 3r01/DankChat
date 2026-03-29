@@ -45,9 +45,7 @@ import sh.calvin.autolinktext.TextRuleDefaults
 import sh.calvin.autolinktext.annotateString
 
 @Composable
-fun AboutScreen(
-    onBack: () -> Unit,
-) {
+fun AboutScreen(onBack: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -63,7 +61,7 @@ fun AboutScreen(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
@@ -112,7 +110,7 @@ fun AboutScreen(
                             text = license,
                             modifier = Modifier.verticalScroll(rememberScrollState()),
                         )
-                    }
+                    },
                 )
             }
         }

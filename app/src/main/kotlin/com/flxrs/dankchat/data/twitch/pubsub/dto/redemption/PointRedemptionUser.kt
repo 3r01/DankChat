@@ -9,8 +9,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class PointRedemptionUser(
-    val id: UserId,
-    @SerialName("login") val name: UserName,
-    @SerialName("display_name") val displayName: DisplayName,
-)
+data class PointRedemptionUser(val id: UserId, @SerialName("login") val name: UserName, @SerialName("display_name") val displayName: DisplayName)

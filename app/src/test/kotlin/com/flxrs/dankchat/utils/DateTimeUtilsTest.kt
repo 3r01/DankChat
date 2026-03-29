@@ -11,7 +11,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 internal class DateTimeUtilsTest {
-
     @Test
     fun `formats 10 seconds correctly`() {
         val result = DateTimeUtils.formatSeconds(10)

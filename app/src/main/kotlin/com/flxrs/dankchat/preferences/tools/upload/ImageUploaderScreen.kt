@@ -71,12 +71,7 @@ fun ImageUploaderScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun ImageUploaderScreen(
-    uploaderConfig: ImageUploaderConfig,
-    onReset: () -> Unit,
-    onSave: (ImageUploaderConfig) -> Unit,
-    onSaveAndNavBack: (ImageUploaderConfig) -> Unit
-) {
+private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: () -> Unit, onSave: (ImageUploaderConfig) -> Unit, onSaveAndNavBack: (ImageUploaderConfig) -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val uploadUrl = rememberTextFieldState(uploaderConfig.uploadUrl)
     val formField = rememberTextFieldState(uploaderConfig.formField)
@@ -86,10 +81,10 @@ private fun ImageUploaderScreen(
     val hasChanged = remember(uploaderConfig) {
         derivedStateOf {
             uploaderConfig.uploadUrl != uploadUrl.text ||
-                    uploaderConfig.formField != formField.text ||
-                    uploaderConfig.headers.orEmpty() != headers.text ||
-                    uploaderConfig.imageLinkPattern.orEmpty() != linkPattern.text ||
-                    uploaderConfig.deletionLinkPattern.orEmpty() != deleteLinkPattern.text
+                uploaderConfig.formField != formField.text ||
+                uploaderConfig.headers.orEmpty() != headers.text ||
+                uploaderConfig.imageLinkPattern.orEmpty() != linkPattern.text ||
+                uploaderConfig.deletionLinkPattern.orEmpty() != deleteLinkPattern.text
         }
     }
 

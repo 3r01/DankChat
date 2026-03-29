@@ -15,10 +15,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DraggableHandle(
-    onDrag: (deltaPx: Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DraggableHandle(onDrag: (deltaPx: Float) -> Unit, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -28,7 +25,7 @@ fun DraggableHandle(
                 detectHorizontalDragGestures { _, dragAmount ->
                     onDrag(dragAmount)
                 }
-            }
+            },
     ) {
         Box(
             modifier = Modifier
@@ -36,9 +33,9 @@ fun DraggableHandle(
                 .height(56.dp)
                 .background(
                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 ),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Box(
                 modifier = Modifier
@@ -46,8 +43,8 @@ fun DraggableHandle(
                     .height(40.dp)
                     .background(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        shape = RoundedCornerShape(2.dp)
-                    )
+                        shape = RoundedCornerShape(2.dp),
+                    ),
             )
         }
     }

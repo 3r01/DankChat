@@ -81,7 +81,7 @@ fun PrivMessageComposable(
             .alpha(message.textAlpha)
             .background(backgroundColor, highlightShape)
             .indication(interactionSource, ripple())
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         // Highlight type header (First Time Chat, Elevated Chat)
         if (message.highlightHeader != null) {
@@ -89,14 +89,14 @@ fun PrivMessageComposable(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 val headerColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Chat,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = headerColor
+                    tint = headerColor,
                 )
                 Text(
                     text = message.highlightHeader.resolve(),
@@ -104,7 +104,7 @@ fun PrivMessageComposable(
                     fontWeight = FontWeight.Medium,
                     color = headerColor,
                     maxLines = 1,
-                    modifier = Modifier.padding(start = 4.dp)
+                    modifier = Modifier.padding(start = 4.dp),
                 )
             }
         }
@@ -116,14 +116,14 @@ fun PrivMessageComposable(
                     .fillMaxWidth()
                     .clickable { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) }
                     .padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 val replyColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Reply,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = replyColor
+                    tint = replyColor,
                 )
                 Text(
                     text = "Reply to @${message.thread.userName}: ${message.thread.message}",
@@ -131,7 +131,7 @@ fun PrivMessageComposable(
                     color = replyColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -146,7 +146,7 @@ fun PrivMessageComposable(
             backgroundColor = backgroundColor,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick
+            onEmoteClick = onEmoteClick,
         )
     }
 }
@@ -176,8 +176,8 @@ private fun PrivMessageText(
                 withStyle(
                     SpanStyle(
                         fontWeight = FontWeight.Bold,
-                        color = defaultTextColor
-                    )
+                        color = defaultTextColor,
+                    ),
                 ) {
                     append("#${message.channel.value} ")
                 }
@@ -202,12 +202,12 @@ private fun PrivMessageText(
                 withStyle(
                     SpanStyle(
                         fontWeight = FontWeight.Bold,
-                        color = nameColor
-                    )
+                        color = nameColor,
+                    ),
                 ) {
                     pushStringAnnotation(
                         tag = "USER",
-                        annotation = "${message.userId?.value ?: ""}|${message.userName.value}|${message.displayName.value}|${message.channel.value}"
+                        annotation = "${message.userId?.value ?: ""}|${message.userName.value}|${message.displayName.value}|${message.channel.value}",
                     )
                     append(message.nameText)
                     pop()
@@ -240,7 +240,7 @@ private fun PrivMessageText(
                             SpanStyle(
                                 color = emote.cheerColor ?: textColor,
                                 fontWeight = FontWeight.Bold,
-                            )
+                            ),
                         ) {
                             append(emote.cheerAmount.toString())
                         }
@@ -292,7 +292,7 @@ private fun PrivMessageText(
 
             when {
                 user != null -> onUserClick(user.userId, user.userName, user.displayName, user.channel.orEmpty(), message.badges, true)
-                else         -> onMessageLongClick(message.id, message.channel.value, message.fullMessage)
+                else -> onMessageLongClick(message.id, message.channel.value, message.fullMessage)
             }
         },
     )

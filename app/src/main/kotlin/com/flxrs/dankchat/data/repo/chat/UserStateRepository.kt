@@ -19,23 +19,18 @@ import kotlin.time.Duration.Companion.seconds
 
 @Single
 class UserStateRepository(private val preferenceStore: DankChatPreferenceStore) {
-
     private val _userState = MutableStateFlow(UserState())
     val userState = _userState.asStateFlow()
 
     suspend fun getLatestValidUserState(minChannelsSize: Int = 0): UserState = userState
         .filter {
             it.userId != null && it.userId.value.isNotBlank() && it.globalEmoteSets.isNotEmpty() && it.followerEmoteSets.size >= minChannelsSize
-        }.take(count = 1).single()
+        }.take(count = 1)
+        .single()
 
-    suspend fun tryGetUserStateOrFallback(
-        minChannelsSize: Int,
-        initialTimeout: Duration = IRC_TIMEOUT_DELAY,
-        fallbackTimeout: Duration = IRC_TIMEOUT_SHORT_DELAY
-    ): UserState? {
-        return withTimeoutOrNull(initialTimeout) { getLatestValidUserState(minChannelsSize) }
+    suspend fun tryGetUserStateOrFallback(minChannelsSize: Int, initialTimeout: Duration = IRC_TIMEOUT_DELAY, fallbackTimeout: Duration = IRC_TIMEOUT_SHORT_DELAY): UserState? =
+        withTimeoutOrNull(initialTimeout) { getLatestValidUserState(minChannelsSize) }
             ?: withTimeoutOrNull(fallbackTimeout) { getLatestValidUserState(minChannelsSize = 0) }
-    }
 
     fun isModeratorInChannel(channel: UserName?): Boolean = channel != null && channel in userState.value.moderationChannels
 
@@ -51,13 +46,17 @@ class UserStateRepository(private val preferenceStore: DankChatPreferenceStore) 
                 userId = id ?: current.userId,
                 color = color ?: current.color,
                 displayName = name ?: current.displayName,
-                globalEmoteSets = sets ?: current.globalEmoteSets
+                globalEmoteSets = sets ?: current.globalEmoteSets,
             )
         }
     }
 
     fun handleUserState(msg: IrcMessage) {
-        val channel = msg.params.getOrNull(0)?.substring(1)?.toUserName() ?: return
+        val channel =
+            msg.params
+                .getOrNull(0)
+                ?.substring(1)
+                ?.toUserName() ?: return
         val id = msg.tags["user-id"]?.toUserId()
         val sets = msg.tags["emote-sets"]?.split(",").orEmpty()
         val color = msg.tags["color"]?.ifBlank { null }
@@ -67,24 +66,26 @@ class UserStateRepository(private val preferenceStore: DankChatPreferenceStore) 
         val hasModeration = (badges?.any { it.contains("broadcaster") || it.contains("moderator") } == true) || userType == "mod"
         preferenceStore.displayName = name
         _userState.update { current ->
-            val followerEmotes = when {
-                current.globalEmoteSets.isNotEmpty() -> sets - current.globalEmoteSets.toSet()
-                else                                 -> emptyList()
-            }
+            val followerEmotes =
+                when {
+                    current.globalEmoteSets.isNotEmpty() -> sets - current.globalEmoteSets.toSet()
+                    else -> emptyList()
+                }
             val newFollowerEmoteSets = current.followerEmoteSets.toMutableMap()
             newFollowerEmoteSets[channel] = followerEmotes
 
-            val newModerationChannels = when {
-                hasModeration -> current.moderationChannels + channel
-                else          -> current.moderationChannels
-            }
+            val newModerationChannels =
+                when {
+                    hasModeration -> current.moderationChannels + channel
+                    else -> current.moderationChannels
+                }
 
             current.copy(
                 userId = id ?: current.userId,
                 color = color ?: current.color,
                 displayName = name ?: current.displayName,
                 followerEmoteSets = newFollowerEmoteSets,
-                moderationChannels = newModerationChannels
+                moderationChannels = newModerationChannels,
             )
         }
     }

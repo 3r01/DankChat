@@ -50,17 +50,12 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmoteMenu(
-    onEmoteClick: (String, String) -> Unit,
-    onBackspace: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: EmoteMenuViewModel = koinViewModel(),
-) {
+fun EmoteMenu(onEmoteClick: (String, String) -> Unit, onBackspace: () -> Unit, modifier: Modifier = Modifier, viewModel: EmoteMenuViewModel = koinViewModel()) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { tabItems.size }
+        pageCount = { tabItems.size },
     )
     val subsGridState = rememberLazyGridState()
     val subsFirstHeader = tabItems.getOrNull(EmoteMenuTab.SUBS.ordinal)
@@ -72,12 +67,12 @@ fun EmoteMenu(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surfaceContainerHighest
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             PrimaryTabRow(
                 selectedTabIndex = pagerState.currentPage,
-                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             ) {
                 tabItems.forEachIndexed { index, tabItem ->
                     Tab(
@@ -86,13 +81,13 @@ fun EmoteMenu(
                         text = {
                             Text(
                                 text = when (tabItem.type) {
-                                    EmoteMenuTab.RECENT  -> stringResource(R.string.emote_menu_tab_recent)
-                                    EmoteMenuTab.SUBS    -> stringResource(R.string.emote_menu_tab_subs)
+                                    EmoteMenuTab.RECENT -> stringResource(R.string.emote_menu_tab_recent)
+                                    EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
                                     EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
-                                    EmoteMenuTab.GLOBAL  -> stringResource(R.string.emote_menu_tab_global)
-                                }
+                                    EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
+                                },
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -104,7 +99,7 @@ fun EmoteMenu(
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize(),
-                    beyondViewportPageCount = 1
+                    beyondViewportPageCount = 1,
                 ) { page ->
                     val tab = tabItems[page]
                     val items = tab.items
@@ -116,7 +111,7 @@ fun EmoteMenu(
                                 text = stringResource(R.string.no_recent_emotes),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 160.dp) // Offset below logo
+                                modifier = Modifier.padding(top = 160.dp), // Offset below logo
                             )
                         }
                     } else {
@@ -127,28 +122,28 @@ fun EmoteMenu(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 56.dp + navBarBottomDp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             items(
                                 items = items,
                                 key = { item ->
                                     when (item) {
-                                        is EmoteItem.Emote  -> "emote-${item.emote.id}-${item.emote.code}"
+                                        is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
                                         is EmoteItem.Header -> "header-${item.title}"
                                     }
                                 },
                                 span = { item ->
                                     when (item) {
                                         is EmoteItem.Header -> GridItemSpan(maxLineSpan)
-                                        is EmoteItem.Emote  -> GridItemSpan(1)
+                                        is EmoteItem.Emote -> GridItemSpan(1)
                                     }
                                 },
                                 contentType = { item ->
                                     when (item) {
                                         is EmoteItem.Header -> "header"
-                                        is EmoteItem.Emote  -> "emote"
+                                        is EmoteItem.Emote -> "emote"
                                     }
-                                }
+                                },
                             ) { item ->
                                 when (item) {
                                     is EmoteItem.Header -> {
@@ -157,18 +152,18 @@ fun EmoteMenu(
                                             style = MaterialTheme.typography.titleMedium,
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(vertical = 8.dp)
+                                                .padding(vertical = 8.dp),
                                         )
                                     }
 
-                                    is EmoteItem.Emote  -> {
+                                    is EmoteItem.Emote -> {
                                         AsyncImage(
                                             model = item.emote.url,
                                             contentDescription = item.emote.code,
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .aspectRatio(1f)
-                                                .clickable { onEmoteClick(item.emote.code, item.emote.id) }
+                                                .clickable { onEmoteClick(item.emote.code, item.emote.id) },
                                         )
                                     }
                                 }

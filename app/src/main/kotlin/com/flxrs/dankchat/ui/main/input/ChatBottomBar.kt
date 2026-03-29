@@ -60,7 +60,7 @@ fun ChatBottomBar(
             enter = EnterTransition.None,
             exit = when {
                 instantHide -> ExitTransition.None
-                else        -> slideOutVertically(targetOffsetY = { it })
+                else -> slideOutVertically(targetOffsetY = { it })
             },
         ) {
             ChatInputLayout(
@@ -82,7 +82,7 @@ fun ChatBottomBar(
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     onInputHeightChange(coordinates.size.height)
-                }
+                },
             )
         }
 
@@ -100,14 +100,15 @@ fun ChatBottomBar(
                         PaddingValues(start = 16.dp, end = rcPadding.calculateEndPadding(direction))
                     }
 
-                    isFullscreen                    -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
-                    else                            -> PaddingValues(horizontal = 16.dp)
+                    isFullscreen -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+
+                    else -> PaddingValues(horizontal = 16.dp)
                 }
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .onGloballyPositioned { onHelperTextHeightChange(it.size.height) }
+                        .onGloballyPositioned { onHelperTextHeightChange(it.size.height) },
                 ) {
                     Text(
                         text = helperText,
@@ -120,7 +121,7 @@ fun ChatBottomBar(
                             .padding(horizontalPadding)
                             .padding(vertical = 6.dp)
                             .basicMarquee(),
-                        textAlign = TextAlign.Start
+                        textAlign = TextAlign.Start,
                     )
                 }
             }

@@ -39,7 +39,8 @@ enum class TwitchCommand(val trigger: String) {
     Unvip(trigger = "unvip"),
     Vip(trigger = "vip"),
     Vips(trigger = "vips"),
-    Whisper(trigger = "w");
+    Whisper(trigger = "w"),
+    ;
 
     companion object {
         val ALL_COMMANDS = TwitchCommand.entries

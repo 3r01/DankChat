@@ -31,18 +31,19 @@ suspend fun <T : View> BottomSheetBehavior<T>.awaitState(targetState: Int) {
     }
 
     return suspendCancellableCoroutine {
-        val callback = object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                if (newState == targetState) {
-                    removeBottomSheetCallback(this)
-                    it.resume(Unit)
+        val callback =
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) = Unit
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if (newState == targetState) {
+                        removeBottomSheetCallback(this)
+                        it.resume(Unit)
+                    }
                 }
             }
-        }
         addBottomSheetCallback(callback)
         it.invokeOnCancellation { removeBottomSheetCallback(callback) }
         state = targetState
     }
 }
-

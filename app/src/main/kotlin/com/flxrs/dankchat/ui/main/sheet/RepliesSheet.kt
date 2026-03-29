@@ -58,7 +58,7 @@ fun RepliesSheet(
 ) {
     val viewModel: RepliesViewModel = koinViewModel(
         key = rootMessageId,
-        parameters = { parametersOf(rootMessageId) }
+        parameters = { parametersOf(rootMessageId) },
     )
     val density = LocalDensity.current
     var backProgress by remember { mutableFloatStateOf(0f) }
@@ -103,7 +103,7 @@ fun RepliesSheet(
                 scaleY = scale
                 alpha = 1f - backProgress
                 translationY = backProgress * 100f
-            }
+            },
     ) {
         RepliesComposable(
             repliesViewModel = viewModel,
@@ -130,8 +130,8 @@ fun RepliesSheet(
                         brush = Brush.verticalGradient(
                             0f to sheetBackgroundColor.copy(alpha = 0.7f),
                             0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            1f to sheetBackgroundColor.copy(alpha = 0f)
-                        )
+                            1f to sheetBackgroundColor.copy(alpha = 0f),
+                        ),
                     )
                     .padding(top = statusBarHeight + 8.dp)
                     .padding(bottom = 16.dp)
@@ -139,7 +139,7 @@ fun RepliesSheet(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.Top,
                 ) {
                     Surface(
                         shape = MaterialTheme.shapes.extraLarge,
@@ -148,7 +148,7 @@ fun RepliesSheet(
                         IconButton(onClick = onDismiss) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back)
+                                contentDescription = stringResource(R.string.back),
                             )
                         }
                     }
@@ -156,13 +156,13 @@ fun RepliesSheet(
                     Surface(
                         shape = MaterialTheme.shapes.extraLarge,
                         color = MaterialTheme.colorScheme.surfaceContainer,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.padding(start = 8.dp),
                     ) {
                         Text(
                             text = stringResource(R.string.replies_title),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                         )
                     }
                 }
@@ -175,7 +175,7 @@ fun RepliesSheet(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .height(statusBarHeight)
-                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
             )
         }
     }

@@ -55,73 +55,79 @@ class MessageHistoryViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
-
-    val chatDisplaySettings: StateFlow<ChatDisplaySettings> = combine(
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { appearance, chat ->
-        ChatDisplaySettings(
-            fontSize = appearance.fontSize.toFloat(),
-            showLineSeparator = appearance.lineSeparator,
-            animateGifs = chat.animateGifs,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
+    val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
+        combine(
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { appearance, chat ->
+            ChatDisplaySettings(
+                fontSize = appearance.fontSize.toFloat(),
+                showLineSeparator = appearance.lineSeparator,
+                animateGifs = chat.animateGifs,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     val searchFieldState = TextFieldState()
 
-    private val searchQuery = snapshotFlow { searchFieldState.text.toString() }
-        .distinctUntilChanged()
+    private val searchQuery =
+        snapshotFlow { searchFieldState.text.toString() }
+            .distinctUntilChanged()
 
-    private val filters: Flow<List<ChatSearchFilter>> = merge(
-        searchQuery.take(1),
-        searchQuery.drop(1).debounce(300),
-    )
-        .map { ChatSearchFilterParser.parse(it) }
-        .distinctUntilChanged()
+    private val filters: Flow<List<ChatSearchFilter>> =
+        merge(
+            searchQuery.take(1),
+            searchQuery.drop(1).debounce(300),
+        ).map { ChatSearchFilterParser.parse(it) }
+            .distinctUntilChanged()
 
-    val historyUiStates: Flow<List<ChatMessageUiState>> = combine(
-        chatMessageRepository.getChat(channel),
-        filters,
-        appearanceSettingsDataStore.settings,
-        chatSettingsDataStore.settings,
-    ) { messages, activeFilters, appearanceSettings, chatSettings ->
-        messages
-            .filter { ChatItemFilter.matches(it, activeFilters) }
-            .mapIndexed { index, item ->
-                val altBg = index.isEven && appearanceSettings.checkeredMessages
-                chatMessageMapper.mapToUiState(
-                    item = item,
-                    chatSettings = chatSettings,
-                    preferenceStore = preferenceStore,
-                    isAlternateBackground = altBg,
-                )
-            }
-    }.flowOn(Dispatchers.Default)
+    val historyUiStates: Flow<List<ChatMessageUiState>> =
+        combine(
+            chatMessageRepository.getChat(channel),
+            filters,
+            appearanceSettingsDataStore.settings,
+            chatSettingsDataStore.settings,
+        ) { messages, activeFilters, appearanceSettings, chatSettings ->
+            messages
+                .filter { ChatItemFilter.matches(it, activeFilters) }
+                .mapIndexed { index, item ->
+                    val altBg = index.isEven && appearanceSettings.checkeredMessages
+                    chatMessageMapper.mapToUiState(
+                        item = item,
+                        chatSettings = chatSettings,
+                        preferenceStore = preferenceStore,
+                        isAlternateBackground = altBg,
+                    )
+                }
+        }.flowOn(Dispatchers.Default)
 
-    private val users: StateFlow<ImmutableSet<DisplayName>> = usersRepository.getUsersFlow(channel)
-        .map { it.toImmutableSet() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
+    private val users: StateFlow<ImmutableSet<DisplayName>> =
+        usersRepository
+            .getUsersFlow(channel)
+            .map { it.toImmutableSet() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
-    private val badgeNames: StateFlow<ImmutableSet<String>> = chatMessageRepository.getChat(channel)
-        .map { items ->
-            items.asSequence()
-                .map { it.message }
-                .filterIsInstance<PrivMessage>()
-                .flatMap { it.badges }
-                .mapNotNull { it.badgeTag?.substringBefore('/') }
-                .toImmutableSet()
-        }
-        .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
+    private val badgeNames: StateFlow<ImmutableSet<String>> =
+        chatMessageRepository
+            .getChat(channel)
+            .map { items ->
+                items
+                    .asSequence()
+                    .map { it.message }
+                    .filterIsInstance<PrivMessage>()
+                    .flatMap { it.badges }
+                    .mapNotNull { it.badgeTag?.substringBefore('/') }
+                    .toImmutableSet()
+            }.flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
-    val filterSuggestions: StateFlow<ImmutableList<Suggestion>> = combine(
-        searchQuery,
-        users,
-        badgeNames,
-    ) { query, userSet, badges ->
-        SearchFilterSuggestions.filter(query, users = userSet, badgeNames = badges).toImmutableList()
-    }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
+    val filterSuggestions: StateFlow<ImmutableList<Suggestion>> =
+        combine(
+            searchQuery,
+            users,
+            badgeNames,
+        ) { query, userSet, badges ->
+            SearchFilterSuggestions.filter(query, users = userSet, badgeNames = badges).toImmutableList()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     fun setInitialQuery(query: String) {
         if (query.isNotEmpty()) {
@@ -143,15 +149,17 @@ class MessageHistoryViewModel(
     fun applySuggestion(suggestion: Suggestion) {
         val currentText = searchFieldState.text.toString()
         val lastSpaceIndex = currentText.trimEnd().lastIndexOf(' ')
-        val prefix = when {
-            lastSpaceIndex >= 0 -> currentText.substring(0, lastSpaceIndex + 1)
-            else                -> ""
-        }
+        val prefix =
+            when {
+                lastSpaceIndex >= 0 -> currentText.substring(0, lastSpaceIndex + 1)
+                else -> ""
+            }
         val keyword = suggestion.toString()
-        val suffix = when {
-            keyword.endsWith(':') -> ""
-            else                  -> " "
-        }
+        val suffix =
+            when {
+                keyword.endsWith(':') -> ""
+                else -> " "
+            }
         val newText = prefix + keyword + suffix
         searchFieldState.edit {
             replace(0, length, newText)

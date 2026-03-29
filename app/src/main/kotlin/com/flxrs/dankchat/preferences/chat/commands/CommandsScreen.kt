@@ -73,11 +73,7 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun CustomCommandsScreen(
-    initialCommands: ImmutableList<CustomCommand>,
-    onSaveAndNavBack: (List<CustomCommand>) -> Unit,
-    onSave: (List<CustomCommand>) -> Unit,
-) {
+private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, onSaveAndNavBack: (List<CustomCommand>) -> Unit, onSave: (List<CustomCommand>) -> Unit) {
     val focusManager = LocalFocusManager.current
     val commands = remember { initialCommands.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -108,7 +104,7 @@ private fun CustomCommandsScreen(
                         onClick = { onSaveAndNavBack(commands) },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -125,7 +121,7 @@ private fun CustomCommandsScreen(
                         scope.launch {
                             when {
                                 listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                                else                       -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                                else -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
                             }
                         }
                     },
@@ -181,14 +177,7 @@ private fun CustomCommandsScreen(
 }
 
 @Composable
-private fun CustomCommandItem(
-    trigger: String,
-    command: String,
-    onTriggerChange: (String) -> Unit,
-    onCommandChange: (String) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun CustomCommandItem(trigger: String, command: String, onTriggerChange: (String) -> Unit, onCommandChange: (String) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {
@@ -218,7 +207,7 @@ private fun CustomCommandItem(
                 IconButton(
                     modifier = Modifier.align(Alignment.Top),
                     onClick = onRemove,
-                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_command)) }
+                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_command)) },
                 )
             }
         }

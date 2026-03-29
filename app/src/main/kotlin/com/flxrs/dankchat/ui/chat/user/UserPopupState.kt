@@ -8,7 +8,9 @@ import com.flxrs.dankchat.data.UserName
 @Immutable
 sealed interface UserPopupState {
     data class Loading(val userName: UserName, val displayName: DisplayName) : UserPopupState
+
     data class Error(val throwable: Throwable? = null) : UserPopupState
+
     data class Success(
         val userId: UserId,
         val userName: UserName,
@@ -17,6 +19,6 @@ sealed interface UserPopupState {
         val avatarUrl: String,
         val showFollowingSince: Boolean = false,
         val followingSince: String? = null,
-        val isBlocked: Boolean = false
+        val isBlocked: Boolean = false,
     ) : UserPopupState
 }

@@ -29,11 +29,11 @@ fun Int.normalizeColor(@ColorInt background: Int): Int {
     var low: Float
     var high: Float
     if (shouldLighten) {
-        low = hsl[2]   // original lightness
-        high = 1f      // max lightness
+        low = hsl[2] // original lightness
+        high = 1f // max lightness
     } else {
-        low = 0f       // min lightness
-        high = hsl[2]  // original lightness
+        low = 0f // min lightness
+        high = hsl[2] // original lightness
     }
 
     var bestL = hsl[2]

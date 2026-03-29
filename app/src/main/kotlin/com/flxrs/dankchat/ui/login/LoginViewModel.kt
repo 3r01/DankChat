@@ -12,11 +12,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class LoginViewModel(
-    private val authApiClient: AuthApiClient,
-    private val authDataStore: AuthDataStore,
-) : ViewModel() {
-
+class LoginViewModel(private val authApiClient: AuthApiClient, private val authDataStore: AuthDataStore) : ViewModel() {
     data class TokenParseEvent(val successful: Boolean)
 
     private val eventChannel = Channel<TokenParseEvent>(Channel.BUFFERED)
@@ -30,17 +26,19 @@ class LoginViewModel(
             return@launch
         }
 
-        val token = fragment
-            .substringAfter("access_token=")
-            .substringBefore("&scope=")
+        val token =
+            fragment
+                .substringAfter("access_token=")
+                .substringBefore("&scope=")
 
-        val result = authApiClient.validateUser(token).fold(
-            onSuccess = { saveLoginDetails(token, it) },
-            onFailure = {
-                Log.e(TAG, "Failed to validate token: ${it.message}")
-                TokenParseEvent(successful = false)
-            }
-        )
+        val result =
+            authApiClient.validateUser(token).fold(
+                onSuccess = { saveLoginDetails(token, it) },
+                onFailure = {
+                    Log.e(TAG, "Failed to validate token: ${it.message}")
+                    TokenParseEvent(successful = false)
+                },
+            )
         eventChannel.send(result)
     }
 

@@ -2,9 +2,9 @@ package com.flxrs.dankchat.ui.main.input
 
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -86,22 +86,22 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.utils.resolve
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Constraints
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
+import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
@@ -152,11 +152,11 @@ fun ChatInputLayout(
 
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
-        InputState.Default      -> stringResource(R.string.hint_connected)
-        InputState.Replying     -> stringResource(R.string.hint_replying)
-        InputState.Announcing   -> stringResource(R.string.hint_announcing)
-        InputState.Whispering   -> stringResource(R.string.hint_whispering)
-        InputState.NotLoggedIn  -> stringResource(R.string.hint_not_logged_int)
+        InputState.Default -> stringResource(R.string.hint_connected)
+        InputState.Replying -> stringResource(R.string.hint_replying)
+        InputState.Announcing -> stringResource(R.string.hint_announcing)
+        InputState.Whispering -> stringResource(R.string.hint_whispering)
+        InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
         InputState.Disconnected -> stringResource(R.string.hint_disconnected)
     }
 
@@ -167,7 +167,7 @@ fun ChatInputLayout(
         focusedIndicatorColor = Color.Transparent,
         unfocusedIndicatorColor = Color.Transparent,
         disabledIndicatorColor = Color.Transparent,
-        errorIndicatorColor = Color.Transparent
+        errorIndicatorColor = Color.Transparent,
     )
     val defaultColors = TextFieldDefaults.colors()
     val surfaceColor = if (enabled) {
@@ -180,10 +180,10 @@ fun ChatInputLayout(
     val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive, debugMode) {
         inputActions.filter { action ->
             when (action) {
-                InputAction.Stream     -> hasStreamData || isStreamActive
+                InputAction.Stream -> hasStreamData || isStreamActive
                 InputAction.ModActions -> isModerator
-                InputAction.Debug      -> debugMode
-                else                   -> true
+                InputAction.Debug -> debugMode
+                else -> true
             }
         }.toImmutableList()
     }
@@ -193,31 +193,31 @@ fun ChatInputLayout(
     var showConfigSheet by remember { mutableStateOf(false) }
     val topEndRadius by animateDpAsState(
         targetValue = if (quickActionsExpanded) 0.dp else 24.dp,
-        label = "topEndCornerRadius"
+        label = "topEndCornerRadius",
     )
 
     val inputContent: @Composable () -> Unit = {
         Surface(
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = topEndRadius),
             color = surfaceColor,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
+                    .navigationBarsPadding(),
             ) {
                 // Input mode overlay header
                 AnimatedVisibility(
                     visible = overlay != InputOverlay.None,
                     enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
+                    exit = shrinkVertically() + fadeOut(),
                 ) {
                     val headerText = when (overlay) {
-                        is InputOverlay.Reply    -> stringResource(R.string.reply_header, overlay.name.value)
-                        is InputOverlay.Whisper  -> stringResource(R.string.whisper_header, overlay.target.value)
+                        is InputOverlay.Reply -> stringResource(R.string.reply_header, overlay.name.value)
+                        is InputOverlay.Whisper -> stringResource(R.string.whisper_header, overlay.target.value)
                         is InputOverlay.Announce -> stringResource(R.string.mod_actions_announce_header)
-                        InputOverlay.None        -> ""
+                        InputOverlay.None -> ""
                     }
                     InputOverlayHeader(
                         text = headerText,
@@ -240,13 +240,14 @@ fun ChatInputLayout(
                             modifier = Modifier.height(IntrinsicSize.Min),
                         ) {
                             when (characterCounter) {
-                                is CharacterCounterState.Hidden  -> Unit
+                                is CharacterCounterState.Hidden -> Unit
+
                                 is CharacterCounterState.Visible -> {
                                     Text(
                                         text = characterCounter.text,
                                         color = when {
                                             characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
-                                            else                         -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
                                         },
                                         style = MaterialTheme.typography.labelSmall,
                                     )
@@ -273,10 +274,10 @@ fun ChatInputLayout(
                     shape = RoundedCornerShape(0.dp),
                     lineLimits = TextFieldLineLimits.MultiLine(
                         minHeightInLines = 1,
-                        maxHeightInLines = 5
+                        maxHeightInLines = 5,
                     ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    onKeyboardAction = { if (canSend) onSend() }
+                    onKeyboardAction = { if (canSend) onSend() },
                 )
 
                 // Helper text (roomstate + live info)
@@ -286,7 +287,7 @@ fun ChatInputLayout(
                 AnimatedVisibility(
                     visible = !helperText.isEmpty,
                     enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
+                    exit = shrinkVertically() + fadeOut(),
                 ) {
                     val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
                     val textMeasurer = rememberTextMeasurer()
@@ -340,12 +341,12 @@ fun ChatInputLayout(
                 AnimatedVisibility(
                     visible = isUploading || isLoading,
                     enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
+                    exit = shrinkVertically() + fadeOut(),
                 ) {
                     LinearProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
 
@@ -435,13 +436,13 @@ fun ChatInputLayout(
                 tourState = tourState,
                 onActionClick = { action ->
                     when (action) {
-                        InputAction.Search      -> onSearchClick()
+                        InputAction.Search -> onSearchClick()
                         InputAction.LastMessage -> onLastMessageClick()
-                        InputAction.Stream      -> onToggleStream()
-                        InputAction.ModActions  -> onModActions()
-                        InputAction.Fullscreen  -> onToggleFullscreen()
-                        InputAction.HideInput   -> onToggleInput()
-                        InputAction.Debug       -> onDebugInfoClick()
+                        InputAction.Stream -> onToggleStream()
+                        InputAction.ModActions -> onModActions()
+                        InputAction.Fullscreen -> onToggleFullscreen()
+                        InputAction.HideInput -> onToggleInput()
+                        InputAction.Debug -> onDebugInfoClick()
                     }
                     onOverflowExpandedChange(false)
                 },
@@ -464,16 +465,10 @@ fun ChatInputLayout(
 }
 
 @Composable
-private fun SendButton(
-    enabled: Boolean,
-    isRepeatedSendEnabled: Boolean,
-    onSend: () -> Unit,
-    onRepeatedSendChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun SendButton(enabled: Boolean, isRepeatedSendEnabled: Boolean, onSend: () -> Unit, onRepeatedSendChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
     val contentColor = when {
         !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-        else     -> MaterialTheme.colorScheme.primary
+        else -> MaterialTheme.colorScheme.primary
     }
 
     val gestureModifier = when {
@@ -488,13 +483,13 @@ private fun SendButton(
             )
         }
 
-        enabled                          -> Modifier.clickable(
+        enabled -> Modifier.clickable(
             interactionSource = null,
             indication = null,
             onClick = onSend,
         )
 
-        else                             -> Modifier
+        else -> Modifier
     }
 
     Box(
@@ -529,29 +524,33 @@ private fun InputActionButton(
     onDebugInfoClick: () -> Unit = {},
 ) {
     val (icon, contentDescription, onClick) = when (action) {
-        InputAction.Search      -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
+        InputAction.Search -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
+
         InputAction.LastMessage -> Triple(Icons.Default.History, R.string.resume_scroll, onLastMessageClick)
-        InputAction.Stream      -> Triple(
+
+        InputAction.Stream -> Triple(
             if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
             R.string.toggle_stream,
             onToggleStream,
         )
 
-        InputAction.ModActions  -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
-        InputAction.Fullscreen  -> Triple(
+        InputAction.ModActions -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
+
+        InputAction.Fullscreen -> Triple(
             if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
             R.string.toggle_fullscreen,
             onToggleFullscreen,
         )
 
-        InputAction.HideInput   -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
-        InputAction.Debug       -> Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
+        InputAction.HideInput -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
+
+        InputAction.Debug -> Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
     }
 
     val actionEnabled = when (action) {
         InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-        InputAction.LastMessage                                                              -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.ModActions                                           -> enabled
+        InputAction.LastMessage -> enabled && hasLastMessage
+        InputAction.Stream, InputAction.ModActions -> enabled
     }
 
     IconButton(
@@ -567,38 +566,35 @@ private fun InputActionButton(
 }
 
 @Composable
-private fun InputOverlayHeader(
-    text: String,
-    onDismiss: () -> Unit,
-) {
+private fun InputOverlayHeader(text: String, onDismiss: () -> Unit) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
+                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
         ) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.dialog_dismiss),
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(16.dp),
                 )
             }
         }
         HorizontalDivider(
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
     }
 }
@@ -636,7 +632,7 @@ private fun InputActionsRow(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     ) {
         val iconSize = 40.dp
         // Fixed slots: emote + overflow + send (+ whisper if present)
@@ -649,7 +645,7 @@ private fun InputActionsRow(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             // Emote/Keyboard Button (start-aligned, always visible)
             IconButton(
@@ -660,12 +656,12 @@ private fun InputActionsRow(
                     onEmoteClick()
                 },
                 enabled = enabled && !tourState.isTourActive,
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier.size(iconSize),
             ) {
                 Icon(
                     imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
                     contentDescription = stringResource(
-                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint
+                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,
                     ),
                 )
             }
@@ -751,12 +747,12 @@ private fun EndAlignedActionGroup(
                         onOverflowExpandedChange(!quickActionsExpanded)
                     }
                 },
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier.size(iconSize),
             ) {
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = stringResource(R.string.more),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -774,7 +770,7 @@ private fun EndAlignedActionGroup(
     if (onNewWhisper != null) {
         IconButton(
             onClick = onNewWhisper,
-            modifier = Modifier.size(iconSize)
+            modifier = Modifier.size(iconSize),
         ) {
             Icon(
                 imageVector = Icons.Default.AddComment,
@@ -818,5 +814,3 @@ private fun EndAlignedActionGroup(
         modifier = Modifier.size(44.dp),
     )
 }
-
-

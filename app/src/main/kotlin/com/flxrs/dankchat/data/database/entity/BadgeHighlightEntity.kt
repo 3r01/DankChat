@@ -11,10 +11,8 @@ data class BadgeHighlightEntity(
     val enabled: Boolean,
     val badgeName: String,
     val isCustom: Boolean,
-
     @ColumnInfo(name = "create_notification")
     val createNotification: Boolean = false,
-
     @ColumnInfo(name = "custom_color")
-    val customColor: Int? = null
+    val customColor: Int? = null,
 )

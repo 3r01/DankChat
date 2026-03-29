@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.em
  * - Username colors
  * - Emotes and badges (via InlineTextContent)
  * - Clickable spans (usernames, links, emotes)
- * 
+ *
  * NOTE: fontSize should come from appearanceSettings.fontSize, not be hardcoded
  * NOTE: nameColor should come from the message's nameColor, not be hardcoded
  */
@@ -54,7 +54,7 @@ fun ChatMessageText(
                         fontSize = fontSize * 0.95f,
                         color = timestampColor,
                         letterSpacing = (-0.03).em,
-                    )
+                    ),
                 ) {
                     append(timestamp)
                 }
@@ -66,8 +66,8 @@ fun ChatMessageText(
                 withStyle(
                     SpanStyle(
                         color = defaultNameColor,
-                        fontWeight = FontWeight.Bold
-                    )
+                        fontWeight = FontWeight.Bold,
+                    ),
                 ) {
                     append(nameText)
                 }
@@ -81,8 +81,8 @@ fun ChatMessageText(
             // Add message text
             withStyle(
                 SpanStyle(
-                    color = if (isAction) defaultNameColor else defaultTextColor
-                )
+                    color = if (isAction) defaultNameColor else defaultTextColor,
+                ),
             ) {
                 append(text)
             }
@@ -93,7 +93,7 @@ fun ChatMessageText(
         BasicText(
             text = annotatedString,
             modifier = Modifier.fillMaxWidth(),
-            inlineContent = inlineContent
+            inlineContent = inlineContent,
         )
     }
 }

@@ -12,6 +12,5 @@ value class UserId(val value: String) : Parcelable {
 }
 
 fun String.toUserId() = UserId(this)
-inline fun UserId.ifBlank(default: () -> UserId?): UserId? {
-    return if (value.isBlank()) default() else this
-}
+
+inline fun UserId.ifBlank(default: () -> UserId?): UserId? = if (value.isBlank()) default() else this

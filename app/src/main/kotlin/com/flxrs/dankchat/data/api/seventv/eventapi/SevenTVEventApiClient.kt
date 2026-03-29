@@ -60,14 +60,17 @@ class SevenTVEventApiClient(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private var socket: WebSocket? = null
-    private val request = Request.Builder()
-        .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
-        .url("wss://events.7tv.io/v3")
-        .build()
+    private val request =
+        Request
+            .Builder()
+            .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
+            .url("wss://events.7tv.io/v3")
+            .build()
 
-    private val json = Json(defaultJson) {
-        encodeDefaults = true
-    }
+    private val json =
+        Json(defaultJson) {
+            encodeDefaults = true
+        }
 
     private var connecting = false
     private var connected = false
@@ -93,21 +96,22 @@ class SevenTVEventApiClient(
                 .collectLatest { enabled ->
                     when {
                         enabled && !connected && !connecting -> start()
-                        else                                 -> close()
+                        else -> close()
                     }
                     if (enabled) {
                         appLifecycleListener.appState
                             .debounce(FLOW_DEBOUNCE)
                             .collectLatest { state ->
                                 if (state == Background) {
-                                    val timeout = when (chatSettingsDataStore.settings.first().sevenTVLiveEmoteUpdatesBehavior) {
-                                        LiveUpdatesBackgroundBehavior.Always        -> return@collectLatest
-                                        LiveUpdatesBackgroundBehavior.Never         -> Duration.ZERO
-                                        LiveUpdatesBackgroundBehavior.FiveMinutes   -> 5.minutes
-                                        LiveUpdatesBackgroundBehavior.OneHour       -> 1.hours
-                                        LiveUpdatesBackgroundBehavior.OneMinute     -> 1.minutes
-                                        LiveUpdatesBackgroundBehavior.ThirtyMinutes -> 30.minutes
-                                    }
+                                    val timeout =
+                                        when (chatSettingsDataStore.settings.first().sevenTVLiveEmoteUpdatesBehavior) {
+                                            LiveUpdatesBackgroundBehavior.Always -> return@collectLatest
+                                            LiveUpdatesBackgroundBehavior.Never -> Duration.ZERO
+                                            LiveUpdatesBackgroundBehavior.FiveMinutes -> 5.minutes
+                                            LiveUpdatesBackgroundBehavior.OneHour -> 1.hours
+                                            LiveUpdatesBackgroundBehavior.OneMinute -> 1.minutes
+                                            LiveUpdatesBackgroundBehavior.ThirtyMinutes -> 30.minutes
+                                        }
 
                                     Log.d(TAG, "[7TV Event-Api] Sleeping for $timeout until connection is closed")
                                     delay(timeout)
@@ -230,7 +234,7 @@ class SevenTVEventApiClient(
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             Log.e(TAG, "[7TV Event-Api] connection failed: $t")
-            Log.e(TAG, "[7TV Event-Api] attempting to reconnect #${reconnectAttempts}..")
+            Log.e(TAG, "[7TV Event-Api] attempting to reconnect #$reconnectAttempts..")
             connected = false
             connecting = false
             heartBeatJob?.cancel()
@@ -246,13 +250,14 @@ class SevenTVEventApiClient(
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
-            val message = runCatching { json.decodeFromString<DataMessage>(text) }.getOrElse {
-                Log.d(TAG, "Failed to parse incoming message: ", it)
-                return
-            }
+            val message =
+                runCatching { json.decodeFromString<DataMessage>(text) }.getOrElse {
+                    Log.d(TAG, "Failed to parse incoming message: ", it)
+                    return
+                }
 
             when (message) {
-                is HelloMessage       -> {
+                is HelloMessage -> {
                     heartBeatInterval = message.d.heartBeatInterval.milliseconds
                     heartBeatJob = setupHeartBeatInterval()
 
@@ -262,70 +267,87 @@ class SevenTVEventApiClient(
                     }
                 }
 
-                is HeartbeatMessage   -> lastHeartBeat = System.currentTimeMillis()
-                is DispatchMessage    -> message.handleMessage()
-                is ReconnectMessage   -> scope.launch { reconnect() }
-                is EndOfStreamMessage -> Unit
-                is AckMessage         -> Unit
+                is HeartbeatMessage -> {
+                    lastHeartBeat = System.currentTimeMillis()
+                }
+
+                is DispatchMessage -> {
+                    message.handleMessage()
+                }
+
+                is ReconnectMessage -> {
+                    scope.launch { reconnect() }
+                }
+
+                is EndOfStreamMessage -> {
+                    Unit
+                }
+
+                is AckMessage -> {
+                    Unit
+                }
             }
         }
-
     }
 
     private fun DispatchMessage.handleMessage() {
         when (d) {
-            is EmoteSetDispatchData -> with(d.body) {
-                val emoteSetId = id
-                val actorName = actor.displayName
-                val added = pushed?.mapNotNull {
-                    it.value ?: return@mapNotNull null
-
-                }
-                val removed = pulled?.mapNotNull {
-                    val removedData = it.oldValue ?: return@mapNotNull null
-                    SevenTVEventMessage.EmoteSetUpdated.RemovedEmote(removedData.id, removedData.name)
-                }
-                val updated = updated?.mapNotNull {
-                    val newData = it.value ?: return@mapNotNull null
-                    val oldData = it.oldValue ?: return@mapNotNull null
-                    SevenTVEventMessage.EmoteSetUpdated.UpdatedEmote(newData.id, newData.name, oldData.name)
-                }
-                scope.launch {
-                    _messages.emit(
-                        SevenTVEventMessage.EmoteSetUpdated(
-                            emoteSetId = emoteSetId,
-                            actorName = actorName,
-                            added = added.orEmpty(),
-                            removed = removed.orEmpty(),
-                            updated = updated.orEmpty(),
+            is EmoteSetDispatchData -> {
+                with(d.body) {
+                    val emoteSetId = id
+                    val actorName = actor.displayName
+                    val added =
+                        pushed?.mapNotNull {
+                            it.value ?: return@mapNotNull null
+                        }
+                    val removed =
+                        pulled?.mapNotNull {
+                            val removedData = it.oldValue ?: return@mapNotNull null
+                            SevenTVEventMessage.EmoteSetUpdated.RemovedEmote(removedData.id, removedData.name)
+                        }
+                    val updated =
+                        updated?.mapNotNull {
+                            val newData = it.value ?: return@mapNotNull null
+                            val oldData = it.oldValue ?: return@mapNotNull null
+                            SevenTVEventMessage.EmoteSetUpdated.UpdatedEmote(newData.id, newData.name, oldData.name)
+                        }
+                    scope.launch {
+                        _messages.emit(
+                            SevenTVEventMessage.EmoteSetUpdated(
+                                emoteSetId = emoteSetId,
+                                actorName = actorName,
+                                added = added.orEmpty(),
+                                removed = removed.orEmpty(),
+                                updated = updated.orEmpty(),
+                            ),
                         )
-                    )
+                    }
                 }
             }
 
-            is UserDispatchData     -> with(d.body) {
-                val actorName = actor.displayName
-                updated?.forEach { change ->
-                    val index = change.index
-                    val emoteSetChange = change.value?.filterIsInstance<EmoteSetChangeField>()?.firstOrNull() ?: return
-                    scope.launch {
-                        _messages.emit(
-                            SevenTVEventMessage.UserUpdated(
-                                actorName = actorName,
-                                connectionIndex = index,
-                                emoteSetId = emoteSetChange.value.id,
-                                oldEmoteSetId = emoteSetChange.oldValue.id
+            is UserDispatchData -> {
+                with(d.body) {
+                    val actorName = actor.displayName
+                    updated?.forEach { change ->
+                        val index = change.index
+                        val emoteSetChange = change.value?.filterIsInstance<EmoteSetChangeField>()?.firstOrNull() ?: return
+                        scope.launch {
+                            _messages.emit(
+                                SevenTVEventMessage.UserUpdated(
+                                    actorName = actorName,
+                                    connectionIndex = index,
+                                    emoteSetId = emoteSetChange.value.id,
+                                    oldEmoteSetId = emoteSetChange.oldValue.id,
+                                ),
                             )
-                        )
+                        }
                     }
                 }
             }
         }
     }
 
-    private inline fun <reified T> T.encodeOrNull(): String? {
-        return runCatching { json.encodeToString(this) }.getOrNull()
-    }
+    private inline fun <reified T> T.encodeOrNull(): String? = runCatching { json.encodeToString(this) }.getOrNull()
 
     data class Status(val connected: Boolean, val subscriptionCount: Int)
 

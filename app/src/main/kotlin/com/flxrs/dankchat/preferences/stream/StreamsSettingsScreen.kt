@@ -32,25 +32,19 @@ import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun StreamsSettingsScreen(
-    onBack: () -> Unit,
-) {
+fun StreamsSettingsScreen(onBack: () -> Unit) {
     val viewModel = koinViewModel<StreamsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
 
     StreamsSettingsContent(
         settings = settings,
         onInteraction = { viewModel.onInteraction(it) },
-        onBack = onBack
+        onBack = onBack,
     )
 }
 
 @Composable
-private fun StreamsSettingsContent(
-    settings: StreamsSettings,
-    onInteraction: (StreamsSettingsInteraction) -> Unit,
-    onBack: () -> Unit,
-) {
+private fun StreamsSettingsContent(settings: StreamsSettings, onInteraction: (StreamsSettingsInteraction) -> Unit, onBack: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -64,9 +58,9 @@ private fun StreamsSettingsContent(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
             modifier = Modifier
@@ -105,7 +99,7 @@ private fun StreamsSettingsContent(
             val activity = LocalActivity.current
             val pipAvailable = remember {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                        activity != null && activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+                    activity != null && activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
             }
             if (pipAvailable) {
                 SwitchPreferenceItem(

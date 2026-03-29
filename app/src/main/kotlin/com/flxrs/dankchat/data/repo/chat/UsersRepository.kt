@@ -16,6 +16,7 @@ class UsersRepository {
     private val userColors = LruCache<UserName, Int>(USER_COLOR_CACHE_SIZE)
 
     fun getUsersFlow(channel: UserName): StateFlow<Set<DisplayName>> = usersFlows.getOrPut(channel) { MutableStateFlow(emptySet()) }
+
     fun findDisplayName(channel: UserName, userName: UserName): DisplayName? = users[channel]?.get(userName)
 
     fun updateUsers(channel: UserName, new: List<Pair<UserName, DisplayName>>) {

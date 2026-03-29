@@ -16,33 +16,35 @@ class SessionDebugSection(
     private val chatChannelProvider: ChatChannelProvider,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : DebugSection {
-
     private val startMark = TimeSource.Monotonic.markNow()
 
     override val order = 1
     override val baseTitle = "Session"
 
     override fun entries(): Flow<DebugSectionSnapshot> {
-        val ticker = flow {
-            while (true) {
-                emit(Unit)
-                delay(1_000)
+        val ticker =
+            flow {
+                while (true) {
+                    emit(Unit)
+                    delay(1_000)
+                }
             }
-        }
         return combine(ticker, chatChannelProvider.channels) { _, channels ->
             val elapsed = startMark.elapsedNow()
             val hours = elapsed.inWholeHours
             val minutes = elapsed.inWholeMinutes % 60
             val seconds = elapsed.inWholeSeconds % 60
-            val uptime = buildString {
-                if (hours > 0) append("${hours}h ")
-                if (minutes > 0 || hours > 0) append("${minutes}m ")
-                append("${seconds}s")
-            }
+            val uptime =
+                buildString {
+                    if (hours > 0) append("${hours}h ")
+                    if (minutes > 0 || hours > 0) append("${minutes}m ")
+                    append("${seconds}s")
+                }
 
             DebugSectionSnapshot(
                 title = baseTitle,
-                entries = listOf(
+                entries =
+                listOf(
                     DebugEntry("Uptime", uptime),
                     DebugEntry("Send protocol", developerSettingsDataStore.current().chatSendProtocol.name),
                     DebugEntry("Total messages received", "${chatMessageRepository.sessionMessageCount}"),
@@ -50,7 +52,7 @@ class SessionDebugSection(
                     DebugEntry("Messages sent (Helix)", "${chatMessageRepository.helixSentCount}"),
                     DebugEntry("Send failures", "${chatMessageRepository.sendFailureCount}"),
                     DebugEntry("Active channels", "${channels?.size ?: 0}"),
-                )
+                ),
             )
         }
     }

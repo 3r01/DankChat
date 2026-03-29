@@ -6,14 +6,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal class SuggestionScoringTest {
-
-    private val provider = SuggestionProvider(
-        emoteRepository = mockk(),
-        usersRepository = mockk(),
-        commandRepository = mockk(),
-        emoteUsageRepository = mockk(),
-        emojiRepository = mockk(),
-    )
+    private val provider =
+        SuggestionProvider(
+            emoteRepository = mockk(),
+            usersRepository = mockk(),
+            commandRepository = mockk(),
+            emoteUsageRepository = mockk(),
+            emojiRepository = mockk(),
+        )
 
     @Test
     fun `exact full match scores lowest`() {

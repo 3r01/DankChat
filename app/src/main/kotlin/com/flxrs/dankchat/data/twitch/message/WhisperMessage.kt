@@ -39,9 +39,9 @@ data class WhisperMessage(
     override val emoteData: EmoteData = EmoteData(originalMessage, WHISPER_CHANNEL, parseEmoteTag(originalMessage, rawEmotes)),
     override val badgeData: BadgeData = BadgeData(userId, channel = null, badgeTag = rawBadges, badgeInfoTag = rawBadgeInfo),
 ) : Message() {
-
     companion object {
         val WHISPER_CHANNEL = "w".toUserName()
+
         fun parseFromIrc(ircMessage: IrcMessage, recipientName: DisplayName, recipientColorTag: String?): WhisperMessage = with(ircMessage) {
             val name = prefix.substringBefore('!')
             val displayName = tags["display-name"] ?: name
@@ -64,20 +64,27 @@ data class WhisperMessage(
                 message = message,
                 rawEmotes = emoteTag,
                 rawBadges = tags["badges"],
-                rawBadgeInfo = tags["badge-info"]
+                rawBadgeInfo = tags["badge-info"],
             )
         }
 
         fun fromPubSub(data: WhisperData): WhisperMessage = with(data) {
-            val color = data.tags.color.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val recipientColor = data.recipient.color.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
+            val color =
+                data.tags.color
+                    .ifBlank { null }
+                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
+            val recipientColor =
+                data.recipient.color
+                    .ifBlank { null }
+                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
             val badgeTag = data.tags.badges.joinToString(",") { "${it.id}/${it.version}" }
-            val emotesTag = data.tags.emotes
-                .groupBy { it.id }
-                .entries
-                .joinToString("/") { entry ->
-                    "${entry.key}:" + entry.value.joinToString(",") { "${it.start}-${it.end}" }
-                }
+            val emotesTag =
+                data.tags.emotes
+                    .groupBy { it.id }
+                    .entries
+                    .joinToString("/") { entry ->
+                        "${entry.key}:" + entry.value.joinToString(",") { "${it.start}-${it.end}" }
+                    }
 
             return WhisperMessage(
                 timestamp = data.timestamp * 1_000L, // PubSub uses seconds instead of millis, nice
@@ -96,7 +103,6 @@ data class WhisperMessage(
             )
         }
     }
-
 }
 
 val WhisperMessage.senderAliasOrFormattedName: String

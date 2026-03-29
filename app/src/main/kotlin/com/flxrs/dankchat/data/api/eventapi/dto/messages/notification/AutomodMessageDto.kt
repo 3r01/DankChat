@@ -126,10 +126,7 @@ data class ChannelChatUserMessageUpdateDto(
 ) : NotificationEventDto
 
 @Serializable
-data class AutomodHeldMessageDto(
-    val text: String,
-    val fragments: List<AutomodMessageFragmentDto> = emptyList(),
-)
+data class AutomodHeldMessageDto(val text: String, val fragments: List<AutomodMessageFragmentDto> = emptyList())
 
 @Serializable
 data class AutomodMessageFragmentDto(
@@ -138,10 +135,7 @@ data class AutomodMessageFragmentDto(
 )
 
 @Serializable
-data class AutomodReasonDto(
-    val category: String,
-    val level: Int,
-)
+data class AutomodReasonDto(val category: String, val level: Int)
 
 @Serializable
 data class BlockedTermReasonDto(

@@ -22,15 +22,16 @@ fun List<GenericEmote>?.toEmoteItemsWithFront(channel: UserName?): List<EmoteIte
     val grouped = groupBy { it.emoteType.title }
     val frontKey = grouped.keys.find { it.equals(channel?.value, ignoreCase = true) }
     val sorted = grouped.toSortedMap(String.CASE_INSENSITIVE_ORDER)
-    val ordered = if (frontKey != null) {
-        val frontEntry = sorted.remove(frontKey)
-        buildMap {
-            if (frontEntry != null) put(frontKey, frontEntry)
-            putAll(sorted)
+    val ordered =
+        if (frontKey != null) {
+            val frontEntry = sorted.remove(frontKey)
+            buildMap {
+                if (frontEntry != null) put(frontKey, frontEntry)
+                putAll(sorted)
+            }
+        } else {
+            sorted
         }
-    } else {
-        sorted
-    }
     return ordered
         .mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
         .flatMap { it.value }
@@ -49,7 +50,7 @@ inline fun <V> measureTimeAndLog(tag: String, toLoad: String, block: () -> V): V
     val (result, time) = measureTimeValue(block)
     when {
         result != null -> Log.i(tag, "Loaded $toLoad in $time ms")
-        else           -> Log.i(tag, "Failed to load $toLoad ($time ms)")
+        else -> Log.i(tag, "Failed to load $toLoad ($time ms)")
     }
 
     return result

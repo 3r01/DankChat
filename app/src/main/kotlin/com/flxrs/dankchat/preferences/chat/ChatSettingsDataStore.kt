@@ -30,11 +30,7 @@ import org.koin.core.annotation.Single
 import kotlin.time.Duration.Companion.seconds
 
 @Single
-class ChatSettingsDataStore(
-    context: Context,
-    dispatchersProvider: DispatchersProvider,
-) {
-
+class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
     private enum class ChatPreferenceKeys(override val id: Int) : PreferenceKeys {
         Suggestions(R.string.preference_suggestions_key),
         SupibotSuggestions(R.string.preference_supibot_suggestions_key),
@@ -56,123 +52,191 @@ class ChatSettingsDataStore(
         ShowRoomState(R.string.preference_roomstate_key),
     }
 
-    private val initialMigration = dankChatPreferencesMigration<ChatPreferenceKeys, ChatSettings>(context) { acc, key, value ->
-        when (key) {
-            ChatPreferenceKeys.Suggestions                   -> acc.copy(suggestions = value.booleanOrDefault(acc.suggestions))
-            ChatPreferenceKeys.SupibotSuggestions            -> acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
-            ChatPreferenceKeys.CustomCommands                -> {
-                val commands = value.stringSetOrNull()?.mapNotNull {
-                    Json.decodeOrNull<CustomCommand>(it)
-                } ?: acc.customCommands
-                acc.copy(customCommands = commands)
+    private val initialMigration =
+        dankChatPreferencesMigration<ChatPreferenceKeys, ChatSettings>(context) { acc, key, value ->
+            when (key) {
+                ChatPreferenceKeys.Suggestions -> {
+                    acc.copy(suggestions = value.booleanOrDefault(acc.suggestions))
+                }
+
+                ChatPreferenceKeys.SupibotSuggestions -> {
+                    acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
+                }
+
+                ChatPreferenceKeys.CustomCommands -> {
+                    val commands =
+                        value.stringSetOrNull()?.mapNotNull {
+                            Json.decodeOrNull<CustomCommand>(it)
+                        } ?: acc.customCommands
+                    acc.copy(customCommands = commands)
+                }
+
+                ChatPreferenceKeys.AnimateGifs -> {
+                    acc.copy(animateGifs = value.booleanOrDefault(acc.animateGifs))
+                }
+
+                ChatPreferenceKeys.ScrollbackLength -> {
+                    acc.copy(scrollbackLength = value.intOrNull()?.let { it * 50 } ?: acc.scrollbackLength)
+                }
+
+                ChatPreferenceKeys.ShowUsernames -> {
+                    acc.copy(showUsernames = value.booleanOrDefault(acc.showUsernames))
+                }
+
+                ChatPreferenceKeys.UserLongClickBehavior -> {
+                    acc.copy(
+                        userLongClickBehavior =
+                        value.booleanOrNull()?.let {
+                            if (it) UserLongClickBehavior.MentionsUser else UserLongClickBehavior.OpensPopup
+                        } ?: acc.userLongClickBehavior,
+                    )
+                }
+
+                ChatPreferenceKeys.ShowTimedOutMessages -> {
+                    acc.copy(showTimedOutMessages = value.booleanOrDefault(acc.showTimedOutMessages))
+                }
+
+                ChatPreferenceKeys.ShowTimestamps -> {
+                    acc.copy(showTimestamps = value.booleanOrDefault(acc.showTimestamps))
+                }
+
+                ChatPreferenceKeys.TimestampFormat -> {
+                    acc.copy(timestampFormat = value.stringOrDefault(acc.timestampFormat))
+                }
+
+                ChatPreferenceKeys.VisibleBadges -> {
+                    acc.copy(
+                        visibleBadges =
+                        value
+                            .mappedStringSetOrDefault(
+                                original = context.resources.getStringArray(R.array.badges_entry_values),
+                                enumEntries = VisibleBadges.entries,
+                                default = acc.visibleBadges,
+                            ).plus(VisibleBadges.SharedChat)
+                            .distinct(),
+                        sharedChatMigration = true,
+                    )
+                }
+
+                ChatPreferenceKeys.VisibleEmotes -> {
+                    acc.copy(
+                        visibleEmotes =
+                        value.mappedStringSetOrDefault(
+                            original = context.resources.getStringArray(R.array.emotes_entry_values),
+                            enumEntries = VisibleThirdPartyEmotes.entries,
+                            default = acc.visibleEmotes,
+                        ),
+                    )
+                }
+
+                ChatPreferenceKeys.UnlistedEmotes -> {
+                    acc.copy(allowUnlistedSevenTvEmotes = value.booleanOrDefault(acc.allowUnlistedSevenTvEmotes))
+                }
+
+                ChatPreferenceKeys.LiveUpdates -> {
+                    acc.copy(sevenTVLiveEmoteUpdates = value.booleanOrDefault(acc.sevenTVLiveEmoteUpdates))
+                }
+
+                ChatPreferenceKeys.LiveUpdatesTimeout -> {
+                    acc.copy(
+                        sevenTVLiveEmoteUpdatesBehavior =
+                        value.mappedStringOrDefault(
+                            original = context.resources.getStringArray(R.array.event_api_timeout_entry_values),
+                            enumEntries = LiveUpdatesBackgroundBehavior.entries,
+                            default = acc.sevenTVLiveEmoteUpdatesBehavior,
+                        ),
+                    )
+                }
+
+                ChatPreferenceKeys.LoadMessageHistory -> {
+                    acc.copy(loadMessageHistory = value.booleanOrDefault(acc.loadMessageHistory))
+                }
+
+                ChatPreferenceKeys.LoadMessageHistoryOnReconnect -> {
+                    acc.copy(loadMessageHistoryOnReconnect = value.booleanOrDefault(acc.loadMessageHistoryOnReconnect))
+                }
+
+                ChatPreferenceKeys.ShowRoomState -> {
+                    acc.copy(showChatModes = value.booleanOrDefault(acc.showChatModes))
+                }
             }
+        }
+    private val scrollbackResetMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = currentData.scrollbackLength <= 20
 
-            ChatPreferenceKeys.AnimateGifs                   -> acc.copy(animateGifs = value.booleanOrDefault(acc.animateGifs))
-            ChatPreferenceKeys.ScrollbackLength              -> acc.copy(scrollbackLength = value.intOrNull()?.let { it * 50 } ?: acc.scrollbackLength)
-            ChatPreferenceKeys.ShowUsernames                 -> acc.copy(showUsernames = value.booleanOrDefault(acc.showUsernames))
-            ChatPreferenceKeys.UserLongClickBehavior         -> acc.copy(
-                userLongClickBehavior = value.booleanOrNull()?.let {
-                    if (it) UserLongClickBehavior.MentionsUser else UserLongClickBehavior.OpensPopup
-                } ?: acc.userLongClickBehavior
-            )
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(scrollbackLength = currentData.scrollbackLength * 50)
 
-            ChatPreferenceKeys.ShowTimedOutMessages          -> acc.copy(showTimedOutMessages = value.booleanOrDefault(acc.showTimedOutMessages))
-            ChatPreferenceKeys.ShowTimestamps                -> acc.copy(showTimestamps = value.booleanOrDefault(acc.showTimestamps))
-            ChatPreferenceKeys.TimestampFormat               -> acc.copy(timestampFormat = value.stringOrDefault(acc.timestampFormat))
-            ChatPreferenceKeys.VisibleBadges                 -> acc.copy(
-                visibleBadges = value.mappedStringSetOrDefault(
-                    original = context.resources.getStringArray(R.array.badges_entry_values),
-                    enumEntries = VisibleBadges.entries,
-                    default = acc.visibleBadges,
-                ).plus(VisibleBadges.SharedChat).distinct(),
+            override suspend fun cleanUp() = Unit
+        }
+
+    private val sharedChatMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.sharedChatMigration
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
+                visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
                 sharedChatMigration = true,
             )
 
-            ChatPreferenceKeys.VisibleEmotes                 -> acc.copy(
-                visibleEmotes = value.mappedStringSetOrDefault(
-                    original = context.resources.getStringArray(R.array.emotes_entry_values),
-                    enumEntries = VisibleThirdPartyEmotes.entries,
-                    default = acc.visibleEmotes,
-                )
-            )
-
-            ChatPreferenceKeys.UnlistedEmotes                -> acc.copy(allowUnlistedSevenTvEmotes = value.booleanOrDefault(acc.allowUnlistedSevenTvEmotes))
-            ChatPreferenceKeys.LiveUpdates                   -> acc.copy(sevenTVLiveEmoteUpdates = value.booleanOrDefault(acc.sevenTVLiveEmoteUpdates))
-            ChatPreferenceKeys.LiveUpdatesTimeout            -> acc.copy(
-                sevenTVLiveEmoteUpdatesBehavior = value.mappedStringOrDefault(
-                    original = context.resources.getStringArray(R.array.event_api_timeout_entry_values),
-                    enumEntries = LiveUpdatesBackgroundBehavior.entries,
-                    default = acc.sevenTVLiveEmoteUpdatesBehavior,
-                )
-            )
-
-            ChatPreferenceKeys.LoadMessageHistory            -> acc.copy(loadMessageHistory = value.booleanOrDefault(acc.loadMessageHistory))
-            ChatPreferenceKeys.LoadMessageHistoryOnReconnect -> acc.copy(loadMessageHistoryOnReconnect = value.booleanOrDefault(acc.loadMessageHistoryOnReconnect))
-            ChatPreferenceKeys.ShowRoomState                 -> acc.copy(showChatModes = value.booleanOrDefault(acc.showChatModes))
+            override suspend fun cleanUp() = Unit
         }
-    }
-    private val scrollbackResetMigration = object : DataMigration<ChatSettings> {
-        override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = currentData.scrollbackLength <= 20
-        override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(scrollbackLength = currentData.scrollbackLength * 50)
-        override suspend fun cleanUp() = Unit
-    }
 
-    private val sharedChatMigration = object : DataMigration<ChatSettings> {
-        override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.sharedChatMigration
-        override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
-            visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
-            sharedChatMigration = true,
+    private val dataStore =
+        createDataStore(
+            fileName = "chat",
+            context = context,
+            defaultValue = ChatSettings(),
+            serializer = ChatSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(initialMigration, scrollbackResetMigration, sharedChatMigration),
         )
 
-        override suspend fun cleanUp() = Unit
-    }
-
-    private val dataStore = createDataStore(
-        fileName = "chat",
-        context = context,
-        defaultValue = ChatSettings(),
-        serializer = ChatSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-        migrations = listOf(initialMigration, scrollbackResetMigration, sharedChatMigration),
-    )
-
     val settings = dataStore.safeData(ChatSettings())
-    val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() }
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
-    val commands = settings
-        .map { it.customCommands }
-        .distinctUntilChanged()
-    val suggestions = settings
-        .map { it.suggestions }
-        .distinctUntilChanged()
-    val showChatModes = settings
-        .map { it.showChatModes }
-        .distinctUntilChanged()
-    val userLongClickBehavior = settings
-        .map { it.userLongClickBehavior }
-        .distinctUntilChanged()
+    val commands =
+        settings
+            .map { it.customCommands }
+            .distinctUntilChanged()
+    val suggestions =
+        settings
+            .map { it.suggestions }
+            .distinctUntilChanged()
+    val showChatModes =
+        settings
+            .map { it.showChatModes }
+            .distinctUntilChanged()
+    val userLongClickBehavior =
+        settings
+            .map { it.userLongClickBehavior }
+            .distinctUntilChanged()
 
-    val debouncedScrollBack = settings
-        .map { it.scrollbackLength }
-        .distinctUntilChanged()
-        .debounce(1.seconds)
-    val debouncedSevenTvLiveEmoteUpdates = settings
-        .map { it.sevenTVLiveEmoteUpdates }
-        .distinctUntilChanged()
-        .debounce(2.seconds)
+    val debouncedScrollBack =
+        settings
+            .map { it.scrollbackLength }
+            .distinctUntilChanged()
+            .debounce(1.seconds)
+    val debouncedSevenTvLiveEmoteUpdates =
+        settings
+            .map { it.sevenTVLiveEmoteUpdates }
+            .distinctUntilChanged()
+            .debounce(2.seconds)
 
-    val restartChat = settings.distinctUntilChanged { old, new ->
-        old.showTimestamps != new.showTimestamps ||
+    val restartChat =
+        settings.distinctUntilChanged { old, new ->
+            old.showTimestamps != new.showTimestamps ||
                 old.timestampFormat != new.timestampFormat ||
                 old.showTimedOutMessages != new.showTimedOutMessages ||
                 old.animateGifs != new.animateGifs ||
                 old.showUsernames != new.showUsernames ||
                 old.visibleBadges != new.visibleBadges
-    }
+        }
 
     fun current() = currentSettings.value
 

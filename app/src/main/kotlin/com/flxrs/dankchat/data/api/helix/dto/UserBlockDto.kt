@@ -7,6 +7,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class UserBlockDto(
-    @SerialName(value = "user_id") val id: UserId
-)
+data class UserBlockDto(@SerialName(value = "user_id") val id: UserId)

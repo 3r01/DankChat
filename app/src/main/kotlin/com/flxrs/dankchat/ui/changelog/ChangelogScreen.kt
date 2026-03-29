@@ -28,9 +28,7 @@ import com.flxrs.dankchat.R
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ChangelogScreen(
-    onBack: () -> Unit,
-) {
+fun ChangelogScreen(onBack: () -> Unit) {
     val viewModel: ChangelogSheetViewModel = koinViewModel()
     val state = viewModel.state ?: return
 
@@ -46,7 +44,7 @@ fun ChangelogScreen(
                         Text(stringResource(R.string.preference_whats_new_header))
                         Text(
                             text = stringResource(R.string.changelog_sheet_subtitle, state.version),
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
                         )
                     }
                 },
@@ -55,21 +53,21 @@ fun ChangelogScreen(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         val entries = state.changelog.split("\n").filter { it.isNotBlank() }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             items(entries) { entry ->
                 Text(
                     text = entry,
                     modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 HorizontalDivider()
             }

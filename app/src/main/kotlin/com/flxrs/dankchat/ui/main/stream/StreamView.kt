@@ -37,14 +37,7 @@ import com.flxrs.dankchat.data.UserName
 
 @Suppress("LambdaParameterEventTrailing")
 @Composable
-fun StreamView(
-    channel: UserName,
-    streamViewModel: StreamViewModel,
-    modifier: Modifier = Modifier,
-    isInPipMode: Boolean = false,
-    fillPane: Boolean = false,
-    onClose: () -> Unit,
-) {
+fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Modifier = Modifier, isInPipMode: Boolean = false, fillPane: Boolean = false, onClose: () -> Unit) {
     // Track whether the WebView has been attached to a window before.
     // First open: load URL while detached, attach after page loads (avoids white SurfaceView flash).
     // Subsequent opens: attach immediately, load URL while attached (video surface already initialized).
@@ -54,7 +47,7 @@ fun StreamView(
         streamViewModel.getOrCreateWebView().also { wv ->
             wv.setBackgroundColor(android.graphics.Color.TRANSPARENT)
             wv.webViewClient = StreamComposeWebViewClient(
-                onPageFinished = { isPageLoaded = true }
+                onPageFinished = { isPageLoaded = true },
             )
         }
     }
@@ -82,13 +75,15 @@ fun StreamView(
         modifier = modifier
             .then(if (isInPipMode || fillPane) Modifier else Modifier.statusBarsPadding())
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.surface),
     ) {
         val webViewModifier = when {
             isInPipMode || fillPane -> Modifier.fillMaxSize()
-            else                    -> Modifier
-                .fillMaxWidth()
-                .aspectRatio(16f / 9f)
+
+            else ->
+                Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
         }
 
         if (isPageLoaded) {
@@ -97,7 +92,7 @@ fun StreamView(
                     (webView.parent as? ViewGroup)?.removeView(webView)
                     webView.layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
+                        ViewGroup.LayoutParams.MATCH_PARENT,
                     )
                     if (!hasBeenAttached) {
                         hasBeenAttached = true
@@ -118,7 +113,7 @@ fun StreamView(
                 },
                 modifier = webViewModifier.graphicsLayer {
                     compositingStrategy = CompositingStrategy.Offscreen
-                }
+                },
             )
         } else {
             Box(modifier = webViewModifier)
@@ -134,24 +129,22 @@ fun StreamView(
                     .size(28.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-                        shape = CircleShape
+                        shape = CircleShape,
                     )
-                    .clickable(onClick = onClose)
+                    .clickable(onClick = onClose),
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.dialog_dismiss),
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(18.dp),
                 )
             }
         }
     }
 }
 
-private class StreamComposeWebViewClient(
-    private val onPageFinished: () -> Unit,
-) : WebViewClient() {
+private class StreamComposeWebViewClient(private val onPageFinished: () -> Unit) : WebViewClient() {
 
     override fun onPageFinished(view: WebView?, url: String?) {
         if (url != null && url != BLANK_URL) {

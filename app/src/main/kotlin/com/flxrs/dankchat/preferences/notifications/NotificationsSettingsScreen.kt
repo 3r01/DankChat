@@ -36,11 +36,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun NotificationsSettingsScreen(
-    onNavToHighlights: () -> Unit,
-    onNavToIgnores: () -> Unit,
-    onNavBack: () -> Unit,
-) {
+fun NotificationsSettingsScreen(onNavToHighlights: () -> Unit, onNavToIgnores: () -> Unit, onNavBack: () -> Unit) {
     val viewModel = koinViewModel<NotificationsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
     NotificationsSettingsScreen(
@@ -73,7 +69,7 @@ private fun NotificationsSettingsScreen(
                         onClick = onNavBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
@@ -101,11 +97,7 @@ private fun NotificationsSettingsScreen(
 }
 
 @Composable
-fun NotificationsCategory(
-    showNotifications: Boolean,
-    showWhisperNotifications: Boolean,
-    onInteraction: (NotificationsSettingsInteraction) -> Unit,
-) {
+fun NotificationsCategory(showNotifications: Boolean, showWhisperNotifications: Boolean, onInteraction: (NotificationsSettingsInteraction) -> Unit) {
     PreferenceCategory(title = stringResource(R.string.preference_notification_header)) {
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_notification_title),
@@ -123,12 +115,7 @@ fun NotificationsCategory(
 }
 
 @Composable
-fun MentionsCategory(
-    mentionFormat: MentionFormat,
-    onInteraction: (NotificationsSettingsInteraction) -> Unit,
-    onNavToHighlights: () -> Unit,
-    onNavToIgnores: () -> Unit,
-) {
+fun MentionsCategory(mentionFormat: MentionFormat, onInteraction: (NotificationsSettingsInteraction) -> Unit, onNavToHighlights: () -> Unit, onNavToIgnores: () -> Unit) {
     PreferenceCategory(title = stringResource(R.string.mentions)) {
         val entries = remember { MentionFormat.entries.map { it.template }.toImmutableList() }
         PreferenceListDialog(
@@ -137,7 +124,7 @@ fun MentionsCategory(
             values = MentionFormat.entries.toImmutableList(),
             entries = entries,
             selected = mentionFormat,
-            onChange ={ onInteraction(NotificationsSettingsInteraction.Mention(it)) },
+            onChange = { onInteraction(NotificationsSettingsInteraction.Mention(it)) },
         )
 
         PreferenceItem(

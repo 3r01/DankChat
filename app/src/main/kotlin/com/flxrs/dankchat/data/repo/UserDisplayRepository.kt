@@ -18,33 +18,32 @@ import kotlinx.coroutines.flow.stateIn
 import org.koin.core.annotation.Single
 
 @Single
-class UserDisplayRepository(
-    private val userDisplayDao: UserDisplayDao,
-    dispatchersProvider: DispatchersProvider,
-) {
-
+class UserDisplayRepository(private val userDisplayDao: UserDisplayDao, dispatchersProvider: DispatchersProvider) {
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
-    val userDisplays = userDisplayDao.getUserDisplaysFlow()
-        .stateIn(
-            scope = coroutineScope,
-            started = SharingStarted.Eagerly,
-            initialValue = emptyList()
-        )
+    val userDisplays =
+        userDisplayDao
+            .getUserDisplaysFlow()
+            .stateIn(
+                scope = coroutineScope,
+                started = SharingStarted.Eagerly,
+                initialValue = emptyList(),
+            )
 
     suspend fun updateUserDisplays(userDisplays: List<UserDisplayEntity>) {
         userDisplayDao.upsertAll(userDisplays)
     }
 
     suspend fun addUserDisplay(): UserDisplayEntity {
-        val entity = UserDisplayEntity(
-            id = 0,
-            targetUser = "",
-            enabled = true,
-            colorEnabled = false,
-            color = Message.DEFAULT_COLOR,
-            aliasEnabled = false,
-            alias = "",
-        )
+        val entity =
+            UserDisplayEntity(
+                id = 0,
+                targetUser = "",
+                enabled = true,
+                colorEnabled = false,
+                color = Message.DEFAULT_COLOR,
+                aliasEnabled = false,
+                alias = "",
+            )
         val id = userDisplayDao.upsert(entity)
         return entity.copy(id = id.toInt())
     }
@@ -60,10 +59,10 @@ class UserDisplayRepository(
     fun calculateUserDisplay(message: Message): Message {
         return when (message) {
             is PointRedemptionMessage -> message.applyUserDisplay()
-            is PrivMessage            -> message.applyUserDisplay()
-            is UserNoticeMessage      -> message.applyUserDisplay()
-            is WhisperMessage         -> message.applyUserDisplay()
-            else                      -> return message
+            is PrivMessage -> message.applyUserDisplay()
+            is UserNoticeMessage -> message.applyUserDisplay()
+            is WhisperMessage -> message.applyUserDisplay()
+            else -> return message
         }
     }
 
@@ -92,13 +91,9 @@ class UserDisplayRepository(
 
         return copy(
             userDisplay = senderMatch,
-            recipientDisplay = recipientMatch
+            recipientDisplay = recipientMatch,
         )
     }
 
-    private fun findMatchingUserDisplay(name: UserName): UserDisplay? {
-        return userDisplays.value.find { name.matches(it.targetUser) }?.toUserDisplay()
-    }
+    private fun findMatchingUserDisplay(name: UserName): UserDisplay? = userDisplays.value.find { name.matches(it.targetUser) }?.toUserDisplay()
 }
-
-

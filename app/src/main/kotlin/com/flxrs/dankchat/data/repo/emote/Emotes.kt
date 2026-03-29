@@ -42,18 +42,18 @@ data class Emotes(
     val sevenTvChannelEmotes: List<GenericEmote> = emptyList(),
     val sevenTvGlobalEmotes: List<GenericEmote> = emptyList(),
 ) {
+    val sorted: List<GenericEmote> =
+        buildList {
+            addAll(twitchEmotes)
 
-    val sorted: List<GenericEmote> = buildList {
-        addAll(twitchEmotes)
+            addAll(ffzChannelEmotes)
+            addAll(bttvChannelEmotes)
+            addAll(sevenTvChannelEmotes)
 
-        addAll(ffzChannelEmotes)
-        addAll(bttvChannelEmotes)
-        addAll(sevenTvChannelEmotes)
-
-        addAll(ffzGlobalEmotes)
-        addAll(bttvGlobalEmotes)
-        addAll(sevenTvGlobalEmotes)
-    }.sortedBy(GenericEmote::code)
+            addAll(ffzGlobalEmotes)
+            addAll(bttvGlobalEmotes)
+            addAll(sevenTvGlobalEmotes)
+        }.sortedBy(GenericEmote::code)
 
     val suggestions: List<GenericEmote> = sorted.distinctBy(GenericEmote::code)
 }

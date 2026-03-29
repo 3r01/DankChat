@@ -25,45 +25,51 @@ class ChannelTabViewModel(
     private val channelDataCoordinator: ChannelDataCoordinator,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
+    val uiState: StateFlow<ChannelTabUiState> =
+        preferenceStore
+            .getChannelsWithRenamesFlow()
+            .flatMapLatest { channels ->
+                if (channels.isEmpty()) {
+                    return@flatMapLatest flowOf(ChannelTabUiState(loading = false))
+                }
 
-    val uiState: StateFlow<ChannelTabUiState> = preferenceStore.getChannelsWithRenamesFlow()
-        .flatMapLatest { channels ->
-            if (channels.isEmpty()) {
-                return@flatMapLatest flowOf(ChannelTabUiState(loading = false))
-            }
+                val loadingFlows =
+                    channels.map {
+                        channelDataCoordinator.getChannelLoadingState(it.channel)
+                    }
 
-            val loadingFlows = channels.map {
-                channelDataCoordinator.getChannelLoadingState(it.channel)
-            }
-
-            combine(
-                chatChannelProvider.activeChannel,
-                chatNotificationRepository.unreadMessagesMap,
-                chatNotificationRepository.channelMentionCount,
-                combine(loadingFlows) { it.toList() },
-                channelDataCoordinator.globalLoadingState
-            ) { active, unread, mentions, loadingStates, globalState ->
-                val tabs = channels.mapIndexed { index, channelWithRename ->
-                    ChannelTabItem(
-                        channel = channelWithRename.channel,
-                        displayName = channelWithRename.rename?.value
-                            ?: channelWithRename.channel.value,
-                        isSelected = channelWithRename.channel == active,
-                        hasUnread = unread[channelWithRename.channel] ?: false,
-                        mentionCount = mentions[channelWithRename.channel] ?: 0,
-                        loadingState = loadingStates[index]
+                combine(
+                    chatChannelProvider.activeChannel,
+                    chatNotificationRepository.unreadMessagesMap,
+                    chatNotificationRepository.channelMentionCount,
+                    combine(loadingFlows) { it.toList() },
+                    channelDataCoordinator.globalLoadingState,
+                ) { active, unread, mentions, loadingStates, globalState ->
+                    val tabs =
+                        channels.mapIndexed { index, channelWithRename ->
+                            ChannelTabItem(
+                                channel = channelWithRename.channel,
+                                displayName =
+                                channelWithRename.rename?.value
+                                    ?: channelWithRename.channel.value,
+                                isSelected = channelWithRename.channel == active,
+                                hasUnread = unread[channelWithRename.channel] ?: false,
+                                mentionCount = mentions[channelWithRename.channel] ?: 0,
+                                loadingState = loadingStates[index],
+                            )
+                        }
+                    ChannelTabUiState(
+                        tabs = tabs.toImmutableList(),
+                        selectedIndex =
+                        channels
+                            .indexOfFirst { it.channel == active }
+                            .coerceAtLeast(0),
+                        loading =
+                        globalState == GlobalLoadingState.Loading ||
+                            tabs.any { it.loadingState == ChannelLoadingState.Loading },
                     )
                 }
-                ChannelTabUiState(
-                    tabs = tabs.toImmutableList(),
-                    selectedIndex = channels
-                        .indexOfFirst { it.channel == active }
-                        .coerceAtLeast(0),
-                    loading = globalState == GlobalLoadingState.Loading
-                            || tabs.any { it.loadingState == ChannelLoadingState.Loading },
-                )
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
 
     fun selectTab(index: Int) {
         val channels = preferenceStore.channels

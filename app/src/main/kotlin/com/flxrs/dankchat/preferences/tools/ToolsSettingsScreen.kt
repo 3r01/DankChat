@@ -83,11 +83,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.autolinktext.rememberAutoLinkText
 
 @Composable
-fun ToolsSettingsScreen(
-    onNavToImageUploader: () -> Unit,
-    onNavToTTSUserIgnoreList: () -> Unit,
-    onNavBack: () -> Unit,
-) {
+fun ToolsSettingsScreen(onNavToImageUploader: () -> Unit, onNavToTTSUserIgnoreList: () -> Unit, onNavBack: () -> Unit) {
     val viewModel = koinViewModel<ToolsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
 
@@ -121,7 +117,7 @@ private fun ToolsSettingsScreen(
                         onClick = onNavBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
@@ -129,7 +125,7 @@ private fun ToolsSettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
             ImageUploaderCategory(hasRecentUploads = settings.hasRecentUploads, onNavToImageUploader = onNavToImageUploader)
             HorizontalDivider(thickness = Dp.Hairline)
@@ -140,10 +136,7 @@ private fun ToolsSettingsScreen(
 }
 
 @Composable
-fun ImageUploaderCategory(
-    hasRecentUploads: Boolean,
-    onNavToImageUploader: () -> Unit,
-) {
+fun ImageUploaderCategory(hasRecentUploads: Boolean, onNavToImageUploader: () -> Unit) {
     var recentUploadSheetOpen by remember { mutableStateOf(false) }
     PreferenceCategory(title = stringResource(R.string.preference_uploader_header)) {
         PreferenceItem(
@@ -178,7 +171,7 @@ fun ImageUploaderCategory(
                 modifier = Modifier.align(Alignment.End),
                 onClick = { confirmClearDialog = true },
                 enabled = uploads.isNotEmpty(),
-                content = { Text(stringResource(R.string.recent_uploads_clear)) }
+                content = { Text(stringResource(R.string.recent_uploads_clear)) },
             )
             LazyColumn {
                 items(uploads) { upload ->
@@ -276,17 +269,13 @@ fun RecentUploadItem(upload: RecentUpload) {
 }
 
 @Composable
-fun TextToSpeechCategory(
-    settings: ToolsSettingsState,
-    onInteraction: (ToolsSettingsInteraction) -> Unit,
-    onNavToTTSUserIgnoreList: () -> Unit,
-) {
+fun TextToSpeechCategory(settings: ToolsSettingsState, onInteraction: (ToolsSettingsInteraction) -> Unit, onNavToTTSUserIgnoreList: () -> Unit) {
     PreferenceCategory(title = stringResource(R.string.preference_tts_header)) {
         val context = LocalContext.current
         val checkTTSDataLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             when {
                 it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
-                else                                                       -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
+                else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
             }
         }
         SwitchPreferenceItem(
@@ -311,7 +300,7 @@ fun TextToSpeechCategory(
             entries = modeEntries,
             selected = settings.ttsPlayMode,
             isEnabled = settings.ttsEnabled,
-            onChange ={ onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
+            onChange = { onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
         )
 
         val formatMessage = stringResource(R.string.preference_tts_message_format_message)
@@ -324,7 +313,7 @@ fun TextToSpeechCategory(
             entries = formatEntries,
             selected = settings.ttsMessageFormat,
             isEnabled = settings.ttsEnabled,
-            onChange ={ onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
+            onChange = { onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
         )
 
         SwitchPreferenceItem(

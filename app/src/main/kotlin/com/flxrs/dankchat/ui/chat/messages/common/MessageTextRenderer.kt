@@ -61,7 +61,7 @@ fun MessageTextWithInlineContent(
                         emoteCoordinator = emoteCoordinator,
                         animateGifs = animateGifs,
                         modifier = Modifier,
-                        onClick = { onEmoteClick(emote.emotes) }
+                        onClick = { onEmoteClick(emote.emotes) },
                     )
                 }
             }
@@ -87,7 +87,7 @@ fun MessageTextWithInlineContent(
                         }
                     }
 
-                    else                 -> {
+                    else -> {
                         val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
                         val dims = emoteCoordinator.dimensionCache.get(cacheKey)
                         if (dims != null) {

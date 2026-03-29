@@ -19,7 +19,7 @@ import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 /**
  * Standalone composable for reply thread display.
  * Extracted from RepliesChatFragment to enable pure Compose integration.
- * 
+ *
  * This composable:
  * - Collects reply thread state from RepliesViewModel
  * - Collects appearance settings
@@ -46,7 +46,7 @@ fun RepliesComposable(
 
     CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
         when (uiState) {
-            is RepliesUiState.Found    -> {
+            is RepliesUiState.Found -> {
                 ChatScreen(
                     messages = (uiState as RepliesUiState.Found).items,
                     fontSize = displaySettings.fontSize,

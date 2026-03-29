@@ -35,14 +35,7 @@ data class TourOverlayState(
 @Suppress("ContentSlotReused")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun OptionalTourTooltip(
-    tooltipState: TooltipState?,
-    text: String,
-    onAdvance: (() -> Unit)?,
-    onSkip: (() -> Unit)?,
-    focusable: Boolean = false,
-    content: @Composable () -> Unit,
-) {
+internal fun OptionalTourTooltip(tooltipState: TooltipState?, text: String, onAdvance: (() -> Unit)?, onSkip: (() -> Unit)?, focusable: Boolean = false, content: @Composable () -> Unit) {
     if (tooltipState != null) {
         TooltipBox(
             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
@@ -67,12 +60,7 @@ internal fun OptionalTourTooltip(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TooltipScope.TourTooltip(
-    text: String,
-    onAction: () -> Unit,
-    onSkip: () -> Unit,
-    isLast: Boolean = false,
-) {
+internal fun TooltipScope.TourTooltip(text: String, onAction: () -> Unit, onSkip: () -> Unit, isLast: Boolean = false) {
     val tourColors = TooltipDefaults.richTooltipColors(
         containerColor = MaterialTheme.colorScheme.secondaryContainer,
         contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -91,7 +79,7 @@ internal fun TooltipScope.TourTooltip(
                     Text(stringResource(if (isLast) R.string.tour_got_it else R.string.tour_next))
                 }
             }
-        }
+        },
     ) {
         Text(text)
     }

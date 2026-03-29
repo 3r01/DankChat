@@ -40,15 +40,20 @@ import kotlin.time.times
 
 enum class ChatConnectionType {
     Read,
-    Write
+    Write,
 }
 
 sealed interface ChatEvent {
     data class Message(val message: IrcMessage) : ChatEvent
+
     data class Connected(val channel: UserName, val isAnonymous: Boolean) : ChatEvent
+
     data class ChannelNonExistent(val channel: UserName) : ChatEvent
+
     data class Error(val throwable: Throwable) : ChatEvent
+
     data object LoginFailed : ChatEvent
+
     data object Closed : ChatEvent
 
     val isDisconnected: Boolean
@@ -64,9 +69,10 @@ class ChatConnection(
     private val url: String = IRC_URL,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
-    private val client = httpClient.config {
-        install(WebSockets)
-    }
+    private val client =
+        httpClient.config {
+            install(WebSockets)
+        }
 
     @Volatile
     private var session: DefaultClientWebSocketSession? = null
@@ -87,9 +93,10 @@ class ChatConnection(
     private val _connected = MutableStateFlow(false)
     val connected: StateFlow<Boolean> = _connected.asStateFlow()
 
-    val messages = receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
-        (old.isDisconnected && new.isDisconnected) || old == new
-    }
+    val messages =
+        receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
+            (old.isDisconnected && new.isDisconnected) || old == new
+        }
 
     init {
         scope.launch {
@@ -97,7 +104,8 @@ class ChatConnection(
                 if (!_connected.value) return@collect
                 val currentSession = session ?: return@collect
 
-                channelsToJoin.filter { it in channels }
+                channelsToJoin
+                    .filter { it in channels }
                     .chunked(JOIN_CHUNK_SIZE)
                     .forEach { chunk ->
                         currentSession.joinChannels(chunk)
@@ -155,112 +163,128 @@ class ChatConnection(
         currentOAuth = authDataStore.oAuthKey
         awaitingPong = false
 
-        connectionJob = scope.launch {
-            var retryCount = 1
-            while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
-                var serverRequestedReconnect = false
-                try {
-                    client.webSocket(url) {
-                        session = this
-                        _connected.value = true
-                        retryCount = 1
+        connectionJob =
+            scope.launch {
+                var retryCount = 1
+                while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
+                    var serverRequestedReconnect = false
+                    try {
+                        client.webSocket(url) {
+                            session = this
+                            _connected.value = true
+                            retryCount = 1
 
-                        val auth = currentOAuth?.takeIf { !isAnonymous } ?: "NaM"
-                        val nick = currentUserName?.takeIf { !isAnonymous } ?: "justinfan12781923"
-                        sendIrc("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership")
-                        sendIrc("PASS $auth")
-                        sendIrc("NICK $nick")
+                            val auth = currentOAuth?.takeIf { !isAnonymous } ?: "NaM"
+                            val nick = currentUserName?.takeIf { !isAnonymous } ?: "justinfan12781923"
+                            sendIrc("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership")
+                            sendIrc("PASS $auth")
+                            sendIrc("NICK $nick")
 
-                        var pingJob: Job? = null
-                        try {
-                            while (isActive) {
-                                val result = incoming.receiveCatching()
-                                val text = when (val frame = result.getOrNull()) {
-                                    null -> {
-                                        val cause = result.exceptionOrNull() ?: return@webSocket
-                                        throw cause
-                                    }
+                            var pingJob: Job? = null
+                            try {
+                                while (isActive) {
+                                    val result = incoming.receiveCatching()
+                                    val text =
+                                        when (val frame = result.getOrNull()) {
+                                            null -> {
+                                                val cause = result.exceptionOrNull() ?: return@webSocket
+                                                throw cause
+                                            }
 
-                                    else -> (frame as? Frame.Text)?.readText() ?: continue
-                                }
-
-                                text.removeSuffix("\r\n").split("\r\n").forEach { line ->
-                                    val ircMessage = IrcMessage.parse(line)
-                                    if (ircMessage.isLoginFailed()) {
-                                        Log.e(TAG, "[$chatConnectionType] authentication failed with expired token, closing connection..")
-                                        receiveChannel.send(ChatEvent.LoginFailed)
-                                        return@webSocket
-                                    }
-
-                                    when (ircMessage.command) {
-                                        "376"       -> {
-                                            Log.i(TAG, "[$chatConnectionType] connected to irc")
-                                            pingJob = setupPingInterval()
-                                            channelsToJoin.send(channels)
-                                        }
-
-                                        "JOIN"      -> {
-                                            val channel = ircMessage.params.getOrNull(0)?.substring(1)?.toUserName() ?: return@forEach
-                                            if (channelsAttemptedToJoin.remove(channel)) {
-                                                Log.i(TAG, "[$chatConnectionType] Joined #$channel")
+                                            else -> {
+                                                (frame as? Frame.Text)?.readText() ?: continue
                                             }
                                         }
 
-                                        "366"       -> receiveChannel.send(ChatEvent.Connected(ircMessage.params[1].substring(1).toUserName(), isAnonymous))
-                                        "PING"      -> sendIrc("PONG :tmi.twitch.tv")
-                                        "PONG"      -> awaitingPong = false
-                                        "RECONNECT" -> {
-                                            Log.i(TAG, "[$chatConnectionType] server requested reconnect")
-                                            serverRequestedReconnect = true
+                                    text.removeSuffix("\r\n").split("\r\n").forEach { line ->
+                                        val ircMessage = IrcMessage.parse(line)
+                                        if (ircMessage.isLoginFailed()) {
+                                            Log.e(TAG, "[$chatConnectionType] authentication failed with expired token, closing connection..")
+                                            receiveChannel.send(ChatEvent.LoginFailed)
                                             return@webSocket
                                         }
 
-                                        else        -> {
-                                            if (ircMessage.command == "NOTICE" && ircMessage.tags["msg-id"] == "msg_channel_suspended") {
-                                                channelsAttemptedToJoin.remove(ircMessage.params[0].substring(1).toUserName())
+                                        when (ircMessage.command) {
+                                            "376" -> {
+                                                Log.i(TAG, "[$chatConnectionType] connected to irc")
+                                                pingJob = setupPingInterval()
+                                                channelsToJoin.send(channels)
                                             }
-                                            receiveChannel.send(ChatEvent.Message(ircMessage))
+
+                                            "JOIN" -> {
+                                                val channel =
+                                                    ircMessage.params
+                                                        .getOrNull(0)
+                                                        ?.substring(1)
+                                                        ?.toUserName() ?: return@forEach
+                                                if (channelsAttemptedToJoin.remove(channel)) {
+                                                    Log.i(TAG, "[$chatConnectionType] Joined #$channel")
+                                                }
+                                            }
+
+                                            "366" -> {
+                                                receiveChannel.send(ChatEvent.Connected(ircMessage.params[1].substring(1).toUserName(), isAnonymous))
+                                            }
+
+                                            "PING" -> {
+                                                sendIrc("PONG :tmi.twitch.tv")
+                                            }
+
+                                            "PONG" -> {
+                                                awaitingPong = false
+                                            }
+
+                                            "RECONNECT" -> {
+                                                Log.i(TAG, "[$chatConnectionType] server requested reconnect")
+                                                serverRequestedReconnect = true
+                                                return@webSocket
+                                            }
+
+                                            else -> {
+                                                if (ircMessage.command == "NOTICE" && ircMessage.tags["msg-id"] == "msg_channel_suspended") {
+                                                    channelsAttemptedToJoin.remove(ircMessage.params[0].substring(1).toUserName())
+                                                }
+                                                receiveChannel.send(ChatEvent.Message(ircMessage))
+                                            }
                                         }
                                     }
                                 }
+                            } finally {
+                                pingJob?.cancel()
                             }
-                        } finally {
-                            pingJob?.cancel()
                         }
+
+                        _connected.value = false
+                        session = null
+                        channelsAttemptedToJoin.clear()
+                        receiveChannel.send(ChatEvent.Closed)
+
+                        if (!serverRequestedReconnect) {
+                            Log.i(TAG, "[$chatConnectionType] connection closed")
+                            return@launch
+                        }
+                        Log.i(TAG, "[$chatConnectionType] reconnecting after server request")
+                    } catch (t: CancellationException) {
+                        throw t
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "[$chatConnectionType] connection failed: $t")
+                        Log.e(TAG, "[$chatConnectionType] attempting to reconnect #$retryCount..")
+                        _connected.value = false
+                        session = null
+                        channelsAttemptedToJoin.clear()
+                        receiveChannel.send(ChatEvent.Closed)
+
+                        val jitter = randomJitter()
+                        val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
+                        delay(reconnectDelay + jitter)
+                        retryCount = (retryCount + 1).coerceAtMost(RECONNECT_MAX_ATTEMPTS)
                     }
-
-                    _connected.value = false
-                    session = null
-                    channelsAttemptedToJoin.clear()
-                    receiveChannel.send(ChatEvent.Closed)
-
-                    if (!serverRequestedReconnect) {
-                        Log.i(TAG, "[$chatConnectionType] connection closed")
-                        return@launch
-                    }
-                    Log.i(TAG, "[$chatConnectionType] reconnecting after server request")
-
-                } catch (t: CancellationException) {
-                    throw t
-                } catch (t: Throwable) {
-                    Log.e(TAG, "[$chatConnectionType] connection failed: $t")
-                    Log.e(TAG, "[$chatConnectionType] attempting to reconnect #$retryCount..")
-                    _connected.value = false
-                    session = null
-                    channelsAttemptedToJoin.clear()
-                    receiveChannel.send(ChatEvent.Closed)
-
-                    val jitter = randomJitter()
-                    val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
-                    delay(reconnectDelay + jitter)
-                    retryCount = (retryCount + 1).coerceAtMost(RECONNECT_MAX_ATTEMPTS)
                 }
-            }
 
-            Log.e(TAG, "[$chatConnectionType] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
-            _connected.value = false
-            session = null
-        }
+                Log.e(TAG, "[$chatConnectionType] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
+                _connected.value = false
+                session = null
+            }
     }
 
     fun close() {

@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.DisplayName
 import kotlinx.parcelize.Parcelize
 
 sealed interface ChatMessageEmoteType : Parcelable {
-
     @Parcelize
     object TwitchEmote : ChatMessageEmoteType
 
@@ -32,11 +31,11 @@ sealed interface ChatMessageEmoteType : Parcelable {
 }
 
 fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType? = when (this) {
-    is EmoteType.ChannelBTTVEmote    -> ChatMessageEmoteType.ChannelBTTVEmote(creator, isShared)
-    is EmoteType.ChannelFFZEmote     -> ChatMessageEmoteType.ChannelFFZEmote(creator)
+    is EmoteType.ChannelBTTVEmote -> ChatMessageEmoteType.ChannelBTTVEmote(creator, isShared)
+    is EmoteType.ChannelFFZEmote -> ChatMessageEmoteType.ChannelFFZEmote(creator)
     is EmoteType.ChannelSevenTVEmote -> ChatMessageEmoteType.ChannelSevenTVEmote(creator, baseName)
-    EmoteType.GlobalBTTVEmote        -> ChatMessageEmoteType.GlobalBTTVEmote
-    is EmoteType.GlobalFFZEmote      -> ChatMessageEmoteType.GlobalFFZEmote(creator)
-    is EmoteType.GlobalSevenTVEmote  -> ChatMessageEmoteType.GlobalSevenTVEmote(creator, baseName)
-    else                             -> null
+    EmoteType.GlobalBTTVEmote -> ChatMessageEmoteType.GlobalBTTVEmote
+    is EmoteType.GlobalFFZEmote -> ChatMessageEmoteType.GlobalFFZEmote(creator)
+    is EmoteType.GlobalSevenTVEmote -> ChatMessageEmoteType.GlobalSevenTVEmote(creator, baseName)
+    else -> null
 }

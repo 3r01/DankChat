@@ -5,12 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("revocation")
-data class RevocationMessageDto(
-    override val metadata: EventSubSubscriptionMetadataDto,
-    override val payload: RevocationMessagePayload,
-) : EventSubMessageDto
+data class RevocationMessageDto(override val metadata: EventSubSubscriptionMetadataDto, override val payload: RevocationMessagePayload) : EventSubMessageDto
 
 @Serializable
-data class RevocationMessagePayload(
-    val subscription: SubscriptionPayloadDto,
-) : EventSubPayloadDto
+data class RevocationMessagePayload(val subscription: SubscriptionPayloadDto) : EventSubPayloadDto

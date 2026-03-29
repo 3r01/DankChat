@@ -34,7 +34,6 @@ class ChatNotificationRepository(
     private val chatChannelProvider: ChatChannelProvider,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
     private val _mentions = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
@@ -43,8 +42,9 @@ class ChatNotificationRepository(
     private val _channelMentionCount = mutableSharedFlowOf(mutableMapOf<UserName, Int>())
     private val _unreadMessagesMap = mutableSharedFlowOf(mutableMapOf<UserName, Boolean>())
 
-    private val scrollBackLengthFlow = chatSettingsDataStore.debouncedScrollBack
-        .stateIn(scope, SharingStarted.Eagerly, 500)
+    private val scrollBackLengthFlow =
+        chatSettingsDataStore.debouncedScrollBack
+            .stateIn(scope, SharingStarted.Eagerly, 500)
     private val scrollBackLength get() = scrollBackLengthFlow.value
 
     val notificationsFlow: SharedFlow<List<ChatItem>> = _notificationsFlow.asSharedFlow()
@@ -57,20 +57,22 @@ class ChatNotificationRepository(
 
     suspend fun reparseAll() {
         _mentions.update { items ->
-            items.map {
-                it.copy(
-                    tag = it.tag + 1,
-                    message = messageProcessor.reparseEmotesAndBadges(it.message),
-                )
-            }.toImmutableList()
+            items
+                .map {
+                    it.copy(
+                        tag = it.tag + 1,
+                        message = messageProcessor.reparseEmotesAndBadges(it.message),
+                    )
+                }.toImmutableList()
         }
         _whispers.update { items ->
-            items.map {
-                it.copy(
-                    tag = it.tag + 1,
-                    message = messageProcessor.reparseEmotesAndBadges(it.message),
-                )
-            }.toImmutableList()
+            items
+                .map {
+                    it.copy(
+                        tag = it.tag + 1,
+                        message = messageProcessor.reparseEmotesAndBadges(it.message),
+                    )
+                }.toImmutableList()
         }
     }
 

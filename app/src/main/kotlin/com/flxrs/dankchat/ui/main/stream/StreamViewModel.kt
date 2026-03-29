@@ -31,7 +31,7 @@ class StreamViewModel(
 
     private val hasStreamData: StateFlow<Boolean> = combine(
         chatChannelProvider.activeChannel,
-        streamDataRepository.streamData
+        streamDataRepository.streamData,
     ) { activeChannel, streamData ->
         activeChannel != null && streamData.any { it.channel == activeChannel }
     }.distinctUntilChanged()
@@ -116,7 +116,4 @@ class StreamViewModel(
 }
 
 @Immutable
-data class StreamState(
-    val currentStream: UserName? = null,
-    val hasStreamData: Boolean = false,
-)
+data class StreamState(val currentStream: UserName? = null, val hasStreamData: Boolean = false)

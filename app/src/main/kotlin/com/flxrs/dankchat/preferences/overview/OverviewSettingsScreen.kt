@@ -62,13 +62,7 @@ sealed interface SettingsNavigation {
 }
 
 @Composable
-fun OverviewSettingsScreen(
-    isLoggedIn: Boolean,
-    hasChangelog: Boolean,
-    onBack: () -> Unit,
-    onLogout: () -> Unit,
-    onNavigate: (SettingsNavigation) -> Unit,
-) {
+fun OverviewSettingsScreen(isLoggedIn: Boolean, hasChangelog: Boolean, onBack: () -> Unit, onLogout: () -> Unit, onNavigate: (SettingsNavigation) -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -84,7 +78,7 @@ fun OverviewSettingsScreen(
                         onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") },
                     )
-                }
+                },
             )
         },
     ) { padding ->

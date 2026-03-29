@@ -94,27 +94,51 @@ fun MessageOptionsDialog(
             transitionSpec = {
                 when {
                     targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else                -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
                 }
             },
-            label = "MessageOptionsContent"
+            label = "MessageOptionsContent",
         ) { currentView ->
             when (currentView) {
-                null                          -> MessageOptionsMainView(
+                null -> MessageOptionsMainView(
                     canReply = canReply,
                     canJump = canJump,
                     canCopy = canCopy,
                     canModerate = canModerate,
                     hasReplyThread = hasReplyThread,
                     channel = channel,
-                    onReply = { onReply(); onDismiss() },
-                    onReplyToOriginal = { onReplyToOriginal(); onDismiss() },
-                    onJumpToMessage = { onJumpToMessage(); onDismiss() },
-                    onViewThread = { onViewThread(); onDismiss() },
-                    onCopy = { onCopy(); onDismiss() },
-                    onCopyFullMessage = { onCopyFullMessage(); onDismiss() },
-                    onCopyMessageId = { onCopyMessageId(); onDismiss() },
-                    onUnban = { onUnban(); onDismiss() },
+                    onReply = {
+                        onReply()
+                        onDismiss()
+                    },
+                    onReplyToOriginal = {
+                        onReplyToOriginal()
+                        onDismiss()
+                    },
+                    onJumpToMessage = {
+                        onJumpToMessage()
+                        onDismiss()
+                    },
+                    onViewThread = {
+                        onViewThread()
+                        onDismiss()
+                    },
+                    onCopy = {
+                        onCopy()
+                        onDismiss()
+                    },
+                    onCopyFullMessage = {
+                        onCopyFullMessage()
+                        onDismiss()
+                    },
+                    onCopyMessageId = {
+                        onCopyMessageId()
+                        onDismiss()
+                    },
+                    onUnban = {
+                        onUnban()
+                        onDismiss()
+                    },
                     onTimeout = { subView = MessageOptionsSubView.Timeout },
                     onBan = { subView = MessageOptionsSubView.Ban },
                     onDelete = { subView = MessageOptionsSubView.Delete },
@@ -128,7 +152,7 @@ fun MessageOptionsDialog(
                     onBack = { subView = null },
                 )
 
-                MessageOptionsSubView.Ban     -> ConfirmationSubView(
+                MessageOptionsSubView.Ban -> ConfirmationSubView(
                     title = stringResource(R.string.confirm_user_ban_message),
                     confirmText = stringResource(R.string.confirm_user_ban_positive_button),
                     onConfirm = {
@@ -138,7 +162,7 @@ fun MessageOptionsDialog(
                     onBack = { subView = null },
                 )
 
-                MessageOptionsSubView.Delete  -> ConfirmationSubView(
+                MessageOptionsSubView.Delete -> ConfirmationSubView(
                     title = stringResource(R.string.confirm_user_delete_message),
                     confirmText = stringResource(R.string.confirm_user_delete_positive_button),
                     onConfirm = {
@@ -181,7 +205,7 @@ private fun MessageOptionsMainView(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp)
+            .padding(bottom = 16.dp),
     ) {
         if (canReply) {
             MessageOptionItem(Icons.AutoMirrored.Filled.Reply, stringResource(R.string.message_reply), onReply)
@@ -230,24 +254,17 @@ private fun MessageOptionsMainView(
 }
 
 @Composable
-private fun MessageOptionItem(
-    icon: ImageVector,
-    text: String,
-    onClick: () -> Unit
-) {
+private fun MessageOptionItem(icon: ImageVector, text: String, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(text) },
         leadingContent = { Icon(icon, contentDescription = null) },
         modifier = Modifier.clickable(onClick = onClick),
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     )
 }
 
 @Composable
-private fun TimeoutSubView(
-    onConfirm: (Int) -> Unit,
-    onBack: () -> Unit,
-) {
+private fun TimeoutSubView(onConfirm: (Int) -> Unit, onBack: () -> Unit) {
     val choices = stringArrayResource(R.array.timeout_entries)
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val currentIndex = sliderPosition.toInt()
@@ -298,12 +315,7 @@ private fun TimeoutSubView(
 }
 
 @Composable
-private fun ConfirmationSubView(
-    title: String,
-    confirmText: String,
-    onConfirm: () -> Unit,
-    onBack: () -> Unit,
-) {
+private fun ConfirmationSubView(title: String, confirmText: String, onConfirm: () -> Unit, onBack: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

@@ -22,12 +22,7 @@ class SuggestionProvider(
     private val emoteUsageRepository: EmoteUsageRepository,
     private val emojiRepository: EmojiRepository,
 ) {
-
-    fun getSuggestions(
-        inputText: String,
-        cursorPosition: Int,
-        channel: UserName?
-    ): Flow<List<Suggestion>> {
+    fun getSuggestions(inputText: String, cursorPosition: Int, channel: UserName?): Flow<List<Suggestion>> {
         if (inputText.isBlank() || channel == null) {
             return flowOf(emptyList())
         }
@@ -39,10 +34,11 @@ class SuggestionProvider(
 
         // ':' trigger: emote + emoji mode with reduced min chars
         val isEmoteTrigger = currentWord.startsWith(':')
-        val emoteQuery = when {
-            isEmoteTrigger -> currentWord.removePrefix(":")
-            else           -> currentWord
-        }
+        val emoteQuery =
+            when {
+                isEmoteTrigger -> currentWord.removePrefix(":")
+                else -> currentWord
+            }
 
         if (isEmoteTrigger && emoteQuery.isEmpty()) {
             return flowOf(emptyList())
@@ -67,33 +63,25 @@ class SuggestionProvider(
         }
     }
 
-    private fun getEmoteSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.EmoteSuggestion>> {
-        return emoteRepository.getEmotes(channel).map { emotes ->
-            val recentIds = emoteUsageRepository.recentEmoteIds.value
-            filterEmotes(emotes.suggestions, constraint, recentIds)
-        }
+    private fun getEmoteSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.EmoteSuggestion>> = emoteRepository.getEmotes(channel).map { emotes ->
+        val recentIds = emoteUsageRepository.recentEmoteIds.value
+        filterEmotes(emotes.suggestions, constraint, recentIds)
     }
 
-    private fun getScoredEmoteSuggestions(channel: UserName, constraint: String): Flow<List<ScoredSuggestion>> {
-        return emoteRepository.getEmotes(channel).map { emotes ->
-            val recentIds = emoteUsageRepository.recentEmoteIds.value
-            filterEmotesScored(emotes.suggestions, constraint, recentIds)
-        }
+    private fun getScoredEmoteSuggestions(channel: UserName, constraint: String): Flow<List<ScoredSuggestion>> = emoteRepository.getEmotes(channel).map { emotes ->
+        val recentIds = emoteUsageRepository.recentEmoteIds.value
+        filterEmotesScored(emotes.suggestions, constraint, recentIds)
     }
 
-    private fun getUserSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.UserSuggestion>> {
-        return usersRepository.getUsersFlow(channel).map { displayNameSet ->
-            filterUsers(displayNameSet, constraint)
-        }
+    private fun getUserSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.UserSuggestion>> = usersRepository.getUsersFlow(channel).map { displayNameSet ->
+        filterUsers(displayNameSet, constraint)
     }
 
-    private fun getCommandSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.CommandSuggestion>> {
-        return combine(
-            commandRepository.getCommandTriggers(channel),
-            commandRepository.getSupibotCommands(channel)
-        ) { triggers, supibotCommands ->
-            filterCommands(triggers + supibotCommands, constraint)
-        }
+    private fun getCommandSuggestions(channel: UserName, constraint: String): Flow<List<Suggestion.CommandSuggestion>> = combine(
+        commandRepository.getCommandTriggers(channel),
+        commandRepository.getSupibotCommands(channel),
+    ) { triggers, supibotCommands ->
+        filterCommands(triggers + supibotCommands, constraint)
     }
 
     // Merge two pre-sorted lists in O(n+m) without intermediate allocations
@@ -102,12 +90,13 @@ class SuggestionProvider(
         var i = 0
         var j = 0
         while (result.size < MAX_SUGGESTIONS && (i < a.size || j < b.size)) {
-            val pick = when {
-                i >= a.size              -> b[j++]
-                j >= b.size              -> a[i++]
-                a[i].score <= b[j].score -> a[i++]
-                else                     -> b[j++]
-            }
+            val pick =
+                when {
+                    i >= a.size -> b[j++]
+                    j >= b.size -> a[i++]
+                    a[i].score <= b[j].score -> a[i++]
+                    else -> b[j++]
+                }
             result.add(pick.suggestion)
         }
         return result
@@ -141,64 +130,37 @@ class SuggestionProvider(
     }
 
     // Score raw GenericEmotes, only wrap matches
-    internal fun filterEmotes(
-        emotes: List<GenericEmote>,
-        constraint: String,
-        recentEmoteIds: Set<String>,
-    ): List<Suggestion.EmoteSuggestion> {
-        return filterEmotesScored(emotes, constraint, recentEmoteIds).map { it.suggestion as Suggestion.EmoteSuggestion }
-    }
+    internal fun filterEmotes(emotes: List<GenericEmote>, constraint: String, recentEmoteIds: Set<String>): List<Suggestion.EmoteSuggestion> =
+        filterEmotesScored(emotes, constraint, recentEmoteIds).map { it.suggestion as Suggestion.EmoteSuggestion }
 
-    private fun filterEmotesScored(
-        emotes: List<GenericEmote>,
-        constraint: String,
-        recentEmoteIds: Set<String>,
-    ): List<ScoredSuggestion> {
-        return emotes
-            .mapNotNull { emote ->
-                val score = scoreEmote(emote.code, constraint, emote.id in recentEmoteIds)
-                if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.EmoteSuggestion(emote), score)
-            }
-            .sortedBy { it.score }
-    }
+    private fun filterEmotesScored(emotes: List<GenericEmote>, constraint: String, recentEmoteIds: Set<String>): List<ScoredSuggestion> = emotes
+        .mapNotNull { emote ->
+            val score = scoreEmote(emote.code, constraint, emote.id in recentEmoteIds)
+            if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.EmoteSuggestion(emote), score)
+        }.sortedBy { it.score }
 
     // Score raw EmojiData, only wrap matches
-    internal fun filterEmojis(
-        emojis: List<EmojiData>,
-        constraint: String,
-    ): List<ScoredSuggestion> {
-        return emojis
-            .mapNotNull { emoji ->
-                val score = scoreEmote(emoji.code, constraint, isRecentlyUsed = false)
-                if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.EmojiSuggestion(emoji), score)
-            }
-            .sortedBy { it.score }
-    }
+    internal fun filterEmojis(emojis: List<EmojiData>, constraint: String): List<ScoredSuggestion> = emojis
+        .mapNotNull { emoji ->
+            val score = scoreEmote(emoji.code, constraint, isRecentlyUsed = false)
+            if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.EmojiSuggestion(emoji), score)
+        }.sortedBy { it.score }
 
     // Filter raw DisplayName set, only wrap matches
-    internal fun filterUsers(
-        users: Set<com.flxrs.dankchat.data.DisplayName>,
-        constraint: String,
-    ): List<Suggestion.UserSuggestion> {
+    internal fun filterUsers(users: Set<com.flxrs.dankchat.data.DisplayName>, constraint: String): List<Suggestion.UserSuggestion> {
         val withAt = constraint.startsWith('@')
         return users
             .mapNotNull { name ->
                 val suggestion = Suggestion.UserSuggestion(name, withLeadingAt = withAt)
                 suggestion.takeIf { it.toString().startsWith(constraint, ignoreCase = true) }
-            }
-            .sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name.value })
+            }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name.value })
     }
 
     // Filter raw command strings, only wrap matches
-    internal fun filterCommands(
-        commands: List<String>,
-        constraint: String,
-    ): List<Suggestion.CommandSuggestion> {
-        return commands
-            .filter { it.startsWith(constraint, ignoreCase = true) }
-            .sortedWith(String.CASE_INSENSITIVE_ORDER)
-            .map { Suggestion.CommandSuggestion(it) }
-    }
+    internal fun filterCommands(commands: List<String>, constraint: String): List<Suggestion.CommandSuggestion> = commands
+        .filter { it.startsWith(constraint, ignoreCase = true) }
+        .sortedWith(String.CASE_INSENSITIVE_ORDER)
+        .map { Suggestion.CommandSuggestion(it) }
 
     companion object {
         internal const val NO_MATCH = Int.MIN_VALUE

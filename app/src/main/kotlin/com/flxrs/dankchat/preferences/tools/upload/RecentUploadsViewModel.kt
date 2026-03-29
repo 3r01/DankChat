@@ -17,36 +17,34 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class RecentUploadsViewModel(
-    private val recentUploadsRepository: RecentUploadsRepository
-) : ViewModel() {
-
-    val recentUploads = recentUploadsRepository
-        .getRecentUploads()
-        .map { uploads ->
-            uploads.map {
-                RecentUpload(
-                    id = it.id,
-                    imageUrl = it.imageLink,
-                    deleteUrl = it.deleteLink,
-                    formattedUploadTime = it.timestamp.formatWithLocale(Locale.getDefault())
-                )
-            }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = emptyList(),
-        )
+class RecentUploadsViewModel(private val recentUploadsRepository: RecentUploadsRepository) : ViewModel() {
+    val recentUploads =
+        recentUploadsRepository
+            .getRecentUploads()
+            .map { uploads ->
+                uploads.map {
+                    RecentUpload(
+                        id = it.id,
+                        imageUrl = it.imageLink,
+                        deleteUrl = it.deleteLink,
+                        formattedUploadTime = it.timestamp.formatWithLocale(Locale.getDefault()),
+                    )
+                }
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.seconds),
+                initialValue = emptyList(),
+            )
 
     fun clearUploads() = viewModelScope.launch {
         recentUploadsRepository.clearUploads()
     }
 
     companion object {
-        private val formatter = DateTimeFormatter
-            .ofLocalizedDateTime(FormatStyle.SHORT)
-            .withZone(ZoneId.systemDefault())
+        private val formatter =
+            DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.SHORT)
+                .withZone(ZoneId.systemDefault())
 
         private fun Instant.formatWithLocale(locale: Locale) = formatter
             .withLocale(locale)

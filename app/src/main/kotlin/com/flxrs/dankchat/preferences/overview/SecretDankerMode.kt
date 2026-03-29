@@ -59,7 +59,7 @@ fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
                         .apply { show() }
                 }
 
-                clicksNeeded        -> {
+                clicksNeeded -> {
                     Toast
                         .makeText(context, "Secret danker mode enabled", Toast.LENGTH_SHORT)
                         .show()

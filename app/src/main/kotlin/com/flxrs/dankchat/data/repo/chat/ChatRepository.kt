@@ -33,7 +33,6 @@ class ChatRepository(
     private val authDataStore: AuthDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
 ) {
-
     val activeChannel get() = chatChannelProvider.activeChannel
     val channels get() = chatChannelProvider.channels
 
@@ -93,20 +92,21 @@ class ChatRepository(
             val userState = userStateRepository.userState.value
             val name = authDataStore.userName ?: return
             val displayName = userState.displayName ?: return
-            val fakeMessage = WhisperMessage(
-                userId = userState.userId,
-                name = name,
-                displayName = displayName,
-                color = userState.color?.let(Color::parseColor) ?: Message.DEFAULT_COLOR,
-                recipientId = null,
-                recipientColor = Message.DEFAULT_COLOR,
-                recipientName = split[1].toUserName(),
-                recipientDisplayName = split[1].toDisplayName(),
-                message = message,
-                rawEmotes = "",
-                rawBadges = "",
-                emotes = emotes,
-            )
+            val fakeMessage =
+                WhisperMessage(
+                    userId = userState.userId,
+                    name = name,
+                    displayName = displayName,
+                    color = userState.color?.let(Color::parseColor) ?: Message.DEFAULT_COLOR,
+                    recipientId = null,
+                    recipientColor = Message.DEFAULT_COLOR,
+                    recipientName = split[1].toUserName(),
+                    recipientDisplayName = split[1].toDisplayName(),
+                    message = message,
+                    rawEmotes = "",
+                    rawBadges = "",
+                    emotes = emotes,
+                )
             val fakeItem = ChatItem(fakeMessage, isMentionTab = true)
             chatNotificationRepository.addWhisper(fakeItem)
         }
@@ -118,7 +118,10 @@ class ChatRepository(
 
     suspend fun loadRecentMessagesIfEnabled(channel: UserName) {
         when {
-            chatSettingsDataStore.settings.first().loadMessageHistory -> chatEventProcessor.loadRecentMessages(channel)
+            chatSettingsDataStore.settings.first().loadMessageHistory -> {
+                chatEventProcessor.loadRecentMessages(channel)
+            }
+
             else -> {
                 chatMessageRepository.getMessagesFlow(channel)?.update { current ->
                     current + SystemMessageType.NoHistoryLoaded.toChatItem()

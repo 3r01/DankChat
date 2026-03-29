@@ -15,19 +15,19 @@ data class UserNoticeMessage(
     val childMessage: PrivMessage?,
     val tags: Map<String, String>,
 ) : Message() {
-
     override val emoteData: EmoteData? = childMessage?.emoteData
     override val badgeData: BadgeData? = childMessage?.badgeData
 
     companion object {
-        val USER_NOTICE_MSG_IDS_WITH_MESSAGE = listOf(
-            "sub",
-            "subgift",
-            "resub",
-            "bitsbadgetier",
-            "ritual",
-            "announcement"
-        )
+        val USER_NOTICE_MSG_IDS_WITH_MESSAGE =
+            listOf(
+                "sub",
+                "subgift",
+                "resub",
+                "bitsbadgetier",
+                "ritual",
+                "announcement",
+            )
 
         fun parseUserNotice(message: IrcMessage, findChannel: (UserId) -> UserName?, historic: Boolean = false): UserNoticeMessage? = with(message) {
             var msgId = tags["msg-id"]
@@ -49,26 +49,36 @@ data class UserNoticeMessage(
             val id = tags["id"] ?: UUID.randomUUID().toString()
             val channel = params[0].substring(1)
             val defaultMessage = tags["system-msg"] ?: ""
-            val systemMsg = when {
-                msgId == "announcement"  -> "Announcement"
-                msgId == "bitsbadgetier" -> {
-                    val displayName = tags["display-name"]
-                    val bitAmount = tags["msg-param-threshold"]
-                    when {
-                        displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount.toInt() / 1000}K Bits badge!"
-                        else                                     -> defaultMessage
+            val systemMsg =
+                when {
+                    msgId == "announcement" -> {
+                        "Announcement"
+                    }
+
+                    msgId == "bitsbadgetier" -> {
+                        val displayName = tags["display-name"]
+                        val bitAmount = tags["msg-param-threshold"]
+                        when {
+                            displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount.toInt() / 1000}K Bits badge!"
+                            else -> defaultMessage
+                        }
+                    }
+
+                    historic -> {
+                        params[1]
+                    }
+
+                    else -> {
+                        defaultMessage
                     }
                 }
-
-                historic                 -> params[1]
-                else                     -> defaultMessage
-            }
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
 
-            val childMessage = when (msgId) {
-                in USER_NOTICE_MSG_IDS_WITH_MESSAGE -> PrivMessage.parsePrivMessage(message, findChannel)
-                else                                -> null
-            }
+            val childMessage =
+                when (msgId) {
+                    in USER_NOTICE_MSG_IDS_WITH_MESSAGE -> PrivMessage.parsePrivMessage(message, findChannel)
+                    else -> null
+                }
 
             return UserNoticeMessage(
                 timestamp = ts,

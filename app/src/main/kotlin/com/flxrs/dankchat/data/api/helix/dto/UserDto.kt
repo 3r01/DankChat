@@ -19,5 +19,5 @@ data class UserDto(
     @SerialName(value = "profile_image_url") val avatarUrl: String,
     @SerialName(value = "offline_image_url") val offlineImageUrl: String,
     @SerialName(value = "view_count") val viewCount: Int,
-    @SerialName(value = "created_at") val createdAt: String
+    @SerialName(value = "created_at") val createdAt: String,
 )

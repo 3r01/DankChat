@@ -6,8 +6,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVUserDto(
-    val id: String,
-    val user: SevenTVUserDataDto,
-    @SerialName("emote_set") val emoteSet: SevenTVEmoteSetDto?
-)
+data class SevenTVUserDto(val id: String, val user: SevenTVUserDataDto, @SerialName("emote_set") val emoteSet: SevenTVEmoteSetDto?)

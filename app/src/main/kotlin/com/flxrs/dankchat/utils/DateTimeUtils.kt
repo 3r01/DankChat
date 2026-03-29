@@ -65,24 +65,28 @@ object DateTimeUtils {
     }
 
     private fun secondsMultiplierForUnit(char: Char): Int? = when (char) {
-        's'  -> 1
-        'm'  -> 60
-        'h'  -> 60 * 60
-        'd'  -> 60 * 60 * 24
-        'w'  -> 60 * 60 * 24 * 7
+        's' -> 1
+        'm' -> 60
+        'h' -> 60 * 60
+        'd' -> 60 * 60 * 24
+        'w' -> 60 * 60 * 24 * 7
         else -> null
     }
 
     enum class DurationUnit { WEEKS, DAYS, HOURS, MINUTES, SECONDS }
+
     data class DurationPart(val value: Int, val unit: DurationUnit)
 
     fun decomposeMinutes(totalMinutes: Int): List<DurationPart> = buildList {
         var remaining = totalMinutes
-        val weeks = remaining / 10080; remaining %= 10080
+        val weeks = remaining / 10080
+        remaining %= 10080
         if (weeks > 0) add(DurationPart(weeks, DurationUnit.WEEKS))
-        val days = remaining / 1440; remaining %= 1440
+        val days = remaining / 1440
+        remaining %= 1440
         if (days > 0) add(DurationPart(days, DurationUnit.DAYS))
-        val hours = remaining / 60; remaining %= 60
+        val hours = remaining / 60
+        remaining %= 60
         if (hours > 0) add(DurationPart(hours, DurationUnit.HOURS))
         if (remaining > 0) add(DurationPart(remaining, DurationUnit.MINUTES))
     }
@@ -99,13 +103,14 @@ object DateTimeUtils {
         val now = ZonedDateTime.now().toEpochSecond()
 
         val duration = now.seconds - startedAt.seconds
-        val uptime = duration.toComponents { days, hours, minutes, _, _ ->
-            buildString {
-                if (days > 0) append("${days}d ")
-                if (hours > 0) append("${hours}h ")
-                append("${minutes}m")
+        val uptime =
+            duration.toComponents { days, hours, minutes, _, _ ->
+                buildString {
+                    if (days > 0) append("${days}d ")
+                    if (hours > 0) append("${hours}h ")
+                    append("${minutes}m")
+                }
             }
-        }
 
         return uptime
     }

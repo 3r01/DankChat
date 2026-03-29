@@ -85,7 +85,6 @@ fun MessageHistorySheet(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
 ) {
-
     LaunchedEffect(viewModel, initialFilter) {
         viewModel.setInitialQuery(initialFilter)
     }
@@ -149,7 +148,7 @@ fun MessageHistorySheet(
                 scaleY = scale
                 alpha = 1f - backProgress
                 translationY = backProgress * 100f
-            }
+            },
     ) {
         CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
             ChatScreen(
@@ -184,7 +183,7 @@ fun MessageHistorySheet(
                             0f to sheetBackgroundColor.copy(alpha = 0.7f),
                             0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
                             1f to sheetBackgroundColor.copy(alpha = 0f),
-                        )
+                        ),
                     )
                     .padding(top = statusBarHeight + 8.dp)
                     .padding(bottom = 16.dp)
@@ -235,7 +234,7 @@ fun MessageHistorySheet(
                     .align(Alignment.TopCenter)
                     .fillMaxWidth()
                     .height(statusBarHeight)
-                    .background(sheetBackgroundColor.copy(alpha = 0.7f))
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
             )
         }
 
@@ -269,9 +268,7 @@ fun MessageHistorySheet(
 }
 
 @Composable
-private fun SearchToolbar(
-    state: TextFieldState,
-) {
+private fun SearchToolbar(state: TextFieldState) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
     val textFieldColors = TextFieldDefaults.colors(

@@ -9,16 +9,10 @@ import kotlin.time.Instant
 
 @Serializable
 @SerialName("notification")
-data class NotificationMessageDto(
-    override val metadata: EventSubSubscriptionMetadataDto,
-    override val payload: NotificationMessagePayload
-) : EventSubMessageDto
+data class NotificationMessageDto(override val metadata: EventSubSubscriptionMetadataDto, override val payload: NotificationMessagePayload) : EventSubMessageDto
 
 @Serializable
-data class NotificationMessagePayload(
-    val subscription: SubscriptionPayloadDto,
-    val event: NotificationEventDto,
-) : EventSubPayloadDto
+data class NotificationMessagePayload(val subscription: SubscriptionPayloadDto, val event: NotificationEventDto) : EventSubPayloadDto
 
 @Serializable
 data class SubscriptionPayloadDto(

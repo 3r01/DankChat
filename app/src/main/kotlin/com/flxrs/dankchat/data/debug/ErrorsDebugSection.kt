@@ -7,18 +7,14 @@ import kotlinx.coroutines.flow.combine
 import org.koin.core.annotation.Single
 
 @Single
-class ErrorsDebugSection(
-    private val dataRepository: DataRepository,
-    private val chatMessageRepository: ChatMessageRepository,
-) : DebugSection {
-
+class ErrorsDebugSection(private val dataRepository: DataRepository, private val chatMessageRepository: ChatMessageRepository) : DebugSection {
     override val order = 9
     override val baseTitle = "Errors"
 
-    override fun entries(): Flow<DebugSectionSnapshot> {
-        return combine(dataRepository.dataLoadingFailures, chatMessageRepository.chatLoadingFailures) { dataFailures, chatFailures ->
-            val totalFailures = dataFailures.size + chatFailures.size
-            val entries = buildList {
+    override fun entries(): Flow<DebugSectionSnapshot> = combine(dataRepository.dataLoadingFailures, chatMessageRepository.chatLoadingFailures) { dataFailures, chatFailures ->
+        val totalFailures = dataFailures.size + chatFailures.size
+        val entries =
+            buildList {
                 add(DebugEntry("Total failures", "$totalFailures"))
                 dataFailures.forEach { failure ->
                     add(DebugEntry(failure.step::class.simpleName ?: "Unknown", failure.failure.message ?: "Unknown error"))
@@ -27,7 +23,6 @@ class ErrorsDebugSection(
                     add(DebugEntry(failure.step::class.simpleName ?: "Unknown", failure.failure.message ?: "Unknown error"))
                 }
             }
-            DebugSectionSnapshot(title = baseTitle, entries = entries)
-        }
+        DebugSectionSnapshot(title = baseTitle, entries = entries)
     }
 }

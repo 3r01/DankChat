@@ -28,7 +28,6 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(MockKExtension::class)
 internal class FeatureTourViewModelTest {
-
     private val testDispatcher = UnconfinedTestDispatcher()
     private val settingsFlow = MutableStateFlow(OnboardingSettings())
     private val onboardingDataStore: OnboardingDataStore = mockk()

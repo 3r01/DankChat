@@ -5,7 +5,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVEmoteFileDto(
-    val name: String,
-    val format: String,
-)
+data class SevenTVEmoteFileDto(val name: String, val format: String)

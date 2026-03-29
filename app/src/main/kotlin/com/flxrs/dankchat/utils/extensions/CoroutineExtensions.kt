@@ -15,24 +15,22 @@ suspend fun <T, R> Collection<T>.concurrentMap(block: suspend (T) -> R): List<R>
     map { async { block(it) } }.awaitAll()
 }
 
-fun CoroutineScope.timer(interval: Duration, action: suspend TimerScope.() -> Unit): Job {
-    return launch {
-        val scope = TimerScope()
+fun CoroutineScope.timer(interval: Duration, action: suspend TimerScope.() -> Unit): Job = launch {
+    val scope = TimerScope()
 
-        while (true) {
-            try {
-                action(scope)
-            } catch (ex: Exception) {
-                Log.e("TimerScope", Log.getStackTraceString(ex))
-            }
-
-            if (scope.isCancelled) {
-                break
-            }
-
-            delay(interval)
-            yield()
+    while (true) {
+        try {
+            action(scope)
+        } catch (ex: Exception) {
+            Log.e("TimerScope", Log.getStackTraceString(ex))
         }
+
+        if (scope.isCancelled) {
+            break
+        }
+
+        delay(interval)
+        yield()
     }
 }
 

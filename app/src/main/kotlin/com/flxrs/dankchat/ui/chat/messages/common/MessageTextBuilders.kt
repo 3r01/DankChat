@@ -22,11 +22,7 @@ import com.flxrs.dankchat.ui.chat.EmoteUi
 /**
  * Appends a formatted timestamp to the AnnotatedString builder.
  */
-fun AnnotatedString.Builder.appendTimestamp(
-    timestamp: String,
-    fontSize: TextUnit,
-    color: Color
-) {
+fun AnnotatedString.Builder.appendTimestamp(timestamp: String, fontSize: TextUnit, color: Color) {
     if (timestamp.isNotEmpty()) {
         withStyle(
             SpanStyle(
@@ -34,8 +30,8 @@ fun AnnotatedString.Builder.appendTimestamp(
                 fontWeight = FontWeight.Bold,
                 fontSize = (fontSize.value * 0.95f).sp,
                 color = color,
-                letterSpacing = (-0.03).em
-            )
+                letterSpacing = (-0.03).em,
+            ),
         ) {
             append(timestamp)
             append(" ")
@@ -56,11 +52,7 @@ fun AnnotatedString.Builder.appendBadges(badges: List<BadgeUi>) {
 /**
  * Appends message text with emotes, handling emote inline content and spacing.
  */
-fun AnnotatedString.Builder.appendMessageWithEmotes(
-    message: String,
-    emotes: List<EmoteUi>,
-    textColor: Color
-) {
+fun AnnotatedString.Builder.appendMessageWithEmotes(message: String, emotes: List<EmoteUi>, textColor: Color) {
     withStyle(SpanStyle(color = textColor)) {
         var currentPos = 0
         emotes.sortedBy { it.position.first }.forEach { emote ->
@@ -78,7 +70,7 @@ fun AnnotatedString.Builder.appendMessageWithEmotes(
                     SpanStyle(
                         color = emote.cheerColor ?: textColor,
                         fontWeight = FontWeight.Bold,
-                    )
+                    ),
                 ) {
                     append(emote.cheerAmount.toString())
                 }
@@ -103,29 +95,23 @@ fun AnnotatedString.Builder.appendMessageWithEmotes(
 /**
  * Appends a clickable username with annotation for click handling.
  */
-fun AnnotatedString.Builder.appendClickableUsername(
-    displayText: String,
-    userId: UserId?,
-    userName: UserName,
-    displayName: DisplayName,
-    channel: String = "",
-    color: Color
-) {
+fun AnnotatedString.Builder.appendClickableUsername(displayText: String, userId: UserId?, userName: UserName, displayName: DisplayName, channel: String = "", color: Color) {
     if (displayText.isNotEmpty()) {
         withStyle(
             SpanStyle(
                 fontWeight = FontWeight.Bold,
-                color = color
-            )
+                color = color,
+            ),
         ) {
-            val annotation = if (channel.isNotEmpty()) {
-                "${userId?.value ?: ""}|${userName.value}|${displayName.value}|$channel"
-            } else {
-                "${userId?.value ?: ""}|${userName.value}|${displayName.value}"
-            }
+            val annotation =
+                if (channel.isNotEmpty()) {
+                    "${userId?.value ?: ""}|${userName.value}|${displayName.value}|$channel"
+                } else {
+                    "${userId?.value ?: ""}|${userName.value}|${displayName.value}"
+                }
             pushStringAnnotation(
                 tag = "USER",
-                annotation = annotation
+                annotation = annotation,
             )
             append(displayText)
             pop()
@@ -133,31 +119,32 @@ fun AnnotatedString.Builder.appendClickableUsername(
     }
 }
 
-data class UserAnnotation(
-    val userId: String?,
-    val userName: String,
-    val displayName: String,
-    val channel: String?,
-)
+data class UserAnnotation(val userId: String?, val userName: String, val displayName: String, val channel: String?)
 
 fun parseUserAnnotation(annotation: String): UserAnnotation? {
     val parts = annotation.split("|")
     return when (parts.size) {
-        4 -> UserAnnotation(
-            userId = parts[0].takeIf { it.isNotEmpty() },
-            userName = parts[1],
-            displayName = parts[2],
-            channel = parts[3],
-        )
+        4 -> {
+            UserAnnotation(
+                userId = parts[0].takeIf { it.isNotEmpty() },
+                userName = parts[1],
+                displayName = parts[2],
+                channel = parts[3],
+            )
+        }
 
-        3 -> UserAnnotation(
-            userId = parts[0].takeIf { it.isNotEmpty() },
-            userName = parts[1],
-            displayName = parts[2],
-            channel = null,
-        )
+        3 -> {
+            UserAnnotation(
+                userId = parts[0].takeIf { it.isNotEmpty() },
+                userName = parts[1],
+                displayName = parts[2],
+                channel = null,
+            )
+        }
 
-        else -> null
+        else -> {
+            null
+        }
     }
 }
 
@@ -171,7 +158,7 @@ fun buildInlineContentProviders(
     fontSize: Float,
     coordinator: EmoteAnimationCoordinator,
     animateGifs: Boolean,
-    onEmoteClick: (List<EmoteUi>) -> Unit
+    onEmoteClick: (List<EmoteUi>) -> Unit,
 ): Map<String, @Composable () -> Unit> {
     val badgeSize = EmoteScaling.getBadgeSize(fontSize)
 
@@ -191,7 +178,7 @@ fun buildInlineContentProviders(
                     fontSize = fontSize,
                     coordinator = coordinator,
                     animateGifs = animateGifs,
-                    onClick = { onEmoteClick(emotes) }
+                    onClick = { onEmoteClick(emotes) },
                 )
             }
         }

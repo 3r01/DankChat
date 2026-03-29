@@ -14,11 +14,10 @@ import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class DebugInfoViewModel(
-    debugSectionRegistry: DebugSectionRegistry,
-) : ViewModel() {
-
-    val sections: StateFlow<ImmutableList<DebugSectionSnapshot>> = debugSectionRegistry.allSections()
-        .map { it.toImmutableList() }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
+class DebugInfoViewModel(debugSectionRegistry: DebugSectionRegistry) : ViewModel() {
+    val sections: StateFlow<ImmutableList<DebugSectionSnapshot>> =
+        debugSectionRegistry
+            .allSections()
+            .map { it.toImmutableList() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 }

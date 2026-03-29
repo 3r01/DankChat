@@ -10,10 +10,8 @@ data class UserHighlightEntity(
     val id: Long,
     val enabled: Boolean,
     val username: String,
-
     @ColumnInfo(name = "create_notification")
     val createNotification: Boolean = true,
-
     @ColumnInfo(name = "custom_color")
-    val customColor: Int? = null
+    val customColor: Int? = null,
 )

@@ -21,9 +21,7 @@ inline fun <reified T : P, P> Collection<P>.partitionIsInstance(): Pair<List<T>,
     return Pair(first, second)
 }
 
-inline fun <T> Collection<T>.replaceIf(replacement: T, predicate: (T) -> Boolean): List<T> {
-    return map { if (predicate(it)) replacement else it }
-}
+inline fun <T> Collection<T>.replaceIf(replacement: T, predicate: (T) -> Boolean): List<T> = map { if (predicate(it)) replacement else it }
 
 inline fun <T> List<T>.chunkedBy(maxSize: Int, selector: (T) -> Int): List<List<T>> {
     val result = mutableListOf<List<T>>()

@@ -13,7 +13,7 @@ fun PreferenceSummary(summary: AnnotatedString, modifier: Modifier = Modifier, i
     val contentColor = LocalContentColor.current
     val color = when {
         isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
+        else -> contentColor.copy(alpha = ContentAlpha.disabled)
     }
     Text(
         text = summary,
@@ -28,7 +28,7 @@ fun PreferenceSummary(summary: String, isEnabled: Boolean = true) {
     val contentColor = LocalContentColor.current
     val color = when {
         isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
+        else -> contentColor.copy(alpha = ContentAlpha.disabled)
     }
     Text(
         text = summary,

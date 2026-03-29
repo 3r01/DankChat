@@ -6,6 +6,4 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class ShieldModeRequestDto(
-    @SerialName("is_active") val isActive: Boolean
-)
+data class ShieldModeRequestDto(@SerialName("is_active") val isActive: Boolean)

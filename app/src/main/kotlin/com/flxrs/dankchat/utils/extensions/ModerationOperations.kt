@@ -27,17 +27,19 @@ fun List<ChatItem>.replaceOrAddModerationMessage(moderationMessage: ModerationMe
     for (idx in indices) {
         val item = this[idx]
         when (moderationMessage.action) {
-            ModerationMessage.Action.Clear     -> {
-                this[idx] = when (item.message) {
-                    is PrivMessage -> item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
-                    else           -> item.copy(tag = item.tag + 1, importance = ChatImportance.DELETED)
-                }
+            ModerationMessage.Action.Clear -> {
+                this[idx] =
+                    when (item.message) {
+                        is PrivMessage -> item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
+                        else -> item.copy(tag = item.tag + 1, importance = ChatImportance.DELETED)
+                    }
             }
 
             ModerationMessage.Action.Timeout,
             ModerationMessage.Action.Ban,
             ModerationMessage.Action.SharedTimeout,
-            ModerationMessage.Action.SharedBan -> {
+            ModerationMessage.Action.SharedBan,
+            -> {
                 item.message as? PrivMessage ?: continue
                 if (moderationMessage.targetUser != item.message.name) {
                     continue
@@ -46,7 +48,9 @@ fun List<ChatItem>.replaceOrAddModerationMessage(moderationMessage: ModerationMe
                 this[idx] = item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
             }
 
-            else                               -> continue
+            else -> {
+                continue
+            }
         }
     }
 
@@ -95,8 +99,11 @@ private fun MutableList<ChatItem>.checkForStackedTimeouts(moderationMessage: Mod
             }
 
             when {
-                !moderationMessage.fromEventSource && message.fromEventSource                                                                      -> Unit
-                moderationMessage.fromEventSource && !message.fromEventSource                                                                      -> {
+                !moderationMessage.fromEventSource && message.fromEventSource -> {
+                    Unit
+                }
+
+                moderationMessage.fromEventSource && !message.fromEventSource -> {
                     this[idx] = item.copy(tag = item.tag + 1, message = moderationMessage)
                 }
 

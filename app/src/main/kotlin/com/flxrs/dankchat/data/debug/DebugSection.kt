@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 interface DebugSection {
     val baseTitle: String
     val order: Int
+
     fun entries(): Flow<DebugSectionSnapshot>
 }
 

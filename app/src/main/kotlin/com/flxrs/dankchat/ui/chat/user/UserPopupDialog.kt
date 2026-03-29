@@ -88,10 +88,10 @@ fun UserPopupDialog(
             transitionSpec = {
                 when {
                     targetState -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else        -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
                 }
             },
-            label = "UserPopupContent"
+            label = "UserPopupContent",
         ) { isBlockConfirmation ->
             when {
                 isBlockConfirmation -> {
@@ -130,22 +130,22 @@ fun UserPopupDialog(
                     }
                 }
 
-                else                -> {
+                else -> {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         when (state) {
                             is UserPopupState.Error -> {
                                 Text(
                                     text = stringResource(R.string.error_with_message, state.throwable?.message.orEmpty()),
-                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                    modifier = Modifier.padding(horizontal = 16.dp),
                                 )
                             }
 
-                            else                    -> {
+                            else -> {
                                 val userName = state.userName
                                 val displayName = state.displayName
                                 val isSuccess = state is UserPopupState.Success
@@ -166,7 +166,7 @@ fun UserPopupDialog(
                                         onMention(userName.value, displayName.value)
                                         onDismiss()
                                     },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                 )
                                 if (!isOwnUser) {
                                     ListItem(
@@ -176,7 +176,7 @@ fun UserPopupDialog(
                                             onWhisper(userName.value)
                                             onDismiss()
                                         },
-                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
                                 if (onMessageHistory != null) {
@@ -187,7 +187,7 @@ fun UserPopupDialog(
                                             onMessageHistory(userName.value)
                                             onDismiss()
                                         },
-                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
                                 if (isSuccess && !isOwnUser) {
@@ -201,7 +201,7 @@ fun UserPopupDialog(
                                                 showBlockConfirmation = true
                                             }
                                         },
-                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
                                 if (!isOwnUser) {
@@ -212,7 +212,7 @@ fun UserPopupDialog(
                                             onReport(userName.value)
                                             onDismiss()
                                         },
-                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
                             }
@@ -226,18 +226,12 @@ fun UserPopupDialog(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun UserInfoSection(
-    state: UserPopupState,
-    userName: UserName,
-    displayName: DisplayName,
-    badges: List<BadgeUi>,
-    onOpenChannel: (String) -> Unit,
-) {
+private fun UserInfoSection(state: UserPopupState, userName: UserName, displayName: DisplayName, badges: List<BadgeUi>, onOpenChannel: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.Top,
     ) {
         when (state) {
             is UserPopupState.Success -> {
@@ -247,20 +241,20 @@ private fun UserInfoSection(
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
-                        .clickable { onOpenChannel(state.userName.value) }
+                        .clickable { onOpenChannel(state.userName.value) },
                 )
             }
 
             is UserPopupState.Loading -> {
                 Box(
                     modifier = Modifier.size(96.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
             }
 
-            is UserPopupState.Error   -> {}
+            is UserPopupState.Error -> {}
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -269,14 +263,14 @@ private fun UserInfoSection(
                 text = userName.formatWithDisplayName(displayName),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
             when (state) {
                 is UserPopupState.Success -> {
                     Text(
                         text = stringResource(R.string.user_popup_created, state.created),
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     if (state.showFollowingSince) {
                         Text(
@@ -284,7 +278,7 @@ private fun UserInfoSection(
                                 stringResource(R.string.user_popup_following_since, it)
                             } ?: stringResource(R.string.user_popup_not_following),
                             style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                     }
                     if (badges.isNotEmpty()) {
@@ -304,14 +298,14 @@ private fun UserInfoSection(
                                         AsyncImage(
                                             model = badge.url,
                                             contentDescription = title,
-                                            modifier = Modifier.size(32.dp)
+                                            modifier = Modifier.size(32.dp),
                                         )
                                     }
                                 } else {
                                     AsyncImage(
                                         model = badge.url,
                                         contentDescription = null,
-                                        modifier = Modifier.size(32.dp)
+                                        modifier = Modifier.size(32.dp),
                                     )
                                 }
                             }
@@ -319,7 +313,7 @@ private fun UserInfoSection(
                     }
                 }
 
-                else                      -> {}
+                else -> {}
             }
         }
     }
@@ -329,12 +323,12 @@ private val UserPopupState.userName: UserName
     get() = when (this) {
         is UserPopupState.Loading -> userName
         is UserPopupState.Success -> userName
-        is UserPopupState.Error   -> UserName("")
+        is UserPopupState.Error -> UserName("")
     }
 
 private val UserPopupState.displayName: DisplayName
     get() = when (this) {
         is UserPopupState.Loading -> displayName
         is UserPopupState.Success -> displayName
-        is UserPopupState.Error   -> DisplayName("")
+        is UserPopupState.Error -> DisplayName("")
     }

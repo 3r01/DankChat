@@ -4,5 +4,5 @@ enum class EmoteMenuTab {
     RECENT,
     SUBS,
     CHANNEL,
-    GLOBAL
+    GLOBAL,
 }

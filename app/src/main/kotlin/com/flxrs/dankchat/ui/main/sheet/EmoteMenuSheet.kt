@@ -38,17 +38,12 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmoteMenuSheet(
-    onDismiss: () -> Unit,
-    onEmoteClick: (String, String) -> Unit,
-    sheetState: SheetState,
-    viewModel: EmoteMenuViewModel = koinViewModel(),
-) {
+fun EmoteMenuSheet(onDismiss: () -> Unit, onEmoteClick: (String, String) -> Unit, sheetState: SheetState, viewModel: EmoteMenuViewModel = koinViewModel()) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { tabItems.size }
+        pageCount = { tabItems.size },
     )
 
     ModalBottomSheet(
@@ -66,13 +61,13 @@ fun EmoteMenuSheet(
                         text = {
                             Text(
                                 text = when (tabItem.type) {
-                                    EmoteMenuTab.RECENT  -> stringResource(R.string.emote_menu_tab_recent)
-                                    EmoteMenuTab.SUBS    -> stringResource(R.string.emote_menu_tab_subs)
+                                    EmoteMenuTab.RECENT -> stringResource(R.string.emote_menu_tab_recent)
+                                    EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
                                     EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
-                                    EmoteMenuTab.GLOBAL  -> stringResource(R.string.emote_menu_tab_global)
-                                }
+                                    EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
+                                },
                             )
-                        }
+                        },
                     )
                 }
             }
@@ -80,7 +75,7 @@ fun EmoteMenuSheet(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = 1
+                beyondViewportPageCount = 1,
             ) { page ->
                 val items = tabItems[page].items
                 LazyVerticalGrid(
@@ -88,28 +83,28 @@ fun EmoteMenuSheet(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(
                         items = items,
                         key = { item ->
                             when (item) {
-                                is EmoteItem.Emote  -> "emote-${item.emote.id}-${item.emote.code}"
+                                is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
                                 is EmoteItem.Header -> "header-${item.title}"
                             }
                         },
                         span = { item ->
                             when (item) {
                                 is EmoteItem.Header -> GridItemSpan(maxLineSpan)
-                                is EmoteItem.Emote  -> GridItemSpan(1)
+                                is EmoteItem.Emote -> GridItemSpan(1)
                             }
                         },
                         contentType = { item ->
                             when (item) {
                                 is EmoteItem.Header -> "header"
-                                is EmoteItem.Emote  -> "emote"
+                                is EmoteItem.Emote -> "emote"
                             }
-                        }
+                        },
                     ) { item ->
                         when (item) {
                             is EmoteItem.Header -> {
@@ -118,18 +113,18 @@ fun EmoteMenuSheet(
                                     style = MaterialTheme.typography.titleMedium,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(vertical = 8.dp)
+                                        .padding(vertical = 8.dp),
                                 )
                             }
 
-                            is EmoteItem.Emote  -> {
+                            is EmoteItem.Emote -> {
                                 AsyncImage(
                                     model = item.emote.url,
                                     contentDescription = item.emote.code,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .aspectRatio(1f)
-                                        .clickable { onEmoteClick(item.emote.code, item.emote.id) }
+                                        .clickable { onEmoteClick(item.emote.code, item.emote.id) },
                                 )
                             }
                         }

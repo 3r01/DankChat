@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RecentUploadsDao {
-
     @Query("SELECT * FROM upload ORDER BY timestamp DESC LIMIT $RECENT_UPLOADS_LIMIT")
     fun getRecentUploads(): Flow<List<UploadEntity>>
 

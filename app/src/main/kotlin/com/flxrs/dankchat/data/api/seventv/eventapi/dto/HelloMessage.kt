@@ -8,7 +8,4 @@ import kotlinx.serialization.Serializable
 data class HelloMessage(override val d: HelloData) : DataMessage
 
 @Serializable
-data class HelloData(
-    @SerialName("heartbeat_interval") val heartBeatInterval: Int,
-    @SerialName("session_id") val sessionId: String,
-) : Data
+data class HelloData(@SerialName("heartbeat_interval") val heartBeatInterval: Int, @SerialName("session_id") val sessionId: String) : Data

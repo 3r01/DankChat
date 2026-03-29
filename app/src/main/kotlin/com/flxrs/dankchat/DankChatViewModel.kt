@@ -24,21 +24,22 @@ class DankChatViewModel(
     private val chatChannelProvider: ChatChannelProvider,
     private val authStateCoordinator: AuthStateCoordinator,
 ) : ViewModel() {
-
     val serviceEvents = dataRepository.serviceEvents
     val activeChannel = chatChannelProvider.activeChannel
-    val isLoggedIn: Flow<Boolean> = authDataStore.settings
-        .map { it.isLoggedIn }
-        .distinctUntilChanged()
+    val isLoggedIn: Flow<Boolean> =
+        authDataStore.settings
+            .map { it.isLoggedIn }
+            .distinctUntilChanged()
 
     val isTrueDarkModeEnabled get() = appearanceSettingsDataStore.current().trueDarkTheme
-    val keepScreenOn = appearanceSettingsDataStore.settings
-        .map { it.keepScreenOn }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = appearanceSettingsDataStore.current().keepScreenOn,
-        )
+    val keepScreenOn =
+        appearanceSettingsDataStore.settings
+            .map { it.keepScreenOn }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.seconds),
+                initialValue = appearanceSettingsDataStore.current().keepScreenOn,
+            )
 
     fun checkLogin() {
         if (authDataStore.isLoggedIn && authDataStore.oAuthKey.isNullOrBlank()) {

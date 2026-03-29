@@ -12,23 +12,22 @@ import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class ImageUploaderViewModel(
-    private val toolsSettingsDataStore: ToolsSettingsDataStore,
-) : ViewModel() {
-
-    val uploader = toolsSettingsDataStore.uploadConfig
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5.seconds),
-            initialValue = toolsSettingsDataStore.current().uploaderConfig,
-        )
+class ImageUploaderViewModel(private val toolsSettingsDataStore: ToolsSettingsDataStore) : ViewModel() {
+    val uploader =
+        toolsSettingsDataStore.uploadConfig
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5.seconds),
+                initialValue = toolsSettingsDataStore.current().uploaderConfig,
+            )
 
     fun save(uploader: ImageUploaderConfig) = viewModelScope.launch {
-        val validated = uploader.copy(
-            headers = uploader.headers?.takeIf { it.isNotBlank() },
-            imageLinkPattern = uploader.imageLinkPattern?.takeIf { it.isNotBlank() },
-            deletionLinkPattern = uploader.deletionLinkPattern?.takeIf { it.isNotBlank() },
-        )
+        val validated =
+            uploader.copy(
+                headers = uploader.headers?.takeIf { it.isNotBlank() },
+                imageLinkPattern = uploader.imageLinkPattern?.takeIf { it.isNotBlank() },
+                deletionLinkPattern = uploader.deletionLinkPattern?.takeIf { it.isNotBlank() },
+            )
         toolsSettingsDataStore.update { it.copy(uploaderConfig = validated) }
     }
 

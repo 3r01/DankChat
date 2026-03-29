@@ -18,10 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.ui.theme.DankChatTheme
 
 @Composable
-fun PreferenceCategory(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit,
-) {
+fun PreferenceCategory(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier = Modifier.padding(top = 16.dp),
     ) {
@@ -33,10 +30,7 @@ fun PreferenceCategory(
 }
 
 @Composable
-fun PreferenceCategoryWithSummary(
-    title: @Composable () -> Unit,
-    summary: @Composable () -> Unit,
-) {
+fun PreferenceCategoryWithSummary(title: @Composable () -> Unit, summary: @Composable () -> Unit) {
     Column(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
     ) {
@@ -63,7 +57,7 @@ private fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::c
         Surface {
             PreferenceCategoryWithSummary(
                 title = { PreferenceCategoryTitle("Title") },
-                summary = { PreferenceSummary(loremIpsum.take(100)) }
+                summary = { PreferenceSummary(loremIpsum.take(100)) },
             )
         }
     }
@@ -79,7 +73,7 @@ private fun PreferenceCategoryWithItemsPreview(@PreviewParameter(provider = Lore
                 title = "Title",
                 content = {
                     PreferenceItem("Appearence", Icons.Default.Palette)
-                }
+                },
             )
         }
     }

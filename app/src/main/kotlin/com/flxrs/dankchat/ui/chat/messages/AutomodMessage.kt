@@ -82,7 +82,7 @@ fun AutomodMessageComposable(
                         fontSize = textSize * 0.95f,
                         color = timestampColor,
                         letterSpacing = (-0.03).em,
-                    )
+                    ),
                 ) {
                     append(message.timestamp)
                     append(" ")
@@ -103,20 +103,20 @@ fun AutomodMessageComposable(
             when {
                 // User-side: simple status messages, no Allow/Deny
                 message.isUserSide -> when (message.status) {
-                    AutomodMessageStatus.Pending  -> withStyle(SpanStyle(color = textColor)) { append(userHeldText) }
+                    AutomodMessageStatus.Pending -> withStyle(SpanStyle(color = textColor)) { append(userHeldText) }
                     AutomodMessageStatus.Approved -> withStyle(SpanStyle(color = textColor)) { append(userAcceptedText) }
-                    AutomodMessageStatus.Denied   -> withStyle(SpanStyle(color = textColor)) { append(userDeniedText) }
-                    AutomodMessageStatus.Expired  -> withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f))) { append(expiredText) }
+                    AutomodMessageStatus.Denied -> withStyle(SpanStyle(color = textColor)) { append(userDeniedText) }
+                    AutomodMessageStatus.Expired -> withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f))) { append(expiredText) }
                 }
 
                 // Mod-side: reason text + Allow/Deny buttons or status
-                else               -> {
+                else -> {
                     withStyle(SpanStyle(color = textColor)) {
                         append("$headerText ")
                     }
 
                     when (message.status) {
-                        AutomodMessageStatus.Pending  -> {
+                        AutomodMessageStatus.Pending -> {
                             pushStringAnnotation(tag = ALLOW_TAG, annotation = message.heldMessageId)
                             withStyle(SpanStyle(color = allowColor, fontWeight = FontWeight.Bold)) {
                                 append(allowText)
@@ -136,13 +136,13 @@ fun AutomodMessageComposable(
                             }
                         }
 
-                        AutomodMessageStatus.Denied   -> {
+                        AutomodMessageStatus.Denied -> {
                             withStyle(SpanStyle(color = denyColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
                                 append(deniedText)
                             }
                         }
 
-                        AutomodMessageStatus.Expired  -> {
+                        AutomodMessageStatus.Expired -> {
                             withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f), fontWeight = FontWeight.Bold)) {
                                 append(expiredText)
                             }
@@ -166,7 +166,7 @@ fun AutomodMessageComposable(
                             fontSize = textSize * 0.95f,
                             color = timestampColor,
                             letterSpacing = (-0.03).em,
-                        )
+                        ),
                     ) {
                         append(message.timestamp)
                         append(" ")
@@ -209,9 +209,9 @@ fun AutomodMessageComposable(
     }
 
     val resolvedAlpha = when {
-        message.isUserSide                             -> 1f
+        message.isUserSide -> 1f
         message.status == AutomodMessageStatus.Pending -> 1f
-        else                                           -> 0.5f
+        else -> 0.5f
     }
 
     Column(
@@ -219,7 +219,7 @@ fun AutomodMessageComposable(
             .fillMaxWidth()
             .wrapContentHeight()
             .alpha(resolvedAlpha)
-            .padding(horizontal = 2.dp, vertical = 2.dp)
+            .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         // Header line with badge inline content
         TextWithMeasuredInlineContent(

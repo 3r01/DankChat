@@ -19,8 +19,8 @@ private fun resolveEffectiveBackground(backgroundColor: Color): Color {
     val surfaceColor = MaterialTheme.colorScheme.surface
     return when {
         backgroundColor == Color.Transparent -> surfaceColor
-        backgroundColor.alpha < 1f           -> backgroundColor.compositeOver(surfaceColor)
-        else                                 -> backgroundColor
+        backgroundColor.alpha < 1f -> backgroundColor.compositeOver(surfaceColor)
+        else -> backgroundColor
     }
 }
 

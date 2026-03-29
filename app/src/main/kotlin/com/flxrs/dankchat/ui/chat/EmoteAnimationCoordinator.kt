@@ -18,23 +18,20 @@ import com.flxrs.dankchat.utils.extensions.setRunning
 
 /**
  * Coordinates emote loading and animation synchronization across the entire chat.
- * 
+ *
  * Based on the old ChatAdapter/EmoteRepository approach:
  * - Uses LruCache to cache drawables (bounded memory, unlike ConcurrentHashMap)
  * - Shares Drawable instances across all usages of the same emote
  * - This keeps animated GIF frame counters synchronized naturally
  * - No mutex needed - Coil handles concurrent requests internally
  * - Emote animation controlled via setRunning() based on animateGifs setting
- * 
+ *
  * Same pattern as:
  * - EmoteRepository.badgeCache: LruCache<String, Drawable>(64)
  * - EmoteRepository.layerCache: LruCache<String, LayerDrawable>(256)
  */
 @Stable
-class EmoteAnimationCoordinator(
-    val imageLoader: ImageLoader,
-    private val platformContext: PlatformContext,
-) {
+class EmoteAnimationCoordinator(val imageLoader: ImageLoader, private val platformContext: PlatformContext) {
     // LruCache for single emote drawables (like badgeCache in EmoteRepository)
     private val emoteCache = LruCache<String, Drawable>(256)
 
@@ -46,7 +43,7 @@ class EmoteAnimationCoordinator(
 
     /**
      * Get or load an emote drawable.
-     * 
+     *
      * Returns cached drawable if available, otherwise loads and caches it.
      * Sharing the same Drawable instance keeps animations synchronized.
      */
@@ -62,9 +59,11 @@ class EmoteAnimationCoordinator(
 
         // Load the emote via Coil (Coil handles concurrent requests internally)
         return try {
-            val request = ImageRequest.Builder(platformContext)
-                .data(url)
-                .build()
+            val request =
+                ImageRequest
+                    .Builder(platformContext)
+                    .data(url)
+                    .build()
 
             val result = imageLoader.execute(request)
             if (result is SuccessResult) {
@@ -128,9 +127,10 @@ class EmoteAnimationCoordinator(
  * Must be provided at the chat root (e.g., ChatComposable) so all messages
  * share the same coordinator and its LruCache.
  */
-val LocalEmoteAnimationCoordinator = staticCompositionLocalOf<EmoteAnimationCoordinator> {
-    error("No EmoteAnimationCoordinator provided. Wrap your chat composables with CompositionLocalProvider.")
-}
+val LocalEmoteAnimationCoordinator =
+    staticCompositionLocalOf<EmoteAnimationCoordinator> {
+        error("No EmoteAnimationCoordinator provided. Wrap your chat composables with CompositionLocalProvider.")
+    }
 
 /**
  * Creates and remembers a singleton EmoteAnimationCoordinator using the given ImageLoader.

@@ -29,7 +29,6 @@ class UserPopupViewModel(
     private val userStateRepository: UserStateRepository,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
-
     private val _userPopupState = MutableStateFlow<UserPopupState>(UserPopupState.Loading(params.targetUserName, params.targetDisplayName))
     val userPopupState: StateFlow<UserPopupState> = _userPopupState.asStateFlow()
     val isOwnUser: Boolean get() = preferenceStore.userIdString == params.targetUserId
@@ -54,7 +53,7 @@ class UserPopupViewModel(
         val result = runCatching { block(params.targetUserId, params.targetUserName) }
         when {
             result.isFailure -> _userPopupState.value = UserPopupState.Error(result.exceptionOrNull())
-            else             -> loadData()
+            else -> loadData()
         }
     }
 
@@ -67,25 +66,28 @@ class UserPopupViewModel(
         }
 
         val targetUserId = params.targetUserId
-        val result = runCatching {
-            val channelId = params.channel?.let { channelRepository.getChannel(it)?.id }
-            val isBlocked = ignoresRepository.isUserBlocked(targetUserId)
-            val canLoadFollows = channelId != targetUserId && (currentUserId == channelId || userStateRepository.isModeratorInChannel(params.channel))
+        val result =
+            runCatching {
+                val channelId = params.channel?.let { channelRepository.getChannel(it)?.id }
+                val isBlocked = ignoresRepository.isUserBlocked(targetUserId)
+                val canLoadFollows = channelId != targetUserId && (currentUserId == channelId || userStateRepository.isModeratorInChannel(params.channel))
 
-            val channelUserFollows = async {
-                channelId?.takeIf { canLoadFollows }?.let { dataRepository.getChannelFollowers(channelId, targetUserId) }
-            }
-            val user = async {
-                dataRepository.getUser(targetUserId)
-            }
+                val channelUserFollows =
+                    async {
+                        channelId?.takeIf { canLoadFollows }?.let { dataRepository.getChannelFollowers(channelId, targetUserId) }
+                    }
+                val user =
+                    async {
+                        dataRepository.getUser(targetUserId)
+                    }
 
-            mapToState(
-                user = user.await(),
-                showFollowing = canLoadFollows,
-                channelUserFollows = channelUserFollows.await(),
-                isBlocked = isBlocked,
-            )
-        }
+                mapToState(
+                    user = user.await(),
+                    showFollowing = canLoadFollows,
+                    channelUserFollows = channelUserFollows.await(),
+                    isBlocked = isBlocked,
+                )
+            }
 
         val state = result.getOrElse { UserPopupState.Error(it) }
         _userPopupState.value = state
@@ -101,8 +103,13 @@ class UserPopupViewModel(
             avatarUrl = user.avatarUrl,
             created = user.createdAt.asParsedZonedDateTime(),
             showFollowingSince = showFollowing,
-            followingSince = channelUserFollows?.data?.firstOrNull()?.followedAt?.asParsedZonedDateTime(),
-            isBlocked = isBlocked
+            followingSince =
+            channelUserFollows
+                ?.data
+                ?.firstOrNull()
+                ?.followedAt
+                ?.asParsedZonedDateTime(),
+            isBlocked = isBlocked,
         )
     }
 }

@@ -12,37 +12,12 @@ sealed interface EventSubMessage
 
 data class SystemMessage(val message: String) : EventSubMessage
 
-data class ModerationAction(
-    val id: String,
-    val timestamp: Instant,
-    val channelName: UserName,
-    val data: ChannelModerateDto,
-) : EventSubMessage
+data class ModerationAction(val id: String, val timestamp: Instant, val channelName: UserName, val data: ChannelModerateDto) : EventSubMessage
 
-data class AutomodHeld(
-    val id: String,
-    val timestamp: Instant,
-    val channelName: UserName,
-    val data: AutomodMessageHoldDto,
-) : EventSubMessage
+data class AutomodHeld(val id: String, val timestamp: Instant, val channelName: UserName, val data: AutomodMessageHoldDto) : EventSubMessage
 
-data class AutomodUpdate(
-    val id: String,
-    val timestamp: Instant,
-    val channelName: UserName,
-    val data: AutomodMessageUpdateDto,
-) : EventSubMessage
+data class AutomodUpdate(val id: String, val timestamp: Instant, val channelName: UserName, val data: AutomodMessageUpdateDto) : EventSubMessage
 
-data class UserMessageHeld(
-    val id: String,
-    val timestamp: Instant,
-    val channelName: UserName,
-    val data: ChannelChatUserMessageHoldDto,
-) : EventSubMessage
+data class UserMessageHeld(val id: String, val timestamp: Instant, val channelName: UserName, val data: ChannelChatUserMessageHoldDto) : EventSubMessage
 
-data class UserMessageUpdated(
-    val id: String,
-    val timestamp: Instant,
-    val channelName: UserName,
-    val data: ChannelChatUserMessageUpdateDto,
-) : EventSubMessage
+data class UserMessageUpdated(val id: String, val timestamp: Instant, val channelName: UserName, val data: ChannelChatUserMessageUpdateDto) : EventSubMessage

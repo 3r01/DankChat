@@ -144,10 +144,10 @@ private fun IgnoresScreen(
             .collectLatest { event ->
                 focusManager.clearFocus()
                 when (event) {
-                    is IgnoreEvent.ItemRemoved  -> {
+                    is IgnoreEvent.ItemRemoved -> {
                         val message = when (event.item) {
                             is TwitchBlockItem -> resources.getString(R.string.unblocked_user, event.item.username)
-                            else               -> itemRemovedMsg
+                            else -> itemRemovedMsg
                         }
 
                         val result = snackbarHost.showSnackbar(
@@ -160,16 +160,16 @@ private fun IgnoresScreen(
                         }
                     }
 
-                    is IgnoreEvent.ItemAdded    -> {
+                    is IgnoreEvent.ItemAdded -> {
                         val listState = listStates[pagerState.currentPage]
                         when {
                             event.isLast && listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            event.isLast                               -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            else                                       -> listState.animateScrollToItem(event.position)
+                            event.isLast -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                            else -> listState.animateScrollToItem(event.position)
                         }
                     }
 
-                    is IgnoreEvent.BlockError   -> {
+                    is IgnoreEvent.BlockError -> {
                         val message = resources.getString(R.string.blocked_user_failed, event.item.username)
                         snackbarHost.showSnackbar(message)
                     }
@@ -206,7 +206,7 @@ private fun IgnoresScreen(
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -237,8 +237,8 @@ private fun IgnoresScreen(
             ) {
                 val subtitle = when (currentTab) {
                     IgnoresTab.Messages -> stringResource(R.string.ignores_messages_title)
-                    IgnoresTab.Users    -> stringResource(R.string.ignores_users_title)
-                    IgnoresTab.Twitch   -> stringResource(R.string.ignores_twitch_title)
+                    IgnoresTab.Users -> stringResource(R.string.ignores_users_title)
+                    IgnoresTab.Twitch -> stringResource(R.string.ignores_twitch_title)
                 }
                 Text(
                     text = subtitle,
@@ -255,10 +255,10 @@ private fun IgnoresScreen(
                     tabText = {
                         when (IgnoresTab.entries[it]) {
                             IgnoresTab.Messages -> stringResource(R.string.tab_messages)
-                            IgnoresTab.Users    -> stringResource(R.string.tab_users)
-                            IgnoresTab.Twitch   -> stringResource(R.string.tab_twitch)
+                            IgnoresTab.Users -> stringResource(R.string.tab_users)
+                            IgnoresTab.Twitch -> stringResource(R.string.tab_twitch)
                         }
-                    }
+                    },
                 )
             }
 
@@ -286,7 +286,7 @@ private fun IgnoresScreen(
                         )
                     }
 
-                    IgnoresTab.Users    -> IgnoresList(
+                    IgnoresTab.Users -> IgnoresList(
                         tab = tab,
                         ignores = userIgnores,
                         listState = listState,
@@ -302,7 +302,7 @@ private fun IgnoresScreen(
                         )
                     }
 
-                    IgnoresTab.Twitch   -> IgnoresList(
+                    IgnoresTab.Twitch -> IgnoresList(
                         tab = tab,
                         ignores = twitchBlocks,
                         listState = listState,
@@ -323,13 +323,7 @@ private fun IgnoresScreen(
 }
 
 @Composable
-private fun <T : IgnoreItem> IgnoresList(
-    tab: IgnoresTab,
-    ignores: SnapshotStateList<T>,
-    listState: LazyListState,
-    itemContent: @Composable LazyItemScope.(Int, T) -> Unit,
-) {
-
+private fun <T : IgnoreItem> IgnoresList(tab: IgnoresTab, ignores: SnapshotStateList<T>, listState: LazyListState, itemContent: @Composable LazyItemScope.(Int, T) -> Unit) {
     DankBackground(visible = ignores.isEmpty())
 
     LazyColumn(
@@ -346,7 +340,7 @@ private fun <T : IgnoreItem> IgnoresList(
         item(key = "bottom-spacer") {
             val height = when (tab) {
                 IgnoresTab.Messages, IgnoresTab.Users -> 112.dp
-                IgnoresTab.Twitch                     -> Dp.Unspecified
+                IgnoresTab.Twitch -> Dp.Unspecified
             }
             NavigationBarSpacer(Modifier.height(height))
         }
@@ -354,32 +348,27 @@ private fun <T : IgnoreItem> IgnoresList(
 }
 
 @Composable
-private fun MessageIgnoreItem(
-    item: MessageIgnoreItem,
-    onChange: (MessageIgnoreItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val launcher = LocalUriHandler.current
     val titleText = when (item.type) {
-        MessageIgnoreItem.Type.Subscription           -> R.string.highlights_ignores_entry_subscriptions
-        MessageIgnoreItem.Type.Announcement           -> R.string.highlights_ignores_entry_announcements
+        MessageIgnoreItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
+        MessageIgnoreItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
         MessageIgnoreItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_first_messages
-        MessageIgnoreItem.Type.FirstMessage           -> R.string.highlights_ignores_entry_elevated_messages
-        MessageIgnoreItem.Type.ElevatedMessage        -> R.string.highlights_ignores_entry_redemptions
-        MessageIgnoreItem.Type.Custom                 -> R.string.highlights_ignores_entry_custom
+        MessageIgnoreItem.Type.FirstMessage -> R.string.highlights_ignores_entry_elevated_messages
+        MessageIgnoreItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_redemptions
+        MessageIgnoreItem.Type.Custom -> R.string.highlights_ignores_entry_custom
     }
     val isCustom = item.type == MessageIgnoreItem.Type.Custom
     ElevatedCard(modifier) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 8.dp)
+                .padding(top = 8.dp),
         ) {
             Text(
                 text = stringResource(titleText),
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
             if (isCustom) {
                 IconButton(
@@ -460,19 +449,14 @@ private fun MessageIgnoreItem(
 }
 
 @Composable
-private fun UserIgnoreItem(
-    item: UserIgnoreItem,
-    onChange: (UserIgnoreItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun UserIgnoreItem(item: UserIgnoreItem, onChange: (UserIgnoreItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     val launcher = LocalUriHandler.current
     ElevatedCard(modifier) {
         Row {
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(8.dp)
+                    .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -525,11 +509,7 @@ private fun UserIgnoreItem(
 }
 
 @Composable
-private fun TwitchBlockItem(
-    item: TwitchBlockItem,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun TwitchBlockItem(item: TwitchBlockItem, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     ElevatedCard(modifier) {
         Row {
             val colors = OutlinedTextFieldDefaults.colors()

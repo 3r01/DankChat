@@ -27,8 +27,11 @@ import org.koin.core.annotation.Single
 
 sealed interface AuthEvent {
     data class LoggedIn(val userName: UserName) : AuthEvent
+
     data class ScopesOutdated(val userName: UserName) : AuthEvent
+
     data object TokenInvalid : AuthEvent
+
     data object ValidationFailed : AuthEvent
 }
 
@@ -46,7 +49,6 @@ class AuthStateCoordinator(
     private val startupValidationHolder: StartupValidationHolder,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.io)
     private val _events = Channel<AuthEvent>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
@@ -70,7 +72,7 @@ class AuthStateCoordinator(
                             }
                         }
 
-                        else                -> {
+                        else -> {
                             channelDataCoordinator.cancelGlobalLoading()
                             emoteRepository.clearTwitchEmotes()
                             userStateRepository.clear()
@@ -88,45 +90,49 @@ class AuthStateCoordinator(
         }
 
         val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
-        val result = authApiClient.validateUser(token).fold(
-            onSuccess = { validateDto ->
-                // Update username from validation response
-                authDataStore.update { it.copy(userName = validateDto.login.value) }
-                when {
-                    authApiClient.validateScopes(validateDto.scopes.orEmpty()) -> AuthEvent.LoggedIn(validateDto.login)
-                    else                                                       -> AuthEvent.ScopesOutdated(validateDto.login)
-                }
-            },
-            onFailure = { throwable ->
-                when {
-                    throwable is ApiException && throwable.status == HttpStatusCode.Unauthorized -> {
-                        AuthEvent.TokenInvalid
+        val result =
+            authApiClient.validateUser(token).fold(
+                onSuccess = { validateDto ->
+                    // Update username from validation response
+                    authDataStore.update { it.copy(userName = validateDto.login.value) }
+                    when {
+                        authApiClient.validateScopes(validateDto.scopes.orEmpty()) -> AuthEvent.LoggedIn(validateDto.login)
+                        else -> AuthEvent.ScopesOutdated(validateDto.login)
                     }
+                },
+                onFailure = { throwable ->
+                    when {
+                        throwable is ApiException && throwable.status == HttpStatusCode.Unauthorized -> {
+                            AuthEvent.TokenInvalid
+                        }
 
-                    else                                                                         -> {
-                        Log.e(TAG, "Failed to validate token: ${throwable.message}")
-                        AuthEvent.ValidationFailed
+                        else -> {
+                            Log.e(TAG, "Failed to validate token: ${throwable.message}")
+                            AuthEvent.ValidationFailed
+                        }
                     }
-                }
-            }
-        )
+                },
+            )
 
         startupValidationHolder.update(
             when (result) {
                 is AuthEvent.LoggedIn,
-                is AuthEvent.ValidationFailed -> StartupValidation.Validated
+                is AuthEvent.ValidationFailed,
+                -> StartupValidation.Validated
 
-                is AuthEvent.ScopesOutdated   -> StartupValidation.ScopesOutdated(result.userName)
-                AuthEvent.TokenInvalid        -> StartupValidation.TokenInvalid
-            }
+                is AuthEvent.ScopesOutdated -> StartupValidation.ScopesOutdated(result.userName)
+
+                AuthEvent.TokenInvalid -> StartupValidation.TokenInvalid
+            },
         )
 
         // Only send snackbar-worthy events through the channel
         when (result) {
             is AuthEvent.LoggedIn,
-            is AuthEvent.ValidationFailed -> _events.send(result)
+            is AuthEvent.ValidationFailed,
+            -> _events.send(result)
 
-            else                          -> Unit
+            else -> Unit
         }
 
         return result

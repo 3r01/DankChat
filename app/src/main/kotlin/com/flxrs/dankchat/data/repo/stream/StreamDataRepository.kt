@@ -49,30 +49,35 @@ class StreamDataRepository(
                 return@launch
             }
 
-            fetchTimerJob = timer(STREAM_REFRESH_RATE) {
-                fetchOnce(channels)
-            }
+            fetchTimerJob =
+                timer(STREAM_REFRESH_RATE) {
+                    fetchOnce(channels)
+                }
         }
     }
 
     suspend fun fetchOnce(channels: List<UserName>) {
         val currentSettings = streamsSettingsDataStore.settings.first()
         _fetchCount += 1
-        val data = dataRepository.getStreams(channels)?.map {
-            val uptime = DateTimeUtils.calculateUptime(it.startedAt)
-            val category = it.category
-                ?.takeIf { currentSettings.showStreamCategory }
-                ?.ifBlank { null }
-            val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
+        val data =
+            dataRepository
+                .getStreams(channels)
+                ?.map {
+                    val uptime = DateTimeUtils.calculateUptime(it.startedAt)
+                    val category =
+                        it.category
+                            ?.takeIf { currentSettings.showStreamCategory }
+                            ?.ifBlank { null }
+                    val formatted = dankChatPreferenceStore.formatViewersString(it.viewerCount, uptime, category)
 
-            StreamData(
-                channel = it.userLogin,
-                formattedData = formatted,
-                viewerCount = it.viewerCount,
-                startedAt = it.startedAt,
-                category = it.category,
-            )
-        }.orEmpty()
+                    StreamData(
+                        channel = it.userLogin,
+                        formattedData = formatted,
+                        viewerCount = it.viewerCount,
+                        startedAt = it.startedAt,
+                        category = it.category,
+                    )
+                }.orEmpty()
 
         _streamData.value = data.toImmutableList()
     }

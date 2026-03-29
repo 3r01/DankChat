@@ -14,7 +14,6 @@ data class SevenTVEmoteDataDto(
     val owner: SevenTVEmoteOwnerDto?,
     @SerialName("name") val baseName: String,
 ) {
-
     val isTwitchDisallowed get() = (TWITCH_DISALLOWED_FLAG and flags) == TWITCH_DISALLOWED_FLAG
 
     companion object {

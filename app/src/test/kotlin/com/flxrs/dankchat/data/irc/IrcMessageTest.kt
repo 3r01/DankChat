@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 
 @Suppress("MaxLineLength")
 internal class IrcMessageTest {
-
     // examples from https://github.com/robotty/twitch-irc-rs
 
     @Test
@@ -21,7 +20,6 @@ internal class IrcMessageTest {
         assertEquals(expected = "148973258", actual = ircMessage.tags["target-user-id"])
         assertEquals(expected = "1594553828245", actual = ircMessage.tags["tmi-sent-ts"])
         assertEquals(expected = 4, actual = ircMessage.tags.size)
-
     }
 
     @Test

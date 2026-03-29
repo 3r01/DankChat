@@ -9,22 +9,39 @@ sealed interface ChatSettingsEvent {
 
 sealed interface ChatSettingsInteraction {
     data class Suggestions(val value: Boolean) : ChatSettingsInteraction
+
     data class SupibotSuggestions(val value: Boolean) : ChatSettingsInteraction
+
     data class CustomCommands(val value: List<CustomCommand>) : ChatSettingsInteraction
+
     data class AnimateGifs(val value: Boolean) : ChatSettingsInteraction
+
     data class ScrollbackLength(val value: Int) : ChatSettingsInteraction
+
     data class ShowUsernames(val value: Boolean) : ChatSettingsInteraction
+
     data class UserLongClick(val value: UserLongClickBehavior) : ChatSettingsInteraction
+
     data class ShowTimedOutMessages(val value: Boolean) : ChatSettingsInteraction
+
     data class ShowTimestamps(val value: Boolean) : ChatSettingsInteraction
+
     data class TimestampFormat(val value: String) : ChatSettingsInteraction
+
     data class Badges(val value: List<VisibleBadges>) : ChatSettingsInteraction
+
     data class Emotes(val value: List<VisibleThirdPartyEmotes>) : ChatSettingsInteraction
+
     data class AllowUnlisted(val value: Boolean) : ChatSettingsInteraction
+
     data class LiveEmoteUpdates(val value: Boolean) : ChatSettingsInteraction
+
     data class LiveEmoteUpdatesBehavior(val value: LiveUpdatesBackgroundBehavior) : ChatSettingsInteraction
+
     data class MessageHistory(val value: Boolean) : ChatSettingsInteraction
+
     data class MessageHistoryAfterReconnect(val value: Boolean) : ChatSettingsInteraction
+
     data class ChatModes(val value: Boolean) : ChatSettingsInteraction
 }
 

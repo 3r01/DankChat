@@ -7,4 +7,3 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 data class SupibotCommandsDto(@SerialName(value = "data") val data: List<SupibotCommandDto>)
-

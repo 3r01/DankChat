@@ -40,9 +40,10 @@ class PubSubManager(
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
-    private val client = httpClient.config {
-        install(WebSockets)
-    }
+    private val client =
+        httpClient.config {
+            install(WebSockets)
+        }
     private val connections = mutableListOf<PubSubConnection>()
     private val collectJobs = mutableListOf<Job>()
     private val receiveChannel = CoroutineChannel<PubSubMessage>(capacity = CoroutineChannel.BUFFERED)
@@ -82,10 +83,11 @@ class PubSubManager(
     fun reconnectIfNecessary() = resetCollectionWith { reconnectIfNecessary() }
 
     fun removeChannel(channel: UserName) {
-        val emptyConnections = connections
-            .onEach { it.unlistenByChannel(channel) }
-            .filterNot { it.hasTopics }
-            .onEach { it.close() }
+        val emptyConnections =
+            connections
+                .onEach { it.unlistenByChannel(channel) }
+                .filterNot { it.hasTopics }
+                .onEach { it.close() }
 
         if (emptyConnections.isEmpty()) {
             return
@@ -110,9 +112,10 @@ class PubSubManager(
 
     private fun listen(topics: Set<PubSubTopic>) {
         val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return
-        val remainingTopics = connections.fold(topics) { acc, conn ->
-            conn.listen(acc)
-        }
+        val remainingTopics =
+            connections.fold(topics) { acc, conn ->
+                conn.listen(acc)
+            }
 
         if (remainingTopics.isEmpty() || connections.size >= PubSubConnection.MAX_CONNECTIONS) {
             return
@@ -124,13 +127,14 @@ class PubSubManager(
                 .withIndex()
                 .takeWhile { (idx, _) -> connections.size + idx + 1 <= PubSubConnection.MAX_CONNECTIONS }
                 .forEach { (_, topics) ->
-                    val connection = PubSubConnection(
-                        tag = "#${connections.size}",
-                        client = client,
-                        scope = this,
-                        oAuth = oAuth,
-                        jsonFormat = json,
-                    )
+                    val connection =
+                        PubSubConnection(
+                            tag = "#${connections.size}",
+                            client = client,
+                            scope = this,
+                            oAuth = oAuth,
+                            jsonFormat = json,
+                        )
                     connection.connect(initialTopics = topics.toSet())
                     connections += connection
                     collectJobs += launch { connection.collectEvents() }
@@ -149,11 +153,12 @@ class PubSubManager(
         collectJobs.forEach { it.cancel() }
         collectJobs.clear()
         collectJobs.addAll(
-            elements = connections
+            elements =
+            connections
                 .map { conn ->
                     conn.action()
                     launch { conn.collectEvents() }
-                }
+                },
         )
     }
 
@@ -161,7 +166,7 @@ class PubSubManager(
         events.collect {
             when (it) {
                 is PubSubEvent.Message -> receiveChannel.send(it.message)
-                else                   -> Unit
+                else -> Unit
             }
         }
     }

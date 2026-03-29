@@ -249,11 +249,7 @@ data class EmoteUi(
  * UI state for reply threads
  */
 @Immutable
-data class ThreadUi(
-    val rootId: String,
-    val userName: String,
-    val message: String,
-)
+data class ThreadUi(val rootId: String, val userName: String, val message: String)
 
 /**
  * Converts MessageThreadHeader to ThreadUi

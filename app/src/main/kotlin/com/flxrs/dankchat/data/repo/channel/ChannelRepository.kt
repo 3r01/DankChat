@@ -21,12 +21,7 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
 @Single
-class ChannelRepository(
-    private val usersRepository: UsersRepository,
-    private val helixApiClient: HelixApiClient,
-    private val authDataStore: AuthDataStore,
-) {
-
+class ChannelRepository(private val usersRepository: UsersRepository, private val helixApiClient: HelixApiClient, private val authDataStore: AuthDataStore) {
     private val channelCache = ConcurrentHashMap<UserName, Channel>()
     private val roomStates = ConcurrentHashMap<UserName, RoomState>()
     private val roomStateFlows = ConcurrentHashMap<UserName, MutableSharedFlow<RoomState>>()
@@ -37,13 +32,19 @@ class ChannelRepository(
             return channelCache[name]
         }
 
-        val channel = when {
-            authDataStore.isLoggedIn -> helixApiClient.getUserByName(name)
-                .getOrNull()
-                ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        val channel =
+            when {
+                authDataStore.isLoggedIn -> {
+                    helixApiClient
+                        .getUserByName(name)
+                        .getOrNull()
+                        ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+                }
 
-            else                     -> null
-        } ?: tryGetChannelFromIrc(name)
+                else -> {
+                    null
+                }
+            } ?: tryGetChannelFromIrc(name)
 
         if (channel != null) {
             channelCache[name] = channel
@@ -62,9 +63,11 @@ class ChannelRepository(
             return null
         }
 
-        val channel = helixApiClient.getUser(id)
-            .getOrNull()
-            ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        val channel =
+            helixApiClient
+                .getUser(id)
+                .getOrNull()
+                ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
         if (channel != null) {
             channelCache[channel.name] = channel
@@ -73,13 +76,9 @@ class ChannelRepository(
         return channel
     }
 
-    fun getCachedChannelByIdOrNull(id: UserId): Channel? {
-        return channelCache.values.find { it.id == id }
-    }
+    fun getCachedChannelByIdOrNull(id: UserId): Channel? = channelCache.values.find { it.id == id }
 
-    fun tryGetUserNameById(id: UserId): UserName? {
-        return roomStates.values.find { it.channelId == id }?.channel
-    }
+    fun tryGetUserNameById(id: UserId): UserName? = roomStates.values.find { it.channelId == id }?.channel
 
     fun getRoomStateFlow(channel: UserName): SharedFlow<RoomState> = roomStateFlows.getOrPut(channel) {
         MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
@@ -88,14 +87,19 @@ class ChannelRepository(
     fun getRoomState(channel: UserName): RoomState? = roomStateFlows[channel]?.firstValueOrNull
 
     fun handleRoomState(msg: IrcMessage) {
-        val channel = msg.params.getOrNull(0)?.substring(1)?.toUserName() ?: return
+        val channel =
+            msg.params
+                .getOrNull(0)
+                ?.substring(1)
+                ?.toUserName() ?: return
         val channelId = msg.tags["room-id"]?.toUserId() ?: return
         val flow = roomStateFlows[channel] ?: return
-        val state = if (flow.replayCache.isEmpty()) {
-            RoomState(channel, channelId).copyFromIrcMessage(msg)
-        } else {
-            flow.firstValue.copyFromIrcMessage(msg)
-        }
+        val state =
+            if (flow.replayCache.isEmpty()) {
+                RoomState(channel, channelId).copyFromIrcMessage(msg)
+            } else {
+                flow.firstValue.copyFromIrcMessage(msg)
+            }
         roomStates[channel] = state
         flow.tryEmit(state)
     }
@@ -108,10 +112,12 @@ class ChannelRepository(
             return@withContext cached
         }
 
-        val channels = helixApiClient.getUsersByIds(remaining)
-            .getOrNull()
-            .orEmpty()
-            .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        val channels =
+            helixApiClient
+                .getUsersByIds(remaining)
+                .getOrNull()
+                .orEmpty()
+                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
         channels.forEach { channelCache[it.name] = it }
         return@withContext cached + channels
@@ -125,10 +131,12 @@ class ChannelRepository(
             return@withContext cached
         }
 
-        val channels = helixApiClient.getUsersByNames(remaining)
-            .getOrNull()
-            .orEmpty()
-            .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        val channels =
+            helixApiClient
+                .getUsersByNames(remaining)
+                .getOrNull()
+                .orEmpty()
+                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
         channels.forEach { channelCache[it.name] = it }
         return@withContext cached + channels

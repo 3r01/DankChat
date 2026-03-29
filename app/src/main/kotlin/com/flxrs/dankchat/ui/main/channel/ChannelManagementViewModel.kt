@@ -35,9 +35,9 @@ class ChannelManagementViewModel(
     private val ignoresRepository: IgnoresRepository,
     private val channelRepository: ChannelRepository,
 ) : ViewModel() {
-
     val channels: StateFlow<ImmutableList<ChannelWithRename>> =
-        preferenceStore.getChannelsWithRenamesFlow()
+        preferenceStore
+            .getChannelsWithRenamesFlow()
             .map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
@@ -68,9 +68,7 @@ class ChannelManagementViewModel(
         }
     }
 
-    fun isChannelAdded(name: String): Boolean {
-        return preferenceStore.channels.any { it.value.equals(name, ignoreCase = true) }
-    }
+    fun isChannelAdded(name: String): Boolean = preferenceStore.channels.any { it.value.equals(name, ignoreCase = true) }
 
     fun addChannel(channel: UserName) {
         val current = preferenceStore.channels

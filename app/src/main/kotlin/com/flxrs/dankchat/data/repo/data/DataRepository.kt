@@ -58,7 +58,6 @@ class DataRepository(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val _dataLoadingFailures = MutableStateFlow(emptySet<DataLoadingFailure>())
     private val _dataUpdateEvents = MutableSharedFlow<DataUpdateEventMessage>()
@@ -68,7 +67,7 @@ class DataRepository(
         scope.launch {
             sevenTVEventApiClient.messages.collect { event ->
                 when (event) {
-                    is SevenTVEventMessage.UserUpdated     -> {
+                    is SevenTVEventMessage.UserUpdated -> {
                         val channel = emoteRepository.getChannelForSevenTVEmoteSet(event.oldEmoteSetId) ?: return@collect
                         val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@collect
                         if (details.connectionIndex != event.connectionIndex) {
@@ -100,10 +99,13 @@ class DataRepository(
     fun clearDataLoadingFailures() = _dataLoadingFailures.update { emptySet() }
 
     fun getEmotes(channel: UserName): Flow<Emotes> = emoteRepository.getEmotes(channel)
+
     fun createFlowsIfNecessary(channels: List<UserName>) = emoteRepository.createFlowsIfNecessary(channels)
 
     suspend fun getUser(userId: UserId): UserDto? = helixApiClient.getUser(userId).getOrNull()
+
     suspend fun getChannelFollowers(broadcasterId: UserId, targetId: UserId): UserFollowsDto? = helixApiClient.getChannelFollowers(broadcasterId, targetId).getOrNull()
+
     suspend fun getStreams(channels: List<UserName>): List<StreamDto>? = helixApiClient.getStreams(channels).getOrNull()
 
     suspend fun reconnect() {
@@ -129,28 +131,29 @@ class DataRepository(
 
     suspend fun loadGlobalBadges(): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "global badges") {
-            val result = when {
-                authDataStore.isLoggedIn                          -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
-                System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
-                else                                              -> return@withContext Result.success(Unit)
-            }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
+            val result =
+                when {
+                    authDataStore.isLoggedIn -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                    System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                    else -> return@withContext Result.success(Unit)
+                }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
             result.onSuccess { emoteRepository.setGlobalBadges(it) }.map { }
         }
     }
 
     suspend fun loadDankChatBadges(): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "DankChat badges") {
-            dankChatApiClient.getDankChatBadges()
+            dankChatApiClient
+                .getDankChatBadges()
                 .getOrEmitFailure { DataLoadingStep.DankChatBadges }
                 .onSuccess { emoteRepository.setDankChatBadges(it) }
                 .map { }
         }
     }
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> {
-        return emoteRepository.loadUserEmotes(userId, onFirstPageLoaded)
-            .getOrEmitFailure { DataLoadingStep.TwitchEmotes }
-    }
+    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> = emoteRepository
+        .loadUserEmotes(userId, onFirstPageLoaded)
+        .getOrEmitFailure { DataLoadingStep.TwitchEmotes }
 
     suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {
         emoteRepository.loadUserStateEmotes(globalEmoteSetIds, followerEmoteSetIds)
@@ -162,11 +165,12 @@ class DataRepository(
 
     suspend fun loadChannelBadges(channel: UserName, id: UserId): Result<Unit> = withContext(Dispatchers.IO) {
         measureTimeAndLog(TAG, "channel badges for #$id") {
-            val result = when {
-                authDataStore.isLoggedIn                          -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
-                System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
-                else                                              -> return@withContext Result.success(Unit)
-            }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }
+            val result =
+                when {
+                    authDataStore.isLoggedIn -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                    System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                    else -> return@withContext Result.success(Unit)
+                }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }
             result.onSuccess { emoteRepository.setChannelBadges(channel, it) }.map { }
         }
     }
@@ -177,7 +181,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "FFZ emotes for #$channel") {
-            ffzApiClient.getFFZChannelEmotes(channelId)
+            ffzApiClient
+                .getFFZChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
                 .onSuccess { it?.let { emoteRepository.setFFZEmotes(channel, it) } }
                 .map { }
@@ -190,7 +195,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "BTTV emotes for #$channel") {
-            bttvApiClient.getBTTVChannelEmotes(channelId)
+            bttvApiClient
+                .getBTTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
                 .onSuccess { it?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) } }
                 .map { }
@@ -203,7 +209,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "7TV emotes for #$channel") {
-            sevenTVApiClient.getSevenTVChannelEmotes(channelId)
+            sevenTVApiClient
+                .getSevenTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) }
                 .onSuccess { result ->
                     result ?: return@onSuccess
@@ -212,8 +219,7 @@ class DataRepository(
                     }
                     sevenTVEventApiClient.subscribeUser(result.user.id)
                     emoteRepository.setSevenTVEmotes(channel, result)
-                }
-                .map { }
+                }.map { }
         }
     }
 
@@ -223,7 +229,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "cheermotes for #$channel") {
-            helixApiClient.getCheermotes(channelId)
+            helixApiClient
+                .getCheermotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelCheermotes(channel, channelId) }
                 .onSuccess { emoteRepository.setCheermotes(channel, it) }
                 .map { }
@@ -236,7 +243,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "global FFZ emotes") {
-            ffzApiClient.getFFZGlobalEmotes()
+            ffzApiClient
+                .getFFZGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes }
                 .onSuccess { emoteRepository.setFFZGlobalEmotes(it) }
                 .map { }
@@ -249,7 +257,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "global BTTV emotes") {
-            bttvApiClient.getBTTVGlobalEmotes()
+            bttvApiClient
+                .getBTTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes }
                 .onSuccess { emoteRepository.setBTTVGlobalEmotes(it) }
                 .map { }
@@ -262,7 +271,8 @@ class DataRepository(
         }
 
         measureTimeAndLog(TAG, "global 7TV emotes") {
-            sevenTVApiClient.getSevenTVGlobalEmotes()
+            sevenTVApiClient
+                .getSevenTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes }
                 .onSuccess { emoteRepository.setSevenTVGlobalEmotes(it) }
                 .map { }

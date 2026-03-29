@@ -13,14 +13,7 @@ data class SendChatMessageRequestDto(
 )
 
 @Serializable
-data class SendChatMessageResponseDto(
-    @SerialName("message_id") val messageId: String,
-    @SerialName("is_sent") val isSent: Boolean,
-    @SerialName("drop_reason") val dropReason: DropReasonDto? = null,
-)
+data class SendChatMessageResponseDto(@SerialName("message_id") val messageId: String, @SerialName("is_sent") val isSent: Boolean, @SerialName("drop_reason") val dropReason: DropReasonDto? = null)
 
 @Serializable
-data class DropReasonDto(
-    val code: String,
-    val message: String,
-)
+data class DropReasonDto(val code: String, val message: String)

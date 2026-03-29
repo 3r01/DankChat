@@ -24,7 +24,6 @@ class HighlightsViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
 ) : ViewModel() {
-
     private val _currentTab = MutableStateFlow(HighlightsTab.Messages)
     private val eventChannel = Channel<HighlightEvent>(Channel.BUFFERED)
 
@@ -59,19 +58,19 @@ class HighlightsViewModel(
         val notificationsEnabled = notificationsSettingsDataStore.settings.first().showNotifications
         val position: Int
         when (_currentTab.value) {
-            HighlightsTab.Messages         -> {
+            HighlightsTab.Messages -> {
                 val entity = highlightsRepository.addMessageHighlight()
                 messageHighlights += entity.toItem(loggedIn, notificationsEnabled)
                 position = messageHighlights.lastIndex
             }
 
-            HighlightsTab.Users            -> {
+            HighlightsTab.Users -> {
                 val entity = highlightsRepository.addUserHighlight()
                 userHighlights += entity.toItem(notificationsEnabled)
                 position = userHighlights.lastIndex
             }
 
-            HighlightsTab.Badges           -> {
+            HighlightsTab.Badges -> {
                 val entity = highlightsRepository.addBadgeHighlight()
                 badgeHighlights += entity.toItem(notificationsEnabled)
                 position = badgeHighlights.lastIndex
@@ -95,19 +94,19 @@ class HighlightsViewModel(
                 isLast = position == messageHighlights.lastIndex
             }
 
-            is UserHighlightItem    -> {
+            is UserHighlightItem -> {
                 highlightsRepository.updateUserHighlight(item.toEntity())
                 userHighlights.add(position, item)
                 isLast = position == userHighlights.lastIndex
             }
 
-            is BadgeHighlightItem   -> {
+            is BadgeHighlightItem -> {
                 highlightsRepository.updateBadgeHighlight(item.toEntity())
                 badgeHighlights.add(position, item)
                 isLast = position == badgeHighlights.lastIndex
             }
 
-            is BlacklistedUserItem  -> {
+            is BlacklistedUserItem -> {
                 highlightsRepository.updateBlacklistedUser(item.toEntity())
                 blacklistedUsers.add(position, item)
                 isLast = position == blacklistedUsers.lastIndex
@@ -125,19 +124,19 @@ class HighlightsViewModel(
                 messageHighlights.removeAt(position)
             }
 
-            is UserHighlightItem    -> {
+            is UserHighlightItem -> {
                 position = userHighlights.indexOfFirst { it.id == item.id }
                 highlightsRepository.removeUserHighlight(item.toEntity())
                 userHighlights.removeAt(position)
             }
 
-            is BadgeHighlightItem   -> {
+            is BadgeHighlightItem -> {
                 position = badgeHighlights.indexOfFirst { it.id == item.id }
                 highlightsRepository.removeBadgeHighlight(item.toEntity())
                 badgeHighlights.removeAt(position)
             }
 
-            is BlacklistedUserItem  -> {
+            is BlacklistedUserItem -> {
                 position = blacklistedUsers.indexOfFirst { it.id == item.id }
                 highlightsRepository.removeBlacklistedUser(item.toEntity())
                 blacklistedUsers.removeAt(position)

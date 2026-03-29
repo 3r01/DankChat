@@ -24,7 +24,7 @@ fun String.removeDuplicateWhitespace(): Pair<String, List<Int>> {
         if (codePoint.isWhitespace) {
             when {
                 previousWhitespace -> removedSpacesPositions += totalCharCount
-                else               -> stringBuilder.appendCodePoint(codePoint)
+                else -> stringBuilder.appendCodePoint(codePoint)
             }
 
             previousWhitespace = true
@@ -39,11 +39,7 @@ fun String.removeDuplicateWhitespace(): Pair<String, List<Int>> {
     return stringBuilder.toString() to removedSpacesPositions
 }
 
-data class CodePointAnalysis(
-    val supplementaryCodePointPositions: List<Int>,
-    val deduplicatedString: String,
-    val removedSpacesPositions: List<Int>,
-)
+data class CodePointAnalysis(val supplementaryCodePointPositions: List<Int>, val deduplicatedString: String, val removedSpacesPositions: List<Int>)
 
 // Combined single-pass: finds supplementary codepoint positions AND removes duplicate whitespace
 fun String.analyzeCodePoints(): CodePointAnalysis {
@@ -69,7 +65,7 @@ fun String.analyzeCodePoints(): CodePointAnalysis {
         if (codePoint.isWhitespace) {
             when {
                 previousWhitespace -> removedSpacesPositions += totalCharCount
-                else               -> stringBuilder.appendCodePoint(codePoint)
+                else -> stringBuilder.appendCodePoint(codePoint)
             }
             previousWhitespace = true
         } else {
@@ -85,6 +81,7 @@ fun String.analyzeCodePoints(): CodePointAnalysis {
 }
 
 operator fun MatchResult.component1() = value
+
 operator fun MatchResult.component2() = range
 
 // Adds extra space between every emoji group to support 3rd party emotes directly before/after emojis
@@ -184,16 +181,18 @@ val String.withoutOAuthPrefix: String
     get() = removePrefix("oauth:")
 
 val String.withTrailingSlash: String
-    get() = when {
-        endsWith('/') -> this
-        else          -> "$this/"
-    }
+    get() =
+        when {
+            endsWith('/') -> this
+            else -> "$this/"
+        }
 
 val String.withTrailingSpace: String
-    get() = when {
-        isNotBlank() && !endsWith(" ") -> "$this "
-        else                           -> this
-    }
+    get() =
+        when {
+            isNotBlank() && !endsWith(" ") -> "$this "
+            else -> this
+        }
 
 val INVISIBLE_CHAR = 0x034f.codePointAsString
 val String.withoutInvisibleChar: String
@@ -211,5 +210,5 @@ inline fun CharSequence.indexOfFirst(startIndex: Int = 0, predicate: (Char) -> B
 
 fun String.truncate(maxLength: Int = 120) = when {
     length <= maxLength -> this
-    else                -> take(maxLength) + Typography.ellipsis
+    else -> take(maxLength) + Typography.ellipsis
 }

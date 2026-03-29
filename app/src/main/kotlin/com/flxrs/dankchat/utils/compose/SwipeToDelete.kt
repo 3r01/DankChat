@@ -45,14 +45,14 @@ fun SwipeToDelete(onDelete: () -> Unit, modifier: Modifier = Modifier, enabled: 
             val color by animateColorAsState(
                 targetValue = when (state.dismissDirection) {
                     SwipeToDismissBoxValue.StartToEnd, SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                    SwipeToDismissBoxValue.Settled                                       -> MaterialTheme.colorScheme.surfaceContainer
-                }
+                    SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.surfaceContainer
+                },
             )
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(color, CardDefaults.outlinedShape)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
             ) {
                 when (state.dismissDirection) {
                     SwipeToDismissBoxValue.StartToEnd -> Icon(
@@ -71,7 +71,7 @@ fun SwipeToDelete(onDelete: () -> Unit, modifier: Modifier = Modifier, enabled: 
                         contentDescription = stringResource(R.string.remove_command),
                     )
 
-                    SwipeToDismissBoxValue.Settled    -> Unit
+                    SwipeToDismissBoxValue.Settled -> Unit
                 }
             }
         },

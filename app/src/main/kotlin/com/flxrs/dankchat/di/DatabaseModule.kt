@@ -17,59 +17,38 @@ import org.koin.core.annotation.Single
 
 @Module
 class DatabaseModule {
-
     @Single
-    fun provideDatabase(
-        context: Context
-    ): DankChatDatabase = Room
+    fun provideDatabase(context: Context): DankChatDatabase = Room
         .databaseBuilder(context, DankChatDatabase::class.java, DB_NAME)
         .addMigrations(DankChatDatabase.MIGRATION_4_5)
         .build()
 
     @Single
-    fun provideEmoteUsageDao(
-        database: DankChatDatabase
-    ): EmoteUsageDao = database.emoteUsageDao()
+    fun provideEmoteUsageDao(database: DankChatDatabase): EmoteUsageDao = database.emoteUsageDao()
 
     @Single
-    fun provideRecentUploadsDao(
-        database: DankChatDatabase
-    ): RecentUploadsDao = database.recentUploadsDao()
+    fun provideRecentUploadsDao(database: DankChatDatabase): RecentUploadsDao = database.recentUploadsDao()
 
     @Single
-    fun provideUserDisplayDao(
-        database: DankChatDatabase
-    ): UserDisplayDao = database.userDisplayDao()
+    fun provideUserDisplayDao(database: DankChatDatabase): UserDisplayDao = database.userDisplayDao()
 
     @Single
-    fun provideMessageHighlightDao(
-        database: DankChatDatabase
-    ): MessageHighlightDao = database.messageHighlightDao()
+    fun provideMessageHighlightDao(database: DankChatDatabase): MessageHighlightDao = database.messageHighlightDao()
 
     @Single
-    fun provideUserHighlightDao(
-        database: DankChatDatabase
-    ): UserHighlightDao = database.userHighlightDao()
+    fun provideUserHighlightDao(database: DankChatDatabase): UserHighlightDao = database.userHighlightDao()
 
     @Single
-    fun provideBadgeHighlightDao(
-        database: DankChatDatabase
-    ): BadgeHighlightDao = database.badgeHighlightDao()
+    fun provideBadgeHighlightDao(database: DankChatDatabase): BadgeHighlightDao = database.badgeHighlightDao()
 
     @Single
-    fun provideIgnoreUserDao(
-        database: DankChatDatabase
-    ): UserIgnoreDao = database.userIgnoreDao()
+    fun provideIgnoreUserDao(database: DankChatDatabase): UserIgnoreDao = database.userIgnoreDao()
 
     @Single
-    fun provideMessageIgnoreDao(
-        database: DankChatDatabase
-    ): MessageIgnoreDao = database.messageIgnoreDao()
+    fun provideMessageIgnoreDao(database: DankChatDatabase): MessageIgnoreDao = database.messageIgnoreDao()
 
     @Single
-    fun provideBlacklistedUserHighlightDao(
-        database: DankChatDatabase
-    ): BlacklistedUserDao = database.blacklistedUserDao()
+    fun provideBlacklistedUserHighlightDao(database: DankChatDatabase): BlacklistedUserDao = database.blacklistedUserDao()
 
     private companion object {
         const val DB_NAME = "dankchat-db"

@@ -24,7 +24,6 @@ class ConnectionCoordinator(
     private val appLifecycleListener: AppLifecycleListener,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
     fun initialize() {
@@ -32,7 +31,7 @@ class ConnectionCoordinator(
             val result = authStateCoordinator.validateOnStartup()
             when (result) {
                 is AuthEvent.TokenInvalid -> Unit
-                else                      -> chatConnector.connectAndJoin(chatChannelProvider.channels.value.orEmpty())
+                else -> chatConnector.connectAndJoin(chatChannelProvider.channels.value.orEmpty())
             }
         }
 
@@ -41,7 +40,10 @@ class ConnectionCoordinator(
             var wasInBackground = false
             appLifecycleListener.appState.collect { state ->
                 when (state) {
-                    is AppLifecycle.Background -> wasInBackground = true
+                    is AppLifecycle.Background -> {
+                        wasInBackground = true
+                    }
+
                     is AppLifecycle.Foreground -> {
                         if (wasInBackground) {
                             wasInBackground = false

@@ -26,35 +26,35 @@ import java.net.URLConnection
 import java.time.Instant
 
 @Single
-class UploadClient(
-    @Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient,
-    private val toolsSettingsDataStore: ToolsSettingsDataStore,
-) {
-
+class UploadClient(@Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient, private val toolsSettingsDataStore: ToolsSettingsDataStore) {
     suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(Dispatchers.IO) {
         val uploader = toolsSettingsDataStore.settings.first().uploaderConfig
         val mimetype = URLConnection.guessContentTypeFromName(file.name)
 
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
-            .build()
-        val request = Request.Builder()
-            .url(uploader.uploadUrl)
-            .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
-            .apply {
-                uploader.parsedHeaders.forEach { (name, value) ->
-                    header(name, value)
-                }
-            }
-            .post(requestBody)
-            .build()
+        val requestBody =
+            MultipartBody
+                .Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
+                .build()
+        val request =
+            Request
+                .Builder()
+                .url(uploader.uploadUrl)
+                .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
+                .apply {
+                    uploader.parsedHeaders.forEach { (name, value) ->
+                        header(name, value)
+                    }
+                }.post(requestBody)
+                .build()
 
-        val response = runCatching {
-            httpClient.newCall(request).execute()
-        }.getOrElse {
-            return@withContext Result.failure(it)
-        }
+        val response =
+            runCatching {
+                httpClient.newCall(request).execute()
+            }.getOrElse {
+                return@withContext Result.failure(it)
+            }
 
         when {
             response.isSuccessful -> {
@@ -67,7 +67,7 @@ class UploadClient(
                         UploadDto(
                             imageLink = body,
                             deleteLink = null,
-                            timestamp = Instant.now()
+                            timestamp = Instant.now(),
                         )
                     }
                 }
@@ -80,13 +80,12 @@ class UploadClient(
                         UploadDto(
                             imageLink = imageLink,
                             deleteLink = deleteLink,
-                            timestamp = Instant.now()
+                            timestamp = Instant.now(),
                         )
                     }
-
             }
 
-            else                  -> {
+            else -> {
                 Log.e(TAG, "Upload failed with ${response.code} ${response.message}")
                 val url = URLBuilder(response.request.url.toString()).build()
                 Result.failure(ApiException(HttpStatusCode.fromValue(response.code), url, response.message))

@@ -66,12 +66,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ManageChannelsDialog(
-    channels: List<ChannelWithRename>,
-    onApplyChanges: (List<ChannelWithRename>) -> Unit,
-    onChannelSelect: (UserName) -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun ManageChannelsDialog(channels: List<ChannelWithRename>, onApplyChanges: (List<ChannelWithRename>) -> Unit, onChannelSelect: (UserName) -> Unit, onDismiss: () -> Unit) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
     var editingChannel by remember { mutableStateOf<UserName?>(null) }
 
@@ -117,8 +112,8 @@ fun ManageChannelsDialog(
                         shadowElevation = elevation,
                         color = when {
                             isDragging -> MaterialTheme.colorScheme.surfaceContainerHighest
-                            else       -> Color.Transparent
-                        }
+                            else -> Color.Transparent
+                        },
                     ) {
                         Column {
                             ChannelItem(
@@ -126,7 +121,7 @@ fun ManageChannelsDialog(
                                 isEditing = editingChannel == channelWithRename.channel,
                                 modifier = Modifier.longPressDraggableHandle(
                                     onDragStarted = { /* Optional haptic feedback here */ },
-                                    onDragStopped = { /* Optional haptic feedback here */ }
+                                    onDragStopped = { /* Optional haptic feedback here */ },
                                 ),
                                 onNavigate = {
                                     onApplyChanges(localChannels.toList())
@@ -136,7 +131,7 @@ fun ManageChannelsDialog(
                                 onEdit = {
                                     editingChannel = when (editingChannel) {
                                         channelWithRename.channel -> null
-                                        else                      -> channelWithRename.channel
+                                        else -> channelWithRename.channel
                                     }
                                 },
                                 onRename = { newName ->
@@ -144,12 +139,12 @@ fun ManageChannelsDialog(
                                     localChannels[index] = localChannels[index].copy(rename = rename)
                                     editingChannel = null
                                 },
-                                onDelete = { channelToDelete = channelWithRename.channel }
+                                onDelete = { channelToDelete = channelWithRename.channel },
                             )
                             if (index < localChannels.lastIndex) {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                                 )
                             }
                         }
@@ -162,7 +157,7 @@ fun ManageChannelsDialog(
                     Text(
                         text = stringResource(R.string.no_channels_added),
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier.padding(16.dp),
                     )
                 }
             }
@@ -201,13 +196,13 @@ private fun ChannelItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_drag_handle),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(8.dp)
+                modifier = Modifier.padding(8.dp),
             )
 
             Text(
@@ -223,27 +218,27 @@ private fun ChannelItem(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp)
+                    .padding(horizontal = 8.dp),
             )
 
             IconButton(onClick = onNavigate) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                    contentDescription = stringResource(R.string.open_channel)
+                    contentDescription = stringResource(R.string.open_channel),
                 )
             }
 
             IconButton(onClick = onEdit) {
                 Icon(
                     painter = painterResource(R.drawable.ic_edit),
-                    contentDescription = stringResource(R.string.edit_dialog_title)
+                    contentDescription = stringResource(R.string.edit_dialog_title),
                 )
             }
 
             IconButton(onClick = onDelete) {
                 Icon(
                     painter = painterResource(R.drawable.ic_delete_outline),
-                    contentDescription = stringResource(R.string.remove_channel)
+                    contentDescription = stringResource(R.string.remove_channel),
                 )
             }
         }
@@ -263,17 +258,14 @@ private fun ChannelItem(
 }
 
 @Composable
-private fun InlineRenameField(
-    channelWithRename: ChannelWithRename,
-    onRename: (String?) -> Unit,
-) {
+private fun InlineRenameField(channelWithRename: ChannelWithRename, onRename: (String?) -> Unit) {
     val initialText = channelWithRename.rename?.value ?: ""
     var renameText by remember(channelWithRename.channel) {
         mutableStateOf(
             TextFieldValue(
                 text = initialText,
-                selection = TextRange(initialText.length)
-            )
+                selection = TextRange(initialText.length),
+            ),
         )
     }
     val focusRequester = remember { FocusRequester() }
@@ -311,7 +303,7 @@ private fun InlineRenameField(
                         IconButton(onClick = { onRename(null) }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_clear),
-                                contentDescription = stringResource(R.string.clear)
+                                contentDescription = stringResource(R.string.clear),
                             )
                         }
                     }

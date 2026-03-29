@@ -9,8 +9,11 @@ import org.koin.core.annotation.Single
 
 sealed interface StartupValidation {
     data object Pending : StartupValidation
+
     data object Validated : StartupValidation
+
     data class ScopesOutdated(val userName: UserName) : StartupValidation
+
     data object TokenInvalid : StartupValidation
 }
 

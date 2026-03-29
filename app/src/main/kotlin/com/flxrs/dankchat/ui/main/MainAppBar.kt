@@ -78,13 +78,7 @@ sealed interface AppBarMenu {
 }
 
 @Composable
-fun InlineOverflowMenu(
-    isLoggedIn: Boolean,
-    onDismiss: () -> Unit,
-    onAction: (ToolbarAction) -> Unit,
-    initialMenu: AppBarMenu = AppBarMenu.Main,
-    keyboardHeightDp: Dp = 0.dp,
-) {
+fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (ToolbarAction) -> Unit, initialMenu: AppBarMenu = AppBarMenu.Main, keyboardHeightDp: Dp = 0.dp) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
     var backProgress by remember { mutableFloatStateOf(0f) }
 
@@ -95,7 +89,8 @@ fun InlineOverflowMenu(
             }
             when (currentMenu) {
                 AppBarMenu.Main -> onDismiss()
-                else            -> {
+
+                else -> {
                     backProgress = 0f
                     currentMenu = AppBarMenu.Main
                 }
@@ -145,20 +140,41 @@ fun InlineOverflowMenu(
                     .padding(vertical = 8.dp),
             ) {
                 when (menu) {
-                    AppBarMenu.Main    -> {
+                    AppBarMenu.Main -> {
                         if (!isLoggedIn) {
-                            InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) { onAction(ToolbarAction.Login); onDismiss() }
+                            InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
+                                onAction(ToolbarAction.Login)
+                                onDismiss()
+                            }
                         } else {
-                            InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) { onAction(ToolbarAction.Relogin); onDismiss() }
-                            InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) { onAction(ToolbarAction.Logout); onDismiss() }
+                            InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
+                                onAction(ToolbarAction.Relogin)
+                                onDismiss()
+                            }
+                            InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
+                                onAction(ToolbarAction.Logout)
+                                onDismiss()
+                            }
                         }
 
                         HorizontalDivider()
 
-                        InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) { onAction(ToolbarAction.ManageChannels); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) { onAction(ToolbarAction.RemoveChannel); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) { onAction(ToolbarAction.ReloadEmotes); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) { onAction(ToolbarAction.Reconnect); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
+                            onAction(ToolbarAction.ManageChannels)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
+                            onAction(ToolbarAction.RemoveChannel)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
+                            onAction(ToolbarAction.ReloadEmotes)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
+                            onAction(ToolbarAction.Reconnect)
+                            onDismiss()
+                        }
 
                         HorizontalDivider()
 
@@ -167,22 +183,43 @@ fun InlineOverflowMenu(
 
                         HorizontalDivider()
 
-                        InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) { onAction(ToolbarAction.OpenSettings); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
+                            onAction(ToolbarAction.OpenSettings)
+                            onDismiss()
+                        }
                     }
 
-                    AppBarMenu.Upload  -> {
+                    AppBarMenu.Upload -> {
                         InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
-                        InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) { onAction(ToolbarAction.CaptureImage); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) { onAction(ToolbarAction.CaptureVideo); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) { onAction(ToolbarAction.ChooseMedia); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
+                            onAction(ToolbarAction.CaptureImage)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
+                            onAction(ToolbarAction.CaptureVideo)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
+                            onAction(ToolbarAction.ChooseMedia)
+                            onDismiss()
+                        }
                     }
 
                     AppBarMenu.Channel -> {
                         InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
-                        InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) { onAction(ToolbarAction.OpenChannel); onDismiss() }
-                        InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) { onAction(ToolbarAction.ReportChannel); onDismiss() }
+                        InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
+                            onAction(ToolbarAction.OpenChannel)
+                            onDismiss()
+                        }
+                        InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
+                            onAction(ToolbarAction.ReportChannel)
+                            onDismiss()
+                        }
                         if (isLoggedIn) {
-                            InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) { onAction(ToolbarAction.BlockChannel); onDismiss() }
+                            InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
+                                onAction(ToolbarAction.BlockChannel)
+                                onDismiss()
+                            }
                         }
                     }
                 }
@@ -194,13 +231,13 @@ fun InlineOverflowMenu(
                     .align(Alignment.TopEnd)
                     .fillMaxHeight()
                     .width(3.dp)
-                    .padding(vertical = 2.dp)
+                    .padding(vertical = 2.dp),
             ) {
                 Thumb(
                     Modifier.background(
                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                        RoundedCornerShape(100)
-                    )
+                        RoundedCornerShape(100),
+                    ),
                 )
             }
         }
@@ -229,7 +266,7 @@ private fun InlineMenuItem(text: String, icon: ImageVector, hasSubMenu: Boolean 
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         if (hasSubMenu) {
             Icon(
@@ -249,18 +286,18 @@ private fun InlineSubMenuHeader(title: String, onBack: () -> Unit) {
             .fillMaxWidth()
             .clickable(onClick = onBack)
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
         )
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
         )
     }
 }

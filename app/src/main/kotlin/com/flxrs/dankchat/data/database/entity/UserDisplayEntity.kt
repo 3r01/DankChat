@@ -12,5 +12,5 @@ data class UserDisplayEntity(
     @ColumnInfo(name = "color_enabled") val colorEnabled: Boolean,
     @ColumnInfo(name = "color") val color: Int,
     @ColumnInfo(name = "aliasEnabled") val aliasEnabled: Boolean,
-    @ColumnInfo(name = "alias") val alias: String?
+    @ColumnInfo(name = "alias") val alias: String?,
 )

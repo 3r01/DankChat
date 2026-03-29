@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class SuggestionProviderExtractWordTest {
-
-    private val suggestionProvider = SuggestionProvider(
-        emoteRepository = mockk(),
-        usersRepository = mockk(),
-        commandRepository = mockk(),
-        emoteUsageRepository = mockk(),
-        emojiRepository = mockk(),
-    )
+    private val suggestionProvider =
+        SuggestionProvider(
+            emoteRepository = mockk(),
+            usersRepository = mockk(),
+            commandRepository = mockk(),
+            emoteUsageRepository = mockk(),
+            emojiRepository = mockk(),
+        )
 
     @Test
     fun `cursor at end of single word returns full word`() {

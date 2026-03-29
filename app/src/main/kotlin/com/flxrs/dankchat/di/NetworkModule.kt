@@ -37,6 +37,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 data object WebSocketOkHttpClient
+
 data object UploadOkHttpClient
 
 @Module
@@ -54,13 +55,15 @@ class NetworkModule {
 
     @Single
     @Named(type = WebSocketOkHttpClient::class)
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient
+        .Builder()
         .callTimeout(20.seconds.toJavaDuration())
         .build()
 
     @Single
     @Named(type = UploadOkHttpClient::class)
-    fun provideUploadOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideUploadOkHttpClient(): OkHttpClient = OkHttpClient
+        .Builder()
         .callTimeout(60.seconds.toJavaDuration())
         .build()
 
@@ -76,11 +79,12 @@ class NetworkModule {
     fun provideKtorClient(json: Json): HttpClient = HttpClient(OkHttp) {
         install(Logging) {
             level = LogLevel.INFO
-            logger = object : Logger {
-                override fun log(message: String) {
-                    Log.v("HttpClient", message)
+            logger =
+                object : Logger {
+                    override fun log(message: String) {
+                        Log.v("HttpClient", message)
+                    }
                 }
-            }
         }
         install(HttpCache)
         install(UserAgent) {
@@ -97,71 +101,91 @@ class NetworkModule {
     }
 
     @Single
-    fun provideAuthApi(ktorClient: HttpClient) = AuthApi(ktorClient.config {
-        defaultRequest {
-            url(AUTH_BASE_URL)
-        }
-    })
-
-    @Single
-    fun provideDankChatApi(ktorClient: HttpClient) = DankChatApi(ktorClient.config {
-        defaultRequest {
-            url(DANKCHAT_BASE_URL)
-        }
-    })
-
-    @Single
-    fun provideSupibotApi(ktorClient: HttpClient) = SupibotApi(ktorClient.config {
-        defaultRequest {
-            url(SUPIBOT_BASE_URL)
-        }
-    })
-
-    @Single
-    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats, startupValidationHolder: StartupValidationHolder) = HelixApi(ktorClient.config {
-        defaultRequest {
-            url(HELIX_BASE_URL)
-            header("Client-ID", authDataStore.clientId)
-        }
-        install(ResponseObserver) {
-            onResponse { response ->
-                helixApiStats.recordResponse(response.status.value)
+    fun provideAuthApi(ktorClient: HttpClient) = AuthApi(
+        ktorClient.config {
+            defaultRequest {
+                url(AUTH_BASE_URL)
             }
-        }
-    }, authDataStore, startupValidationHolder)
+        },
+    )
 
     @Single
-    fun provideBadgesApi(ktorClient: HttpClient) = BadgesApi(ktorClient.config {
-        defaultRequest {
-            url(BADGES_BASE_URL)
-        }
-    })
+    fun provideDankChatApi(ktorClient: HttpClient) = DankChatApi(
+        ktorClient.config {
+            defaultRequest {
+                url(DANKCHAT_BASE_URL)
+            }
+        },
+    )
 
     @Single
-    fun provideFFZApi(ktorClient: HttpClient) = FFZApi(ktorClient.config {
-        defaultRequest {
-            url(FFZ_BASE_URL)
-        }
-    })
+    fun provideSupibotApi(ktorClient: HttpClient) = SupibotApi(
+        ktorClient.config {
+            defaultRequest {
+                url(SUPIBOT_BASE_URL)
+            }
+        },
+    )
 
     @Single
-    fun provideBTTVApi(ktorClient: HttpClient) = BTTVApi(ktorClient.config {
-        defaultRequest {
-            url(BTTV_BASE_URL)
-        }
-    })
+    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats, startupValidationHolder: StartupValidationHolder) = HelixApi(
+        ktorClient.config {
+            defaultRequest {
+                url(HELIX_BASE_URL)
+                header("Client-ID", authDataStore.clientId)
+            }
+            install(ResponseObserver) {
+                onResponse { response ->
+                    helixApiStats.recordResponse(response.status.value)
+                }
+            }
+        },
+        authDataStore,
+        startupValidationHolder,
+    )
 
     @Single
-    fun provideRecentMessagesApi(ktorClient: HttpClient, developerSettingsDataStore: DeveloperSettingsDataStore) = RecentMessagesApi(ktorClient.config {
-        defaultRequest {
-            url(developerSettingsDataStore.current().customRecentMessagesHost)
-        }
-    })
+    fun provideBadgesApi(ktorClient: HttpClient) = BadgesApi(
+        ktorClient.config {
+            defaultRequest {
+                url(BADGES_BASE_URL)
+            }
+        },
+    )
 
     @Single
-    fun provideSevenTVApi(ktorClient: HttpClient) = SevenTVApi(ktorClient.config {
-        defaultRequest {
-            url(SEVENTV_BASE_URL)
-        }
-    })
+    fun provideFFZApi(ktorClient: HttpClient) = FFZApi(
+        ktorClient.config {
+            defaultRequest {
+                url(FFZ_BASE_URL)
+            }
+        },
+    )
+
+    @Single
+    fun provideBTTVApi(ktorClient: HttpClient) = BTTVApi(
+        ktorClient.config {
+            defaultRequest {
+                url(BTTV_BASE_URL)
+            }
+        },
+    )
+
+    @Single
+    fun provideRecentMessagesApi(ktorClient: HttpClient, developerSettingsDataStore: DeveloperSettingsDataStore) = RecentMessagesApi(
+        ktorClient.config {
+            defaultRequest {
+                url(developerSettingsDataStore.current().customRecentMessagesHost)
+            }
+        },
+    )
+
+    @Single
+    fun provideSevenTVApi(ktorClient: HttpClient) = SevenTVApi(
+        ktorClient.config {
+            defaultRequest {
+                url(SEVENTV_BASE_URL)
+            }
+        },
+    )
 }

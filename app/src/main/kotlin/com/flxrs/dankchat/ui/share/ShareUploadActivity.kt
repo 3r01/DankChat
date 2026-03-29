@@ -125,7 +125,7 @@ class ShareUploadActivity : ComponentActivity() {
             onSuccess = { url -> uploadState = ShareUploadState.Success(url) },
             onFailure = { error ->
                 uploadState = ShareUploadState.Error(
-                    error.message ?: getString(R.string.snackbar_upload_failed)
+                    error.message ?: getString(R.string.snackbar_upload_failed),
                 )
             },
         )
@@ -140,11 +140,7 @@ sealed interface ShareUploadState {
 }
 
 @Composable
-private fun ShareUploadDialog(
-    state: ShareUploadState,
-    onRetry: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+private fun ShareUploadDialog(state: ShareUploadState, onRetry: () -> Unit, onDismiss: () -> Unit) {
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -168,7 +164,7 @@ private fun ShareUploadDialog(
                 when (currentState) {
                     is ShareUploadState.Loading -> LoadingContent()
                     is ShareUploadState.Success -> SuccessContent(url = currentState.url)
-                    is ShareUploadState.Error   -> ErrorContent(message = currentState.message)
+                    is ShareUploadState.Error -> ErrorContent(message = currentState.message)
                 }
             }
 
@@ -178,7 +174,7 @@ private fun ShareUploadDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 when (state) {
-                    is ShareUploadState.Error   -> {
+                    is ShareUploadState.Error -> {
                         TextButton(onClick = onDismiss) {
                             Text(stringResource(R.string.dialog_dismiss))
                         }

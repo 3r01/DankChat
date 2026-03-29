@@ -7,18 +7,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 @Immutable
-data class ChannelTabUiState(
-    val tabs: ImmutableList<ChannelTabItem> = persistentListOf(),
-    val selectedIndex: Int = 0,
-    val loading: Boolean = true,
-)
+data class ChannelTabUiState(val tabs: ImmutableList<ChannelTabItem> = persistentListOf(), val selectedIndex: Int = 0, val loading: Boolean = true)
 
 @Immutable
-data class ChannelTabItem(
-    val channel: UserName,
-    val displayName: String,
-    val isSelected: Boolean,
-    val hasUnread: Boolean,
-    val mentionCount: Int,
-    val loadingState: ChannelLoadingState
-)
+data class ChannelTabItem(val channel: UserName, val displayName: String, val isSelected: Boolean, val hasUnread: Boolean, val mentionCount: Int, val loadingState: ChannelLoadingState)

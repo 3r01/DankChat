@@ -126,11 +126,11 @@ private fun UserDisplayScreen(
                     }
                 }
 
-                is UserDisplayEvent.ItemAdded   -> {
+                is UserDisplayEvent.ItemAdded -> {
                     when {
                         it.isLast && listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                        it.isLast                               -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                        else                                    -> listState.animateScrollToItem(it.position)
+                        it.isLast -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                        else -> listState.animateScrollToItem(it.position)
                     }
                 }
             }
@@ -161,7 +161,7 @@ private fun UserDisplayScreen(
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -208,12 +208,7 @@ private fun UserDisplayScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun UserDisplayItem(
-    item: UserDisplayItem,
-    onChange: (UserDisplayItem) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun UserDisplayItem(item: UserDisplayItem, onChange: (UserDisplayItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {
@@ -308,7 +303,7 @@ private fun UserDisplayItem(
                                     },
                                     update = {
                                         it.setCurrentColor(selectedColor)
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -317,11 +312,9 @@ private fun UserDisplayItem(
                 IconButton(
                     modifier = Modifier.align(Alignment.Top),
                     onClick = onRemove,
-                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_custom_user_display)) }
+                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_custom_user_display)) },
                 )
             }
         }
     }
 }
-
-

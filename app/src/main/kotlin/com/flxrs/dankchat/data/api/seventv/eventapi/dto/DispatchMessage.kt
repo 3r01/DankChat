@@ -27,18 +27,11 @@ data class Actor(@SerialName("display_name") val displayName: DisplayName)
 
 @Serializable
 @SerialName("emote_set.update")
-data class EmoteSetDispatchData(
-    override val body: EmoteSetChangeMapData
-) : DispatchData
+data class EmoteSetDispatchData(override val body: EmoteSetChangeMapData) : DispatchData
 
 @Serializable
-data class EmoteSetChangeMapData(
-    override val id: String,
-    override val actor: Actor,
-    val pushed: List<EmoteChangeField>?,
-    val pulled: List<EmoteChangeField>?,
-    val updated: List<EmoteChangeField>?
-) : ChangeMapData
+data class EmoteSetChangeMapData(override val id: String, override val actor: Actor, val pushed: List<EmoteChangeField>?, val pulled: List<EmoteChangeField>?, val updated: List<EmoteChangeField>?) :
+    ChangeMapData
 
 @Serializable
 @JsonClassDiscriminator("key")
@@ -50,16 +43,10 @@ data class EmoteChangeField(val value: SevenTVEmoteDto?, @SerialName("old_value"
 
 @Serializable
 @SerialName("user.update")
-data class UserDispatchData(
-    override val body: UserChangeMapData
-) : DispatchData
+data class UserDispatchData(override val body: UserChangeMapData) : DispatchData
 
 @Serializable
-data class UserChangeMapData(
-    override val id: String,
-    override val actor: Actor,
-    val updated: List<UserChangeFields>?
-) : ChangeMapData
+data class UserChangeMapData(override val id: String, override val actor: Actor, val updated: List<UserChangeFields>?) : ChangeMapData
 
 @Serializable
 @SerialName("connections")

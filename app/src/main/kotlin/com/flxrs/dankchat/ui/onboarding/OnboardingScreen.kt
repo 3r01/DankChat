@@ -67,11 +67,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val PAGE_COUNT = 4
 
 @Composable
-fun OnboardingScreen(
-    onNavigateToLogin: () -> Unit,
-    onComplete: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun OnboardingScreen(onNavigateToLogin: () -> Unit, onComplete: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: OnboardingViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -145,13 +141,7 @@ fun OnboardingScreen(
 }
 
 @Composable
-private fun OnboardingPage(
-    title: String,
-    icon: @Composable () -> Unit,
-    body: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+private fun OnboardingPage(title: String, icon: @Composable () -> Unit, body: @Composable () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -184,10 +174,7 @@ private fun OnboardingBody(text: String) {
 }
 
 @Composable
-private fun WelcomePage(
-    onStart: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun WelcomePage(onStart: () -> Unit, modifier: Modifier = Modifier) {
     OnboardingPage(
         icon = {
             Icon(
@@ -208,13 +195,7 @@ private fun WelcomePage(
 }
 
 @Composable
-private fun LoginPage(
-    loginCompleted: Boolean,
-    onLogin: () -> Unit,
-    onSkip: () -> Unit,
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun LoginPage(loginCompleted: Boolean, onLogin: () -> Unit, onSkip: () -> Unit, onContinue: () -> Unit, modifier: Modifier = Modifier) {
     OnboardingPage(
         icon = {
             Icon(
@@ -263,7 +244,7 @@ private fun LoginPage(
                         }
                     }
 
-                    else      -> {
+                    else -> {
                         Button(onClick = onLogin) {
                             Text(stringResource(R.string.onboarding_login_button))
                         }
@@ -279,12 +260,7 @@ private fun LoginPage(
 }
 
 @Composable
-private fun MessageHistoryPage(
-    decided: Boolean,
-    onEnable: () -> Unit,
-    onDisable: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun MessageHistoryPage(decided: Boolean, onEnable: () -> Unit, onDisable: () -> Unit, modifier: Modifier = Modifier) {
     OnboardingPage(
         icon = {
             Icon(
@@ -311,7 +287,7 @@ private fun MessageHistoryPage(
                             append(bodyText.substring(urlStart + url.length))
                         }
 
-                        else          -> append(bodyText)
+                        else -> append(bodyText)
                     }
                 }
             }
@@ -341,15 +317,12 @@ private enum class NotificationPermissionState { Pending, Granted, Denied }
 
 @SuppressLint("InlinedApi")
 @Composable
-private fun NotificationsPage(
-    onContinue: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun NotificationsPage(onContinue: () -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     var permissionState by remember { mutableStateOf(NotificationPermissionState.Pending) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
+        contract = ActivityResultContracts.RequestPermission(),
     ) { granted ->
         if (granted) {
             onContinue()
@@ -364,7 +337,8 @@ private fun NotificationsPage(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             if (isAtLeastTiramisu && permissionState == NotificationPermissionState.Denied) {
                 val granted = ContextCompat.checkSelfPermission(
-                    context, Manifest.permission.POST_NOTIFICATIONS
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS,
                 ) == PackageManager.PERMISSION_GRANTED
                 if (granted) {
                     onContinue()
@@ -400,7 +374,7 @@ private fun NotificationsPage(
                             }
                         }
 
-                        NotificationPermissionState.Denied  -> {
+                        NotificationPermissionState.Denied -> {
                             Text(
                                 text = stringResource(R.string.onboarding_notifications_rationale),
                                 style = MaterialTheme.typography.bodySmall,
@@ -414,7 +388,7 @@ private fun NotificationsPage(
                                         putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                                     }
                                     context.startActivity(intent)
-                                }
+                                },
                             ) {
                                 Text(stringResource(R.string.onboarding_notifications_open_settings))
                             }
@@ -428,7 +402,7 @@ private fun NotificationsPage(
                             Button(
                                 onClick = {
                                     permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                }
+                                },
                             ) {
                                 Text(stringResource(R.string.onboarding_notifications_allow))
                             }
@@ -448,5 +422,3 @@ private fun NotificationsPage(
         }
     }
 }
-
-

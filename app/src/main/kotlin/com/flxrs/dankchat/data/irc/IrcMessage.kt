@@ -2,20 +2,10 @@ package com.flxrs.dankchat.data.irc
 
 import java.text.ParseException
 
-data class IrcMessage(
-    val raw: String,
-    val prefix: String,
-    val command: String,
-    val params: List<String> = listOf(),
-    val tags: Map<String, String> = mapOf()
-) {
-
-    fun isLoginFailed(): Boolean {
-        return command == "NOTICE" && params.getOrNull(0) == "*" && params.getOrNull(1) == "Login authentication failed"
-    }
+data class IrcMessage(val raw: String, val prefix: String, val command: String, val params: List<String> = listOf(), val tags: Map<String, String> = mapOf()) {
+    fun isLoginFailed(): Boolean = command == "NOTICE" && params.getOrNull(0) == "*" && params.getOrNull(1) == "Login authentication failed"
 
     companion object {
-
         private fun unescapeIrcTagValue(value: String): String {
             val idx = value.indexOf('\\')
             if (idx == -1) return value // fast path: no escapes (most values)
@@ -25,11 +15,26 @@ data class IrcMessage(
                 while (i < value.length) {
                     if (value[i] == '\\' && i + 1 < value.length) {
                         when (value[i + 1]) {
-                            ':'  -> append(';')
-                            's'  -> append(' ')
-                            'r'  -> append('\r')
-                            'n'  -> append('\n')
-                            '\\' -> append('\\')
+                            ':' -> {
+                                append(';')
+                            }
+
+                            's' -> {
+                                append(' ')
+                            }
+
+                            'r' -> {
+                                append('\r')
+                            }
+
+                            'n' -> {
+                                append('\n')
+                            }
+
+                            '\\' -> {
+                                append('\\')
+                            }
+
                             else -> {
                                 append(value[i])
                                 append(value[i + 1])
@@ -56,7 +61,7 @@ data class IrcMessage(
                 while (message[pos] == ' ') pos++
             }
 
-            //tags
+            // tags
             if (message[pos] == '@') {
                 nextSpace = message.indexOf(' ')
 
@@ -87,7 +92,7 @@ data class IrcMessage(
 
             skipTrailingWhitespace()
 
-            //prefix
+            // prefix
             if (message[pos] == ':') {
                 nextSpace = message.indexOf(' ', pos)
 

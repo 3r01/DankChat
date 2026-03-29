@@ -1,12 +1,11 @@
 package com.flxrs.dankchat.ui.main
 
-import com.flxrs.dankchat.ui.main.input.computeSuggestionReplacement
 import com.flxrs.dankchat.ui.main.input.SuggestionReplacementResult
+import com.flxrs.dankchat.ui.main.input.computeSuggestionReplacement
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class SuggestionReplacementTest {
-
     @Test
     fun `replaces word at end of text`() {
         val result = computeSuggestionReplacement("hello as", cursorPos = 8, suggestionText = "asd")

@@ -68,7 +68,6 @@ class ChatEventProcessor(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val lastMessage = ConcurrentHashMap<UserName, String>()
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
@@ -103,12 +102,12 @@ class ChatEventProcessor(
     private suspend fun collectReadConnectionEvents() {
         chatConnector.readEvents.collect { event ->
             when (event) {
-                is ChatEvent.Connected          -> handleConnected(event.isAnonymous)
-                is ChatEvent.Closed             -> handleDisconnect()
+                is ChatEvent.Connected -> handleConnected(event.isAnonymous)
+                is ChatEvent.Closed -> handleDisconnect()
                 is ChatEvent.ChannelNonExistent -> postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
-                is ChatEvent.LoginFailed        -> postSystemMessageAndReconnect(SystemMessageType.LoginExpired)
-                is ChatEvent.Message            -> onMessage(event.message)
-                is ChatEvent.Error              -> handleDisconnect()
+                is ChatEvent.LoginFailed -> postSystemMessageAndReconnect(SystemMessageType.LoginExpired)
+                is ChatEvent.Message -> onMessage(event.message)
+                is ChatEvent.Error -> handleDisconnect()
             }
         }
     }
@@ -125,7 +124,7 @@ class ChatEventProcessor(
         chatConnector.pubSubEvents.collect { pubSubMessage ->
             when (pubSubMessage) {
                 is PubSubMessage.PointRedemption -> handlePubSubReward(pubSubMessage)
-                is PubSubMessage.Whisper         -> handlePubSubWhisper(pubSubMessage)
+                is PubSubMessage.Whisper -> handlePubSubWhisper(pubSubMessage)
                 is PubSubMessage.ModeratorAction -> handlePubSubModeration(pubSubMessage)
             }
         }
@@ -134,12 +133,12 @@ class ChatEventProcessor(
     private suspend fun collectEventSubEvents() {
         chatConnector.eventSubEvents.collect { eventMessage ->
             when (eventMessage) {
-                is ModerationAction   -> handleEventSubModeration(eventMessage)
-                is AutomodHeld        -> handleAutomodHeld(eventMessage)
-                is AutomodUpdate      -> handleAutomodUpdate(eventMessage)
-                is UserMessageHeld    -> handleUserMessageHeld(eventMessage)
+                is ModerationAction -> handleEventSubModeration(eventMessage)
+                is AutomodHeld -> handleAutomodHeld(eventMessage)
+                is AutomodUpdate -> handleAutomodUpdate(eventMessage)
+                is UserMessageHeld -> handleUserMessageHeld(eventMessage)
                 is UserMessageUpdated -> handleUserMessageUpdated(eventMessage)
-                is SystemMessage      -> postEventSubDebugMessage(eventMessage.message)
+                is SystemMessage -> postEventSubDebugMessage(eventMessage.message)
             }
         }
     }
@@ -158,18 +157,19 @@ class ChatEventProcessor(
                         knownRewards.remove(id)
                     }
 
-                    else                         -> {
+                    else -> {
                         Log.d(TAG, "Received pubsub reward message with id $id")
                         knownRewards[id] = pubSubMessage
                     }
                 }
             }
         } else {
-            val message = runCatching {
-                messageProcessor.processReward(
-                    PointRedemptionMessage.parsePointReward(pubSubMessage.timestamp, pubSubMessage.data)
-                )
-            }.getOrNull() ?: return
+            val message =
+                runCatching {
+                    messageProcessor.processReward(
+                        PointRedemptionMessage.parsePointReward(pubSubMessage.timestamp, pubSubMessage.data),
+                    )
+                }.getOrNull() ?: return
 
             chatMessageRepository.addMessages(pubSubMessage.channelName, listOf(ChatItem(message)))
         }
@@ -180,9 +180,10 @@ class ChatEventProcessor(
             return
         }
 
-        val message = runCatching {
-            messageProcessor.processWhisper(WhisperMessage.fromPubSub(pubSubMessage.data)) as? WhisperMessage
-        }.getOrNull() ?: return
+        val message =
+            runCatching {
+                messageProcessor.processWhisper(WhisperMessage.fromPubSub(pubSubMessage.data)) as? WhisperMessage
+            }.getOrNull() ?: return
 
         val item = ChatItem(message, isMentionTab = true)
         chatNotificationRepository.addWhisper(item)
@@ -200,21 +201,23 @@ class ChatEventProcessor(
     private fun handlePubSubModeration(pubSubMessage: PubSubMessage.ModeratorAction) {
         val (timestamp, channelId, data) = pubSubMessage
         val channelName = channelRepository.tryGetUserNameById(channelId) ?: return
-        val message = runCatching {
-            ModerationMessage.parseModerationAction(timestamp, channelName, data)
-        }.getOrElse { return }
+        val message =
+            runCatching {
+                ModerationMessage.parseModerationAction(timestamp, channelName, data)
+            }.getOrElse { return }
 
         chatMessageRepository.applyModerationMessage(message)
     }
 
     private fun handleEventSubModeration(eventMessage: ModerationAction) {
         val (id, timestamp, channelName, data) = eventMessage
-        val message = runCatching {
-            ModerationMessage.parseModerationAction(id, timestamp, channelName, data)
-        }.getOrElse {
-            Log.d(TAG, "Failed to parse event sub moderation message: $it")
-            return
-        }
+        val message =
+            runCatching {
+                ModerationMessage.parseModerationAction(id, timestamp, channelName, data)
+            }.getOrElse {
+                Log.d(TAG, "Failed to parse event sub moderation message: $it")
+                return
+            }
 
         chatMessageRepository.applyModerationMessage(message)
     }
@@ -224,113 +227,122 @@ class ChatEventProcessor(
         knownAutomodHeldIds.add(data.messageId)
         val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
         val userColor = usersRepository.getCachedUserColor(data.userLogin) ?: Message.DEFAULT_COLOR
-        val automodBadge = Badge.GlobalBadge(
-            title = "AutoMod",
-            badgeTag = "automod/1",
-            badgeInfo = null,
-            url = "",
-            type = BadgeType.Authority,
-        )
-        val automodMsg = AutomodMessage(
-            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
-            id = eventMessage.id,
-            channel = eventMessage.channelName,
-            heldMessageId = data.messageId,
-            userName = data.userLogin,
-            userDisplayName = data.userName,
-            messageText = data.message.text,
-            reason = reason,
-            badges = listOf(automodBadge),
-            color = userColor,
-        )
+        val automodBadge =
+            Badge.GlobalBadge(
+                title = "AutoMod",
+                badgeTag = "automod/1",
+                badgeInfo = null,
+                url = "",
+                type = BadgeType.Authority,
+            )
+        val automodMsg =
+            AutomodMessage(
+                timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+                id = eventMessage.id,
+                channel = eventMessage.channelName,
+                heldMessageId = data.messageId,
+                userName = data.userLogin,
+                userDisplayName = data.userName,
+                messageText = data.message.text,
+                reason = reason,
+                badges = listOf(automodBadge),
+                color = userColor,
+            )
         chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
     }
 
     private fun handleAutomodUpdate(eventMessage: AutomodUpdate) {
         knownAutomodHeldIds.remove(eventMessage.data.messageId)
-        val newStatus = when (eventMessage.data.status) {
-            AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
-            AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
-            AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
-        }
+        val newStatus =
+            when (eventMessage.data.status) {
+                AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+                AutomodMessageStatus.Denied -> AutomodMessage.Status.Denied
+                AutomodMessageStatus.Expired -> AutomodMessage.Status.Expired
+            }
         chatMessageRepository.updateAutomodMessageStatus(eventMessage.channelName, eventMessage.data.messageId, newStatus)
     }
 
     private fun handleUserMessageHeld(eventMessage: UserMessageHeld) {
         val data = eventMessage.data
-        val automodBadge = Badge.GlobalBadge(
-            title = "AutoMod",
-            badgeTag = "automod/1",
-            badgeInfo = null,
-            url = "",
-            type = BadgeType.Authority,
-        )
-        val automodMsg = AutomodMessage(
-            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
-            id = eventMessage.id,
-            channel = eventMessage.channelName,
-            heldMessageId = data.messageId,
-            userName = data.userLogin,
-            userDisplayName = data.userName,
-            messageText = null,
-            reason = TextResource.Res(R.string.automod_user_held),
-            badges = listOf(automodBadge),
-            isUserSide = true,
-        )
+        val automodBadge =
+            Badge.GlobalBadge(
+                title = "AutoMod",
+                badgeTag = "automod/1",
+                badgeInfo = null,
+                url = "",
+                type = BadgeType.Authority,
+            )
+        val automodMsg =
+            AutomodMessage(
+                timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+                id = eventMessage.id,
+                channel = eventMessage.channelName,
+                heldMessageId = data.messageId,
+                userName = data.userLogin,
+                userDisplayName = data.userName,
+                messageText = null,
+                reason = TextResource.Res(R.string.automod_user_held),
+                badges = listOf(automodBadge),
+                isUserSide = true,
+            )
         chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
     }
 
     private fun handleUserMessageUpdated(eventMessage: UserMessageUpdated) {
         val data = eventMessage.data
-        val automodBadge = Badge.GlobalBadge(
-            title = "AutoMod",
-            badgeTag = "automod/1",
-            badgeInfo = null,
-            url = "",
-            type = BadgeType.Authority,
-        )
-        val reason = when (data.status) {
-            AutomodMessageStatus.Approved -> TextResource.Res(R.string.automod_user_accepted)
-            AutomodMessageStatus.Denied   -> TextResource.Res(R.string.automod_user_denied)
-            AutomodMessageStatus.Expired  -> TextResource.Res(R.string.automod_status_expired)
-        }
-        val automodMsg = AutomodMessage(
-            timestamp = eventMessage.timestamp.toEpochMilliseconds(),
-            id = eventMessage.id,
-            channel = eventMessage.channelName,
-            heldMessageId = data.messageId,
-            userName = data.userLogin,
-            userDisplayName = data.userName,
-            messageText = null,
-            reason = reason,
-            badges = listOf(automodBadge),
-            isUserSide = true,
-            status = when (data.status) {
-                AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
-                AutomodMessageStatus.Denied   -> AutomodMessage.Status.Denied
-                AutomodMessageStatus.Expired  -> AutomodMessage.Status.Expired
-            },
-        )
+        val automodBadge =
+            Badge.GlobalBadge(
+                title = "AutoMod",
+                badgeTag = "automod/1",
+                badgeInfo = null,
+                url = "",
+                type = BadgeType.Authority,
+            )
+        val reason =
+            when (data.status) {
+                AutomodMessageStatus.Approved -> TextResource.Res(R.string.automod_user_accepted)
+                AutomodMessageStatus.Denied -> TextResource.Res(R.string.automod_user_denied)
+                AutomodMessageStatus.Expired -> TextResource.Res(R.string.automod_status_expired)
+            }
+        val automodMsg =
+            AutomodMessage(
+                timestamp = eventMessage.timestamp.toEpochMilliseconds(),
+                id = eventMessage.id,
+                channel = eventMessage.channelName,
+                heldMessageId = data.messageId,
+                userName = data.userLogin,
+                userDisplayName = data.userName,
+                messageText = null,
+                reason = reason,
+                badges = listOf(automodBadge),
+                isUserSide = true,
+                status =
+                when (data.status) {
+                    AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+                    AutomodMessageStatus.Denied -> AutomodMessage.Status.Denied
+                    AutomodMessageStatus.Expired -> AutomodMessage.Status.Expired
+                },
+            )
         chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
     }
 
     private suspend fun onMessage(msg: IrcMessage) {
         when (msg.command) {
-            "CLEARCHAT"       -> handleClearChat(msg)
-            "CLEARMSG"        -> handleClearMsg(msg)
-            "ROOMSTATE"       -> channelRepository.handleRoomState(msg)
-            "USERSTATE"       -> userStateRepository.handleUserState(msg)
+            "CLEARCHAT" -> handleClearChat(msg)
+            "CLEARMSG" -> handleClearMsg(msg)
+            "ROOMSTATE" -> channelRepository.handleRoomState(msg)
+            "USERSTATE" -> userStateRepository.handleUserState(msg)
             "GLOBALUSERSTATE" -> userStateRepository.handleGlobalUserState(msg)
-            "WHISPER"         -> handleWhisper(msg)
-            else              -> handleMessage(msg)
+            "WHISPER" -> handleWhisper(msg)
+            else -> handleMessage(msg)
         }
     }
 
     private suspend fun onWriterMessage(message: IrcMessage) {
         when (message.command) {
-            "USERSTATE"       -> userStateRepository.handleUserState(message)
+            "USERSTATE" -> userStateRepository.handleUserState(message)
             "GLOBALUSERSTATE" -> userStateRepository.handleGlobalUserState(message)
-            "NOTICE"          -> handleMessage(message)
+            "NOTICE" -> handleMessage(message)
         }
     }
 
@@ -341,13 +353,16 @@ class ChatEventProcessor(
     }
 
     private fun handleConnected(isAnonymous: Boolean) {
-        val state = when {
-            isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
-            else        -> ConnectionState.CONNECTED
-        }
-        val transitioning = chatChannelProvider.channels.value.orEmpty()
-            .filter { chatConnector.getConnectionState(it).value != state }
-            .toSet()
+        val state =
+            when {
+                isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
+                else -> ConnectionState.CONNECTED
+            }
+        val transitioning =
+            chatChannelProvider.channels.value
+                .orEmpty()
+                .filter { chatConnector.getConnectionState(it).value != state }
+                .toSet()
 
         chatConnector.setAllConnectionStates(state)
 
@@ -357,17 +372,19 @@ class ChatEventProcessor(
     }
 
     private fun handleClearChat(msg: IrcMessage) {
-        val parsed = runCatching {
-            ModerationMessage.parseClearChat(msg)
-        }.getOrElse { return }
+        val parsed =
+            runCatching {
+                ModerationMessage.parseClearChat(msg)
+            }.getOrElse { return }
 
         chatMessageRepository.applyModerationMessage(parsed)
     }
 
     private fun handleClearMsg(msg: IrcMessage) {
-        val parsed = runCatching {
-            ModerationMessage.parseClearMessage(msg)
-        }.getOrElse { return }
+        val parsed =
+            runCatching {
+                ModerationMessage.parseClearMessage(msg)
+            }.getOrElse { return }
 
         chatMessageRepository.applyModerationMessage(parsed)
     }
@@ -384,11 +401,12 @@ class ChatEventProcessor(
 
         val userState = userStateRepository.userState.value
         val recipient = userState.displayName ?: return
-        val message = runCatching {
-            messageProcessor.processWhisper(
-                WhisperMessage.parseFromIrc(ircMessage, recipient, userState.color)
-            ) as? WhisperMessage
-        }.getOrNull() ?: return
+        val message =
+            runCatching {
+                messageProcessor.processWhisper(
+                    WhisperMessage.parseFromIrc(ircMessage, recipient, userState.color),
+                ) as? WhisperMessage
+            }.getOrNull() ?: return
 
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
         usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
@@ -418,14 +436,15 @@ class ChatEventProcessor(
 
         val additionalMessages = resolveRewardMessages(ircMessage)
 
-        val message = runCatching {
-            messageProcessor.processIrcMessage(ircMessage) { channel, id ->
-                chatMessageRepository.findMessage(id, channel, chatNotificationRepository.whispers)
-            }
-        }.getOrElse {
-            Log.e(TAG, "Failed to parse message", it)
-            return
-        } ?: return
+        val message =
+            runCatching {
+                messageProcessor.processIrcMessage(ircMessage) { channel, id ->
+                    chatMessageRepository.findMessage(id, channel, chatNotificationRepository.whispers)
+                }
+            }.getOrElse {
+                Log.e(TAG, "Failed to parse message", it)
+                return
+            } ?: return
 
         if (message is NoticeMessage && usersRepository.isGlobalChannel(message.channel)) {
             chatMessageRepository.broadcastToAllChannels(ChatItem(message, importance = ChatImportance.SYSTEM))
@@ -434,30 +453,34 @@ class ChatEventProcessor(
 
         trackUserState(message)
 
-        val items = buildList {
-            if (message is UserNoticeMessage && message.childMessage != null) {
-                add(ChatItem(message.childMessage))
+        val items =
+            buildList {
+                if (message is UserNoticeMessage && message.childMessage != null) {
+                    add(ChatItem(message.childMessage))
+                }
+                val importance =
+                    when (message) {
+                        is NoticeMessage -> ChatImportance.SYSTEM
+                        else -> ChatImportance.REGULAR
+                    }
+                add(ChatItem(message, importance = importance))
             }
-            val importance = when (message) {
-                is NoticeMessage -> ChatImportance.SYSTEM
-                else             -> ChatImportance.REGULAR
-            }
-            add(ChatItem(message, importance = importance))
-        }
 
-        val channel = when (message) {
-            is PrivMessage       -> message.channel
-            is UserNoticeMessage -> message.channel
-            is NoticeMessage     -> message.channel
-            else                 -> return
-        }
+        val channel =
+            when (message) {
+                is PrivMessage -> message.channel
+                is UserNoticeMessage -> message.channel
+                is NoticeMessage -> message.channel
+                else -> return
+            }
 
         chatMessageRepository.addMessages(channel, additionalMessages + items)
         chatNotificationRepository.emitNotification(items)
 
-        val mentions = items
-            .filter { it.message.highlights.hasMention() }
-            .toMentionTabItems()
+        val mentions =
+            items
+                .filter { it.message.highlights.hasMention() }
+                .toMentionTabItems()
 
         if (mentions.isNotEmpty()) {
             chatNotificationRepository.addMentions(mentions)
@@ -481,26 +504,28 @@ class ChatEventProcessor(
             return emptyList()
         }
 
-        val reward = rewardMutex.withLock {
-            knownRewards[rewardId]
-                ?.also {
-                    Log.d(TAG, "Removing known reward $rewardId")
-                    knownRewards.remove(rewardId)
-                }
-                ?: run {
-                    Log.d(TAG, "Waiting for pubsub reward message with id $rewardId")
-                    withTimeoutOrNull(PUBSUB_TIMEOUT) {
-                        chatConnector.pubSubEvents
-                            .filterIsInstance<PubSubMessage.PointRedemption>()
-                            .first { it.data.reward.id == rewardId }
-                    }?.also { knownRewards[rewardId] = it }
-                }
-        }
+        val reward =
+            rewardMutex.withLock {
+                knownRewards[rewardId]
+                    ?.also {
+                        Log.d(TAG, "Removing known reward $rewardId")
+                        knownRewards.remove(rewardId)
+                    }
+                    ?: run {
+                        Log.d(TAG, "Waiting for pubsub reward message with id $rewardId")
+                        withTimeoutOrNull(PUBSUB_TIMEOUT) {
+                            chatConnector.pubSubEvents
+                                .filterIsInstance<PubSubMessage.PointRedemption>()
+                                .first { it.data.reward.id == rewardId }
+                        }?.also { knownRewards[rewardId] = it }
+                    }
+            }
 
-        return reward?.let {
-            val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(it.timestamp, it.data))
-            listOfNotNull(processed?.let(::ChatItem))
-        }.orEmpty()
+        return reward
+            ?.let {
+                val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(it.timestamp, it.data))
+                listOfNotNull(processed?.let(::ChatItem))
+            }.orEmpty()
     }
 
     private fun trackUserState(message: Message) {
@@ -522,7 +547,7 @@ class ChatEventProcessor(
             val hasVip = message.badges.any { badge -> badge.badgeTag?.startsWith("vip") == true }
             when {
                 hasVip -> userStateRepository.addVipChannel(message.channel)
-                else   -> userStateRepository.removeVipChannel(message.channel)
+                else -> userStateRepository.removeVipChannel(message.channel)
             }
         }
 
@@ -538,7 +563,13 @@ class ChatEventProcessor(
         }
     }
 
-    private fun postSystemMessageAndReconnect(type: SystemMessageType, channels: Set<UserName> = chatChannelProvider.channels.value.orEmpty().toSet()) {
+    private fun postSystemMessageAndReconnect(
+        type: SystemMessageType,
+        channels: Set<UserName> =
+            chatChannelProvider.channels.value
+                .orEmpty()
+                .toSet(),
+    ) {
         val reconnectedChannels = chatMessageRepository.addSystemMessageToChannels(type, channels)
         reconnectedChannels.forEach { channel ->
             scope.launch {
@@ -550,29 +581,32 @@ class ChatEventProcessor(
     }
 
     private fun ConnectionState.toSystemMessageType(): SystemMessageType = when (this) {
-        ConnectionState.DISCONNECTED            -> SystemMessageType.Disconnected
+        ConnectionState.DISCONNECTED -> SystemMessageType.Disconnected
+
         ConnectionState.CONNECTED,
-        ConnectionState.CONNECTED_NOT_LOGGED_IN -> SystemMessageType.Connected
+        ConnectionState.CONNECTED_NOT_LOGGED_IN,
+        -> SystemMessageType.Connected
     }
 
-    private fun formatAutomodReason(
-        reason: String,
-        automod: AutomodReasonDto?,
-        blockedTerm: BlockedTermReasonDto?,
-        messageText: String,
-    ): TextResource = when {
-        reason == "automod" && automod != null          -> TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
+    private fun formatAutomodReason(reason: String, automod: AutomodReasonDto?, blockedTerm: BlockedTermReasonDto?, messageText: String): TextResource = when {
+        reason == "automod" && automod != null -> {
+            TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
+        }
+
         reason == "blocked_term" && blockedTerm != null -> {
-            val terms = blockedTerm.termsFound.joinToString { found ->
-                val start = found.boundary.startPos
-                val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
-                "\"${messageText.substring(start, end)}\""
-            }
+            val terms =
+                blockedTerm.termsFound.joinToString { found ->
+                    val start = found.boundary.startPos
+                    val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
+                    "\"${messageText.substring(start, end)}\""
+                }
             val count = blockedTerm.termsFound.size
             TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
         }
 
-        else                                            -> TextResource.Plain(reason)
+        else -> {
+            TextResource.Plain(reason)
+        }
     }
 
     companion object {

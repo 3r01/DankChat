@@ -14,12 +14,14 @@ import org.koin.core.annotation.Single
 
 @Single
 class AuthApiClient(private val authApi: AuthApi, private val json: Json) {
-
     suspend fun validateUser(token: String): Result<ValidateDto> = runCatching {
         val response = authApi.validateUser(token)
         when {
-            response.status.isSuccess() -> response.body()
-            else                        -> {
+            response.status.isSuccess() -> {
+                response.body()
+            }
+
+            else -> {
                 val error = json.decodeOrNull<ValidateErrorDto>(response.bodyAsText())
                 throw ApiException(status = response.status, response.request.url, error?.message)
             }
@@ -31,50 +33,52 @@ class AuthApiClient(private val authApi: AuthApi, private val json: Json) {
     }
 
     fun validateScopes(scopes: List<String>): Boolean = scopes.containsAll(SCOPES)
+
     fun missingScopes(scopes: List<String>): Set<String> = SCOPES - scopes.toSet()
 
     companion object {
         private const val BASE_LOGIN_URL = "https://id.twitch.tv/oauth2/authorize?response_type=token"
         private const val REDIRECT_URL = "https://flxrs.com/dankchat"
-        val SCOPES = setOf(
-            "channel:edit:commercial",
-            "channel:manage:broadcast",
-            "channel:manage:moderators",
-            "channel:manage:polls",
-            "channel:manage:predictions",
-            "channel:manage:raids",
-            "channel:manage:vips",
-            "channel:moderate",
-            "channel:read:polls",
-            "channel:read:predictions",
-            "channel:read:redemptions",
-            "chat:edit",
-            "chat:read",
-            "moderator:manage:announcements",
-            "moderator:manage:automod",
-            "moderator:manage:automod_settings",
-            "moderator:manage:banned_users",
-            "moderator:manage:blocked_terms",
-            "moderator:manage:chat_messages",
-            "moderator:manage:chat_settings",
-            "moderator:manage:shield_mode",
-            "moderator:manage:shoutouts",
-            "moderator:manage:unban_requests",
-            "moderator:manage:warnings",
-            "moderator:read:chatters",
-            "moderator:read:followers",
-            "moderator:read:moderators",
-            "moderator:read:vips",
-            "user:manage:blocked_users",
-            "user:manage:chat_color",
-            "user:manage:whispers",
-            "user:read:blocked_users",
-            "user:read:chat",
-            "user:read:emotes",
-            "user:write:chat",
-            "whispers:edit",
-            "whispers:read",
-        )
+        val SCOPES =
+            setOf(
+                "channel:edit:commercial",
+                "channel:manage:broadcast",
+                "channel:manage:moderators",
+                "channel:manage:polls",
+                "channel:manage:predictions",
+                "channel:manage:raids",
+                "channel:manage:vips",
+                "channel:moderate",
+                "channel:read:polls",
+                "channel:read:predictions",
+                "channel:read:redemptions",
+                "chat:edit",
+                "chat:read",
+                "moderator:manage:announcements",
+                "moderator:manage:automod",
+                "moderator:manage:automod_settings",
+                "moderator:manage:banned_users",
+                "moderator:manage:blocked_terms",
+                "moderator:manage:chat_messages",
+                "moderator:manage:chat_settings",
+                "moderator:manage:shield_mode",
+                "moderator:manage:shoutouts",
+                "moderator:manage:unban_requests",
+                "moderator:manage:warnings",
+                "moderator:read:chatters",
+                "moderator:read:followers",
+                "moderator:read:moderators",
+                "moderator:read:vips",
+                "user:manage:blocked_users",
+                "user:manage:chat_color",
+                "user:manage:whispers",
+                "user:read:blocked_users",
+                "user:read:chat",
+                "user:read:emotes",
+                "user:write:chat",
+                "whispers:edit",
+                "whispers:read",
+            )
         val LOGIN_URL = "$BASE_LOGIN_URL&client_id=${AuthSettings.DEFAULT_CLIENT_ID}&redirect_uri=$REDIRECT_URL&scope=${SCOPES.joinToString(separator = "+")}"
     }
 }

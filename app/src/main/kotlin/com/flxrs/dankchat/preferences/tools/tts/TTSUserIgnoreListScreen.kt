@@ -69,11 +69,7 @@ fun TTSUserIgnoreListScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun UserIgnoreListScreen(
-    initialIgnores: ImmutableList<UserIgnore>,
-    onSaveAndNavBack: (List<UserIgnore>) -> Unit,
-    onSave: (List<UserIgnore>) -> Unit,
-) {
+private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSaveAndNavBack: (List<UserIgnore>) -> Unit, onSave: (List<UserIgnore>) -> Unit) {
     val focusManager = LocalFocusManager.current
     val ignores = remember { initialIgnores.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -121,10 +117,10 @@ private fun UserIgnoreListScreen(
                         scope.launch {
                             when {
                                 listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                                else                       -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                                else -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
                             }
                         }
-                    }
+                    },
                 )
             }
         },
@@ -136,7 +132,7 @@ private fun UserIgnoreListScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
             itemsIndexed(ignores, key = { _, item -> item.id }) { idx, ignore ->
                 UserIgnoreItem(
@@ -150,7 +146,7 @@ private fun UserIgnoreListScreen(
                             val result = snackbarHost.showSnackbar(
                                 message = itemRemovedMsg,
                                 actionLabel = undoMsg,
-                                duration = SnackbarDuration.Short
+                                duration = SnackbarDuration.Short,
                             )
                             if (result == SnackbarResult.ActionPerformed) {
                                 focusManager.clearFocus()
@@ -175,12 +171,7 @@ private fun UserIgnoreListScreen(
 }
 
 @Composable
-private fun UserIgnoreItem(
-    user: String,
-    onUserChange: (String) -> Unit,
-    onRemove: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun UserIgnoreItem(user: String, onUserChange: (String) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {

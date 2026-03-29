@@ -15,42 +15,37 @@ data class ToolsSettings(
     val ttsIgnoreEmotes: Boolean = false,
     val ttsUserIgnoreList: Set<String> = emptySet(),
 ) {
-
     @Transient
     val ttsUserNameIgnores = ttsUserIgnoreList.toUserNames()
 }
 
 @Serializable
-data class ImageUploaderConfig(
-    val uploadUrl: String,
-    val formField: String,
-    val headers: String?,
-    val imageLinkPattern: String?,
-    val deletionLinkPattern: String?,
-) {
-
+data class ImageUploaderConfig(val uploadUrl: String, val formField: String, val headers: String?, val imageLinkPattern: String?, val deletionLinkPattern: String?) {
     @Transient
-    val parsedHeaders: List<Pair<String, String>> = headers
-        ?.split(";")
-        ?.mapNotNull {
-            val splits = runCatching {
-                it.split(":", limit = 2)
-            }.getOrElse { return@mapNotNull null }
+    val parsedHeaders: List<Pair<String, String>> =
+        headers
+            ?.split(";")
+            ?.mapNotNull {
+                val splits =
+                    runCatching {
+                        it.split(":", limit = 2)
+                    }.getOrElse { return@mapNotNull null }
 
-            when {
-                splits.size != 2 -> null
-                else             -> Pair(splits[0].trim(), splits[1].trim())
-            }
-        }.orEmpty()
+                when {
+                    splits.size != 2 -> null
+                    else -> Pair(splits[0].trim(), splits[1].trim())
+                }
+            }.orEmpty()
 
     companion object {
-        val DEFAULT = ImageUploaderConfig(
-            uploadUrl = "https://kappa.lol/api/upload",
-            formField = "file",
-            headers = null,
-            imageLinkPattern = "{link}",
-            deletionLinkPattern = "{delete}",
-        )
+        val DEFAULT =
+            ImageUploaderConfig(
+                uploadUrl = "https://kappa.lol/api/upload",
+                formField = "file",
+                headers = null,
+                imageLinkPattern = "{link}",
+                deletionLinkPattern = "{delete}",
+            )
     }
 }
 

@@ -19,7 +19,7 @@ import org.koin.core.parameter.parametersOf
 /**
  * Standalone composable for chat display.
  * Extracted from ChatFragment to enable pure Compose integration.
- * 
+ *
  * This composable:
  * - Creates its own ChatViewModel scoped to the channel
  * - Collects messages from ViewModel
@@ -52,7 +52,7 @@ fun ChatComposable(
     // Create ChatViewModel with channel-specific key for proper scoping
     val viewModel: ChatViewModel = koinViewModel(
         key = channel.value,
-        parameters = { parametersOf(channel) }
+        parameters = { parametersOf(channel) },
     )
 
     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())

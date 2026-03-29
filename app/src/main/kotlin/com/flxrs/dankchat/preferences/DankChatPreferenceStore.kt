@@ -26,12 +26,7 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
-class DankChatPreferenceStore(
-    private val context: Context,
-    private val json: Json,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val authDataStore: AuthDataStore,
-) {
+class DankChatPreferenceStore(private val context: Context, private val json: Json, private val appearanceSettingsDataStore: AppearanceSettingsDataStore, private val authDataStore: AuthDataStore) {
     private val dankChatPreferences: SharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_preference_key), Context.MODE_PRIVATE)
 
     private var channelRenames: String?
@@ -43,11 +38,17 @@ class DankChatPreferenceStore(
     val clientId: String get() = authDataStore.clientId
 
     var channels: List<UserName>
-        get() = dankChatPreferences.getString(CHANNELS_AS_STRING_KEY, null)?.split(',').orEmpty().toUserNames()
+        get() =
+            dankChatPreferences
+                .getString(CHANNELS_AS_STRING_KEY, null)
+                ?.split(',')
+                .orEmpty()
+                .toUserNames()
         set(value) {
-            val channels = value
-                .takeIf { it.isNotEmpty() }
-                ?.joinToString(separator = ",")
+            val channels =
+                value
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(separator = ",")
             dankChatPreferences.edit { putString(CHANNELS_AS_STRING_KEY, channels) }
         }
 
@@ -91,19 +92,19 @@ class DankChatPreferenceStore(
 
     val secretDankerModeClicks: Int = SECRET_DANKER_MODE_CLICKS
 
-    val isLoggedInFlow: Flow<Boolean> = authDataStore.settings
-        .map { it.isLoggedIn }
-        .distinctUntilChanged()
+    val isLoggedInFlow: Flow<Boolean> =
+        authDataStore.settings
+            .map { it.isLoggedIn }
+            .distinctUntilChanged()
 
-    val currentUserAndDisplayFlow: Flow<Pair<UserName?, DisplayName?>> = authDataStore.settings
-        .map { authDataStore.userName to authDataStore.displayName }
-        .distinctUntilChanged()
+    val currentUserAndDisplayFlow: Flow<Pair<UserName?, DisplayName?>> =
+        authDataStore.settings
+            .map { authDataStore.userName to authDataStore.displayName }
+            .distinctUntilChanged()
 
-    fun formatViewersString(viewers: Int, uptime: String, category: String?): String {
-        return when (category) {
-            null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
-            else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
-        }
+    fun formatViewersString(viewers: Int, uptime: String, category: String?): String = when (category) {
+        null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
+        else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
     }
 
     fun clearLogin() {
@@ -132,11 +133,12 @@ class DankChatPreferenceStore(
     fun getChannelsWithRenamesFlow(): Flow<List<ChannelWithRename>> = callbackFlow {
         send(getChannelsWithRenames())
 
-        val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-            if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
-                trySend(getChannelsWithRenames())
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
+                    trySend(getChannelsWithRenames())
+                }
             }
-        }
 
         dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
         awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }

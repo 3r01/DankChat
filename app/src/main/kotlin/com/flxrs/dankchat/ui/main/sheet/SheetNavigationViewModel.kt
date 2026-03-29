@@ -58,19 +58,17 @@ class SheetNavigationViewModel : ViewModel() {
         _inputSheetState.value = InputSheetState.Closed
     }
 
-    fun handleBackPress(): Boolean {
-        return when {
-            _inputSheetState.value != InputSheetState.Closed           -> {
-                closeInputSheet()
-                true
-            }
-
-            _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
-                closeFullScreenSheet()
-                true
-            }
-
-            else                                                       -> false
+    fun handleBackPress(): Boolean = when {
+        _inputSheetState.value != InputSheetState.Closed -> {
+            closeInputSheet()
+            true
         }
+
+        _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
+            closeFullScreenSheet()
+            true
+        }
+
+        else -> false
     }
 }
