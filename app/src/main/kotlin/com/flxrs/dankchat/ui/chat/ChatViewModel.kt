@@ -18,6 +18,9 @@ import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.extensions.isEven
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -75,7 +78,7 @@ class ChatViewModel(
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.getDefault())
 
-    val chatUiStates: StateFlow<List<ChatMessageUiState>> = combine(
+    val chatUiStates: StateFlow<ImmutableList<ChatMessageUiState>> = combine(
         chat,
         appearanceSettingsDataStore.settings,
         chatSettingsDataStore.settings
@@ -133,9 +136,9 @@ class ChatViewModel(
             }
         }
 
-        result
+        result.toImmutableList()
     }.flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
 
     fun manageAutomodMessage(heldMessageId: String, channel: UserName, allow: Boolean) {
         viewModelScope.launch {

@@ -13,8 +13,12 @@ import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -32,9 +36,10 @@ class ChannelManagementViewModel(
     private val channelRepository: ChannelRepository,
 ) : ViewModel() {
 
-    val channels: StateFlow<List<ChannelWithRename>> =
+    val channels: StateFlow<ImmutableList<ChannelWithRename>> =
         preferenceStore.getChannelsWithRenamesFlow()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+            .map { it.toImmutableList() }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     init {
         // Set initial active channel if not already set

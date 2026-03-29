@@ -1,9 +1,11 @@
 package com.flxrs.dankchat.ui.chat.user
 
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 
+@Immutable
 sealed interface UserPopupState {
     data class Loading(val userName: UserName, val displayName: DisplayName) : UserPopupState
     data class Error(val throwable: Throwable? = null) : UserPopupState

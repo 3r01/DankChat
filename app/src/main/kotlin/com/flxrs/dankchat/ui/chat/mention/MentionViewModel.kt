@@ -11,6 +11,9 @@ import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.utils.extensions.isEven
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +21,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
@@ -48,10 +52,12 @@ class MentionViewModel(
         _currentTab.value = index
     }
 
-    val mentions: StateFlow<List<ChatItem>> = chatNotificationRepository.mentions
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), emptyList())
-    val whispers: StateFlow<List<ChatItem>> = chatNotificationRepository.whispers
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), emptyList())
+    val mentions: StateFlow<ImmutableList<ChatItem>> = chatNotificationRepository.mentions
+        .map { it.toImmutableList() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
+    val whispers: StateFlow<ImmutableList<ChatItem>> = chatNotificationRepository.whispers
+        .map { it.toImmutableList() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
 
     val mentionsUiStates: Flow<List<ChatMessageUiState>> = combine(
         mentions,

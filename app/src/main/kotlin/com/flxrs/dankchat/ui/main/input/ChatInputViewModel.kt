@@ -23,7 +23,6 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
@@ -112,7 +111,7 @@ class ChatInputViewModel(
     private val debouncedTextAndCursor = textAndCursorFlow.debounce(SUGGESTION_DEBOUNCE_MS)
 
     // Get suggestions based on current text, cursor position, and active channel
-    private val suggestions: StateFlow<List<Suggestion>> = combine(
+    private val suggestions: StateFlow<ImmutableList<Suggestion>> = combine(
         debouncedTextAndCursor,
         chatChannelProvider.activeChannel,
         chatSettingsDataStore.suggestions,
@@ -124,9 +123,10 @@ class ChatInputViewModel(
             enabled -> suggestionProvider.getSuggestions(text, cursorPos, channel)
             else    -> flowOf(emptyList())
         }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }.map { it.toImmutableList() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
-    private val roomStateResources: StateFlow<List<TextResource>> = combine(
+    private val roomStateResources: StateFlow<ImmutableList<TextResource>> = combine(
         chatSettingsDataStore.showChatModes,
         chatChannelProvider.activeChannel
     ) { showModes, channel ->
@@ -135,7 +135,8 @@ class ChatInputViewModel(
         if (!showModes || channel == null) flowOf(emptyList())
         else channelRepository.getRoomStateFlow(channel).map { it.toDisplayTextResources() }
     }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .map { it.toImmutableList() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     private val currentStreamInfo: StateFlow<String?> = combine(
         streamsSettingsDataStore.showStreamsInfo,

@@ -3,18 +3,16 @@ package com.flxrs.dankchat.ui.main.sheet
 import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 
+@Immutable
 sealed interface FullScreenSheetState {
     data object Closed : FullScreenSheetState
-
-    @Immutable
     data class Replies(val replyMessageId: String, val replyName: UserName) : FullScreenSheetState
     data object Mention : FullScreenSheetState
     data object Whisper : FullScreenSheetState
-
-    @Immutable
     data class History(val channel: UserName, val initialFilter: String = "") : FullScreenSheetState
 }
 
+@Immutable
 sealed interface InputSheetState {
     data object Closed : InputSheetState
     data object EmoteMenu : InputSheetState

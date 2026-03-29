@@ -1,8 +1,10 @@
 package com.flxrs.dankchat.preferences.notifications.ignores
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.Flow
 
+@Immutable
 sealed interface IgnoreEvent {
     data class ItemRemoved(val item: IgnoreItem, val position: Int) : IgnoreEvent
     data class ItemAdded(val position: Int, val isLast: Boolean) : IgnoreEvent

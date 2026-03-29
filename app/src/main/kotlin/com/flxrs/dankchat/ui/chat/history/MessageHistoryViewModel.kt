@@ -23,6 +23,12 @@ import com.flxrs.dankchat.ui.chat.search.ChatSearchFilterParser
 import com.flxrs.dankchat.ui.chat.search.SearchFilterSuggestions
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import com.flxrs.dankchat.utils.extensions.isEven
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -93,28 +99,30 @@ class MessageHistoryViewModel(
             }
     }.flowOn(Dispatchers.Default)
 
-    private val users: StateFlow<Set<DisplayName>> = usersRepository.getUsersFlow(channel)
+    private val users: StateFlow<ImmutableSet<DisplayName>> = usersRepository.getUsersFlow(channel)
+        .map { it.toImmutableSet() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
-    private val badgeNames: StateFlow<Set<String>> = chatMessageRepository.getChat(channel)
+    private val badgeNames: StateFlow<ImmutableSet<String>> = chatMessageRepository.getChat(channel)
         .map { items ->
             items.asSequence()
                 .map { it.message }
                 .filterIsInstance<PrivMessage>()
                 .flatMap { it.badges }
                 .mapNotNull { it.badgeTag?.substringBefore('/') }
-                .toSet()
+                .toImmutableSet()
         }
         .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
-    val filterSuggestions: StateFlow<List<Suggestion>> = combine(
+    val filterSuggestions: StateFlow<ImmutableList<Suggestion>> = combine(
         searchQuery,
         users,
         badgeNames,
     ) { query, userSet, badges ->
-        SearchFilterSuggestions.filter(query, users = userSet, badgeNames = badges)
+        SearchFilterSuggestions.filter(query, users = userSet, badgeNames = badges).toImmutableList()
     }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     fun setInitialQuery(query: String) {
         if (query.isNotEmpty()) {

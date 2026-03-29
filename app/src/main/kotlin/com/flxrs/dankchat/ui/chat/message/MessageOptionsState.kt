@@ -1,7 +1,9 @@
 package com.flxrs.dankchat.ui.chat.message
 
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
 
+@Immutable
 sealed interface MessageOptionsState {
     data object Loading : MessageOptionsState
     data object NotFound : MessageOptionsState
