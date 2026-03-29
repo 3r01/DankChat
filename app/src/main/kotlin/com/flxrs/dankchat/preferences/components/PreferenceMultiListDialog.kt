@@ -51,6 +51,7 @@ fun <T> PreferenceMultiListDialog(
                 onChanged(values.filterIndexed { idx, _ -> selected[idx] })
             },
             sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             entries.forEachIndexed { idx, it ->
                 val interactionSource = remember { MutableInteractionSource() }

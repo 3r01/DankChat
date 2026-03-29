@@ -47,6 +47,7 @@ fun DebugInfoSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         contentWindowInsets = { WindowInsets.statusBars },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
         LazyColumn(

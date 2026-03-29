@@ -54,7 +54,8 @@ fun EmoteMenuSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = Modifier.height(400.dp) // Fixed height for emote menu
+        modifier = Modifier.height(400.dp), // Fixed height for emote menu
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {

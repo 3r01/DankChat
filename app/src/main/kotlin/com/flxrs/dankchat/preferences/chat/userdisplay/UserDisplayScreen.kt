@@ -278,6 +278,7 @@ private fun UserDisplayItem(
                                     onChange(item.copy(color = selectedColor))
                                     showColorPicker = false
                                 },
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             ) {
                                 Text(
                                     text = stringResource(R.string.pick_custom_user_color_title),

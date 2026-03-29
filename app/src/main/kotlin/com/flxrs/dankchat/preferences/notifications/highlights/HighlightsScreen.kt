@@ -685,6 +685,7 @@ private fun HighlightColorPicker(
                 onColorSelected(selectedColor)
                 showColorPicker = false
             },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             Text(
                 text = stringResource(R.string.pick_highlight_color_title),

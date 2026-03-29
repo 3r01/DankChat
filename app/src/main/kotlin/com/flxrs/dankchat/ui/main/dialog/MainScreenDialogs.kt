@@ -51,7 +51,6 @@ import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.ui.main.sheet.InputSheetState
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoSheet
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoViewModel
-import com.flxrs.dankchat.ui.main.sheet.MoreActionsSheet
 import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -249,8 +248,17 @@ fun MainScreenDialogs(
                         snackbarHostState.showSnackbar(messageCopiedMsg)
                     }
                 },
-                onMoreActions = {
-                    sheetNavigationViewModel.openMoreActions(s.messageId, params.fullMessage)
+                onCopyFullMessage = {
+                    scope.launch {
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
+                        snackbarHostState.showSnackbar(messageCopiedMsg)
+                    }
+                },
+                onCopyMessageId = {
+                    scope.launch {
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
+                        snackbarHostState.showSnackbar(messageIdCopiedMsg)
+                    }
                 },
                 onDelete = viewModel::deleteMessage,
                 onTimeout = viewModel::timeoutUser,
@@ -324,27 +332,6 @@ fun MainScreenDialogs(
                 }
                 dialogViewModel.dismissUserPopup()
             },
-        )
-    }
-
-    if (inputSheetState is InputSheetState.MoreActions) {
-        MoreActionsSheet(
-            messageId = inputSheetState.messageId,
-            fullMessage = inputSheetState.fullMessage,
-            onCopyFullMessage = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", it)))
-                    snackbarHostState.showSnackbar(messageCopiedMsg)
-                }
-            },
-            onCopyMessageId = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", it)))
-                    snackbarHostState.showSnackbar(messageIdCopiedMsg)
-                }
-            },
-            onDismiss = sheetNavigationViewModel::closeInputSheet,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         )
     }
 

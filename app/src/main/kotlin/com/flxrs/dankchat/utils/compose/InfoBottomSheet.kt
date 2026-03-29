@@ -45,6 +45,7 @@ fun InfoBottomSheet(
             ModalBottomSheet(
                 onDismissRequest = onDismiss,
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ) {
                 InfoSheetContent(title, message, confirmText, dismissText, onConfirm, onDismiss)
             }
@@ -70,7 +71,7 @@ fun InfoBottomSheet(
                     Surface(
                         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
                         shadowElevation = 8.dp,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(

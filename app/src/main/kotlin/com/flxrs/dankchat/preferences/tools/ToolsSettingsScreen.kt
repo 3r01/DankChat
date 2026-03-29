@@ -167,6 +167,7 @@ fun ImageUploaderCategory(
         ModalBottomSheet(
             onDismissRequest = { recentUploadSheetOpen = false },
             modifier = Modifier.statusBarsPadding(),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             Text(
                 text = stringResource(R.string.preference_uploader_recent_uploads_title),

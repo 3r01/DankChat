@@ -6,6 +6,10 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,7 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -45,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
@@ -74,7 +79,8 @@ fun MessageOptionsDialog(
     onJumpToMessage: () -> Unit,
     onViewThread: () -> Unit,
     onCopy: () -> Unit,
-    onMoreActions: () -> Unit,
+    onCopyFullMessage: () -> Unit,
+    onCopyMessageId: () -> Unit,
     onDelete: () -> Unit,
     onTimeout: (index: Int) -> Unit,
     onBan: () -> Unit,
@@ -86,6 +92,7 @@ fun MessageOptionsDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         AnimatedContent(
             targetState = subView,
@@ -110,7 +117,8 @@ fun MessageOptionsDialog(
                     onJumpToMessage = { onJumpToMessage(); onDismiss() },
                     onViewThread = { onViewThread(); onDismiss() },
                     onCopy = { onCopy(); onDismiss() },
-                    onMoreActions = { onMoreActions(); onDismiss() },
+                    onCopyFullMessage = { onCopyFullMessage(); onDismiss() },
+                    onCopyMessageId = { onCopyMessageId(); onDismiss() },
                     onUnban = { onUnban(); onDismiss() },
                     onTimeout = { subView = MessageOptionsSubView.Timeout },
                     onBan = { subView = MessageOptionsSubView.Ban },
@@ -162,12 +170,19 @@ private fun MessageOptionsMainView(
     onJumpToMessage: () -> Unit,
     onViewThread: () -> Unit,
     onCopy: () -> Unit,
-    onMoreActions: () -> Unit,
+    onCopyFullMessage: () -> Unit,
+    onCopyMessageId: () -> Unit,
     onUnban: () -> Unit,
     onTimeout: () -> Unit,
     onBan: () -> Unit,
     onDelete: () -> Unit,
 ) {
+    var moreExpanded by remember { mutableStateOf(false) }
+    val arrowRotation by animateFloatAsState(
+        targetValue = if (moreExpanded) 180f else 0f,
+        label = "arrowRotation",
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -185,7 +200,29 @@ private fun MessageOptionsMainView(
         }
         if (canCopy) {
             MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy), onCopy)
-            MessageOptionItem(Icons.Default.MoreVert, stringResource(R.string.message_more_actions), onMoreActions)
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.message_more_actions)) },
+                leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(arrowRotation),
+                    )
+                },
+                modifier = Modifier.clickable { moreExpanded = !moreExpanded },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+            )
+            AnimatedVisibility(
+                visible = moreExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Column {
+                    MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy_full), onCopyFullMessage)
+                    MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy_id), onCopyMessageId)
+                }
+            }
         }
         if (canModerate) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

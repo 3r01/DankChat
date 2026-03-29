@@ -113,7 +113,8 @@ fun ModActionsDialog(
     run {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             AnimatedContent(
                 targetState = subView,

@@ -88,7 +88,7 @@ fun StyledBottomSheet(
                 }
                 .shadow(8.dp, RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerLow),
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
         ) {
             Column(
                 modifier = Modifier

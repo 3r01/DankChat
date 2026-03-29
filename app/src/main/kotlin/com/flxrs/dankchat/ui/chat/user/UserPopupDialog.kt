@@ -82,6 +82,7 @@ fun UserPopupDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         AnimatedContent(
             targetState = showBlockConfirmation,

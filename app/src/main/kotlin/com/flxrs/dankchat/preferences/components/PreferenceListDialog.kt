@@ -46,6 +46,7 @@ fun <T> PreferenceListDialog(
         ModalBottomSheet(
             onDismissRequest = ::dismiss,
             sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             values.forEachIndexed { idx, it ->
                 val interactionSource = remember { MutableInteractionSource() }

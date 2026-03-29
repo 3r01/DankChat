@@ -473,6 +473,7 @@ private fun InputActionConfigSheet(
             onDismiss()
         },
         sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
             modifier = Modifier
@@ -623,44 +624,39 @@ private fun SendButton(
         else     -> MaterialTheme.colorScheme.primary
     }
 
-    when {
-        enabled && isRepeatedSendEnabled -> {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = modifier
-                    .size(40.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = { onSend() },
-                            onLongPress = { onRepeatedSendChanged(true) },
-                            onPress = {
-                                tryAwaitRelease()
-                                onRepeatedSendChanged(false)
-                            },
-                        )
-                    }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.send_hint),
-                    tint = contentColor
-                )
-            }
+    val gestureModifier = when {
+        enabled && isRepeatedSendEnabled -> Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { onSend() },
+                onLongPress = { onRepeatedSendChanged(true) },
+                onPress = {
+                    tryAwaitRelease()
+                    onRepeatedSendChanged(false)
+                },
+            )
         }
 
-        else                             -> {
-            IconButton(
-                onClick = onSend,
-                enabled = enabled,
-                modifier = modifier.size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.send_hint),
-                    tint = contentColor
-                )
-            }
-        }
+        enabled                          -> Modifier.clickable(
+            interactionSource = null,
+            indication = null,
+            onClick = onSend,
+        )
+
+        else                             -> Modifier
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .then(gestureModifier)
+            .padding(4.dp),
+    ) {
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.Send,
+            contentDescription = stringResource(R.string.send_hint),
+            modifier = Modifier.size(28.dp),
+            tint = contentColor,
+        )
     }
 }
 
@@ -950,11 +946,13 @@ private fun EndAlignedActionGroup(
     }
 
     // Send Button (Right)
+    Spacer(modifier = Modifier.width(4.dp))
     SendButton(
         enabled = canSend,
         isRepeatedSendEnabled = isRepeatedSendEnabled,
         onSend = onSend,
         onRepeatedSendChanged = onRepeatedSendChanged,
+        modifier = Modifier.size(44.dp),
     )
 }
 

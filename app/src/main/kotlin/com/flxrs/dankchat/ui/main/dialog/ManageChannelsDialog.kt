@@ -99,6 +99,7 @@ fun ManageChannelsDialog(
         },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         contentWindowInsets = { WindowInsets.statusBars },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
         LazyColumn(

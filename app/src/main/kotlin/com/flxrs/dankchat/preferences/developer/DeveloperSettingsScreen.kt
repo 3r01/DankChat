@@ -258,7 +258,10 @@ private fun CustomRecentMessagesHostBottomSheet(
     onInteraction: (DeveloperSettingsInteraction) -> Unit,
 ) {
     var host by remember(initialHost) { mutableStateOf(initialHost) }
-    ModalBottomSheet(onDismissRequest = { onInteraction(DeveloperSettingsInteraction.CustomRecentMessagesHost(host)) }) {
+    ModalBottomSheet(
+        onDismissRequest = { onInteraction(DeveloperSettingsInteraction.CustomRecentMessagesHost(host)) },
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
         Text(
             text = stringResource(R.string.preference_rm_host_title),
             textAlign = TextAlign.Center,
@@ -318,7 +321,10 @@ private fun CustomLoginBottomSheet(
         }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismissRequested) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequested,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = stringResource(R.string.preference_custom_login_title),
@@ -429,7 +435,11 @@ private fun CustomLoginBottomSheet(
 private fun ShowScopesBottomSheet(scopes: String, onDismissRequested: () -> Unit) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
-    ModalBottomSheet(onDismissRequested, sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequested,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
         Column(Modifier.padding(horizontal = 16.dp)) {
             Text(
                 text = stringResource(R.string.custom_login_required_scopes),

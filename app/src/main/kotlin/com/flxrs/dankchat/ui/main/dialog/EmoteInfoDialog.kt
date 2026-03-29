@@ -55,6 +55,7 @@ fun EmoteInfoDialog(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             if (items.size > 1) {
