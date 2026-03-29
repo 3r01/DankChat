@@ -90,11 +90,11 @@ class MainScreenViewModel(
                                 appearance.copy(inputActions = actions + InputAction.Debug)
                             }
 
-                            !enabled && InputAction.Debug in actions -> {
+                            !enabled && InputAction.Debug in actions                                     -> {
                                 appearance.copy(inputActions = actions - InputAction.Debug)
                             }
 
-                            else -> appearance
+                            else                                                                         -> appearance
                         }
                     }
                 }

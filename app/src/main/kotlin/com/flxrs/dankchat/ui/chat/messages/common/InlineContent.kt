@@ -30,10 +30,12 @@ fun BadgeInlineContent(
     modifier: Modifier = Modifier
 ) {
     when (badge.badge) {
-        is Badge.FFZModBadge -> {
-            Box(modifier = modifier
-                .size(size)
-                .background(FfzModGreen)) {
+        is Badge.FFZModBadge     -> {
+            Box(
+                modifier = modifier
+                    .size(size)
+                    .background(FfzModGreen)
+            ) {
                 AsyncImage(
                     model = badge.url,
                     contentDescription = badge.badge.type.name,

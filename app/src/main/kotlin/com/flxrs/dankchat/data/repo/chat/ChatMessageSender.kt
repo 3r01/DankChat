@@ -79,8 +79,7 @@ class ChatMessageSender(
                     }
 
                     else            -> {
-                        val reason = response.dropReason
-                        val msg = when (reason) {
+                        val msg = when (val reason = response.dropReason) {
                             null -> "Message was not sent."
                             else -> "Message dropped: ${reason.message} (${reason.code})"
                         }
@@ -117,14 +116,14 @@ class ChatMessageSender(
         is HelixApiException -> when (error) {
             HelixError.NotLoggedIn            -> "Not logged in."
             HelixError.MissingScopes          -> "Missing user:write:chat scope. Please re-login."
-            HelixError.UserNotAuthorized       -> "Not authorized to send messages in this channel."
-            HelixError.MessageTooLarge         -> "Message is too large."
-            HelixError.ChatMessageRateLimited  -> "Rate limited. Try again in a moment."
-            HelixError.Forwarded               -> message ?: "Unknown error."
-            else                               -> message ?: "Unknown error."
+            HelixError.UserNotAuthorized      -> "Not authorized to send messages in this channel."
+            HelixError.MessageTooLarge        -> "Message is too large."
+            HelixError.ChatMessageRateLimited -> "Rate limited. Try again in a moment."
+            HelixError.Forwarded              -> message ?: "Unknown error."
+            else                              -> message ?: "Unknown error."
         }
 
-        else                -> message ?: "Unknown error."
+        else                 -> message ?: "Unknown error."
     }
 
     companion object {

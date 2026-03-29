@@ -2,8 +2,8 @@ package com.flxrs.dankchat.data.api.eventapi
 
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.api.eventapi.dto.EventSubMethod
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubBroadcasterUserConditionDto
+import com.flxrs.dankchat.data.api.eventapi.dto.EventSubMethod
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubModeratorConditionDto
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionRequestDto
 import com.flxrs.dankchat.data.api.eventapi.dto.EventSubSubscriptionType

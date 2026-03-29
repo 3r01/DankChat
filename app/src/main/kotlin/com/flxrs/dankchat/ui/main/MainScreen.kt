@@ -47,12 +47,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -116,8 +113,8 @@ import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.dialog.MainScreenDialogs
 import com.flxrs.dankchat.ui.main.input.ChatBottomBar
 import com.flxrs.dankchat.ui.main.input.ChatInputCallbacks
-import com.flxrs.dankchat.ui.main.input.InputOverlay
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
+import com.flxrs.dankchat.ui.main.input.InputOverlay
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
 import com.flxrs.dankchat.ui.main.input.TourOverlayState
 import com.flxrs.dankchat.ui.main.sheet.EmoteMenu
@@ -566,7 +563,7 @@ fun MainScreen(
                     is FullScreenSheetState.Whisper,
                     is FullScreenSheetState.Mention -> when {
                         inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
-                        else                                                              -> persistentListOf()
+                        else                                                                        -> persistentListOf()
                     }
 
                     is FullScreenSheetState.History,
@@ -588,7 +585,7 @@ fun MainScreen(
                         swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
                         forceOverflowOpen = featureTourState.forceOverflowOpen,
                         isTourActive = featureTourState.isTourActive
-                            || featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
+                                || featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
                         onAdvance = featureTourViewModel::advance,
                         onSkip = featureTourViewModel::skipTour,
                     )

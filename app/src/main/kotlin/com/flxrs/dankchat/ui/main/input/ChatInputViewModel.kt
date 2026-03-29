@@ -260,6 +260,7 @@ class ChatInputViewModel(
         ) { values ->
             val sheetState = values[0] as FullScreenSheetState
             val tab = values[1] as Int
+
             @Suppress("UNCHECKED_CAST")
             val replyState = values[2] as Triple<Boolean, UserName?, String?>
             val isEmoteMenuOpen = values[3] as Boolean
@@ -384,7 +385,7 @@ class ChatInputViewModel(
             is CommandResult.Accepted,
             is CommandResult.Blocked               -> Unit
 
-            is CommandResult.IrcCommand             -> {
+            is CommandResult.IrcCommand            -> {
                 chatRepository.sendMessage(message, replyIdOrNull, forceIrc = true)
                 setReplying(false)
             }

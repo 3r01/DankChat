@@ -181,7 +181,7 @@ private fun getOverflowItem(
         else                            -> null
     }
 
-    InputAction.ModActions   -> when {
+    InputAction.ModActions  -> when {
         isModerator -> OverflowItem(
             labelRes = R.string.menu_mod_actions,
             icon = Icons.Default.Shield,
@@ -208,8 +208,8 @@ private fun getOverflowItem(
 
 private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
     InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-    InputAction.LastMessage                                                               -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.ModActions                                             -> inputEnabled
+    InputAction.LastMessage                                                              -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.ModActions                                           -> inputEnabled
 }
 
 /**

@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import android.content.ClipData
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,11 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,10 +34,6 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.StartupValidation
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.ui.chat.BadgeUi
-import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
-import com.flxrs.dankchat.utils.compose.InfoBottomSheet
-import com.flxrs.dankchat.utils.compose.InputBottomSheet
-import com.flxrs.dankchat.utils.compose.StyledBottomSheet
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
@@ -47,11 +41,15 @@ import com.flxrs.dankchat.ui.chat.user.UserPopupDialog
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
-import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
-import com.flxrs.dankchat.ui.main.sheet.InputSheetState
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoSheet
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoViewModel
+import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
+import com.flxrs.dankchat.ui.main.sheet.InputSheetState
 import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
+import com.flxrs.dankchat.utils.compose.InfoBottomSheet
+import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import com.flxrs.dankchat.utils.compose.StyledBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -351,7 +349,7 @@ private fun UploadDisclaimerSheet(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val uriHandler = LocalUriHandler.current
+    LocalUriHandler.current
     val disclaimerTemplate = stringResource(R.string.external_upload_disclaimer, host)
     val hostStart = disclaimerTemplate.indexOf(host)
     val annotatedText = buildAnnotatedString {

@@ -71,9 +71,9 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -81,9 +81,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -94,13 +94,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.CancellationException
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CancellationException
 import sh.calvin.reorderable.ReorderableColumn
 
 private const val MAX_INPUT_ACTIONS = 4
@@ -207,10 +206,10 @@ fun ChatInputLayout(
     val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive, debugMode) {
         inputActions.filter { action ->
             when (action) {
-                InputAction.Stream    -> hasStreamData || isStreamActive
+                InputAction.Stream     -> hasStreamData || isStreamActive
                 InputAction.ModActions -> isModerator
-                InputAction.Debug     -> debugMode
-                else                  -> true
+                InputAction.Debug      -> debugMode
+                else                   -> true
             }
         }.toImmutableList()
     }
@@ -427,7 +426,7 @@ fun ChatInputLayout(
                         InputAction.Search      -> onSearchClick()
                         InputAction.LastMessage -> onLastMessageClick()
                         InputAction.Stream      -> onToggleStream()
-                        InputAction.ModActions   -> onModActions()
+                        InputAction.ModActions  -> onModActions()
                         InputAction.Fullscreen  -> onToggleFullscreen()
                         InputAction.HideInput   -> onToggleInput()
                         InputAction.Debug       -> onDebugInfoClick()
@@ -594,7 +593,7 @@ private val InputAction.labelRes: Int
         InputAction.Search      -> R.string.input_action_search
         InputAction.LastMessage -> R.string.input_action_last_message
         InputAction.Stream      -> R.string.input_action_stream
-        InputAction.ModActions   -> R.string.input_action_mod_actions
+        InputAction.ModActions  -> R.string.input_action_mod_actions
         InputAction.Fullscreen  -> R.string.input_action_fullscreen
         InputAction.HideInput   -> R.string.input_action_hide_input
         InputAction.Debug       -> R.string.input_action_debug
@@ -605,7 +604,7 @@ private val InputAction.icon: ImageVector
         InputAction.Search      -> Icons.Default.Search
         InputAction.LastMessage -> Icons.Default.History
         InputAction.Stream      -> Icons.Default.Videocam
-        InputAction.ModActions   -> Icons.Default.Shield
+        InputAction.ModActions  -> Icons.Default.Shield
         InputAction.Fullscreen  -> Icons.Default.Fullscreen
         InputAction.HideInput   -> Icons.Default.VisibilityOff
         InputAction.Debug       -> Icons.Default.BugReport
@@ -685,7 +684,7 @@ private fun InputActionButton(
             onToggleStream,
         )
 
-        InputAction.ModActions   -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
+        InputAction.ModActions  -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
         InputAction.Fullscreen  -> Triple(
             if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
             R.string.toggle_fullscreen,
@@ -698,8 +697,8 @@ private fun InputActionButton(
 
     val actionEnabled = when (action) {
         InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-        InputAction.LastMessage                                                               -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.ModActions                                             -> enabled
+        InputAction.LastMessage                                                              -> enabled && hasLastMessage
+        InputAction.Stream, InputAction.ModActions                                           -> enabled
     }
 
     IconButton(

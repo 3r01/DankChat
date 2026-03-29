@@ -14,8 +14,8 @@ import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.di.DankChatModule
-import com.flxrs.dankchat.domain.ConnectionCoordinator
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.domain.ConnectionCoordinator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.System

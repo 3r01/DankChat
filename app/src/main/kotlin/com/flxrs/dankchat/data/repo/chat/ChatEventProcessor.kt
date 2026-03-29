@@ -32,10 +32,10 @@ import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
-import com.flxrs.dankchat.data.twitch.message.toDebugChatItem
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.hasMention
+import com.flxrs.dankchat.data.twitch.message.toDebugChatItem
 import com.flxrs.dankchat.data.twitch.pubsub.PubSubMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -134,12 +134,12 @@ class ChatEventProcessor(
     private suspend fun collectEventSubEvents() {
         chatConnector.eventSubEvents.collect { eventMessage ->
             when (eventMessage) {
-                is ModerationAction  -> handleEventSubModeration(eventMessage)
-                is AutomodHeld       -> handleAutomodHeld(eventMessage)
-                is AutomodUpdate     -> handleAutomodUpdate(eventMessage)
-                is UserMessageHeld   -> handleUserMessageHeld(eventMessage)
+                is ModerationAction   -> handleEventSubModeration(eventMessage)
+                is AutomodHeld        -> handleAutomodHeld(eventMessage)
+                is AutomodUpdate      -> handleAutomodUpdate(eventMessage)
+                is UserMessageHeld    -> handleUserMessageHeld(eventMessage)
                 is UserMessageUpdated -> handleUserMessageUpdated(eventMessage)
-                is SystemMessage     -> postEventSubDebugMessage(eventMessage.message)
+                is SystemMessage      -> postEventSubDebugMessage(eventMessage.message)
             }
         }
     }

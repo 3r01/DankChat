@@ -26,8 +26,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.composables.core.SheetDetent
-import com.composables.core.rememberModalBottomSheetState as rememberUnstyledSheetState
 import com.flxrs.dankchat.R
+import com.composables.core.rememberModalBottomSheetState as rememberUnstyledSheetState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

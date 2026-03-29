@@ -17,12 +17,12 @@ import com.flxrs.dankchat.data.api.helix.dto.DataListDto
 import com.flxrs.dankchat.data.api.helix.dto.HelixErrorDto
 import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerDto
-import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
-import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageResponseDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ModVipDto
 import com.flxrs.dankchat.data.api.helix.dto.PagedDto
 import com.flxrs.dankchat.data.api.helix.dto.RaidDto
+import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
+import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageResponseDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeStatusDto
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto

@@ -264,28 +264,28 @@ class EventSubClient(
     private fun handleNotification(message: NotificationMessageDto) {
         Log.d(TAG, "[EventSub] received notification message: $message")
         val eventSubMessage = when (val event = message.payload.event) {
-            is ChannelModerateDto      -> ModerationAction(
+            is ChannelModerateDto              -> ModerationAction(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is AutomodMessageHoldDto   -> AutomodHeld(
+            is AutomodMessageHoldDto           -> AutomodHeld(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is AutomodMessageUpdateDto -> AutomodUpdate(
+            is AutomodMessageUpdateDto         -> AutomodUpdate(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is ChannelChatUserMessageHoldDto -> UserMessageHeld(
+            is ChannelChatUserMessageHoldDto   -> UserMessageHeld(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,

@@ -31,7 +31,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.History
-import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -75,6 +74,7 @@ import com.flxrs.dankchat.preferences.components.PreferenceListDialog
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.preferences.tools.upload.RecentUpload
 import com.flxrs.dankchat.preferences.tools.upload.RecentUploadsViewModel
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import kotlinx.collections.immutable.toImmutableList

@@ -114,10 +114,10 @@ class AuthStateCoordinator(
         startupValidationHolder.update(
             when (result) {
                 is AuthEvent.LoggedIn,
-                is AuthEvent.ValidationFailed  -> StartupValidation.Validated
+                is AuthEvent.ValidationFailed -> StartupValidation.Validated
 
-                is AuthEvent.ScopesOutdated    -> StartupValidation.ScopesOutdated(result.userName)
-                AuthEvent.TokenInvalid         -> StartupValidation.TokenInvalid
+                is AuthEvent.ScopesOutdated   -> StartupValidation.ScopesOutdated(result.userName)
+                AuthEvent.TokenInvalid        -> StartupValidation.TokenInvalid
             }
         )
 

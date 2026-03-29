@@ -27,7 +27,6 @@ class ConnectionCoordinator(
 
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
-
     fun initialize() {
         scope.launch {
             val result = authStateCoordinator.validateOnStartup()

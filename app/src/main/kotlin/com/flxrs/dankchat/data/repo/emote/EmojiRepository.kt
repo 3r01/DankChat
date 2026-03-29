@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import android.content.Context
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.CoroutineScope
@@ -9,7 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single

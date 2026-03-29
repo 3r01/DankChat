@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -76,6 +75,7 @@ import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.Eve
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubEnabled
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginViewModel
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.extensions.truncate
 import com.jakewharton.processphoenix.ProcessPhoenix
 import kotlinx.coroutines.flow.collectLatest
