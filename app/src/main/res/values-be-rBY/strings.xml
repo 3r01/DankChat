@@ -603,7 +603,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Актываваць рэжым шчыта?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Гэта прыменіць папярэдне наладжаныя параметры бяспекі канала, якія могуць уключаць абмежаванні чата, налады AutoMod і патрабаванні верыфікацыі.</string>
+    <string name="mod_actions_shield_mode_activate">Актываваць</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

@@ -597,7 +597,10 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Activer le mode bouclier ?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Cela appliquera les paramètres de sécurité préconfigurés du canal, pouvant inclure des restrictions de chat, des paramètres AutoMod et des exigences de vérification.</string>
+    <string name="mod_actions_shield_mode_activate">Activer</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

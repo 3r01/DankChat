@@ -563,7 +563,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">シールドモードを有効にしますか？</string>
+    <string name="mod_actions_confirm_shield_mode_body">チャンネルの事前設定された安全設定が適用されます。チャット制限、AutoMod設定、チャット認証要件が含まれる場合があります。</string>
+    <string name="mod_actions_shield_mode_activate">有効にする</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

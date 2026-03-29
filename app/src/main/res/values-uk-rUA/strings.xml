@@ -605,7 +605,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Активувати режим щита?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Це застосує попередньо налаштовані параметри безпеки каналу, які можуть включати обмеження чату, налаштування AutoMod та вимоги верифікації.</string>
+    <string name="mod_actions_shield_mode_activate">Активувати</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

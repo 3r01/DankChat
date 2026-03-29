@@ -291,7 +291,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">啟用護盾模式？</string>
+    <string name="mod_actions_confirm_shield_mode_body">這將套用頻道預先設定的安全設定，可能包括聊天限制、AutoMod 設定和聊天驗證要求。</string>
+    <string name="mod_actions_shield_mode_activate">啟用</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

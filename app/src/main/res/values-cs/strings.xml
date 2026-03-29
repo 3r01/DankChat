@@ -604,7 +604,10 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Aktivovat režim štítu?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Toto použije předkonfigurovaná bezpečnostní nastavení kanálu, která mohou zahrnovat omezení chatu, nastavení AutoModu a požadavky na ověření.</string>
+    <string name="mod_actions_shield_mode_activate">Aktivovat</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

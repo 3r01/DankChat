@@ -603,7 +603,10 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Активирати режим штита?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Ово ће применити унапред конфигурисане безбедносне поставке канала, које могу укључивати ограничења ћаскања, подешавања AutoMod-а и захтеве за верификацију.</string>
+    <string name="mod_actions_shield_mode_activate">Активирај</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

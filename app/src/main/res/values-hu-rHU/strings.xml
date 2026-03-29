@@ -582,7 +582,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Aktiválja a pajzs módot?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Ez alkalmazza a csatorna előre beállított biztonsági beállításait, amelyek tartalmazhatnak csevegési korlátozásokat, AutoMod beállításokat és ellenőrzési követelményeket.</string>
+    <string name="mod_actions_shield_mode_activate">Aktiválás</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

@@ -580,7 +580,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Attivare la modalità scudo?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Verranno applicate le impostazioni di sicurezza preconfigurate del canale, che possono includere restrizioni della chat, impostazioni AutoMod e requisiti di verifica.</string>
+    <string name="mod_actions_shield_mode_activate">Attiva</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

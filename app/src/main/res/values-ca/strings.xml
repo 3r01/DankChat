@@ -538,7 +538,10 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Activar el mode d\'escut?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Això aplicarà les configuracions de seguretat preconfigurades del canal, que poden incloure restriccions de xat, ajustos d\'AutoMod i requisits de verificació.</string>
+    <string name="mod_actions_shield_mode_activate">Activa</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

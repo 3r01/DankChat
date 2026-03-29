@@ -595,7 +595,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Ota suojatila käyttöön?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Tämä ottaa käyttöön kanavan esimääritetyt turvallisuusasetukset, jotka voivat sisältää chatin rajoituksia, AutoMod-asetuksia ja vahvistusvaatimuksia.</string>
+    <string name="mod_actions_shield_mode_activate">Ota käyttöön</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

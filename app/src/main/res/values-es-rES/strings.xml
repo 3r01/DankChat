@@ -613,7 +613,10 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">¿Activar el modo escudo?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Esto aplicará las configuraciones de seguridad preconfiguradas del canal, que pueden incluir restricciones de chat, ajustes de AutoMod y requisitos de verificación.</string>
+    <string name="mod_actions_shield_mode_activate">Activar</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

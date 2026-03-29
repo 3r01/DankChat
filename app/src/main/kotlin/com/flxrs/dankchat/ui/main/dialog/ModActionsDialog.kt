@@ -68,6 +68,7 @@ private sealed interface SubView {
     data object RaidInput : SubView
     data object ShoutoutInput : SubView
     data object ClearChatConfirm : SubView
+    data object ShieldModeConfirm : SubView
 }
 
 private val SLOW_MODE_PRESETS = listOf(3, 5, 10, 20, 30, 60, 120)
@@ -211,6 +212,14 @@ fun ModActionsDialog(
                         onDismiss = onDismiss,
                     )
 
+                    SubView.ShieldModeConfirm  -> ShieldModeConfirmSubView(
+                        onConfirm = {
+                            onSendCommand("/shield")
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+
                     SubView.ClearChatConfirm   -> ClearChatConfirmSubView(
                         onConfirm = {
                             onSendCommand("/clear")
@@ -265,8 +274,14 @@ private fun ModActionsMainView(
             FilterChip(
                 selected = isShieldActive,
                 onClick = {
-                    onSendCommand(if (isShieldActive) "/shieldoff" else "/shield")
-                    onDismiss()
+                    when {
+                        isShieldActive -> {
+                            onSendCommand("/shieldoff")
+                            onDismiss()
+                        }
+
+                        else           -> onShowSubView(SubView.ShieldModeConfirm)
+                    }
                 },
                 label = { Text(stringResource(R.string.mod_actions_shield_mode)) },
                 leadingIcon = if (isShieldActive) {
@@ -636,6 +651,49 @@ private fun ClearChatConfirmSubView(
             Spacer(modifier = Modifier.width(12.dp))
             Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_ok))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShieldModeConfirmSubView(
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.mod_actions_confirm_shield_mode_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 16.dp),
+        )
+
+        Text(
+            text = stringResource(R.string.mod_actions_confirm_shield_mode_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.mod_actions_shield_mode_activate))
             }
         }
     }

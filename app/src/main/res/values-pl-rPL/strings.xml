@@ -622,7 +622,10 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">Aktywować tryb tarczy?</string>
+    <string name="mod_actions_confirm_shield_mode_body">Spowoduje to zastosowanie wstępnie skonfigurowanych ustawień bezpieczeństwa kanału, które mogą obejmować ograniczenia czatu, ustawienia AutoMod i wymagania weryfikacji.</string>
+    <string name="mod_actions_shield_mode_activate">Aktywuj</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>

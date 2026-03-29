@@ -290,7 +290,10 @@
     <string name="mod_actions_shield_mode">Shield mode</string>
     <string name="mod_actions_clear_chat">Clear chat</string>
     <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
-    <string name="mod_actions_announce">Announce</string>
+
+    <string name="mod_actions_confirm_shield_mode_title">ଶିଲ୍ଡ ମୋଡ୍ ସକ୍ରିୟ କରିବେ?</string>
+    <string name="mod_actions_confirm_shield_mode_body">ଏହା ଚ୍ୟାନେଲର ପୂର୍ବ-କନଫିଗର୍ ହୋଇଥିବା ସୁରକ୍ଷା ସେଟିଂ ପ୍ରୟୋଗ କରିବ, ଯାହା ଚାଟ୍ ସୀମାବଦ୍ଧତା, AutoMod ସେଟିଂ ଏବଂ ଯାଞ୍ଚ ଆବଶ୍ୟକତା ଅନ୍ତର୍ଭୁକ୍ତ କରିପାରେ।</string>
+    <string name="mod_actions_shield_mode_activate">ସକ୍ରିୟ କରନ୍ତୁ</string>    <string name="mod_actions_announce">Announce</string>
     <string name="mod_actions_announce_header">Announcement</string>
     <string name="mod_actions_shoutout">Shoutout</string>
     <string name="mod_actions_commercial">Commercial</string>
