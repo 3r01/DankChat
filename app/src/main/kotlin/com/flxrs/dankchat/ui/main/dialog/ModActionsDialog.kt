@@ -8,17 +8,25 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imeAnimationSource
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -34,14 +42,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.message.RoomState
@@ -55,6 +67,7 @@ private sealed interface SubView {
     data object CommercialPresets : SubView
     data object RaidInput : SubView
     data object ShoutoutInput : SubView
+    data object ClearChatConfirm : SubView
 }
 
 private val SLOW_MODE_PRESETS = listOf(3, 5, 10, 20, 30, 60, 120)
@@ -95,29 +108,6 @@ fun ModActionsDialog(
     onDismiss: () -> Unit,
 ) {
     var subView by remember { mutableStateOf<SubView?>(null) }
-    var showClearChatConfirmation by remember { mutableStateOf(false) }
-
-    if (showClearChatConfirmation) {
-        AlertDialog(
-            onDismissRequest = { showClearChatConfirmation = false },
-            title = { Text(stringResource(R.string.mod_actions_clear_chat)) },
-            text = { Text(stringResource(R.string.mod_actions_confirm_clear_chat)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    onSendCommand("/clear")
-                    showClearChatConfirmation = false
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.dialog_ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearChatConfirmation = false }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        )
-    }
 
     run {
         ModalBottomSheet(
@@ -142,7 +132,7 @@ fun ModActionsDialog(
                         shieldModeActive = shieldModeActive,
                         onSendCommand = onSendCommand,
                         onShowSubView = { subView = it },
-                        onClearChat = { showClearChatConfirmation = true },
+                        onClearChat = { subView = SubView.ClearChatConfirm },
                         onAnnounce = onAnnounce,
                         onDismiss = onDismiss,
                     )
@@ -167,6 +157,7 @@ fun ModActionsDialog(
                             onSendCommand("/slow $value")
                             onDismiss()
                         },
+                        onDismiss = onDismiss,
                     )
 
                     SubView.FollowerMode       -> FollowerPresetChips(
@@ -186,6 +177,7 @@ fun ModActionsDialog(
                             onSendCommand("/followers $value")
                             onDismiss()
                         },
+                        onDismiss = onDismiss,
                     )
 
                     SubView.CommercialPresets   -> PresetChips(
@@ -206,6 +198,7 @@ fun ModActionsDialog(
                             onSendCommand("/raid $target")
                             onDismiss()
                         },
+                        onDismiss = onDismiss,
                     )
 
                     SubView.ShoutoutInput      -> UserInputSubView(
@@ -215,6 +208,15 @@ fun ModActionsDialog(
                             onSendCommand("/shoutout $target")
                             onDismiss()
                         },
+                        onDismiss = onDismiss,
+                    )
+
+                    SubView.ClearChatConfirm   -> ClearChatConfirmSubView(
+                        onConfirm = {
+                            onSendCommand("/clear")
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
                     )
                 }
             }
@@ -537,12 +539,26 @@ private fun UserInputSubView(
     defaultValue: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
     onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit = {},
 ) {
-    var inputValue by remember { mutableStateOf(defaultValue) }
+    var inputValue by remember { mutableStateOf(TextFieldValue(defaultValue, selection = TextRange(defaultValue.length))) }
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+    }
+
+    val density = LocalDensity.current
+    val current = WindowInsets.ime.getBottom(density)
+    val source = WindowInsets.imeAnimationSource.getBottom(density)
+    val target = WindowInsets.imeAnimationTarget.getBottom(density)
+    val isClosing = source > 0 && target == 0
+    val nearlyDone = current < 200
+
+    LaunchedEffect(isClosing, nearlyDone) {
+        if (isClosing && nearlyDone) {
+            onDismiss()
+        }
     }
 
     Column(
@@ -566,8 +582,9 @@ private fun UserInputSubView(
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(onDone = {
-                if (inputValue.isNotBlank()) {
-                    onConfirm(inputValue.trim())
+                val text = inputValue.text.trim()
+                if (text.isNotBlank()) {
+                    onConfirm(text)
                 }
             }),
             modifier = Modifier
@@ -576,13 +593,50 @@ private fun UserInputSubView(
         )
 
         TextButton(
-            onClick = { onConfirm(inputValue.trim()) },
-            enabled = inputValue.isNotBlank(),
+            onClick = { onConfirm(inputValue.text.trim()) },
+            enabled = inputValue.text.isNotBlank(),
             modifier = Modifier
                 .align(Alignment.End)
                 .padding(top = 8.dp),
         ) {
             Text(stringResource(R.string.dialog_ok))
+        }
+    }
+}
+
+@Composable
+private fun ClearChatConfirmSubView(
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.mod_actions_confirm_clear_chat),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 16.dp),
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_ok))
+            }
         }
     }
 }

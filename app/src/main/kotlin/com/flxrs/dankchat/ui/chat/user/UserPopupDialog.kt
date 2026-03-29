@@ -1,9 +1,16 @@
 package com.flxrs.dankchat.ui.chat.user
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,8 +26,9 @@ import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Report
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -75,119 +83,148 @@ fun UserPopupDialog(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (state) {
-                is UserPopupState.Error -> {
-                    Text(
-                        text = stringResource(R.string.error_with_message, state.throwable?.message.orEmpty()),
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+        AnimatedContent(
+            targetState = showBlockConfirmation,
+            transitionSpec = {
+                when {
+                    targetState -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                    else        -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            label = "UserPopupContent"
+        ) { isBlockConfirmation ->
+            when {
+                isBlockConfirmation -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 16.dp),
+                    ) {
+                        Text(
+                            text = stringResource(R.string.confirm_user_block_message),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 16.dp),
+                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 24.dp),
+                        ) {
+                            OutlinedButton(onClick = { showBlockConfirmation = false }, modifier = Modifier.weight(1f)) {
+                                Text(stringResource(R.string.dialog_cancel))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Button(onClick = {
+                                onBlockUser()
+                                showBlockConfirmation = false
+                            }, modifier = Modifier.weight(1f)) {
+                                Text(stringResource(R.string.confirm_user_block_positive_button))
+                            }
+                        }
+                    }
                 }
 
-                else                    -> {
-                    val userName = state.userName
-                    val displayName = state.displayName
-                    val isSuccess = state is UserPopupState.Success
-                    val isBlocked = (state as? UserPopupState.Success)?.isBlocked == true
+                else                -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        when (state) {
+                            is UserPopupState.Error -> {
+                                Text(
+                                    text = stringResource(R.string.error_with_message, state.throwable?.message.orEmpty()),
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
 
-                    UserInfoSection(
-                        state = state,
-                        userName = userName,
-                        displayName = displayName,
-                        badges = badges,
-                        onOpenChannel = onOpenChannel,
-                    )
+                            else                    -> {
+                                val userName = state.userName
+                                val displayName = state.displayName
+                                val isSuccess = state is UserPopupState.Success
+                                val isBlocked = (state as? UserPopupState.Success)?.isBlocked == true
 
-                    ListItem(
-                        headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
-                        leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
-                        modifier = Modifier.clickable {
-                            onMention(userName.value, displayName.value)
-                            onDismiss()
-                        },
-                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                    )
-                    if (!isOwnUser) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
-                            leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                onWhisper(userName.value)
-                                onDismiss()
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                    }
-                    if (onMessageHistory != null) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.message_history)) },
-                            leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                onMessageHistory(userName.value)
-                                onDismiss()
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                    }
-                    if (isSuccess && !isOwnUser) {
-                        ListItem(
-                            headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
-                            leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                if (isBlocked) {
-                                    onUnblockUser()
-                                } else {
-                                    showBlockConfirmation = true
+                                UserInfoSection(
+                                    state = state,
+                                    userName = userName,
+                                    displayName = displayName,
+                                    badges = badges,
+                                    onOpenChannel = onOpenChannel,
+                                )
+
+                                ListItem(
+                                    headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
+                                    leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
+                                    modifier = Modifier.clickable {
+                                        onMention(userName.value, displayName.value)
+                                        onDismiss()
+                                    },
+                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                )
+                                if (!isOwnUser) {
+                                    ListItem(
+                                        headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
+                                        leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
+                                        modifier = Modifier.clickable {
+                                            onWhisper(userName.value)
+                                            onDismiss()
+                                        },
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                    )
                                 }
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
-                    }
-                    if (!isOwnUser) {
-                        ListItem(
-                            headlineContent = { Text(stringResource(R.string.user_popup_report)) },
-                            leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                onReport(userName.value)
-                                onDismiss()
-                            },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-                        )
+                                if (onMessageHistory != null) {
+                                    ListItem(
+                                        headlineContent = { Text(stringResource(R.string.message_history)) },
+                                        leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
+                                        modifier = Modifier.clickable {
+                                            onMessageHistory(userName.value)
+                                            onDismiss()
+                                        },
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                    )
+                                }
+                                if (isSuccess && !isOwnUser) {
+                                    ListItem(
+                                        headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
+                                        leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
+                                        modifier = Modifier.clickable {
+                                            if (isBlocked) {
+                                                onUnblockUser()
+                                            } else {
+                                                showBlockConfirmation = true
+                                            }
+                                        },
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                    )
+                                }
+                                if (!isOwnUser) {
+                                    ListItem(
+                                        headlineContent = { Text(stringResource(R.string.user_popup_report)) },
+                                        leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
+                                        modifier = Modifier.clickable {
+                                            onReport(userName.value)
+                                            onDismiss()
+                                        },
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
-
-    if (showBlockConfirmation) {
-        AlertDialog(
-            onDismissRequest = { showBlockConfirmation = false },
-            title = { Text(stringResource(R.string.confirm_user_block_title)) },
-            text = { Text(stringResource(R.string.confirm_user_block_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onBlockUser()
-                        showBlockConfirmation = false
-                    }
-                ) {
-                    Text(stringResource(R.string.confirm_user_block_positive_button))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showBlockConfirmation = false }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
-        )
-    }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun UserInfoSection(
     state: UserPopupState,
@@ -261,11 +298,7 @@ private fun UserInfoSection(
                                 if (title != null) {
                                     TooltipBox(
                                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                                        tooltip = {
-                                            PlainTooltip {
-                                                Text(title)
-                                            }
-                                        },
+                                        tooltip = { PlainTooltip { Text(title) } },
                                         state = rememberTooltipState(),
                                     ) {
                                         AsyncImage(
@@ -286,7 +319,7 @@ private fun UserInfoSection(
                     }
                 }
 
-                else                      -> {} // Loading — name is shown, details load later
+                else                      -> {}
             }
         }
     }

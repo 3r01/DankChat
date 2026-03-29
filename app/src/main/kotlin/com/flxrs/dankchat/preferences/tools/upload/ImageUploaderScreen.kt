@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -218,31 +218,20 @@ private fun ImageUploaderScreen(
     }
 
     if (resetDialog) {
-        AlertDialog(
-            onDismissRequest = { resetDialog = false },
-            title = { Text(stringResource(R.string.reset_media_uploader_dialog_title)) },
-            text = { Text(stringResource(R.string.reset_media_uploader_dialog_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        resetDialog = false
-                        onReset()
-                        val default = ImageUploaderConfig.DEFAULT
-                        uploadUrl.setTextAndPlaceCursorAtEnd(default.uploadUrl)
-                        formField.setTextAndPlaceCursorAtEnd(default.formField)
-                        headers.setTextAndPlaceCursorAtEnd(default.headers.orEmpty())
-                        linkPattern.setTextAndPlaceCursorAtEnd(default.imageLinkPattern.orEmpty())
-                        deleteLinkPattern.setTextAndPlaceCursorAtEnd(default.deletionLinkPattern.orEmpty())
-                    },
-                    content = { Text(stringResource(R.string.reset_media_uploader_dialog_positive)) },
-                )
+        ConfirmationBottomSheet(
+            title = stringResource(R.string.reset_media_uploader_dialog_message),
+            confirmText = stringResource(R.string.reset_media_uploader_dialog_positive),
+            onConfirm = {
+                resetDialog = false
+                onReset()
+                val default = ImageUploaderConfig.DEFAULT
+                uploadUrl.setTextAndPlaceCursorAtEnd(default.uploadUrl)
+                formField.setTextAndPlaceCursorAtEnd(default.formField)
+                headers.setTextAndPlaceCursorAtEnd(default.headers.orEmpty())
+                linkPattern.setTextAndPlaceCursorAtEnd(default.imageLinkPattern.orEmpty())
+                deleteLinkPattern.setTextAndPlaceCursorAtEnd(default.deletionLinkPattern.orEmpty())
             },
-            dismissButton = {
-                TextButton(
-                    onClick = { resetDialog = false },
-                    content = { Text(stringResource(R.string.dialog_cancel)) },
-                )
-            },
+            onDismiss = { resetDialog = false },
         )
     }
 }

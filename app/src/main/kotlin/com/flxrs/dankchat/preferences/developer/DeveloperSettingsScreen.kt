@@ -27,7 +27,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -461,21 +461,11 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequested: () -> Unit
 
 @Composable
 private fun MissingScopesDialog(missing: String, onDismissRequested: () -> Unit, onContinueRequested: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismissRequested,
-        title = { Text(stringResource(R.string.custom_login_missing_scopes_title)) },
-        text = { Text(stringResource(R.string.custom_login_missing_scopes_text, missing)) },
-        confirmButton = {
-            TextButton(
-                onClick = onContinueRequested,
-                content = { Text(stringResource(R.string.custom_login_missing_scopes_continue)) }
-            )
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismissRequested,
-                content = { Text(stringResource(R.string.dialog_cancel)) }
-            )
-        },
+    ConfirmationBottomSheet(
+        title = stringResource(R.string.custom_login_missing_scopes_title),
+        message = stringResource(R.string.custom_login_missing_scopes_text, missing),
+        confirmText = stringResource(R.string.custom_login_missing_scopes_continue),
+        onConfirm = onContinueRequested,
+        onDismiss = onDismissRequested,
     )
 }

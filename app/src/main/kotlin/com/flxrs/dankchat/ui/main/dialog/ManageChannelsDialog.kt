@@ -170,7 +170,7 @@ fun ManageChannelsDialog(
 
     if (channelToDelete != null) {
         ConfirmationDialog(
-            title = stringResource(R.string.confirm_channel_removal_question),
+            title = stringResource(R.string.confirm_channel_removal_message),
             confirmText = stringResource(R.string.confirm_channel_removal_positive_button),
             onConfirm = {
                 val channel = channelToDelete

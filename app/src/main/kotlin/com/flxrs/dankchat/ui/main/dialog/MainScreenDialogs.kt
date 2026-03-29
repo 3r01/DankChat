@@ -1,22 +1,33 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import android.content.ClipData
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
@@ -24,7 +35,10 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.StartupValidation
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
+import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import com.flxrs.dankchat.utils.compose.StyledBottomSheet
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
@@ -111,7 +125,7 @@ fun MainScreenDialogs(
 
     if (dialogState.showRemoveChannel && activeChannel != null) {
         ConfirmationDialog(
-            title = stringResource(R.string.confirm_channel_removal_question_named, activeChannel),
+            title = stringResource(R.string.confirm_channel_removal_message_named, activeChannel),
             confirmText = stringResource(R.string.confirm_channel_removal_positive_button),
             onConfirm = {
                 channelManagementViewModel.removeChannel(activeChannel)
@@ -123,7 +137,7 @@ fun MainScreenDialogs(
 
     if (dialogState.showBlockChannel && activeChannel != null) {
         ConfirmationDialog(
-            title = stringResource(R.string.confirm_channel_block_question_named, activeChannel),
+            title = stringResource(R.string.confirm_channel_block_message_named, activeChannel),
             confirmText = stringResource(R.string.confirm_user_block_positive_button),
             onConfirm = {
                 channelManagementViewModel.blockChannel(activeChannel)
@@ -134,8 +148,8 @@ fun MainScreenDialogs(
     }
 
     if (dialogState.showLogout) {
-        ConfirmationDialog(
-            title = stringResource(R.string.confirm_logout_question),
+        ConfirmationBottomSheet(
+            title = stringResource(R.string.confirm_logout_message),
             confirmText = stringResource(R.string.confirm_logout_positive_button),
             onConfirm = {
                 onLogout()
@@ -146,61 +160,29 @@ fun MainScreenDialogs(
     }
 
     if (dialogState.pendingUploadAction != null) {
-        AlertDialog(
-            onDismissRequest = { dialogViewModel.setPendingUploadAction(null) },
-            title = { Text(stringResource(R.string.nuuls_upload_title)) },
-            text = { Text(stringResource(R.string.external_upload_disclaimer, dialogViewModel.uploadHost)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        dialogViewModel.acknowledgeExternalHosting()
-                        val action = dialogState.pendingUploadAction
-                        dialogViewModel.setPendingUploadAction(null)
-                        action?.invoke()
-                    }
-                ) {
-                    Text(stringResource(R.string.dialog_ok))
-                }
+        UploadDisclaimerSheet(
+            host = dialogViewModel.uploadHost,
+            onConfirm = {
+                dialogViewModel.acknowledgeExternalHosting()
+                val action = dialogState.pendingUploadAction
+                dialogViewModel.setPendingUploadAction(null)
+                action?.invoke()
             },
-            dismissButton = {
-                TextButton(onClick = { dialogViewModel.setPendingUploadAction(null) }) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
+            onDismiss = { dialogViewModel.setPendingUploadAction(null) },
         )
     }
 
     if (dialogState.showNewWhisper) {
-        var whisperUsername by remember { mutableStateOf("") }
-        AlertDialog(
-            onDismissRequest = dialogViewModel::dismissNewWhisper,
-            title = { Text(stringResource(R.string.whisper_new_dialog_title)) },
-            text = {
-                OutlinedTextField(
-                    value = whisperUsername,
-                    onValueChange = { whisperUsername = it },
-                    label = { Text(stringResource(R.string.whisper_new_dialog_hint)) },
-                    singleLine = true,
-                )
+        InputBottomSheet(
+            title = stringResource(R.string.whisper_new_dialog_title),
+            hint = stringResource(R.string.whisper_new_dialog_hint),
+            confirmText = stringResource(R.string.whisper_new_dialog_start),
+            showClearButton = true,
+            onConfirm = { username ->
+                chatInputViewModel.setWhisperTarget(UserName(username))
+                dialogViewModel.dismissNewWhisper()
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val username = whisperUsername.trim()
-                        if (username.isNotBlank()) {
-                            chatInputViewModel.setWhisperTarget(UserName(username))
-                            dialogViewModel.dismissNewWhisper()
-                        }
-                    }
-                ) {
-                    Text(stringResource(R.string.whisper_new_dialog_start))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = dialogViewModel::dismissNewWhisper) {
-                    Text(stringResource(R.string.dialog_cancel))
-                }
-            }
+            onDismiss = dialogViewModel::dismissNewWhisper,
         )
     }
 
@@ -372,5 +354,63 @@ fun MainScreenDialogs(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismiss = sheetNavigationViewModel::closeInputSheet,
         )
+    }
+}
+
+@Composable
+private fun UploadDisclaimerSheet(
+    host: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val uriHandler = LocalUriHandler.current
+    val disclaimerTemplate = stringResource(R.string.external_upload_disclaimer, host)
+    val hostStart = disclaimerTemplate.indexOf(host)
+    val annotatedText = buildAnnotatedString {
+        append(disclaimerTemplate)
+        if (hostStart >= 0) {
+            addStyle(
+                style = SpanStyle(
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                ),
+                start = hostStart,
+                end = hostStart + host.length,
+            )
+            addLink(
+                url = LinkAnnotation.Url("https://$host"),
+                start = hostStart,
+                end = hostStart + host.length,
+            )
+        }
+    }
+
+    StyledBottomSheet(onDismiss = onDismiss) {
+        Text(
+            text = stringResource(R.string.nuuls_upload_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 12.dp),
+        )
+
+        Text(
+            text = annotatedText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_ok))
+            }
+        }
     }
 }

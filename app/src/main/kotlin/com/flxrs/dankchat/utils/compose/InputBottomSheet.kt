@@ -13,10 +13,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,8 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 
@@ -45,9 +47,9 @@ fun InputBottomSheet(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var inputValue by remember { mutableStateOf(defaultValue) }
+    var inputValue by remember { mutableStateOf(TextFieldValue(defaultValue, selection = TextRange(defaultValue.length))) }
     val focusRequester = remember { FocusRequester() }
-    val trimmed = inputValue.trim()
+    val trimmed = inputValue.text.trim()
     val errorText = validate?.invoke(trimmed)
     val isValid = trimmed.isNotBlank() && errorText == null
 
@@ -55,11 +57,11 @@ fun InputBottomSheet(
         focusRequester.requestFocus()
     }
 
-    StyledBottomSheet(onDismiss = onDismiss) {
+    StyledBottomSheet(onDismiss = onDismiss, addBottomSpacing = false, dismissOnKeyboardClose = true) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(bottom = 12.dp),
         )
 
@@ -69,9 +71,9 @@ fun InputBottomSheet(
             label = { Text(hint) },
             singleLine = true,
             isError = errorText != null,
-            trailingIcon = if (showClearButton && inputValue.isNotEmpty()) {
+            trailingIcon = if (showClearButton && inputValue.text.isNotEmpty()) {
                 {
-                    IconButton(onClick = { inputValue = "" }) {
+                    IconButton(onClick = { inputValue = TextFieldValue() }) {
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = stringResource(R.string.clear),
@@ -108,7 +110,7 @@ fun InputBottomSheet(
             )
         }
 
-        TextButton(
+        Button(
             onClick = { onConfirm(trimmed) },
             enabled = isValid,
             modifier = Modifier

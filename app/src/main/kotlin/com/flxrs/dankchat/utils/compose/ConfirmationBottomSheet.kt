@@ -1,0 +1,68 @@
+package com.flxrs.dankchat.utils.compose
+
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.flxrs.dankchat.R
+
+@Composable
+fun ConfirmationBottomSheet(
+    title: String,
+    message: String? = null,
+    confirmText: String = stringResource(R.string.dialog_ok),
+    dismissText: String = stringResource(R.string.dialog_cancel),
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    StyledBottomSheet(onDismiss = onDismiss) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 16.dp),
+        )
+
+        if (message != null) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(dismissText)
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(confirmText)
+            }
+        }
+    }
+}

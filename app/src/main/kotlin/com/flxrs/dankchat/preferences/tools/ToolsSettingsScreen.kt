@@ -31,7 +31,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.AlertDialog
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -187,25 +187,14 @@ fun ImageUploaderCategory(
         }
 
         if (confirmClearDialog) {
-            AlertDialog(
-                onDismissRequest = { confirmClearDialog = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.clearUploads()
-                            recentUploadSheetOpen = false
-                        },
-                        content = { Text(stringResource(R.string.clear)) },
-                    )
+            ConfirmationBottomSheet(
+                title = stringResource(R.string.clear_recent_uploads_dialog_message),
+                confirmText = stringResource(R.string.clear),
+                onConfirm = {
+                    viewModel.clearUploads()
+                    recentUploadSheetOpen = false
                 },
-                dismissButton = {
-                    TextButton(
-                        onClick = { confirmClearDialog = false },
-                        content = { Text(stringResource(R.string.dialog_cancel)) },
-                    )
-                },
-                title = { Text(stringResource(R.string.clear_recent_uploads_dialog_title)) },
-                text = { Text(stringResource(R.string.clear_recent_uploads_dialog_message)) },
+                onDismiss = { confirmClearDialog = false },
             )
         }
     }

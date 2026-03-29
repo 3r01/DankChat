@@ -1,11 +1,20 @@
 package com.flxrs.dankchat.ui.main.dialog
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Reply
@@ -14,8 +23,9 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -35,10 +45,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+
+private enum class MessageOptionsSubView {
+    Timeout,
+    Ban,
+    Delete,
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,156 +81,125 @@ fun MessageOptionsDialog(
     onUnban: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var showTimeoutDialog by remember { mutableStateOf(false) }
-    var showBanDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    var subView by remember { mutableStateOf<MessageOptionsSubView?>(null) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            if (canReply) {
-                MessageOptionItem(
-                    icon = Icons.AutoMirrored.Filled.Reply,
-                    text = stringResource(R.string.message_reply),
-                    onClick = {
-                        onReply()
+        AnimatedContent(
+            targetState = subView,
+            transitionSpec = {
+                when {
+                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                    else                -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            label = "MessageOptionsContent"
+        ) { currentView ->
+            when (currentView) {
+                null           -> MessageOptionsMainView(
+                    canReply = canReply,
+                    canJump = canJump,
+                    canCopy = canCopy,
+                    canModerate = canModerate,
+                    hasReplyThread = hasReplyThread,
+                    channel = channel,
+                    onReply = { onReply(); onDismiss() },
+                    onReplyToOriginal = { onReplyToOriginal(); onDismiss() },
+                    onJumpToMessage = { onJumpToMessage(); onDismiss() },
+                    onViewThread = { onViewThread(); onDismiss() },
+                    onCopy = { onCopy(); onDismiss() },
+                    onMoreActions = { onMoreActions(); onDismiss() },
+                    onUnban = { onUnban(); onDismiss() },
+                    onTimeout = { subView = MessageOptionsSubView.Timeout },
+                    onBan = { subView = MessageOptionsSubView.Ban },
+                    onDelete = { subView = MessageOptionsSubView.Delete },
+                )
+
+                MessageOptionsSubView.Timeout -> TimeoutSubView(
+                    onConfirm = { index ->
+                        onTimeout(index)
                         onDismiss()
-                    }
+                    },
+                    onBack = { subView = null },
                 )
-            }
-            if (canReply && hasReplyThread) {
-                MessageOptionItem(
-                    icon = Icons.AutoMirrored.Filled.Reply,
-                    text = stringResource(R.string.message_reply_original),
-                    onClick = {
-                        onReplyToOriginal()
+
+                MessageOptionsSubView.Ban     -> ConfirmationSubView(
+                    title = stringResource(R.string.confirm_user_ban_message),
+                    confirmText = stringResource(R.string.confirm_user_ban_positive_button),
+                    onConfirm = {
+                        onBan()
                         onDismiss()
-                    }
+                    },
+                    onBack = { subView = null },
                 )
-                MessageOptionItem(
-                    icon = Icons.AutoMirrored.Filled.Reply,
-                    text = stringResource(R.string.message_view_thread),
-                    onClick = {
-                        onViewThread()
+
+                MessageOptionsSubView.Delete  -> ConfirmationSubView(
+                    title = stringResource(R.string.confirm_user_delete_message),
+                    confirmText = stringResource(R.string.confirm_user_delete_positive_button),
+                    onConfirm = {
+                        onDelete()
                         onDismiss()
-                    }
-                )
-            }
-
-            if (canJump && channel != null) {
-                MessageOptionItem(
-                    icon = Icons.AutoMirrored.Filled.OpenInNew,
-                    text = stringResource(R.string.message_jump_to),
-                    onClick = {
-                        onJumpToMessage()
-                        onDismiss()
-                    }
-                )
-            }
-
-            if (canCopy) {
-                MessageOptionItem(
-                    icon = Icons.Default.ContentCopy,
-                    text = stringResource(R.string.message_copy),
-                    onClick = {
-                        onCopy()
-                        onDismiss()
-                    }
-                )
-
-                MessageOptionItem(
-                    icon = Icons.Default.MoreVert,
-                    text = stringResource(R.string.message_more_actions),
-                    onClick = {
-                        onMoreActions()
-                        // Don't call onDismiss() here if the state management in MainScreen
-                        // handles switching sheets, but the user said "it closes the current sheet"
-                        // If we are using ModalBottomSheet, opening another one usually dismisses the first.
-                        onDismiss()
-                    }
-                )
-            }
-
-            if (canModerate) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-                MessageOptionItem(
-                    icon = Icons.Default.Timer,
-                    text = stringResource(R.string.user_popup_timeout),
-                    onClick = { showTimeoutDialog = true }
-                )
-
-                MessageOptionItem(
-                    icon = Icons.Default.Delete,
-                    text = stringResource(R.string.user_popup_delete),
-                    onClick = { showDeleteDialog = true }
-                )
-
-                MessageOptionItem(
-                    icon = Icons.Default.Gavel,
-                    text = stringResource(R.string.user_popup_ban),
-                    onClick = { showBanDialog = true }
-                )
-
-                MessageOptionItem(
-                    icon = Icons.Default.Gavel, // Using same icon for unban
-                    text = stringResource(R.string.user_popup_unban),
-                    onClick = {
-                        onUnban()
-                        onDismiss()
-                    }
+                    },
+                    onBack = { subView = null },
                 )
             }
         }
     }
+}
 
-    if (showTimeoutDialog) {
-        TimeoutConfirmDialog(
-            onConfirm = { index ->
-                onTimeout(index)
-                showTimeoutDialog = false
-                onDismiss()
-            },
-            onDismiss = { showTimeoutDialog = false }
-        )
-    }
-
-    if (showBanDialog) {
-        ConfirmationDialog(
-            title = stringResource(R.string.confirm_user_ban_question),
-            confirmText = stringResource(R.string.confirm_user_ban_positive_button),
-            onConfirm = {
-                onBan()
-                showBanDialog = false
-                onDismiss()
-            },
-            onDismiss = { showBanDialog = false },
-        )
-    }
-
-    if (showDeleteDialog) {
-        ConfirmationDialog(
-            title = stringResource(R.string.confirm_user_delete_question),
-            confirmText = stringResource(R.string.confirm_user_delete_positive_button),
-            onConfirm = {
-                onDelete()
-                showDeleteDialog = false
-                onDismiss()
-            },
-            onDismiss = { showDeleteDialog = false },
-        )
+@Composable
+private fun MessageOptionsMainView(
+    canReply: Boolean,
+    canJump: Boolean,
+    canCopy: Boolean,
+    canModerate: Boolean,
+    hasReplyThread: Boolean,
+    channel: String?,
+    onReply: () -> Unit,
+    onReplyToOriginal: () -> Unit,
+    onJumpToMessage: () -> Unit,
+    onViewThread: () -> Unit,
+    onCopy: () -> Unit,
+    onMoreActions: () -> Unit,
+    onUnban: () -> Unit,
+    onTimeout: () -> Unit,
+    onBan: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp)
+    ) {
+        if (canReply) {
+            MessageOptionItem(Icons.AutoMirrored.Filled.Reply, stringResource(R.string.message_reply), onReply)
+        }
+        if (canReply && hasReplyThread) {
+            MessageOptionItem(Icons.AutoMirrored.Filled.Reply, stringResource(R.string.message_reply_original), onReplyToOriginal)
+            MessageOptionItem(Icons.AutoMirrored.Filled.Reply, stringResource(R.string.message_view_thread), onViewThread)
+        }
+        if (canJump && channel != null) {
+            MessageOptionItem(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.message_jump_to), onJumpToMessage)
+        }
+        if (canCopy) {
+            MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy), onCopy)
+            MessageOptionItem(Icons.Default.MoreVert, stringResource(R.string.message_more_actions), onMoreActions)
+        }
+        if (canModerate) {
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            MessageOptionItem(Icons.Default.Timer, stringResource(R.string.user_popup_timeout), onTimeout)
+            MessageOptionItem(Icons.Default.Delete, stringResource(R.string.user_popup_delete), onDelete)
+            MessageOptionItem(Icons.Default.Gavel, stringResource(R.string.user_popup_ban), onBan)
+            MessageOptionItem(Icons.Default.Gavel, stringResource(R.string.user_popup_unban), onUnban)
+        }
     }
 }
 
 @Composable
 private fun MessageOptionItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     text: String,
     onClick: () -> Unit
 ) {
@@ -225,41 +212,94 @@ private fun MessageOptionItem(
 }
 
 @Composable
-private fun TimeoutConfirmDialog(
+private fun TimeoutSubView(
     onConfirm: (Int) -> Unit,
-    onDismiss: () -> Unit
+    onBack: () -> Unit,
 ) {
     val choices = stringArrayResource(R.array.timeout_entries)
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val currentIndex = sliderPosition.toInt()
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.confirm_user_timeout_title)) },
-        text = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = choices[currentIndex],
-                    style = MaterialTheme.typography.headlineMedium
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = { sliderPosition = it },
-                    valueRange = 0f..(choices.size - 1).toFloat(),
-                    steps = choices.size - 2
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(currentIndex) }) {
-                Text(stringResource(R.string.confirm_user_timeout_positive_button))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.confirm_user_timeout_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 12.dp),
+        )
+
+        Text(
+            text = choices[currentIndex],
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 8.dp),
+        )
+
+        Slider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 0f..(choices.size - 1).toFloat(),
+            steps = choices.size - 2,
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_cancel))
             }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = { onConfirm(currentIndex) }, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.confirm_user_timeout_positive_button))
+            }
         }
-    )
+    }
+}
+
+@Composable
+private fun ConfirmationSubView(
+    title: String,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 16.dp),
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                Text(confirmText)
+            }
+        }
+    }
 }
