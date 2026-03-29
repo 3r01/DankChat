@@ -35,22 +35,21 @@ class ConnectionDebugSection(
         }
         return combine(eventSubClient.state, eventSubClient.topics, readConnection.connected, writeConnection.connected, ticker) { state, topics, ircRead, ircWrite, _ ->
             val eventSubStatus = when (state) {
-                is EventSubClientState.Connected    -> "Connected (${state.sessionId.take(8)}...)"
-                is EventSubClientState.Connecting   -> "Connecting"
+                is EventSubClientState.Connected -> "Connected (${state.sessionId.take(8)}...)"
+                is EventSubClientState.Connecting -> "Connecting"
                 is EventSubClientState.Disconnected -> "Disconnected"
-                is EventSubClientState.Failed       -> "Failed"
+                is EventSubClientState.Failed -> "Failed"
             }
 
             val pubSubStatus = when {
-                pubSubManager.connectedAndHasWhisperTopic -> "Connected (whispers)"
-                pubSubManager.connected                   -> "Connected"
-                else                                      -> "Disconnected"
+                pubSubManager.connected -> "Connected"
+                else -> "Disconnected"
             }
 
             val sevenTvStatus = sevenTVEventApiClient.status()
             val sevenTvText = when {
                 sevenTvStatus.connected -> "Connected (${sevenTvStatus.subscriptionCount} subs)"
-                else                    -> "Disconnected"
+                else -> "Disconnected"
             }
 
             val ircReadStatus = if (ircRead) "Connected" else "Disconnected"
@@ -65,7 +64,7 @@ class ConnectionDebugSection(
                     DebugEntry("EventSub", eventSubStatus),
                     DebugEntry("EventSub topics", "${topics.size}"),
                     DebugEntry("7TV EventAPI", sevenTvText),
-                )
+                ),
             )
         }
     }

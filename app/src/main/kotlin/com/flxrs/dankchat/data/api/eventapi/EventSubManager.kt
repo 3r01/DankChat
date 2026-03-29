@@ -96,11 +96,11 @@ class EventSubManager(
         scope.launch {
             val topics = eventSubClient.topics.value.filter { subscribedTopic ->
                 when (val topic = subscribedTopic.topic) {
-                    is EventSubTopic.ChannelModerate -> topic.channel == channel
-                    is EventSubTopic.AutomodMessageHold -> topic.channel == channel
+                    is EventSubTopic.ChannelModerate      -> topic.channel == channel
+                    is EventSubTopic.AutomodMessageHold   -> topic.channel == channel
                     is EventSubTopic.AutomodMessageUpdate -> topic.channel == channel
-                    is EventSubTopic.UserMessageHold -> topic.channel == channel
-                    is EventSubTopic.UserMessageUpdate -> topic.channel == channel
+                    is EventSubTopic.UserMessageHold      -> topic.channel == channel
+                    is EventSubTopic.UserMessageUpdate    -> topic.channel == channel
                 }
             }
             topics.forEach { eventSubClient.unsubscribe(it) }

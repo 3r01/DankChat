@@ -19,12 +19,8 @@ data class RoomState(
         RoomStateTag.SLOW to 0,
         RoomStateTag.R9K to 0,
         RoomStateTag.FOLLOW to -1,
-    )
+    ),
 ) {
-    val activeStates: BooleanArray
-        get() = tags.entries.map { (tag, value) ->
-            if (tag == RoomStateTag.FOLLOW) value >= 0 else value > 0
-        }.toBooleanArray()
 
     val isEmoteMode get() = tags.getOrDefault(RoomStateTag.EMOTE, 0) > 0
     val isSubscriberMode get() = tags.getOrDefault(RoomStateTag.SUBS, 0) > 0
@@ -40,12 +36,12 @@ data class RoomState(
         .map { (tag, value) ->
             when (tag) {
                 RoomStateTag.FOLLOW -> when (value) {
-                    0    -> "follow"
+                    0 -> "follow"
                     else -> "follow(${DateTimeUtils.formatSeconds(value * 60)})"
                 }
 
-                RoomStateTag.SLOW   -> "slow(${DateTimeUtils.formatSeconds(value)})"
-                else                -> tag.name.lowercase()
+                RoomStateTag.SLOW -> "slow(${DateTimeUtils.formatSeconds(value)})"
+                else -> tag.name.lowercase()
             }
         }.joinToString()
 
@@ -53,12 +49,12 @@ data class RoomState(
         .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
         .map { (tag, value) ->
             when (tag) {
-                RoomStateTag.EMOTE  -> TextResource.Res(R.string.room_state_emote_only)
-                RoomStateTag.SUBS   -> TextResource.Res(R.string.room_state_subscriber_only)
-                RoomStateTag.R9K    -> TextResource.Res(R.string.room_state_unique_chat)
-                RoomStateTag.SLOW   -> TextResource.Res(R.string.room_state_slow_mode_duration, persistentListOf(DateTimeUtils.formatSeconds(value)))
+                RoomStateTag.EMOTE -> TextResource.Res(R.string.room_state_emote_only)
+                RoomStateTag.SUBS -> TextResource.Res(R.string.room_state_subscriber_only)
+                RoomStateTag.R9K -> TextResource.Res(R.string.room_state_unique_chat)
+                RoomStateTag.SLOW -> TextResource.Res(R.string.room_state_slow_mode_duration, persistentListOf(DateTimeUtils.formatSeconds(value)))
                 RoomStateTag.FOLLOW -> when (value) {
-                    0    -> TextResource.Res(R.string.room_state_follower_only)
+                    0 -> TextResource.Res(R.string.room_state_follower_only)
                     else -> TextResource.Res(R.string.room_state_follower_only_duration, persistentListOf(DateTimeUtils.formatSeconds(value * 60)))
                 }
             }

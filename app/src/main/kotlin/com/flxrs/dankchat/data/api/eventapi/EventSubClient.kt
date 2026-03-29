@@ -108,7 +108,7 @@ class EventSubClient(
                                 else -> (element as? Frame.Text)?.readText() ?: continue
                             }
 
-                            // Log.v(TAG, "[EventSub] Received raw message: $raw")
+                            //Log.v(TAG, "[EventSub] Received raw message: $raw")
 
                             val jsonObject = json
                                 .parseToJsonElement(raw)
@@ -123,7 +123,7 @@ class EventSubClient(
                                 }
 
                             when (message) {
-                                is WelcomeMessageDto -> {
+                                is WelcomeMessageDto      -> {
                                     retryCount = 0
                                     sessionId = message.payload.session.id
                                     Log.i(TAG, "[EventSub]($sessionId) received welcome message, status=${message.payload.session.status}")
@@ -146,10 +146,10 @@ class EventSubClient(
                                     }
                                 }
 
-                                is ReconnectMessageDto -> handleReconnect(message)
-                                is RevocationMessageDto -> handleRevocation(message)
+                                is ReconnectMessageDto    -> handleReconnect(message)
+                                is RevocationMessageDto   -> handleRevocation(message)
                                 is NotificationMessageDto -> handleNotification(message)
-                                is KeepAliveMessageDto -> Unit
+                                is KeepAliveMessageDto    -> Unit
                             }
                         }
                     }
@@ -261,28 +261,28 @@ class EventSubClient(
     private fun handleNotification(message: NotificationMessageDto) {
         Log.d(TAG, "[EventSub] received notification message: $message")
         val eventSubMessage = when (val event = message.payload.event) {
-            is ChannelModerateDto -> ModerationAction(
+            is ChannelModerateDto              -> ModerationAction(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is AutomodMessageHoldDto -> AutomodHeld(
+            is AutomodMessageHoldDto           -> AutomodHeld(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is AutomodMessageUpdateDto -> AutomodUpdate(
+            is AutomodMessageUpdateDto         -> AutomodUpdate(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
                 data = event,
             )
 
-            is ChannelChatUserMessageHoldDto -> UserMessageHeld(
+            is ChannelChatUserMessageHoldDto   -> UserMessageHeld(
                 id = message.metadata.messageId,
                 timestamp = message.metadata.messageTimestamp,
                 channelName = event.broadcasterUserLogin,
@@ -337,7 +337,7 @@ class EventSubClient(
                     return true
                 }
 
-                else -> {
+                else                                                               -> {
                     subscriptions.update { emptySet() }
                     EventSubClientState.Disconnected
                 }

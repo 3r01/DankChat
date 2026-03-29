@@ -71,8 +71,8 @@ class EmoteRepository(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val channelRepository: ChannelRepository,
 ) {
-    private val ffzModBadges = ConcurrentHashMap<UserName, String?>()
-    private val ffzVipBadges = ConcurrentHashMap<UserName, String?>()
+    private val ffzModBadges = ConcurrentHashMap<UserName, String>()
+    private val ffzVipBadges = ConcurrentHashMap<UserName, String>()
     private val channelBadges = ConcurrentHashMap<UserName, Map<String, BadgeSet>>()
     private val globalBadges = ConcurrentHashMap<String, BadgeSet>()
     private val dankChatBadges = CopyOnWriteArrayList<DankChatBadgeDto>()
@@ -81,9 +81,6 @@ class EmoteRepository(
 
     private val globalEmoteState = MutableStateFlow(GlobalEmoteState())
     private val channelEmoteStates = ConcurrentHashMap<UserName, MutableStateFlow<ChannelEmoteState>>()
-
-    val badgeCache = LruCache<String, Drawable>(64)
-    val layerCache = LruCache<String, LayerDrawable>(256)
 
     fun getEmotes(channel: UserName): Flow<Emotes> {
         val channelFlow = channelEmoteStates.getOrPut(channel) { MutableStateFlow(ChannelEmoteState()) }
@@ -127,7 +124,7 @@ class EmoteRepository(
             channelState.twitchEmotes.associateByTo(emoteMap) { it.code }
         }
 
-        // Single pass through words with O(1) lookups
+        // Single pass through words
         var currentPosition = 0
         return buildList {
             message.split(WHITESPACE_REGEX).forEach { word ->
@@ -464,12 +461,12 @@ class EmoteRepository(
             it.copy(ffzEmotes = ffzEmotes)
         }
         ffzResult.room.modBadgeUrls?.let {
-            val url = it["4"] ?: it["2"] ?: it["1"]
-            ffzModBadges[channel] = url?.withLeadingHttps
+            val url = it["4"] ?: it["2"] ?: it["1"] ?: return@let
+            ffzModBadges[channel] = url.withLeadingHttps
         }
         ffzResult.room.vipBadgeUrls?.let {
-            val url = it["4"] ?: it["2"] ?: it["1"]
-            ffzVipBadges[channel] = url?.withLeadingHttps
+            val url = it["4"] ?: it["2"] ?: it["1"] ?: return@let
+            ffzVipBadges[channel] = url.withLeadingHttps
         }
     }
 
@@ -690,7 +687,7 @@ class EmoteRepository(
                     val actualDistanceToRegularEmote = emote.position.first - previousEmote.position.last
 
                     // The "distance" between the found non-overlay emote and the current overlay emote does not match the expected, valid distance
-                    // This means, that there are non-emote "words" in-between and we should not adjust this overlay emote
+                    // This means, that there are non-emote "words" in-between, and we should not adjust this overlay emote
                     // Example: FeelsDankMan asd cvHazmat RainTime
                     // actualDistanceToRegularEmote = 14 != distanceToRegularEmote = 10 -> break
                     if (actualDistanceToRegularEmote != distanceToRegularEmote) {
@@ -866,8 +863,6 @@ class EmoteRepository(
         private val ESCAPE_TAG = 0x000E0002.codePointAsString
         val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
         const val ZERO_WIDTH_JOINER = 0x200D.toChar().toString()
-        fun Badge.cacheKey(baseHeight: Int): String = "$url-$baseHeight"
-        fun List<ChatMessageEmote>.cacheKey(baseHeight: Int): String = joinToString(separator = "-") { it.id } + "-$baseHeight"
 
         private const val MAX_PARAMS_LENGTH = 2000
         private val CHANNEL_EMOTE_TYPES = setOf("subscriptions", "bitstier", "follower")
@@ -908,5 +903,3 @@ class EmoteRepository(
         )
     }
 }
-
-private operator fun IntRange.inc() = first + 1..last + 1
