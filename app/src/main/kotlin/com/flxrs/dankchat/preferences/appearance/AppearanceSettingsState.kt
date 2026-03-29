@@ -1,0 +1,20 @@
+package com.flxrs.dankchat.preferences.appearance
+
+import androidx.compose.runtime.Immutable
+
+sealed interface AppearanceSettingsInteraction {
+    data class Theme(val theme: ThemePreference) : AppearanceSettingsInteraction
+    data class TrueDarkTheme(val trueDarkTheme: Boolean) : AppearanceSettingsInteraction
+    data class FontSize(val fontSize: Int) : AppearanceSettingsInteraction
+    data class KeepScreenOn(val value: Boolean) : AppearanceSettingsInteraction
+    data class LineSeparator(val value: Boolean) : AppearanceSettingsInteraction
+    data class CheckeredMessages(val value: Boolean) : AppearanceSettingsInteraction
+    data class AutoDisableInput(val value: Boolean) : AppearanceSettingsInteraction
+    data class ShowChangelogs(val value: Boolean) : AppearanceSettingsInteraction
+    data class ShowCharacterCounter(val value: Boolean) : AppearanceSettingsInteraction
+}
+
+@Immutable
+data class AppearanceSettingsUiState(
+    val settings: AppearanceSettings,
+)

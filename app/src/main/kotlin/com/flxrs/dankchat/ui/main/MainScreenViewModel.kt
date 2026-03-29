@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.ui.main
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
@@ -12,7 +11,6 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -180,18 +178,3 @@ class MainScreenViewModel(
 }
 
 private data class KeyboardHeightUpdate(val heightPx: Int, val isLandscape: Boolean)
-
-@Immutable
-data class MainScreenUiState(
-    val isFullscreen: Boolean = false,
-    val showInput: Boolean = true,
-    val inputActions: ImmutableList<InputAction> = persistentListOf(),
-    val showCharacterCounter: Boolean = false,
-    val isRepeatedSendEnabled: Boolean = false,
-    val debugMode: Boolean = false,
-    val gestureInputHidden: Boolean = false,
-    val gestureToolbarHidden: Boolean = false,
-) {
-    val effectiveShowInput: Boolean get() = showInput && !gestureInputHidden
-    val effectiveShowAppBar: Boolean get() = !gestureToolbarHidden
-}

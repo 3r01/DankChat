@@ -3,7 +3,6 @@ package com.flxrs.dankchat.preferences.tools
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.repo.RecentUploadsRepository
-import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -44,28 +43,6 @@ class ToolsSettingsViewModel(
         }
     }
 }
-
-sealed interface ToolsSettingsInteraction {
-    data class TTSEnabled(val value: Boolean) : ToolsSettingsInteraction
-    data class TTSMode(val value: TTSPlayMode) : ToolsSettingsInteraction
-    data class TTSFormat(val value: TTSMessageFormat) : ToolsSettingsInteraction
-    data class TTSForceEnglish(val value: Boolean) : ToolsSettingsInteraction
-    data class TTSIgnoreUrls(val value: Boolean) : ToolsSettingsInteraction
-    data class TTSIgnoreEmotes(val value: Boolean) : ToolsSettingsInteraction
-    data class TTSUserIgnoreList(val value: Set<String>) : ToolsSettingsInteraction
-}
-
-data class ToolsSettingsState(
-    val imageUploader: ImageUploaderConfig,
-    val hasRecentUploads: Boolean,
-    val ttsEnabled: Boolean,
-    val ttsPlayMode: TTSPlayMode,
-    val ttsMessageFormat: TTSMessageFormat,
-    val ttsForceEnglish: Boolean,
-    val ttsIgnoreUrls: Boolean,
-    val ttsIgnoreEmotes: Boolean,
-    val ttsUserIgnoreList: ImmutableSet<String>,
-)
 
 private fun ToolsSettings.toState(hasRecentUploads: Boolean) = ToolsSettingsState(
     imageUploader = uploaderConfig,

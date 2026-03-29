@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.ui.main.channel
 
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
@@ -10,8 +9,6 @@ import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -82,20 +79,3 @@ class ChannelTabViewModel(
         chatNotificationRepository.clearMentionCounts()
     }
 }
-
-@Immutable
-data class ChannelTabUiState(
-    val tabs: ImmutableList<ChannelTabItem> = persistentListOf(),
-    val selectedIndex: Int = 0,
-    val loading: Boolean = true,
-)
-
-@Immutable
-data class ChannelTabItem(
-    val channel: UserName,
-    val displayName: String,
-    val isSelected: Boolean,
-    val hasUnread: Boolean,
-    val mentionCount: Int,
-    val loadingState: ChannelLoadingState
-)
