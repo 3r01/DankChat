@@ -382,6 +382,7 @@ fun ChatInputLayout(
 
                 // Actions Row — uses BoxWithConstraints to hide actions that don't fit
                 InputActionsRow(
+                    inputActions = inputActions,
                     effectiveActions = effectiveActions,
                     isEmoteMenuOpen = isEmoteMenuOpen,
                     enabled = enabled,
@@ -795,6 +796,7 @@ private fun InputOverlayHeader(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun InputActionsRow(
+    inputActions: ImmutableList<InputAction>,
     effectiveActions: ImmutableList<InputAction>,
     isEmoteMenuOpen: Boolean,
     enabled: Boolean,
@@ -831,6 +833,7 @@ private fun InputActionsRow(
         val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
         val availableForActions = maxWidth - iconSize * fixedSlots
         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
+        val allActions = inputActions.take(maxVisibleActions).toImmutableList()
         val visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
         onVisibleActionsChanged(visibleActions)
 
@@ -869,6 +872,7 @@ private fun InputActionsRow(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     EndAlignedActionGroup(
+                        allActions = allActions,
                         visibleActions = visibleActions,
                         iconSize = iconSize,
                         showQuickActions = showQuickActions,
@@ -901,6 +905,7 @@ private fun InputActionsRow(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EndAlignedActionGroup(
+    allActions: ImmutableList<InputAction>,
     visibleActions: ImmutableList<InputAction>,
     iconSize: Dp,
     showQuickActions: Boolean,
@@ -967,23 +972,29 @@ private fun EndAlignedActionGroup(
         }
     }
 
-    // Configurable action icons
-    for (action in visibleActions) {
-        InputActionButton(
-            action = action,
-            enabled = enabled,
-            hasLastMessage = hasLastMessage,
-            isStreamActive = isStreamActive,
-            isFullscreen = isFullscreen,
-            onSearchClick = onSearchClick,
-            onLastMessageClick = onLastMessageClick,
-            onToggleStream = onToggleStream,
-            onModActions = onModActions,
-            onToggleFullscreen = onToggleFullscreen,
-            onToggleInput = onToggleInput,
-            onDebugInfoClick = onDebugInfoClick,
-            modifier = Modifier.size(iconSize),
-        )
+    // Configurable action icons with animated visibility
+    for (action in allActions) {
+        AnimatedVisibility(
+            visible = action in visibleActions,
+            enter = expandHorizontally() + fadeIn(),
+            exit = shrinkHorizontally() + fadeOut(),
+        ) {
+            InputActionButton(
+                action = action,
+                enabled = enabled,
+                hasLastMessage = hasLastMessage,
+                isStreamActive = isStreamActive,
+                isFullscreen = isFullscreen,
+                onSearchClick = onSearchClick,
+                onLastMessageClick = onLastMessageClick,
+                onToggleStream = onToggleStream,
+                onModActions = onModActions,
+                onToggleFullscreen = onToggleFullscreen,
+                onToggleInput = onToggleInput,
+                onDebugInfoClick = onDebugInfoClick,
+                modifier = Modifier.size(iconSize),
+            )
+        }
     }
 
     // Send Button (Right)
