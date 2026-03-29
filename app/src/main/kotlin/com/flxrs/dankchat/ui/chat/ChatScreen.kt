@@ -78,6 +78,7 @@ fun ChatScreen(
     fontSize: Float,
     callbacks: ChatScreenCallbacks,
     modifier: Modifier = Modifier,
+    scrollModifier: Modifier = Modifier,
     showChannelPrefix: Boolean = false,
     showLineSeparator: Boolean = false,
     animateGifs: Boolean = true,
@@ -85,11 +86,10 @@ fun ChatScreen(
     isFullscreen: Boolean = false,
     onRecover: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
-    scrollModifier: Modifier = Modifier,
     onScrollToBottom: () -> Unit = {},
-    onScrollDirectionChanged: (isScrollingUp: Boolean) -> Unit = {},
+    onScrollDirectionChange: (isScrollingUp: Boolean) -> Unit = {},
     scrollToMessageId: String? = null,
-    onScrollToMessageHandled: () -> Unit = {},
+    onScrollToMessageHandle: () -> Unit = {},
     containerColor: Color = MaterialTheme.colorScheme.background,
     showFabs: Boolean = true,
     recoveryFabTooltipState: TooltipState? = null,
@@ -119,7 +119,7 @@ fun ChatScreen(
         if (!listState.isScrollInProgress && isAtBottom && !shouldAutoScroll) {
             shouldAutoScroll = true
         }
-        onScrollDirectionChanged(listState.lastScrolledForward)
+        onScrollDirectionChange(listState.lastScrolledForward)
     }
 
     // Auto-scroll when new messages arrive or when re-enabled
@@ -145,7 +145,7 @@ fun ChatScreen(
             val bottomPaddingPx = with(density) { contentPadding.calculateBottomPadding().roundToPx() }
             listState.scrollToCentered(index, topPaddingPx, bottomPaddingPx)
         }
-        onScrollToMessageHandled()
+        onScrollToMessageHandle()
     }
 
     Surface(
@@ -255,7 +255,7 @@ fun ChatScreen(
                         FloatingActionButton(
                             onClick = {
                                 shouldAutoScroll = true
-                                onScrollDirectionChanged(false)
+                                onScrollDirectionChange(false)
                                 onScrollToBottom()
                             },
                         ) {

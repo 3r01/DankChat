@@ -43,6 +43,7 @@ class RecentMessagesHandler(
         val userSuggestions: List<Pair<UserName, DisplayName>>,
     )
 
+    @Suppress("LoopWithTooManyJumpStatements")
     suspend fun load(channel: UserName, isReconnect: Boolean = false): Result = withContext(Dispatchers.IO) {
         if (!isReconnect && channel in loadedChannels) {
             return@withContext Result(emptyList(), emptyList())

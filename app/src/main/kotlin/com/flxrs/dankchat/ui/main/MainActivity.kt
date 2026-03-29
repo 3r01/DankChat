@@ -222,7 +222,6 @@ class MainActivity : AppCompatActivity() {
                         popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 3 }, animationSpec = tween(300)) + fadeIn(animationSpec = tween(300)) },
                     ) {
                         MainScreen(
-                            navController = navController,
                             isLoggedIn = isLoggedIn,
                             onNavigateToSettings = {
                                 navController.navigate(Settings)
@@ -295,14 +294,14 @@ class MainActivity : AppCompatActivity() {
                         OverviewSettingsScreen(
                             isLoggedIn = isLoggedIn,
                             hasChangelog = com.flxrs.dankchat.ui.changelog.DankChatVersion.HAS_CHANGELOG,
-                            onBackPressed = { navController.popBackStack() },
-                            onLogoutRequested = {
+                            onBack = { navController.popBackStack() },
+                            onLogout = {
                                 lifecycleScope.launch {
                                     mainEventBus.emitEvent(MainEvent.LogOutRequested)
                                     navController.popBackStack()
                                 }
                             },
-                            onNavigateRequested = { destination ->
+                            onNavigate = { destination ->
                                 when (destination) {
                                     SettingsNavigation.Appearance -> navController.navigate(AppearanceSettings)
                                     SettingsNavigation.Notifications -> navController.navigate(NotificationsSettings)
@@ -337,7 +336,7 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = subPopExit
                     ) {
                         AppearanceSettingsScreen(
-                            onBackPressed = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                     composable<NotificationsSettings>(
@@ -411,7 +410,7 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = subPopExit
                     ) {
                         StreamsSettingsScreen(
-                            onBackPressed = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                     composable<ToolsSettings>(
@@ -453,7 +452,7 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = subPopExit
                     ) {
                         DeveloperSettingsScreen(
-                            onBackPressed = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                     composable<ChangelogSettings>(
@@ -463,7 +462,7 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = subPopExit
                     ) {
                         ChangelogScreen(
-                            onBackPressed = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                     composable<AboutSettings>(
@@ -473,7 +472,7 @@ class MainActivity : AppCompatActivity() {
                         popExitTransition = subPopExit
                     ) {
                         AboutScreen(
-                            onBackPressed = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                 }

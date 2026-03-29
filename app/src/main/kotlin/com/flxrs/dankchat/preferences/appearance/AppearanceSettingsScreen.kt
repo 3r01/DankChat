@@ -61,7 +61,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun AppearanceSettingsScreen(
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val viewModel = koinViewModel<AppearanceSettingsViewModel>()
     val uiState = viewModel.settings.collectAsStateWithLifecycle().value
@@ -70,7 +70,7 @@ fun AppearanceSettingsScreen(
         settings = uiState.settings,
         onInteraction = { viewModel.onInteraction(it) },
         onSuspendingInteraction = { viewModel.onSuspendingInteraction(it) },
-        onBackPressed = onBackPressed
+        onBack = onBack
     )
 }
 
@@ -79,7 +79,7 @@ private fun AppearanceSettingsContent(
     settings: AppearanceSettings,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
     onSuspendingInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -91,7 +91,7 @@ private fun AppearanceSettingsContent(
                 title = { Text(stringResource(R.string.preference_appearance_header)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
                 }
@@ -170,7 +170,7 @@ private fun DisplayCategory(
             value = value,
             range = 10f..40f,
             onDrag = { value = it },
-            onDragFinished = { onInteraction(FontSize(value.roundToInt())) },
+            onDragFinish = { onInteraction(FontSize(value.roundToInt())) },
             summary = summary,
         )
 
@@ -212,7 +212,7 @@ private fun ThemeCategory(
             values = themeState.values,
             entries = themeState.entries,
             selected = themeState.preference,
-            onChanged = {
+            onChange ={
                 scope.launch {
                     activity ?: return@launch
                     onInteraction(Theme(it))

@@ -65,9 +65,9 @@ sealed interface SettingsNavigation {
 fun OverviewSettingsScreen(
     isLoggedIn: Boolean,
     hasChangelog: Boolean,
-    onBackPressed: () -> Unit,
-    onLogoutRequested: () -> Unit,
-    onNavigateRequested: (SettingsNavigation) -> Unit,
+    onBack: () -> Unit,
+    onLogout: () -> Unit,
+    onNavigate: (SettingsNavigation) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -81,7 +81,7 @@ fun OverviewSettingsScreen(
                 title = { Text(stringResource(R.string.settings)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") },
                     )
                 }
@@ -98,33 +98,33 @@ fun OverviewSettingsScreen(
             PreferenceItem(
                 title = stringResource(R.string.preference_appearance_header),
                 icon = Icons.Default.Palette,
-                onClick = { onNavigateRequested(SettingsNavigation.Appearance) },
+                onClick = { onNavigate(SettingsNavigation.Appearance) },
             )
             PreferenceItem(
                 title = stringResource(R.string.preference_highlights_ignores_header),
                 icon = Icons.Default.NotificationsActive,
-                onClick = { onNavigateRequested(SettingsNavigation.Notifications) },
+                onClick = { onNavigate(SettingsNavigation.Notifications) },
             )
             PreferenceItem(stringResource(R.string.preference_chat_header), Icons.Default.Forum, onClick = {
-                onNavigateRequested(SettingsNavigation.Chat)
+                onNavigate(SettingsNavigation.Chat)
             })
             PreferenceItem(stringResource(R.string.preference_streams_header), Icons.Default.PlayArrow, onClick = {
-                onNavigateRequested(SettingsNavigation.Streams)
+                onNavigate(SettingsNavigation.Streams)
             })
             PreferenceItem(stringResource(R.string.preference_tools_header), Icons.Default.Construction, onClick = {
-                onNavigateRequested(SettingsNavigation.Tools)
+                onNavigate(SettingsNavigation.Tools)
             })
             PreferenceItem(stringResource(R.string.preference_developer_header), Icons.Default.DeveloperMode, onClick = {
-                onNavigateRequested(SettingsNavigation.Developer)
+                onNavigate(SettingsNavigation.Developer)
             })
 
             AnimatedVisibility(hasChangelog) {
                 PreferenceItem(stringResource(R.string.preference_whats_new_header), Icons.Default.FiberNew, onClick = {
-                    onNavigateRequested(SettingsNavigation.Changelog)
+                    onNavigate(SettingsNavigation.Changelog)
                 })
             }
 
-            PreferenceItem(stringResource(R.string.logout), Icons.AutoMirrored.Default.ExitToApp, isEnabled = isLoggedIn, onClick = onLogoutRequested)
+            PreferenceItem(stringResource(R.string.logout), Icons.AutoMirrored.Default.ExitToApp, isEnabled = isLoggedIn, onClick = onLogout)
             SecretDankerModeTrigger {
                 PreferenceCategoryWithSummary(
                     title = {
@@ -152,7 +152,7 @@ fun OverviewSettingsScreen(
                         appendLine()
                         appendLine()
                         val licenseText = stringResource(R.string.open_source_licenses)
-                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigateRequested(SettingsNavigation.About) })) {
+                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigate(SettingsNavigation.About) })) {
                             append(licenseText)
                         }
                     }
@@ -164,6 +164,7 @@ fun OverviewSettingsScreen(
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @Composable
 @PreviewDynamicColors
 @PreviewLightDark
@@ -172,9 +173,9 @@ private fun OverviewSettingsPreview() {
         OverviewSettingsScreen(
             isLoggedIn = false,
             hasChangelog = true,
-            onBackPressed = { },
-            onLogoutRequested = { },
-            onNavigateRequested = { },
+            onBack = { },
+            onLogout = { },
+            onNavigate = { },
         )
     }
 }

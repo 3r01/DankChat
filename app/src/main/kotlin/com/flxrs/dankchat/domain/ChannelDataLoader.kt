@@ -67,7 +67,7 @@ class ChannelDataLoader(
                 failures.isEmpty() -> ChannelLoadingState.Loaded
                 else               -> ChannelLoadingState.Failed(failures)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ChannelLoadingState.Failed(emptyList())
         }
     }

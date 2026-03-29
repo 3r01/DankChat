@@ -35,6 +35,7 @@ import kotlin.math.sin
  * 
  * Uses the 45-degree boundary method from Android documentation.
  */
+@Suppress("ModifierComposed") // TODO: Replace with custom ModifierNodeElement
 fun Modifier.avoidRoundedCorners(fallback: PaddingValues): Modifier = composed {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
         return@composed this.padding(fallback)

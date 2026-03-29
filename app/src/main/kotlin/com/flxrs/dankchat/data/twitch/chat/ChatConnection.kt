@@ -240,9 +240,9 @@ class ChatConnection(
                     }
                     Log.i(TAG, "[$chatConnectionType] reconnecting after server request")
 
+                } catch (t: CancellationException) {
+                    throw t
                 } catch (t: Throwable) {
-                    if (t is CancellationException) throw t
-
                     Log.e(TAG, "[$chatConnectionType] connection failed: $t")
                     Log.e(TAG, "[$chatConnectionType] attempting to reconnect #$retryCount..")
                     _connected.value = false

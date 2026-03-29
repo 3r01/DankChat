@@ -106,7 +106,6 @@ class ChatViewModel(
             val mapped = mappingCache.getOrPut(cacheKey) {
                 chatMessageMapper.mapToUiState(
                     item = item,
-                    appearanceSettings = appearanceSettings,
                     chatSettings = chatSettings,
                     preferenceStore = preferenceStore,
                     isAlternateBackground = altBg

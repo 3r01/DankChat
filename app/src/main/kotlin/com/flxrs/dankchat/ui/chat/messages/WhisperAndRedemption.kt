@@ -54,11 +54,11 @@ import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
 fun WhisperMessageComposable(
     message: ChatMessageUiState.WhisperMessageUi,
     fontSize: Float,
-    modifier: Modifier = Modifier,
-    animateGifs: Boolean = true,
     onUserClick: (userId: String?, userName: String, displayName: String, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    modifier: Modifier = Modifier,
+    animateGifs: Boolean = true,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }

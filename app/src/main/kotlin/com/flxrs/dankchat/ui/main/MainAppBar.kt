@@ -79,8 +79,8 @@ sealed interface AppBarMenu {
 fun InlineOverflowMenu(
     isLoggedIn: Boolean,
     onDismiss: () -> Unit,
-    initialMenu: AppBarMenu = AppBarMenu.Main,
     onAction: (ToolbarAction) -> Unit,
+    initialMenu: AppBarMenu = AppBarMenu.Main,
     keyboardHeightDp: Dp = 0.dp,
 ) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }

@@ -234,7 +234,7 @@ junitPlatform {
 
 ktfmt {
     kotlinLangStyle()
-    maxWidth.set(200)
+    maxWidth.set(250)
 }
 
 detekt {

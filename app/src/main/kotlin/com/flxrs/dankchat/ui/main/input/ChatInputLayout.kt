@@ -131,11 +131,11 @@ data class ChatInputCallbacks(
     val onToggleInput: () -> Unit,
     val onToggleStream: () -> Unit,
     val onModActions: () -> Unit,
-    val onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
+    val onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
     val onSearchClick: () -> Unit = {},
     val onDebugInfoClick: () -> Unit = {},
     val onNewWhisper: (() -> Unit)? = null,
-    val onRepeatedSendChanged: (Boolean) -> Unit = {},
+    val onRepeatedSendChange: (Boolean) -> Unit = {},
 )
 
 @Composable
@@ -154,7 +154,7 @@ fun ChatInputLayout(
     modifier: Modifier = Modifier,
     debugMode: Boolean = false,
     overflowExpanded: Boolean = false,
-    onOverflowExpandedChanged: (Boolean) -> Unit = {},
+    onOverflowExpandedChange: (Boolean) -> Unit = {},
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
 ) {
@@ -175,11 +175,11 @@ fun ChatInputLayout(
     val onToggleInput = callbacks.onToggleInput
     val onToggleStream = callbacks.onToggleStream
     val onModActions = callbacks.onModActions
-    val onInputActionsChanged = callbacks.onInputActionsChanged
+    val onInputActionsChange = callbacks.onInputActionsChange
     val onSearchClick = callbacks.onSearchClick
     val onDebugInfoClick = callbacks.onDebugInfoClick
     val onNewWhisper = callbacks.onNewWhisper
-    val onRepeatedSendChanged = callbacks.onRepeatedSendChanged
+    val onRepeatedSendChange = callbacks.onRepeatedSendChange
 
     val focusRequester = remember { FocusRequester() }
     val hint = when (inputState) {
@@ -395,7 +395,7 @@ fun ChatInputLayout(
                     isFullscreen = isFullscreen,
                     focusRequester = focusRequester,
                     onEmoteClick = onEmoteClick,
-                    onOverflowExpandedChanged = onOverflowExpandedChanged,
+                    onOverflowExpandedChange = onOverflowExpandedChange,
                     onNewWhisper = onNewWhisper,
                     onSearchClick = onSearchClick,
                     onLastMessageClick = onLastMessageClick,
@@ -406,8 +406,8 @@ fun ChatInputLayout(
                     onDebugInfoClick = onDebugInfoClick,
                     onSend = onSend,
                     isRepeatedSendEnabled = isRepeatedSendEnabled,
-                    onRepeatedSendChanged = onRepeatedSendChanged,
-                    onVisibleActionsChanged = { visibleActions = it },
+                    onRepeatedSendChange = onRepeatedSendChange,
+                    onVisibleActionsChange = { visibleActions = it },
                 )
             }
         }
@@ -443,7 +443,7 @@ fun ChatInputLayout(
                     progress.collect { event ->
                         backProgress = event.progress
                     }
-                    onOverflowExpandedChanged(false)
+                    onOverflowExpandedChange(false)
                 } catch (_: CancellationException) {
                     backProgress = 0f
                 }
@@ -474,10 +474,10 @@ fun ChatInputLayout(
                         InputAction.HideInput   -> onToggleInput()
                         InputAction.Debug       -> onDebugInfoClick()
                     }
-                    onOverflowExpandedChanged(false)
+                    onOverflowExpandedChange(false)
                 },
                 onConfigureClick = {
-                    onOverflowExpandedChanged(false)
+                    onOverflowExpandedChange(false)
                     showConfigSheet = true
                 },
             )
@@ -488,7 +488,7 @@ fun ChatInputLayout(
         InputActionConfigSheet(
             inputActions = inputActions,
             debugMode = debugMode,
-            onInputActionsChanged = onInputActionsChanged,
+            onInputActionsChange = onInputActionsChange,
             onDismiss = { showConfigSheet = false },
         )
     }
@@ -499,7 +499,7 @@ fun ChatInputLayout(
 private fun InputActionConfigSheet(
     inputActions: ImmutableList<InputAction>,
     debugMode: Boolean,
-    onInputActionsChanged: (ImmutableList<InputAction>) -> Unit,
+    onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -511,7 +511,7 @@ private fun InputActionConfigSheet(
 
     ModalBottomSheet(
         onDismissRequest = {
-            onInputActionsChanged(localEnabled.toImmutableList())
+            onInputActionsChange(localEnabled.toImmutableList())
             onDismiss()
         },
         sheetState = sheetState,
@@ -658,7 +658,7 @@ private fun SendButton(
     enabled: Boolean,
     isRepeatedSendEnabled: Boolean,
     onSend: () -> Unit,
-    onRepeatedSendChanged: (Boolean) -> Unit,
+    onRepeatedSendChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val contentColor = when {
@@ -670,10 +670,10 @@ private fun SendButton(
         enabled && isRepeatedSendEnabled -> Modifier.pointerInput(Unit) {
             detectTapGestures(
                 onTap = { onSend() },
-                onLongPress = { onRepeatedSendChanged(true) },
+                onLongPress = { onRepeatedSendChange(true) },
                 onPress = {
                     tryAwaitRelease()
-                    onRepeatedSendChanged(false)
+                    onRepeatedSendChange(false)
                 },
             )
         }
@@ -715,8 +715,8 @@ private fun InputActionButton(
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
-    onDebugInfoClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onDebugInfoClick: () -> Unit = {},
 ) {
     val (icon, contentDescription, onClick) = when (action) {
         InputAction.Search      -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
@@ -809,7 +809,7 @@ private fun InputActionsRow(
     isFullscreen: Boolean,
     focusRequester: FocusRequester,
     onEmoteClick: () -> Unit,
-    onOverflowExpandedChanged: (Boolean) -> Unit,
+    onOverflowExpandedChange: (Boolean) -> Unit,
     onNewWhisper: (() -> Unit)?,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
@@ -817,11 +817,11 @@ private fun InputActionsRow(
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
-    onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
+    onVisibleActionsChange: (ImmutableList<InputAction>) -> Unit,
+    onDebugInfoClick: () -> Unit = {},
     isRepeatedSendEnabled: Boolean = false,
-    onRepeatedSendChanged: (Boolean) -> Unit = {},
-    onVisibleActionsChanged: (ImmutableList<InputAction>) -> Unit,
+    onRepeatedSendChange: (Boolean) -> Unit = {},
 ) {
     BoxWithConstraints(
         modifier = Modifier
@@ -835,7 +835,7 @@ private fun InputActionsRow(
         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
         val allActions = inputActions.take(maxVisibleActions).toImmutableList()
         val visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
-        onVisibleActionsChanged(visibleActions)
+        onVisibleActionsChange(visibleActions)
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -883,7 +883,7 @@ private fun InputActionsRow(
                         hasLastMessage = hasLastMessage,
                         isStreamActive = isStreamActive,
                         isFullscreen = isFullscreen,
-                        onOverflowExpandedChanged = onOverflowExpandedChanged,
+                        onOverflowExpandedChange = onOverflowExpandedChange,
                         onNewWhisper = onNewWhisper,
                         onSearchClick = onSearchClick,
                         onLastMessageClick = onLastMessageClick,
@@ -894,7 +894,7 @@ private fun InputActionsRow(
                         onDebugInfoClick = onDebugInfoClick,
                         onSend = onSend,
                         isRepeatedSendEnabled = isRepeatedSendEnabled,
-                        onRepeatedSendChanged = onRepeatedSendChanged,
+                        onRepeatedSendChange = onRepeatedSendChange,
                     )
                 }
             }
@@ -902,6 +902,7 @@ private fun InputActionsRow(
     }
 }
 
+@Suppress("MultipleEmitters")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EndAlignedActionGroup(
@@ -916,7 +917,7 @@ private fun EndAlignedActionGroup(
     hasLastMessage: Boolean,
     isStreamActive: Boolean,
     isFullscreen: Boolean,
-    onOverflowExpandedChanged: (Boolean) -> Unit,
+    onOverflowExpandedChange: (Boolean) -> Unit,
     onNewWhisper: (() -> Unit)?,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
@@ -924,10 +925,10 @@ private fun EndAlignedActionGroup(
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
     onToggleInput: () -> Unit,
-    onDebugInfoClick: () -> Unit = {},
     onSend: () -> Unit,
+    onDebugInfoClick: () -> Unit = {},
     isRepeatedSendEnabled: Boolean = false,
-    onRepeatedSendChanged: (Boolean) -> Unit = {},
+    onRepeatedSendChange: (Boolean) -> Unit = {},
 ) {
     // Overflow Button (leading the end-aligned group)
     if (showQuickActions) {
@@ -937,7 +938,7 @@ private fun EndAlignedActionGroup(
                     if (tourState.overflowMenuTooltipState != null) {
                         tourState.onAdvance?.invoke()
                     } else {
-                        onOverflowExpandedChanged(!quickActionsExpanded)
+                        onOverflowExpandedChange(!quickActionsExpanded)
                     }
                 },
                 modifier = Modifier.size(iconSize)
@@ -1003,11 +1004,12 @@ private fun EndAlignedActionGroup(
         enabled = canSend,
         isRepeatedSendEnabled = isRepeatedSendEnabled,
         onSend = onSend,
-        onRepeatedSendChanged = onRepeatedSendChanged,
+        onRepeatedSendChange = onRepeatedSendChange,
         modifier = Modifier.size(44.dp),
     )
 }
 
+@Suppress("ContentSlotReused")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OptionalTourTooltip(

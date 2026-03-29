@@ -68,7 +68,6 @@ class MentionViewModel(
             val altBg = index.isEven && appearanceSettings.checkeredMessages
             chatMessageMapper.mapToUiState(
                 item = item,
-                appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
                 isAlternateBackground = altBg
@@ -85,7 +84,6 @@ class MentionViewModel(
             val altBg = index.isEven && appearanceSettings.checkeredMessages
             chatMessageMapper.mapToUiState(
                 item = item,
-                appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 preferenceStore = preferenceStore,
                 isAlternateBackground = altBg

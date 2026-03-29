@@ -25,18 +25,18 @@ import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
+@Suppress("ViewModelForwarding")
 @Composable
 fun FullScreenSheetOverlay(
     sheetState: FullScreenSheetState,
-    isLoggedIn: Boolean,
     mentionViewModel: MentionViewModel,
     onDismiss: () -> Unit,
     onDismissReplies: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
-    userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
     modifier: Modifier = Modifier,
+    userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
     onWhisperReply: (UserName) -> Unit = {},
     onUserMention: (UserName, DisplayName) -> Unit = { _, _ -> },
     bottomContentPadding: Dp = 0.dp,

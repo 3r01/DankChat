@@ -97,7 +97,7 @@ fun MainScreenDialogs(
         ManageChannelsDialog(
             channels = channels,
             onApplyChanges = channelManagementViewModel::applyChanges,
-            onChannelSelected = channelManagementViewModel::selectChannel,
+            onChannelSelect = channelManagementViewModel::selectChannel,
             onDismiss = dialogViewModel::dismissManageChannels
         )
     }
@@ -218,9 +218,7 @@ fun MainScreenDialogs(
         val state by viewModel.state.collectAsStateWithLifecycle()
         (state as? MessageOptionsState.Found)?.let { s ->
             MessageOptionsDialog(
-                messageId = s.messageId,
                 channel = params.channel?.value,
-                fullMessage = params.fullMessage,
                 canModerate = s.canModerate,
                 canReply = s.canReply,
                 canCopy = params.canCopy,

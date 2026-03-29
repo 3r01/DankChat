@@ -104,7 +104,7 @@ fun MentionSheet(
                 backProgress = event.progress
             }
             onDismiss()
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             backProgress = 0f
         }
     }
@@ -125,6 +125,7 @@ fun MentionSheet(
             state = pagerState,
             modifier = Modifier.fillMaxSize(),
         ) { page ->
+            @Suppress("ViewModelForwarding")
             MentionComposable(
                 mentionViewModel = mentionViewModel,
                 isWhisperTab = page == 1,

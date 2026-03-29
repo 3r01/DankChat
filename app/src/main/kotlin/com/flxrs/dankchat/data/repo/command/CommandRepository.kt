@@ -81,6 +81,7 @@ class CommandRepository(
 
     fun getSupibotCommands(channel: UserName): StateFlow<List<String>> = supibotCommands.getOrPut(channel) { MutableStateFlow(emptyList()) }
 
+    @Suppress("ReturnCount")
     suspend fun checkForCommands(message: String, channel: UserName, roomState: RoomState, userState: UserState, skipSuspendingCommands: Boolean = false): CommandResult {
         if (!authDataStore.isLoggedIn) {
             return CommandResult.NotFound

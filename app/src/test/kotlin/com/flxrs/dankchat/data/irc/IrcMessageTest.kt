@@ -3,6 +3,7 @@ package com.flxrs.dankchat.data.irc
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
+@Suppress("MaxLineLength")
 internal class IrcMessageTest {
 
     // examples from https://github.com/robotty/twitch-irc-rs

@@ -146,9 +146,9 @@ class PubSubConnection(
                     }
                     Log.i(TAG, "[PubSub $tag] reconnecting after server request")
 
+                } catch (t: CancellationException) {
+                    throw t
                 } catch (t: Throwable) {
-                    if (t is CancellationException) throw t
-
                     Log.e(TAG, "[PubSub $tag] connection failed: $t")
                     Log.e(TAG, "[PubSub $tag] attempting to reconnect #$retryCount..")
                     session = null
@@ -255,6 +255,7 @@ class PubSubConnection(
     /**
      * Handles a PubSub message. Returns true if the server requested a reconnect.
      */
+    @Suppress("ReturnCount")
     private fun handleMessage(text: String): Boolean {
         val json = JSONObject(text)
         val type = json.optString("type").ifBlank { return false }

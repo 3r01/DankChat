@@ -30,7 +30,7 @@ fun <T> PreferenceListDialog(
     values: ImmutableList<T>,
     entries: ImmutableList<String>,
     selected: T,
-    onChanged: (T) -> Unit,
+    onChange: (T) -> Unit,
     isEnabled: Boolean = true,
     summary: String? = null,
     icon: ImageVector? = null,
@@ -48,16 +48,16 @@ fun <T> PreferenceListDialog(
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            values.forEachIndexed { idx, it ->
+            values.forEachIndexed { idx, value ->
                 val interactionSource = remember { MutableInteractionSource() }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
                         .selectable(
-                            selected = selected == it,
+                            selected = selected == value,
                             onClick = {
-                                onChanged(it)
+                                onChange(value)
                                 scope.launch {
                                     sheetState.hide()
                                     dismiss()
@@ -69,9 +69,9 @@ fun <T> PreferenceListDialog(
                         .padding(horizontal = 16.dp),
                 ) {
                     RadioButton(
-                        selected = selected == it,
+                        selected = selected == value,
                         onClick = {
-                            onChanged(it)
+                            onChange(value)
                             scope.launch {
                                 sheetState.hide()
                                 dismiss()

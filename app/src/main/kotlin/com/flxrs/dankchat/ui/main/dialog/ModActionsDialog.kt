@@ -552,9 +552,9 @@ private fun FollowerPresetChips(
 private fun UserInputSubView(
     titleRes: Int,
     hintRes: Int,
+    onConfirm: (String) -> Unit,
     defaultValue: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
-    onConfirm: (String) -> Unit,
     onDismiss: () -> Unit = {},
 ) {
     var inputValue by remember { mutableStateOf(TextFieldValue(defaultValue, selection = TextRange(defaultValue.length))) }

@@ -103,7 +103,7 @@ class ChatEventProcessor(
     private suspend fun collectReadConnectionEvents() {
         chatConnector.readEvents.collect { event ->
             when (event) {
-                is ChatEvent.Connected          -> handleConnected(event.channel, event.isAnonymous)
+                is ChatEvent.Connected          -> handleConnected(event.isAnonymous)
                 is ChatEvent.Closed             -> handleDisconnect()
                 is ChatEvent.ChannelNonExistent -> postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
                 is ChatEvent.LoginFailed        -> postSystemMessageAndReconnect(SystemMessageType.LoginExpired)
@@ -340,7 +340,7 @@ class ChatEventProcessor(
         postSystemMessageAndReconnect(state.toSystemMessageType())
     }
 
-    private fun handleConnected(channel: UserName, isAnonymous: Boolean) {
+    private fun handleConnected(isAnonymous: Boolean) {
         val state = when {
             isAnonymous -> ConnectionState.CONNECTED_NOT_LOGGED_IN
             else        -> ConnectionState.CONNECTED

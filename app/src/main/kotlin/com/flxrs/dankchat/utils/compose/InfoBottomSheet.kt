@@ -35,10 +35,10 @@ fun InfoBottomSheet(
     title: String,
     message: String,
     confirmText: String,
-    dismissText: String = stringResource(R.string.dialog_dismiss),
-    dismissible: Boolean = true,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    dismissText: String = stringResource(R.string.dialog_dismiss),
+    dismissible: Boolean = true,
 ) {
     when {
         dismissible -> {

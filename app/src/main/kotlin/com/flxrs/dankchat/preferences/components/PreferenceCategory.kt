@@ -55,9 +55,10 @@ fun PreferenceCategoryTitle(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("UnusedPrivateMember")
 @Composable
 @PreviewLightDark
-fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
     DankChatTheme {
         Surface {
             PreferenceCategoryWithSummary(
@@ -68,9 +69,10 @@ fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::class) lo
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @Composable
 @PreviewLightDark
-fun PreferenceCategoryWithItemsPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryWithItemsPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
     DankChatTheme {
         Surface {
             PreferenceCategory(

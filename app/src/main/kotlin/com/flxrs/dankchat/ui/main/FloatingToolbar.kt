@@ -127,6 +127,7 @@ sealed interface ToolbarAction {
     data object OpenSettings : ToolbarAction
 }
 
+@Suppress("MultipleEmitters")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun FloatingToolbar(
@@ -136,7 +137,6 @@ fun FloatingToolbar(
     isFullscreen: Boolean,
     isLoggedIn: Boolean,
     currentStream: UserName?,
-    hasStreamData: Boolean,
     streamHeightDp: Dp,
     totalMentionCount: Int,
     onAction: (ToolbarAction) -> Unit,
@@ -144,9 +144,8 @@ fun FloatingToolbar(
     endAligned: Boolean = false,
     showTabs: Boolean = true,
     addChannelTooltipState: TooltipState? = null,
-    onAddChannelTooltipDismissed: () -> Unit = {},
+    onAddChannelTooltipDismiss: () -> Unit = {},
     onSkipTour: () -> Unit = {},
-    isKeyboardVisible: Boolean = false,
     keyboardHeightDp: Dp = 0.dp,
     streamToolbarAlpha: Float = 1f,
 ) {
@@ -551,7 +550,7 @@ fun FloatingToolbar(
                                         snapshotFlow { addChannelTooltipState.isVisible }
                                             .dropWhile { !it }  // skip initial false
                                             .first { !it }      // wait for dismiss (any cause)
-                                        onAddChannelTooltipDismissed()
+                                        onAddChannelTooltipDismiss()
                                     }
                                     TooltipBox(
                                         positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
@@ -570,10 +569,10 @@ fun FloatingToolbar(
                                                 caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
                                                 action = {
                                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismissed(); onSkipTour() }) {
+                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismiss(); onSkipTour() }) {
                                                             Text(stringResource(R.string.tour_skip))
                                                         }
-                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismissed() }) {
+                                                        TextButton(onClick = { addChannelTooltipState.dismiss(); onAddChannelTooltipDismiss() }) {
                                                             Text(stringResource(R.string.tour_next))
                                                         }
                                                     }

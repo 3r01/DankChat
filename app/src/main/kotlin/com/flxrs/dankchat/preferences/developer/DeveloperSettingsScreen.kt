@@ -85,7 +85,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DeveloperSettingsScreen(
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val viewModel = koinViewModel<DeveloperSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
@@ -120,7 +120,7 @@ fun DeveloperSettingsScreen(
         settings = settings,
         snackbarHostState = snackbarHostState,
         onInteraction = { viewModel.onInteraction(it) },
-        onBackPressed = onBackPressed,
+        onBack = onBack,
     )
 }
 
@@ -130,7 +130,7 @@ private fun DeveloperSettingsContent(
     settings: DeveloperSettings,
     snackbarHostState: SnackbarHostState,
     onInteraction: (DeveloperSettingsInteraction) -> Unit,
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -143,7 +143,7 @@ private fun DeveloperSettingsContent(
                 title = { Text(stringResource(R.string.preference_developer_header)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
                 }
@@ -219,8 +219,8 @@ private fun DeveloperSettingsContent(
             PreferenceCategory(title = stringResource(R.string.preference_developer_category_auth)) {
                 ExpandablePreferenceItem(title = stringResource(R.string.preference_custom_login_title)) {
                     CustomLoginBottomSheet(
-                        onDismissRequested = ::dismiss,
-                        onRestartRequiredRequested = {
+                        onDismissRequest = ::dismiss,
+                        onRequestRestart = {
                             dismiss()
                             onInteraction(DeveloperSettingsInteraction.RestartRequired)
                         }
@@ -298,8 +298,8 @@ private fun CustomRecentMessagesHostBottomSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CustomLoginBottomSheet(
-    onDismissRequested: () -> Unit,
-    onRestartRequiredRequested: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onRequestRestart: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val customLoginViewModel = koinInject<CustomLoginViewModel>()
@@ -317,12 +317,12 @@ private fun CustomLoginBottomSheet(
 
     LaunchedEffect(state) {
         if (state is CustomLoginState.Validated) {
-            onRestartRequiredRequested()
+            onRequestRestart()
         }
     }
 
     ModalBottomSheet(
-        onDismissRequest = onDismissRequested,
+        onDismissRequest = onDismissRequest,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(Modifier.padding(horizontal = 16.dp)) {
@@ -414,17 +414,17 @@ private fun CustomLoginBottomSheet(
     if (showScopesDialog) {
         ShowScopesBottomSheet(
             scopes = customLoginViewModel.getScopes(),
-            onDismissRequested = { showScopesDialog = false },
+            onDismissRequest = { showScopesDialog = false },
         )
     }
 
     if (state is CustomLoginState.MissingScopes && state.dialogOpen) {
         MissingScopesDialog(
             missing = state.missingScopes,
-            onDismissRequested = { customLoginViewModel.dismissMissingScopesDialog() },
-            onContinueRequested = {
+            onDismissRequest = { customLoginViewModel.dismissMissingScopesDialog() },
+            onContinue = {
                 customLoginViewModel.saveLogin(state.token, state.validation)
-                onRestartRequiredRequested()
+                onRequestRestart()
             },
         )
     }
@@ -432,11 +432,11 @@ private fun CustomLoginBottomSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShowScopesBottomSheet(scopes: String, onDismissRequested: () -> Unit) {
+private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
-        onDismissRequest = onDismissRequested,
+        onDismissRequest = onDismissRequest,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
@@ -470,12 +470,12 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequested: () -> Unit
 }
 
 @Composable
-private fun MissingScopesDialog(missing: String, onDismissRequested: () -> Unit, onContinueRequested: () -> Unit) {
+private fun MissingScopesDialog(missing: String, onDismissRequest: () -> Unit, onContinue: () -> Unit) {
     ConfirmationBottomSheet(
         title = stringResource(R.string.custom_login_missing_scopes_title),
         message = stringResource(R.string.custom_login_missing_scopes_text, missing),
         confirmText = stringResource(R.string.custom_login_missing_scopes_continue),
-        onConfirm = onContinueRequested,
-        onDismiss = onDismissRequested,
+        onConfirm = onContinue,
+        onDismiss = onDismissRequest,
     )
 }

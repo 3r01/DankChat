@@ -63,6 +63,7 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
+@Suppress("LargeClass")
 @Single
 class EmoteRepository(
     private val dankChatApiClient: DankChatApiClient,

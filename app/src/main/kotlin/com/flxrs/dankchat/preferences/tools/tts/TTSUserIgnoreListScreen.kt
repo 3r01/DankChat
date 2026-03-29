@@ -138,10 +138,10 @@ private fun UserIgnoreListScreen(
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp)
         ) {
-            itemsIndexed(ignores, key = { _, it -> it.id }) { idx, ignore ->
+            itemsIndexed(ignores, key = { _, item -> item.id }) { idx, ignore ->
                 UserIgnoreItem(
                     user = ignore.user,
-                    onUserChanged = { ignores[idx] = ignore.copy(user = it) },
+                    onUserChange = { ignores[idx] = ignore.copy(user = it) },
                     onRemove = {
                         focusManager.clearFocus()
                         val removed = ignores.removeAt(idx)
@@ -177,7 +177,7 @@ private fun UserIgnoreListScreen(
 @Composable
 private fun UserIgnoreItem(
     user: String,
-    onUserChanged: (String) -> Unit,
+    onUserChange: (String) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -189,7 +189,7 @@ private fun UserIgnoreItem(
                         .weight(1f)
                         .padding(16.dp),
                     value = user,
-                    onValueChange = onUserChanged,
+                    onValueChange = onUserChange,
                     label = { Text(stringResource(R.string.tts_ignore_list_user_hint)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 )

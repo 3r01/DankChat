@@ -43,18 +43,18 @@ fun ChatBottomBar(
     hasStreamData: Boolean,
     isSheetOpen: Boolean,
     inputActions: ImmutableList<InputAction>,
-    onInputHeightChanged: (Int) -> Unit,
+    onInputHeightChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     debugMode: Boolean = false,
     overflowExpanded: Boolean = false,
-    onOverflowExpandedChanged: (Boolean) -> Unit = {},
-    onHelperTextHeightChanged: (Int) -> Unit = {},
+    onOverflowExpandedChange: (Boolean) -> Unit = {},
+    onHelperTextHeightChange: (Int) -> Unit = {},
     isInSplitLayout: Boolean = false,
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         AnimatedVisibility(
             visible = showInput,
             enter = EnterTransition.None,
@@ -77,11 +77,11 @@ fun ChatBottomBar(
                 inputActions = inputActions,
                 debugMode = debugMode,
                 overflowExpanded = overflowExpanded,
-                onOverflowExpandedChanged = onOverflowExpandedChanged,
+                onOverflowExpandedChange = onOverflowExpandedChange,
                 tourState = tourState,
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
                 modifier = Modifier.onGloballyPositioned { coordinates ->
-                    onInputHeightChanged(coordinates.size.height)
+                    onInputHeightChange(coordinates.size.height)
                 }
             )
         }
@@ -107,7 +107,7 @@ fun ChatBottomBar(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .onGloballyPositioned { onHelperTextHeightChanged(it.size.height) }
+                        .onGloballyPositioned { onHelperTextHeightChange(it.size.height) }
                 ) {
                     Text(
                         text = helperText,

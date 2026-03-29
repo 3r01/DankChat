@@ -25,7 +25,6 @@ import com.flxrs.dankchat.data.twitch.message.highestPriorityHighlight
 import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
@@ -45,7 +44,6 @@ class ChatMessageMapper(
 
     fun mapToUiState(
         item: ChatItem,
-        appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
         preferenceStore: DankChatPreferenceStore,
         isAlternateBackground: Boolean,
@@ -80,7 +78,6 @@ class ChatMessageMapper(
 
             is PrivMessage            -> msg.toPrivMessageUi(
                 tag = item.tag,
-                appearanceSettings = appearanceSettings,
                 chatSettings = chatSettings,
                 isAlternateBackground = isAlternateBackground,
                 isMentionTab = item.isMentionTab,
@@ -91,7 +88,6 @@ class ChatMessageMapper(
             is AutomodMessage         -> msg.toAutomodMessageUi(
                 tag = item.tag,
                 chatSettings = chatSettings,
-                isAlternateBackground = isAlternateBackground,
                 textAlpha = textAlpha
             )
 
@@ -279,7 +275,6 @@ class ChatMessageMapper(
     private fun AutomodMessage.toAutomodMessageUi(
         tag: Int,
         chatSettings: ChatSettings,
-        isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.AutomodMessageUi {
         val timestamp = if (chatSettings.showTimestamps) {
@@ -324,7 +319,6 @@ class ChatMessageMapper(
 
     private fun PrivMessage.toPrivMessageUi(
         tag: Int,
-        appearanceSettings: AppearanceSettings,
         chatSettings: ChatSettings,
         isAlternateBackground: Boolean,
         isMentionTab: Boolean,

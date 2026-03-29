@@ -33,7 +33,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun StreamsSettingsScreen(
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val viewModel = koinViewModel<StreamsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
@@ -41,7 +41,7 @@ fun StreamsSettingsScreen(
     StreamsSettingsContent(
         settings = settings,
         onInteraction = { viewModel.onInteraction(it) },
-        onBackPressed = onBackPressed
+        onBack = onBack
     )
 }
 
@@ -49,7 +49,7 @@ fun StreamsSettingsScreen(
 private fun StreamsSettingsContent(
     settings: StreamsSettings,
     onInteraction: (StreamsSettingsInteraction) -> Unit,
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -61,7 +61,7 @@ private fun StreamsSettingsContent(
                 title = { Text(stringResource(R.string.preference_streams_header)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
                 }

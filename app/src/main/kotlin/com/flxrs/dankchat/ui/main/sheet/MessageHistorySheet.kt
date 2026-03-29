@@ -120,7 +120,7 @@ fun MessageHistorySheet(
                 backProgress = event.progress
             }
             onDismiss()
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             backProgress = 0f
         }
     }

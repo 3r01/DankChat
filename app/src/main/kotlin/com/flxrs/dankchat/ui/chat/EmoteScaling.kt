@@ -29,14 +29,6 @@ object EmoteScaling {
     }
 
     /**
-     * Calculate scale factor exactly as ChatAdapter did from fontSize in SP.
-     */
-    private fun getScaleFactor(fontSizeSp: Float): Double {
-        val baseHeight = fontSizeSp * BASE_HEIGHT_CONSTANT
-        return baseHeight * SCALE_FACTOR_CONSTANT
-    }
-
-    /**
      * Calculate scale factor from base height in pixels.
      */
     fun getScaleFactor(baseHeightPx: Int): Double {

@@ -101,7 +101,7 @@ fun SliderPreferenceItem(
     value: Float,
     onDrag: (Float) -> Unit,
     range: ClosedFloatingPointRange<Float>,
-    onDragFinished: () -> Unit,
+    onDragFinish: () -> Unit,
     steps: Int = range.endInclusive.toInt() - range.start.toInt() - 1,
     isEnabled: Boolean = true,
     displayValue: Boolean = true,
@@ -121,7 +121,7 @@ fun SliderPreferenceItem(
                 Slider(
                     value = value,
                     onValueChange = onDrag,
-                    onValueChangeFinished = onDragFinished,
+                    onValueChangeFinished = onDragFinish,
                     valueRange = range,
                     steps = steps,
                     modifier = Modifier
@@ -277,9 +277,10 @@ private fun RowScope.PreferenceItemContent(
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @Composable
 @PreviewLightDark
-fun PreferenceItemPreview() {
+private fun PreferenceItemPreview() {
     DankChatTheme {
         Surface {
             PreferenceItem("Appearance", Icons.Default.Palette, summary = "Summary")

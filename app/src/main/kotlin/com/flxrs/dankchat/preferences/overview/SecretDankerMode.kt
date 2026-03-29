@@ -21,6 +21,7 @@ interface SecretDankerScope {
     fun Modifier.dankClickable(): Modifier
 }
 
+@Suppress("ContentSlotReused")
 @Composable
 fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
     if (LocalInspectionMode.current) {

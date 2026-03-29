@@ -57,18 +57,19 @@ import com.flxrs.dankchat.utils.resolve
  * - Clickable username and emotes
  * - Long-press to copy message
  */
+@Suppress("LambdaParameterEventTrailing")
 @Composable
 fun PrivMessageComposable(
     message: ChatMessageUiState.PrivMessageUi,
     fontSize: Float,
-    modifier: Modifier = Modifier,
-    highlightShape: Shape = RectangleShape,
-    showChannelPrefix: Boolean = false,
-    animateGifs: Boolean = true,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
+    modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
+    showChannelPrefix: Boolean = false,
+    animateGifs: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)

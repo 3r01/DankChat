@@ -69,7 +69,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 fun ManageChannelsDialog(
     channels: List<ChannelWithRename>,
     onApplyChanges: (List<ChannelWithRename>) -> Unit,
-    onChannelSelected: (UserName) -> Unit,
+    onChannelSelect: (UserName) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
@@ -109,7 +109,7 @@ fun ManageChannelsDialog(
             state = lazyListState,
             contentPadding = navBarPadding,
         ) {
-            itemsIndexed(localChannels, key = { _, it -> it.channel.value }) { index, channelWithRename ->
+            itemsIndexed(localChannels, key = { _, item -> item.channel.value }) { index, channelWithRename ->
                 ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
                     val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
 
@@ -130,7 +130,7 @@ fun ManageChannelsDialog(
                                 ),
                                 onNavigate = {
                                     onApplyChanges(localChannels.toList())
-                                    onChannelSelected(channelWithRename.channel)
+                                    onChannelSelect(channelWithRename.channel)
                                     onDismiss()
                                 },
                                 onEdit = {
@@ -185,19 +185,20 @@ fun ManageChannelsDialog(
     }
 }
 
+@Suppress("LambdaParameterEventTrailing")
 @Composable
 private fun ChannelItem(
     channelWithRename: ChannelWithRename,
     isEditing: Boolean,
-    modifier: Modifier = Modifier,
     onNavigate: () -> Unit,
     onEdit: () -> Unit,
     onRename: (String?) -> Unit,
     onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
         Row(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically

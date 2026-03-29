@@ -110,7 +110,7 @@ fun HighlightsScreen(onNavBack: () -> Unit) {
         onRemove = viewModel::removeHighlight,
         onAddNew = viewModel::addHighlight,
         onAdd = viewModel::addHighlightItem,
-        onPageChanged = viewModel::setCurrentTab,
+        onPageChange = viewModel::setCurrentTab,
         onNavBack = onNavBack,
     )
 }
@@ -127,7 +127,7 @@ private fun HighlightsScreen(
     onRemove: (HighlightItem) -> Unit,
     onAddNew: () -> Unit,
     onAdd: (HighlightItem, Int) -> Unit,
-    onPageChanged: (Int) -> Unit,
+    onPageChange: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
@@ -142,7 +142,7 @@ private fun HighlightsScreen(
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect {
             snackbarHost.currentSnackbarData?.dismiss()
-            onPageChanged(it)
+            onPageChange(it)
         }
     }
 
@@ -265,7 +265,7 @@ private fun HighlightsScreen(
                     ) { idx, item ->
                         MessageHighlightItem(
                             item = item,
-                            onChanged = { messageHighlights[idx] = it },
+                            onChange = { messageHighlights[idx] = it },
                             onRemove = { onRemove(messageHighlights[idx]) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -280,7 +280,7 @@ private fun HighlightsScreen(
                     ) { idx, item ->
                         UserHighlightItem(
                             item = item,
-                            onChanged = { userHighlights[idx] = it },
+                            onChange = { userHighlights[idx] = it },
                             onRemove = { onRemove(userHighlights[idx]) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -295,7 +295,7 @@ private fun HighlightsScreen(
                     ) { idx, item ->
                         BadgeHighlightItem(
                             item = item,
-                            onChanged = { badgeHighlights[idx] = it },
+                            onChange = { badgeHighlights[idx] = it },
                             onRemove = { onRemove(badgeHighlights[idx]) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -310,7 +310,7 @@ private fun HighlightsScreen(
                     ) { idx, item ->
                         BlacklistedUserItem(
                             item = item,
-                            onChanged = { blacklistedUsers[idx] = it },
+                            onChange = { blacklistedUsers[idx] = it },
                             onRemove = { onRemove(blacklistedUsers[idx]) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -341,7 +341,7 @@ private fun <T : HighlightItem> HighlightsList(
         item(key = "top-spacer") {
             Spacer(Modifier.height(16.dp))
         }
-        itemsIndexed(highlights, key = { _, it -> it.id }) { idx, item ->
+        itemsIndexed(highlights, key = { _, highlight -> highlight.id }) { idx, item ->
             itemContent(idx, item)
         }
         item(key = "bottom-spacer") {
@@ -353,7 +353,7 @@ private fun <T : HighlightItem> HighlightsList(
 @Composable
 private fun MessageHighlightItem(
     item: MessageHighlightItem,
-    onChanged: (MessageHighlightItem) -> Unit,
+    onChange: (MessageHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -394,7 +394,7 @@ private fun MessageHighlightItem(
                     .padding(8.dp)
                     .fillMaxWidth(),
                 value = item.pattern,
-                onValueChange = { onChanged(item.copy(pattern = it)) },
+                onValueChange = { onChange(item.copy(pattern = it)) },
                 label = { Text(stringResource(R.string.pattern)) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 maxLines = 1,
@@ -409,14 +409,14 @@ private fun MessageHighlightItem(
             CheckboxWithText(
                 text = stringResource(R.string.enabled),
                 checked = item.enabled,
-                onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                modifier = modifier.padding(end = 8.dp),
+                onCheckedChange = { onChange(item.copy(enabled = it)) },
+                modifier = Modifier.padding(end = 8.dp),
             )
             if (isCustom) {
                 CheckboxWithText(
                     text = stringResource(R.string.multi_entry_header_regex),
                     checked = item.isRegex,
-                    onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                    onCheckedChange = { onChange(item.copy(isRegex = it)) },
                     enabled = item.enabled,
                 )
                 IconButton(
@@ -430,7 +430,7 @@ private fun MessageHighlightItem(
                 CheckboxWithText(
                     text = stringResource(R.string.case_sensitive),
                     checked = item.isCaseSensitive,
-                    onCheckedChange = { onChanged(item.copy(isCaseSensitive = it)) },
+                    onCheckedChange = { onChange(item.copy(isCaseSensitive = it)) },
                     enabled = item.enabled,
                     modifier = Modifier.padding(end = 8.dp),
                 )
@@ -440,7 +440,7 @@ private fun MessageHighlightItem(
                 CheckboxWithText(
                     text = stringResource(R.string.create_notification),
                     checked = item.createNotification,
-                    onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                    onCheckedChange = { onChange(item.copy(createNotification = it)) },
                     enabled = item.enabled && enabled,
                 )
             }
@@ -457,7 +457,7 @@ private fun MessageHighlightItem(
             color = item.customColor ?: defaultColor,
             defaultColor = defaultColor,
             enabled = item.enabled,
-            onColorSelected = { onChanged(item.copy(customColor = it)) },
+            onColorSelect = { onChange(item.copy(customColor = it)) },
         )
     }
 }
@@ -465,7 +465,7 @@ private fun MessageHighlightItem(
 @Composable
 private fun UserHighlightItem(
     item: UserHighlightItem,
-    onChanged: (UserHighlightItem) -> Unit,
+    onChange: (UserHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -479,7 +479,7 @@ private fun UserHighlightItem(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = item.username,
-                    onValueChange = { onChanged(item.copy(username = it)) },
+                    onValueChange = { onChange(item.copy(username = it)) },
                     label = { Text(stringResource(R.string.username)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     maxLines = 1,
@@ -491,13 +491,13 @@ private fun UserHighlightItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.create_notification),
                         checked = item.createNotification,
-                        onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                        onCheckedChange = { onChange(item.copy(createNotification = it)) },
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
@@ -506,7 +506,7 @@ private fun UserHighlightItem(
                     color = item.customColor ?: defaultColor,
                     defaultColor = defaultColor,
                     enabled = item.enabled,
-                    onColorSelected = { onChanged(item.copy(customColor = it)) },
+                    onColorSelect = { onChange(item.copy(customColor = it)) },
                 )
             }
             IconButton(
@@ -520,7 +520,7 @@ private fun UserHighlightItem(
 @Composable
 private fun BadgeHighlightItem(
     item: BadgeHighlightItem,
-    onChanged: (BadgeHighlightItem) -> Unit,
+    onChange: (BadgeHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -535,7 +535,7 @@ private fun BadgeHighlightItem(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = item.badgeName,
-                        onValueChange = { onChanged(item.copy(badgeName = it)) },
+                        onValueChange = { onChange(item.copy(badgeName = it)) },
                         label = { Text(stringResource(R.string.badge)) },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         maxLines = 1,
@@ -572,13 +572,13 @@ private fun BadgeHighlightItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.create_notification),
                         checked = item.createNotification,
-                        onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                        onCheckedChange = { onChange(item.copy(createNotification = it)) },
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
@@ -587,7 +587,7 @@ private fun BadgeHighlightItem(
                     color = item.customColor ?: defaultColor,
                     defaultColor = defaultColor,
                     enabled = item.enabled,
-                    onColorSelected = { onChanged(item.copy(customColor = it)) },
+                    onColorSelect = { onChange(item.copy(customColor = it)) },
                 )
             }
             if (item.isCustom) {
@@ -603,7 +603,7 @@ private fun BadgeHighlightItem(
 @Composable
 private fun BlacklistedUserItem(
     item: BlacklistedUserItem,
-    onChanged: (BlacklistedUserItem) -> Unit,
+    onChange: (BlacklistedUserItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -618,7 +618,7 @@ private fun BlacklistedUserItem(
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = item.username,
-                    onValueChange = { onChanged(item.copy(username = it)) },
+                    onValueChange = { onChange(item.copy(username = it)) },
                     label = { Text(stringResource(R.string.username)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     maxLines = 1,
@@ -629,13 +629,13 @@ private fun BlacklistedUserItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.multi_entry_header_regex),
                         checked = item.isRegex,
-                        onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                        onCheckedChange = { onChange(item.copy(isRegex = it)) },
                         enabled = item.enabled,
                     )
                     IconButton(
@@ -659,7 +659,7 @@ private fun HighlightColorPicker(
     color: Int,
     defaultColor: Int,
     enabled: Boolean,
-    onColorSelected: (Int) -> Unit,
+    onColorSelect: (Int) -> Unit,
 ) {
     var showColorPicker by remember { mutableStateOf(false) }
     var selectedColor by remember(color) { mutableIntStateOf(color) }
@@ -682,7 +682,7 @@ private fun HighlightColorPicker(
         ModalBottomSheet(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismissRequest = {
-                onColorSelected(selectedColor)
+                onColorSelect(selectedColor)
                 showColorPicker = false
             },
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,

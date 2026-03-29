@@ -311,7 +311,7 @@ fun TextToSpeechCategory(
             entries = modeEntries,
             selected = settings.ttsPlayMode,
             isEnabled = settings.ttsEnabled,
-            onChanged = { onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
+            onChange ={ onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
         )
 
         val formatMessage = stringResource(R.string.preference_tts_message_format_message)
@@ -324,7 +324,7 @@ fun TextToSpeechCategory(
             entries = formatEntries,
             selected = settings.ttsMessageFormat,
             isEnabled = settings.ttsEnabled,
-            onChanged = { onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
+            onChange ={ onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
         )
 
         SwitchPreferenceItem(

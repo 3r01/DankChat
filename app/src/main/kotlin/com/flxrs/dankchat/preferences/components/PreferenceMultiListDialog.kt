@@ -32,7 +32,7 @@ fun <T> PreferenceMultiListDialog(
     values: ImmutableList<T>,
     initialSelected: ImmutableList<T>,
     entries: ImmutableList<String>,
-    onChanged: (List<T>) -> Unit,
+    onChange: (List<T>) -> Unit,
     isEnabled: Boolean = true,
     summary: String? = null,
     icon: ImageVector? = null,
@@ -48,12 +48,12 @@ fun <T> PreferenceMultiListDialog(
         ModalBottomSheet(
             onDismissRequest = {
                 dismiss()
-                onChanged(values.filterIndexed { idx, _ -> selected[idx] })
+                onChange(values.filterIndexed { idx, _ -> selected[idx] })
             },
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
-            entries.forEachIndexed { idx, it ->
+            entries.forEachIndexed { idx, entry ->
                 val interactionSource = remember { MutableInteractionSource() }
                 val itemSelected = selected[idx]
                 Row(
@@ -74,7 +74,7 @@ fun <T> PreferenceMultiListDialog(
                         interactionSource = interactionSource,
                     )
                     Text(
-                        text = it,
+                        text = entry,
                         modifier = Modifier.padding(start = 16.dp),
                         style = MaterialTheme.typography.bodyLarge,
                         lineHeight = 18.sp,

@@ -88,7 +88,7 @@ fun RepliesSheet(
                 backProgress = event.progress
             }
             onDismiss()
-        } catch (e: CancellationException) {
+        } catch (_: CancellationException) {
             backProgress = 0f
         }
     }
@@ -109,7 +109,7 @@ fun RepliesSheet(
             repliesViewModel = viewModel,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
-            onNotFound = onDismiss,
+            onMissing = onDismiss,
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             scrollModifier = scrollModifier,

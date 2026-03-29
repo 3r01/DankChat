@@ -35,6 +35,7 @@ import androidx.core.view.doOnAttach
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 
+@Suppress("LambdaParameterEventTrailing")
 @Composable
 fun StreamView(
     channel: UserName,

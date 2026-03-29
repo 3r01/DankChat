@@ -111,7 +111,7 @@ fun OnboardingScreen(
             ) { page ->
                 when (page) {
                     0 -> WelcomePage(
-                        onGetStarted = { scope.launch { pagerState.animateScrollToPage(1) } },
+                        onStart = { scope.launch { pagerState.animateScrollToPage(1) } },
                     )
 
                     1 -> LoginPage(
@@ -147,9 +147,9 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingPage(
     title: String,
-    modifier: Modifier = Modifier,
     icon: @Composable () -> Unit,
     body: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Column(
@@ -185,7 +185,7 @@ private fun OnboardingBody(text: String) {
 
 @Composable
 private fun WelcomePage(
-    onGetStarted: () -> Unit,
+    onStart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     OnboardingPage(
@@ -201,7 +201,7 @@ private fun WelcomePage(
         body = { OnboardingBody(stringResource(R.string.onboarding_welcome_body)) },
         modifier = modifier,
     ) {
-        Button(onClick = onGetStarted) {
+        Button(onClick = onStart) {
             Text(stringResource(R.string.onboarding_get_started))
         }
     }

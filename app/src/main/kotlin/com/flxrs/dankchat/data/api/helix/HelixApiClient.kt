@@ -325,6 +325,7 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
         return entries
     }
 
+    @Suppress("ThrowsCount")
     private suspend fun HttpResponse?.throwHelixApiErrorOnFailure(): HttpResponse {
         this ?: throw HelixApiException(HelixError.NotLoggedIn, HttpStatusCode.Unauthorized, url = null)
         if (status.isSuccess()) {
@@ -405,7 +406,6 @@ class HelixApiClient(private val helixApi: HelixApi, private val json: Json) {
     }
 
     companion object {
-        private val TAG = HelixApiClient::class.java.simpleName
         private const val DEFAULT_PAGE_SIZE = 100
         private const val MAX_USER_EMOTES = 5000
         private const val WHISPER_SELF_ERROR = "A user cannot whisper themself"

@@ -37,7 +37,7 @@ object ContentAlpha {
     val high: Float
         @Composable
         get() =
-            contentAlpha(
+            resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.high,
                 lowContrastAlpha = LowContrastContentAlpha.high
             )
@@ -49,7 +49,7 @@ object ContentAlpha {
     val medium: Float
         @Composable
         get() =
-            contentAlpha(
+            resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.medium,
                 lowContrastAlpha = LowContrastContentAlpha.medium
             )
@@ -61,7 +61,7 @@ object ContentAlpha {
     val disabled: Float
         @Composable
         get() =
-            contentAlpha(
+            resolveAlpha(
                 highContrastAlpha = HighContrastContentAlpha.disabled,
                 lowContrastAlpha = LowContrastContentAlpha.disabled
             )
@@ -75,7 +75,7 @@ object ContentAlpha {
      * for, and under what circumstances.
      */
     @Composable
-    private fun contentAlpha(
+    private fun resolveAlpha(
         @FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float,
         @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float
     ): Float {

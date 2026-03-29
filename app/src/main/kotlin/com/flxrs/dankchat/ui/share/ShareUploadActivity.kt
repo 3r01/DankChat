@@ -101,7 +101,7 @@ class ShareUploadActivity : ComponentActivity() {
                         copy.removeExifAttributes()
                     }
                     copy
-                } catch (e: Throwable) {
+                } catch (_: Throwable) {
                     null
                 }
             }

@@ -137,7 +137,7 @@ fun MentionsCategory(
             values = MentionFormat.entries.toImmutableList(),
             entries = entries,
             selected = mentionFormat,
-            onChanged = { onInteraction(NotificationsSettingsInteraction.Mention(it)) },
+            onChange ={ onInteraction(NotificationsSettingsInteraction.Mention(it)) },
         )
 
         PreferenceItem(

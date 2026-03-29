@@ -102,7 +102,7 @@ fun IgnoresScreen(onNavBack: () -> Unit) {
         onRemove = viewModel::removeIgnore,
         onAddNew = viewModel::addIgnore,
         onAdd = viewModel::addIgnoreItem,
-        onPageChanged = viewModel::setCurrentTab,
+        onPageChange = viewModel::setCurrentTab,
         onNavBack = onNavBack,
     )
 }
@@ -118,7 +118,7 @@ private fun IgnoresScreen(
     onRemove: (IgnoreItem) -> Unit,
     onAddNew: () -> Unit,
     onAdd: (IgnoreItem, Int) -> Unit,
-    onPageChanged: (Int) -> Unit,
+    onPageChange: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
     val resources = LocalResources.current
@@ -134,7 +134,7 @@ private fun IgnoresScreen(
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect {
             snackbarHost.currentSnackbarData?.dismiss()
-            onPageChanged(it)
+            onPageChange(it)
         }
     }
 
@@ -277,7 +277,7 @@ private fun IgnoresScreen(
                     ) { idx, item ->
                         MessageIgnoreItem(
                             item = item,
-                            onChanged = { messageIgnores[idx] = it },
+                            onChange = { messageIgnores[idx] = it },
                             onRemove = { onRemove(item) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -293,7 +293,7 @@ private fun IgnoresScreen(
                     ) { idx, item ->
                         UserIgnoreItem(
                             item = item,
-                            onChanged = { userIgnores[idx] = it },
+                            onChange = { userIgnores[idx] = it },
                             onRemove = { onRemove(item) },
                             modifier = Modifier.animateItem(
                                 fadeInSpec = null,
@@ -340,7 +340,7 @@ private fun <T : IgnoreItem> IgnoresList(
         item(key = "top-spacer") {
             Spacer(Modifier.height(16.dp))
         }
-        itemsIndexed(ignores, key = { _, it -> it.id }) { idx, item ->
+        itemsIndexed(ignores, key = { _, ignore -> ignore.id }) { idx, item ->
             itemContent(idx, item)
         }
         item(key = "bottom-spacer") {
@@ -356,7 +356,7 @@ private fun <T : IgnoreItem> IgnoresList(
 @Composable
 private fun MessageIgnoreItem(
     item: MessageIgnoreItem,
-    onChanged: (MessageIgnoreItem) -> Unit,
+    onChange: (MessageIgnoreItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -395,7 +395,7 @@ private fun MessageIgnoreItem(
                     .padding(8.dp)
                     .fillMaxWidth(),
                 value = item.pattern,
-                onValueChange = { onChanged(item.copy(pattern = it)) },
+                onValueChange = { onChange(item.copy(pattern = it)) },
                 label = { Text(stringResource(R.string.pattern)) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 maxLines = 1,
@@ -410,14 +410,14 @@ private fun MessageIgnoreItem(
             CheckboxWithText(
                 text = stringResource(R.string.enabled),
                 checked = item.enabled,
-                onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                modifier = modifier.padding(end = 8.dp),
+                onCheckedChange = { onChange(item.copy(enabled = it)) },
+                modifier = Modifier.padding(end = 8.dp),
             )
             if (isCustom) {
                 CheckboxWithText(
                     text = stringResource(R.string.multi_entry_header_regex),
                     checked = item.isRegex,
-                    onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                    onCheckedChange = { onChange(item.copy(isRegex = it)) },
                     enabled = item.enabled,
                 )
                 IconButton(
@@ -431,14 +431,14 @@ private fun MessageIgnoreItem(
                 CheckboxWithText(
                     text = stringResource(R.string.case_sensitive),
                     checked = item.isCaseSensitive,
-                    onCheckedChange = { onChanged(item.copy(isCaseSensitive = it)) },
+                    onCheckedChange = { onChange(item.copy(isCaseSensitive = it)) },
                     enabled = item.enabled,
                     modifier = Modifier.padding(end = 8.dp),
                 )
                 CheckboxWithText(
                     text = stringResource(R.string.block),
                     checked = item.isBlockMessage,
-                    onCheckedChange = { onChanged(item.copy(isBlockMessage = it)) },
+                    onCheckedChange = { onChange(item.copy(isBlockMessage = it)) },
                     enabled = item.enabled,
                     modifier = Modifier.padding(end = 8.dp),
                 )
@@ -450,7 +450,7 @@ private fun MessageIgnoreItem(
                     .padding(8.dp)
                     .fillMaxWidth(),
                 value = item.replacement,
-                onValueChange = { onChanged(item.copy(replacement = it)) },
+                onValueChange = { onChange(item.copy(replacement = it)) },
                 label = { Text(stringResource(R.string.replacement)) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 maxLines = 1,
@@ -462,7 +462,7 @@ private fun MessageIgnoreItem(
 @Composable
 private fun UserIgnoreItem(
     item: UserIgnoreItem,
-    onChanged: (UserIgnoreItem) -> Unit,
+    onChange: (UserIgnoreItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -478,7 +478,7 @@ private fun UserIgnoreItem(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = true,
                     value = item.username,
-                    onValueChange = { onChanged(item.copy(username = it)) },
+                    onValueChange = { onChange(item.copy(username = it)) },
                     label = { Text(stringResource(R.string.username)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     maxLines = 1,
@@ -490,13 +490,13 @@ private fun UserIgnoreItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.multi_entry_header_regex),
                         checked = item.isRegex,
-                        onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                        onCheckedChange = { onChange(item.copy(isRegex = it)) },
                         enabled = item.enabled,
                     )
                     IconButton(
@@ -510,7 +510,7 @@ private fun UserIgnoreItem(
                     CheckboxWithText(
                         text = stringResource(R.string.case_sensitive),
                         checked = item.isCaseSensitive,
-                        onCheckedChange = { onChanged(item.copy(isCaseSensitive = it)) },
+                        onCheckedChange = { onChange(item.copy(isCaseSensitive = it)) },
                         enabled = item.enabled,
                         modifier = Modifier.padding(end = 8.dp),
                     )

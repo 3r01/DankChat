@@ -23,7 +23,6 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
@@ -68,7 +67,6 @@ class ChatInputViewModel(
     private val suggestionProvider: SuggestionProvider,
     private val preferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
-    private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
@@ -277,19 +275,19 @@ class ChatInputViewModel(
             helperText,
             codePointCount,
             chatSettingsDataStore.userLongClickBehavior,
-        ) { (text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput), (sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget, isAnnouncing), helperText, codePoints, userLongClickBehavior ->
-            val isMentionsTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 0
-            val isWhisperTabActive = (sheetState is FullScreenSheetState.Mention || sheetState is FullScreenSheetState.Whisper) && tab == 1
-            val isInReplyThread = sheetState is FullScreenSheetState.Replies
-            val effectiveIsReplying = isReplying || isInReplyThread
-            val canTypeInConnectionState = connectionState == ConnectionState.CONNECTED || !autoDisableInput
+        ) { deps, overlayState, helperText, codePoints, userLongClickBehavior ->
+            val isMentionsTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 0
+            val isWhisperTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 1
+            val isInReplyThread = overlayState.sheetState is FullScreenSheetState.Replies
+            val effectiveIsReplying = overlayState.isReplying || isInReplyThread
+            val canTypeInConnectionState = deps.connectionState == ConnectionState.CONNECTED || !deps.autoDisableInput
 
-            val inputState = when (connectionState) {
+            val inputState = when (deps.connectionState) {
                 ConnectionState.CONNECTED               -> when {
-                    isWhisperTabActive && whisperTarget != null -> InputState.Whispering
-                    effectiveIsReplying                         -> InputState.Replying
-                    isAnnouncing                                -> InputState.Announcing
-                    else                                        -> InputState.Default
+                    isWhisperTabActive && overlayState.whisperTarget != null -> InputState.Whispering
+                    effectiveIsReplying                                      -> InputState.Replying
+                    overlayState.isAnnouncing                                -> InputState.Announcing
+                    else                                                     -> InputState.Default
                 }
 
                 ConnectionState.CONNECTED_NOT_LOGGED_IN -> InputState.NotLoggedIn
@@ -298,36 +296,36 @@ class ChatInputViewModel(
 
             val enabled = when {
                 isMentionsTabActive -> false
-                isWhisperTabActive  -> isLoggedIn && canTypeInConnectionState && whisperTarget != null
-                else                -> isLoggedIn && canTypeInConnectionState
+                isWhisperTabActive  -> deps.isLoggedIn && canTypeInConnectionState && overlayState.whisperTarget != null
+                else                -> deps.isLoggedIn && canTypeInConnectionState
             }
 
-            val canSend = text.isNotBlank() && activeChannel != null && connectionState == ConnectionState.CONNECTED && isLoggedIn && enabled
+            val canSend = deps.text.isNotBlank() && deps.activeChannel != null && deps.connectionState == ConnectionState.CONNECTED && deps.isLoggedIn && enabled
 
-            val effectiveReplyName = replyName ?: (sheetState as? FullScreenSheetState.Replies)?.replyName
+            val effectiveReplyName = overlayState.replyName ?: (overlayState.sheetState as? FullScreenSheetState.Replies)?.replyName
             val overlay = when {
-                isReplying && !isInReplyThread && effectiveReplyName != null -> InputOverlay.Reply(effectiveReplyName)
-                isWhisperTabActive && whisperTarget != null                  -> InputOverlay.Whisper(whisperTarget)
-                isAnnouncing                                                 -> InputOverlay.Announce
-                else                                                         -> InputOverlay.None
+                overlayState.isReplying && !isInReplyThread && effectiveReplyName != null -> InputOverlay.Reply(effectiveReplyName)
+                isWhisperTabActive && overlayState.whisperTarget != null                  -> InputOverlay.Whisper(overlayState.whisperTarget)
+                overlayState.isAnnouncing                                                 -> InputOverlay.Announce
+                else                                                                      -> InputOverlay.None
             }
 
             ChatInputUiState(
-                text = text,
+                text = deps.text,
                 canSend = canSend,
                 enabled = enabled,
                 hasLastMessage = when {
                     isWhisperTabActive -> lastWhisperText != null
                     else               -> chatRepository.getLastMessage() != null
                 },
-                suggestions = suggestions.toImmutableList(),
-                activeChannel = activeChannel,
-                connectionState = connectionState,
-                isLoggedIn = isLoggedIn,
+                suggestions = deps.suggestions.toImmutableList(),
+                activeChannel = deps.activeChannel,
+                connectionState = deps.connectionState,
+                isLoggedIn = deps.isLoggedIn,
                 inputState = inputState,
                 overlay = overlay,
-                replyMessageId = replyMessageId ?: (sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
-                isEmoteMenuOpen = isEmoteMenuOpen,
+                replyMessageId = overlayState.replyMessageId ?: (overlayState.sheetState as? FullScreenSheetState.Replies)?.replyMessageId,
+                isEmoteMenuOpen = overlayState.isEmoteMenuOpen,
                 helperText = helperText,
                 isWhisperTabActive = isWhisperTabActive,
                 characterCounter = CharacterCounterState.Visible(

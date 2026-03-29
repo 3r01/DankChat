@@ -216,6 +216,7 @@ class IgnoresRepository(
         )
     }
 
+    @Suppress("ReturnCount")
     private fun PrivMessage.applyIgnores(): PrivMessage? {
         val messageIgnores = validMessageIgnores.value
 

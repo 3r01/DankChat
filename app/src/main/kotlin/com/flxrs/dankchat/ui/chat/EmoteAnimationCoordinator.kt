@@ -84,7 +84,7 @@ class EmoteAnimationCoordinator(
             } else {
                 null
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

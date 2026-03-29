@@ -215,7 +215,7 @@ private fun GeneralCategory(
             range = 50f..1000f,
             steps = 18,
             onDrag = { sliderValue = it },
-            onDragFinished = { onInteraction(ChatSettingsInteraction.ScrollbackLength(sliderValue.roundToInt())) },
+            onDragFinish = { onInteraction(ChatSettingsInteraction.ScrollbackLength(sliderValue.roundToInt())) },
             displayValue = false,
             summary = sliderValue.roundToInt().toString(),
         )
@@ -235,7 +235,7 @@ private fun GeneralCategory(
             values = UserLongClickBehavior.entries.toImmutableList(),
             entries = longClickEntries,
             selected = userLongClickBehavior,
-            onChanged = { onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
+            onChange ={ onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
         )
 
         PreferenceItem(
@@ -262,7 +262,7 @@ private fun GeneralCategory(
             values = timestampFormats,
             entries = timestampFormats,
             selected = timestampFormat,
-            onChanged = { onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
+            onChange ={ onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
         )
 
         val entries = stringArrayResource(R.array.badges_entries)
@@ -274,14 +274,14 @@ private fun GeneralCategory(
             initialSelected = visibleBadges,
             values = VisibleBadges.entries.toImmutableList(),
             entries = entries,
-            onChanged = { onInteraction(ChatSettingsInteraction.Badges(it)) },
+            onChange ={ onInteraction(ChatSettingsInteraction.Badges(it)) },
         )
         PreferenceMultiListDialog(
             title = stringResource(R.string.preference_visible_emotes_title),
             initialSelected = visibleEmotes,
             values = VisibleThirdPartyEmotes.entries.toImmutableList(),
             entries = stringArrayResource(R.array.emotes_entries).toImmutableList(),
-            onChanged = { onInteraction(ChatSettingsInteraction.Emotes(it)) },
+            onChange ={ onInteraction(ChatSettingsInteraction.Emotes(it)) },
         )
     }
 }
@@ -321,7 +321,7 @@ private fun SevenTVCategory(
             values = LiveUpdatesBackgroundBehavior.entries.toImmutableList(),
             entries = liveUpdateEntries,
             selected = sevenTVLiveEmoteUpdatesBehavior,
-            onChanged = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdatesBehavior(it)) },
+            onChange ={ onInteraction(ChatSettingsInteraction.LiveEmoteUpdatesBehavior(it)) },
         )
     }
 }

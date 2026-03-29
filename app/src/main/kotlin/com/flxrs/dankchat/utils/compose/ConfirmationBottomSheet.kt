@@ -19,11 +19,11 @@ import com.flxrs.dankchat.R
 @Composable
 fun ConfirmationBottomSheet(
     title: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
     message: String? = null,
     confirmText: String = stringResource(R.string.dialog_ok),
     dismissText: String = stringResource(R.string.dialog_cancel),
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
 ) {
     StyledBottomSheet(onDismiss = onDismiss) {
         Text(

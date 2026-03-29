@@ -11,7 +11,7 @@ import kotlinx.collections.immutable.ImmutableList
 fun ChannelTabRow(
     tabs: ImmutableList<ChannelTabItem>,
     selectedIndex: Int,
-    onTabSelected: (Int) -> Unit
+    onTabSelect: (Int) -> Unit
 ) {
     PrimaryScrollableTabRow(
         selectedTabIndex = selectedIndex,
@@ -20,7 +20,7 @@ fun ChannelTabRow(
             ChannelTab(
                 tab = tab,
                 onClick = {
-                    onTabSelected(index)
+                    onTabSelect(index)
                 }
             )
         }

@@ -142,12 +142,12 @@ private fun CustomCommandsScreen(
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
-            itemsIndexed(commands, key = { _, it -> it.id }) { idx, command ->
+            itemsIndexed(commands, key = { _, cmd -> cmd.id }) { idx, command ->
                 CustomCommandItem(
                     trigger = command.trigger,
                     command = command.command,
-                    onTriggerChanged = { commands[idx] = command.copy(trigger = it) },
-                    onCommandChanged = { commands[idx] = command.copy(command = it) },
+                    onTriggerChange = { commands[idx] = command.copy(trigger = it) },
+                    onCommandChange = { commands[idx] = command.copy(command = it) },
                     onRemove = {
                         focusManager.clearFocus()
                         val removed = commands.removeAt(idx)
@@ -184,8 +184,8 @@ private fun CustomCommandsScreen(
 private fun CustomCommandItem(
     trigger: String,
     command: String,
-    onTriggerChanged: (String) -> Unit,
-    onCommandChanged: (String) -> Unit,
+    onTriggerChange: (String) -> Unit,
+    onCommandChange: (String) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -200,7 +200,7 @@ private fun CustomCommandItem(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = trigger,
-                        onValueChange = onTriggerChanged,
+                        onValueChange = onTriggerChange,
                         label = { Text(stringResource(R.string.command_trigger_hint)) },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         maxLines = 1,
@@ -209,7 +209,7 @@ private fun CustomCommandItem(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = command,
-                        onValueChange = onCommandChanged,
+                        onValueChange = onCommandChange,
                         label = { Text(stringResource(R.string.command__hint)) },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         maxLines = 1,

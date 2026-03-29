@@ -61,7 +61,6 @@ class RepliesViewModel(
                     val altBg = index.isEven && appearanceSettings.checkeredMessages
                     chatMessageMapper.mapToUiState(
                         item = item,
-                        appearanceSettings = appearanceSettings,
                         chatSettings = chatSettings,
                         preferenceStore = preferenceStore,
                         isAlternateBackground = altBg

@@ -90,7 +90,6 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
@@ -138,10 +137,10 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
 
+@Suppress("ModifierNotUsedAtRoot")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainScreen(
-    navController: NavController,
     isLoggedIn: Boolean,
     onNavigateToSettings: () -> Unit,
     onLogin: () -> Unit,
@@ -268,7 +267,7 @@ fun MainScreen(
             }
             chatInputViewModel.setEmoteMenuOpen(false)
             backProgress = 0f
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             backProgress = 0f
         }
     }
@@ -543,13 +542,13 @@ fun MainScreen(
                         }
                     },
                     onModActions = dialogViewModel::showModActions,
-                    onInputActionsChanged = mainScreenViewModel::updateInputActions,
+                    onInputActionsChange = mainScreenViewModel::updateInputActions,
                     onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
                     onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
                     onNewWhisper = if (inputState.isWhisperTabActive) {
                         dialogViewModel::showNewWhisper
                     } else null,
-                    onRepeatedSendChanged = chatInputViewModel::setRepeatedSend,
+                    onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
                 ),
                 isUploading = dialogState.isUploading,
                 isLoading = tabState.loading,
@@ -569,11 +568,11 @@ fun MainScreen(
                     is FullScreenSheetState.History,
                     is FullScreenSheetState.Closed  -> mainState.inputActions
                 },
-                onInputHeightChanged = { inputHeightPx = it },
+                onInputHeightChange = { inputHeightPx = it },
                 debugMode = mainState.debugMode,
                 overflowExpanded = inputOverflowExpanded,
-                onOverflowExpandedChanged = { inputOverflowExpanded = it },
-                onHelperTextHeightChanged = { helperTextHeightPx = it },
+                onOverflowExpandedChange = { inputOverflowExpanded = it },
+                onHelperTextHeightChange = { helperTextHeightPx = it },
                 isInSplitLayout = useWideSplitLayout,
                 instantHide = isHistorySheet,
                 isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
@@ -659,16 +658,14 @@ fun MainScreen(
                 isFullscreen = isFullscreen,
                 isLoggedIn = isLoggedIn,
                 currentStream = currentStream,
-                hasStreamData = hasStreamData,
                 streamHeightDp = streamState.heightDp,
                 totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
                 onAction = handleToolbarAction,
                 endAligned = endAligned,
                 showTabs = showTabs,
                 addChannelTooltipState = if (featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) featureTourViewModel.addChannelTooltipState else null,
-                onAddChannelTooltipDismissed = featureTourViewModel::onToolbarHintDismissed,
+                onAddChannelTooltipDismiss = featureTourViewModel::onToolbarHintDismissed,
                 onSkipTour = featureTourViewModel::skipTour,
-                isKeyboardVisible = isKeyboardVisible,
                 keyboardHeightDp = with(density) { currentImeHeight.toDp() },
                 streamToolbarAlpha = streamState.effectiveAlpha,
                 modifier = toolbarModifier,
@@ -807,9 +804,9 @@ fun MainScreen(
                                         ),
                                         scrollModifier = chatScrollModifier,
                                         onScrollToBottom = { mainScreenViewModel.setGestureToolbarHidden(false) },
-                                        onScrollDirectionChanged = { },
+                                        onScrollDirectionChange = { },
                                         scrollToMessageId = scrollTargets[channel],
-                                        onScrollToMessageHandled = { scrollTargets.remove(channel) },
+                                        onScrollToMessageHandle = { scrollTargets.remove(channel) },
                                         recoveryFabTooltipState = if (featureTourState.currentTourStep == TourStep.RecoveryFab) featureTourViewModel.recoveryFabTooltipState else null,
                                         onTourAdvance = featureTourViewModel::advance,
                                         onTourSkip = featureTourViewModel::skipTour,
@@ -862,7 +859,6 @@ fun MainScreen(
             }
             FullScreenSheetOverlay(
                 sheetState = fullScreenSheetState,
-                isLoggedIn = isLoggedIn,
                 mentionViewModel = mentionViewModel,
                 onDismiss = sheetNavigationViewModel::closeFullScreenSheet,
                 onDismissReplies = {

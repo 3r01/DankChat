@@ -63,9 +63,7 @@ private enum class MessageOptionsSubView {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessageOptionsDialog(
-    messageId: String,
     channel: String?,
-    fullMessage: String,
     canModerate: Boolean,
     canReply: Boolean,
     canCopy: Boolean,

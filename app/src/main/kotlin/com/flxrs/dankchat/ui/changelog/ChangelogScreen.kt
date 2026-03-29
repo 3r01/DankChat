@@ -29,7 +29,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun ChangelogScreen(
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val viewModel: ChangelogSheetViewModel = koinViewModel()
     val state = viewModel.state ?: return
@@ -52,7 +52,7 @@ fun ChangelogScreen(
                 },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
                 }

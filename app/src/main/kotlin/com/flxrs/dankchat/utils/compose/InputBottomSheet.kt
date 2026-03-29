@@ -39,13 +39,13 @@ import com.flxrs.dankchat.R
 fun InputBottomSheet(
     title: String,
     hint: String,
+    onConfirm: (String) -> Unit,
+    onDismiss: () -> Unit,
     confirmText: String = stringResource(R.string.dialog_ok),
     defaultValue: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
     showClearButton: Boolean = false,
     validate: ((String) -> String?)? = null,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit,
 ) {
     var inputValue by remember { mutableStateOf(TextFieldValue(defaultValue, selection = TextRange(defaultValue.length))) }
     val focusRequester = remember { FocusRequester() }

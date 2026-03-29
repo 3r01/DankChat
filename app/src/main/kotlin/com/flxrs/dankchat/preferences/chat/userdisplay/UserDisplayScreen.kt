@@ -186,7 +186,7 @@ private fun UserDisplayScreen(
                 .padding(padding)
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
-            itemsIndexed(userDisplays, key = { _, it -> it.id }) { idx, item ->
+            itemsIndexed(userDisplays, key = { _, display -> display.id }) { idx, item ->
                 UserDisplayItem(
                     item = item,
                     onChange = { userDisplays[idx] = it },

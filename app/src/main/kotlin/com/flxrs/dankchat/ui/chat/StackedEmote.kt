@@ -92,7 +92,7 @@ fun StackedEmote(
                     result.image?.asDrawable(context.resources)?.let { drawable ->
                         transformEmoteDrawable(drawable, scaleFactor, emoteData)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     null
                 }
             }.toTypedArray()
@@ -189,7 +189,7 @@ private fun SingleEmoteDrawable(
                     )
                     value = transformed
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Ignore errors
             }
         }

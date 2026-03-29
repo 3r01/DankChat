@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.auth.AuthDataStore
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.utils.extensions.withTrailingSlash
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
@@ -21,7 +20,6 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class DeveloperSettingsViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
-    private val dankchatPreferenceStore: DankChatPreferenceStore,
     private val onboardingDataStore: OnboardingDataStore,
     private val authApiClient: AuthApiClient,
     private val authDataStore: AuthDataStore,

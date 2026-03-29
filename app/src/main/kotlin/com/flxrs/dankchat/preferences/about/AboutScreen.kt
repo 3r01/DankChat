@@ -46,7 +46,7 @@ import sh.calvin.autolinktext.annotateString
 
 @Composable
 fun AboutScreen(
-    onBackPressed: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -60,7 +60,7 @@ fun AboutScreen(
                 title = { Text(stringResource(R.string.open_source_licenses)) },
                 navigationIcon = {
                     IconButton(
-                        onClick = onBackPressed,
+                        onClick = onBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
                 }

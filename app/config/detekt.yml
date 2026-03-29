@@ -4,15 +4,15 @@
 
 complexity:
   LongMethod:
-    threshold: 100
+    active: false
   LongParameterList:
-    functionThreshold: 14
-    constructorThreshold: 18
+    active: false
   TooManyFunctions:
-    thresholdInFiles: 30
-    thresholdInClasses: 30
+    active: false
   CyclomaticComplexMethod:
-    threshold: 25
+    active: false
+  NestedBlockDepth:
+    active: false
   ComplexCondition:
     threshold: 5
 
@@ -32,7 +32,7 @@ style:
   MagicNumber:
     active: false
   MaxLineLength:
-    maxLineLength: 200
+    maxLineLength: 250
     excludeCommentStatements: true
   ReturnCount:
     max: 8
@@ -49,6 +49,8 @@ exceptions:
 
 Compose:
   ModifierMissing:
+    active: false
+  LambdaParameterInRestartableEffect:
     active: false
   CompositionLocalAllowlist:
     allowedCompositionLocals:

@@ -180,8 +180,6 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
     }
 
     companion object {
-        private val TAG = RepliesRepository::class.java.simpleName
-
         private const val PARENT_MESSAGE_ID_TAG = "reply-parent-msg-id"
         private const val PARENT_MESSAGE_LOGIN_TAG = "reply-parent-user-login"
         private const val PARENT_MESSAGE_DISPLAY_TAG = "reply-parent-display-name"
@@ -190,6 +188,5 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
         private const val THREAD_ROOT_MESSAGE_ID_TAG = "reply-thread-parent-msg-id"
         private const val THREAD_ROOT_USER_LOGIN_TAG = "reply-thread-parent-user-login"
         private const val THREAD_ROOT_DISPLAY_TAG = "reply-thread-parent-display-name"
-        private const val THREAD_ROOT_USER_ID_TAG = "reply-thread-parent-user-id"
     }
 }

@@ -23,7 +23,7 @@ import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
  * This composable:
  * - Collects reply thread state from RepliesViewModel
  * - Collects appearance settings
- * - Handles NotFound state via onNotFound callback
+ * - Handles NotFound state via onMissing callback
  * - Renders ChatScreen for Found state
  */
 @Composable
@@ -31,11 +31,11 @@ fun RepliesComposable(
     repliesViewModel: RepliesViewModel,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onNotFound: () -> Unit,
+    onMissing: () -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(),
     scrollModifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
 ) {
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
@@ -66,7 +66,7 @@ fun RepliesComposable(
 
             is RepliesUiState.NotFound -> {
                 LaunchedEffect(Unit) {
-                    onNotFound()
+                    onMissing()
                 }
             }
         }

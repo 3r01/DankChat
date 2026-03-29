@@ -33,11 +33,11 @@ fun MentionComposable(
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
-    modifier: Modifier = Modifier,
-    onWhisperReply: ((userName: UserName) -> Unit)? = null,
     containerColor: Color,
-    contentPadding: PaddingValues = PaddingValues(),
+    modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
+    onWhisperReply: ((userName: UserName) -> Unit)? = null,
+    contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
 ) {
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
