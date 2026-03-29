@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
 import android.util.Log
-import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.ifBlank
 import com.flxrs.dankchat.data.toUserId
@@ -75,10 +74,6 @@ class PubSubConnection(
         get() = topics.isNotEmpty()
     val hasWhisperTopic: Boolean
         get() = topics.any { it.topic.startsWith("whispers.") }
-
-    fun hasModeratorTopic(userId: UserId, channelId: UserId): Boolean {
-        return topics.any { it.topic.startsWith("chat_moderator_actions.$userId.$channelId") }
-    }
 
     val events = receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
         (old.isDisconnected && new.isDisconnected) || old == new
@@ -260,20 +255,20 @@ class PubSubConnection(
         val json = JSONObject(text)
         val type = json.optString("type").ifBlank { return false }
         when (type) {
-            "PONG"      -> awaitingPong = false
+            "PONG" -> awaitingPong = false
             "RECONNECT" -> {
                 Log.i(TAG, "[PubSub $tag] server requested reconnect")
                 return true
             }
 
-            "RESPONSE"  -> {
+            "RESPONSE" -> {
                 val error = json.optString("error")
                 if (error.isNotBlank()) {
                     Log.w(TAG, "[PubSub $tag] RESPONSE error: $error")
                 }
             }
 
-            "MESSAGE"   -> {
+            "MESSAGE" -> {
                 val data = json.optJSONObject("data") ?: return false
                 val topic = data.optString("topic").ifBlank { return false }
                 val message = data.optString("message").ifBlank { return false }
@@ -281,7 +276,7 @@ class PubSubConnection(
                 val messageTopic = messageObject.optString("type")
                 val match = topics.find { topic == it.topic } ?: return false
                 val pubSubMessage = when (match) {
-                    is PubSubTopic.Whispers         -> {
+                    is PubSubTopic.Whispers -> {
                         if (messageTopic !in listOf("whisper_sent", "whisper_received")) {
                             return false
                         }
@@ -300,13 +295,13 @@ class PubSubConnection(
                             timestamp = parsedMessage.data.timestamp,
                             channelName = match.channelName,
                             channelId = match.channelId,
-                            data = parsedMessage.data.redemption
+                            data = parsedMessage.data.redemption,
                         )
                     }
 
                     is PubSubTopic.ModeratorActions -> {
                         when (messageTopic) {
-                            "moderator_added"   -> {
+                            "moderator_added" -> {
                                 val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<ModeratorAddedData>>(message) ?: return false
                                 val timestamp = Clock.System.now()
                                 PubSubMessage.ModeratorAction(
@@ -320,8 +315,8 @@ class PubSubConnection(
                                         creatorUserId = parsedMessage.data.creatorUserId,
                                         creator = parsedMessage.data.creator,
                                         createdAt = timestamp.toString(),
-                                        msgId = null
-                                    )
+                                        msgId = null,
+                                    ),
                                 )
                             }
 
@@ -332,7 +327,7 @@ class PubSubConnection(
                                 }
                                 val timestamp = when {
                                     parsedMessage.data.createdAt.isEmpty() -> Clock.System.now()
-                                    else                                   -> Instant.parse(parsedMessage.data.createdAt)
+                                    else -> Instant.parse(parsedMessage.data.createdAt)
                                 }
                                 PubSubMessage.ModeratorAction(
                                     timestamp = timestamp,
@@ -343,11 +338,11 @@ class PubSubConnection(
                                         creatorUserId = parsedMessage.data.creatorUserId?.ifBlank { null },
                                         targetUserId = parsedMessage.data.targetUserId?.ifBlank { null },
                                         targetUserName = parsedMessage.data.targetUserName?.ifBlank { null },
-                                    )
+                                    ),
                                 )
                             }
 
-                            else                -> return false
+                            else -> return false
                         }
                     }
                 }

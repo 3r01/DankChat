@@ -41,10 +41,10 @@ class EventSubManager(
             userStateRepository.userState.map { it.moderationChannels }.collect {
                 val userId = authDataStore.userIdString ?: return@collect
                 val channels = channelRepository.getChannels(it)
-                channels.forEach {
-                    eventSubClient.subscribe(EventSubTopic.ChannelModerate(channel = it.name, broadcasterId = it.id, moderatorId = userId))
-                    eventSubClient.subscribe(EventSubTopic.AutomodMessageHold(channel = it.name, broadcasterId = it.id, moderatorId = userId))
-                    eventSubClient.subscribe(EventSubTopic.AutomodMessageUpdate(channel = it.name, broadcasterId = it.id, moderatorId = userId))
+                channels.forEach { channel ->
+                    eventSubClient.subscribe(EventSubTopic.ChannelModerate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
+                    eventSubClient.subscribe(EventSubTopic.AutomodMessageHold(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
+                    eventSubClient.subscribe(EventSubTopic.AutomodMessageUpdate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
                 }
             }
         }
@@ -96,11 +96,11 @@ class EventSubManager(
         scope.launch {
             val topics = eventSubClient.topics.value.filter { subscribedTopic ->
                 when (val topic = subscribedTopic.topic) {
-                    is EventSubTopic.ChannelModerate      -> topic.channel == channel
-                    is EventSubTopic.AutomodMessageHold   -> topic.channel == channel
+                    is EventSubTopic.ChannelModerate -> topic.channel == channel
+                    is EventSubTopic.AutomodMessageHold -> topic.channel == channel
                     is EventSubTopic.AutomodMessageUpdate -> topic.channel == channel
-                    is EventSubTopic.UserMessageHold      -> topic.channel == channel
-                    is EventSubTopic.UserMessageUpdate    -> topic.channel == channel
+                    is EventSubTopic.UserMessageHold -> topic.channel == channel
+                    is EventSubTopic.UserMessageUpdate -> topic.channel == channel
                 }
             }
             topics.forEach { eventSubClient.unsubscribe(it) }
