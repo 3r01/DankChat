@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import android.content.ClipData
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -49,7 +51,6 @@ import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
-import com.flxrs.dankchat.utils.compose.StyledBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -103,10 +104,11 @@ fun MainScreenDialogs(
     }
 
     if (dialogState.showModActions && modActionsChannel != null) {
-        val modActionsViewModel: ModActionsViewModel = koinViewModel(
-            key = "mod-actions-${modActionsChannel.value}",
-            parameters = { parametersOf(modActionsChannel) },
-        )
+        val modActionsViewModel: ModActionsViewModel =
+            koinViewModel(
+                key = "mod-actions-${modActionsChannel.value}",
+                parameters = { parametersOf(modActionsChannel) },
+            )
         val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()
         ModActionsDialog(
             roomState = modActionsViewModel.roomState,
@@ -211,10 +213,11 @@ fun MainScreenDialogs(
     }
 
     dialogState.messageOptionsParams?.let { params ->
-        val viewModel: MessageOptionsViewModel = koinViewModel(
-            key = params.messageId,
-            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
-        )
+        val viewModel: MessageOptionsViewModel =
+            koinViewModel(
+                key = params.messageId,
+                parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
+            )
         val state by viewModel.state.collectAsStateWithLifecycle()
         (state as? MessageOptionsState.Found)?.let { s ->
             MessageOptionsDialog(
@@ -266,23 +269,26 @@ fun MainScreenDialogs(
     }
 
     dialogState.emoteInfoEmotes?.let { emotes ->
-        val viewModel: EmoteInfoViewModel = koinViewModel(
-            key = emotes.joinToString { it.id },
-            parameters = { parametersOf(emotes) },
-        )
+        val viewModel: EmoteInfoViewModel =
+            koinViewModel(
+                key = emotes.joinToString { it.id },
+                parameters = { parametersOf(emotes) },
+            )
         val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
         val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
-        val canUseEmote = isLoggedIn && when (sheetState) {
-            is FullScreenSheetState.Closed,
-            is FullScreenSheetState.Replies,
-            -> true
+        val canUseEmote =
+            isLoggedIn &&
+                when (sheetState) {
+                    is FullScreenSheetState.Closed,
+                    is FullScreenSheetState.Replies,
+                    -> true
 
-            is FullScreenSheetState.Mention,
-            is FullScreenSheetState.Whisper,
-            -> whisperTarget != null
+                    is FullScreenSheetState.Mention,
+                    is FullScreenSheetState.Whisper,
+                    -> whisperTarget != null
 
-            is FullScreenSheetState.History -> false
-        }
+                    is FullScreenSheetState.History -> false
+                }
         EmoteInfoDialog(
             items = viewModel.items,
             isLoggedIn = canUseEmote,
@@ -298,10 +304,11 @@ fun MainScreenDialogs(
     }
 
     dialogState.userPopupParams?.let { params ->
-        val viewModel: UserPopupViewModel = koinViewModel(
-            key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
-            parameters = { parametersOf(params) },
-        )
+        val viewModel: UserPopupViewModel =
+            koinViewModel(
+                key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
+                parameters = { parametersOf(params) },
+            )
         val state by viewModel.userPopupState.collectAsStateWithLifecycle()
         UserPopupDialog(
             state = state,
@@ -344,57 +351,77 @@ fun MainScreenDialogs(
 }
 
 @Composable
-private fun UploadDisclaimerSheet(host: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun UploadDisclaimerSheet(
+    host: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     LocalUriHandler.current
     val disclaimerTemplate = stringResource(R.string.external_upload_disclaimer, host)
     val hostStart = disclaimerTemplate.indexOf(host)
-    val annotatedText = buildAnnotatedString {
-        append(disclaimerTemplate)
-        if (hostStart >= 0) {
-            addStyle(
-                style = SpanStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    textDecoration = TextDecoration.Underline,
-                ),
-                start = hostStart,
-                end = hostStart + host.length,
-            )
-            addLink(
-                url = LinkAnnotation.Url("https://$host"),
-                start = hostStart,
-                end = hostStart + host.length,
-            )
-        }
-    }
-
-    StyledBottomSheet(onDismiss = onDismiss) {
-        Text(
-            text = stringResource(R.string.nuuls_upload_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 16.dp),
-        )
-
-        Text(
-            text = annotatedText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
-        ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.dialog_cancel))
+    val annotatedText =
+        buildAnnotatedString {
+            append(disclaimerTemplate)
+            if (hostStart >= 0) {
+                addStyle(
+                    style =
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                    start = hostStart,
+                    end = hostStart + host.length,
+                )
+                addLink(
+                    url = LinkAnnotation.Url("https://$host"),
+                    start = hostStart,
+                    end = hostStart + host.length,
+                )
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.dialog_ok))
+        }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.nuuls_upload_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 16.dp),
+            )
+
+            Text(
+                text = annotatedText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
+            ) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.dialog_cancel))
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.dialog_ok))
+                }
             }
         }
     }
