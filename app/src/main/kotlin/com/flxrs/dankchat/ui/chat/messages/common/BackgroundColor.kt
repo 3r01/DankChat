@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.messages.common
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

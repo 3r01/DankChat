@@ -18,10 +18,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import com.flxrs.dankchat.ui.chat.appendWithLinks
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
-import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
 
 @Composable
 fun SimpleMessageContainer(

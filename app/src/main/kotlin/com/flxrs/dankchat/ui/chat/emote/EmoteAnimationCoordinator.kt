@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.emote
 
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
@@ -45,5 +45,4 @@ val LocalEmoteAnimationCoordinator =
     }
 
 @Composable
-fun rememberEmoteAnimationCoordinator(): EmoteAnimationCoordinator =
-    remember { EmoteAnimationCoordinator() }
+fun rememberEmoteAnimationCoordinator(): EmoteAnimationCoordinator = remember { EmoteAnimationCoordinator() }

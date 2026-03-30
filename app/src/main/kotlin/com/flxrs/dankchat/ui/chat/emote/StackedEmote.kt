@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.emote
 
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
@@ -13,15 +13,25 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import coil3.asDrawable
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
 import coil3.request.ImageRequest
 import coil3.size.Size
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.ui.chat.EmoteUi
 import com.flxrs.dankchat.utils.extensions.forEachLayer
 import com.flxrs.dankchat.utils.extensions.setRunning
 import kotlin.math.roundToInt
+
+private const val BASE_HEIGHT_CONSTANT = 1.173
+private const val SCALE_FACTOR_CONSTANT = 1.5 / 112
+
+fun emoteBaseHeight(fontSizeSp: Float): Dp = (fontSizeSp * BASE_HEIGHT_CONSTANT).dp
+
+internal fun emoteScaleFactor(baseHeightPx: Int): Double = baseHeightPx * SCALE_FACTOR_CONSTANT
 
 @Composable
 fun StackedEmote(
@@ -35,9 +45,9 @@ fun StackedEmote(
 ) {
     val context = LocalPlatformContext.current
     val density = LocalDensity.current
-    val baseHeight = EmoteScaling.getBaseHeight(fontSize)
+    val baseHeight = emoteBaseHeight(fontSize)
     val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
-    val scaleFactor = EmoteScaling.getScaleFactor(baseHeightPx)
+    val scaleFactor = emoteScaleFactor(baseHeightPx)
 
     // For single emote, render directly without LayerDrawable
     if (emote.urls.size == 1 && emote.emotes.isNotEmpty()) {

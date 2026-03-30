@@ -38,15 +38,15 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
-import com.flxrs.dankchat.ui.chat.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
+import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
+import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
-import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
-import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
 import com.flxrs.dankchat.utils.resolve
 
 /**

@@ -9,8 +9,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.data.UserName
-import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -49,33 +49,33 @@ fun ChatComposable(
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
 
     ChatScreen(
-            messages = messages,
-            fontSize = displaySettings.fontSize,
-            callbacks =
-                ChatScreenCallbacks(
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                    onReplyClick = onReplyClick,
-                    onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
-                    onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
-                ),
-            showLineSeparator = displaySettings.showLineSeparator,
-            animateGifs = displaySettings.animateGifs,
-            modifier = modifier.fillMaxSize(),
-            showInput = showInput,
-            isFullscreen = isFullscreen,
-            showFabs = showFabs,
-            onRecover = onRecover,
-            fabMenuCallbacks = fabMenuCallbacks,
-            contentPadding = contentPadding,
-            scrollModifier = scrollModifier,
-            onScrollToBottom = onScrollToBottom,
-            onScrollDirectionChange = onScrollDirectionChange,
-            scrollToMessageId = scrollToMessageId,
-            onScrollToMessageHandle = onScrollToMessageHandle,
-            recoveryFabTooltipState = recoveryFabTooltipState,
-            onTourAdvance = onTourAdvance,
-            onTourSkip = onTourSkip,
-        )
+        messages = messages,
+        fontSize = displaySettings.fontSize,
+        callbacks =
+            ChatScreenCallbacks(
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick,
+                onReplyClick = onReplyClick,
+                onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
+                onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
+            ),
+        showLineSeparator = displaySettings.showLineSeparator,
+        animateGifs = displaySettings.animateGifs,
+        modifier = modifier.fillMaxSize(),
+        showInput = showInput,
+        isFullscreen = isFullscreen,
+        showFabs = showFabs,
+        onRecover = onRecover,
+        fabMenuCallbacks = fabMenuCallbacks,
+        contentPadding = contentPadding,
+        scrollModifier = scrollModifier,
+        onScrollToBottom = onScrollToBottom,
+        onScrollDirectionChange = onScrollDirectionChange,
+        scrollToMessageId = scrollToMessageId,
+        onScrollToMessageHandle = onScrollToMessageHandle,
+        recoveryFabTooltipState = recoveryFabTooltipState,
+        onTourAdvance = onTourAdvance,
+        onTourSkip = onTourSkip,
+    )
 }

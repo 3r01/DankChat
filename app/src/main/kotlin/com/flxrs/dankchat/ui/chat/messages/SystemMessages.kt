@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
@@ -24,14 +24,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
-import com.flxrs.dankchat.ui.chat.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
+import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
+import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
-import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
-import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
-import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.resolve
 

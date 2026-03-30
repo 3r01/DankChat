@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.messages.common
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource

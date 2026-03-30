@@ -148,22 +148,22 @@ fun MessageHistorySheet(
                 },
     ) {
         ChatScreen(
-                messages = messages,
-                fontSize = displaySettings.fontSize,
-                callbacks =
-                    ChatScreenCallbacks(
-                        onUserClick = onUserClick,
-                        onMessageLongClick = onMessageLongClick,
-                        onEmoteClick = onEmoteClick,
-                    ),
-                showLineSeparator = displaySettings.showLineSeparator,
-                animateGifs = displaySettings.animateGifs,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
-                scrollModifier = scrollModifier,
-                containerColor = sheetBackgroundColor,
-                onScrollToBottom = { toolbarVisible = true },
-            )
+            messages = messages,
+            fontSize = displaySettings.fontSize,
+            callbacks =
+                ChatScreenCallbacks(
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                ),
+            showLineSeparator = displaySettings.showLineSeparator,
+            animateGifs = displaySettings.animateGifs,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
+            scrollModifier = scrollModifier,
+            containerColor = sheetBackgroundColor,
+            onScrollToBottom = { toolbarVisible = true },
+        )
 
         AnimatedVisibility(
             visible = toolbarVisible,

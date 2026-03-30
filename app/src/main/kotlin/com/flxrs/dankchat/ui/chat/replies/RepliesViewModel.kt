@@ -65,15 +65,16 @@ class RepliesViewModel(
 
                 is RepliesState.Found -> {
                     val uiMessages =
-                        repliesState.items.mapIndexed { index, item ->
-                            val altBg = index.isEven && appearanceSettings.checkeredMessages
-                            chatMessageMapper.mapToUiState(
-                                item = item,
-                                chatSettings = chatSettings,
-                                preferenceStore = preferenceStore,
-                                isAlternateBackground = altBg,
-                            )
-                        }.toImmutableList()
+                        repliesState.items
+                            .mapIndexed { index, item ->
+                                val altBg = index.isEven && appearanceSettings.checkeredMessages
+                                chatMessageMapper.mapToUiState(
+                                    item = item,
+                                    chatSettings = chatSettings,
+                                    preferenceStore = preferenceStore,
+                                    isAlternateBackground = altBg,
+                                )
+                            }.toImmutableList()
                     RepliesUiState.Found(uiMessages)
                 }
             }

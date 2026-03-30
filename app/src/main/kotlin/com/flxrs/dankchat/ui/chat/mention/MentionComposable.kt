@@ -7,11 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.data.UserName
-import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -43,22 +43,22 @@ fun MentionComposable(
     }
 
     ChatScreen(
-            messages = messages,
-            fontSize = displaySettings.fontSize,
-            callbacks =
-                ChatScreenCallbacks(
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                    onWhisperReply = if (isWhisperTab) onWhisperReply else null,
-                ),
-            showLineSeparator = displaySettings.showLineSeparator,
-            animateGifs = displaySettings.animateGifs,
-            showChannelPrefix = !isWhisperTab,
-            modifier = modifier,
-            contentPadding = contentPadding,
-            scrollModifier = scrollModifier,
-            containerColor = containerColor,
-            onScrollToBottom = onScrollToBottom,
-        )
+        messages = messages,
+        fontSize = displaySettings.fontSize,
+        callbacks =
+            ChatScreenCallbacks(
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick,
+                onWhisperReply = if (isWhisperTab) onWhisperReply else null,
+            ),
+        showLineSeparator = displaySettings.showLineSeparator,
+        animateGifs = displaySettings.animateGifs,
+        showChannelPrefix = !isWhisperTab,
+        modifier = modifier,
+        contentPadding = contentPadding,
+        scrollModifier = scrollModifier,
+        containerColor = containerColor,
+        onScrollToBottom = onScrollToBottom,
+    )
 }

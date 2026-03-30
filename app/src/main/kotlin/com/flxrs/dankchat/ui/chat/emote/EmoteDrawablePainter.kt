@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.emote
 
 import android.graphics.drawable.Drawable
 import android.os.Handler

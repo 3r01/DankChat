@@ -67,15 +67,16 @@ class MentionViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, appearanceSettings, chatSettings ->
-            messages.mapIndexed { index, item ->
-                val altBg = index.isEven && appearanceSettings.checkeredMessages
-                chatMessageMapper.mapToUiState(
-                    item = item,
-                    chatSettings = chatSettings,
-                    preferenceStore = preferenceStore,
-                    isAlternateBackground = altBg,
-                )
-            }.toImmutableList()
+            messages
+                .mapIndexed { index, item ->
+                    val altBg = index.isEven && appearanceSettings.checkeredMessages
+                    chatMessageMapper.mapToUiState(
+                        item = item,
+                        chatSettings = chatSettings,
+                        preferenceStore = preferenceStore,
+                        isAlternateBackground = altBg,
+                    )
+                }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 
     val whispersUiStates: Flow<ImmutableList<ChatMessageUiState>> =
@@ -84,14 +85,15 @@ class MentionViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, appearanceSettings, chatSettings ->
-            messages.mapIndexed { index, item ->
-                val altBg = index.isEven && appearanceSettings.checkeredMessages
-                chatMessageMapper.mapToUiState(
-                    item = item,
-                    chatSettings = chatSettings,
-                    preferenceStore = preferenceStore,
-                    isAlternateBackground = altBg,
-                )
-            }.toImmutableList()
+            messages
+                .mapIndexed { index, item ->
+                    val altBg = index.isEven && appearanceSettings.checkeredMessages
+                    chatMessageMapper.mapToUiState(
+                        item = item,
+                        chatSettings = chatSettings,
+                        preferenceStore = preferenceStore,
+                        isAlternateBackground = altBg,
+                    )
+                }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 }

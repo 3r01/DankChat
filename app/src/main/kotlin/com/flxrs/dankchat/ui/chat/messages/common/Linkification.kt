@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.chat
+package com.flxrs.dankchat.ui.chat.messages.common
 
 import android.util.Patterns
 import androidx.compose.ui.graphics.Color

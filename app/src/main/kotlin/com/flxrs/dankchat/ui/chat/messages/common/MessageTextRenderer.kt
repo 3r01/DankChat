@@ -20,12 +20,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
-import com.flxrs.dankchat.ui.chat.EmoteDimensions
-import com.flxrs.dankchat.ui.chat.EmoteScaling
 import com.flxrs.dankchat.ui.chat.EmoteUi
-import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.StackedEmote
-import com.flxrs.dankchat.ui.chat.TextWithMeasuredInlineContent
+import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
+import com.flxrs.dankchat.ui.chat.emote.StackedEmote
+import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
@@ -46,7 +44,7 @@ fun MessageTextWithInlineContent(
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current
     val density = LocalDensity.current
 
-    val badgeSize = EmoteScaling.getBadgeSize(fontSize)
+    val badgeSize = emoteBaseHeight(fontSize)
     val inlineContentProviders: ImmutableMap<String, @Composable () -> Unit> =
         remember(badges, emotes, fontSize) {
             buildMap<String, @Composable () -> Unit> {
@@ -79,7 +77,7 @@ fun MessageTextWithInlineContent(
                     put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
                 }
 
-                val baseHeight = EmoteScaling.getBaseHeight(fontSize)
+                val baseHeight = emoteBaseHeight(fontSize)
                 val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
                 emotes.forEach { emote ->
                     val id = "EMOTE_${emote.code}"

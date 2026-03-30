@@ -26,11 +26,11 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState.AutomodMessageUi.AutomodMessageStatus
-import com.flxrs.dankchat.ui.chat.EmoteDimensions
-import com.flxrs.dankchat.ui.chat.EmoteScaling
-import com.flxrs.dankchat.ui.chat.TextWithMeasuredInlineContent
+import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
 import com.flxrs.dankchat.ui.chat.messages.common.BadgeInlineContent
-import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
+import com.flxrs.dankchat.ui.chat.messages.common.EmoteDimensions
+import com.flxrs.dankchat.ui.chat.messages.common.TextWithMeasuredInlineContent
+import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
@@ -205,7 +205,7 @@ fun AutomodMessageComposable(
         }
 
     // Badge inline content providers (same pattern as PrivMessage)
-    val badgeSize = EmoteScaling.getBadgeSize(fontSize)
+    val badgeSize = emoteBaseHeight(fontSize)
     val inlineContentProviders =
         remember(message.badges, fontSize) {
             buildMap<String, @Composable () -> Unit> {

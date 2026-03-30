@@ -38,29 +38,29 @@ fun RepliesComposable(
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(persistentListOf()))
 
     when (uiState) {
-            is RepliesUiState.Found -> {
-                ChatScreen(
-                    messages = (uiState as RepliesUiState.Found).items,
-                    fontSize = displaySettings.fontSize,
-                    callbacks =
-                        ChatScreenCallbacks(
-                            onUserClick = onUserClick,
-                            onMessageLongClick = onMessageLongClick,
-                        ),
-                    showLineSeparator = displaySettings.showLineSeparator,
-                    animateGifs = displaySettings.animateGifs,
-                    modifier = modifier,
-                    contentPadding = contentPadding,
-                    scrollModifier = scrollModifier,
-                    containerColor = containerColor,
-                    onScrollToBottom = onScrollToBottom,
-                )
-            }
+        is RepliesUiState.Found -> {
+            ChatScreen(
+                messages = (uiState as RepliesUiState.Found).items,
+                fontSize = displaySettings.fontSize,
+                callbacks =
+                    ChatScreenCallbacks(
+                        onUserClick = onUserClick,
+                        onMessageLongClick = onMessageLongClick,
+                    ),
+                showLineSeparator = displaySettings.showLineSeparator,
+                animateGifs = displaySettings.animateGifs,
+                modifier = modifier,
+                contentPadding = contentPadding,
+                scrollModifier = scrollModifier,
+                containerColor = containerColor,
+                onScrollToBottom = onScrollToBottom,
+            )
+        }
 
-            is RepliesUiState.NotFound -> {
-                LaunchedEffect(Unit) {
-                    onMissing()
-                }
+        is RepliesUiState.NotFound -> {
+            LaunchedEffect(Unit) {
+                onMissing()
             }
+        }
     }
 }
