@@ -22,7 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.rememberTextMeasurer
@@ -86,8 +86,8 @@ fun ChatBottomBar(
                 tourState = tourState,
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
                 modifier =
-                    Modifier.onGloballyPositioned { coordinates ->
-                        onInputHeightChange(coordinates.size.height)
+                    Modifier.onSizeChanged { size ->
+                        onInputHeightChange(size.height)
                     },
             )
         }
@@ -124,7 +124,7 @@ fun ChatBottomBar(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .onGloballyPositioned { onHelperTextHeightChange(it.size.height) },
+                            .onSizeChanged { onHelperTextHeightChange(it.height) },
                 ) {
                     BoxWithConstraints(
                         modifier =

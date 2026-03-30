@@ -52,7 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -263,8 +263,8 @@ fun MessageHistorySheet(
                     .fillMaxWidth()
                     .padding(bottom = currentImeDp)
                     .navigationBarsPadding()
-                    .onGloballyPositioned { coordinates ->
-                        searchBarHeightPx = coordinates.size.height
+                    .onSizeChanged { size ->
+                        searchBarHeightPx = size.height
                     }.padding(bottom = 8.dp)
                     .padding(horizontal = 8.dp),
         ) {

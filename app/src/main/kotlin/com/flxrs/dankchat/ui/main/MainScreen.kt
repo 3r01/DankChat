@@ -43,7 +43,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -784,7 +784,7 @@ fun MainScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .onGloballyPositioned { containerWidthPx = it.size.width },
+                        .onSizeChanged { containerWidthPx = it.width },
             ) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     // Left pane: Stream
@@ -955,8 +955,8 @@ fun MainScreen(
                                     .align(Alignment.TopCenter)
                                     .fillMaxWidth()
                                     .graphicsLayer { alpha = streamState.alpha.value }
-                                    .onGloballyPositioned { coordinates ->
-                                        streamState.heightDp = with(density) { coordinates.size.height.toDp() }
+                                    .onSizeChanged { size ->
+                                        streamState.heightDp = with(density) { size.height.toDp() }
                                     }
                             },
                     )
