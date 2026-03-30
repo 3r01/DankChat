@@ -308,10 +308,12 @@ fun ChatInputLayout(
                     val textMeasurer = rememberTextMeasurer()
                     val style = MaterialTheme.typography.labelSmall
                     val density = LocalDensity.current
+                    var expanded by remember { mutableStateOf(false) }
                     BoxWithConstraints(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
+                                .clickable { expanded = !expanded }
                                 .padding(horizontal = 16.dp)
                                 .padding(bottom = 4.dp)
                                 .animateContentSize(),
@@ -321,18 +323,9 @@ fun ChatInputLayout(
                             remember(combinedText, style, maxWidthPx) {
                                 textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
                             }
+                        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
                         when {
-                            fitsOnOneLine || streamInfoText == null || roomStateText.isEmpty() -> {
-                                Text(
-                                    text = combinedText,
-                                    style = style,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                )
-                            }
-
-                            else -> {
+                            showTwoLines -> {
                                 Column {
                                     Text(
                                         text = roomStateText,
@@ -349,6 +342,16 @@ fun ChatInputLayout(
                                         modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                                     )
                                 }
+                            }
+
+                            else -> {
+                                Text(
+                                    text = combinedText,
+                                    style = style,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                                )
                             }
                         }
                     }

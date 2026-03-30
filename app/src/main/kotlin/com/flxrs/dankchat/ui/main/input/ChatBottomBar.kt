@@ -7,6 +7,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -126,11 +130,13 @@ fun ChatBottomBar(
                             .fillMaxWidth()
                             .onSizeChanged { onHelperTextHeightChange(it.height) },
                 ) {
+                    var expanded by remember { mutableStateOf(false) }
                     BoxWithConstraints(
                         modifier =
                             Modifier
                                 .navigationBarsPadding()
                                 .fillMaxWidth()
+                                .clickable { expanded = !expanded }
                                 .padding(horizontalPadding)
                                 .padding(vertical = 6.dp)
                                 .animateContentSize(),
@@ -140,18 +146,9 @@ fun ChatBottomBar(
                             remember(combinedText, style, maxWidthPx) {
                                 textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
                             }
+                        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
                         when {
-                            fitsOnOneLine || streamInfoText == null || roomStateText.isEmpty() -> {
-                                Text(
-                                    text = combinedText,
-                                    style = style,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                )
-                            }
-
-                            else -> {
+                            showTwoLines -> {
                                 Column {
                                     Text(
                                         text = roomStateText,
@@ -168,6 +165,16 @@ fun ChatBottomBar(
                                         modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                                     )
                                 }
+                            }
+
+                            else -> {
+                                Text(
+                                    text = combinedText,
+                                    style = style,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                                )
                             }
                         }
                     }
