@@ -36,7 +36,6 @@ import org.koin.android.annotation.KoinViewModel
  * - ChatInputViewModel - Input state
  * - ChannelManagementViewModel - Channel operations
  *
- * This ViewModel only handles truly global concerns.
  */
 @OptIn(FlowPreview::class)
 @KoinViewModel

@@ -58,23 +58,29 @@ class SuggestionProvider(
             }
         }
 
+        // '@' trigger: users only
+        if (currentWord.startsWith('@')) {
+            return getUserSuggestions(channel, currentWord).map { users ->
+                users.take(MAX_SUGGESTIONS)
+            }
+        }
+
+        // Commands only when prefix matches a command trigger character
+        val isCommandTrigger = currentWord.startsWith('/') || currentWord.startsWith('$')
+        if (isCommandTrigger) {
+            return getCommandSuggestions(channel, currentWord).map { commands ->
+                commands.take(MAX_SUGGESTIONS)
+            }
+        }
+
+        // General: score emotes + users together, emotes slightly preferred
         return combine(
-            getEmoteSuggestions(channel, currentWord),
-            getUserSuggestions(channel, currentWord),
-            getCommandSuggestions(channel, currentWord),
-        ) { emotes, users, commands ->
-            (emotes + users + commands).take(MAX_SUGGESTIONS)
+            getScoredEmoteSuggestions(channel, currentWord),
+            getScoredUserSuggestions(channel, currentWord),
+        ) { emotes, users ->
+            mergeSorted(emotes, users)
         }
     }
-
-    private fun getEmoteSuggestions(
-        channel: UserName,
-        constraint: String,
-    ): Flow<List<Suggestion.EmoteSuggestion>> =
-        emoteRepository.getEmotes(channel).map { emotes ->
-            val recentIds = emoteUsageRepository.recentEmoteIds.value
-            filterEmotes(emotes.suggestions, constraint, recentIds)
-        }
 
     private fun getScoredEmoteSuggestions(
         channel: UserName,
@@ -83,6 +89,14 @@ class SuggestionProvider(
         emoteRepository.getEmotes(channel).map { emotes ->
             val recentIds = emoteUsageRepository.recentEmoteIds.value
             filterEmotesScored(emotes.suggestions, constraint, recentIds)
+        }
+
+    private fun getScoredUserSuggestions(
+        channel: UserName,
+        constraint: String,
+    ): Flow<List<ScoredSuggestion>> =
+        usersRepository.getUsersFlow(channel).map { displayNameSet ->
+            filterUsersScored(displayNameSet, constraint)
         }
 
     private fun getUserSuggestions(
@@ -188,7 +202,7 @@ class SuggestionProvider(
                 if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.EmojiSuggestion(emoji), score)
             }.sortedBy { it.score }
 
-    // Filter raw DisplayName set, only wrap matches
+    // Filter raw DisplayName set, only wrap matches — used for @-prefix suggestions
     internal fun filterUsers(
         users: Set<com.flxrs.dankchat.data.DisplayName>,
         constraint: String,
@@ -200,6 +214,16 @@ class SuggestionProvider(
                 suggestion.takeIf { it.toString().startsWith(constraint, ignoreCase = true) }
             }.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name.value })
     }
+
+    internal fun filterUsersScored(
+        users: Set<com.flxrs.dankchat.data.DisplayName>,
+        constraint: String,
+    ): List<ScoredSuggestion> =
+        users
+            .mapNotNull { name ->
+                val score = scoreEmote(name.value, constraint, isRecentlyUsed = false)
+                if (score == NO_MATCH) null else ScoredSuggestion(Suggestion.UserSuggestion(name), score + USER_SCORE_PENALTY)
+            }.sortedBy { it.score }
 
     // Filter raw command strings, only wrap matches
     internal fun filterCommands(
@@ -213,6 +237,7 @@ class SuggestionProvider(
 
     companion object {
         internal const val NO_MATCH = Int.MIN_VALUE
+        internal const val USER_SCORE_PENALTY = 25
         private const val MAX_SUGGESTIONS = 50
         private const val MIN_SUGGESTION_CHARS = 2
     }

@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 internal class SuggestionFilteringTest {
     private val provider =
@@ -119,6 +120,42 @@ internal class SuggestionFilteringTest {
             expected = listOf("@Bea", "@Bob"),
             actual = result.map { it.toString() },
         )
+    }
+
+    // endregion
+
+    // region filterUsersScored
+
+    @Test
+    fun `scored users use emote scoring with penalty`() {
+        val users = setOf(DisplayName("Pog"), DisplayName("PogChamp"))
+        val result = provider.filterUsersScored(users, "Pog")
+
+        assertEquals(
+            expected = listOf("Pog", "PogChamp"),
+            actual = result.map { (it.suggestion as Suggestion.UserSuggestion).name.value },
+        )
+        // Pog: -10 + 25 = 15, PogChamp: -10 + 5*100 + 25 = 515
+        assertEquals(15, result[0].score)
+        assertEquals(515, result[1].score)
+    }
+
+    @Test
+    fun `scored users exclude non-matching names`() {
+        val users = setOf(DisplayName("Alice"), DisplayName("Bob"))
+        val result = provider.filterUsersScored(users, "Pog")
+
+        assertEquals(emptyList(), result)
+    }
+
+    @Test
+    fun `scored users have higher score than equivalent emotes`() {
+        val provider = this.provider
+        val emoteScore = provider.scoreEmote("Pog", "Pog", isRecentlyUsed = false)
+        val users = setOf(DisplayName("Pog"))
+        val userResult = provider.filterUsersScored(users, "Pog")
+
+        assertTrue(userResult[0].score > emoteScore)
     }
 
     // endregion

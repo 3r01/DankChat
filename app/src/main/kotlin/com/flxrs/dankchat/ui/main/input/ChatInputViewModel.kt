@@ -33,6 +33,7 @@ import com.flxrs.dankchat.ui.main.MainEventBus
 import com.flxrs.dankchat.ui.main.RepeatedSendData
 import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.utils.TextResource
+import com.flxrs.dankchat.utils.extensions.combine
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -248,15 +249,7 @@ class ChatInputViewModel(
                 _isEmoteMenuOpen,
                 _whisperTarget,
                 _isAnnouncing,
-            ) { values ->
-                val sheetState = values[0] as FullScreenSheetState
-                val tab = values[1] as Int
-
-                @Suppress("UNCHECKED_CAST")
-                val replyState = values[2] as Triple<Boolean, UserName?, String?>
-                val isEmoteMenuOpen = values[3] as Boolean
-                val whisperTarget = values[4] as UserName?
-                val isAnnouncing = values[5] as Boolean
+            ) { sheetState, tab, replyState, isEmoteMenuOpen, whisperTarget, isAnnouncing ->
                 val (isReplying, replyName, replyMessageId) = replyState
                 InputOverlayState(sheetState, tab, isReplying, replyName, replyMessageId, isEmoteMenuOpen, whisperTarget, isAnnouncing)
             }

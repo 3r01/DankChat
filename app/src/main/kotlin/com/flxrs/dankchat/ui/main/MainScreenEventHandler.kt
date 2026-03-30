@@ -121,9 +121,9 @@ fun MainScreenEventHandler(
                         )
                     }
 
-                    else -> {
-                        Unit
-                    }
+                    is AuthEvent.ScopesOutdated -> {}
+
+                    AuthEvent.TokenInvalid -> {}
                 }
             }
         }
