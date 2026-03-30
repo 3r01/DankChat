@@ -94,7 +94,6 @@ fun StackedEmote(
                         }.toTypedArray()
 
                 if (drawables.isNotEmpty()) {
-                    // Create LayerDrawable exactly like old implementation
                     val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
                     emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
                     // Store dimensions for future placeholder sizing

@@ -31,13 +31,13 @@ class MessageOptionsViewModel(
     @InjectedParam private val canModerateParam: Boolean,
     @InjectedParam private val canReplyParam: Boolean,
     private val chatRepository: ChatRepository,
-    private val chatMessageRepository: ChatMessageRepository,
-    private val chatConnector: ChatConnector,
-    private val chatNotificationRepository: ChatNotificationRepository,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
     private val commandRepository: CommandRepository,
     private val repliesRepository: RepliesRepository,
+    chatMessageRepository: ChatMessageRepository,
+    chatConnector: ChatConnector,
+    chatNotificationRepository: ChatNotificationRepository,
 ) : ViewModel() {
     private val messageFlow = flowOf(chatMessageRepository.findMessage(messageId, channel, chatNotificationRepository.whispers))
     private val connectionStateFlow = chatConnector.getConnectionState(channel ?: WhisperMessage.WHISPER_CHANNEL)

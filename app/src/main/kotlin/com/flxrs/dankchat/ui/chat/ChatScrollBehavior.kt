@@ -12,7 +12,7 @@ import androidx.compose.ui.input.pointer.positionChange
 
 /**
  * Observes scroll direction and fires [onHide]/[onShow] when the accumulated
- * scroll delta exceeds [thresholdPx].
+ * scroll delta exceeds [hideThresholdPx]/[showThresholdPx].
  *
  * With `reverseLayout = true` the nested scroll deltas are inverted:
  * `available.y > 0` = finger up = reading old messages = hide toolbar;
@@ -28,6 +28,7 @@ class ScrollDirectionTracker(
 ) : NestedScrollConnection {
     private var accumulated = 0f
 
+    @Suppress("SameReturnValue")
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
@@ -68,7 +69,7 @@ fun Modifier.swipeDownToHide(
     onHide: () -> Unit,
 ): Modifier {
     if (!enabled) return this
-    return this.pointerInput(enabled) {
+    return this.pointerInput(true) {
         awaitEachGesture {
             awaitFirstDown(pass = PointerEventPass.Initial, requireUnconsumed = false)
             var totalDragY = 0f
