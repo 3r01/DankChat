@@ -123,144 +123,142 @@ fun ModActionsDialog(
 ) {
     var subView by remember { mutableStateOf<SubView?>(null) }
 
-    run {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        ) {
-            AnimatedContent(
-                targetState = subView,
-                transitionSpec = {
-                    when {
-                        targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                        else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                    }
-                },
-                label = "ModActionsContent",
-            ) { currentView ->
-                when (currentView) {
-                    null -> {
-                        ModActionsMainView(
-                            roomState = roomState,
-                            isBroadcaster = isBroadcaster,
-                            isStreamActive = isStreamActive,
-                            shieldModeActive = shieldModeActive,
-                            onSendCommand = onSendCommand,
-                            onShowSubView = { subView = it },
-                            onClearChat = { subView = SubView.ClearChatConfirm },
-                            onAnnounce = onAnnounce,
-                            onDismiss = onDismiss,
-                        )
-                    }
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        AnimatedContent(
+            targetState = subView,
+            transitionSpec = {
+                when {
+                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            label = "ModActionsContent",
+        ) { currentView ->
+            when (currentView) {
+                null -> {
+                    ModActionsMainView(
+                        roomState = roomState,
+                        isBroadcaster = isBroadcaster,
+                        isStreamActive = isStreamActive,
+                        shieldModeActive = shieldModeActive,
+                        onSendCommand = onSendCommand,
+                        onShowSubView = { subView = it },
+                        onClearChat = { subView = SubView.ClearChatConfirm },
+                        onAnnounce = onAnnounce,
+                        onDismiss = onDismiss,
+                    )
+                }
 
-                    SubView.SlowMode -> {
-                        PresetChips(
-                            titleRes = R.string.room_state_slow_mode,
-                            presets = SLOW_MODE_PRESETS,
-                            formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
-                            onPresetClick = { value ->
-                                onSendCommand("/slow $value")
-                                onDismiss()
-                            },
-                            onCustomClick = { subView = SubView.SlowModeCustom },
-                        )
-                    }
+                SubView.SlowMode -> {
+                    PresetChips(
+                        titleRes = R.string.room_state_slow_mode,
+                        presets = SLOW_MODE_PRESETS,
+                        formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
+                        onPresetClick = { value ->
+                            onSendCommand("/slow $value")
+                            onDismiss()
+                        },
+                        onCustomClick = { subView = SubView.SlowModeCustom },
+                    )
+                }
 
-                    SubView.SlowModeCustom -> {
-                        UserInputSubView(
-                            titleRes = R.string.room_state_slow_mode,
-                            hintRes = R.string.seconds,
-                            defaultValue = "30",
-                            keyboardType = KeyboardType.Number,
-                            onConfirm = { value ->
-                                onSendCommand("/slow $value")
-                                onDismiss()
-                            },
-                            onDismiss = onDismiss,
-                        )
-                    }
+                SubView.SlowModeCustom -> {
+                    UserInputSubView(
+                        titleRes = R.string.room_state_slow_mode,
+                        hintRes = R.string.seconds,
+                        defaultValue = "30",
+                        keyboardType = KeyboardType.Number,
+                        onConfirm = { value ->
+                            onSendCommand("/slow $value")
+                            onDismiss()
+                        },
+                        onDismiss = onDismiss,
+                    )
+                }
 
-                    SubView.FollowerMode -> {
-                        FollowerPresetChips(
-                            onPresetClick = { preset ->
-                                onSendCommand("/followers ${preset.commandArg}")
-                                onDismiss()
-                            },
-                            onCustomClick = { subView = SubView.FollowerModeCustom },
-                        )
-                    }
+                SubView.FollowerMode -> {
+                    FollowerPresetChips(
+                        onPresetClick = { preset ->
+                            onSendCommand("/followers ${preset.commandArg}")
+                            onDismiss()
+                        },
+                        onCustomClick = { subView = SubView.FollowerModeCustom },
+                    )
+                }
 
-                    SubView.FollowerModeCustom -> {
-                        UserInputSubView(
-                            titleRes = R.string.room_state_follower_only,
-                            hintRes = R.string.minutes,
-                            defaultValue = "10",
-                            keyboardType = KeyboardType.Number,
-                            onConfirm = { value ->
-                                onSendCommand("/followers $value")
-                                onDismiss()
-                            },
-                            onDismiss = onDismiss,
-                        )
-                    }
+                SubView.FollowerModeCustom -> {
+                    UserInputSubView(
+                        titleRes = R.string.room_state_follower_only,
+                        hintRes = R.string.minutes,
+                        defaultValue = "10",
+                        keyboardType = KeyboardType.Number,
+                        onConfirm = { value ->
+                            onSendCommand("/followers $value")
+                            onDismiss()
+                        },
+                        onDismiss = onDismiss,
+                    )
+                }
 
-                    SubView.CommercialPresets -> {
-                        PresetChips(
-                            titleRes = R.string.mod_actions_commercial,
-                            presets = COMMERCIAL_PRESETS,
-                            formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
-                            onPresetClick = { value ->
-                                onSendCommand("/commercial $value")
-                                onDismiss()
-                            },
-                            onCustomClick = null,
-                        )
-                    }
+                SubView.CommercialPresets -> {
+                    PresetChips(
+                        titleRes = R.string.mod_actions_commercial,
+                        presets = COMMERCIAL_PRESETS,
+                        formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
+                        onPresetClick = { value ->
+                            onSendCommand("/commercial $value")
+                            onDismiss()
+                        },
+                        onCustomClick = null,
+                    )
+                }
 
-                    SubView.RaidInput -> {
-                        UserInputSubView(
-                            titleRes = R.string.mod_actions_raid,
-                            hintRes = R.string.mod_actions_channel_hint,
-                            onConfirm = { target ->
-                                onSendCommand("/raid $target")
-                                onDismiss()
-                            },
-                            onDismiss = onDismiss,
-                        )
-                    }
+                SubView.RaidInput -> {
+                    UserInputSubView(
+                        titleRes = R.string.mod_actions_raid,
+                        hintRes = R.string.mod_actions_channel_hint,
+                        onConfirm = { target ->
+                            onSendCommand("/raid $target")
+                            onDismiss()
+                        },
+                        onDismiss = onDismiss,
+                    )
+                }
 
-                    SubView.ShoutoutInput -> {
-                        UserInputSubView(
-                            titleRes = R.string.mod_actions_shoutout,
-                            hintRes = R.string.mod_actions_username_hint,
-                            onConfirm = { target ->
-                                onSendCommand("/shoutout $target")
-                                onDismiss()
-                            },
-                            onDismiss = onDismiss,
-                        )
-                    }
+                SubView.ShoutoutInput -> {
+                    UserInputSubView(
+                        titleRes = R.string.mod_actions_shoutout,
+                        hintRes = R.string.mod_actions_username_hint,
+                        onConfirm = { target ->
+                            onSendCommand("/shoutout $target")
+                            onDismiss()
+                        },
+                        onDismiss = onDismiss,
+                    )
+                }
 
-                    SubView.ShieldModeConfirm -> {
-                        ShieldModeConfirmSubView(
-                            onConfirm = {
-                                onSendCommand("/shield")
-                                onDismiss()
-                            },
-                            onBack = { subView = null },
-                        )
-                    }
+                SubView.ShieldModeConfirm -> {
+                    ShieldModeConfirmSubView(
+                        onConfirm = {
+                            onSendCommand("/shield")
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
 
-                    SubView.ClearChatConfirm -> {
-                        ClearChatConfirmSubView(
-                            onConfirm = {
-                                onSendCommand("/clear")
-                                onDismiss()
-                            },
-                            onBack = { subView = null },
-                        )
-                    }
+                SubView.ClearChatConfirm -> {
+                    ClearChatConfirmSubView(
+                        onConfirm = {
+                            onSendCommand("/clear")
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
                 }
             }
         }

@@ -51,6 +51,7 @@ import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -312,7 +313,7 @@ fun MainScreenDialogs(
         val state by viewModel.userPopupState.collectAsStateWithLifecycle()
         UserPopupDialog(
             state = state,
-            badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) },
+            badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) }.toImmutableList(),
             isOwnUser = viewModel.isOwnUser,
             onBlockUser = viewModel::blockUser,
             onUnblockUser = viewModel::unblockUser,

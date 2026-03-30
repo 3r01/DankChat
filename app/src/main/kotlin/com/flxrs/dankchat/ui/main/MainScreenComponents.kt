@@ -47,7 +47,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.flxrs.dankchat.ui.main.sheet.EmoteMenu
+import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenu
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
 
 @Composable

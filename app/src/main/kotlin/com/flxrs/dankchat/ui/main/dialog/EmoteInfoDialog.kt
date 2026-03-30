@@ -36,13 +36,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.ui.chat.emote.EmoteSheetItem
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoItem
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmoteInfoDialog(
-    items: List<EmoteSheetItem>,
+    items: ImmutableList<EmoteInfoItem>,
     isLoggedIn: Boolean,
     onUseEmote: (String) -> Unit,
     onCopyEmote: (String) -> Unit,
@@ -101,7 +102,7 @@ fun EmoteInfoDialog(
 
 @Composable
 private fun EmoteInfoContent(
-    item: EmoteSheetItem,
+    item: EmoteInfoItem,
     showUseEmote: Boolean,
     onUseEmote: () -> Unit,
     onCopyEmote: () -> Unit,

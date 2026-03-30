@@ -60,12 +60,13 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserPopupDialog(
     state: UserPopupState,
-    badges: List<BadgeUi>,
+    badges: ImmutableList<BadgeUi>,
     onBlockUser: () -> Unit,
     onUnblockUser: () -> Unit,
     onDismiss: () -> Unit,
@@ -239,7 +240,7 @@ private fun UserInfoSection(
     state: UserPopupState,
     userName: UserName,
     displayName: DisplayName,
-    badges: List<BadgeUi>,
+    badges: ImmutableList<BadgeUi>,
     onOpenChannel: (String) -> Unit,
 ) {
     Row(

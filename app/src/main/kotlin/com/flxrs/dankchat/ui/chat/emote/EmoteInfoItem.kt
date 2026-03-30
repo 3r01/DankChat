@@ -3,7 +3,7 @@ package com.flxrs.dankchat.ui.chat.emote
 import androidx.annotation.StringRes
 import com.flxrs.dankchat.data.DisplayName
 
-data class EmoteSheetItem(
+data class EmoteInfoItem(
     val id: String,
     val name: String,
     val baseName: String?,

@@ -1,4 +1,4 @@
-package com.flxrs.dankchat.ui.main.sheet
+package com.flxrs.dankchat.ui.chat.emotemenu
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -43,8 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.components.DankBackground
-import com.flxrs.dankchat.ui.chat.emotemenu.EmoteItem
-import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenuTab
+import com.flxrs.dankchat.ui.main.sheet.EmoteMenuViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 

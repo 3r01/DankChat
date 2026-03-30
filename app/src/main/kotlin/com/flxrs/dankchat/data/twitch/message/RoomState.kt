@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -10,6 +11,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
+@Immutable
 data class RoomState(
     val channel: UserName,
     val channelId: UserId,

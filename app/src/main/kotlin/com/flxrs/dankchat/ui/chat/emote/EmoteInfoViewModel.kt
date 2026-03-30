@@ -5,6 +5,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import kotlinx.collections.immutable.toImmutableList
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 
@@ -13,18 +14,19 @@ class EmoteInfoViewModel(
     @InjectedParam private val emotes: List<ChatMessageEmote>,
 ) : ViewModel() {
     val items =
-        emotes.map { emote ->
-            EmoteSheetItem(
-                id = emote.id,
-                name = emote.code,
-                imageUrl = emote.url,
-                baseName = emote.baseNameOrNull(),
-                creatorName = emote.creatorNameOrNull(),
-                providerUrl = emote.providerUrlOrNull(),
-                isZeroWidth = emote.isOverlayEmote,
-                emoteType = emote.emoteTypeOrNull(),
-            )
-        }
+        emotes
+            .map { emote ->
+                EmoteInfoItem(
+                    id = emote.id,
+                    name = emote.code,
+                    imageUrl = emote.url,
+                    baseName = emote.baseNameOrNull(),
+                    creatorName = emote.creatorNameOrNull(),
+                    providerUrl = emote.providerUrlOrNull(),
+                    isZeroWidth = emote.isOverlayEmote,
+                    emoteType = emote.emoteTypeOrNull(),
+                )
+            }.toImmutableList()
 
     private fun ChatMessageEmote.baseNameOrNull(): String? =
         when (type) {
