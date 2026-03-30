@@ -9,6 +9,8 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.extensions.isEven
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -46,9 +48,9 @@ class RepliesViewModel(
             .map {
                 when {
                     it.isEmpty() -> RepliesState.NotFound
-                    else -> RepliesState.Found(it)
+                    else -> RepliesState.Found(it.toImmutableList())
                 }
-            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesState.Found(emptyList()))
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesState.Found(persistentListOf()))
 
     val uiState: StateFlow<RepliesUiState> =
         combine(
@@ -71,10 +73,10 @@ class RepliesViewModel(
                                 preferenceStore = preferenceStore,
                                 isAlternateBackground = altBg,
                             )
-                        }
+                        }.toImmutableList()
                     RepliesUiState.Found(uiMessages)
                 }
             }
         }.flowOn(Dispatchers.Default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesUiState.Found(emptyList()))
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesUiState.Found(persistentListOf()))
 }

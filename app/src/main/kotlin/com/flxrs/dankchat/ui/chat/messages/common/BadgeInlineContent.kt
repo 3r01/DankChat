@@ -13,9 +13,6 @@ import androidx.compose.ui.unit.Dp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.ui.chat.BadgeUi
-import com.flxrs.dankchat.ui.chat.EmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.EmoteUi
-import com.flxrs.dankchat.ui.chat.StackedEmote
 
 private val FfzModGreen = Color(0xFF34AE0A)
 
@@ -66,24 +63,3 @@ fun BadgeInlineContent(
     }
 }
 
-/**
- * Renders an emote (potentially stacked) as inline content in a message.
- */
-@Composable
-fun EmoteInlineContent(
-    emote: EmoteUi,
-    fontSize: Float,
-    coordinator: EmoteAnimationCoordinator,
-    animateGifs: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    StackedEmote(
-        emote = emote,
-        fontSize = fontSize,
-        emoteCoordinator = coordinator,
-        animateGifs = animateGifs,
-        modifier = modifier,
-        onClick = onClick,
-    )
-}

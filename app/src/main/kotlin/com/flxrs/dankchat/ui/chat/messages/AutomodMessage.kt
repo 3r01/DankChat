@@ -32,6 +32,8 @@ import com.flxrs.dankchat.ui.chat.TextWithMeasuredInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.BadgeInlineContent
 import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
 import com.flxrs.dankchat.utils.resolve
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableMap
 
 private val AutoModBlue = Color(0xFF448AFF)
 
@@ -204,15 +206,15 @@ fun AutomodMessageComposable(
 
     // Badge inline content providers (same pattern as PrivMessage)
     val badgeSize = EmoteScaling.getBadgeSize(fontSize)
-    val inlineContentProviders: Map<String, @Composable () -> Unit> =
+    val inlineContentProviders =
         remember(message.badges, fontSize) {
-            buildMap {
+            buildMap<String, @Composable () -> Unit> {
                 message.badges.forEach { badge ->
                     put("BADGE_${badge.position}") {
                         BadgeInlineContent(badge = badge, size = badgeSize)
                     }
                 }
-            }
+            }.toImmutableMap()
         }
 
     val density = LocalDensity.current
@@ -223,7 +225,7 @@ fun AutomodMessageComposable(
                 message.badges.forEach { badge ->
                     put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
                 }
-            }
+            }.toImmutableMap()
         }
 
     val resolvedAlpha =
@@ -270,7 +272,7 @@ fun AutomodMessageComposable(
         bodyString?.let {
             TextWithMeasuredInlineContent(
                 text = it,
-                inlineContentProviders = emptyMap(),
+                inlineContentProviders = persistentMapOf(),
                 style = TextStyle(fontSize = textSize),
                 modifier = Modifier.fillMaxWidth(),
             )

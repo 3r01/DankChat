@@ -2,19 +2,15 @@ package com.flxrs.dankchat.ui.chat.replies
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.LocalPlatformContext
-import coil3.imageLoader
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
-import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Standalone composable for reply thread display.
@@ -39,13 +35,9 @@ fun RepliesComposable(
     onScrollToBottom: () -> Unit = {},
 ) {
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
-    val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(emptyList()))
+    val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(persistentListOf()))
 
-    val context = LocalPlatformContext.current
-    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
-
-    CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
-        when (uiState) {
+    when (uiState) {
             is RepliesUiState.Found -> {
                 ChatScreen(
                     messages = (uiState as RepliesUiState.Found).items,
@@ -70,6 +62,5 @@ fun RepliesComposable(
                     onMissing()
                 }
             }
-        }
-    } // CompositionLocalProvider
+    }
 }

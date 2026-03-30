@@ -2,20 +2,16 @@ package com.flxrs.dankchat.ui.chat.mention
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.LocalPlatformContext
-import coil3.imageLoader
 import com.flxrs.dankchat.data.UserName
+import kotlinx.collections.immutable.persistentListOf
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
-import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -42,15 +38,11 @@ fun MentionComposable(
 ) {
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
-        isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
-        else -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
+        isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
+        else -> mentionViewModel.mentionsUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
     }
 
-    val context = LocalPlatformContext.current
-    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
-
-    CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
-        ChatScreen(
+    ChatScreen(
             messages = messages,
             fontSize = displaySettings.fontSize,
             callbacks =
@@ -69,5 +61,4 @@ fun MentionComposable(
             containerColor = containerColor,
             onScrollToBottom = onScrollToBottom,
         )
-    } // CompositionLocalProvider
 }

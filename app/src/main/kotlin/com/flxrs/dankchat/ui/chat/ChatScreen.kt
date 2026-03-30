@@ -16,7 +16,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -74,11 +72,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
@@ -99,7 +95,7 @@ import com.flxrs.dankchat.ui.chat.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.WhisperMessageComposable
 import com.flxrs.dankchat.ui.main.input.TourTooltip
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
-import com.flxrs.dankchat.utils.compose.rememberStartAlignedTooltipPositionProvider
+import kotlinx.collections.immutable.ImmutableList
 
 data class ChatScreenCallbacks(
     val onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
@@ -114,7 +110,7 @@ data class ChatScreenCallbacks(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    messages: List<ChatMessageUiState>,
+    messages: ImmutableList<ChatMessageUiState>,
     fontSize: Float,
     callbacks: ChatScreenCallbacks,
     modifier: Modifier = Modifier,
@@ -787,9 +783,8 @@ private suspend fun LazyListState.scrollToCentered(
 
     val itemInfo = layoutInfo.visibleItemsInfo.firstOrNull { it.index == index } ?: return
     val viewportHeight = layoutInfo.viewportSize.height
-    val usableTop = topPaddingPx
     val usableBottom = viewportHeight - bottomPaddingPx
-    val usableCenter = (usableTop + usableBottom) / 2
+    val usableCenter = (topPaddingPx + usableBottom) / 2
     val itemCenter = itemInfo.offset + itemInfo.size / 2
     val delta = (itemCenter - usableCenter).toFloat()
 

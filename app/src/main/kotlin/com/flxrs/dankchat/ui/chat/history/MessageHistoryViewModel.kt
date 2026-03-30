@@ -51,9 +51,9 @@ class MessageHistoryViewModel(
     chatMessageRepository: ChatMessageRepository,
     usersRepository: UsersRepository,
     private val chatMessageMapper: ChatMessageMapper,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    chatSettingsDataStore: ChatSettingsDataStore,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -80,7 +80,7 @@ class MessageHistoryViewModel(
         ).map { ChatSearchFilterParser.parse(it) }
             .distinctUntilChanged()
 
-    val historyUiStates: Flow<List<ChatMessageUiState>> =
+    val historyUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
             chatMessageRepository.getChat(channel),
             filters,
@@ -97,7 +97,7 @@ class MessageHistoryViewModel(
                         preferenceStore = preferenceStore,
                         isAlternateBackground = altBg,
                     )
-                }
+                }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 
     private val users: StateFlow<ImmutableSet<DisplayName>> =

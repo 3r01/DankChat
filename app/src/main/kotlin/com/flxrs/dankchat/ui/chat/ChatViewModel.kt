@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.ui.chat
 
 import android.util.Log
+import android.util.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -44,9 +45,9 @@ class ChatViewModel(
     private val chatMessageMapper: ChatMessageMapper,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    chatSettingsDataStore: ChatSettingsDataStore,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -66,7 +67,7 @@ class ChatViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
 
     // Mapping cache: keyed on "${message.id}-${tag}-${altBg}" to avoid re-mapping unchanged messages
-    private val mappingCache = HashMap<String, ChatMessageUiState>(256)
+    private val mappingCache = LruCache<String, ChatMessageUiState>(512)
     private var lastAppearanceSettings: AppearanceSettings? = null
     private var lastChatSettings: ChatSettings? = null
 
@@ -80,7 +81,7 @@ class ChatViewModel(
         ) { messages, appearanceSettings, chatSettings ->
             // Clear cache when settings change (affects all mapped results)
             if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
-                mappingCache.clear()
+                mappingCache.evictAll()
                 lastAppearanceSettings = appearanceSettings
                 lastChatSettings = chatSettings
             }
@@ -100,14 +101,13 @@ class ChatViewModel(
                 val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
                 val mapped =
-                    mappingCache.getOrPut(cacheKey) {
-                        chatMessageMapper.mapToUiState(
+                    mappingCache[cacheKey] ?: chatMessageMapper
+                        .mapToUiState(
                             item = item,
                             chatSettings = chatSettings,
                             preferenceStore = preferenceStore,
                             isAlternateBackground = altBg,
-                        )
-                    }
+                        ).also { mappingCache.put(cacheKey, it) }
                 result += mapped
 
                 // Insert date separator between messages on different days

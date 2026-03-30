@@ -29,6 +29,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -45,9 +46,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -59,7 +63,10 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
+import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
+import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.swipeDownToHide
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
@@ -393,6 +400,20 @@ fun MainScreen(
         }
     }
 
+    val emoteCoordinator = rememberEmoteAnimationCoordinator()
+    val customTabContext = LocalContext.current
+    val customTabUriHandler = remember(customTabContext) {
+        object : UriHandler {
+            override fun openUri(uri: String) {
+                launchCustomTab(customTabContext, uri)
+            }
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalEmoteAnimationCoordinator provides emoteCoordinator,
+        LocalUriHandler provides customTabUriHandler,
+    ) {
     Box(
         modifier =
             Modifier
@@ -1035,5 +1056,6 @@ fun MainScreen(
                 )
             }
         }
+    }
     }
 }

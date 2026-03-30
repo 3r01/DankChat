@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -60,19 +59,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.LocalPlatformContext
-import coil3.imageLoader
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
-import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
-import com.flxrs.dankchat.ui.chat.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
 
@@ -91,7 +87,7 @@ fun MessageHistorySheet(
     }
 
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
-    val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
+    val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
 
     val sheetBackgroundColor =
@@ -138,9 +134,6 @@ fun MessageHistorySheet(
         }
     val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
-    val context = LocalPlatformContext.current
-    val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
-
     Box(
         modifier =
             Modifier
@@ -154,8 +147,7 @@ fun MessageHistorySheet(
                     translationY = backProgress * 100f
                 },
     ) {
-        CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
-            ChatScreen(
+        ChatScreen(
                 messages = messages,
                 fontSize = displaySettings.fontSize,
                 callbacks =
@@ -172,7 +164,6 @@ fun MessageHistorySheet(
                 containerColor = sheetBackgroundColor,
                 onScrollToBottom = { toolbarVisible = true },
             )
-        }
 
         AnimatedVisibility(
             visible = toolbarVisible,

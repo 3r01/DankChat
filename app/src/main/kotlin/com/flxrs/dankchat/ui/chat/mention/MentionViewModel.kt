@@ -29,9 +29,9 @@ import org.koin.android.annotation.KoinViewModel
 class MentionViewModel(
     chatNotificationRepository: ChatNotificationRepository,
     private val chatMessageMapper: ChatMessageMapper,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    chatSettingsDataStore: ChatSettingsDataStore,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -61,7 +61,7 @@ class MentionViewModel(
             .map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
 
-    val mentionsUiStates: Flow<List<ChatMessageUiState>> =
+    val mentionsUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
             mentions,
             appearanceSettingsDataStore.settings,
@@ -75,10 +75,10 @@ class MentionViewModel(
                     preferenceStore = preferenceStore,
                     isAlternateBackground = altBg,
                 )
-            }
+            }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 
-    val whispersUiStates: Flow<List<ChatMessageUiState>> =
+    val whispersUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
             whispers,
             appearanceSettingsDataStore.settings,
@@ -92,13 +92,6 @@ class MentionViewModel(
                     preferenceStore = preferenceStore,
                     isAlternateBackground = altBg,
                 )
-            }
+            }.toImmutableList()
         }.flowOn(Dispatchers.Default)
-
-    val hasMentions: StateFlow<Boolean> =
-        chatNotificationRepository.hasMentions
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
-    val hasWhispers: StateFlow<Boolean> =
-        chatNotificationRepository.hasWhispers
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), false)
 }

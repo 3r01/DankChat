@@ -27,6 +27,8 @@ import com.flxrs.dankchat.ui.chat.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.StackedEmote
 import com.flxrs.dankchat.ui.chat.TextWithMeasuredInlineContent
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableMap
 
 @Composable
 fun MessageTextWithInlineContent(
@@ -45,7 +47,7 @@ fun MessageTextWithInlineContent(
     val density = LocalDensity.current
 
     val badgeSize = EmoteScaling.getBadgeSize(fontSize)
-    val inlineContentProviders: Map<String, @Composable () -> Unit> =
+    val inlineContentProviders: ImmutableMap<String, @Composable () -> Unit> =
         remember(badges, emotes, fontSize) {
             buildMap<String, @Composable () -> Unit> {
                 badges.forEach { badge ->
@@ -66,7 +68,7 @@ fun MessageTextWithInlineContent(
                         )
                     }
                 }
-            }
+            }.toImmutableMap()
         }
 
     val knownDimensions =
@@ -98,7 +100,7 @@ fun MessageTextWithInlineContent(
                         }
                     }
                 }
-            }
+            }.toImmutableMap()
         }
 
     TextWithMeasuredInlineContent(

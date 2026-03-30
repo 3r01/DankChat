@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -93,7 +93,6 @@ fun UserNoticeMessageComposable(
     val timestampColor = MaterialTheme.colorScheme.onSurface
     val nameColor = rememberNormalizedColor(message.rawNameColor, bgColor)
     val textSize = fontSize.sp
-    val context = LocalContext.current
 
     val annotatedString =
         remember(message, textColor, nameColor, linkColor, timestampColor, textSize) {
@@ -157,18 +156,10 @@ fun UserNoticeMessageComposable(
                 .background(bgColor, highlightShape)
                 .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
-        ClickableText(
+        Text(
             text = annotatedString,
             style = TextStyle(fontSize = textSize),
             modifier = Modifier.fillMaxWidth(),
-            onClick = { offset ->
-                annotatedString
-                    .getStringAnnotations("URL", offset, offset)
-                    .firstOrNull()
-                    ?.let { annotation ->
-                        launchCustomTab(context, annotation.item)
-                    }
-            },
         )
     }
 }
@@ -218,7 +209,7 @@ fun ModerationMessageComposable(
     val targetColor = rememberNormalizedColor(message.targetColor, bgColor)
     val textSize = fontSize.sp
     val resolvedMessage = message.message.resolve()
-    val context = LocalContext.current
+
     val linkColor = rememberAdaptiveLinkColor(bgColor)
 
     val dimmedTextColor = textColor.copy(alpha = 0.7f)
@@ -322,18 +313,10 @@ fun ModerationMessageComposable(
                 .background(bgColor)
                 .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
-        ClickableText(
+        Text(
             text = annotatedString,
             style = TextStyle(fontSize = textSize),
             modifier = Modifier.fillMaxWidth(),
-            onClick = { offset ->
-                annotatedString
-                    .getStringAnnotations("URL", offset, offset)
-                    .firstOrNull()
-                    ?.let { annotation ->
-                        launchCustomTab(context, annotation.item)
-                    }
-            },
         )
     }
 }

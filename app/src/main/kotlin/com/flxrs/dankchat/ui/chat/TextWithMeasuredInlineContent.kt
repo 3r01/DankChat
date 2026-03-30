@@ -21,6 +21,8 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
 
 data class EmoteDimensions(
@@ -32,10 +34,10 @@ data class EmoteDimensions(
 @Composable
 fun TextWithMeasuredInlineContent(
     text: AnnotatedString,
-    inlineContentProviders: Map<String, @Composable () -> Unit>,
+    inlineContentProviders: ImmutableMap<String, @Composable () -> Unit>,
     modifier: Modifier = Modifier,
     style: TextStyle = TextStyle.Default,
-    knownDimensions: Map<String, EmoteDimensions> = emptyMap(),
+    knownDimensions: ImmutableMap<String, EmoteDimensions> = persistentMapOf(),
     onTextClick: ((Int) -> Unit)? = null,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -157,23 +159,5 @@ fun TextWithMeasuredInlineContent(
         layout(textPlaceable.width, textPlaceable.height) {
             textPlaceable.place(0, 0)
         }
-    }
-}
-
-/**
- * Simpler version that just wraps BasicText with measured inline content.
- * Use this when you already have the dimensions or don't need click handling.
- */
-@Composable
-fun MeasuredInlineText(
-    text: AnnotatedString,
-    inlineContent: Map<String, InlineTextContent>,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier = modifier) {
-        BasicText(
-            text = text,
-            inlineContent = inlineContent,
-        )
     }
 }
