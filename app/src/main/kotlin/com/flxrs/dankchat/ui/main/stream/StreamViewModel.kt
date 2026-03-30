@@ -26,30 +26,32 @@ class StreamViewModel(
     private val streamDataRepository: StreamDataRepository,
     private val streamsSettingsDataStore: StreamsSettingsDataStore,
 ) : AndroidViewModel(application) {
-
     private val _currentStreamedChannel = MutableStateFlow<UserName?>(null)
 
-    private val hasStreamData: StateFlow<Boolean> = combine(
-        chatChannelProvider.activeChannel,
-        streamDataRepository.streamData,
-    ) { activeChannel, streamData ->
-        activeChannel != null && streamData.any { it.channel == activeChannel }
-    }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    private val hasStreamData: StateFlow<Boolean> =
+        combine(
+            chatChannelProvider.activeChannel,
+            streamDataRepository.streamData,
+        ) { activeChannel, streamData ->
+            activeChannel != null && streamData.any { it.channel == activeChannel }
+        }.distinctUntilChanged()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    val streamState: StateFlow<StreamState> = combine(
-        _currentStreamedChannel,
-        hasStreamData,
-    ) { currentStream, hasData ->
-        StreamState(currentStream = currentStream, hasStreamData = hasData)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
+    val streamState: StateFlow<StreamState> =
+        combine(
+            _currentStreamedChannel,
+            hasStreamData,
+        ) { currentStream, hasData ->
+            StreamState(currentStream = currentStream, hasStreamData = hasData)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
 
-    val shouldEnablePipAutoMode: StateFlow<Boolean> = combine(
-        _currentStreamedChannel,
-        streamsSettingsDataStore.pipEnabled,
-    ) { currentStream, pipEnabled ->
-        currentStream != null && pipEnabled
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val shouldEnablePipAutoMode: StateFlow<Boolean> =
+        combine(
+            _currentStreamedChannel,
+            streamsSettingsDataStore.pipEnabled,
+        ) { currentStream, pipEnabled ->
+            currentStream != null && pipEnabled
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
         viewModelScope.launch {
@@ -76,7 +78,10 @@ class StreamViewModel(
         }
     }
 
-    fun setStream(channel: UserName, webView: StreamWebView) {
+    fun setStream(
+        channel: UserName,
+        webView: StreamWebView,
+    ) {
         if (channel == lastStreamedChannel) return
         lastStreamedChannel = channel
         loadStream(channel, webView)
@@ -92,7 +97,10 @@ class StreamViewModel(
         hasWebViewBeenAttached = false
     }
 
-    private fun loadStream(channel: UserName, webView: StreamWebView) {
+    private fun loadStream(
+        channel: UserName,
+        webView: StreamWebView,
+    ) {
         val url = "https://player.twitch.tv/?channel=$channel&enableExtensions=true&muted=false&parent=twitch.tv"
         webView.stopLoading()
         webView.loadUrl(url)
@@ -116,4 +124,7 @@ class StreamViewModel(
 }
 
 @Immutable
-data class StreamState(val currentStream: UserName? = null, val hasStreamData: Boolean = false)
+data class StreamState(
+    val currentStream: UserName? = null,
+    val hasStreamData: Boolean = false,
+)

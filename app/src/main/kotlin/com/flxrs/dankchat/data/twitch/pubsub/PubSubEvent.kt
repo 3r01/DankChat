@@ -1,7 +1,9 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
 sealed interface PubSubEvent {
-    data class Message(val message: PubSubMessage) : PubSubEvent
+    data class Message(
+        val message: PubSubMessage,
+    ) : PubSubEvent
 
     data object Connected : PubSubEvent
 

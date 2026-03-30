@@ -7,4 +7,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVEmoteOwnerDto(@SerialName(value = "display_name") val displayName: DisplayName?)
+data class SevenTVEmoteOwnerDto(
+    @SerialName(value = "display_name") val displayName: DisplayName?,
+)

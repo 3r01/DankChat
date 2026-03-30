@@ -35,79 +35,80 @@ class DeveloperSettingsViewModel(
     private val _events = MutableSharedFlow<DeveloperSettingsEvent>()
     val events = _events.asSharedFlow()
 
-    fun onInteraction(interaction: DeveloperSettingsInteraction) = viewModelScope.launch {
-        runCatching {
-            when (interaction) {
-                is DeveloperSettingsInteraction.DebugMode -> {
-                    developerSettingsDataStore.update { it.copy(debugMode = interaction.value) }
-                }
+    fun onInteraction(interaction: DeveloperSettingsInteraction) =
+        viewModelScope.launch {
+            runCatching {
+                when (interaction) {
+                    is DeveloperSettingsInteraction.DebugMode -> {
+                        developerSettingsDataStore.update { it.copy(debugMode = interaction.value) }
+                    }
 
-                is DeveloperSettingsInteraction.RepeatedSending -> {
-                    developerSettingsDataStore.update { it.copy(repeatedSending = interaction.value) }
-                }
+                    is DeveloperSettingsInteraction.RepeatedSending -> {
+                        developerSettingsDataStore.update { it.copy(repeatedSending = interaction.value) }
+                    }
 
-                is DeveloperSettingsInteraction.BypassCommandHandling -> {
-                    developerSettingsDataStore.update { it.copy(bypassCommandHandling = interaction.value) }
-                }
+                    is DeveloperSettingsInteraction.BypassCommandHandling -> {
+                        developerSettingsDataStore.update { it.copy(bypassCommandHandling = interaction.value) }
+                    }
 
-                is DeveloperSettingsInteraction.CustomRecentMessagesHost -> {
-                    val withSlash =
-                        interaction.host
-                            .ifBlank { DeveloperSettings.RM_HOST_DEFAULT }
-                            .withTrailingSlash
-                    if (withSlash == developerSettingsDataStore.settings.first().customRecentMessagesHost) return@launch
-                    developerSettingsDataStore.update { it.copy(customRecentMessagesHost = withSlash) }
-                    _events.emit(DeveloperSettingsEvent.RestartRequired)
-                }
-
-                is DeveloperSettingsInteraction.EventSubEnabled -> {
-                    developerSettingsDataStore.update { it.copy(eventSubEnabled = interaction.value) }
-                    if (initial.eventSubEnabled != interaction.value) {
+                    is DeveloperSettingsInteraction.CustomRecentMessagesHost -> {
+                        val withSlash =
+                            interaction.host
+                                .ifBlank { DeveloperSettings.RM_HOST_DEFAULT }
+                                .withTrailingSlash
+                        if (withSlash == developerSettingsDataStore.settings.first().customRecentMessagesHost) return@launch
+                        developerSettingsDataStore.update { it.copy(customRecentMessagesHost = withSlash) }
                         _events.emit(DeveloperSettingsEvent.RestartRequired)
                     }
-                }
 
-                is DeveloperSettingsInteraction.EventSubDebugOutput -> {
-                    developerSettingsDataStore.update { it.copy(eventSubDebugOutput = interaction.value) }
-                }
-
-                is DeveloperSettingsInteraction.ChatSendProtocolChanged -> {
-                    developerSettingsDataStore.update { it.copy(chatSendProtocol = interaction.protocol) }
-                }
-
-                is DeveloperSettingsInteraction.RestartRequired -> {
-                    _events.emit(DeveloperSettingsEvent.RestartRequired)
-                }
-
-                is DeveloperSettingsInteraction.ResetOnboarding -> {
-                    onboardingDataStore.update {
-                        it.copy(
-                            hasCompletedOnboarding = false,
-                            onboardingPage = 0,
-                        )
+                    is DeveloperSettingsInteraction.EventSubEnabled -> {
+                        developerSettingsDataStore.update { it.copy(eventSubEnabled = interaction.value) }
+                        if (initial.eventSubEnabled != interaction.value) {
+                            _events.emit(DeveloperSettingsEvent.RestartRequired)
+                        }
                     }
-                    _events.emit(DeveloperSettingsEvent.RestartRequired)
-                }
 
-                is DeveloperSettingsInteraction.ResetTour -> {
-                    onboardingDataStore.update {
-                        it.copy(
-                            featureTourVersion = 0,
-                            featureTourStep = 0,
-                            hasShownAddChannelHint = false,
-                            hasShownToolbarHint = false,
-                        )
+                    is DeveloperSettingsInteraction.EventSubDebugOutput -> {
+                        developerSettingsDataStore.update { it.copy(eventSubDebugOutput = interaction.value) }
                     }
-                    _events.emit(DeveloperSettingsEvent.RestartRequired)
-                }
 
-                is DeveloperSettingsInteraction.RevokeToken -> {
-                    val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return@launch
-                    val clientId = authDataStore.clientId
-                    authApiClient.revokeToken(token, clientId)
-                    _events.emit(DeveloperSettingsEvent.ImmediateRestart)
+                    is DeveloperSettingsInteraction.ChatSendProtocolChanged -> {
+                        developerSettingsDataStore.update { it.copy(chatSendProtocol = interaction.protocol) }
+                    }
+
+                    is DeveloperSettingsInteraction.RestartRequired -> {
+                        _events.emit(DeveloperSettingsEvent.RestartRequired)
+                    }
+
+                    is DeveloperSettingsInteraction.ResetOnboarding -> {
+                        onboardingDataStore.update {
+                            it.copy(
+                                hasCompletedOnboarding = false,
+                                onboardingPage = 0,
+                            )
+                        }
+                        _events.emit(DeveloperSettingsEvent.RestartRequired)
+                    }
+
+                    is DeveloperSettingsInteraction.ResetTour -> {
+                        onboardingDataStore.update {
+                            it.copy(
+                                featureTourVersion = 0,
+                                featureTourStep = 0,
+                                hasShownAddChannelHint = false,
+                                hasShownToolbarHint = false,
+                            )
+                        }
+                        _events.emit(DeveloperSettingsEvent.RestartRequired)
+                    }
+
+                    is DeveloperSettingsInteraction.RevokeToken -> {
+                        val token = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return@launch
+                        val clientId = authDataStore.clientId
+                        authApiClient.revokeToken(token, clientId)
+                        _events.emit(DeveloperSettingsEvent.ImmediateRestart)
+                    }
                 }
             }
         }
-    }
 }

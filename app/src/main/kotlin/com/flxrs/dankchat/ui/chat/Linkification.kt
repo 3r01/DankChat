@@ -9,7 +9,11 @@ import androidx.compose.ui.text.withStyle
 
 private val DISALLOWED_URL_CHARS = """<>\{}|^"`""".toSet()
 
-fun AnnotatedString.Builder.appendWithLinks(text: String, linkColor: Color, previousChar: Char? = null) {
+fun AnnotatedString.Builder.appendWithLinks(
+    text: String,
+    linkColor: Color,
+    previousChar: Char? = null,
+) {
     val matcher = Patterns.WEB_URL.matcher(text)
     var lastIndex = 0
 

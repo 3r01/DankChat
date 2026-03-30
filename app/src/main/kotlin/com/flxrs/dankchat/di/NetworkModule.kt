@@ -55,80 +55,92 @@ class NetworkModule {
 
     @Single
     @Named(type = WebSocketOkHttpClient::class)
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient
-        .Builder()
-        .callTimeout(20.seconds.toJavaDuration())
-        .build()
+    fun provideOkHttpClient(): OkHttpClient =
+        OkHttpClient
+            .Builder()
+            .callTimeout(20.seconds.toJavaDuration())
+            .build()
 
     @Single
     @Named(type = UploadOkHttpClient::class)
-    fun provideUploadOkHttpClient(): OkHttpClient = OkHttpClient
-        .Builder()
-        .callTimeout(60.seconds.toJavaDuration())
-        .build()
+    fun provideUploadOkHttpClient(): OkHttpClient =
+        OkHttpClient
+            .Builder()
+            .callTimeout(60.seconds.toJavaDuration())
+            .build()
 
     @Single
-    fun provideJson(): Json = Json {
-        explicitNulls = false
-        ignoreUnknownKeys = true
-        isLenient = true
-        coerceInputValues = true
-    }
+    fun provideJson(): Json =
+        Json {
+            explicitNulls = false
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Single
-    fun provideKtorClient(json: Json): HttpClient = HttpClient(OkHttp) {
-        install(Logging) {
-            level = LogLevel.INFO
-            logger =
-                object : Logger {
-                    override fun log(message: String) {
-                        Log.v("HttpClient", message)
+    fun provideKtorClient(json: Json): HttpClient =
+        HttpClient(OkHttp) {
+            install(Logging) {
+                level = LogLevel.INFO
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            Log.v("HttpClient", message)
+                        }
                     }
+            }
+            install(HttpCache)
+            install(UserAgent) {
+                agent = "dankchat/${BuildConfig.VERSION_NAME}"
+            }
+            install(ContentNegotiation) {
+                json(json)
+            }
+            install(HttpTimeout) {
+                connectTimeoutMillis = 15_000
+                requestTimeoutMillis = 15_000
+                socketTimeoutMillis = 15_000
+            }
+        }
+
+    @Single
+    fun provideAuthApi(ktorClient: HttpClient) =
+        AuthApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(AUTH_BASE_URL)
                 }
-        }
-        install(HttpCache)
-        install(UserAgent) {
-            agent = "dankchat/${BuildConfig.VERSION_NAME}"
-        }
-        install(ContentNegotiation) {
-            json(json)
-        }
-        install(HttpTimeout) {
-            connectTimeoutMillis = 15_000
-            requestTimeoutMillis = 15_000
-            socketTimeoutMillis = 15_000
-        }
-    }
+            },
+        )
 
     @Single
-    fun provideAuthApi(ktorClient: HttpClient) = AuthApi(
-        ktorClient.config {
-            defaultRequest {
-                url(AUTH_BASE_URL)
-            }
-        },
-    )
+    fun provideDankChatApi(ktorClient: HttpClient) =
+        DankChatApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(DANKCHAT_BASE_URL)
+                }
+            },
+        )
 
     @Single
-    fun provideDankChatApi(ktorClient: HttpClient) = DankChatApi(
-        ktorClient.config {
-            defaultRequest {
-                url(DANKCHAT_BASE_URL)
-            }
-        },
-    )
+    fun provideSupibotApi(ktorClient: HttpClient) =
+        SupibotApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(SUPIBOT_BASE_URL)
+                }
+            },
+        )
 
     @Single
-    fun provideSupibotApi(ktorClient: HttpClient) = SupibotApi(
-        ktorClient.config {
-            defaultRequest {
-                url(SUPIBOT_BASE_URL)
-            }
-        },
-    )
-
-    @Single
-    fun provideHelixApi(ktorClient: HttpClient, authDataStore: AuthDataStore, helixApiStats: HelixApiStats, startupValidationHolder: StartupValidationHolder) = HelixApi(
+    fun provideHelixApi(
+        ktorClient: HttpClient,
+        authDataStore: AuthDataStore,
+        helixApiStats: HelixApiStats,
+        startupValidationHolder: StartupValidationHolder,
+    ) = HelixApi(
         ktorClient.config {
             defaultRequest {
                 url(HELIX_BASE_URL)
@@ -145,34 +157,40 @@ class NetworkModule {
     )
 
     @Single
-    fun provideBadgesApi(ktorClient: HttpClient) = BadgesApi(
-        ktorClient.config {
-            defaultRequest {
-                url(BADGES_BASE_URL)
-            }
-        },
-    )
+    fun provideBadgesApi(ktorClient: HttpClient) =
+        BadgesApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(BADGES_BASE_URL)
+                }
+            },
+        )
 
     @Single
-    fun provideFFZApi(ktorClient: HttpClient) = FFZApi(
-        ktorClient.config {
-            defaultRequest {
-                url(FFZ_BASE_URL)
-            }
-        },
-    )
+    fun provideFFZApi(ktorClient: HttpClient) =
+        FFZApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(FFZ_BASE_URL)
+                }
+            },
+        )
 
     @Single
-    fun provideBTTVApi(ktorClient: HttpClient) = BTTVApi(
-        ktorClient.config {
-            defaultRequest {
-                url(BTTV_BASE_URL)
-            }
-        },
-    )
+    fun provideBTTVApi(ktorClient: HttpClient) =
+        BTTVApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(BTTV_BASE_URL)
+                }
+            },
+        )
 
     @Single
-    fun provideRecentMessagesApi(ktorClient: HttpClient, developerSettingsDataStore: DeveloperSettingsDataStore) = RecentMessagesApi(
+    fun provideRecentMessagesApi(
+        ktorClient: HttpClient,
+        developerSettingsDataStore: DeveloperSettingsDataStore,
+    ) = RecentMessagesApi(
         ktorClient.config {
             defaultRequest {
                 url(developerSettingsDataStore.current().customRecentMessagesHost)
@@ -181,11 +199,12 @@ class NetworkModule {
     )
 
     @Single
-    fun provideSevenTVApi(ktorClient: HttpClient) = SevenTVApi(
-        ktorClient.config {
-            defaultRequest {
-                url(SEVENTV_BASE_URL)
-            }
-        },
-    )
+    fun provideSevenTVApi(ktorClient: HttpClient) =
+        SevenTVApi(
+            ktorClient.config {
+                defaultRequest {
+                    url(SEVENTV_BASE_URL)
+                }
+            },
+        )
 }

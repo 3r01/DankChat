@@ -73,7 +73,11 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, onSaveAndNavBack: (List<CustomCommand>) -> Unit, onSave: (List<CustomCommand>) -> Unit) {
+private fun CustomCommandsScreen(
+    initialCommands: ImmutableList<CustomCommand>,
+    onSaveAndNavBack: (List<CustomCommand>) -> Unit,
+    onSave: (List<CustomCommand>) -> Unit,
+) {
     val focusManager = LocalFocusManager.current
     val commands = remember { initialCommands.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -91,9 +95,10 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -112,9 +117,10 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.add_command)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_command)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = {
                         focusManager.clearFocus()
                         commands += CustomCommand(trigger = "", command = "")
@@ -133,10 +139,11 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
         DankBackground(visible = commands.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
             itemsIndexed(commands, key = { _, cmd -> cmd.id }) { idx, command ->
                 CustomCommandItem(
@@ -149,11 +156,12 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
                         val removed = commands.removeAt(idx)
                         scope.launch {
                             snackbarHost.currentSnackbarData?.dismiss()
-                            val result = snackbarHost.showSnackbar(
-                                message = itemRemovedMsg,
-                                actionLabel = undoMsg,
-                                duration = SnackbarDuration.Short,
-                            )
+                            val result =
+                                snackbarHost.showSnackbar(
+                                    message = itemRemovedMsg,
+                                    actionLabel = undoMsg,
+                                    duration = SnackbarDuration.Short,
+                                )
                             if (result == SnackbarResult.ActionPerformed) {
                                 focusManager.clearFocus()
                                 commands.add(idx, removed)
@@ -161,12 +169,13 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
                             }
                         }
                     },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -177,14 +186,22 @@ private fun CustomCommandsScreen(initialCommands: ImmutableList<CustomCommand>, 
 }
 
 @Composable
-private fun CustomCommandItem(trigger: String, command: String, onTriggerChange: (String) -> Unit, onCommandChange: (String) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun CustomCommandItem(
+    trigger: String,
+    command: String,
+    onTriggerChange: (String) -> Unit,
+    onCommandChange: (String) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),

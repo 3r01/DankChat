@@ -37,20 +37,29 @@ import com.flxrs.dankchat.data.UserName
 
 @Suppress("LambdaParameterEventTrailing")
 @Composable
-fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Modifier = Modifier, isInPipMode: Boolean = false, fillPane: Boolean = false, onClose: () -> Unit) {
+fun StreamView(
+    channel: UserName,
+    streamViewModel: StreamViewModel,
+    modifier: Modifier = Modifier,
+    isInPipMode: Boolean = false,
+    fillPane: Boolean = false,
+    onClose: () -> Unit,
+) {
     // Track whether the WebView has been attached to a window before.
     // First open: load URL while detached, attach after page loads (avoids white SurfaceView flash).
     // Subsequent opens: attach immediately, load URL while attached (video surface already initialized).
     var hasBeenAttached by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
     var isPageLoaded by remember { mutableStateOf(hasBeenAttached) }
-    val webView = remember {
-        streamViewModel.getOrCreateWebView().also { wv ->
-            wv.setBackgroundColor(android.graphics.Color.TRANSPARENT)
-            wv.webViewClient = StreamComposeWebViewClient(
-                onPageFinished = { isPageLoaded = true },
-            )
+    val webView =
+        remember {
+            streamViewModel.getOrCreateWebView().also { wv ->
+                wv.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                wv.webViewClient =
+                    StreamComposeWebViewClient(
+                        onPageFinished = { isPageLoaded = true },
+                    )
+            }
         }
-    }
 
     // For first open: load URL on detached WebView
     if (!hasBeenAttached) {
@@ -72,28 +81,34 @@ fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Mo
     }
 
     Box(
-        modifier = modifier
-            .then(if (isInPipMode || fillPane) Modifier else Modifier.statusBarsPadding())
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface),
+        modifier =
+            modifier
+                .then(if (isInPipMode || fillPane) Modifier else Modifier.statusBarsPadding())
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface),
     ) {
-        val webViewModifier = when {
-            isInPipMode || fillPane -> Modifier.fillMaxSize()
+        val webViewModifier =
+            when {
+                isInPipMode || fillPane -> {
+                    Modifier.fillMaxSize()
+                }
 
-            else ->
-                Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(16f / 9f)
-        }
+                else -> {
+                    Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f)
+                }
+            }
 
         if (isPageLoaded) {
             AndroidView(
                 factory = { _ ->
                     (webView.parent as? ViewGroup)?.removeView(webView)
-                    webView.layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
+                    webView.layoutParams =
+                        ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
                     if (!hasBeenAttached) {
                         hasBeenAttached = true
                         streamViewModel.hasWebViewBeenAttached = true
@@ -111,9 +126,10 @@ fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Mo
                 update = { _ ->
                     streamViewModel.setStream(channel, webView)
                 },
-                modifier = webViewModifier.graphicsLayer {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                },
+                modifier =
+                    webViewModifier.graphicsLayer {
+                        compositingStrategy = CompositingStrategy.Offscreen
+                    },
             )
         } else {
             Box(modifier = webViewModifier)
@@ -122,16 +138,16 @@ fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Mo
         if (!isInPipMode) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .padding(8.dp)
-                    .size(28.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-                        shape = CircleShape,
-                    )
-                    .clickable(onClick = onClose),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(8.dp)
+                        .size(28.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                            shape = CircleShape,
+                        ).clickable(onClick = onClose),
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
@@ -144,21 +160,31 @@ fun StreamView(channel: UserName, streamViewModel: StreamViewModel, modifier: Mo
     }
 }
 
-private class StreamComposeWebViewClient(private val onPageFinished: () -> Unit) : WebViewClient() {
-
-    override fun onPageFinished(view: WebView?, url: String?) {
+private class StreamComposeWebViewClient(
+    private val onPageFinished: () -> Unit,
+) : WebViewClient() {
+    override fun onPageFinished(
+        view: WebView?,
+        url: String?,
+    ) {
         if (url != null && url != BLANK_URL) {
             onPageFinished()
         }
     }
 
     @Deprecated("Deprecated in Java")
-    override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+    override fun shouldOverrideUrlLoading(
+        view: WebView?,
+        url: String?,
+    ): Boolean {
         if (url.isNullOrBlank()) return true
         return ALLOWED_PATHS.none { url.startsWith(it) }
     }
 
-    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+    override fun shouldOverrideUrlLoading(
+        view: WebView?,
+        request: WebResourceRequest?,
+    ): Boolean {
         val url = request?.url?.toString()
         if (url.isNullOrBlank()) return true
         return ALLOWED_PATHS.none { url.startsWith(it) }
@@ -166,11 +192,12 @@ private class StreamComposeWebViewClient(private val onPageFinished: () -> Unit)
 
     companion object {
         private const val BLANK_URL = "about:blank"
-        private val ALLOWED_PATHS = listOf(
-            BLANK_URL,
-            "https://id.twitch.tv/",
-            "https://www.twitch.tv/passport-callback",
-            "https://player.twitch.tv/",
-        )
+        private val ALLOWED_PATHS =
+            listOf(
+                BLANK_URL,
+                "https://id.twitch.tv/",
+                "https://www.twitch.tv/passport-callback",
+                "https://player.twitch.tv/",
+            )
     }
 }

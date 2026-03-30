@@ -26,7 +26,12 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
-class DankChatPreferenceStore(private val context: Context, private val json: Json, private val appearanceSettingsDataStore: AppearanceSettingsDataStore, private val authDataStore: AuthDataStore) {
+class DankChatPreferenceStore(
+    private val context: Context,
+    private val json: Json,
+    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    private val authDataStore: AuthDataStore,
+) {
     private val dankChatPreferences: SharedPreferences = context.getSharedPreferences(context.getString(R.string.shared_preference_key), Context.MODE_PRIVATE)
 
     private var channelRenames: String?
@@ -102,10 +107,15 @@ class DankChatPreferenceStore(private val context: Context, private val json: Js
             .map { authDataStore.userName to authDataStore.displayName }
             .distinctUntilChanged()
 
-    fun formatViewersString(viewers: Int, uptime: String, category: String?): String = when (category) {
-        null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
-        else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
-    }
+    fun formatViewersString(
+        viewers: Int,
+        uptime: String,
+        category: String?,
+    ): String =
+        when (category) {
+            null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
+            else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
+        }
 
     fun clearLogin() {
         authDataStore.updateAsync { it.copy(oAuthKey = null, userName = null, displayName = null, userId = null, clientId = AuthSettings.DEFAULT_CLIENT_ID, isLoggedIn = false) }
@@ -130,19 +140,20 @@ class DankChatPreferenceStore(private val context: Context, private val json: Js
         }
     }
 
-    fun getChannelsWithRenamesFlow(): Flow<List<ChannelWithRename>> = callbackFlow {
-        send(getChannelsWithRenames())
+    fun getChannelsWithRenamesFlow(): Flow<List<ChannelWithRename>> =
+        callbackFlow {
+            send(getChannelsWithRenames())
 
-        val listener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
-                    trySend(getChannelsWithRenames())
+            val listener =
+                SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                    if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
+                        trySend(getChannelsWithRenames())
+                    }
                 }
-            }
 
-        dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
-        awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
-    }
+            dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
+            awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
+        }
 
     fun setRenamedChannel(channelWithRename: ChannelWithRename) {
         withChannelRenames {
@@ -181,10 +192,11 @@ class DankChatPreferenceStore(private val context: Context, private val json: Js
         channelRenames = renameMap.toJson()
     }
 
-    private fun String.toMutableMap(): MutableMap<UserName, UserName> = json
-        .decodeOrNull<Map<UserName, UserName>>(this)
-        .orEmpty()
-        .toMutableMap()
+    private fun String.toMutableMap(): MutableMap<UserName, UserName> =
+        json
+            .decodeOrNull<Map<UserName, UserName>>(this)
+            .orEmpty()
+            .toMutableMap()
 
     private fun Map<UserName, UserName>.toJson(): String = json.encodeToString(this)
 

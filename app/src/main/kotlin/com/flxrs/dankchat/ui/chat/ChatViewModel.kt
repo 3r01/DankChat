@@ -149,7 +149,11 @@ class ChatViewModel(
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
 
-    fun manageAutomodMessage(heldMessageId: String, channel: UserName, allow: Boolean) {
+    fun manageAutomodMessage(
+        heldMessageId: String,
+        channel: UserName,
+        allow: Boolean,
+    ) {
         viewModelScope.launch {
             val userId = authDataStore.userIdString ?: return@launch
             val action = if (allow) "ALLOW" else "DENY"
@@ -173,4 +177,8 @@ class ChatViewModel(
 }
 
 @Immutable
-data class ChatDisplaySettings(val fontSize: Float = 14f, val showLineSeparator: Boolean = false, val animateGifs: Boolean = true)
+data class ChatDisplaySettings(
+    val fontSize: Float = 14f,
+    val showLineSeparator: Boolean = false,
+    val animateGifs: Boolean = true,
+)

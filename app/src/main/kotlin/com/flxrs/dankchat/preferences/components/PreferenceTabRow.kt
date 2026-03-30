@@ -12,7 +12,12 @@ import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 
 @Composable
-fun PreferenceTabRow(appBarContainerColor: State<Color>, pagerState: PagerState, tabCount: Int, tabText: @Composable (Int) -> String) {
+fun PreferenceTabRow(
+    appBarContainerColor: State<Color>,
+    pagerState: PagerState,
+    tabCount: Int,
+    tabText: @Composable (Int) -> String,
+) {
     val scope = rememberCoroutineScope()
     PrimaryTabRow(
         containerColor = appBarContainerColor.value,

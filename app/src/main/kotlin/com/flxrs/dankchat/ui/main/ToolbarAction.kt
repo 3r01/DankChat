@@ -4,9 +4,13 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 sealed interface ToolbarAction {
-    data class SelectTab(val index: Int) : ToolbarAction
+    data class SelectTab(
+        val index: Int,
+    ) : ToolbarAction
 
-    data class LongClickTab(val index: Int) : ToolbarAction
+    data class LongClickTab(
+        val index: Int,
+    ) : ToolbarAction
 
     data object AddChannel : ToolbarAction
 

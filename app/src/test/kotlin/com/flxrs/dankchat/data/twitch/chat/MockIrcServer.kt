@@ -17,12 +17,18 @@ class MockIrcServer : AutoCloseable {
 
     private val listener =
         object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
+            override fun onOpen(
+                webSocket: WebSocket,
+                response: Response,
+            ) {
                 serverSocket = webSocket
                 connectedLatch.countDown()
             }
 
-            override fun onMessage(webSocket: WebSocket, text: String) {
+            override fun onMessage(
+                webSocket: WebSocket,
+                text: String,
+            ) {
                 text.trimEnd('\r', '\n').split("\r\n").forEach { line ->
                     sentFrames.add(line)
                     handleIrcCommand(webSocket, line)
@@ -37,7 +43,10 @@ class MockIrcServer : AutoCloseable {
         server.start()
     }
 
-    fun awaitConnection(timeout: Long = 5, unit: TimeUnit = TimeUnit.SECONDS): Boolean = connectedLatch.await(timeout, unit)
+    fun awaitConnection(
+        timeout: Long = 5,
+        unit: TimeUnit = TimeUnit.SECONDS,
+    ): Boolean = connectedLatch.await(timeout, unit)
 
     fun sendToClient(ircLine: String) {
         serverSocket?.send("$ircLine\r\n")
@@ -48,7 +57,10 @@ class MockIrcServer : AutoCloseable {
         server.close()
     }
 
-    private fun handleIrcCommand(webSocket: WebSocket, line: String) {
+    private fun handleIrcCommand(
+        webSocket: WebSocket,
+        line: String,
+    ) {
         when {
             line.startsWith("NICK ") -> {
                 val nick = line.removePrefix("NICK ")
@@ -71,7 +83,10 @@ class MockIrcServer : AutoCloseable {
         }
     }
 
-    private fun sendMotd(webSocket: WebSocket, nick: String) {
+    private fun sendMotd(
+        webSocket: WebSocket,
+        nick: String,
+    ) {
         webSocket.send(":tmi.twitch.tv 001 $nick :Welcome, GLHF!\r\n")
         webSocket.send(":tmi.twitch.tv 002 $nick :Your host is tmi.twitch.tv\r\n")
         webSocket.send(":tmi.twitch.tv 003 $nick :This server is rather new\r\n")

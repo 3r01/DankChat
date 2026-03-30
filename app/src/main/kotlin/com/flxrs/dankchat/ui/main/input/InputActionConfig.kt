@@ -49,7 +49,12 @@ private const val MAX_INPUT_ACTIONS = 4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, debugMode: Boolean, onInputActionsChange: (ImmutableList<InputAction>) -> Unit, onDismiss: () -> Unit) {
+internal fun InputActionConfigSheet(
+    inputActions: ImmutableList<InputAction>,
+    debugMode: Boolean,
+    onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
+    onDismiss: () -> Unit,
+) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val localEnabled = remember { mutableStateListOf(*inputActions.toTypedArray()) }
@@ -66,9 +71,10 @@ internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, de
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
         ) {
             Text(
                 text = if (atLimit) pluralStringResource(R.plurals.input_actions_max, MAX_INPUT_ACTIONS, MAX_INPUT_ACTIONS) else "",
@@ -92,11 +98,12 @@ internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, de
                     color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent,
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .longPressDraggableHandle()
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .height(40.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .longPressDraggableHandle()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .height(40.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
@@ -133,17 +140,17 @@ internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, de
                 val actionEnabled = !atLimit
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(
-                            if (actionEnabled) {
-                                Modifier.clickable { localEnabled.add(action) }
-                            } else {
-                                Modifier
-                            },
-                        )
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                        .height(40.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .then(
+                                if (actionEnabled) {
+                                    Modifier.clickable { localEnabled.add(action) }
+                                } else {
+                                    Modifier
+                                },
+                            ).padding(horizontal = 16.dp, vertical = 8.dp)
+                            .height(40.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.size(24.dp))
@@ -152,21 +159,23 @@ internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, de
                         imageVector = action.icon,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp),
-                        tint = if (actionEnabled) {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                        },
+                        tint =
+                            if (actionEnabled) {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                            },
                     )
                     Spacer(Modifier.width(16.dp))
                     Text(
                         text = stringResource(action.labelRes),
                         modifier = Modifier.weight(1f),
-                        color = if (actionEnabled) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                        },
+                        color =
+                            if (actionEnabled) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            },
                     )
                     Checkbox(
                         checked = false,
@@ -180,23 +189,25 @@ internal fun InputActionConfigSheet(inputActions: ImmutableList<InputAction>, de
 }
 
 internal val InputAction.labelRes: Int
-    get() = when (this) {
-        InputAction.Search -> R.string.input_action_search
-        InputAction.LastMessage -> R.string.input_action_last_message
-        InputAction.Stream -> R.string.input_action_stream
-        InputAction.ModActions -> R.string.input_action_mod_actions
-        InputAction.Fullscreen -> R.string.input_action_fullscreen
-        InputAction.HideInput -> R.string.input_action_hide_input
-        InputAction.Debug -> R.string.input_action_debug
-    }
+    get() =
+        when (this) {
+            InputAction.Search -> R.string.input_action_search
+            InputAction.LastMessage -> R.string.input_action_last_message
+            InputAction.Stream -> R.string.input_action_stream
+            InputAction.ModActions -> R.string.input_action_mod_actions
+            InputAction.Fullscreen -> R.string.input_action_fullscreen
+            InputAction.HideInput -> R.string.input_action_hide_input
+            InputAction.Debug -> R.string.input_action_debug
+        }
 
 internal val InputAction.icon: ImageVector
-    get() = when (this) {
-        InputAction.Search -> Icons.Default.Search
-        InputAction.LastMessage -> Icons.Default.History
-        InputAction.Stream -> Icons.Default.Videocam
-        InputAction.ModActions -> Icons.Default.Shield
-        InputAction.Fullscreen -> Icons.Default.Fullscreen
-        InputAction.HideInput -> Icons.Default.VisibilityOff
-        InputAction.Debug -> Icons.Default.BugReport
-    }
+    get() =
+        when (this) {
+            InputAction.Search -> Icons.Default.Search
+            InputAction.LastMessage -> Icons.Default.History
+            InputAction.Stream -> Icons.Default.Videocam
+            InputAction.ModActions -> Icons.Default.Shield
+            InputAction.Fullscreen -> Icons.Default.Fullscreen
+            InputAction.HideInput -> Icons.Default.VisibilityOff
+            InputAction.Debug -> Icons.Default.BugReport
+        }

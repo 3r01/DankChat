@@ -52,10 +52,11 @@ fun InfoBottomSheet(
         }
 
         else -> {
-            val sheetState = rememberUnstyledSheetState(
-                initialDetent = SheetDetent.FullyExpanded,
-                detents = listOf(SheetDetent.Hidden, SheetDetent.FullyExpanded),
-            )
+            val sheetState =
+                rememberUnstyledSheetState(
+                    initialDetent = SheetDetent.FullyExpanded,
+                    detents = listOf(SheetDetent.Hidden, SheetDetent.FullyExpanded),
+                )
             LaunchedEffect(sheetState.currentDetent) {
                 if (sheetState.currentDetent == SheetDetent.Hidden) {
                     sheetState.jumpTo(SheetDetent.FullyExpanded)
@@ -64,9 +65,10 @@ fun InfoBottomSheet(
             com.composables.core.ModalBottomSheet(state = sheetState) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f)),
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.32f)),
                     )
                     Surface(
                         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
@@ -75,18 +77,20 @@ fun InfoBottomSheet(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .navigationBarsPadding(),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                                    .navigationBarsPadding(),
                         ) {
                             Box(
-                                modifier = Modifier
-                                    .padding(vertical = 12.dp)
-                                    .align(Alignment.CenterHorizontally)
-                                    .size(width = 32.dp, height = 4.dp)
-                                    .clip(RoundedCornerShape(50))
-                                    .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
+                                modifier =
+                                    Modifier
+                                        .padding(vertical = 12.dp)
+                                        .align(Alignment.CenterHorizontally)
+                                        .size(width = 32.dp, height = 4.dp)
+                                        .clip(RoundedCornerShape(50))
+                                        .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)),
                             )
                             InfoSheetContent(title, message, confirmText, dismissText, onConfirm, onDismiss)
                         }
@@ -98,11 +102,19 @@ fun InfoBottomSheet(
 }
 
 @Composable
-private fun InfoSheetContent(title: String, message: String, confirmText: String, dismissText: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+private fun InfoSheetContent(
+    title: String,
+    message: String,
+    confirmText: String,
+    dismissText: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
     ) {
         Text(
             text = title,
@@ -118,9 +130,10 @@ private fun InfoSheetContent(title: String, message: String, confirmText: String
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
         ) {

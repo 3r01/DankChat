@@ -42,28 +42,38 @@ import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun SuggestionDropdown(suggestions: ImmutableList<Suggestion>, onSuggestionClick: (Suggestion) -> Unit, modifier: Modifier = Modifier) {
+fun SuggestionDropdown(
+    suggestions: ImmutableList<Suggestion>,
+    onSuggestionClick: (Suggestion) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     AnimatedVisibility(
         visible = suggestions.isNotEmpty(),
         modifier = modifier,
-        enter = slideInVertically(
-            initialOffsetY = { fullHeight -> fullHeight / 4 },
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium,
-            ),
-        ) + fadeIn(
-            animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        ) + scaleIn(
-            initialScale = 0.92f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMedium,
-            ),
-        ),
-        exit = slideOutVertically(
-            targetOffsetY = { fullHeight -> fullHeight / 4 },
-        ) + fadeOut() + scaleOut(targetScale = 0.92f),
+        enter =
+            slideInVertically(
+                initialOffsetY = { fullHeight -> fullHeight / 4 },
+                animationSpec =
+                    spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    ),
+            ) +
+                fadeIn(
+                    animationSpec = spring(stiffness = Spring.StiffnessMedium),
+                ) +
+                scaleIn(
+                    initialScale = 0.92f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMedium,
+                        ),
+                ),
+        exit =
+            slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight / 4 },
+            ) + fadeOut() + scaleOut(targetScale = 0.92f),
     ) {
         val listState = rememberLazyListState()
         LaunchedEffect(suggestions) {
@@ -71,17 +81,19 @@ fun SuggestionDropdown(suggestions: ImmutableList<Suggestion>, onSuggestionClick
         }
 
         OutlinedCard(
-            modifier = Modifier
-                .padding(horizontal = 2.dp)
-                .fillMaxWidth(0.66f)
-                .heightIn(max = 250.dp),
+            modifier =
+                Modifier
+                    .padding(horizontal = 2.dp)
+                    .fillMaxWidth(0.66f)
+                    .heightIn(max = 250.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .animateContentSize(),
             ) {
                 items(suggestions, key = { it.toString() }) { suggestion ->
                     SuggestionItem(
@@ -95,12 +107,17 @@ fun SuggestionDropdown(suggestions: ImmutableList<Suggestion>, onSuggestionClick
 }
 
 @Composable
-private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun SuggestionItem(
+    suggestion: Suggestion,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // Icon/Image based on suggestion type
@@ -109,9 +126,10 @@ private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier
                 AsyncImage(
                     model = suggestion.emote.url,
                     contentDescription = suggestion.emote.code,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .padding(end = 12.dp),
+                    modifier =
+                        Modifier
+                            .size(48.dp)
+                            .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.emote.code,
@@ -123,9 +141,10 @@ private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 12.dp),
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.name.value,
@@ -137,10 +156,11 @@ private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier
                 Text(
                     text = suggestion.emoji.unicode,
                     fontSize = 24.sp,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 12.dp)
-                        .wrapContentSize(),
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .padding(end = 12.dp)
+                            .wrapContentSize(),
                 )
                 Text(
                     text = ":${suggestion.emoji.code}:",
@@ -152,9 +172,10 @@ private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier
                 Icon(
                     imageVector = Icons.Default.Android,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 12.dp),
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .padding(end = 12.dp),
                 )
                 Text(
                     text = suggestion.command,
@@ -166,9 +187,10 @@ private fun SuggestionItem(suggestion: Suggestion, onClick: () -> Unit, modifier
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 12.dp),
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .padding(end = 12.dp),
                 )
                 Column {
                     Text(

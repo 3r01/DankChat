@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
 
 @Single
-class ApiDebugSection(private val helixApiStats: HelixApiStats) : DebugSection {
+class ApiDebugSection(
+    private val helixApiStats: HelixApiStats,
+) : DebugSection {
     override val order = 10
     override val baseTitle = "API"
 

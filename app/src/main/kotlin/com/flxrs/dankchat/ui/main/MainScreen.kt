@@ -183,9 +183,10 @@ fun MainScreen(
 
     // Wide split layout: side-by-side stream + chat on medium+ width windows
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-    val isWideWindow = windowSizeClass.isWidthAtLeastBreakpoint(
-        WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
-    )
+    val isWideWindow =
+        windowSizeClass.isWidthAtLeastBreakpoint(
+            WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
+        )
     val useWideSplitLayout = isWideWindow && currentStream != null && !isInPipMode
 
     // Only intercept when menu is visible AND keyboard is fully GONE
@@ -245,7 +246,9 @@ fun MainScreen(
                 featureTourViewModel.addChannelTooltipState.dismiss()
             }
 
-            PostOnboardingStep.ToolbarPlusHint -> Unit
+            PostOnboardingStep.ToolbarPlusHint -> {
+                Unit
+            }
         }
     }
 
@@ -306,14 +309,15 @@ fun MainScreen(
         }
     }
 
-    val toolbarTracker = remember {
-        ScrollDirectionTracker(
-            hideThresholdPx = with(density) { 100.dp.toPx() },
-            showThresholdPx = with(density) { 36.dp.toPx() },
-            onHide = { mainScreenViewModel.setGestureToolbarHidden(true) },
-            onShow = { mainScreenViewModel.setGestureToolbarHidden(false) },
-        )
-    }
+    val toolbarTracker =
+        remember {
+            ScrollDirectionTracker(
+                hideThresholdPx = with(density) { 100.dp.toPx() },
+                showThresholdPx = with(density) { 36.dp.toPx() },
+                onHide = { mainScreenViewModel.setGestureToolbarHidden(true) },
+                onShow = { mainScreenViewModel.setGestureToolbarHidden(false) },
+            )
+        }
 
     val swipeDownThresholdPx = with(density) { 56.dp.toPx() }
 
@@ -321,10 +325,11 @@ fun MainScreen(
 
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
 
-    val composePagerState = rememberPagerState(
-        initialPage = pagerState.currentPage,
-        pageCount = { pagerState.channels.size },
-    ).also { composePagerStateRef = it }
+    val composePagerState =
+        rememberPagerState(
+            initialPage = pagerState.currentPage,
+            pageCount = { pagerState.channels.size },
+        ).also { composePagerStateRef = it }
     var inputHeightPx by remember { mutableIntStateOf(0) }
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
@@ -391,26 +396,29 @@ fun MainScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
     ) {
         // Menu content height matches keyboard content area (above nav bar)
-        val targetMenuHeight = if (keyboardHeightPx > 0) {
-            with(density) { keyboardHeightPx.toDp() }
-        } else {
-            if (isLandscape) 200.dp else 350.dp
-        }.coerceAtLeast(if (isLandscape) 150.dp else 250.dp)
+        val targetMenuHeight =
+            if (keyboardHeightPx > 0) {
+                with(density) { keyboardHeightPx.toDp() }
+            } else {
+                if (isLandscape) 200.dp else 350.dp
+            }.coerceAtLeast(if (isLandscape) 150.dp else 250.dp)
 
         // Total menu height includes nav bar so the menu visually matches
         // the keyboard's full extent. Without this, the menu is shorter than
         // the keyboard by navBarHeight, causing a visible lag during reveal.
         val navBarHeightDp = with(density) { navBars.getBottom(density).toDp() }
         val roundedCornerBottomPadding = rememberRoundedCornerBottomPadding()
-        val effectiveRoundedCorner = when {
-            roundedCornerBottomPadding >= ROUNDED_CORNER_THRESHOLD -> roundedCornerBottomPadding
-            else -> 0.dp
-        }
+        val effectiveRoundedCorner =
+            when {
+                roundedCornerBottomPadding >= ROUNDED_CORNER_THRESHOLD -> roundedCornerBottomPadding
+                else -> 0.dp
+            }
         val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
         // Shared scaffold bottom padding calculation
@@ -425,44 +433,46 @@ fun MainScreen(
                 showInput = effectiveShowInput && !isHistorySheet,
                 textFieldState = chatInputViewModel.textFieldState,
                 uiState = inputState,
-                callbacks = ChatInputCallbacks(
-                    onSend = chatInputViewModel::sendMessage,
-                    onLastMessageClick = chatInputViewModel::getLastMessage,
-                    onEmoteClick = {
-                        if (!inputState.isEmoteMenuOpen) {
-                            keyboardController?.hide()
-                            chatInputViewModel.setEmoteMenuOpen(true)
-                        } else {
-                            keyboardController?.show()
-                        }
-                    },
-                    onOverlayDismiss = {
-                        when (inputState.overlay) {
-                            is InputOverlay.Reply -> chatInputViewModel.setReplying(false)
-                            is InputOverlay.Whisper -> chatInputViewModel.setWhisperTarget(null)
-                            is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
-                            InputOverlay.None -> Unit
-                        }
-                    },
-                    onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                    onToggleInput = mainScreenViewModel::toggleInput,
-                    onToggleStream = {
-                        when {
-                            currentStream != null -> streamViewModel.closeStream()
-                            else -> activeChannel?.let { streamViewModel.toggleStream(it) }
-                        }
-                    },
-                    onModActions = dialogViewModel::showModActions,
-                    onInputActionsChange = mainScreenViewModel::updateInputActions,
-                    onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
-                    onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
-                    onNewWhisper = if (inputState.isWhisperTabActive) {
-                        dialogViewModel::showNewWhisper
-                    } else {
-                        null
-                    },
-                    onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
-                ),
+                callbacks =
+                    ChatInputCallbacks(
+                        onSend = chatInputViewModel::sendMessage,
+                        onLastMessageClick = chatInputViewModel::getLastMessage,
+                        onEmoteClick = {
+                            if (!inputState.isEmoteMenuOpen) {
+                                keyboardController?.hide()
+                                chatInputViewModel.setEmoteMenuOpen(true)
+                            } else {
+                                keyboardController?.show()
+                            }
+                        },
+                        onOverlayDismiss = {
+                            when (inputState.overlay) {
+                                is InputOverlay.Reply -> chatInputViewModel.setReplying(false)
+                                is InputOverlay.Whisper -> chatInputViewModel.setWhisperTarget(null)
+                                is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
+                                InputOverlay.None -> Unit
+                            }
+                        },
+                        onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
+                        onToggleInput = mainScreenViewModel::toggleInput,
+                        onToggleStream = {
+                            when {
+                                currentStream != null -> streamViewModel.closeStream()
+                                else -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                            }
+                        },
+                        onModActions = dialogViewModel::showModActions,
+                        onInputActionsChange = mainScreenViewModel::updateInputActions,
+                        onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
+                        onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
+                        onNewWhisper =
+                            if (inputState.isWhisperTabActive) {
+                                dialogViewModel::showNewWhisper
+                            } else {
+                                null
+                            },
+                        onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
+                    ),
                 isUploading = dialogState.isUploading,
                 isLoading = tabState.loading,
                 isFullscreen = isFullscreen,
@@ -470,20 +480,27 @@ fun MainScreen(
                 isStreamActive = currentStream != null,
                 hasStreamData = hasStreamData,
                 isSheetOpen = isSheetOpen,
-                inputActions = when (fullScreenSheetState) {
-                    is FullScreenSheetState.Replies -> persistentListOf(InputAction.LastMessage)
+                inputActions =
+                    when (fullScreenSheetState) {
+                        is FullScreenSheetState.Replies -> {
+                            persistentListOf(InputAction.LastMessage)
+                        }
 
-                    is FullScreenSheetState.Whisper,
-                    is FullScreenSheetState.Mention,
-                    -> when {
-                        inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
-                        else -> persistentListOf()
-                    }
+                        is FullScreenSheetState.Whisper,
+                        is FullScreenSheetState.Mention,
+                        -> {
+                            when {
+                                inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
+                                else -> persistentListOf()
+                            }
+                        }
 
-                    is FullScreenSheetState.History,
-                    is FullScreenSheetState.Closed,
-                    -> mainState.inputActions
-                },
+                        is FullScreenSheetState.History,
+                        is FullScreenSheetState.Closed,
+                        -> {
+                            mainState.inputActions
+                        }
+                    },
                 onInputHeightChange = { inputHeightPx = it },
                 debugMode = mainState.debugMode,
                 overflowExpanded = inputOverflowExpanded,
@@ -492,19 +509,21 @@ fun MainScreen(
                 isInSplitLayout = useWideSplitLayout,
                 instantHide = isHistorySheet,
                 isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
-                tourState = remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
-                    TourOverlayState(
-                        inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
-                        overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
-                        configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
-                        swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
-                        forceOverflowOpen = featureTourState.forceOverflowOpen,
-                        isTourActive = featureTourState.isTourActive ||
-                            featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
-                        onAdvance = featureTourViewModel::advance,
-                        onSkip = featureTourViewModel::skipTour,
-                    )
-                },
+                tourState =
+                    remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
+                        TourOverlayState(
+                            inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
+                            overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
+                            configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
+                            swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
+                            forceOverflowOpen = featureTourState.forceOverflowOpen,
+                            isTourActive =
+                                featureTourState.isTourActive ||
+                                    featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
+                            onAdvance = featureTourViewModel::advance,
+                            onSkip = featureTourViewModel::skipTour,
+                        )
+                    },
             )
         }
 
@@ -531,21 +550,37 @@ fun MainScreen(
                     channelTabViewModel.clearAllMentionCounts()
                 }
 
-                ToolbarAction.Login -> onLogin()
+                ToolbarAction.Login -> {
+                    onLogin()
+                }
 
-                ToolbarAction.Relogin -> onRelogin()
+                ToolbarAction.Relogin -> {
+                    onRelogin()
+                }
 
-                ToolbarAction.Logout -> dialogViewModel.showLogout()
+                ToolbarAction.Logout -> {
+                    dialogViewModel.showLogout()
+                }
 
-                ToolbarAction.ManageChannels -> dialogViewModel.showManageChannels()
+                ToolbarAction.ManageChannels -> {
+                    dialogViewModel.showManageChannels()
+                }
 
-                ToolbarAction.OpenChannel -> onOpenChannel()
+                ToolbarAction.OpenChannel -> {
+                    onOpenChannel()
+                }
 
-                ToolbarAction.RemoveChannel -> dialogViewModel.showRemoveChannel()
+                ToolbarAction.RemoveChannel -> {
+                    dialogViewModel.showRemoveChannel()
+                }
 
-                ToolbarAction.ReportChannel -> onReportChannel()
+                ToolbarAction.ReportChannel -> {
+                    onReportChannel()
+                }
 
-                ToolbarAction.BlockChannel -> dialogViewModel.showBlockChannel()
+                ToolbarAction.BlockChannel -> {
+                    dialogViewModel.showBlockChannel()
+                }
 
                 ToolbarAction.CaptureImage -> {
                     if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else dialogViewModel.setPendingUploadAction(onCaptureImage)
@@ -567,7 +602,9 @@ fun MainScreen(
                     channelManagementViewModel.reconnect()
                 }
 
-                ToolbarAction.OpenSettings -> onNavigateToSettings()
+                ToolbarAction.OpenSettings -> {
+                    onNavigateToSettings()
+                }
             }
         }
 
@@ -610,24 +647,25 @@ fun MainScreen(
         }
 
         // Shared pager callbacks
-        val chatPagerCallbacks = remember {
-            ChatPagerCallbacks(
-                onShowUserPopup = dialogViewModel::showUserPopup,
-                onMentionUser = chatInputViewModel::mentionUser,
-                onShowMessageOptions = dialogViewModel::showMessageOptions,
-                onShowEmoteInfo = dialogViewModel::showEmoteInfo,
-                onOpenReplies = sheetNavigationViewModel::openReplies,
-                onRecover = {
-                    if (mainScreenViewModel.uiState.value.isFullscreen) mainScreenViewModel.toggleFullscreen()
-                    if (!mainScreenViewModel.uiState.value.showInput) mainScreenViewModel.toggleInput()
-                    mainScreenViewModel.resetGestureState()
-                },
-                onScrollToBottom = { mainScreenViewModel.setGestureToolbarHidden(false) },
-                onTourAdvance = featureTourViewModel::advance,
-                onTourSkip = featureTourViewModel::skipTour,
-                scrollConnection = toolbarTracker,
-            )
-        }
+        val chatPagerCallbacks =
+            remember {
+                ChatPagerCallbacks(
+                    onShowUserPopup = dialogViewModel::showUserPopup,
+                    onMentionUser = chatInputViewModel::mentionUser,
+                    onShowMessageOptions = dialogViewModel::showMessageOptions,
+                    onShowEmoteInfo = dialogViewModel::showEmoteInfo,
+                    onOpenReplies = sheetNavigationViewModel::openReplies,
+                    onRecover = {
+                        if (mainScreenViewModel.uiState.value.isFullscreen) mainScreenViewModel.toggleFullscreen()
+                        if (!mainScreenViewModel.uiState.value.showInput) mainScreenViewModel.toggleInput()
+                        mainScreenViewModel.resetGestureState()
+                    },
+                    onScrollToBottom = { mainScreenViewModel.setGestureToolbarHidden(false) },
+                    onTourAdvance = featureTourViewModel::advance,
+                    onTourSkip = featureTourViewModel::skipTour,
+                    scrollConnection = toolbarTracker,
+                )
+            }
 
         // Shared scaffold content (pager)
         val scaffoldContent: @Composable (PaddingValues, Dp) -> Unit = { paddingValues, chatTopPadding ->
@@ -658,10 +696,11 @@ fun MainScreen(
 
         // Shared fullscreen sheet overlay
         val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
-            val effectiveBottomPadding = when {
-                !effectiveShowInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
-                else -> bottomPadding
-            }
+            val effectiveBottomPadding =
+                when {
+                    !effectiveShowInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
+                    else -> bottomPadding
+                }
             FullScreenSheetOverlay(
                 sheetState = fullScreenSheetState,
                 mentionViewModel = mentionViewModel,
@@ -686,16 +725,18 @@ fun MainScreen(
             var containerWidthPx by remember { mutableIntStateOf(0) }
 
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned { containerWidthPx = it.size.width },
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .onGloballyPositioned { containerWidthPx = it.size.width },
             ) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     // Left pane: Stream
                     Box(
-                        modifier = Modifier
-                            .weight(splitFraction)
-                            .fillMaxSize(),
+                        modifier =
+                            Modifier
+                                .weight(splitFraction)
+                                .fillMaxSize(),
                     ) {
                         StreamView(
                             channel = currentStream,
@@ -712,16 +753,18 @@ fun MainScreen(
 
                     // Right pane: Chat + all overlays
                     Box(
-                        modifier = Modifier
-                            .weight(1f - splitFraction)
-                            .fillMaxSize(),
+                        modifier =
+                            Modifier
+                                .weight(1f - splitFraction)
+                                .fillMaxSize(),
                     ) {
                         val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
                         Scaffold(
-                            modifier = modifier
-                                .fillMaxSize()
-                                .padding(bottom = scaffoldBottomPadding),
+                            modifier =
+                                modifier
+                                    .fillMaxSize()
+                                    .padding(bottom = scaffoldBottomPadding),
                             contentWindowInsets = WindowInsets(0),
                             snackbarHost = {
                                 SnackbarHost(
@@ -760,14 +803,15 @@ fun MainScreen(
 
                         // Input bar - rendered after sheet overlay so it's on top
                         Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = scaffoldBottomPadding)
-                                .swipeDownToHide(
-                                    enabled = effectiveShowInput,
-                                    thresholdPx = swipeDownThresholdPx,
-                                    onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                                ),
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = scaffoldBottomPadding)
+                                    .swipeDownToHide(
+                                        enabled = effectiveShowInput,
+                                        thresholdPx = swipeDownThresholdPx,
+                                        onHide = { mainScreenViewModel.setGestureInputHidden(true) },
+                                    ),
                         ) {
                             bottomBar()
                         }
@@ -778,11 +822,12 @@ fun MainScreen(
                             SuggestionDropdown(
                                 suggestions = inputState.suggestions,
                                 onSuggestionClick = chatInputViewModel::applySuggestion,
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .navigationBarsPadding()
-                                    .imePadding()
-                                    .padding(bottom = inputHeightDp + 2.dp),
+                                modifier =
+                                    Modifier
+                                        .align(Alignment.BottomStart)
+                                        .navigationBarsPadding()
+                                        .imePadding()
+                                        .padding(bottom = inputHeightDp + 2.dp),
                             )
                         }
                     }
@@ -795,18 +840,20 @@ fun MainScreen(
                             splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
                         }
                     },
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterStart)
+                            .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
                 )
             }
         } else {
             // --- Normal stacked layout (portrait / narrow-without-stream / PiP) ---
             if (!isInPipMode) {
                 Scaffold(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(bottom = scaffoldBottomPadding),
+                    modifier =
+                        modifier
+                            .fillMaxSize()
+                            .padding(bottom = scaffoldBottomPadding),
                     contentWindowInsets = WindowInsets(0),
                     snackbarHost = {
                         SnackbarHost(
@@ -844,17 +891,18 @@ fun MainScreen(
                             focusManager.clearFocus()
                             streamViewModel.closeStream()
                         },
-                        modifier = if (isInPipMode) {
-                            Modifier.fillMaxSize()
-                        } else {
-                            Modifier
-                                .align(Alignment.TopCenter)
-                                .fillMaxWidth()
-                                .graphicsLayer { alpha = streamState.alpha.value }
-                                .onGloballyPositioned { coordinates ->
-                                    streamState.heightDp = with(density) { coordinates.size.height.toDp() }
-                                }
-                        },
+                        modifier =
+                            if (isInPipMode) {
+                                Modifier.fillMaxSize()
+                            } else {
+                                Modifier
+                                    .align(Alignment.TopCenter)
+                                    .fillMaxWidth()
+                                    .graphicsLayer { alpha = streamState.alpha.value }
+                                    .onGloballyPositioned { coordinates ->
+                                        streamState.heightDp = with(density) { coordinates.size.height.toDp() }
+                                    }
+                            },
                     )
                 }
                 if (!showStream) {
@@ -866,9 +914,10 @@ fun MainScreen(
             if (currentStream != null && !isFullscreen && !isInPipMode) {
                 StatusBarScrim(
                     colorAlpha = 1f,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .graphicsLayer { alpha = streamState.alpha.value },
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .graphicsLayer { alpha = streamState.alpha.value },
                 )
             }
 
@@ -903,14 +952,15 @@ fun MainScreen(
             // Input bar — on top of sheets and dismiss scrim for whisper/reply input
             if (!isInPipMode) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = scaffoldBottomPadding)
-                        .swipeDownToHide(
-                            enabled = effectiveShowInput,
-                            thresholdPx = swipeDownThresholdPx,
-                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                        ),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = scaffoldBottomPadding)
+                            .swipeDownToHide(
+                                enabled = effectiveShowInput,
+                                thresholdPx = swipeDownThresholdPx,
+                                onHide = { mainScreenViewModel.setGestureInputHidden(true) },
+                            ),
                 ) {
                     bottomBar()
                 }
@@ -924,11 +974,12 @@ fun MainScreen(
                 SuggestionDropdown(
                     suggestions = inputState.suggestions,
                     onSuggestionClick = chatInputViewModel::applySuggestion,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .navigationBarsPadding()
-                        .imePadding()
-                        .padding(bottom = inputHeightDp + 2.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .navigationBarsPadding()
+                            .imePadding()
+                            .padding(bottom = inputHeightDp + 2.dp),
                 )
             }
         }

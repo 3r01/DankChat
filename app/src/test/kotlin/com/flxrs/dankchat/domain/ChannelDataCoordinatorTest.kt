@@ -89,184 +89,196 @@ internal class ChannelDataCoordinatorTest {
     }
 
     @Test
-    fun `loadGlobalData transitions to Loaded when no failures`() = runTest(testDispatcher) {
-        every { authDataStore.isLoggedIn } returns false
-        coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
-        every { dataRepository.clearDataLoadingFailures() } just runs
+    fun `loadGlobalData transitions to Loaded when no failures`() =
+        runTest(testDispatcher) {
+            every { authDataStore.isLoggedIn } returns false
+            coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
+            every { dataRepository.clearDataLoadingFailures() } just runs
 
-        coordinator.loadGlobalData()
+            coordinator.loadGlobalData()
 
-        assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
-    }
-
-    @Test
-    fun `loadGlobalData transitions to Failed when data failures exist`() = runTest(testDispatcher) {
-        every { authDataStore.isLoggedIn } returns false
-        coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
-        every { dataRepository.clearDataLoadingFailures() } just runs
-
-        val failure = DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))
-        dataLoadingFailures.value = setOf(failure)
-
-        coordinator.loadGlobalData()
-
-        val state = coordinator.globalLoadingState.value
-        assertIs<GlobalLoadingState.Failed>(state)
-        assertEquals(1, state.failures.size)
-        assertEquals(DataLoadingStep.GlobalBTTVEmotes, state.failures.first().step)
-    }
-
-    @Test
-    fun `loadGlobalData with auth loads stream data and auth global data`() = runTest(testDispatcher) {
-        every { authDataStore.isLoggedIn } returns true
-        every { authDataStore.userIdString } returns null
-        every { preferenceStore.channels } returns listOf(UserName("testchannel"))
-        coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
-        coEvery { globalDataLoader.loadAuthGlobalData() } returns emptyList()
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        coEvery { streamDataRepository.fetchOnce(any()) } just runs
-
-        coordinator.loadGlobalData()
-
-        coVerify { streamDataRepository.fetchOnce(listOf(UserName("testchannel"))) }
-        coVerify { globalDataLoader.loadAuthGlobalData() }
-    }
-
-    @Test
-    fun `loadChannelData transitions to Loaded`() = runTest(testDispatcher) {
-        val channel = UserName("testchannel")
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
-
-        coordinator.loadChannelData(channel)
-
-        assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)
-    }
-
-    @Test
-    fun `loadChannelData transitions to Failed on loader failure`() = runTest(testDispatcher) {
-        val channel = UserName("testchannel")
-        val failures = listOf(ChannelLoadingFailure.BTTVEmotes(channel, RuntimeException("network")))
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Failed(failures)
-
-        coordinator.loadChannelData(channel)
-
-        val state = coordinator.getChannelLoadingState(channel).value
-        assertIs<ChannelLoadingState.Failed>(state)
-        assertEquals(1, state.failures.size)
-    }
-
-    @Test
-    fun `chat loading failures update global state from Loaded to Failed`() = runTest(testDispatcher) {
-        every { authDataStore.isLoggedIn } returns false
-        coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
-        every { dataRepository.clearDataLoadingFailures() } just runs
-
-        coordinator.loadGlobalData()
-        assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
-
-        coordinator.globalLoadingState.test {
-            assertEquals(GlobalLoadingState.Loaded, awaitItem())
-
-            val chatFailure = ChatLoadingFailure(ChatLoadingStep.RecentMessages(UserName("test")), RuntimeException("fail"))
-            chatLoadingFailures.value = setOf(chatFailure)
-
-            val failed = awaitItem()
-            assertIs<GlobalLoadingState.Failed>(failed)
-            assertEquals(1, failed.chatFailures.size)
+            assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
         }
-    }
 
     @Test
-    fun `retryDataLoading retries failed global steps`() = runTest(testDispatcher) {
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
+    fun `loadGlobalData transitions to Failed when data failures exist`() =
+        runTest(testDispatcher) {
+            every { authDataStore.isLoggedIn } returns false
+            coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
+            every { dataRepository.clearDataLoadingFailures() } just runs
 
-        val failedState =
-            GlobalLoadingState.Failed(
-                failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
-            )
+            val failure = DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))
+            dataLoadingFailures.value = setOf(failure)
 
-        coordinator.retryDataLoading(failedState)
+            coordinator.loadGlobalData()
 
-        coVerify { globalDataLoader.loadGlobalBTTVEmotes() }
-    }
-
-    @Test
-    fun `retryDataLoading retries failed channel steps via channelDataLoader`() = runTest(testDispatcher) {
-        val channel = UserName("testchannel")
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
-
-        val failedState =
-            GlobalLoadingState.Failed(
-                failures = setOf(DataLoadingFailure(DataLoadingStep.ChannelBTTVEmotes(channel, DisplayName("testchannel"), UserId("123")), RuntimeException("fail"))),
-            )
-
-        coordinator.retryDataLoading(failedState)
-
-        coVerify { channelDataLoader.loadChannelData(channel) }
-    }
+            val state = coordinator.globalLoadingState.value
+            assertIs<GlobalLoadingState.Failed>(state)
+            assertEquals(1, state.failures.size)
+            assertEquals(DataLoadingStep.GlobalBTTVEmotes, state.failures.first().step)
+        }
 
     @Test
-    fun `retryDataLoading retries failed chat steps`() = runTest(testDispatcher) {
-        val channel = UserName("testchannel")
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+    fun `loadGlobalData with auth loads stream data and auth global data`() =
+        runTest(testDispatcher) {
+            every { authDataStore.isLoggedIn } returns true
+            every { authDataStore.userIdString } returns null
+            every { preferenceStore.channels } returns listOf(UserName("testchannel"))
+            coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
+            coEvery { globalDataLoader.loadAuthGlobalData() } returns emptyList()
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            coEvery { streamDataRepository.fetchOnce(any()) } just runs
 
-        val failedState =
-            GlobalLoadingState.Failed(
-                chatFailures = setOf(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), RuntimeException("fail"))),
-            )
+            coordinator.loadGlobalData()
 
-        coordinator.retryDataLoading(failedState)
-
-        coVerify { channelDataLoader.loadChannelData(channel) }
-    }
-
-    @Test
-    fun `retryDataLoading transitions to Loaded when retry succeeds`() = runTest(testDispatcher) {
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
-
-        val failedState =
-            GlobalLoadingState.Failed(
-                failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
-            )
-
-        coordinator.retryDataLoading(failedState)
-
-        assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
-    }
+            coVerify { streamDataRepository.fetchOnce(listOf(UserName("testchannel"))) }
+            coVerify { globalDataLoader.loadAuthGlobalData() }
+        }
 
     @Test
-    fun `retryDataLoading stays Failed when failures persist`() = runTest(testDispatcher) {
-        val failure = DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("still broken"))
-        every { dataRepository.clearDataLoadingFailures() } just runs
-        every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
-        dataLoadingFailures.value = setOf(failure)
+    fun `loadChannelData transitions to Loaded`() =
+        runTest(testDispatcher) {
+            val channel = UserName("testchannel")
+            coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
 
-        val failedState = GlobalLoadingState.Failed(failures = setOf(failure))
+            coordinator.loadChannelData(channel)
 
-        coordinator.retryDataLoading(failedState)
-
-        assertIs<GlobalLoadingState.Failed>(coordinator.globalLoadingState.value)
-    }
+            assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)
+        }
 
     @Test
-    fun `cleanupChannel removes channel state`() = runTest(testDispatcher) {
-        val channel = UserName("testchannel")
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+    fun `loadChannelData transitions to Failed on loader failure`() =
+        runTest(testDispatcher) {
+            val channel = UserName("testchannel")
+            val failures = listOf(ChannelLoadingFailure.BTTVEmotes(channel, RuntimeException("network")))
+            coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Failed(failures)
 
-        coordinator.loadChannelData(channel)
-        assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)
+            coordinator.loadChannelData(channel)
 
-        coordinator.cleanupChannel(channel)
+            val state = coordinator.getChannelLoadingState(channel).value
+            assertIs<ChannelLoadingState.Failed>(state)
+            assertEquals(1, state.failures.size)
+        }
 
-        assertEquals(ChannelLoadingState.Idle, coordinator.getChannelLoadingState(channel).value)
-    }
+    @Test
+    fun `chat loading failures update global state from Loaded to Failed`() =
+        runTest(testDispatcher) {
+            every { authDataStore.isLoggedIn } returns false
+            coEvery { globalDataLoader.loadGlobalData() } returns emptyList()
+            every { dataRepository.clearDataLoadingFailures() } just runs
+
+            coordinator.loadGlobalData()
+            assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
+
+            coordinator.globalLoadingState.test {
+                assertEquals(GlobalLoadingState.Loaded, awaitItem())
+
+                val chatFailure = ChatLoadingFailure(ChatLoadingStep.RecentMessages(UserName("test")), RuntimeException("fail"))
+                chatLoadingFailures.value = setOf(chatFailure)
+
+                val failed = awaitItem()
+                assertIs<GlobalLoadingState.Failed>(failed)
+                assertEquals(1, failed.chatFailures.size)
+            }
+        }
+
+    @Test
+    fun `retryDataLoading retries failed global steps`() =
+        runTest(testDispatcher) {
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            every { chatMessageRepository.clearChatLoadingFailures() } just runs
+            coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
+
+            val failedState =
+                GlobalLoadingState.Failed(
+                    failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
+                )
+
+            coordinator.retryDataLoading(failedState)
+
+            coVerify { globalDataLoader.loadGlobalBTTVEmotes() }
+        }
+
+    @Test
+    fun `retryDataLoading retries failed channel steps via channelDataLoader`() =
+        runTest(testDispatcher) {
+            val channel = UserName("testchannel")
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            every { chatMessageRepository.clearChatLoadingFailures() } just runs
+            coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+
+            val failedState =
+                GlobalLoadingState.Failed(
+                    failures = setOf(DataLoadingFailure(DataLoadingStep.ChannelBTTVEmotes(channel, DisplayName("testchannel"), UserId("123")), RuntimeException("fail"))),
+                )
+
+            coordinator.retryDataLoading(failedState)
+
+            coVerify { channelDataLoader.loadChannelData(channel) }
+        }
+
+    @Test
+    fun `retryDataLoading retries failed chat steps`() =
+        runTest(testDispatcher) {
+            val channel = UserName("testchannel")
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            every { chatMessageRepository.clearChatLoadingFailures() } just runs
+            coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+
+            val failedState =
+                GlobalLoadingState.Failed(
+                    chatFailures = setOf(ChatLoadingFailure(ChatLoadingStep.RecentMessages(channel), RuntimeException("fail"))),
+                )
+
+            coordinator.retryDataLoading(failedState)
+
+            coVerify { channelDataLoader.loadChannelData(channel) }
+        }
+
+    @Test
+    fun `retryDataLoading transitions to Loaded when retry succeeds`() =
+        runTest(testDispatcher) {
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            every { chatMessageRepository.clearChatLoadingFailures() } just runs
+            coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
+
+            val failedState =
+                GlobalLoadingState.Failed(
+                    failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("timeout"))),
+                )
+
+            coordinator.retryDataLoading(failedState)
+
+            assertEquals(GlobalLoadingState.Loaded, coordinator.globalLoadingState.value)
+        }
+
+    @Test
+    fun `retryDataLoading stays Failed when failures persist`() =
+        runTest(testDispatcher) {
+            val failure = DataLoadingFailure(DataLoadingStep.GlobalBTTVEmotes, RuntimeException("still broken"))
+            every { dataRepository.clearDataLoadingFailures() } just runs
+            every { chatMessageRepository.clearChatLoadingFailures() } just runs
+            coEvery { globalDataLoader.loadGlobalBTTVEmotes() } returns Result.success(Unit)
+            dataLoadingFailures.value = setOf(failure)
+
+            val failedState = GlobalLoadingState.Failed(failures = setOf(failure))
+
+            coordinator.retryDataLoading(failedState)
+
+            assertIs<GlobalLoadingState.Failed>(coordinator.globalLoadingState.value)
+        }
+
+    @Test
+    fun `cleanupChannel removes channel state`() =
+        runTest(testDispatcher) {
+            val channel = UserName("testchannel")
+            coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+
+            coordinator.loadChannelData(channel)
+            assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)
+
+            coordinator.cleanupChannel(channel)
+
+            assertEquals(ChannelLoadingState.Idle, coordinator.getChannelLoadingState(channel).value)
+        }
 }

@@ -35,7 +35,14 @@ data class TourOverlayState(
 @Suppress("ContentSlotReused")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun OptionalTourTooltip(tooltipState: TooltipState?, text: String, onAdvance: (() -> Unit)?, onSkip: (() -> Unit)?, focusable: Boolean = false, content: @Composable () -> Unit) {
+internal fun OptionalTourTooltip(
+    tooltipState: TooltipState?,
+    text: String,
+    onAdvance: (() -> Unit)?,
+    onSkip: (() -> Unit)?,
+    focusable: Boolean = false,
+    content: @Composable () -> Unit,
+) {
     if (tooltipState != null) {
         TooltipBox(
             positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
@@ -60,13 +67,19 @@ internal fun OptionalTourTooltip(tooltipState: TooltipState?, text: String, onAd
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TooltipScope.TourTooltip(text: String, onAction: () -> Unit, onSkip: () -> Unit, isLast: Boolean = false) {
-    val tourColors = TooltipDefaults.richTooltipColors(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        actionContentColor = MaterialTheme.colorScheme.secondary,
-    )
+internal fun TooltipScope.TourTooltip(
+    text: String,
+    onAction: () -> Unit,
+    onSkip: () -> Unit,
+    isLast: Boolean = false,
+) {
+    val tourColors =
+        TooltipDefaults.richTooltipColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            actionContentColor = MaterialTheme.colorScheme.secondary,
+        )
     RichTooltip(
         colors = tourColors,
         caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),

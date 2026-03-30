@@ -42,75 +42,85 @@ data class WhisperMessage(
     companion object {
         val WHISPER_CHANNEL = "w".toUserName()
 
-        fun parseFromIrc(ircMessage: IrcMessage, recipientName: DisplayName, recipientColorTag: String?): WhisperMessage = with(ircMessage) {
-            val name = prefix.substringBefore('!')
-            val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val recipientColor = recipientColorTag?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val emoteTag = tags["emotes"] ?: ""
-            val message = params.getOrElse(1) { "" }
+        fun parseFromIrc(
+            ircMessage: IrcMessage,
+            recipientName: DisplayName,
+            recipientColorTag: String?,
+        ): WhisperMessage =
+            with(ircMessage) {
+                val name = prefix.substringBefore('!')
+                val displayName = tags["display-name"] ?: name
+                val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
+                val recipientColor = recipientColorTag?.let(Color::parseColor) ?: DEFAULT_COLOR
+                val emoteTag = tags["emotes"] ?: ""
+                val message = params.getOrElse(1) { "" }
 
-            return WhisperMessage(
-                timestamp = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis(),
-                id = tags["id"] ?: UUID.randomUUID().toString(),
-                userId = tags["user-id"]?.toUserId(),
-                name = name.toUserName(),
-                displayName = displayName.toDisplayName(),
-                color = color,
-                recipientId = null,
-                recipientName = recipientName.toUserName(),
-                recipientDisplayName = recipientName,
-                recipientColor = recipientColor,
-                message = message,
-                rawEmotes = emoteTag,
-                rawBadges = tags["badges"],
-                rawBadgeInfo = tags["badge-info"],
-            )
-        }
+                return WhisperMessage(
+                    timestamp = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis(),
+                    id = tags["id"] ?: UUID.randomUUID().toString(),
+                    userId = tags["user-id"]?.toUserId(),
+                    name = name.toUserName(),
+                    displayName = displayName.toDisplayName(),
+                    color = color,
+                    recipientId = null,
+                    recipientName = recipientName.toUserName(),
+                    recipientDisplayName = recipientName,
+                    recipientColor = recipientColor,
+                    message = message,
+                    rawEmotes = emoteTag,
+                    rawBadges = tags["badges"],
+                    rawBadgeInfo = tags["badge-info"],
+                )
+            }
 
-        fun fromPubSub(data: WhisperData): WhisperMessage = with(data) {
-            val color =
-                data.tags.color
-                    .ifBlank { null }
-                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val recipientColor =
-                data.recipient.color
-                    .ifBlank { null }
-                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val badgeTag = data.tags.badges.joinToString(",") { "${it.id}/${it.version}" }
-            val emotesTag =
-                data.tags.emotes
-                    .groupBy { it.id }
-                    .entries
-                    .joinToString("/") { entry ->
-                        "${entry.key}:" + entry.value.joinToString(",") { "${it.start}-${it.end}" }
-                    }
+        fun fromPubSub(data: WhisperData): WhisperMessage =
+            with(data) {
+                val color =
+                    data.tags.color
+                        .ifBlank { null }
+                        ?.let(Color::parseColor) ?: DEFAULT_COLOR
+                val recipientColor =
+                    data.recipient.color
+                        .ifBlank { null }
+                        ?.let(Color::parseColor) ?: DEFAULT_COLOR
+                val badgeTag = data.tags.badges.joinToString(",") { "${it.id}/${it.version}" }
+                val emotesTag =
+                    data.tags.emotes
+                        .groupBy { it.id }
+                        .entries
+                        .joinToString("/") { entry ->
+                            "${entry.key}:" + entry.value.joinToString(",") { "${it.start}-${it.end}" }
+                        }
 
-            return WhisperMessage(
-                timestamp = data.timestamp * 1_000L, // PubSub uses seconds instead of millis, nice
-                id = data.messageId,
-                userId = data.userId,
-                name = data.tags.name,
-                displayName = data.tags.displayName,
-                color = color,
-                recipientId = data.recipient.id,
-                recipientName = data.recipient.name,
-                recipientDisplayName = data.recipient.displayName,
-                recipientColor = recipientColor,
-                message = message,
-                rawEmotes = emotesTag,
-                rawBadges = badgeTag,
-            )
-        }
+                return WhisperMessage(
+                    timestamp = data.timestamp * 1_000L, // PubSub uses seconds instead of millis, nice
+                    id = data.messageId,
+                    userId = data.userId,
+                    name = data.tags.name,
+                    displayName = data.tags.displayName,
+                    color = color,
+                    recipientId = data.recipient.id,
+                    recipientName = data.recipient.name,
+                    recipientDisplayName = data.recipient.displayName,
+                    recipientColor = recipientColor,
+                    message = message,
+                    rawEmotes = emotesTag,
+                    rawBadges = badgeTag,
+                )
+            }
     }
 }
 
 val WhisperMessage.senderAliasOrFormattedName: String
     get() = userDisplay?.alias ?: name.formatWithDisplayName(displayName)
 
-fun WhisperMessage.senderColorOnBackground(@ColorInt background: Int): Int = userDisplay.colorOrElse(color.normalizeColor(background))
+fun WhisperMessage.senderColorOnBackground(
+    @ColorInt background: Int,
+): Int = userDisplay.colorOrElse(color.normalizeColor(background))
 
 val WhisperMessage.recipientAliasOrFormattedName: String
     get() = recipientDisplay?.alias ?: recipientName.formatWithDisplayName(recipientDisplayName)
 
-fun WhisperMessage.recipientColorOnBackground(@ColorInt background: Int): Int = recipientDisplay.colorOrElse(recipientColor.normalizeColor(background))
+fun WhisperMessage.recipientColorOnBackground(
+    @ColorInt background: Int,
+): Int = recipientDisplay.colorOrElse(recipientColor.normalizeColor(background))

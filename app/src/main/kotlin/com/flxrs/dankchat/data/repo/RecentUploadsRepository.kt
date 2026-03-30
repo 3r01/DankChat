@@ -7,7 +7,9 @@ import kotlinx.coroutines.flow.Flow
 import org.koin.core.annotation.Single
 
 @Single
-class RecentUploadsRepository(private val recentUploadsDao: RecentUploadsDao) {
+class RecentUploadsRepository(
+    private val recentUploadsDao: RecentUploadsDao,
+) {
     fun getRecentUploads(): Flow<List<UploadEntity>> = recentUploadsDao.getRecentUploads()
 
     suspend fun addUpload(upload: UploadDto) {

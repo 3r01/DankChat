@@ -67,14 +67,19 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val PAGE_COUNT = 4
 
 @Composable
-fun OnboardingScreen(onNavigateToLogin: () -> Unit, onComplete: () -> Unit, modifier: Modifier = Modifier) {
+fun OnboardingScreen(
+    onNavigateToLogin: () -> Unit,
+    onComplete: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val viewModel: OnboardingViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(
-        initialPage = state.initialPage,
-        pageCount = { PAGE_COUNT },
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = state.initialPage,
+            pageCount = { PAGE_COUNT },
+        )
     LaunchedEffect(pagerState.currentPage) {
         viewModel.setCurrentPage(pagerState.currentPage)
     }
@@ -88,16 +93,18 @@ fun OnboardingScreen(onNavigateToLogin: () -> Unit, onComplete: () -> Unit, modi
 
     Surface(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeDrawingPadding()
-                .padding(horizontal = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .safeDrawingPadding()
+                    .padding(horizontal = 24.dp),
         ) {
             LinearProgressIndicator(
                 progress = { (pagerState.currentPage + 1).toFloat() / PAGE_COUNT },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
             )
 
             HorizontalPager(
@@ -106,34 +113,42 @@ fun OnboardingScreen(onNavigateToLogin: () -> Unit, onComplete: () -> Unit, modi
                 modifier = Modifier.weight(1f),
             ) { page ->
                 when (page) {
-                    0 -> WelcomePage(
-                        onStart = { scope.launch { pagerState.animateScrollToPage(1) } },
-                    )
+                    0 -> {
+                        WelcomePage(
+                            onStart = { scope.launch { pagerState.animateScrollToPage(1) } },
+                        )
+                    }
 
-                    1 -> LoginPage(
-                        loginCompleted = state.loginCompleted,
-                        onLogin = onNavigateToLogin,
-                        onSkip = { scope.launch { pagerState.animateScrollToPage(2) } },
-                        onContinue = { scope.launch { pagerState.animateScrollToPage(2) } },
-                    )
+                    1 -> {
+                        LoginPage(
+                            loginCompleted = state.loginCompleted,
+                            onLogin = onNavigateToLogin,
+                            onSkip = { scope.launch { pagerState.animateScrollToPage(2) } },
+                            onContinue = { scope.launch { pagerState.animateScrollToPage(2) } },
+                        )
+                    }
 
-                    2 -> MessageHistoryPage(
-                        decided = state.messageHistoryDecided,
-                        onEnable = {
-                            viewModel.onMessageHistoryDecision(enabled = true)
-                            scope.launch { pagerState.animateScrollToPage(3) }
-                        },
-                        onDisable = {
-                            viewModel.onMessageHistoryDecision(enabled = false)
-                            scope.launch { pagerState.animateScrollToPage(3) }
-                        },
-                    )
+                    2 -> {
+                        MessageHistoryPage(
+                            decided = state.messageHistoryDecided,
+                            onEnable = {
+                                viewModel.onMessageHistoryDecision(enabled = true)
+                                scope.launch { pagerState.animateScrollToPage(3) }
+                            },
+                            onDisable = {
+                                viewModel.onMessageHistoryDecision(enabled = false)
+                                scope.launch { pagerState.animateScrollToPage(3) }
+                            },
+                        )
+                    }
 
-                    3 -> NotificationsPage(
-                        onContinue = {
-                            viewModel.completeOnboarding(onComplete)
-                        },
-                    )
+                    3 -> {
+                        NotificationsPage(
+                            onContinue = {
+                                viewModel.completeOnboarding(onComplete)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -141,11 +156,18 @@ fun OnboardingScreen(onNavigateToLogin: () -> Unit, onComplete: () -> Unit, modi
 }
 
 @Composable
-private fun OnboardingPage(title: String, icon: @Composable () -> Unit, body: @Composable () -> Unit, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+private fun OnboardingPage(
+    title: String,
+    icon: @Composable () -> Unit,
+    body: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(vertical = 24.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
@@ -174,7 +196,10 @@ private fun OnboardingBody(text: String) {
 }
 
 @Composable
-private fun WelcomePage(onStart: () -> Unit, modifier: Modifier = Modifier) {
+private fun WelcomePage(
+    onStart: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     OnboardingPage(
         icon = {
             Icon(
@@ -195,7 +220,13 @@ private fun WelcomePage(onStart: () -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun LoginPage(loginCompleted: Boolean, onLogin: () -> Unit, onSkip: () -> Unit, onContinue: () -> Unit, modifier: Modifier = Modifier) {
+private fun LoginPage(
+    loginCompleted: Boolean,
+    onLogin: () -> Unit,
+    onSkip: () -> Unit,
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     OnboardingPage(
         icon = {
             Icon(
@@ -260,7 +291,12 @@ private fun LoginPage(loginCompleted: Boolean, onLogin: () -> Unit, onSkip: () -
 }
 
 @Composable
-private fun MessageHistoryPage(decided: Boolean, onEnable: () -> Unit, onDisable: () -> Unit, modifier: Modifier = Modifier) {
+private fun MessageHistoryPage(
+    decided: Boolean,
+    onEnable: () -> Unit,
+    onDisable: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     OnboardingPage(
         icon = {
             Icon(
@@ -275,22 +311,25 @@ private fun MessageHistoryPage(decided: Boolean, onEnable: () -> Unit, onDisable
             val bodyText = stringResource(R.string.onboarding_history_body)
             val url = "https://recent-messages.robotty.de/"
             val linkAnnotation = buildLinkAnnotation(url)
-            val annotatedBody = remember(bodyText, linkAnnotation) {
-                buildAnnotatedString {
-                    val urlStart = bodyText.indexOf(url)
-                    when {
-                        urlStart >= 0 -> {
-                            append(bodyText.substring(0, urlStart))
-                            withLink(link = linkAnnotation) {
-                                append(url)
+            val annotatedBody =
+                remember(bodyText, linkAnnotation) {
+                    buildAnnotatedString {
+                        val urlStart = bodyText.indexOf(url)
+                        when {
+                            urlStart >= 0 -> {
+                                append(bodyText.substring(0, urlStart))
+                                withLink(link = linkAnnotation) {
+                                    append(url)
+                                }
+                                append(bodyText.substring(urlStart + url.length))
                             }
-                            append(bodyText.substring(urlStart + url.length))
-                        }
 
-                        else -> append(bodyText)
+                            else -> {
+                                append(bodyText)
+                            }
+                        }
                     }
                 }
-            }
             Text(
                 text = annotatedBody,
                 style = MaterialTheme.typography.bodyMedium,
@@ -317,29 +356,34 @@ private enum class NotificationPermissionState { Pending, Granted, Denied }
 
 @SuppressLint("InlinedApi")
 @Composable
-private fun NotificationsPage(onContinue: () -> Unit, modifier: Modifier = Modifier) {
+private fun NotificationsPage(
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val context = LocalContext.current
     var permissionState by remember { mutableStateOf(NotificationPermissionState.Pending) }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-    ) { granted ->
-        if (granted) {
-            onContinue()
-        } else {
-            permissionState = NotificationPermissionState.Denied
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (granted) {
+                onContinue()
+            } else {
+                permissionState = NotificationPermissionState.Denied
+            }
         }
-    }
 
     // Re-check permission when returning from notification settings — auto-advance if granted
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             if (isAtLeastTiramisu && permissionState == NotificationPermissionState.Denied) {
-                val granted = ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                ) == PackageManager.PERMISSION_GRANTED
+                val granted =
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) == PackageManager.PERMISSION_GRANTED
                 if (granted) {
                     onContinue()
                 }
@@ -384,9 +428,10 @@ private fun NotificationsPage(onContinue: () -> Unit, modifier: Modifier = Modif
                             Spacer(modifier = Modifier.height(12.dp))
                             FilledTonalButton(
                                 onClick = {
-                                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                                        putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                                    }
+                                    val intent =
+                                        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                                        }
                                     context.startActivity(intent)
                                 },
                             ) {

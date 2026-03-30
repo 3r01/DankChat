@@ -20,14 +20,17 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
 @Single
-class RepliesRepository(private val authDataStore: AuthDataStore) {
+class RepliesRepository(
+    private val authDataStore: AuthDataStore,
+) {
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
-    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
-        val root = ChatItem(thread.rootMessage.clearHighlight(), isInReplies = true)
-        val replies = thread.replies.map { ChatItem(it.clearHighlight(), isInReplies = true) }
-        listOf(root) + replies
-    } ?: flowOf(emptyList())
+    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> =
+        threads[rootMessageId]?.map { thread ->
+            val root = ChatItem(thread.rootMessage.clearHighlight(), isInReplies = true)
+            val replies = thread.replies.map { ChatItem(it.clearHighlight(), isInReplies = true) }
+            listOf(root) + replies
+        } ?: flowOf(emptyList())
 
     fun hasMessageThread(rootMessageId: String) = threads.containsKey(rootMessageId)
 
@@ -46,7 +49,10 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
             .forEach { threads.remove(it.rootMessageId) }
     }
 
-    fun calculateMessageThread(message: Message, findMessageById: (channel: UserName, id: String) -> Message?): Message {
+    fun calculateMessageThread(
+        message: Message,
+        findMessageById: (channel: UserName, id: String) -> Message?,
+    ): Message {
         if (message !is PrivMessage) {
             return message
         }
@@ -159,7 +165,10 @@ class RepliesRepository(private val authDataStore: AuthDataStore) {
         return this
     }
 
-    private fun createPlaceholderRootMessage(reply: PrivMessage, rootId: String): PrivMessage? {
+    private fun createPlaceholderRootMessage(
+        reply: PrivMessage,
+        rootId: String,
+    ): PrivMessage? {
         val login = reply.tags[THREAD_ROOT_USER_LOGIN_TAG] ?: return null
         val name = login.toUserName()
         val displayName = (reply.tags[THREAD_ROOT_DISPLAY_TAG] ?: login).toDisplayName()

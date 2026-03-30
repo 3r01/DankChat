@@ -62,9 +62,10 @@ internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, _ ->
-            isInPipMode = activity?.isInPictureInPictureMode == true
-        }
+        val observer =
+            LifecycleEventObserver { _, _ ->
+                isInPipMode = activity?.isInPictureInPictureMode == true
+            }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
@@ -73,7 +74,8 @@ internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
         streamViewModel.shouldEnablePipAutoMode.collect { enabled ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && activity != null) {
                 activity.setPictureInPictureParams(
-                    PictureInPictureParams.Builder()
+                    PictureInPictureParams
+                        .Builder()
                         .setAutoEnterEnabled(enabled)
                         .setAspectRatio(Rational(16, 9))
                         .build(),
@@ -116,13 +118,17 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
  * Additional graphicsLayer transforms (e.g. fade with stream) can be applied via [modifier].
  */
 @Composable
-internal fun StatusBarScrim(modifier: Modifier = Modifier, colorAlpha: Float = 0.7f) {
+internal fun StatusBarScrim(
+    modifier: Modifier = Modifier,
+    colorAlpha: Float = 0.7f,
+) {
     val density = LocalDensity.current
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
-            .background(MaterialTheme.colorScheme.surface.copy(alpha = colorAlpha)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(with(density) { WindowInsets.statusBars.getTop(density).toDp() })
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = colorAlpha)),
     )
 }
 
@@ -130,18 +136,22 @@ internal fun StatusBarScrim(modifier: Modifier = Modifier, colorAlpha: Float = 0
  * Fullscreen scrim that dismisses the input overflow menu when tapped.
  */
 @Composable
-internal fun InputDismissScrim(forceOpen: Boolean, onDismiss: () -> Unit) {
+internal fun InputDismissScrim(
+    forceOpen: Boolean,
+    onDismiss: () -> Unit,
+) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {
-                if (!forceOpen) {
-                    onDismiss()
-                }
-            },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {
+                    if (!forceOpen) {
+                        onDismiss()
+                    }
+                },
     )
 }
 
@@ -155,32 +165,35 @@ internal fun BoxScope.EdgeGestureGuards() {
     val layoutDirection = LocalLayoutDirection.current
     val systemGestureInsets = WindowInsets.systemGestures
 
-    val edgeGuardModifier = Modifier
-        .fillMaxHeight()
-        .pointerInput(Unit) {
-            awaitEachGesture {
-                val down = awaitFirstDown(pass = PointerEventPass.Initial)
-                down.consume()
-                do {
-                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                    event.changes.forEach { it.consume() }
-                } while (event.changes.any { it.pressed })
+    val edgeGuardModifier =
+        Modifier
+            .fillMaxHeight()
+            .pointerInput(Unit) {
+                awaitEachGesture {
+                    val down = awaitFirstDown(pass = PointerEventPass.Initial)
+                    down.consume()
+                    do {
+                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                        event.changes.forEach { it.consume() }
+                    } while (event.changes.any { it.pressed })
+                }
             }
-        }
 
     // Left edge guard
     Box(
-        modifier = Modifier
-            .align(AbsoluteAlignment.CenterLeft)
-            .width(with(density) { systemGestureInsets.getLeft(density, layoutDirection).toDp() })
-            .then(edgeGuardModifier),
+        modifier =
+            Modifier
+                .align(AbsoluteAlignment.CenterLeft)
+                .width(with(density) { systemGestureInsets.getLeft(density, layoutDirection).toDp() })
+                .then(edgeGuardModifier),
     )
     // Right edge guard
     Box(
-        modifier = Modifier
-            .align(AbsoluteAlignment.CenterRight)
-            .width(with(density) { systemGestureInsets.getRight(density, layoutDirection).toDp() })
-            .then(edgeGuardModifier),
+        modifier =
+            Modifier
+                .align(AbsoluteAlignment.CenterRight)
+                .width(with(density) { systemGestureInsets.getRight(density, layoutDirection).toDp() })
+                .then(edgeGuardModifier),
     )
 }
 
@@ -189,7 +202,14 @@ internal fun BoxScope.EdgeGestureGuards() {
  * Supports predictive back gesture scaling.
  */
 @Composable
-internal fun EmoteMenuOverlay(isVisible: Boolean, totalMenuHeight: Dp, backProgress: Float, onEmoteClick: (code: String, id: String) -> Unit, onBackspace: () -> Unit, modifier: Modifier = Modifier) {
+internal fun EmoteMenuOverlay(
+    isVisible: Boolean,
+    totalMenuHeight: Dp,
+    backProgress: Float,
+    onEmoteClick: (code: String, id: String) -> Unit,
+    onBackspace: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInVertically(animationSpec = tween(durationMillis = 140), initialOffsetY = { it }),
@@ -197,17 +217,17 @@ internal fun EmoteMenuOverlay(isVisible: Boolean, totalMenuHeight: Dp, backProgr
         modifier = modifier,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(totalMenuHeight)
-                .graphicsLayer {
-                    val scale = 1f - (backProgress * 0.1f)
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = 1f - backProgress
-                    translationY = backProgress * 100f
-                }
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(totalMenuHeight)
+                    .graphicsLayer {
+                        val scale = 1f - (backProgress * 0.1f)
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = 1f - backProgress
+                        translationY = backProgress * 100f
+                    }.background(MaterialTheme.colorScheme.surfaceContainerHighest),
         ) {
             EmoteMenu(
                 onEmoteClick = onEmoteClick,

@@ -17,7 +17,9 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class RecentUploadsViewModel(private val recentUploadsRepository: RecentUploadsRepository) : ViewModel() {
+class RecentUploadsViewModel(
+    private val recentUploadsRepository: RecentUploadsRepository,
+) : ViewModel() {
     val recentUploads =
         recentUploadsRepository
             .getRecentUploads()
@@ -36,9 +38,10 @@ class RecentUploadsViewModel(private val recentUploadsRepository: RecentUploadsR
                 initialValue = emptyList(),
             )
 
-    fun clearUploads() = viewModelScope.launch {
-        recentUploadsRepository.clearUploads()
-    }
+    fun clearUploads() =
+        viewModelScope.launch {
+            recentUploadsRepository.clearUploads()
+        }
 
     companion object {
         private val formatter =
@@ -46,8 +49,9 @@ class RecentUploadsViewModel(private val recentUploadsRepository: RecentUploadsR
                 .ofLocalizedDateTime(FormatStyle.SHORT)
                 .withZone(ZoneId.systemDefault())
 
-        private fun Instant.formatWithLocale(locale: Locale) = formatter
-            .withLocale(locale)
-            .format(this)
+        private fun Instant.formatWithLocale(locale: Locale) =
+            formatter
+                .withLocale(locale)
+                .format(this)
     }
 }

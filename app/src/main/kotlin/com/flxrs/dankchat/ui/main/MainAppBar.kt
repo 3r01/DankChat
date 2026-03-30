@@ -73,12 +73,20 @@ import kotlinx.coroutines.CancellationException
 @Immutable
 sealed interface AppBarMenu {
     data object Main : AppBarMenu
+
     data object Upload : AppBarMenu
+
     data object Channel : AppBarMenu
 }
 
 @Composable
-fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (ToolbarAction) -> Unit, initialMenu: AppBarMenu = AppBarMenu.Main, keyboardHeightDp: Dp = 0.dp) {
+fun InlineOverflowMenu(
+    isLoggedIn: Boolean,
+    onDismiss: () -> Unit,
+    onAction: (ToolbarAction) -> Unit,
+    initialMenu: AppBarMenu = AppBarMenu.Main,
+    keyboardHeightDp: Dp = 0.dp,
+) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
     var backProgress by remember { mutableFloatStateOf(0f) }
 
@@ -88,7 +96,9 @@ fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (To
                 backProgress = event.progress
             }
             when (currentMenu) {
-                AppBarMenu.Main -> onDismiss()
+                AppBarMenu.Main -> {
+                    onDismiss()
+                }
 
                 else -> {
                     backProgress = 0f
@@ -112,15 +122,16 @@ fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (To
 
     ScrollArea(
         state = scrollAreaState,
-        modifier = Modifier
-            .width(200.dp)
-            .heightIn(max = maxHeight)
-            .graphicsLayer {
-                val scale = 1f - (backProgress * 0.1f)
-                scaleX = scale
-                scaleY = scale
-                alpha = 1f - backProgress
-            },
+        modifier =
+            Modifier
+                .width(200.dp)
+                .heightIn(max = maxHeight)
+                .graphicsLayer {
+                    val scale = 1f - (backProgress * 0.1f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - backProgress
+                },
     ) {
         AnimatedContent(
             targetState = currentMenu,
@@ -134,10 +145,11 @@ fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (To
             label = "InlineMenuTransition",
         ) { menu ->
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState)
-                    .padding(vertical = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState)
+                        .padding(vertical = 8.dp),
             ) {
                 when (menu) {
                     AppBarMenu.Main -> {
@@ -227,11 +239,12 @@ fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (To
         }
         if (scrollState.maxValue > 0) {
             VerticalScrollbar(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .fillMaxHeight()
-                    .width(3.dp)
-                    .padding(vertical = 2.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .fillMaxHeight()
+                        .width(3.dp)
+                        .padding(vertical = 2.dp),
             ) {
                 Thumb(
                     Modifier.background(
@@ -245,12 +258,18 @@ fun InlineOverflowMenu(isLoggedIn: Boolean, onDismiss: () -> Unit, onAction: (To
 }
 
 @Composable
-private fun InlineMenuItem(text: String, icon: ImageVector, hasSubMenu: Boolean = false, onClick: () -> Unit) {
+private fun InlineMenuItem(
+    text: String,
+    icon: ImageVector,
+    hasSubMenu: Boolean = false,
+    onClick: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -280,12 +299,16 @@ private fun InlineMenuItem(text: String, icon: ImageVector, hasSubMenu: Boolean 
 }
 
 @Composable
-private fun InlineSubMenuHeader(title: String, onBack: () -> Unit) {
+private fun InlineSubMenuHeader(
+    title: String,
+    onBack: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onBack)
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onBack)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

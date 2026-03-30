@@ -61,14 +61,14 @@ class ConnectionDebugSection(
             DebugSectionSnapshot(
                 title = baseTitle,
                 entries =
-                listOf(
-                    DebugEntry("IRC (read)", ircReadStatus),
-                    DebugEntry("IRC (write)", ircWriteStatus),
-                    DebugEntry("PubSub", pubSubStatus),
-                    DebugEntry("EventSub", eventSubStatus),
-                    DebugEntry("EventSub topics", "${topics.size}"),
-                    DebugEntry("7TV EventAPI", sevenTvText),
-                ),
+                    listOf(
+                        DebugEntry("IRC (read)", ircReadStatus),
+                        DebugEntry("IRC (write)", ircWriteStatus),
+                        DebugEntry("PubSub", pubSubStatus),
+                        DebugEntry("EventSub", eventSubStatus),
+                        DebugEntry("EventSub topics", "${topics.size}"),
+                        DebugEntry("7TV EventAPI", sevenTvText),
+                    ),
             )
         }
     }

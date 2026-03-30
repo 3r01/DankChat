@@ -69,7 +69,11 @@ fun TTSUserIgnoreListScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSaveAndNavBack: (List<UserIgnore>) -> Unit, onSave: (List<UserIgnore>) -> Unit) {
+private fun UserIgnoreListScreen(
+    initialIgnores: ImmutableList<UserIgnore>,
+    onSaveAndNavBack: (List<UserIgnore>) -> Unit,
+    onSave: (List<UserIgnore>) -> Unit,
+) {
     val focusManager = LocalFocusManager.current
     val ignores = remember { initialIgnores.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -87,9 +91,10 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -108,9 +113,10 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.tts_ignore_list_add_user)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.tts_ignore_list_add_user)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = {
                         focusManager.clearFocus()
                         ignores += UserIgnore(user = "")
@@ -129,10 +135,11 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
         DankBackground(visible = ignores.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
             itemsIndexed(ignores, key = { _, item -> item.id }) { idx, ignore ->
                 UserIgnoreItem(
@@ -143,11 +150,12 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
                         val removed = ignores.removeAt(idx)
                         scope.launch {
                             snackbarHost.currentSnackbarData?.dismiss()
-                            val result = snackbarHost.showSnackbar(
-                                message = itemRemovedMsg,
-                                actionLabel = undoMsg,
-                                duration = SnackbarDuration.Short,
-                            )
+                            val result =
+                                snackbarHost.showSnackbar(
+                                    message = itemRemovedMsg,
+                                    actionLabel = undoMsg,
+                                    duration = SnackbarDuration.Short,
+                                )
                             if (result == SnackbarResult.ActionPerformed) {
                                 focusManager.clearFocus()
                                 ignores.add(idx, removed)
@@ -155,12 +163,13 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
                             }
                         }
                     },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -171,14 +180,20 @@ private fun UserIgnoreListScreen(initialIgnores: ImmutableList<UserIgnore>, onSa
 }
 
 @Composable
-private fun UserIgnoreItem(user: String, onUserChange: (String) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun UserIgnoreItem(
+    user: String,
+    onUserChange: (String) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {
                 OutlinedTextField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                     value = user,
                     onValueChange = onUserChange,
                     label = { Text(stringResource(R.string.tts_ignore_list_user_hint)) },

@@ -30,40 +30,52 @@ import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
  */
 @Suppress("DEPRECATION")
 @Composable
-fun SimpleMessageContainer(message: String, timestamp: String, fontSize: TextUnit, lightBackgroundColor: Color, darkBackgroundColor: Color, textAlpha: Float, modifier: Modifier = Modifier) {
+fun SimpleMessageContainer(
+    message: String,
+    timestamp: String,
+    fontSize: TextUnit,
+    lightBackgroundColor: Color,
+    darkBackgroundColor: Color,
+    textAlpha: Float,
+    modifier: Modifier = Modifier,
+) {
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val linkColor = MaterialTheme.colorScheme.primary
     val timestampColor = MaterialTheme.colorScheme.onSurface
     val context = LocalContext.current
 
-    val annotatedString = remember(message, timestamp, textColor, linkColor, timestampColor, fontSize) {
-        buildAnnotatedString {
-            withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
-                append(timestamp)
-            }
-            append(" ")
-            withStyle(SpanStyle(color = textColor)) {
-                appendWithLinks(message, linkColor)
+    val annotatedString =
+        remember(message, timestamp, textColor, linkColor, timestampColor, fontSize) {
+            buildAnnotatedString {
+                withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
+                    append(timestamp)
+                }
+                append(" ")
+                withStyle(SpanStyle(color = textColor)) {
+                    appendWithLinks(message, linkColor)
+                }
             }
         }
-    }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(textAlpha)
-            .background(bgColor)
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(textAlpha)
+                .background(bgColor)
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
             style = TextStyle(fontSize = fontSize),
             modifier = Modifier.fillMaxWidth(),
             onClick = { offset ->
-                annotatedString.getStringAnnotations("URL", offset, offset)
-                    .firstOrNull()?.let { annotation ->
+                annotatedString
+                    .getStringAnnotations("URL", offset, offset)
+                    .firstOrNull()
+                    ?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
             },

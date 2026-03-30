@@ -75,20 +75,22 @@ fun PrivMessageComposable(
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(message.textAlpha)
-            .background(backgroundColor, highlightShape)
-            .indication(interactionSource, ripple())
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(message.textAlpha)
+                .background(backgroundColor, highlightShape)
+                .indication(interactionSource, ripple())
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         // Highlight type header (First Time Chat, Elevated Chat)
         if (message.highlightHeader != null) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val headerColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
@@ -112,10 +114,11 @@ fun PrivMessageComposable(
         // Reply thread header
         if (message.thread != null) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) }
-                    .padding(top = 4.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) }
+                        .padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val replyColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
@@ -169,101 +172,103 @@ private fun PrivMessageText(
     val linkColor = MaterialTheme.colorScheme.primary
 
     // Build annotated string with text content
-    val annotatedString = remember(message, defaultTextColor, nameColor, showChannelPrefix, linkColor) {
-        buildAnnotatedString {
-            // Channel prefix (for mention tab)
-            if (showChannelPrefix) {
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        color = defaultTextColor,
-                    ),
-                ) {
-                    append("#${message.channel.value} ")
+    val annotatedString =
+        remember(message, defaultTextColor, nameColor, showChannelPrefix, linkColor) {
+            buildAnnotatedString {
+                // Channel prefix (for mention tab)
+                if (showChannelPrefix) {
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = defaultTextColor,
+                        ),
+                    ) {
+                        append("#${message.channel.value} ")
+                    }
                 }
-            }
 
-            // Timestamp
-            if (message.timestamp.isNotEmpty()) {
-                withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
-                    append(message.timestamp)
-                    append(" ")
+                // Timestamp
+                if (message.timestamp.isNotEmpty()) {
+                    withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
+                        append(message.timestamp)
+                        append(" ")
+                    }
                 }
-            }
 
-            // Badges (using appendInlineContent for proper rendering)
-            message.badges.forEach { badge ->
-                appendInlineContent("BADGE_${badge.position}", "[badge]")
-                append(" ") // Space between badges
-            }
-
-            // Username with click annotation (only if nameText is not empty)
-            if (message.nameText.isNotEmpty()) {
-                withStyle(
-                    SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                        color = nameColor,
-                    ),
-                ) {
-                    pushStringAnnotation(
-                        tag = "USER",
-                        annotation = "${message.userId?.value ?: ""}|${message.userName.value}|${message.displayName.value}|${message.channel.value}",
-                    )
-                    append(message.nameText)
-                    pop()
+                // Badges (using appendInlineContent for proper rendering)
+                message.badges.forEach { badge ->
+                    appendInlineContent("BADGE_${badge.position}", "[badge]")
+                    append(" ") // Space between badges
                 }
-            }
 
-            // Message text with emotes
-            val textColor = if (message.isAction) {
-                nameColor
-            } else {
-                defaultTextColor
-            }
+                // Username with click annotation (only if nameText is not empty)
+                if (message.nameText.isNotEmpty()) {
+                    withStyle(
+                        SpanStyle(
+                            fontWeight = FontWeight.Bold,
+                            color = nameColor,
+                        ),
+                    ) {
+                        pushStringAnnotation(
+                            tag = "USER",
+                            annotation = "${message.userId?.value ?: ""}|${message.userName.value}|${message.displayName.value}|${message.channel.value}",
+                        )
+                        append(message.nameText)
+                        pop()
+                    }
+                }
 
-            withStyle(SpanStyle(color = textColor)) {
-                var currentPos = 0
-                message.emotes.sortedBy { it.position.first }.forEach { emote ->
-                    // Text before emote
-                    if (currentPos < emote.position.first) {
-                        val segment = message.message.substring(currentPos, emote.position.first)
+                // Message text with emotes
+                val textColor =
+                    if (message.isAction) {
+                        nameColor
+                    } else {
+                        defaultTextColor
+                    }
+
+                withStyle(SpanStyle(color = textColor)) {
+                    var currentPos = 0
+                    message.emotes.sortedBy { it.position.first }.forEach { emote ->
+                        // Text before emote
+                        if (currentPos < emote.position.first) {
+                            val segment = message.message.substring(currentPos, emote.position.first)
+                            val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
+                            appendWithLinks(segment, linkColor, prevChar)
+                        }
+
+                        // Emote inline content
+                        appendInlineContent("EMOTE_${emote.code}", emote.code)
+
+                        // Cheer amount text
+                        if (emote.cheerAmount != null) {
+                            withStyle(
+                                SpanStyle(
+                                    color = emote.cheerColor ?: textColor,
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                            ) {
+                                append(emote.cheerAmount.toString())
+                            }
+                        }
+
+                        // Add space after emote if next character exists and is not whitespace
+                        val nextPos = emote.position.last + 1
+                        if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {
+                            append(" ")
+                        }
+
+                        currentPos = emote.position.last + 1
+                    }
+
+                    // Remaining text
+                    if (currentPos < message.message.length) {
+                        val segment = message.message.substring(currentPos)
                         val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
                         appendWithLinks(segment, linkColor, prevChar)
                     }
-
-                    // Emote inline content
-                    appendInlineContent("EMOTE_${emote.code}", emote.code)
-
-                    // Cheer amount text
-                    if (emote.cheerAmount != null) {
-                        withStyle(
-                            SpanStyle(
-                                color = emote.cheerColor ?: textColor,
-                                fontWeight = FontWeight.Bold,
-                            ),
-                        ) {
-                            append(emote.cheerAmount.toString())
-                        }
-                    }
-
-                    // Add space after emote if next character exists and is not whitespace
-                    val nextPos = emote.position.last + 1
-                    if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {
-                        append(" ")
-                    }
-
-                    currentPos = emote.position.last + 1
-                }
-
-                // Remaining text
-                if (currentPos < message.message.length) {
-                    val segment = message.message.substring(currentPos)
-                    val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
-                    appendWithLinks(segment, linkColor, prevChar)
                 }
             }
         }
-    }
 
     MessageTextWithInlineContent(
         annotatedString = annotatedString,
@@ -274,21 +279,28 @@ private fun PrivMessageText(
         interactionSource = interactionSource,
         onEmoteClick = onEmoteClick,
         onTextClick = { offset ->
-            annotatedString.getStringAnnotations("USER", offset, offset)
-                .firstOrNull()?.let { annotation ->
+            annotatedString
+                .getStringAnnotations("USER", offset, offset)
+                .firstOrNull()
+                ?.let { annotation ->
                     parseUserAnnotation(annotation.item)?.let { user ->
                         onUserClick(user.userId, user.userName, user.displayName, user.channel.orEmpty(), message.badges, false)
                     }
                 }
 
-            annotatedString.getStringAnnotations("URL", offset, offset)
-                .firstOrNull()?.let { annotation ->
+            annotatedString
+                .getStringAnnotations("URL", offset, offset)
+                .firstOrNull()
+                ?.let { annotation ->
                     launchCustomTab(context, annotation.item)
                 }
         },
         onTextLongClick = { offset ->
-            val user = annotatedString.getStringAnnotations("USER", offset, offset)
-                .firstOrNull()?.let { parseUserAnnotation(it.item) }
+            val user =
+                annotatedString
+                    .getStringAnnotations("USER", offset, offset)
+                    .firstOrNull()
+                    ?.let { parseUserAnnotation(it.item) }
 
             when {
                 user != null -> onUserClick(user.userId, user.userName, user.displayName, user.channel.orEmpty(), message.badges, true)

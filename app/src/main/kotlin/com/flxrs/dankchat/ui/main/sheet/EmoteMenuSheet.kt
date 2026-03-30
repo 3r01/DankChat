@@ -38,13 +38,19 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmoteMenuSheet(onDismiss: () -> Unit, onEmoteClick: (String, String) -> Unit, sheetState: SheetState, viewModel: EmoteMenuViewModel = koinViewModel()) {
+fun EmoteMenuSheet(
+    onDismiss: () -> Unit,
+    onEmoteClick: (String, String) -> Unit,
+    sheetState: SheetState,
+    viewModel: EmoteMenuViewModel = koinViewModel(),
+) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { tabItems.size },
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = 0,
+            pageCount = { tabItems.size },
+        )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -60,12 +66,13 @@ fun EmoteMenuSheet(onDismiss: () -> Unit, onEmoteClick: (String, String) -> Unit
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         text = {
                             Text(
-                                text = when (tabItem.type) {
-                                    EmoteMenuTab.RECENT -> stringResource(R.string.emote_menu_tab_recent)
-                                    EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
-                                    EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
-                                    EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
-                                },
+                                text =
+                                    when (tabItem.type) {
+                                        EmoteMenuTab.RECENT -> stringResource(R.string.emote_menu_tab_recent)
+                                        EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
+                                        EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
+                                        EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
+                                    },
                             )
                         },
                     )
@@ -111,9 +118,10 @@ fun EmoteMenuSheet(onDismiss: () -> Unit, onEmoteClick: (String, String) -> Unit
                                 Text(
                                     text = item.title,
                                     style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp),
                                 )
                             }
 
@@ -121,10 +129,11 @@ fun EmoteMenuSheet(onDismiss: () -> Unit, onEmoteClick: (String, String) -> Unit
                                 AsyncImage(
                                     model = item.emote.url,
                                     contentDescription = item.emote.code,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                        .clickable { onEmoteClick(item.emote.code, item.emote.id) },
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .aspectRatio(1f)
+                                            .clickable { onEmoteClick(item.emote.code, item.emote.id) },
                                 )
                             }
                         }

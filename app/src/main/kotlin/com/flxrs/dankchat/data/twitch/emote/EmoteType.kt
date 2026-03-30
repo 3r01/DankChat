@@ -6,27 +6,41 @@ import com.flxrs.dankchat.data.UserName
 sealed interface EmoteType : Comparable<EmoteType> {
     val title: String
 
-    data class ChannelTwitchEmote(val channel: UserName) : EmoteType {
+    data class ChannelTwitchEmote(
+        val channel: UserName,
+    ) : EmoteType {
         override val title = channel.value
     }
 
-    data class ChannelTwitchBitEmote(val channel: UserName) : EmoteType {
+    data class ChannelTwitchBitEmote(
+        val channel: UserName,
+    ) : EmoteType {
         override val title = channel.value
     }
 
-    data class ChannelTwitchFollowerEmote(val channel: UserName) : EmoteType {
+    data class ChannelTwitchFollowerEmote(
+        val channel: UserName,
+    ) : EmoteType {
         override val title = channel.value
     }
 
-    data class ChannelFFZEmote(val creator: DisplayName?) : EmoteType {
+    data class ChannelFFZEmote(
+        val creator: DisplayName?,
+    ) : EmoteType {
         override val title = "FrankerFaceZ"
     }
 
-    data class ChannelBTTVEmote(val creator: DisplayName, val isShared: Boolean) : EmoteType {
+    data class ChannelBTTVEmote(
+        val creator: DisplayName,
+        val isShared: Boolean,
+    ) : EmoteType {
         override val title = "BetterTTV"
     }
 
-    data class ChannelSevenTVEmote(val creator: DisplayName?, val baseName: String?) : EmoteType {
+    data class ChannelSevenTVEmote(
+        val creator: DisplayName?,
+        val baseName: String?,
+    ) : EmoteType {
         override val title = "SevenTV"
     }
 
@@ -34,7 +48,9 @@ sealed interface EmoteType : Comparable<EmoteType> {
         override val title = "Twitch"
     }
 
-    data class GlobalFFZEmote(val creator: DisplayName?) : EmoteType {
+    data class GlobalFFZEmote(
+        val creator: DisplayName?,
+    ) : EmoteType {
         override val title = "FrankerFaceZ"
     }
 
@@ -42,7 +58,10 @@ sealed interface EmoteType : Comparable<EmoteType> {
         override val title = "BetterTTV"
     }
 
-    data class GlobalSevenTVEmote(val creator: DisplayName?, val baseName: String?) : EmoteType {
+    data class GlobalSevenTVEmote(
+        val creator: DisplayName?,
+        val baseName: String?,
+    ) : EmoteType {
         override val title = "SevenTV"
     }
 
@@ -50,23 +69,24 @@ sealed interface EmoteType : Comparable<EmoteType> {
         override val title = ""
     }
 
-    override fun compareTo(other: EmoteType): Int = when {
-        this is ChannelTwitchBitEmote || this is ChannelTwitchFollowerEmote -> {
-            when (other) {
-                is ChannelTwitchBitEmote,
-                is ChannelTwitchFollowerEmote,
-                -> 0
+    override fun compareTo(other: EmoteType): Int =
+        when {
+            this is ChannelTwitchBitEmote || this is ChannelTwitchFollowerEmote -> {
+                when (other) {
+                    is ChannelTwitchBitEmote,
+                    is ChannelTwitchFollowerEmote,
+                    -> 0
 
-                else -> 1
+                    else -> 1
+                }
+            }
+
+            other is ChannelTwitchBitEmote || other is ChannelTwitchFollowerEmote -> {
+                -1
+            }
+
+            else -> {
+                0
             }
         }
-
-        other is ChannelTwitchBitEmote || other is ChannelTwitchFollowerEmote -> {
-            -1
-        }
-
-        else -> {
-            0
-        }
-    }
 }

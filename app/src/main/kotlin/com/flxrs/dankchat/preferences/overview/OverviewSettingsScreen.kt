@@ -52,23 +52,37 @@ private const val TWITCH_TOS_URL = "https://www.twitch.tv/p/terms-of-service"
 
 sealed interface SettingsNavigation {
     data object Appearance : SettingsNavigation
+
     data object Notifications : SettingsNavigation
+
     data object Chat : SettingsNavigation
+
     data object Streams : SettingsNavigation
+
     data object Tools : SettingsNavigation
+
     data object Developer : SettingsNavigation
+
     data object Changelog : SettingsNavigation
+
     data object About : SettingsNavigation
 }
 
 @Composable
-fun OverviewSettingsScreen(isLoggedIn: Boolean, hasChangelog: Boolean, onBack: () -> Unit, onLogout: () -> Unit, onNavigate: (SettingsNavigation) -> Unit) {
+fun OverviewSettingsScreen(
+    isLoggedIn: Boolean,
+    hasChangelog: Boolean,
+    onBack: () -> Unit,
+    onLogout: () -> Unit,
+    onNavigate: (SettingsNavigation) -> Unit,
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         topBar = {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -83,11 +97,12 @@ fun OverviewSettingsScreen(isLoggedIn: Boolean, hasChangelog: Boolean, onBack: (
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .verticalScroll(rememberScrollState()),
         ) {
             PreferenceItem(
                 title = stringResource(R.string.preference_appearance_header),
@@ -130,26 +145,27 @@ fun OverviewSettingsScreen(isLoggedIn: Boolean, hasChangelog: Boolean, onBack: (
                 ) {
                     val aboutSummary = stringResource(R.string.preference_about_summary, BuildConfig.VERSION_NAME)
                     val aboutTos = stringResource(R.string.preference_about_tos)
-                    val annotated = buildAnnotatedString {
-                        append(aboutSummary)
-                        appendLine()
-                        withLink(link = buildLinkAnnotation(GITHUB_URL)) {
-                            append(GITHUB_URL)
+                    val annotated =
+                        buildAnnotatedString {
+                            append(aboutSummary)
+                            appendLine()
+                            withLink(link = buildLinkAnnotation(GITHUB_URL)) {
+                                append(GITHUB_URL)
+                            }
+                            appendLine()
+                            appendLine()
+                            append(aboutTos)
+                            appendLine()
+                            withLink(link = buildLinkAnnotation(TWITCH_TOS_URL)) {
+                                append(TWITCH_TOS_URL)
+                            }
+                            appendLine()
+                            appendLine()
+                            val licenseText = stringResource(R.string.open_source_licenses)
+                            withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigate(SettingsNavigation.About) })) {
+                                append(licenseText)
+                            }
                         }
-                        appendLine()
-                        appendLine()
-                        append(aboutTos)
-                        appendLine()
-                        withLink(link = buildLinkAnnotation(TWITCH_TOS_URL)) {
-                            append(TWITCH_TOS_URL)
-                        }
-                        appendLine()
-                        appendLine()
-                        val licenseText = stringResource(R.string.open_source_licenses)
-                        withLink(link = buildClickableAnnotation(text = licenseText, onClick = { onNavigate(SettingsNavigation.About) })) {
-                            append(licenseText)
-                        }
-                    }
                     PreferenceSummary(annotated, Modifier.padding(top = 16.dp))
                 }
             }

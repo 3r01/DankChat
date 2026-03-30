@@ -58,379 +58,404 @@ internal class FeatureTourViewModelTest {
     // -- Post-onboarding step resolution --
 
     @Test
-    fun `initial state is Idle when onboarding not completed`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
-        }
-    }
-
-    @Test
-    fun `step is Idle when onboarding complete but channels empty`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
-
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = true, ready = true)
-
-            // State stays Idle — StateFlow deduplicates, no new emission
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `step is Idle when channels not ready`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
-
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = false)
-
-            // State stays Idle — StateFlow deduplicates, no new emission
-            expectNoEvents()
-        }
-    }
-
-    @Test
-    fun `step is ToolbarPlusHint when onboarding complete and channels ready`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-
-            assertEquals(PostOnboardingStep.ToolbarPlusHint, expectMostRecentItem().postOnboardingStep)
-        }
-    }
-
-    @Test
-    fun `step is FeatureTour after toolbar hint dismissed`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-            viewModel.onToolbarHintDismissed()
-
-            assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
-        }
-    }
-
-    @Test
-    fun `step is Complete when tour version is current and toolbar hint done`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings {
-                it.copy(
-                    hasCompletedOnboarding = true,
-                    hasShownToolbarHint = true,
-                    featureTourVersion = CURRENT_TOUR_VERSION,
-                )
+    fun `initial state is Idle when onboarding not completed`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
             }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-
-            assertEquals(PostOnboardingStep.Complete, expectMostRecentItem().postOnboardingStep)
         }
-    }
 
     @Test
-    fun `existing user migration skips toolbar hint but shows tour`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings {
-                it.copy(
-                    hasCompletedOnboarding = true,
-                    hasShownToolbarHint = true,
-                    featureTourVersion = 0,
-                )
-            }
-            viewModel.onChannelsChanged(empty = false, ready = true)
+    fun `step is Idle when onboarding complete but channels empty`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
 
-            assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = true, ready = true)
+
+                // State stays Idle — StateFlow deduplicates, no new emission
+                expectNoEvents()
+            }
         }
-    }
+
+    @Test
+    fun `step is Idle when channels not ready`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                assertEquals(PostOnboardingStep.Idle, awaitItem().postOnboardingStep)
+
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = false)
+
+                // State stays Idle — StateFlow deduplicates, no new emission
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `step is ToolbarPlusHint when onboarding complete and channels ready`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                assertEquals(PostOnboardingStep.ToolbarPlusHint, expectMostRecentItem().postOnboardingStep)
+            }
+        }
+
+    @Test
+    fun `step is FeatureTour after toolbar hint dismissed`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+                viewModel.onToolbarHintDismissed()
+
+                assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
+            }
+        }
+
+    @Test
+    fun `step is Complete when tour version is current and toolbar hint done`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings {
+                    it.copy(
+                        hasCompletedOnboarding = true,
+                        hasShownToolbarHint = true,
+                        featureTourVersion = CURRENT_TOUR_VERSION,
+                    )
+                }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                assertEquals(PostOnboardingStep.Complete, expectMostRecentItem().postOnboardingStep)
+            }
+        }
+
+    @Test
+    fun `existing user migration skips toolbar hint but shows tour`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings {
+                    it.copy(
+                        hasCompletedOnboarding = true,
+                        hasShownToolbarHint = true,
+                        featureTourVersion = 0,
+                    )
+                }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
+            }
+        }
 
     // -- Tour lifecycle --
 
     @Test
-    fun `startTour activates tour at first step`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
+    fun `startTour activates tour at first step`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
 
-            val state = expectMostRecentItem()
-            assertTrue(state.isTourActive)
-            assertEquals(TourStep.InputActions, state.currentTourStep)
+                val state = expectMostRecentItem()
+                assertTrue(state.isTourActive)
+                assertEquals(TourStep.InputActions, state.currentTourStep)
+            }
         }
-    }
 
     @Test
-    fun `startTour is idempotent when already active`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // move to OverflowMenu
-            viewModel.startTour() // should be no-op
+    fun `startTour is idempotent when already active`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // move to OverflowMenu
+                viewModel.startTour() // should be no-op
 
-            assertEquals(TourStep.OverflowMenu, expectMostRecentItem().currentTourStep)
+                assertEquals(TourStep.OverflowMenu, expectMostRecentItem().currentTourStep)
+            }
         }
-    }
 
     @Test
-    fun `advance progresses through all steps in order`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            assertEquals(TourStep.InputActions, expectMostRecentItem().currentTourStep)
+    fun `advance progresses through all steps in order`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                assertEquals(TourStep.InputActions, expectMostRecentItem().currentTourStep)
 
-            viewModel.advance()
-            assertEquals(TourStep.OverflowMenu, expectMostRecentItem().currentTourStep)
+                viewModel.advance()
+                assertEquals(TourStep.OverflowMenu, expectMostRecentItem().currentTourStep)
 
-            viewModel.advance()
-            assertEquals(TourStep.ConfigureActions, expectMostRecentItem().currentTourStep)
+                viewModel.advance()
+                assertEquals(TourStep.ConfigureActions, expectMostRecentItem().currentTourStep)
 
-            viewModel.advance()
-            assertEquals(TourStep.SwipeGesture, expectMostRecentItem().currentTourStep)
+                viewModel.advance()
+                assertEquals(TourStep.SwipeGesture, expectMostRecentItem().currentTourStep)
 
-            viewModel.advance()
-            assertEquals(TourStep.RecoveryFab, expectMostRecentItem().currentTourStep)
+                viewModel.advance()
+                assertEquals(TourStep.RecoveryFab, expectMostRecentItem().currentTourStep)
+            }
         }
-    }
 
     @Test
-    fun `advance past last step completes tour`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            repeat(TourStep.entries.size) { viewModel.advance() }
+    fun `advance past last step completes tour`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                repeat(TourStep.entries.size) { viewModel.advance() }
 
-            val state = expectMostRecentItem()
-            assertFalse(state.isTourActive)
-            assertNull(state.currentTourStep)
-            assertEquals(PostOnboardingStep.Complete, state.postOnboardingStep)
+                val state = expectMostRecentItem()
+                assertFalse(state.isTourActive)
+                assertNull(state.currentTourStep)
+                assertEquals(PostOnboardingStep.Complete, state.postOnboardingStep)
+            }
         }
-    }
 
     @Test
-    fun `skipTour completes immediately`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // at OverflowMenu
+    fun `skipTour completes immediately`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // at OverflowMenu
 
-            viewModel.skipTour()
+                viewModel.skipTour()
 
-            val state = expectMostRecentItem()
-            assertFalse(state.isTourActive)
-            assertNull(state.currentTourStep)
-            assertEquals(PostOnboardingStep.Complete, state.postOnboardingStep)
+                val state = expectMostRecentItem()
+                assertFalse(state.isTourActive)
+                assertNull(state.currentTourStep)
+                assertEquals(PostOnboardingStep.Complete, state.postOnboardingStep)
+            }
         }
-    }
 
     @Test
-    fun `startTour after completion is no-op`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            repeat(TourStep.entries.size) { viewModel.advance() }
+    fun `startTour after completion is no-op`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                repeat(TourStep.entries.size) { viewModel.advance() }
 
-            viewModel.startTour()
+                viewModel.startTour()
 
-            assertFalse(expectMostRecentItem().isTourActive)
+                assertFalse(expectMostRecentItem().isTourActive)
+            }
         }
-    }
 
     // -- Persistence --
 
     @Test
-    fun `completeTour persists tour version and clears step`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            repeat(TourStep.entries.size) { viewModel.advance() }
-            cancelAndIgnoreRemainingEvents()
-        }
+    fun `completeTour persists tour version and clears step`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                repeat(TourStep.entries.size) { viewModel.advance() }
+                cancelAndIgnoreRemainingEvents()
+            }
 
-        val persisted = settingsFlow.value
-        assertEquals(CURRENT_TOUR_VERSION, persisted.featureTourVersion)
-        assertEquals(0, persisted.featureTourStep)
-        assertTrue(persisted.hasShownToolbarHint)
-    }
+            val persisted = settingsFlow.value
+            assertEquals(CURRENT_TOUR_VERSION, persisted.featureTourVersion)
+            assertEquals(0, persisted.featureTourStep)
+            assertTrue(persisted.hasShownToolbarHint)
+        }
 
     @Test
-    fun `advance persists current step index`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // step 1
-            cancelAndIgnoreRemainingEvents()
-        }
+    fun `advance persists current step index`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // step 1
+                cancelAndIgnoreRemainingEvents()
+            }
 
-        assertEquals(1, settingsFlow.value.featureTourStep)
-    }
+            assertEquals(1, settingsFlow.value.featureTourStep)
+        }
 
     @Test
-    fun `skipTour before tour starts completes everything`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-            // Currently at ToolbarPlusHint
+    fun `skipTour before tour starts completes everything`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+                // Currently at ToolbarPlusHint
 
-            viewModel.skipTour()
+                viewModel.skipTour()
 
-            assertEquals(PostOnboardingStep.Complete, expectMostRecentItem().postOnboardingStep)
+                assertEquals(PostOnboardingStep.Complete, expectMostRecentItem().postOnboardingStep)
+            }
+
+            val persisted = settingsFlow.value
+            assertEquals(CURRENT_TOUR_VERSION, persisted.featureTourVersion)
+            assertTrue(persisted.hasShownToolbarHint)
         }
-
-        val persisted = settingsFlow.value
-        assertEquals(CURRENT_TOUR_VERSION, persisted.featureTourVersion)
-        assertTrue(persisted.hasShownToolbarHint)
-    }
 
     // -- Toolbar hint --
 
     @Test
-    fun `onToolbarHintDismissed is idempotent`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = true)
+    fun `onToolbarHintDismissed is idempotent`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = true)
 
-            viewModel.onToolbarHintDismissed()
-            viewModel.onToolbarHintDismissed() // second call should be no-op
+                viewModel.onToolbarHintDismissed()
+                viewModel.onToolbarHintDismissed() // second call should be no-op
 
-            assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
+                assertEquals(PostOnboardingStep.FeatureTour, expectMostRecentItem().postOnboardingStep)
+            }
         }
-    }
 
     @Test
-    fun `onAddedChannelFromToolbar marks hint done`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings { it.copy(hasCompletedOnboarding = true) }
-            viewModel.onChannelsChanged(empty = false, ready = true)
+    fun `onAddedChannelFromToolbar marks hint done`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings { it.copy(hasCompletedOnboarding = true) }
+                viewModel.onChannelsChanged(empty = false, ready = true)
 
-            viewModel.onAddedChannelFromToolbar()
-            cancelAndIgnoreRemainingEvents()
+                viewModel.onAddedChannelFromToolbar()
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            assertTrue(settingsFlow.value.hasShownToolbarHint)
         }
-
-        assertTrue(settingsFlow.value.hasShownToolbarHint)
-    }
 
     // -- Side effects --
 
     @Test
-    fun `ConfigureActions step forces overflow open`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // OverflowMenu
-            viewModel.advance() // ConfigureActions
+    fun `ConfigureActions step forces overflow open`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // OverflowMenu
+                viewModel.advance() // ConfigureActions
 
-            assertTrue(expectMostRecentItem().forceOverflowOpen)
+                assertTrue(expectMostRecentItem().forceOverflowOpen)
+            }
         }
-    }
 
     @Test
-    fun `SwipeGesture step clears forceOverflowOpen`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // OverflowMenu
-            viewModel.advance() // ConfigureActions
-            viewModel.advance() // SwipeGesture
+    fun `SwipeGesture step clears forceOverflowOpen`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // OverflowMenu
+                viewModel.advance() // ConfigureActions
+                viewModel.advance() // SwipeGesture
 
-            assertFalse(expectMostRecentItem().forceOverflowOpen)
+                assertFalse(expectMostRecentItem().forceOverflowOpen)
+            }
         }
-    }
 
     @Test
-    fun `RecoveryFab step sets gestureInputHidden`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            viewModel.advance() // OverflowMenu
-            viewModel.advance() // ConfigureActions
-            viewModel.advance() // SwipeGesture
-            viewModel.advance() // RecoveryFab
+    fun `RecoveryFab step sets gestureInputHidden`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                viewModel.advance() // OverflowMenu
+                viewModel.advance() // ConfigureActions
+                viewModel.advance() // SwipeGesture
+                viewModel.advance() // RecoveryFab
 
-            assertTrue(expectMostRecentItem().gestureInputHidden)
+                assertTrue(expectMostRecentItem().gestureInputHidden)
+            }
         }
-    }
 
     @Test
-    fun `tour completion clears gestureInputHidden`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            setupAndStartTour()
-            repeat(TourStep.entries.size) { viewModel.advance() }
+    fun `tour completion clears gestureInputHidden`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                setupAndStartTour()
+                repeat(TourStep.entries.size) { viewModel.advance() }
 
-            assertFalse(expectMostRecentItem().gestureInputHidden)
+                assertFalse(expectMostRecentItem().gestureInputHidden)
+            }
         }
-    }
 
     // -- Resume --
 
     @Test
-    fun `tour resumes at persisted step with correct side effects`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings {
-                it.copy(
-                    hasCompletedOnboarding = true,
-                    hasShownToolbarHint = true,
-                    featureTourVersion = 0,
-                    featureTourStep = 2,
-                )
+    fun `tour resumes at persisted step with correct side effects`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings {
+                    it.copy(
+                        hasCompletedOnboarding = true,
+                        hasShownToolbarHint = true,
+                        featureTourVersion = 0,
+                        featureTourStep = 2,
+                    )
+                }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                viewModel.startTour()
+
+                val state = expectMostRecentItem()
+                assertEquals(TourStep.ConfigureActions, state.currentTourStep)
+                assertTrue(state.forceOverflowOpen)
             }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-
-            viewModel.startTour()
-
-            val state = expectMostRecentItem()
-            assertEquals(TourStep.ConfigureActions, state.currentTourStep)
-            assertTrue(state.forceOverflowOpen)
         }
-    }
 
     @Test
-    fun `stale persisted step is ignored when version gap is too large`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings {
-                it.copy(
-                    hasCompletedOnboarding = true,
-                    hasShownToolbarHint = true,
-                    featureTourVersion = -1, // gap of 2
-                    featureTourStep = 3,
-                )
+    fun `stale persisted step is ignored when version gap is too large`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings {
+                    it.copy(
+                        hasCompletedOnboarding = true,
+                        hasShownToolbarHint = true,
+                        featureTourVersion = -1, // gap of 2
+                        featureTourStep = 3,
+                    )
+                }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                viewModel.startTour()
+
+                assertEquals(TourStep.InputActions, expectMostRecentItem().currentTourStep)
             }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-
-            viewModel.startTour()
-
-            assertEquals(TourStep.InputActions, expectMostRecentItem().currentTourStep)
         }
-    }
 
     @Test
-    fun `resume at RecoveryFab step sets gestureInputHidden`() = runTest(testDispatcher) {
-        viewModel.uiState.test {
-            skipItems(1)
-            emitSettings {
-                it.copy(
-                    hasCompletedOnboarding = true,
-                    hasShownToolbarHint = true,
-                    featureTourVersion = 0,
-                    featureTourStep = 4, // RecoveryFab
-                )
+    fun `resume at RecoveryFab step sets gestureInputHidden`() =
+        runTest(testDispatcher) {
+            viewModel.uiState.test {
+                skipItems(1)
+                emitSettings {
+                    it.copy(
+                        hasCompletedOnboarding = true,
+                        hasShownToolbarHint = true,
+                        featureTourVersion = 0,
+                        featureTourStep = 4, // RecoveryFab
+                    )
+                }
+                viewModel.onChannelsChanged(empty = false, ready = true)
+
+                viewModel.startTour()
+
+                val state = expectMostRecentItem()
+                assertEquals(TourStep.RecoveryFab, state.currentTourStep)
+                assertTrue(state.gestureInputHidden)
             }
-            viewModel.onChannelsChanged(empty = false, ready = true)
-
-            viewModel.startTour()
-
-            val state = expectMostRecentItem()
-            assertEquals(TourStep.RecoveryFab, state.currentTourStep)
-            assertTrue(state.gestureInputHidden)
         }
-    }
 
     // -- Helpers --
 

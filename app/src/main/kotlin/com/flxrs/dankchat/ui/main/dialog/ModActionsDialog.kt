@@ -61,41 +61,54 @@ import com.flxrs.dankchat.utils.DateTimeUtils
 
 private sealed interface SubView {
     data object SlowMode : SubView
+
     data object SlowModeCustom : SubView
+
     data object FollowerMode : SubView
+
     data object FollowerModeCustom : SubView
+
     data object CommercialPresets : SubView
+
     data object RaidInput : SubView
+
     data object ShoutoutInput : SubView
+
     data object ClearChatConfirm : SubView
+
     data object ShieldModeConfirm : SubView
 }
 
 private val SLOW_MODE_PRESETS = listOf(3, 5, 10, 20, 30, 60, 120)
 private val COMMERCIAL_PRESETS = listOf(30, 60, 90, 120, 150, 180)
 
-private data class FollowerPreset(val minutes: Int, val commandArg: String)
-
-private val FOLLOWER_MODE_PRESETS = listOf(
-    FollowerPreset(0, "0"),
-    FollowerPreset(10, "10m"),
-    FollowerPreset(30, "30m"),
-    FollowerPreset(60, "1h"),
-    FollowerPreset(1440, "1d"),
-    FollowerPreset(10080, "1w"),
-    FollowerPreset(43200, "30d"),
-    FollowerPreset(129600, "90d"),
+private data class FollowerPreset(
+    val minutes: Int,
+    val commandArg: String,
 )
 
+private val FOLLOWER_MODE_PRESETS =
+    listOf(
+        FollowerPreset(0, "0"),
+        FollowerPreset(10, "10m"),
+        FollowerPreset(30, "30m"),
+        FollowerPreset(60, "1h"),
+        FollowerPreset(1440, "1d"),
+        FollowerPreset(10080, "1w"),
+        FollowerPreset(43200, "30d"),
+        FollowerPreset(129600, "90d"),
+    )
+
 @Composable
-private fun formatFollowerPreset(minutes: Int): String = when (minutes) {
-    0 -> stringResource(R.string.room_state_follower_any)
-    in 1..59 -> stringResource(R.string.room_state_duration_minutes, minutes)
-    in 60..1439 -> stringResource(R.string.room_state_duration_hours, minutes / 60)
-    in 1440..10079 -> stringResource(R.string.room_state_duration_days, minutes / 1440)
-    in 10080..43199 -> stringResource(R.string.room_state_duration_weeks, minutes / 10080)
-    else -> stringResource(R.string.room_state_duration_months, minutes / 43200)
-}
+private fun formatFollowerPreset(minutes: Int): String =
+    when (minutes) {
+        0 -> stringResource(R.string.room_state_follower_any)
+        in 1..59 -> stringResource(R.string.room_state_duration_minutes, minutes)
+        in 60..1439 -> stringResource(R.string.room_state_duration_hours, minutes / 60)
+        in 1440..10079 -> stringResource(R.string.room_state_duration_days, minutes / 1440)
+        in 10080..43199 -> stringResource(R.string.room_state_duration_weeks, minutes / 10080)
+        else -> stringResource(R.string.room_state_duration_months, minutes / 43200)
+    }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -127,107 +140,127 @@ fun ModActionsDialog(
                 label = "ModActionsContent",
             ) { currentView ->
                 when (currentView) {
-                    null -> ModActionsMainView(
-                        roomState = roomState,
-                        isBroadcaster = isBroadcaster,
-                        isStreamActive = isStreamActive,
-                        shieldModeActive = shieldModeActive,
-                        onSendCommand = onSendCommand,
-                        onShowSubView = { subView = it },
-                        onClearChat = { subView = SubView.ClearChatConfirm },
-                        onAnnounce = onAnnounce,
-                        onDismiss = onDismiss,
-                    )
+                    null -> {
+                        ModActionsMainView(
+                            roomState = roomState,
+                            isBroadcaster = isBroadcaster,
+                            isStreamActive = isStreamActive,
+                            shieldModeActive = shieldModeActive,
+                            onSendCommand = onSendCommand,
+                            onShowSubView = { subView = it },
+                            onClearChat = { subView = SubView.ClearChatConfirm },
+                            onAnnounce = onAnnounce,
+                            onDismiss = onDismiss,
+                        )
+                    }
 
-                    SubView.SlowMode -> PresetChips(
-                        titleRes = R.string.room_state_slow_mode,
-                        presets = SLOW_MODE_PRESETS,
-                        formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
-                        onPresetClick = { value ->
-                            onSendCommand("/slow $value")
-                            onDismiss()
-                        },
-                        onCustomClick = { subView = SubView.SlowModeCustom },
-                    )
+                    SubView.SlowMode -> {
+                        PresetChips(
+                            titleRes = R.string.room_state_slow_mode,
+                            presets = SLOW_MODE_PRESETS,
+                            formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
+                            onPresetClick = { value ->
+                                onSendCommand("/slow $value")
+                                onDismiss()
+                            },
+                            onCustomClick = { subView = SubView.SlowModeCustom },
+                        )
+                    }
 
-                    SubView.SlowModeCustom -> UserInputSubView(
-                        titleRes = R.string.room_state_slow_mode,
-                        hintRes = R.string.seconds,
-                        defaultValue = "30",
-                        keyboardType = KeyboardType.Number,
-                        onConfirm = { value ->
-                            onSendCommand("/slow $value")
-                            onDismiss()
-                        },
-                        onDismiss = onDismiss,
-                    )
+                    SubView.SlowModeCustom -> {
+                        UserInputSubView(
+                            titleRes = R.string.room_state_slow_mode,
+                            hintRes = R.string.seconds,
+                            defaultValue = "30",
+                            keyboardType = KeyboardType.Number,
+                            onConfirm = { value ->
+                                onSendCommand("/slow $value")
+                                onDismiss()
+                            },
+                            onDismiss = onDismiss,
+                        )
+                    }
 
-                    SubView.FollowerMode -> FollowerPresetChips(
-                        onPresetClick = { preset ->
-                            onSendCommand("/followers ${preset.commandArg}")
-                            onDismiss()
-                        },
-                        onCustomClick = { subView = SubView.FollowerModeCustom },
-                    )
+                    SubView.FollowerMode -> {
+                        FollowerPresetChips(
+                            onPresetClick = { preset ->
+                                onSendCommand("/followers ${preset.commandArg}")
+                                onDismiss()
+                            },
+                            onCustomClick = { subView = SubView.FollowerModeCustom },
+                        )
+                    }
 
-                    SubView.FollowerModeCustom -> UserInputSubView(
-                        titleRes = R.string.room_state_follower_only,
-                        hintRes = R.string.minutes,
-                        defaultValue = "10",
-                        keyboardType = KeyboardType.Number,
-                        onConfirm = { value ->
-                            onSendCommand("/followers $value")
-                            onDismiss()
-                        },
-                        onDismiss = onDismiss,
-                    )
+                    SubView.FollowerModeCustom -> {
+                        UserInputSubView(
+                            titleRes = R.string.room_state_follower_only,
+                            hintRes = R.string.minutes,
+                            defaultValue = "10",
+                            keyboardType = KeyboardType.Number,
+                            onConfirm = { value ->
+                                onSendCommand("/followers $value")
+                                onDismiss()
+                            },
+                            onDismiss = onDismiss,
+                        )
+                    }
 
-                    SubView.CommercialPresets -> PresetChips(
-                        titleRes = R.string.mod_actions_commercial,
-                        presets = COMMERCIAL_PRESETS,
-                        formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
-                        onPresetClick = { value ->
-                            onSendCommand("/commercial $value")
-                            onDismiss()
-                        },
-                        onCustomClick = null,
-                    )
+                    SubView.CommercialPresets -> {
+                        PresetChips(
+                            titleRes = R.string.mod_actions_commercial,
+                            presets = COMMERCIAL_PRESETS,
+                            formatLabel = { stringResource(R.string.room_state_duration_seconds, it) },
+                            onPresetClick = { value ->
+                                onSendCommand("/commercial $value")
+                                onDismiss()
+                            },
+                            onCustomClick = null,
+                        )
+                    }
 
-                    SubView.RaidInput -> UserInputSubView(
-                        titleRes = R.string.mod_actions_raid,
-                        hintRes = R.string.mod_actions_channel_hint,
-                        onConfirm = { target ->
-                            onSendCommand("/raid $target")
-                            onDismiss()
-                        },
-                        onDismiss = onDismiss,
-                    )
+                    SubView.RaidInput -> {
+                        UserInputSubView(
+                            titleRes = R.string.mod_actions_raid,
+                            hintRes = R.string.mod_actions_channel_hint,
+                            onConfirm = { target ->
+                                onSendCommand("/raid $target")
+                                onDismiss()
+                            },
+                            onDismiss = onDismiss,
+                        )
+                    }
 
-                    SubView.ShoutoutInput -> UserInputSubView(
-                        titleRes = R.string.mod_actions_shoutout,
-                        hintRes = R.string.mod_actions_username_hint,
-                        onConfirm = { target ->
-                            onSendCommand("/shoutout $target")
-                            onDismiss()
-                        },
-                        onDismiss = onDismiss,
-                    )
+                    SubView.ShoutoutInput -> {
+                        UserInputSubView(
+                            titleRes = R.string.mod_actions_shoutout,
+                            hintRes = R.string.mod_actions_username_hint,
+                            onConfirm = { target ->
+                                onSendCommand("/shoutout $target")
+                                onDismiss()
+                            },
+                            onDismiss = onDismiss,
+                        )
+                    }
 
-                    SubView.ShieldModeConfirm -> ShieldModeConfirmSubView(
-                        onConfirm = {
-                            onSendCommand("/shield")
-                            onDismiss()
-                        },
-                        onBack = { subView = null },
-                    )
+                    SubView.ShieldModeConfirm -> {
+                        ShieldModeConfirmSubView(
+                            onConfirm = {
+                                onSendCommand("/shield")
+                                onDismiss()
+                            },
+                            onBack = { subView = null },
+                        )
+                    }
 
-                    SubView.ClearChatConfirm -> ClearChatConfirmSubView(
-                        onConfirm = {
-                            onSendCommand("/clear")
-                            onDismiss()
-                        },
-                        onBack = { subView = null },
-                    )
+                    SubView.ClearChatConfirm -> {
+                        ClearChatConfirmSubView(
+                            onConfirm = {
+                                onSendCommand("/clear")
+                                onDismiss()
+                            },
+                            onBack = { subView = null },
+                        )
+                    }
                 }
             }
         }
@@ -248,11 +281,12 @@ private fun ModActionsMainView(
     onDismiss: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
-            .navigationBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .navigationBarsPadding(),
     ) {
         // Room state section
         SectionHeader(stringResource(R.string.mod_actions_room_state_section))
@@ -281,15 +315,18 @@ private fun ModActionsMainView(
                             onDismiss()
                         }
 
-                        else -> onShowSubView(SubView.ShieldModeConfirm)
+                        else -> {
+                            onShowSubView(SubView.ShieldModeConfirm)
+                        }
                     }
                 },
                 label = { Text(stringResource(R.string.mod_actions_shield_mode)) },
-                leadingIcon = if (isShieldActive) {
-                    { Icon(Icons.Default.Check, contentDescription = null) }
-                } else {
-                    null
-                },
+                leadingIcon =
+                    if (isShieldActive) {
+                        { Icon(Icons.Default.Check, contentDescription = null) }
+                    } else {
+                        null
+                    },
             )
             AssistChip(
                 onClick = onClearChat,
@@ -358,7 +395,12 @@ private fun SectionHeader(title: String) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) -> Unit, onShowSubView: (SubView) -> Unit, onDismiss: () -> Unit) {
+private fun RoomStateModeChips(
+    roomState: RoomState?,
+    onSendCommand: (String) -> Unit,
+    onShowSubView: (SubView) -> Unit,
+    onDismiss: () -> Unit,
+) {
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -371,11 +413,12 @@ private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) ->
                 onDismiss()
             },
             label = { Text(stringResource(R.string.room_state_emote_only)) },
-            leadingIcon = if (isEmoteOnly) {
-                { Icon(Icons.Default.Check, contentDescription = null) }
-            } else {
-                null
-            },
+            leadingIcon =
+                if (isEmoteOnly) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else {
+                    null
+                },
         )
 
         val isSubOnly = roomState?.isSubscriberMode == true
@@ -386,11 +429,12 @@ private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) ->
                 onDismiss()
             },
             label = { Text(stringResource(R.string.room_state_subscriber_only)) },
-            leadingIcon = if (isSubOnly) {
-                { Icon(Icons.Default.Check, contentDescription = null) }
-            } else {
-                null
-            },
+            leadingIcon =
+                if (isSubOnly) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else {
+                    null
+                },
         )
 
         val isSlowMode = roomState?.isSlowMode == true
@@ -404,18 +448,21 @@ private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) ->
                         onDismiss()
                     }
 
-                    else -> onShowSubView(SubView.SlowMode)
+                    else -> {
+                        onShowSubView(SubView.SlowMode)
+                    }
                 }
             },
             label = {
                 val label = stringResource(R.string.room_state_slow_mode)
                 Text(if (isSlowMode && slowModeWaitTime != null) "$label (${DateTimeUtils.formatSeconds(slowModeWaitTime)})" else label)
             },
-            leadingIcon = if (isSlowMode) {
-                { Icon(Icons.Default.Check, contentDescription = null) }
-            } else {
-                null
-            },
+            leadingIcon =
+                if (isSlowMode) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else {
+                    null
+                },
         )
 
         val isUniqueChat = roomState?.isUniqueChatMode == true
@@ -426,11 +473,12 @@ private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) ->
                 onDismiss()
             },
             label = { Text(stringResource(R.string.room_state_unique_chat)) },
-            leadingIcon = if (isUniqueChat) {
-                { Icon(Icons.Default.Check, contentDescription = null) }
-            } else {
-                null
-            },
+            leadingIcon =
+                if (isUniqueChat) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else {
+                    null
+                },
         )
 
         val isFollowerOnly = roomState?.isFollowMode == true
@@ -444,31 +492,41 @@ private fun RoomStateModeChips(roomState: RoomState?, onSendCommand: (String) ->
                         onDismiss()
                     }
 
-                    else -> onShowSubView(SubView.FollowerMode)
+                    else -> {
+                        onShowSubView(SubView.FollowerMode)
+                    }
                 }
             },
             label = {
                 val label = stringResource(R.string.room_state_follower_only)
                 Text(if (isFollowerOnly && followerDuration != null && followerDuration > 0) "$label (${DateTimeUtils.formatSeconds(followerDuration * 60)})" else label)
             },
-            leadingIcon = if (isFollowerOnly) {
-                { Icon(Icons.Default.Check, contentDescription = null) }
-            } else {
-                null
-            },
+            leadingIcon =
+                if (isFollowerOnly) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else {
+                    null
+                },
         )
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PresetChips(titleRes: Int, presets: List<Int>, formatLabel: @Composable (Int) -> String, onPresetClick: (Int) -> Unit, onCustomClick: (() -> Unit)?) {
+private fun PresetChips(
+    titleRes: Int,
+    presets: List<Int>,
+    formatLabel: @Composable (Int) -> String,
+    onPresetClick: (Int) -> Unit,
+    onCustomClick: (() -> Unit)?,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
-            .navigationBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .navigationBarsPadding(),
     ) {
         Text(
             text = stringResource(titleRes),
@@ -500,13 +558,17 @@ private fun PresetChips(titleRes: Int, presets: List<Int>, formatLabel: @Composa
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FollowerPresetChips(onPresetClick: (FollowerPreset) -> Unit, onCustomClick: () -> Unit) {
+private fun FollowerPresetChips(
+    onPresetClick: (FollowerPreset) -> Unit,
+    onCustomClick: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
-            .navigationBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .navigationBarsPadding(),
     ) {
         Text(
             text = stringResource(R.string.room_state_follower_only),
@@ -535,7 +597,14 @@ private fun FollowerPresetChips(onPresetClick: (FollowerPreset) -> Unit, onCusto
 }
 
 @Composable
-private fun UserInputSubView(titleRes: Int, hintRes: Int, onConfirm: (String) -> Unit, defaultValue: String = "", keyboardType: KeyboardType = KeyboardType.Text, onDismiss: () -> Unit = {}) {
+private fun UserInputSubView(
+    titleRes: Int,
+    hintRes: Int,
+    onConfirm: (String) -> Unit,
+    defaultValue: String = "",
+    keyboardType: KeyboardType = KeyboardType.Text,
+    onDismiss: () -> Unit = {},
+) {
     var inputValue by remember { mutableStateOf(TextFieldValue(defaultValue, selection = TextRange(defaultValue.length))) }
     val focusRequester = remember { FocusRequester() }
 
@@ -557,11 +626,12 @@ private fun UserInputSubView(titleRes: Int, hintRes: Int, onConfirm: (String) ->
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp)
-            .navigationBarsPadding(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .navigationBarsPadding(),
     ) {
         Text(
             text = stringResource(titleRes),
@@ -576,23 +646,26 @@ private fun UserInputSubView(titleRes: Int, hintRes: Int, onConfirm: (String) ->
             label = { Text(stringResource(hintRes)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = keyboardType, imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(onDone = {
-                val text = inputValue.text.trim()
-                if (text.isNotBlank()) {
-                    onConfirm(text)
-                }
-            }),
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
+            keyboardActions =
+                KeyboardActions(onDone = {
+                    val text = inputValue.text.trim()
+                    if (text.isNotBlank()) {
+                        onConfirm(text)
+                    }
+                }),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
         )
 
         TextButton(
             onClick = { onConfirm(inputValue.text.trim()) },
             enabled = inputValue.text.isNotBlank(),
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(top = 8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.End)
+                    .padding(top = 8.dp),
         ) {
             Text(stringResource(R.string.dialog_ok))
         }
@@ -600,27 +673,33 @@ private fun UserInputSubView(titleRes: Int, hintRes: Int, onConfirm: (String) ->
 }
 
 @Composable
-private fun ClearChatConfirmSubView(onConfirm: () -> Unit, onBack: () -> Unit) {
+private fun ClearChatConfirmSubView(
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
     ) {
         Text(
             text = stringResource(R.string.mod_actions_confirm_clear_chat),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 16.dp),
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
         ) {
             OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_cancel))
@@ -634,21 +713,26 @@ private fun ClearChatConfirmSubView(onConfirm: () -> Unit, onBack: () -> Unit) {
 }
 
 @Composable
-private fun ShieldModeConfirmSubView(onConfirm: () -> Unit, onBack: () -> Unit) {
+private fun ShieldModeConfirmSubView(
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
     ) {
         Text(
             text = stringResource(R.string.mod_actions_confirm_shield_mode_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 16.dp),
         )
 
         Text(
@@ -658,9 +742,10 @@ private fun ShieldModeConfirmSubView(onConfirm: () -> Unit, onBack: () -> Unit) 
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
         ) {
             OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_cancel))

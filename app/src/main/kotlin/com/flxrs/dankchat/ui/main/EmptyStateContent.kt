@@ -26,12 +26,18 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 
 @Composable
-fun EmptyStateContent(isLoggedIn: Boolean, onAddChannel: () -> Unit, onLogin: () -> Unit, modifier: Modifier = Modifier) {
+fun EmptyStateContent(
+    isLoggedIn: Boolean,
+    onAddChannel: () -> Unit,
+    onLogin: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(modifier = modifier) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

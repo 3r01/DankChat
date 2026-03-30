@@ -6,4 +6,7 @@ import kotlin.time.Instant
 
 @Keep
 @Serializable
-data class PointRedemption(val redemption: PointRedemptionData, val timestamp: Instant)
+data class PointRedemption(
+    val redemption: PointRedemptionData,
+    val timestamp: Instant,
+)

@@ -13,7 +13,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class DialogStateViewModel(private val preferenceStore: DankChatPreferenceStore, private val toolsSettingsDataStore: ToolsSettingsDataStore) : ViewModel() {
+class DialogStateViewModel(
+    private val preferenceStore: DankChatPreferenceStore,
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+) : ViewModel() {
     private val _state = MutableStateFlow(DialogState())
     val state: StateFlow<DialogState> = _state.asStateFlow()
 

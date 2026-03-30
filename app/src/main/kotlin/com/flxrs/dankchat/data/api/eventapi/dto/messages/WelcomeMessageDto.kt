@@ -6,10 +6,15 @@ import kotlin.time.Instant
 
 @Serializable
 @SerialName("session_welcome")
-data class WelcomeMessageDto(override val metadata: EventSubMessageMetadataDto, override val payload: WelcomeMessagePayload) : EventSubMessageDto
+data class WelcomeMessageDto(
+    override val metadata: EventSubMessageMetadataDto,
+    override val payload: WelcomeMessagePayload,
+) : EventSubMessageDto
 
 @Serializable
-data class WelcomeMessagePayload(val session: SessionPayloadDto) : EventSubPayloadDto
+data class WelcomeMessagePayload(
+    val session: SessionPayloadDto,
+) : EventSubPayloadDto
 
 @Serializable
 data class SessionPayloadDto(

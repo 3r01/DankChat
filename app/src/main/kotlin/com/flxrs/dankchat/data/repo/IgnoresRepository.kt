@@ -47,7 +47,10 @@ class IgnoresRepository(
 ) {
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
-    data class TwitchBlock(val id: UserId, val name: UserName)
+    data class TwitchBlock(
+        val id: UserId,
+        val name: UserName,
+    )
 
     private val _twitchBlocks = MutableStateFlow(emptySet<TwitchBlock>())
 
@@ -64,70 +67,76 @@ class IgnoresRepository(
             .map { ignores -> ignores.filter { it.enabled && it.username.isNotBlank() } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
-    fun applyIgnores(message: Message): Message? = when (message) {
-        is PointRedemptionMessage -> message.applyIgnores()
-        is PrivMessage -> message.applyIgnores()
-        is UserNoticeMessage -> message.applyIgnores()
-        is WhisperMessage -> message.applyIgnores()
-        else -> message
-    }
+    fun applyIgnores(message: Message): Message? =
+        when (message) {
+            is PointRedemptionMessage -> message.applyIgnores()
+            is PrivMessage -> message.applyIgnores()
+            is UserNoticeMessage -> message.applyIgnores()
+            is WhisperMessage -> message.applyIgnores()
+            else -> message
+        }
 
-    fun runMigrationsIfNeeded() = coroutineScope.launch {
-        runCatching {
-            if (messageIgnoreDao.getMessageIgnores().isNotEmpty()) {
-                return@launch
-            }
-
-            Log.d(TAG, "Running ignores migration...")
-            messageIgnoreDao.addIgnores(DEFAULT_IGNORES)
-
-            val totalIgnores = DEFAULT_IGNORES.size
-            Log.d(TAG, "Ignores migration completed, added $totalIgnores entries.")
-        }.getOrElse {
-            Log.e(TAG, "Failed to run ignores migration", it)
+    fun runMigrationsIfNeeded() =
+        coroutineScope.launch {
             runCatching {
-                messageIgnoreDao.deleteAllIgnores()
-                userIgnoreDao.deleteAllIgnores()
-                return@launch
+                if (messageIgnoreDao.getMessageIgnores().isNotEmpty()) {
+                    return@launch
+                }
+
+                Log.d(TAG, "Running ignores migration...")
+                messageIgnoreDao.addIgnores(DEFAULT_IGNORES)
+
+                val totalIgnores = DEFAULT_IGNORES.size
+                Log.d(TAG, "Ignores migration completed, added $totalIgnores entries.")
+            }.getOrElse {
+                Log.e(TAG, "Failed to run ignores migration", it)
+                runCatching {
+                    messageIgnoreDao.deleteAllIgnores()
+                    userIgnoreDao.deleteAllIgnores()
+                    return@launch
+                }
             }
         }
-    }
 
     fun isUserBlocked(userId: UserId?): Boolean = _twitchBlocks.value.any { it.id == userId }
 
-    suspend fun loadUserBlocks() = withContext(Dispatchers.Default) {
-        if (!preferences.isLoggedIn) {
-            return@withContext
-        }
-
-        val userId = preferences.userIdString ?: return@withContext
-        val blocks =
-            helixApiClient.getUserBlocks(userId).getOrElse {
-                Log.d(TAG, "Failed to load user blocks for $userId", it)
+    suspend fun loadUserBlocks() =
+        withContext(Dispatchers.Default) {
+            if (!preferences.isLoggedIn) {
                 return@withContext
             }
-        if (blocks.isEmpty()) {
-            _twitchBlocks.update { emptySet() }
-            return@withContext
-        }
-        val userIds = blocks.map { it.id }
-        val users =
-            helixApiClient.getUsersByIds(userIds).getOrElse {
-                Log.d(TAG, "Failed to load user ids $userIds", it)
+
+            val userId = preferences.userIdString ?: return@withContext
+            val blocks =
+                helixApiClient.getUserBlocks(userId).getOrElse {
+                    Log.d(TAG, "Failed to load user blocks for $userId", it)
+                    return@withContext
+                }
+            if (blocks.isEmpty()) {
+                _twitchBlocks.update { emptySet() }
                 return@withContext
             }
-        val twitchBlocks =
-            users.mapTo(mutableSetOf()) { user ->
-                TwitchBlock(
-                    id = user.id,
-                    name = user.name,
-                )
-            }
+            val userIds = blocks.map { it.id }
+            val users =
+                helixApiClient.getUsersByIds(userIds).getOrElse {
+                    Log.d(TAG, "Failed to load user ids $userIds", it)
+                    return@withContext
+                }
+            val twitchBlocks =
+                users.mapTo(mutableSetOf()) { user ->
+                    TwitchBlock(
+                        id = user.id,
+                        name = user.name,
+                    )
+                }
 
-        _twitchBlocks.update { twitchBlocks }
-    }
+            _twitchBlocks.update { twitchBlocks }
+        }
 
-    suspend fun addUserBlock(targetUserId: UserId, targetUsername: UserName) {
+    suspend fun addUserBlock(
+        targetUserId: UserId,
+        targetUsername: UserName,
+    ) {
         val result = helixApiClient.blockUser(targetUserId)
         if (result.isSuccess) {
             _twitchBlocks.update {
@@ -140,7 +149,10 @@ class IgnoresRepository(
         }
     }
 
-    suspend fun removeUserBlock(targetUserId: UserId, targetUsername: UserName) {
+    suspend fun removeUserBlock(
+        targetUserId: UserId,
+        targetUsername: UserName,
+    ) {
         val result = helixApiClient.unblockUser(targetUserId)
         if (result.isSuccess) {
             _twitchBlocks.update {
@@ -312,9 +324,16 @@ class IgnoresRepository(
         return false
     }
 
-    private data class ReplacementResult(val filtered: String, val replacement: String, val matchedRanges: List<IntRange>)
+    private data class ReplacementResult(
+        val filtered: String,
+        val replacement: String,
+        val matchedRanges: List<IntRange>,
+    )
 
-    private inline fun List<MessageIgnoreEntity>.isIgnoredMessageWithReplacement(message: String, onReplacement: (ReplacementResult?) -> Unit) {
+    private inline fun List<MessageIgnoreEntity>.isIgnoredMessageWithReplacement(
+        message: String,
+        onReplacement: (ReplacementResult?) -> Unit,
+    ) {
         filter { it.type == MessageIgnoreEntityType.Custom }
             .forEach { ignoreEntity ->
                 val regex = ignoreEntity.regex ?: return@forEach
@@ -331,19 +350,23 @@ class IgnoresRepository(
             }
     }
 
-    private fun adaptEmotePositions(replacement: ReplacementResult, emotes: List<EmoteWithPositions>): List<EmoteWithPositions> = emotes.map { emoteWithPos ->
-        val adjusted =
-            emoteWithPos.positions
-                .filterNot { pos -> replacement.matchedRanges.any { match -> match in pos || pos in match } } // filter out emotes directly affected by ignore replacement
-                .map { pos ->
-                    val offset =
-                        replacement.matchedRanges
-                            .filter { it.last < pos.first } // only replacements before an emote need to be considered
-                            .sumOf { replacement.replacement.length - (it.last + 1 - it.first) } // change between original match and replacement
-                    pos.first + offset..pos.last + offset // add sum of changes to the emote position
-                }
-        emoteWithPos.copy(positions = adjusted)
-    }
+    private fun adaptEmotePositions(
+        replacement: ReplacementResult,
+        emotes: List<EmoteWithPositions>,
+    ): List<EmoteWithPositions> =
+        emotes.map { emoteWithPos ->
+            val adjusted =
+                emoteWithPos.positions
+                    .filterNot { pos -> replacement.matchedRanges.any { match -> match in pos || pos in match } } // filter out emotes directly affected by ignore replacement
+                    .map { pos ->
+                        val offset =
+                            replacement.matchedRanges
+                                .filter { it.last < pos.first } // only replacements before an emote need to be considered
+                                .sumOf { replacement.replacement.length - (it.last + 1 - it.first) } // change between original match and replacement
+                        pos.first + offset..pos.last + offset // add sum of changes to the emote position
+                    }
+            emoteWithPos.copy(positions = adjusted)
+        }
 
     private operator fun IntRange.contains(other: IntRange): Boolean = other.first >= first && other.last <= last
 

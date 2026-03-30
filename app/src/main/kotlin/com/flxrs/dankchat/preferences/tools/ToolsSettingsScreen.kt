@@ -83,7 +83,11 @@ import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.autolinktext.rememberAutoLinkText
 
 @Composable
-fun ToolsSettingsScreen(onNavToImageUploader: () -> Unit, onNavToTTSUserIgnoreList: () -> Unit, onNavBack: () -> Unit) {
+fun ToolsSettingsScreen(
+    onNavToImageUploader: () -> Unit,
+    onNavToTTSUserIgnoreList: () -> Unit,
+    onNavBack: () -> Unit,
+) {
     val viewModel = koinViewModel<ToolsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
 
@@ -122,10 +126,11 @@ private fun ToolsSettingsScreen(
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             ImageUploaderCategory(hasRecentUploads = settings.hasRecentUploads, onNavToImageUploader = onNavToImageUploader)
             HorizontalDivider(thickness = Dp.Hairline)
@@ -136,7 +141,10 @@ private fun ToolsSettingsScreen(
 }
 
 @Composable
-fun ImageUploaderCategory(hasRecentUploads: Boolean, onNavToImageUploader: () -> Unit) {
+fun ImageUploaderCategory(
+    hasRecentUploads: Boolean,
+    onNavToImageUploader: () -> Unit,
+) {
     var recentUploadSheetOpen by remember { mutableStateOf(false) }
     PreferenceCategory(title = stringResource(R.string.preference_uploader_header)) {
         PreferenceItem(
@@ -197,23 +205,26 @@ fun ImageUploaderCategory(hasRecentUploads: Boolean, onNavToImageUploader: () ->
 @Composable
 fun RecentUploadItem(upload: RecentUpload) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         val clipboardManager = LocalClipboard.current
         val scope = rememberCoroutineScope()
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(8.dp)
-                .height(IntrinsicSize.Min),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .height(IntrinsicSize.Min),
         ) {
             OutlinedCard {
                 AsyncImage(
-                    modifier = Modifier
-                        .background(CardDefaults.cardColors().containerColor)
-                        .size(96.dp),
+                    modifier =
+                        Modifier
+                            .background(CardDefaults.cardColors().containerColor)
+                            .size(96.dp),
                     model = upload.imageUrl,
                     contentDescription = upload.imageUrl,
                     contentScale = ContentScale.Inside,
@@ -222,16 +233,18 @@ fun RecentUploadItem(upload: RecentUpload) {
             Spacer(Modifier.width(8.dp))
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val link = buildAnnotatedString {
-                        withLink(link = buildLinkAnnotation(upload.imageUrl)) {
-                            append(upload.imageUrl)
+                    val link =
+                        buildAnnotatedString {
+                            withLink(link = buildLinkAnnotation(upload.imageUrl)) {
+                                append(upload.imageUrl)
+                            }
                         }
-                    }
                     Text(
                         text = link,
                         modifier = Modifier.weight(1f),
@@ -250,10 +263,11 @@ fun RecentUploadItem(upload: RecentUpload) {
                 }
                 if (upload.deleteUrl != null) {
                     val deletionText = stringResource(R.string.recent_upload_deletion_link, upload.deleteUrl)
-                    val annotatedDeletionText = AnnotatedString.rememberAutoLinkText(
-                        text = deletionText,
-                        defaultLinkStyles = textLinkStyles(),
-                    )
+                    val annotatedDeletionText =
+                        AnnotatedString.rememberAutoLinkText(
+                            text = deletionText,
+                            defaultLinkStyles = textLinkStyles(),
+                        )
                     Text(annotatedDeletionText, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                 }
@@ -269,15 +283,20 @@ fun RecentUploadItem(upload: RecentUpload) {
 }
 
 @Composable
-fun TextToSpeechCategory(settings: ToolsSettingsState, onInteraction: (ToolsSettingsInteraction) -> Unit, onNavToTTSUserIgnoreList: () -> Unit) {
+fun TextToSpeechCategory(
+    settings: ToolsSettingsState,
+    onInteraction: (ToolsSettingsInteraction) -> Unit,
+    onNavToTTSUserIgnoreList: () -> Unit,
+) {
     PreferenceCategory(title = stringResource(R.string.preference_tts_header)) {
         val context = LocalContext.current
-        val checkTTSDataLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            when {
-                it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
-                else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
+        val checkTTSDataLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                when {
+                    it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
+                    else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
+                }
             }
-        }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_tts_title),
             summary = stringResource(R.string.preference_tts_summary),

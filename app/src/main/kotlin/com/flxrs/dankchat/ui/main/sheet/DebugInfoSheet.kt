@@ -36,7 +36,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DebugInfoSheet(viewModel: DebugInfoViewModel, sheetState: SheetState, onDismiss: () -> Unit) {
+fun DebugInfoSheet(
+    viewModel: DebugInfoViewModel,
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+) {
     val sections by viewModel.sections.collectAsStateWithLifecycle()
 
     ModalBottomSheet(
@@ -47,10 +51,11 @@ fun DebugInfoSheet(viewModel: DebugInfoViewModel, sheetState: SheetState, onDism
     ) {
         val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
         LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .nestedScroll(BottomSheetNestedScrollConnection)
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .nestedScroll(BottomSheetNestedScrollConnection)
+                    .padding(horizontal = 16.dp),
             contentPadding = navBarPadding,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
@@ -82,19 +87,25 @@ fun DebugInfoSheet(viewModel: DebugInfoViewModel, sheetState: SheetState, onDism
 private fun DebugEntryRow(entry: DebugEntry) {
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
-    val copyModifier = when {
-        entry.copyValue != null -> Modifier.clickable {
-            scope.launch {
-                clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText(entry.label, entry.copyValue)))
+    val copyModifier =
+        when {
+            entry.copyValue != null -> {
+                Modifier.clickable {
+                    scope.launch {
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText(entry.label, entry.copyValue)))
+                    }
+                }
+            }
+
+            else -> {
+                Modifier
             }
         }
-
-        else -> Modifier
-    }
     Row(
-        modifier = copyModifier
-            .fillMaxWidth()
-            .padding(vertical = 2.dp),
+        modifier =
+            copyModifier
+                .fillMaxWidth()
+                .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(

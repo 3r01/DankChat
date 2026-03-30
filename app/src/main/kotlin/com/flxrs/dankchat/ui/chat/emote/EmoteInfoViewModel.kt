@@ -9,7 +9,9 @@ import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 
 @KoinViewModel
-class EmoteInfoViewModel(@InjectedParam private val emotes: List<ChatMessageEmote>) : ViewModel() {
+class EmoteInfoViewModel(
+    @InjectedParam private val emotes: List<ChatMessageEmote>,
+) : ViewModel() {
     val items =
         emotes.map { emote ->
             EmoteSheetItem(
@@ -24,49 +26,53 @@ class EmoteInfoViewModel(@InjectedParam private val emotes: List<ChatMessageEmot
             )
         }
 
-    private fun ChatMessageEmote.baseNameOrNull(): String? = when (type) {
-        is ChatMessageEmoteType.GlobalSevenTVEmote -> type.baseName
-        is ChatMessageEmoteType.ChannelSevenTVEmote -> type.baseName
-        else -> null
-    }
+    private fun ChatMessageEmote.baseNameOrNull(): String? =
+        when (type) {
+            is ChatMessageEmoteType.GlobalSevenTVEmote -> type.baseName
+            is ChatMessageEmoteType.ChannelSevenTVEmote -> type.baseName
+            else -> null
+        }
 
-    private fun ChatMessageEmote.creatorNameOrNull(): DisplayName? = when (type) {
-        is ChatMessageEmoteType.GlobalSevenTVEmote -> type.creator
-        is ChatMessageEmoteType.ChannelSevenTVEmote -> type.creator
-        is ChatMessageEmoteType.ChannelBTTVEmote -> type.creator
-        is ChatMessageEmoteType.ChannelFFZEmote -> type.creator
-        is ChatMessageEmoteType.GlobalFFZEmote -> type.creator
-        else -> null
-    }
+    private fun ChatMessageEmote.creatorNameOrNull(): DisplayName? =
+        when (type) {
+            is ChatMessageEmoteType.GlobalSevenTVEmote -> type.creator
+            is ChatMessageEmoteType.ChannelSevenTVEmote -> type.creator
+            is ChatMessageEmoteType.ChannelBTTVEmote -> type.creator
+            is ChatMessageEmoteType.ChannelFFZEmote -> type.creator
+            is ChatMessageEmoteType.GlobalFFZEmote -> type.creator
+            else -> null
+        }
 
-    private fun ChatMessageEmote.providerUrlOrNull(): String = when (type) {
-        is ChatMessageEmoteType.GlobalSevenTVEmote,
-        is ChatMessageEmoteType.ChannelSevenTVEmote,
-        -> "$SEVEN_TV_BASE_LINK$id"
+    private fun ChatMessageEmote.providerUrlOrNull(): String =
+        when (type) {
+            is ChatMessageEmoteType.GlobalSevenTVEmote,
+            is ChatMessageEmoteType.ChannelSevenTVEmote,
+            -> "$SEVEN_TV_BASE_LINK$id"
 
-        is ChatMessageEmoteType.ChannelBTTVEmote,
-        is ChatMessageEmoteType.GlobalBTTVEmote,
-        -> "$BTTV_BASE_LINK$id"
+            is ChatMessageEmoteType.ChannelBTTVEmote,
+            is ChatMessageEmoteType.GlobalBTTVEmote,
+            -> "$BTTV_BASE_LINK$id"
 
-        is ChatMessageEmoteType.ChannelFFZEmote,
-        is ChatMessageEmoteType.GlobalFFZEmote,
-        -> "$FFZ_BASE_LINK$id-$code"
+            is ChatMessageEmoteType.ChannelFFZEmote,
+            is ChatMessageEmoteType.GlobalFFZEmote,
+            -> "$FFZ_BASE_LINK$id-$code"
 
-        is ChatMessageEmoteType.TwitchEmote -> "$TWITCH_BASE_LINK$id"
+            is ChatMessageEmoteType.TwitchEmote -> "$TWITCH_BASE_LINK$id"
 
-        is ChatMessageEmoteType.Cheermote -> "$TWITCH_BASE_LINK$id"
-    }
+            is ChatMessageEmoteType.Cheermote -> "$TWITCH_BASE_LINK$id"
+        }
 
-    private fun ChatMessageEmote.emoteTypeOrNull(): Int = when (type) {
-        is ChatMessageEmoteType.ChannelBTTVEmote -> if (type.isShared) R.string.emote_sheet_bttv_shared_emote else R.string.emote_sheet_bttv_channel_emote
-        is ChatMessageEmoteType.ChannelFFZEmote -> R.string.emote_sheet_ffz_channel_emote
-        is ChatMessageEmoteType.ChannelSevenTVEmote -> R.string.emote_sheet_seventv_channel_emote
-        ChatMessageEmoteType.GlobalBTTVEmote -> R.string.emote_sheet_bttv_global_emote
-        is ChatMessageEmoteType.GlobalFFZEmote -> R.string.emote_sheet_ffz_global_emote
-        is ChatMessageEmoteType.GlobalSevenTVEmote -> R.string.emote_sheet_seventv_global_emote
-        ChatMessageEmoteType.TwitchEmote -> R.string.emote_sheet_twitch_emote
-        ChatMessageEmoteType.Cheermote -> R.string.emote_sheet_twitch_emote
-    }
+    private fun ChatMessageEmote.emoteTypeOrNull(): Int =
+        when (type) {
+            is ChatMessageEmoteType.ChannelBTTVEmote -> if (type.isShared) R.string.emote_sheet_bttv_shared_emote else R.string.emote_sheet_bttv_channel_emote
+            is ChatMessageEmoteType.ChannelFFZEmote -> R.string.emote_sheet_ffz_channel_emote
+            is ChatMessageEmoteType.ChannelSevenTVEmote -> R.string.emote_sheet_seventv_channel_emote
+            ChatMessageEmoteType.GlobalBTTVEmote -> R.string.emote_sheet_bttv_global_emote
+            is ChatMessageEmoteType.GlobalFFZEmote -> R.string.emote_sheet_ffz_global_emote
+            is ChatMessageEmoteType.GlobalSevenTVEmote -> R.string.emote_sheet_seventv_global_emote
+            ChatMessageEmoteType.TwitchEmote -> R.string.emote_sheet_twitch_emote
+            ChatMessageEmoteType.Cheermote -> R.string.emote_sheet_twitch_emote
+        }
 
     companion object {
         private const val SEVEN_TV_BASE_LINK = "https://7tv.app/emotes/"

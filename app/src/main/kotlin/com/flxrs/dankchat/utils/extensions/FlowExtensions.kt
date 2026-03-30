@@ -8,17 +8,26 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.transformLatest
 
-fun <T> mutableSharedFlowOf(defaultValue: T, replayValue: Int = 1, extraBufferCapacity: Int = 0, onBufferOverflow: BufferOverflow = BufferOverflow.DROP_OLDEST): MutableSharedFlow<T> =
+fun <T> mutableSharedFlowOf(
+    defaultValue: T,
+    replayValue: Int = 1,
+    extraBufferCapacity: Int = 0,
+    onBufferOverflow: BufferOverflow = BufferOverflow.DROP_OLDEST,
+): MutableSharedFlow<T> =
     MutableSharedFlow<T>(replayValue, extraBufferCapacity, onBufferOverflow).apply {
         tryEmit(defaultValue)
     }
 
-inline fun <T, R> Flow<T?>.flatMapLatestOrDefault(defaultValue: R, crossinline transform: suspend (value: T) -> Flow<R>): Flow<R> = transformLatest {
-    when (it) {
-        null -> emit(defaultValue)
-        else -> emitAll(transform(it))
+inline fun <T, R> Flow<T?>.flatMapLatestOrDefault(
+    defaultValue: R,
+    crossinline transform: suspend (value: T) -> Flow<R>,
+): Flow<R> =
+    transformLatest {
+        when (it) {
+            null -> emit(defaultValue)
+            else -> emitAll(transform(it))
+        }
     }
-}
 
 inline val <T> SharedFlow<T>.firstValue: T
     get() = replayCache.first()
@@ -26,20 +35,27 @@ inline val <T> SharedFlow<T>.firstValue: T
 inline val <T> SharedFlow<T>.firstValueOrNull: T?
     get() = replayCache.firstOrNull()
 
-fun MutableSharedFlow<MutableMap<UserName, Int>>.increment(key: UserName, amount: Int) = tryEmit(
+fun MutableSharedFlow<MutableMap<UserName, Int>>.increment(
+    key: UserName,
+    amount: Int,
+) = tryEmit(
     firstValue.apply {
         val count = get(key) ?: 0
         put(key, count + amount)
     },
 )
 
-fun MutableSharedFlow<MutableMap<UserName, Int>>.clear(key: UserName) = tryEmit(
-    firstValue.apply {
-        put(key, 0)
-    },
-)
+fun MutableSharedFlow<MutableMap<UserName, Int>>.clear(key: UserName) =
+    tryEmit(
+        firstValue.apply {
+            put(key, 0)
+        },
+    )
 
-fun <T> MutableSharedFlow<MutableMap<UserName, T>>.assign(key: UserName, value: T) = tryEmit(
+fun <T> MutableSharedFlow<MutableMap<UserName, T>>.assign(
+    key: UserName,
+    value: T,
+) = tryEmit(
     firstValue.apply {
         put(key, value)
     },

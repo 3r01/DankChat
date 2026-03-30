@@ -90,7 +90,10 @@ class ChannelManagementViewModel(
         }
     }
 
-    fun renameChannel(channel: UserName, displayName: String?) {
+    fun renameChannel(
+        channel: UserName,
+        displayName: String?,
+    ) {
         val rename = displayName?.ifBlank { null }?.let { UserName(it) }
         preferenceStore.setRenamedChannel(ChannelWithRename(channel, rename))
     }
@@ -116,17 +119,18 @@ class ChannelManagementViewModel(
         chatMessageRepository.clearMessages(channel)
     }
 
-    fun blockChannel(channel: UserName) = viewModelScope.launch {
-        runCatching {
-            if (!preferenceStore.isLoggedIn) {
-                return@launch
-            }
+    fun blockChannel(channel: UserName) =
+        viewModelScope.launch {
+            runCatching {
+                if (!preferenceStore.isLoggedIn) {
+                    return@launch
+                }
 
-            val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
-            ignoresRepository.addUserBlock(channelId, channel)
-            removeChannel(channel)
+                val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
+                ignoresRepository.addUserBlock(channelId, channel)
+                removeChannel(channel)
+            }
         }
-    }
 
     fun selectChannel(channel: UserName) {
         chatChannelProvider.setActiveChannel(channel)

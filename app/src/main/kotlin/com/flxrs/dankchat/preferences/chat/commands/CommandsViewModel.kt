@@ -14,7 +14,9 @@ import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class CommandsViewModel(private val chatSettingsDataStore: ChatSettingsDataStore) : ViewModel() {
+class CommandsViewModel(
+    private val chatSettingsDataStore: ChatSettingsDataStore,
+) : ViewModel() {
     val commands =
         chatSettingsDataStore.settings
             .map { it.customCommands.toImmutableList() }
@@ -24,8 +26,9 @@ class CommandsViewModel(private val chatSettingsDataStore: ChatSettingsDataStore
                 initialValue = chatSettingsDataStore.current().customCommands.toImmutableList(),
             )
 
-    fun save(commands: List<CustomCommand>) = viewModelScope.launch {
-        val filtered = commands.filter { it.trigger.isNotBlank() && it.command.isNotBlank() }
-        chatSettingsDataStore.update { it.copy(customCommands = filtered) }
-    }
+    fun save(commands: List<CustomCommand>) =
+        viewModelScope.launch {
+            val filtered = commands.filter { it.trigger.isNotBlank() && it.command.isNotBlank() }
+            chatSettingsDataStore.update { it.copy(customCommands = filtered) }
+        }
 }

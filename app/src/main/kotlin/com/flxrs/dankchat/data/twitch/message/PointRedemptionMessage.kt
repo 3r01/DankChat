@@ -22,7 +22,10 @@ data class PointRedemptionMessage(
     val userDisplay: UserDisplay? = null,
 ) : Message() {
     companion object {
-        fun parsePointReward(timestamp: Instant, data: PointRedemptionData): PointRedemptionMessage {
+        fun parsePointReward(
+            timestamp: Instant,
+            data: PointRedemptionData,
+        ): PointRedemptionMessage {
             val timeZone = TimeZone.currentSystemDefault()
             return PointRedemptionMessage(
                 timestamp = timestamp.toLocalDateTime(timeZone).toInstant(timeZone).toEpochMilliseconds(),
@@ -31,8 +34,8 @@ data class PointRedemptionMessage(
                 displayName = data.user.displayName,
                 title = data.reward.title,
                 rewardImageUrl =
-                data.reward.images?.imageLarge
-                    ?: data.reward.defaultImages.imageLarge,
+                    data.reward.images?.imageLarge
+                        ?: data.reward.defaultImages.imageLarge,
                 cost = data.reward.cost,
                 requiresUserInput = data.reward.requiresUserInput,
             )

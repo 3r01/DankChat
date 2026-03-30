@@ -14,7 +14,10 @@ import org.koin.core.annotation.Single
 import java.time.Instant
 
 @Single
-class EmoteUsageRepository(private val emoteUsageDao: EmoteUsageDao, dispatchersProvider: DispatchersProvider) {
+class EmoteUsageRepository(
+    private val emoteUsageDao: EmoteUsageDao,
+    dispatchersProvider: DispatchersProvider,
+) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
     val recentEmoteIds: StateFlow<Set<String>> =

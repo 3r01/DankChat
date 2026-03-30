@@ -25,10 +25,16 @@ import org.koin.core.annotation.Single
 import java.util.UUID
 
 @Single
-class TwitchCommandRepository(private val helixApiClient: HelixApiClient, private val authDataStore: AuthDataStore) {
+class TwitchCommandRepository(
+    private val helixApiClient: HelixApiClient,
+    private val authDataStore: AuthDataStore,
+) {
     fun isIrcCommand(trigger: String): Boolean = trigger in ALLOWED_IRC_COMMAND_TRIGGERS
 
-    fun getAvailableCommandTriggers(room: RoomState, userState: UserState): List<String> {
+    fun getAvailableCommandTriggers(
+        room: RoomState,
+        userState: UserState,
+    ): List<String> {
         val currentUserId = authDataStore.userIdString ?: return emptyList()
         return when {
             room.channelId == currentUserId -> TwitchCommand.ALL_COMMANDS
@@ -48,7 +54,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return TwitchCommand.ALL_COMMANDS.find { it.trigger == withoutFirstChar }
     }
 
-    suspend fun handleTwitchCommand(command: TwitchCommand, context: CommandContext): CommandResult {
+    suspend fun handleTwitchCommand(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val currentUserId =
             authDataStore.userIdString ?: return CommandResult.AcceptedTwitchCommand(
                 command = command,
@@ -131,7 +140,12 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         }
     }
 
-    suspend fun sendWhisper(command: TwitchCommand, currentUserId: UserId, trigger: String, args: List<String>): CommandResult {
+    suspend fun sendWhisper(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        trigger: String,
+        args: List<String>,
+    ): CommandResult {
         if (args.size < 2 || args[0].isBlank() || args[1].isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: $trigger <username> <message>.")
         }
@@ -152,7 +166,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun sendAnnouncement(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun sendAnnouncement(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <message> - Call attention to your message with a highlight.")
@@ -178,28 +196,35 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun getModerators(command: TwitchCommand, context: CommandContext): CommandResult = helixApiClient.getModerators(context.channelId).fold(
-        onSuccess = { result ->
-            when {
-                result.isEmpty() -> {
-                    CommandResult.AcceptedTwitchCommand(command, response = "This channel does not have any moderators.")
-                }
+    private suspend fun getModerators(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult =
+        helixApiClient.getModerators(context.channelId).fold(
+            onSuccess = { result ->
+                when {
+                    result.isEmpty() -> {
+                        CommandResult.AcceptedTwitchCommand(command, response = "This channel does not have any moderators.")
+                    }
 
-                else -> {
-                    val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
-                    CommandResult.AcceptedTwitchCommand(command, response = "The moderators of this channel are $users.")
+                    else -> {
+                        val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
+                        CommandResult.AcceptedTwitchCommand(command, response = "The moderators of this channel are $users.")
+                    }
                 }
-            }
-            val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
-            CommandResult.AcceptedTwitchCommand(command, response = "The moderators of this channel are $users.")
-        },
-        onFailure = {
-            val response = "Failed to list moderators - ${it.toErrorMessage(command)}"
-            CommandResult.AcceptedTwitchCommand(command, response)
-        },
-    )
+                val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
+                CommandResult.AcceptedTwitchCommand(command, response = "The moderators of this channel are $users.")
+            },
+            onFailure = {
+                val response = "Failed to list moderators - ${it.toErrorMessage(command)}"
+                CommandResult.AcceptedTwitchCommand(command, response)
+            },
+        )
 
-    private suspend fun addModerator(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun addModerator(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <username> - Grant moderation status to a user.")
@@ -221,7 +246,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun removeModerator(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun removeModerator(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <username> - Revoke moderation status from a user.")
@@ -243,26 +271,33 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun getVips(command: TwitchCommand, context: CommandContext): CommandResult = helixApiClient.getVips(context.channelId).fold(
-        onSuccess = { result ->
-            when {
-                result.isEmpty() -> {
-                    CommandResult.AcceptedTwitchCommand(command, response = "This channel does not have any VIPs.")
-                }
+    private suspend fun getVips(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult =
+        helixApiClient.getVips(context.channelId).fold(
+            onSuccess = { result ->
+                when {
+                    result.isEmpty() -> {
+                        CommandResult.AcceptedTwitchCommand(command, response = "This channel does not have any VIPs.")
+                    }
 
-                else -> {
-                    val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
-                    CommandResult.AcceptedTwitchCommand(command, response = "The vips of this channel are $users.")
+                    else -> {
+                        val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
+                        CommandResult.AcceptedTwitchCommand(command, response = "The vips of this channel are $users.")
+                    }
                 }
-            }
-        },
-        onFailure = {
-            val response = "Failed to list VIPs - ${it.toErrorMessage(command)}"
-            CommandResult.AcceptedTwitchCommand(command, response)
-        },
-    )
+            },
+            onFailure = {
+                val response = "Failed to list VIPs - ${it.toErrorMessage(command)}"
+                CommandResult.AcceptedTwitchCommand(command, response)
+            },
+        )
 
-    private suspend fun addVip(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun addVip(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <username> - Grant VIP status to a user.")
@@ -284,7 +319,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun removeVip(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun removeVip(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <username> - Revoke VIP status from a user.")
@@ -306,7 +344,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun banUser(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun banUser(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             val usageResponse =
@@ -340,7 +382,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun unbanUser(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun unbanUser(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             val usageResponse = "Usage: ${context.trigger} <username> - Removes a ban on a user."
@@ -362,7 +408,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun timeoutUser(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun timeoutUser(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         val usageResponse =
             "Usage: ${context.trigger} <username> [duration][time unit] [reason] - " +
@@ -405,15 +455,24 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun clearChat(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult = helixApiClient.deleteMessages(context.channelId, currentUserId).fold(
-        onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
-        onFailure = {
-            val response = "Failed to delete chat messages - ${it.toErrorMessage(command)}"
-            CommandResult.AcceptedTwitchCommand(command, response)
-        },
-    )
+    private suspend fun clearChat(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult =
+        helixApiClient.deleteMessages(context.channelId, currentUserId).fold(
+            onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
+            onFailure = {
+                val response = "Failed to delete chat messages - ${it.toErrorMessage(command)}"
+                CommandResult.AcceptedTwitchCommand(command, response)
+            },
+        )
 
-    private suspend fun deleteMessage(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun deleteMessage(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: /delete <msg-id> - Deletes the specified message.")
@@ -434,7 +493,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun updateColor(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun updateColor(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             val usage = "Usage: /color <color> - Color must be one of Twitch's supported colors (${VALID_HELIX_COLORS.joinToString()}) or a hex code (#000000) if you have Turbo or Prime."
@@ -453,7 +516,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun createMarker(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun createMarker(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val description =
             context.args
                 .joinToString(separator = " ")
@@ -474,7 +540,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun startCommercial(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun startCommercial(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         val usage = "Usage: /commercial <length> - Starts a commercial with the specified duration for the current channel. Valid length options are 30, 60, 90, 120, 150, and 180 seconds."
         if (args.isEmpty() || args.first().isBlank()) {
@@ -498,7 +567,10 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun startRaid(command: TwitchCommand, context: CommandContext): CommandResult {
+    private suspend fun startRaid(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             val usage = "Usage: /raid <username> - Raid a user. Only the broadcaster can start a raid."
@@ -519,15 +591,23 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun cancelRaid(command: TwitchCommand, context: CommandContext): CommandResult = helixApiClient.deleteRaid(context.channelId).fold(
-        onSuccess = { CommandResult.AcceptedTwitchCommand(command, response = "You cancelled the raid.") },
-        onFailure = {
-            val response = "Failed to cancel the raid - ${it.toErrorMessage(command)}"
-            CommandResult.AcceptedTwitchCommand(command, response)
-        },
-    )
+    private suspend fun cancelRaid(
+        command: TwitchCommand,
+        context: CommandContext,
+    ): CommandResult =
+        helixApiClient.deleteRaid(context.channelId).fold(
+            onSuccess = { CommandResult.AcceptedTwitchCommand(command, response = "You cancelled the raid.") },
+            onFailure = {
+                val response = "Failed to cancel the raid - ${it.toErrorMessage(command)}"
+                CommandResult.AcceptedTwitchCommand(command, response)
+            },
+        )
 
-    private suspend fun enableFollowersMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun enableFollowersMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         val usage =
             "Usage: /followers [duration] - Enables followers-only mode (only users who have followed for 'duration' may chat). " +
@@ -552,7 +632,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         }
     }
 
-    private suspend fun disableFollowersMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun disableFollowersMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (!context.roomState.isFollowMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is not in followers-only mode.")
         }
@@ -561,7 +645,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun enableEmoteMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun enableEmoteMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (context.roomState.isEmoteMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is already in emote-only mode.")
         }
@@ -570,7 +658,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun disableEmoteMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun disableEmoteMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (!context.roomState.isEmoteMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is not in emote-only mode.")
         }
@@ -579,7 +671,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun enableSubscriberMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun enableSubscriberMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (context.roomState.isSubscriberMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is already in subscribers-only mode.")
         }
@@ -588,7 +684,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun disableSubscriberMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun disableSubscriberMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (!context.roomState.isSubscriberMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is not in subscribers-only mode.")
         }
@@ -597,7 +697,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun enableUniqueChatMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun enableUniqueChatMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (context.roomState.isUniqueChatMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is already in unique-chat mode.")
         }
@@ -606,7 +710,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun disableUniqueChatMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun disableUniqueChatMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (!context.roomState.isUniqueChatMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is not in unique-chat mode.")
         }
@@ -615,7 +723,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         return updateChatSettings(command, currentUserId, context, request)
     }
 
-    private suspend fun enableSlowMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun enableSlowMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args.firstOrNull() ?: "30"
         val duration = args.toIntOrNull()
         if (duration == null) {
@@ -635,7 +747,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         }
     }
 
-    private suspend fun disableSlowMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun disableSlowMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         if (!context.roomState.isSlowMode) {
             return CommandResult.AcceptedTwitchCommand(command, response = "This room is not in slow mode.")
         }
@@ -650,15 +766,20 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         context: CommandContext,
         request: ChatSettingsRequestDto,
         formatRange: ((IntRange) -> String)? = null,
-    ): CommandResult = helixApiClient.patchChatSettings(context.channelId, currentUserId, request).fold(
-        onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
-        onFailure = {
-            val response = "Failed to update - ${it.toErrorMessage(command, formatRange = formatRange)}"
-            CommandResult.AcceptedTwitchCommand(command, response)
-        },
-    )
+    ): CommandResult =
+        helixApiClient.patchChatSettings(context.channelId, currentUserId, request).fold(
+            onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
+            onFailure = {
+                val response = "Failed to update - ${it.toErrorMessage(command, formatRange = formatRange)}"
+                CommandResult.AcceptedTwitchCommand(command, response)
+            },
+        )
 
-    private suspend fun sendShoutout(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun sendShoutout(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val args = context.args
         if (args.isEmpty() || args.first().isBlank()) {
             return CommandResult.AcceptedTwitchCommand(command, response = "Usage: ${context.trigger} <username> - Sends a shoutout to the specified Twitch user.")
@@ -678,7 +799,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private suspend fun toggleShieldMode(command: TwitchCommand, currentUserId: UserId, context: CommandContext): CommandResult {
+    private suspend fun toggleShieldMode(
+        command: TwitchCommand,
+        currentUserId: UserId,
+        context: CommandContext,
+    ): CommandResult {
         val enable = command == TwitchCommand.Shield
         val request = ShieldModeRequestDto(isActive = enable)
 
@@ -698,7 +823,11 @@ class TwitchCommandRepository(private val helixApiClient: HelixApiClient, privat
         )
     }
 
-    private fun Throwable.toErrorMessage(command: TwitchCommand, targetUser: DisplayName? = null, formatRange: ((IntRange) -> String)? = null): String {
+    private fun Throwable.toErrorMessage(
+        command: TwitchCommand,
+        targetUser: DisplayName? = null,
+        formatRange: ((IntRange) -> String)? = null,
+    ): String {
         Log.v(TAG, "Command failed: $this")
         if (this !is HelixApiException) {
             return GENERIC_ERROR_MESSAGE

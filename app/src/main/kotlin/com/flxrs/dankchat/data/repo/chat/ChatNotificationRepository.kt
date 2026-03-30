@@ -112,17 +112,22 @@ class ChatNotificationRepository(
         }
     }
 
-    fun incrementMentionCount(channel: UserName, count: Int) {
+    fun incrementMentionCount(
+        channel: UserName,
+        count: Int,
+    ) {
         _channelMentionCount.increment(channel, count)
     }
 
-    fun clearMentionCount(channel: UserName) = with(_channelMentionCount) {
-        tryEmit(firstValue.apply { set(channel, 0) })
-    }
+    fun clearMentionCount(channel: UserName) =
+        with(_channelMentionCount) {
+            tryEmit(firstValue.apply { set(channel, 0) })
+        }
 
-    fun clearMentionCounts() = with(_channelMentionCount) {
-        tryEmit(firstValue.apply { keys.forEach { if (it != WhisperMessage.WHISPER_CHANNEL) set(it, 0) } })
-    }
+    fun clearMentionCounts() =
+        with(_channelMentionCount) {
+            tryEmit(firstValue.apply { keys.forEach { if (it != WhisperMessage.WHISPER_CHANNEL) set(it, 0) } })
+        }
 
     fun clearUnreadMessage(channel: UserName) {
         _unreadMessagesMap.assign(channel, false)

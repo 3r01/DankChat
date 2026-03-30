@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SupibotUserAliasDto(@SerialName(value = "name") val name: String)
+data class SupibotUserAliasDto(
+    @SerialName(value = "name") val name: String,
+)

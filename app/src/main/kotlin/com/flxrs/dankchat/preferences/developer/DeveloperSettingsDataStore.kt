@@ -18,8 +18,13 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class DeveloperSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class DeveloperPreferenceKeys(override val id: Int) : PreferenceKeys {
+class DeveloperSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class DeveloperPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         DebugMode(R.string.preference_debug_mode_key),
         RepeatedSending(R.string.preference_repeated_sending_key),
         BypassCommandHandling(R.string.preference_bypass_command_handling_key),

@@ -43,51 +43,52 @@ fun ChatMessageText(
     val defaultTextColor = textColor ?: MaterialTheme.colorScheme.onSurface
     val defaultNameColor = nameColor ?: MaterialTheme.colorScheme.onSurface
 
-    val annotatedString = remember(text, timestamp, nameText, defaultNameColor, isAction, defaultTextColor, timestampColor, fontSize) {
-        buildAnnotatedString {
-            // Add timestamp if present
-            if (timestamp != null) {
-                withStyle(
-                    SpanStyle(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = fontSize * 0.95f,
-                        color = timestampColor,
-                        letterSpacing = (-0.03).em,
-                    ),
-                ) {
-                    append(timestamp)
-                }
-                append(" ")
-            }
-
-            // Add username if present
-            if (nameText != null) {
-                withStyle(
-                    SpanStyle(
-                        color = defaultNameColor,
-                        fontWeight = FontWeight.Bold,
-                    ),
-                ) {
-                    append(nameText)
-                }
-                if (!isAction) {
-                    append(": ")
-                } else {
+    val annotatedString =
+        remember(text, timestamp, nameText, defaultNameColor, isAction, defaultTextColor, timestampColor, fontSize) {
+            buildAnnotatedString {
+                // Add timestamp if present
+                if (timestamp != null) {
+                    withStyle(
+                        SpanStyle(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = fontSize * 0.95f,
+                            color = timestampColor,
+                            letterSpacing = (-0.03).em,
+                        ),
+                    ) {
+                        append(timestamp)
+                    }
                     append(" ")
                 }
-            }
 
-            // Add message text
-            withStyle(
-                SpanStyle(
-                    color = if (isAction) defaultNameColor else defaultTextColor,
-                ),
-            ) {
-                append(text)
+                // Add username if present
+                if (nameText != null) {
+                    withStyle(
+                        SpanStyle(
+                            color = defaultNameColor,
+                            fontWeight = FontWeight.Bold,
+                        ),
+                    ) {
+                        append(nameText)
+                    }
+                    if (!isAction) {
+                        append(": ")
+                    } else {
+                        append(" ")
+                    }
+                }
+
+                // Add message text
+                withStyle(
+                    SpanStyle(
+                        color = if (isAction) defaultNameColor else defaultTextColor,
+                    ),
+                ) {
+                    append(text)
+                }
             }
         }
-    }
 
     Box(modifier = modifier) {
         BasicText(

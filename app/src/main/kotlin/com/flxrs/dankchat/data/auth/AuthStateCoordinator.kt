@@ -26,9 +26,13 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 
 sealed interface AuthEvent {
-    data class LoggedIn(val userName: UserName) : AuthEvent
+    data class LoggedIn(
+        val userName: UserName,
+    ) : AuthEvent
 
-    data class ScopesOutdated(val userName: UserName) : AuthEvent
+    data class ScopesOutdated(
+        val userName: UserName,
+    ) : AuthEvent
 
     data object TokenInvalid : AuthEvent
 

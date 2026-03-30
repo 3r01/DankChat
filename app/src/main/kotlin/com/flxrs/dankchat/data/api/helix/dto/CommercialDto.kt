@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class CommercialDto(val length: Int, val message: String?, @SerialName("retry_after") val retryAfter: Int)
+data class CommercialDto(
+    val length: Int,
+    val message: String?,
+    @SerialName("retry_after") val retryAfter: Int,
+)

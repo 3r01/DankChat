@@ -14,7 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.data.UserName
 
 @Stable
-internal class StreamToolbarState(val alpha: Animatable<Float, AnimationVector1D>) {
+internal class StreamToolbarState(
+    val alpha: Animatable<Float, AnimationVector1D>,
+) {
     var heightDp by mutableStateOf(0.dp)
     private var prevHasVisibleStream by mutableStateOf(false)
     private var isKeyboardClosingWithStream by mutableStateOf(false)
@@ -26,7 +28,10 @@ internal class StreamToolbarState(val alpha: Animatable<Float, AnimationVector1D
     val effectiveAlpha: Float
         get() = if (hasVisibleStream || isKeyboardClosingWithStream || wasKeyboardClosingWithStream) alpha.value else 1f
 
-    suspend fun updateAnimation(hasVisibleStream: Boolean, keyboardClosingWithStream: Boolean) {
+    suspend fun updateAnimation(
+        hasVisibleStream: Boolean,
+        keyboardClosingWithStream: Boolean,
+    ) {
         isKeyboardClosingWithStream = keyboardClosingWithStream
         if (keyboardClosingWithStream) wasKeyboardClosingWithStream = true
         if (hasVisibleStream) wasKeyboardClosingWithStream = false
@@ -51,7 +56,11 @@ internal class StreamToolbarState(val alpha: Animatable<Float, AnimationVector1D
 }
 
 @Composable
-internal fun rememberStreamToolbarState(currentStream: UserName?, isKeyboardVisible: Boolean, imeTargetBottom: Int): StreamToolbarState {
+internal fun rememberStreamToolbarState(
+    currentStream: UserName?,
+    isKeyboardVisible: Boolean,
+    imeTargetBottom: Int,
+): StreamToolbarState {
     val state = remember { StreamToolbarState(alpha = Animatable(0f)) }
 
     val hasVisibleStream = currentStream != null && state.heightDp > 0.dp

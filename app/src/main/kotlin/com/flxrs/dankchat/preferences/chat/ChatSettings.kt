@@ -40,7 +40,11 @@ data class ChatSettings(
 }
 
 @Serializable
-data class CustomCommand(val trigger: String, val command: String, @Transient val id: String = Uuid.random().toString())
+data class CustomCommand(
+    val trigger: String,
+    val command: String,
+    @Transient val id: String = Uuid.random().toString(),
+)
 
 enum class UserLongClickBehavior {
     MentionsUser,

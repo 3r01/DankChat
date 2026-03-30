@@ -36,23 +36,39 @@ sealed interface DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_twitch_emotes
     }
 
-    data class ChannelBadges(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+    data class ChannelBadges(
+        val channel: UserName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_channel_badges
     }
 
-    data class ChannelFFZEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+    data class ChannelFFZEmotes(
+        val channel: UserName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_ffz_emotes
     }
 
-    data class ChannelBTTVEmotes(val channel: UserName, val channelDisplayName: DisplayName, val channelId: UserId) : DataLoadingStep {
+    data class ChannelBTTVEmotes(
+        val channel: UserName,
+        val channelDisplayName: DisplayName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_bttv_emotes
     }
 
-    data class ChannelSevenTVEmotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+    data class ChannelSevenTVEmotes(
+        val channel: UserName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_7tv_emotes
     }
 
-    data class ChannelCheermotes(val channel: UserName, val channelId: UserId) : DataLoadingStep {
+    data class ChannelCheermotes(
+        val channel: UserName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_cheermotes
     }
 }

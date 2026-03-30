@@ -13,7 +13,14 @@ sealed interface CustomLoginState {
 
     object TokenInvalid : CustomLoginState
 
-    data class MissingScopes(val missingScopes: String, val validation: ValidateDto, val token: String, val dialogOpen: Boolean) : CustomLoginState
+    data class MissingScopes(
+        val missingScopes: String,
+        val validation: ValidateDto,
+        val token: String,
+        val dialogOpen: Boolean,
+    ) : CustomLoginState
 
-    data class Failure(val error: String) : CustomLoginState
+    data class Failure(
+        val error: String,
+    ) : CustomLoginState
 }

@@ -53,12 +53,13 @@ fun MentionComposable(
         ChatScreen(
             messages = messages,
             fontSize = displaySettings.fontSize,
-            callbacks = ChatScreenCallbacks(
-                onUserClick = onUserClick,
-                onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick,
-                onWhisperReply = if (isWhisperTab) onWhisperReply else null,
-            ),
+            callbacks =
+                ChatScreenCallbacks(
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                    onWhisperReply = if (isWhisperTab) onWhisperReply else null,
+                ),
             showLineSeparator = displaySettings.showLineSeparator,
             animateGifs = displaySettings.animateGifs,
             showChannelPrefix = !isWhisperTab,

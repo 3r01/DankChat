@@ -5,12 +5,22 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.toChatItem
 
-fun List<ChatItem>.addSystemMessage(type: SystemMessageType, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, onReconnect: () -> Unit = {}): List<ChatItem> = when {
-    type != SystemMessageType.Connected -> addAndLimit(type.toChatItem(), scrollBackLength, onMessageRemoved)
-    else -> replaceLastSystemMessageIfNecessary(scrollBackLength, onMessageRemoved, onReconnect)
-}
+fun List<ChatItem>.addSystemMessage(
+    type: SystemMessageType,
+    scrollBackLength: Int,
+    onMessageRemoved: (ChatItem) -> Unit,
+    onReconnect: () -> Unit = {},
+): List<ChatItem> =
+    when {
+        type != SystemMessageType.Connected -> addAndLimit(type.toChatItem(), scrollBackLength, onMessageRemoved)
+        else -> replaceLastSystemMessageIfNecessary(scrollBackLength, onMessageRemoved, onReconnect)
+    }
 
-private fun List<ChatItem>.replaceLastSystemMessageIfNecessary(scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit, onReconnect: () -> Unit): List<ChatItem> {
+private fun List<ChatItem>.replaceLastSystemMessageIfNecessary(
+    scrollBackLength: Int,
+    onMessageRemoved: (ChatItem) -> Unit,
+    onReconnect: () -> Unit,
+): List<ChatItem> {
     // Scan backwards for a Disconnected message that may be separated from Connected by debug messages
     val disconnectedIdx = indexOfLast { (it.message as? SystemMessage)?.type == SystemMessageType.Disconnected }
     if (disconnectedIdx >= 0) {

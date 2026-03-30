@@ -13,20 +13,23 @@ import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class SheetNavigationViewModel : ViewModel() {
-
     private val _fullScreenSheetState = MutableStateFlow<FullScreenSheetState>(FullScreenSheetState.Closed)
     val fullScreenSheetState: StateFlow<FullScreenSheetState> = _fullScreenSheetState.asStateFlow()
 
     private val _inputSheetState = MutableStateFlow<InputSheetState>(InputSheetState.Closed)
 
-    val sheetState: StateFlow<SheetNavigationState> = combine(
-        _fullScreenSheetState,
-        _inputSheetState,
-    ) { fullScreen, input ->
-        SheetNavigationState(fullScreenSheet = fullScreen, inputSheet = input)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SheetNavigationState())
+    val sheetState: StateFlow<SheetNavigationState> =
+        combine(
+            _fullScreenSheetState,
+            _inputSheetState,
+        ) { fullScreen, input ->
+            SheetNavigationState(fullScreenSheet = fullScreen, inputSheet = input)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SheetNavigationState())
 
-    fun openReplies(rootMessageId: String, replyName: UserName) {
+    fun openReplies(
+        rootMessageId: String,
+        replyName: UserName,
+    ) {
         _fullScreenSheetState.value = FullScreenSheetState.Replies(rootMessageId, replyName)
     }
 
@@ -38,7 +41,10 @@ class SheetNavigationViewModel : ViewModel() {
         _fullScreenSheetState.value = FullScreenSheetState.Whisper
     }
 
-    fun openHistory(channel: UserName, initialFilter: String = "") {
+    fun openHistory(
+        channel: UserName,
+        initialFilter: String = "",
+    ) {
         _fullScreenSheetState.value = FullScreenSheetState.History(channel, initialFilter)
     }
 
@@ -58,17 +64,20 @@ class SheetNavigationViewModel : ViewModel() {
         _inputSheetState.value = InputSheetState.Closed
     }
 
-    fun handleBackPress(): Boolean = when {
-        _inputSheetState.value != InputSheetState.Closed -> {
-            closeInputSheet()
-            true
-        }
+    fun handleBackPress(): Boolean =
+        when {
+            _inputSheetState.value != InputSheetState.Closed -> {
+                closeInputSheet()
+                true
+            }
 
-        _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
-            closeFullScreenSheet()
-            true
-        }
+            _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
+                closeFullScreenSheet()
+                true
+            }
 
-        else -> false
-    }
+            else -> {
+                false
+            }
+        }
 }

@@ -84,9 +84,10 @@ internal fun MainScreenPagerContent(
         DankBackground(visible = showFullScreenLoading)
         if (showFullScreenLoading) {
             LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(paddingValues),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues),
             )
             return@Box
         }
@@ -99,9 +100,10 @@ internal fun MainScreenPagerContent(
             )
         } else {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = paddingValues.calculateTopPadding()),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     HorizontalPager(
@@ -114,10 +116,11 @@ internal fun MainScreenPagerContent(
                             ChatComposable(
                                 channel = channel,
                                 onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
-                                    val shouldOpenPopup = when (userLongClickBehavior) {
-                                        UserLongClickBehavior.MentionsUser -> !isLongPress
-                                        UserLongClickBehavior.OpensPopup -> isLongPress
-                                    }
+                                    val shouldOpenPopup =
+                                        when (userLongClickBehavior) {
+                                            UserLongClickBehavior.MentionsUser -> !isLongPress
+                                            UserLongClickBehavior.OpensPopup -> isLongPress
+                                        }
                                     if (shouldOpenPopup) {
                                         callbacks.onShowUserPopup(
                                             UserPopupStateParams(
@@ -154,22 +157,31 @@ internal fun MainScreenPagerContent(
                                 isFullscreen = isFullscreen,
                                 showFabs = !isSheetOpen,
                                 onRecover = callbacks.onRecover,
-                                contentPadding = PaddingValues(
-                                    top = chatTopPadding + 56.dp,
-                                    bottom = paddingValues.calculateBottomPadding() + when {
-                                        effectiveShowInput -> inputHeightDp
+                                contentPadding =
+                                    PaddingValues(
+                                        top = chatTopPadding + 56.dp,
+                                        bottom =
+                                            paddingValues.calculateBottomPadding() +
+                                                when {
+                                                    effectiveShowInput -> {
+                                                        inputHeightDp
+                                                    }
 
-                                        !isFullscreen -> when {
-                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                            else -> max(navBarHeightDp, effectiveRoundedCorner)
-                                        }
+                                                    !isFullscreen -> {
+                                                        when {
+                                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                            else -> max(navBarHeightDp, effectiveRoundedCorner)
+                                                        }
+                                                    }
 
-                                        else -> when {
-                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                            else -> effectiveRoundedCorner
-                                        }
-                                    },
-                                ),
+                                                    else -> {
+                                                        when {
+                                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                            else -> effectiveRoundedCorner
+                                                        }
+                                                    }
+                                                },
+                                    ),
                                 scrollModifier = if (callbacks.scrollConnection != null) Modifier.nestedScroll(callbacks.scrollConnection) else Modifier,
                                 onScrollToBottom = callbacks.onScrollToBottom,
                                 onScrollDirectionChange = { },

@@ -9,6 +9,13 @@ interface DebugSection {
     fun entries(): Flow<DebugSectionSnapshot>
 }
 
-data class DebugSectionSnapshot(val title: String, val entries: List<DebugEntry>)
+data class DebugSectionSnapshot(
+    val title: String,
+    val entries: List<DebugEntry>,
+)
 
-data class DebugEntry(val label: String, val value: String, val copyValue: String? = null)
+data class DebugEntry(
+    val label: String,
+    val value: String,
+    val copyValue: String? = null,
+)

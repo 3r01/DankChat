@@ -43,53 +43,57 @@ data class PrivMessage(
     override val badgeData: BadgeData = BadgeData(userId, channel, badgeTag = tags["badges"], badgeInfoTag = tags["badge-info"]),
 ) : Message() {
     companion object {
-        fun parsePrivMessage(ircMessage: IrcMessage, findChannel: (UserId) -> UserName?): PrivMessage = with(ircMessage) {
-            val (name, id) =
-                when (ircMessage.command) {
-                    "USERNOTICE" -> tags.getValue("login") to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
-                    else -> prefix.substringBefore('!') to (tags["id"] ?: UUID.randomUUID().toString())
-                }
-
-            val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
-
-            val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
-            var isAction = false
-            val messageParam = params.getOrElse(1) { "" }
-            val message =
-                when {
-                    params.size > 1 && messageParam.startsWith("\u0001ACTION") && messageParam.endsWith("\u0001") -> {
-                        isAction = true
-                        messageParam.substring("\u0001ACTION ".length, messageParam.length - "\u0001".length)
+        fun parsePrivMessage(
+            ircMessage: IrcMessage,
+            findChannel: (UserId) -> UserName?,
+        ): PrivMessage =
+            with(ircMessage) {
+                val (name, id) =
+                    when (ircMessage.command) {
+                        "USERNOTICE" -> tags.getValue("login") to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
+                        else -> prefix.substringBefore('!') to (tags["id"] ?: UUID.randomUUID().toString())
                     }
 
-                    else -> {
-                        messageParam
+                val displayName = tags["display-name"] ?: name
+                val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
+
+                val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
+                var isAction = false
+                val messageParam = params.getOrElse(1) { "" }
+                val message =
+                    when {
+                        params.size > 1 && messageParam.startsWith("\u0001ACTION") && messageParam.endsWith("\u0001") -> {
+                            isAction = true
+                            messageParam.substring("\u0001ACTION ".length, messageParam.length - "\u0001".length)
+                        }
+
+                        else -> {
+                            messageParam
+                        }
                     }
-                }
 
-            val channel = params[0].substring(1).toUserName()
-            val sourceChannel =
-                tags["source-room-id"]
-                    ?.takeIf { it.isNotEmpty() && it != tags["room-id"] }
-                    ?.toUserId()
-                    ?.let(findChannel)
+                val channel = params[0].substring(1).toUserName()
+                val sourceChannel =
+                    tags["source-room-id"]
+                        ?.takeIf { it.isNotEmpty() && it != tags["room-id"] }
+                        ?.toUserId()
+                        ?.let(findChannel)
 
-            return PrivMessage(
-                timestamp = ts,
-                channel = channel,
-                sourceChannel = sourceChannel,
-                name = name.toUserName(),
-                displayName = displayName.toDisplayName(),
-                color = color,
-                message = message,
-                isAction = isAction,
-                id = id,
-                userId = tags["user-id"]?.toUserId(),
-                timedOut = tags["rm-deleted"] == "1",
-                tags = tags,
-            )
-        }
+                return PrivMessage(
+                    timestamp = ts,
+                    channel = channel,
+                    sourceChannel = sourceChannel,
+                    name = name.toUserName(),
+                    displayName = displayName.toDisplayName(),
+                    color = color,
+                    message = message,
+                    isAction = isAction,
+                    id = id,
+                    userId = tags["user-id"]?.toUserId(),
+                    timedOut = tags["rm-deleted"] == "1",
+                    tags = tags,
+                )
+            }
     }
 }
 
@@ -112,4 +116,6 @@ val PrivMessage.isElevatedMessage: Boolean
 val PrivMessage.aliasOrFormattedName: String
     get() = userDisplay?.alias ?: name.formatWithDisplayName(displayName)
 
-fun PrivMessage.customOrUserColorOn(@ColorInt bgColor: Int): Int = userDisplay?.color ?: color.normalizeColor(bgColor)
+fun PrivMessage.customOrUserColorOn(
+    @ColorInt bgColor: Int,
+): Int = userDisplay?.color ?: color.normalizeColor(bgColor)

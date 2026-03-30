@@ -50,10 +50,11 @@ fun ChatComposable(
     onTourSkip: (() -> Unit)? = null,
 ) {
     // Create ChatViewModel with channel-specific key for proper scoping
-    val viewModel: ChatViewModel = koinViewModel(
-        key = channel.value,
-        parameters = { parametersOf(channel) },
-    )
+    val viewModel: ChatViewModel =
+        koinViewModel(
+            key = channel.value,
+            parameters = { parametersOf(channel) },
+        )
 
     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
@@ -66,14 +67,15 @@ fun ChatComposable(
         ChatScreen(
             messages = messages,
             fontSize = displaySettings.fontSize,
-            callbacks = ChatScreenCallbacks(
-                onUserClick = onUserClick,
-                onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick,
-                onReplyClick = onReplyClick,
-                onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
-                onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
-            ),
+            callbacks =
+                ChatScreenCallbacks(
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                    onReplyClick = onReplyClick,
+                    onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
+                    onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
+                ),
             showLineSeparator = displaySettings.showLineSeparator,
             animateGifs = displaySettings.animateGifs,
             modifier = modifier.fillMaxSize(),

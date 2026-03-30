@@ -14,7 +14,9 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.uuid.Uuid
 
 @KoinViewModel
-class TTSUserIgnoreListViewModel(private val toolsSettingsDataStore: ToolsSettingsDataStore) : ViewModel() {
+class TTSUserIgnoreListViewModel(
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+) : ViewModel() {
     val userIgnores =
         toolsSettingsDataStore.settings
             .map { it.ttsUserIgnoreList.mapToUserIgnores() }
@@ -24,12 +26,16 @@ class TTSUserIgnoreListViewModel(private val toolsSettingsDataStore: ToolsSettin
                 initialValue = toolsSettingsDataStore.current().ttsUserIgnoreList.mapToUserIgnores(),
             )
 
-    fun save(ignores: List<UserIgnore>) = viewModelScope.launch {
-        val filtered = ignores.mapNotNullTo(mutableSetOf()) { it.user.takeIf { it.isNotBlank() } }
-        toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = filtered) }
-    }
+    fun save(ignores: List<UserIgnore>) =
+        viewModelScope.launch {
+            val filtered = ignores.mapNotNullTo(mutableSetOf()) { it.user.takeIf { it.isNotBlank() } }
+            toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = filtered) }
+        }
 
     private fun Set<String>.mapToUserIgnores() = map { UserIgnore(user = it) }.toImmutableList()
 }
 
-data class UserIgnore(val id: String = Uuid.random().toString(), val user: String)
+data class UserIgnore(
+    val id: String = Uuid.random().toString(),
+    val user: String,
+)

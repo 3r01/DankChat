@@ -26,7 +26,11 @@ import kotlinx.coroutines.launch
 /**
  * Data class to hold measured emote dimensions
  */
-data class EmoteDimensions(val id: String, val widthPx: Int, val heightPx: Int)
+data class EmoteDimensions(
+    val id: String,
+    val widthPx: Int,
+    val heightPx: Int,
+)
 
 /**
  * Renders text with inline images (badges, emotes) using SubcomposeLayout.
@@ -79,88 +83,94 @@ fun TextWithMeasuredInlineContent(
                 val measurables = subcompose("measure_$id", provider)
                 if (measurables.isNotEmpty()) {
                     // Measure with unbounded constraints to get natural size
-                    val placeable = measurables.first().measure(
-                        Constraints(
-                            maxWidth = constraints.maxWidth,
-                            maxHeight = Constraints.Infinity,
-                        ),
-                    )
-                    measuredDimensions[id] = EmoteDimensions(
-                        id = id,
-                        widthPx = placeable.width,
-                        heightPx = placeable.height,
-                    )
+                    val placeable =
+                        measurables.first().measure(
+                            Constraints(
+                                maxWidth = constraints.maxWidth,
+                                maxHeight = Constraints.Infinity,
+                            ),
+                        )
+                    measuredDimensions[id] =
+                        EmoteDimensions(
+                            id = id,
+                            widthPx = placeable.width,
+                            heightPx = placeable.height,
+                        )
                 }
             }
         }
 
         // Phase 2: Create InlineTextContent with measured/known dimensions
-        val inlineContent = measuredDimensions.mapValues { (id, dimensions) ->
-            InlineTextContent(
-                placeholder = Placeholder(
-                    width = with(density) { dimensions.widthPx.toDp() }.value.sp,
-                    height = with(density) { dimensions.heightPx.toDp() }.value.sp,
-                    placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
-                ),
-            ) {
-                // Render the actual content (re-compose with same provider)
-                inlineContentProviders[id]?.invoke()
+        val inlineContent =
+            measuredDimensions.mapValues { (id, dimensions) ->
+                InlineTextContent(
+                    placeholder =
+                        Placeholder(
+                            width = with(density) { dimensions.widthPx.toDp() }.value.sp,
+                            height = with(density) { dimensions.heightPx.toDp() }.value.sp,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
+                        ),
+                ) {
+                    // Render the actual content (re-compose with same provider)
+                    inlineContentProviders[id]?.invoke()
+                }
             }
-        }
 
         // Phase 3: Compose the text with correct inline content
 
-        val textMeasurables = subcompose("text") {
-            BasicText(
-                text = text,
-                style = style,
-                inlineContent = inlineContent,
-                modifier = Modifier.pointerInput(text, interactionSource) {
-                    detectTapGestures(
-                        onPress = { offset ->
-                            // Emit press interaction for ripple effect
-                            interactionSource?.let { source ->
-                                val press = PressInteraction.Press(offset)
-                                coroutineScope.launch {
-                                    source.emit(press)
-                                    tryAwaitRelease()
-                                    source.emit(PressInteraction.Release(press))
-                                }
-                            }
+        val textMeasurables =
+            subcompose("text") {
+                BasicText(
+                    text = text,
+                    style = style,
+                    inlineContent = inlineContent,
+                    modifier =
+                        Modifier.pointerInput(text, interactionSource) {
+                            detectTapGestures(
+                                onPress = { offset ->
+                                    // Emit press interaction for ripple effect
+                                    interactionSource?.let { source ->
+                                        val press = PressInteraction.Press(offset)
+                                        coroutineScope.launch {
+                                            source.emit(press)
+                                            tryAwaitRelease()
+                                            source.emit(PressInteraction.Release(press))
+                                        }
+                                    }
+                                },
+                                onTap = { offset ->
+                                    textLayoutResultRef.value?.let { layoutResult ->
+                                        val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                        val lineLeft = layoutResult.getLineLeft(line)
+                                        val lineRight = layoutResult.getLineRight(line)
+                                        if (offset.x in lineLeft..lineRight) {
+                                            val position = layoutResult.getOffsetForPosition(offset)
+                                            onTextClick?.invoke(position)
+                                        }
+                                    }
+                                },
+                                onLongPress = { offset ->
+                                    val layoutResult = textLayoutResultRef.value
+                                    if (layoutResult != null) {
+                                        val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                        val lineLeft = layoutResult.getLineLeft(line)
+                                        val lineRight = layoutResult.getLineRight(line)
+                                        if (offset.x in lineLeft..lineRight) {
+                                            onTextLongClick?.invoke(layoutResult.getOffsetForPosition(offset))
+                                        } else {
+                                            onTextLongClick?.invoke(-1)
+                                        }
+                                    } else {
+                                        onTextLongClick?.invoke(-1)
+                                    }
+                                },
+                            )
                         },
-                        onTap = { offset ->
-                            textLayoutResultRef.value?.let { layoutResult ->
-                                val line = layoutResult.getLineForVerticalPosition(offset.y)
-                                val lineLeft = layoutResult.getLineLeft(line)
-                                val lineRight = layoutResult.getLineRight(line)
-                                if (offset.x in lineLeft..lineRight) {
-                                    val position = layoutResult.getOffsetForPosition(offset)
-                                    onTextClick?.invoke(position)
-                                }
-                            }
-                        },
-                        onLongPress = { offset ->
-                            val layoutResult = textLayoutResultRef.value
-                            if (layoutResult != null) {
-                                val line = layoutResult.getLineForVerticalPosition(offset.y)
-                                val lineLeft = layoutResult.getLineLeft(line)
-                                val lineRight = layoutResult.getLineRight(line)
-                                if (offset.x in lineLeft..lineRight) {
-                                    onTextLongClick?.invoke(layoutResult.getOffsetForPosition(offset))
-                                } else {
-                                    onTextLongClick?.invoke(-1)
-                                }
-                            } else {
-                                onTextLongClick?.invoke(-1)
-                            }
-                        },
-                    )
-                },
-                onTextLayout = { layoutResult ->
-                    textLayoutResultRef.value = layoutResult
-                },
-            )
-        }
+                    onTextLayout = { layoutResult ->
+                        textLayoutResultRef.value = layoutResult
+                    },
+                )
+            }
 
         if (textMeasurables.isEmpty()) {
             return@SubcomposeLayout layout(0, 0) {}
@@ -180,7 +190,11 @@ fun TextWithMeasuredInlineContent(
  * Use this when you already have the dimensions or don't need click handling.
  */
 @Composable
-fun MeasuredInlineText(text: AnnotatedString, inlineContent: Map<String, InlineTextContent>, modifier: Modifier = Modifier) {
+fun MeasuredInlineText(
+    text: AnnotatedString,
+    inlineContent: Map<String, InlineTextContent>,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier = modifier) {
         BasicText(
             text = text,

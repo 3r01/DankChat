@@ -45,59 +45,61 @@ fun MessageTextWithInlineContent(
     val density = LocalDensity.current
 
     val badgeSize = EmoteScaling.getBadgeSize(fontSize)
-    val inlineContentProviders: Map<String, @Composable () -> Unit> = remember(badges, emotes, fontSize) {
-        buildMap<String, @Composable () -> Unit> {
-            badges.forEach { badge ->
-                put("BADGE_${badge.position}") {
-                    BadgeInlineContent(badge = badge, size = badgeSize)
-                }
-            }
-
-            emotes.forEach { emote ->
-                put("EMOTE_${emote.code}") {
-                    StackedEmote(
-                        emote = emote,
-                        fontSize = fontSize,
-                        emoteCoordinator = emoteCoordinator,
-                        animateGifs = animateGifs,
-                        modifier = Modifier,
-                        onClick = { onEmoteClick(emote.emotes) },
-                    )
-                }
-            }
-        }
-    }
-
-    val knownDimensions = remember(badges, emotes, fontSize, emoteCoordinator) {
-        buildMap {
-            val badgeSizePx = with(density) { badgeSize.toPx().toInt() }
-            badges.forEach { badge ->
-                put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
-            }
-
-            val baseHeight = EmoteScaling.getBaseHeight(fontSize)
-            val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
-            emotes.forEach { emote ->
-                val id = "EMOTE_${emote.code}"
-                when {
-                    emote.urls.size == 1 -> {
-                        val dims = emoteCoordinator.dimensionCache.get(emote.urls.first())
-                        if (dims != null) {
-                            put(id, EmoteDimensions(id, dims.first, dims.second))
-                        }
+    val inlineContentProviders: Map<String, @Composable () -> Unit> =
+        remember(badges, emotes, fontSize) {
+            buildMap<String, @Composable () -> Unit> {
+                badges.forEach { badge ->
+                    put("BADGE_${badge.position}") {
+                        BadgeInlineContent(badge = badge, size = badgeSize)
                     }
+                }
 
-                    else -> {
-                        val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
-                        val dims = emoteCoordinator.dimensionCache.get(cacheKey)
-                        if (dims != null) {
-                            put(id, EmoteDimensions(id, dims.first, dims.second))
-                        }
+                emotes.forEach { emote ->
+                    put("EMOTE_${emote.code}") {
+                        StackedEmote(
+                            emote = emote,
+                            fontSize = fontSize,
+                            emoteCoordinator = emoteCoordinator,
+                            animateGifs = animateGifs,
+                            modifier = Modifier,
+                            onClick = { onEmoteClick(emote.emotes) },
+                        )
                     }
                 }
             }
         }
-    }
+
+    val knownDimensions =
+        remember(badges, emotes, fontSize, emoteCoordinator) {
+            buildMap {
+                val badgeSizePx = with(density) { badgeSize.toPx().toInt() }
+                badges.forEach { badge ->
+                    put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
+                }
+
+                val baseHeight = EmoteScaling.getBaseHeight(fontSize)
+                val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
+                emotes.forEach { emote ->
+                    val id = "EMOTE_${emote.code}"
+                    when {
+                        emote.urls.size == 1 -> {
+                            val dims = emoteCoordinator.dimensionCache.get(emote.urls.first())
+                            if (dims != null) {
+                                put(id, EmoteDimensions(id, dims.first, dims.second))
+                            }
+                        }
+
+                        else -> {
+                            val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
+                            val dims = emoteCoordinator.dimensionCache.get(cacheKey)
+                            if (dims != null) {
+                                put(id, EmoteDimensions(id, dims.first, dims.second))
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     TextWithMeasuredInlineContent(
         text = annotatedString,
@@ -111,9 +113,13 @@ fun MessageTextWithInlineContent(
     )
 }
 
-fun launchCustomTab(context: Context, url: String) {
+fun launchCustomTab(
+    context: Context,
+    url: String,
+) {
     try {
-        CustomTabsIntent.Builder()
+        CustomTabsIntent
+            .Builder()
             .setShowTitle(true)
             .build()
             .launchUrl(context, url.toUri())
@@ -122,7 +128,10 @@ fun launchCustomTab(context: Context, url: String) {
     }
 }
 
-fun timestampSpanStyle(fontSize: Float, color: Color) = SpanStyle(
+fun timestampSpanStyle(
+    fontSize: Float,
+    color: Color,
+) = SpanStyle(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.Bold,
     fontSize = (fontSize * 0.95f).sp,

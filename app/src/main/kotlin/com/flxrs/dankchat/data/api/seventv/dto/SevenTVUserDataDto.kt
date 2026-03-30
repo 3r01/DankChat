@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVUserDataDto(val id: String, val connections: List<SevenTVUserConnection>)
+data class SevenTVUserDataDto(
+    val id: String,
+    val connections: List<SevenTVUserConnection>,
+)

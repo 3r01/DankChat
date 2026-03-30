@@ -96,25 +96,28 @@ fun UserPopupDialog(
             when {
                 isBlockConfirmation -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 16.dp),
                     ) {
                         Text(
                             text = stringResource(R.string.confirm_user_block_message),
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp, vertical = 16.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 16.dp),
                         )
 
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 24.dp),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 24.dp),
                         ) {
                             OutlinedButton(onClick = { showBlockConfirmation = false }, modifier = Modifier.weight(1f)) {
                                 Text(stringResource(R.string.dialog_cancel))
@@ -132,9 +135,10 @@ fun UserPopupDialog(
 
                 else -> {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         when (state) {
@@ -162,20 +166,22 @@ fun UserPopupDialog(
                                 ListItem(
                                     headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
                                     leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
-                                    modifier = Modifier.clickable {
-                                        onMention(userName.value, displayName.value)
-                                        onDismiss()
-                                    },
+                                    modifier =
+                                        Modifier.clickable {
+                                            onMention(userName.value, displayName.value)
+                                            onDismiss()
+                                        },
                                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                 )
                                 if (!isOwnUser) {
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
                                         leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
-                                        modifier = Modifier.clickable {
-                                            onWhisper(userName.value)
-                                            onDismiss()
-                                        },
+                                        modifier =
+                                            Modifier.clickable {
+                                                onWhisper(userName.value)
+                                                onDismiss()
+                                            },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
@@ -183,10 +189,11 @@ fun UserPopupDialog(
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.message_history)) },
                                         leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                                        modifier = Modifier.clickable {
-                                            onMessageHistory(userName.value)
-                                            onDismiss()
-                                        },
+                                        modifier =
+                                            Modifier.clickable {
+                                                onMessageHistory(userName.value)
+                                                onDismiss()
+                                            },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
@@ -194,13 +201,14 @@ fun UserPopupDialog(
                                     ListItem(
                                         headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
                                         leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
-                                        modifier = Modifier.clickable {
-                                            if (isBlocked) {
-                                                onUnblockUser()
-                                            } else {
-                                                showBlockConfirmation = true
-                                            }
-                                        },
+                                        modifier =
+                                            Modifier.clickable {
+                                                if (isBlocked) {
+                                                    onUnblockUser()
+                                                } else {
+                                                    showBlockConfirmation = true
+                                                }
+                                            },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
@@ -208,10 +216,11 @@ fun UserPopupDialog(
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.user_popup_report)) },
                                         leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
-                                        modifier = Modifier.clickable {
-                                            onReport(userName.value)
-                                            onDismiss()
-                                        },
+                                        modifier =
+                                            Modifier.clickable {
+                                                onReport(userName.value)
+                                                onDismiss()
+                                            },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
@@ -226,11 +235,18 @@ fun UserPopupDialog(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun UserInfoSection(state: UserPopupState, userName: UserName, displayName: DisplayName, badges: List<BadgeUi>, onOpenChannel: (String) -> Unit) {
+private fun UserInfoSection(
+    state: UserPopupState,
+    userName: UserName,
+    displayName: DisplayName,
+    badges: List<BadgeUi>,
+    onOpenChannel: (String) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
         verticalAlignment = Alignment.Top,
     ) {
         when (state) {
@@ -238,10 +254,11 @@ private fun UserInfoSection(state: UserPopupState, userName: UserName, displayNa
                 AsyncImage(
                     model = state.avatarUrl,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .clickable { onOpenChannel(state.userName.value) },
+                    modifier =
+                        Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .clickable { onOpenChannel(state.userName.value) },
                 )
             }
 
@@ -274,9 +291,10 @@ private fun UserInfoSection(state: UserPopupState, userName: UserName, displayNa
                     )
                     if (state.showFollowingSince) {
                         Text(
-                            text = state.followingSince?.let {
-                                stringResource(R.string.user_popup_following_since, it)
-                            } ?: stringResource(R.string.user_popup_not_following),
+                            text =
+                                state.followingSince?.let {
+                                    stringResource(R.string.user_popup_following_since, it)
+                                } ?: stringResource(R.string.user_popup_not_following),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                         )
@@ -320,15 +338,17 @@ private fun UserInfoSection(state: UserPopupState, userName: UserName, displayNa
 }
 
 private val UserPopupState.userName: UserName
-    get() = when (this) {
-        is UserPopupState.Loading -> userName
-        is UserPopupState.Success -> userName
-        is UserPopupState.Error -> UserName("")
-    }
+    get() =
+        when (this) {
+            is UserPopupState.Loading -> userName
+            is UserPopupState.Success -> userName
+            is UserPopupState.Error -> UserName("")
+        }
 
 private val UserPopupState.displayName: DisplayName
-    get() = when (this) {
-        is UserPopupState.Loading -> displayName
-        is UserPopupState.Success -> displayName
-        is UserPopupState.Error -> DisplayName("")
-    }
+    get() =
+        when (this) {
+            is UserPopupState.Loading -> displayName
+            is UserPopupState.Success -> displayName
+            is UserPopupState.Error -> DisplayName("")
+        }

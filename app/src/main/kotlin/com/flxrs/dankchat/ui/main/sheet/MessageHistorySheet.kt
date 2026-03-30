@@ -93,11 +93,12 @@ fun MessageHistorySheet(
     val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = emptyList())
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
 
-    val sheetBackgroundColor = lerp(
-        MaterialTheme.colorScheme.surfaceContainer,
-        MaterialTheme.colorScheme.surfaceContainerHigh,
-        fraction = 0.75f,
-    )
+    val sheetBackgroundColor =
+        lerp(
+            MaterialTheme.colorScheme.surfaceContainer,
+            MaterialTheme.colorScheme.surfaceContainerHigh,
+            fraction = 0.75f,
+        )
     var backProgress by remember { mutableFloatStateOf(0f) }
 
     val density = LocalDensity.current
@@ -125,40 +126,43 @@ fun MessageHistorySheet(
     }
 
     var toolbarVisible by remember { mutableStateOf(true) }
-    val scrollTracker = remember {
-        ScrollDirectionTracker(
-            hideThresholdPx = with(density) { 100.dp.toPx() },
-            showThresholdPx = with(density) { 36.dp.toPx() },
-            onHide = { toolbarVisible = false },
-            onShow = { toolbarVisible = true },
-        )
-    }
+    val scrollTracker =
+        remember {
+            ScrollDirectionTracker(
+                hideThresholdPx = with(density) { 100.dp.toPx() },
+                showThresholdPx = with(density) { 36.dp.toPx() },
+                onHide = { toolbarVisible = false },
+                onShow = { toolbarVisible = true },
+            )
+        }
     val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
     val context = LocalPlatformContext.current
     val emoteCoordinator = rememberEmoteAnimationCoordinator(context.imageLoader)
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(sheetBackgroundColor)
-            .graphicsLayer {
-                val scale = 1f - (backProgress * 0.1f)
-                scaleX = scale
-                scaleY = scale
-                alpha = 1f - backProgress
-                translationY = backProgress * 100f
-            },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(sheetBackgroundColor)
+                .graphicsLayer {
+                    val scale = 1f - (backProgress * 0.1f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - backProgress
+                    translationY = backProgress * 100f
+                },
     ) {
         CompositionLocalProvider(LocalEmoteAnimationCoordinator provides emoteCoordinator) {
             ChatScreen(
                 messages = messages,
                 fontSize = displaySettings.fontSize,
-                callbacks = ChatScreenCallbacks(
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                ),
+                callbacks =
+                    ChatScreenCallbacks(
+                        onUserClick = onUserClick,
+                        onMessageLongClick = onMessageLongClick,
+                        onEmoteClick = onEmoteClick,
+                    ),
                 showLineSeparator = displaySettings.showLineSeparator,
                 animateGifs = displaySettings.animateGifs,
                 modifier = Modifier.fillMaxSize(),
@@ -176,18 +180,19 @@ fun MessageHistorySheet(
             modifier = Modifier.align(Alignment.TopCenter),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            1f to sheetBackgroundColor.copy(alpha = 0f),
-                        ),
-                    )
-                    .padding(top = statusBarHeight + 8.dp)
-                    .padding(bottom = 16.dp)
-                    .padding(horizontal = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush =
+                                Brush.verticalGradient(
+                                    0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                    0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                    1f to sheetBackgroundColor.copy(alpha = 0f),
+                                ),
+                        ).padding(top = statusBarHeight + 8.dp)
+                        .padding(bottom = 16.dp)
+                        .padding(horizontal = 8.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -212,9 +217,10 @@ fun MessageHistorySheet(
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .defaultMinSize(minHeight = 48.dp)
-                                .padding(horizontal = 16.dp),
+                            modifier =
+                                Modifier
+                                    .defaultMinSize(minHeight = 48.dp)
+                                    .padding(horizontal = 16.dp),
                         ) {
                             Text(
                                 text = stringResource(R.string.message_history_title, channel.value),
@@ -230,35 +236,37 @@ fun MessageHistorySheet(
         // Filter suggestions above search bar
         if (!toolbarVisible) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .height(statusBarHeight)
-                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .height(statusBarHeight)
+                        .background(sheetBackgroundColor.copy(alpha = 0.7f)),
             )
         }
 
         SuggestionDropdown(
             suggestions = filterSuggestions.toImmutableList(),
             onSuggestionClick = { suggestion -> viewModel.applySuggestion(suggestion) },
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(bottom = searchBarHeightDp + navBarHeightDp + currentImeDp + 8.dp)
-                .padding(horizontal = 8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = searchBarHeightDp + navBarHeightDp + currentImeDp + 8.dp)
+                    .padding(horizontal = 8.dp),
         )
 
         // Floating search bar pill
         Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(bottom = currentImeDp)
-                .navigationBarsPadding()
-                .onGloballyPositioned { coordinates ->
-                    searchBarHeightPx = coordinates.size.height
-                }
-                .padding(bottom = 8.dp)
-                .padding(horizontal = 8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(bottom = currentImeDp)
+                    .navigationBarsPadding()
+                    .onGloballyPositioned { coordinates ->
+                        searchBarHeightPx = coordinates.size.height
+                    }.padding(bottom = 8.dp)
+                    .padding(horizontal = 8.dp),
         ) {
             SearchToolbar(
                 state = viewModel.searchFieldState,
@@ -271,12 +279,13 @@ fun MessageHistorySheet(
 private fun SearchToolbar(state: TextFieldState) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val textFieldColors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-    )
+    val textFieldColors =
+        TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        )
 
     TextField(
         state = state,

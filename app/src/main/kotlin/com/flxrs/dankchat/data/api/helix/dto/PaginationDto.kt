@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class PaginationDto(val cursor: String?)
+data class PaginationDto(
+    val cursor: String?,
+)

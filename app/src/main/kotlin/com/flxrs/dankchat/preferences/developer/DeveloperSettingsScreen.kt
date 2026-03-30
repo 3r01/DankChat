@@ -97,11 +97,12 @@ fun DeveloperSettingsScreen(onBack: () -> Unit) {
         viewModel.events.collectLatest {
             when (it) {
                 DeveloperSettingsEvent.RestartRequired -> {
-                    val result = snackbarHostState.showSnackbar(
-                        message = restartRequiredTitle,
-                        actionLabel = restartRequiredAction,
-                        duration = SnackbarDuration.Long,
-                    )
+                    val result =
+                        snackbarHostState.showSnackbar(
+                            message = restartRequiredTitle,
+                            actionLabel = restartRequiredAction,
+                            duration = SnackbarDuration.Long,
+                        )
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)
                     }
@@ -124,7 +125,12 @@ fun DeveloperSettingsScreen(onBack: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DeveloperSettingsContent(settings: DeveloperSettings, snackbarHostState: SnackbarHostState, onInteraction: (DeveloperSettingsInteraction) -> Unit, onBack: () -> Unit) {
+private fun DeveloperSettingsContent(
+    settings: DeveloperSettings,
+    snackbarHostState: SnackbarHostState,
+    onInteraction: (DeveloperSettingsInteraction) -> Unit,
+    onBack: () -> Unit,
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -144,10 +150,11 @@ private fun DeveloperSettingsContent(settings: DeveloperSettings, snackbarHostSt
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             PreferenceCategory(title = stringResource(R.string.preference_developer_category_general)) {
                 SwitchPreferenceItem(
@@ -185,10 +192,11 @@ private fun DeveloperSettingsContent(settings: DeveloperSettings, snackbarHostSt
                     summary = stringResource(R.string.preference_helix_sending_summary),
                     isChecked = settings.chatSendProtocol == ChatSendProtocol.Helix,
                     onClick = { enabled ->
-                        val protocol = when {
-                            enabled -> ChatSendProtocol.Helix
-                            else -> ChatSendProtocol.IRC
-                        }
+                        val protocol =
+                            when {
+                                enabled -> ChatSendProtocol.Helix
+                                else -> ChatSendProtocol.IRC
+                            }
                         onInteraction(DeveloperSettingsInteraction.ChatSendProtocolChanged(protocol))
                     },
                 )
@@ -246,7 +254,10 @@ private fun DeveloperSettingsContent(settings: DeveloperSettings, snackbarHostSt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomRecentMessagesHostBottomSheet(initialHost: String, onInteraction: (DeveloperSettingsInteraction) -> Unit) {
+private fun CustomRecentMessagesHostBottomSheet(
+    initialHost: String,
+    onInteraction: (DeveloperSettingsInteraction) -> Unit,
+) {
     var host by remember(initialHost) { mutableStateOf(initialHost) }
     ModalBottomSheet(
         onDismissRequest = { onInteraction(DeveloperSettingsInteraction.CustomRecentMessagesHost(host)) },
@@ -256,30 +267,34 @@ private fun CustomRecentMessagesHostBottomSheet(initialHost: String, onInteracti
             text = stringResource(R.string.preference_rm_host_title),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
         )
         TextButton(
             onClick = { host = DeveloperSettings.RM_HOST_DEFAULT },
             content = { Text(stringResource(R.string.reset)) },
-            modifier = Modifier
-                .align(Alignment.End)
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.End)
+                    .padding(horizontal = 16.dp),
         )
         OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
             value = host,
             onValueChange = { host = it },
             label = { Text(stringResource(R.string.host)) },
             maxLines = 1,
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                autoCorrectEnabled = false,
-                keyboardType = KeyboardType.Uri,
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    autoCorrectEnabled = false,
+                    keyboardType = KeyboardType.Uri,
+                ),
         )
         Spacer(Modifier.height(64.dp))
     }
@@ -287,20 +302,24 @@ private fun CustomRecentMessagesHostBottomSheet(initialHost: String, onInteracti
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestart: () -> Unit) {
+private fun CustomLoginBottomSheet(
+    onDismissRequest: () -> Unit,
+    onRequestRestart: () -> Unit,
+) {
     val scope = rememberCoroutineScope()
     val customLoginViewModel = koinInject<CustomLoginViewModel>()
     val state = customLoginViewModel.customLoginState.collectAsStateWithLifecycle().value
     val token = rememberTextFieldState(customLoginViewModel.getToken())
     var showScopesDialog by remember { mutableStateOf(false) }
 
-    val error = when (state) {
-        is CustomLoginState.Failure -> stringResource(R.string.custom_login_error_fallback, state.error.truncate())
-        CustomLoginState.TokenEmpty -> stringResource(R.string.custom_login_error_empty_token)
-        CustomLoginState.TokenInvalid -> stringResource(R.string.custom_login_error_invalid_token)
-        is CustomLoginState.MissingScopes -> stringResource(R.string.custom_login_error_missing_scopes, state.missingScopes.truncate())
-        else -> null
-    }
+    val error =
+        when (state) {
+            is CustomLoginState.Failure -> stringResource(R.string.custom_login_error_fallback, state.error.truncate())
+            CustomLoginState.TokenEmpty -> stringResource(R.string.custom_login_error_empty_token)
+            CustomLoginState.TokenInvalid -> stringResource(R.string.custom_login_error_invalid_token)
+            is CustomLoginState.MissingScopes -> stringResource(R.string.custom_login_error_missing_scopes, state.missingScopes.truncate())
+            else -> null
+        }
 
     LaunchedEffect(state) {
         if (state is CustomLoginState.Validated) {
@@ -317,23 +336,26 @@ private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestar
                 text = stringResource(R.string.preference_custom_login_title),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
             )
             Text(
                 text = stringResource(R.string.custom_login_hint),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
             )
             Row(
                 horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.End),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.End),
             ) {
                 TextButton(
                     onClick = { showScopesDialog = true },
@@ -347,14 +369,16 @@ private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestar
 
             var showPassword by remember { mutableStateOf(false) }
             androidx.compose.material3.OutlinedSecureTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
                 state = token,
-                textObfuscationMode = when {
-                    showPassword -> TextObfuscationMode.Visible
-                    else -> TextObfuscationMode.Hidden
-                },
+                textObfuscationMode =
+                    when {
+                        showPassword -> TextObfuscationMode.Visible
+                        else -> TextObfuscationMode.Hidden
+                    },
                 label = { Text(stringResource(R.string.oauth_token)) },
                 isError = error != null,
                 supportingText = { error?.let { Text(it) } },
@@ -369,11 +393,12 @@ private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestar
                         },
                     )
                 },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    autoCorrectEnabled = false,
-                    keyboardType = KeyboardType.Password,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        imeAction = ImeAction.Done,
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.Password,
+                    ),
             )
 
             AnimatedVisibility(visible = state !is CustomLoginState.Loading, modifier = Modifier.fillMaxWidth()) {
@@ -419,7 +444,10 @@ private fun CustomLoginBottomSheet(onDismissRequest: () -> Unit, onRequestRestar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) {
+private fun ShowScopesBottomSheet(
+    scopes: String,
+    onDismissRequest: () -> Unit,
+) {
     val clipboard = LocalClipboard.current
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
@@ -432,9 +460,10 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) 
                 text = stringResource(R.string.custom_login_required_scopes),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
             )
             OutlinedTextField(
                 value = scopes,
@@ -457,7 +486,11 @@ private fun ShowScopesBottomSheet(scopes: String, onDismissRequest: () -> Unit) 
 }
 
 @Composable
-private fun MissingScopesDialog(missing: String, onDismissRequest: () -> Unit, onContinue: () -> Unit) {
+private fun MissingScopesDialog(
+    missing: String,
+    onDismissRequest: () -> Unit,
+    onContinue: () -> Unit,
+) {
     ConfirmationBottomSheet(
         title = stringResource(R.string.custom_login_missing_scopes_title),
         message = stringResource(R.string.custom_login_missing_scopes_text, missing),

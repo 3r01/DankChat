@@ -18,7 +18,10 @@ data class ChannelEmoteState(
     val cheermoteSets: List<CheermoteSet> = emptyList(),
 )
 
-fun mergeEmotes(global: GlobalEmoteState, channel: ChannelEmoteState): Emotes {
+fun mergeEmotes(
+    global: GlobalEmoteState,
+    channel: ChannelEmoteState,
+): Emotes {
     // Deduplicate twitch emotes by ID — channel (follower) emotes take precedence
     val channelEmoteIds = channel.twitchEmotes.mapTo(mutableSetOf()) { it.id }
     val deduplicatedGlobalTwitchEmotes = global.twitchEmotes.filterNot { it.id in channelEmoteIds }

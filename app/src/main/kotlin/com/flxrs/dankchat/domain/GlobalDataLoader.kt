@@ -19,26 +19,28 @@ class GlobalDataLoader(
     private val ignoresRepository: IgnoresRepository,
     private val dispatchersProvider: DispatchersProvider,
 ) {
-    suspend fun loadGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
-        val results =
-            awaitAll(
-                async { loadDankChatBadges() },
-                async { loadGlobalBTTVEmotes() },
-                async { loadGlobalFFZEmotes() },
-                async { loadGlobalSevenTVEmotes() },
-            )
-        launch { loadSupibotCommands() }
-        results
-    }
+    suspend fun loadGlobalData(): List<Result<Unit>> =
+        withContext(dispatchersProvider.io) {
+            val results =
+                awaitAll(
+                    async { loadDankChatBadges() },
+                    async { loadGlobalBTTVEmotes() },
+                    async { loadGlobalFFZEmotes() },
+                    async { loadGlobalSevenTVEmotes() },
+                )
+            launch { loadSupibotCommands() }
+            results
+        }
 
-    suspend fun loadAuthGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
-        val results =
-            awaitAll(
-                async { loadGlobalBadges() },
-            )
-        launch { loadUserBlocks() }
-        results
-    }
+    suspend fun loadAuthGlobalData(): List<Result<Unit>> =
+        withContext(dispatchersProvider.io) {
+            val results =
+                awaitAll(
+                    async { loadGlobalBadges() },
+                )
+            launch { loadUserBlocks() }
+            results
+        }
 
     suspend fun loadDankChatBadges(): Result<Unit> = dataRepository.loadDankChatBadges()
 
@@ -54,5 +56,8 @@ class GlobalDataLoader(
 
     suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
-    suspend fun loadUserEmotes(userId: UserId, onFirstPageLoaded: (() -> Unit)? = null): Result<Unit> = dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
+    suspend fun loadUserEmotes(
+        userId: UserId,
+        onFirstPageLoaded: (() -> Unit)? = null,
+    ): Result<Unit> = dataRepository.loadUserEmotes(userId, onFirstPageLoaded)
 }

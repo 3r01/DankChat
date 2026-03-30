@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class PubSubDataMessage<T>(val type: String, val data: T)
+data class PubSubDataMessage<T>(
+    val type: String,
+    val data: T,
+)

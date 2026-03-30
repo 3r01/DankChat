@@ -5,16 +5,20 @@ import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 
 @Immutable
 sealed class EmoteItem {
-    data class Emote(val emote: GenericEmote) :
-        EmoteItem(),
+    data class Emote(
+        val emote: GenericEmote,
+    ) : EmoteItem(),
         Comparable<Emote> {
-        override fun compareTo(other: Emote): Int = when (val byType = emote.emoteType.compareTo(other.emote.emoteType)) {
-            0 -> other.emote.code.compareTo(other.emote.code)
-            else -> byType
-        }
+        override fun compareTo(other: Emote): Int =
+            when (val byType = emote.emoteType.compareTo(other.emote.emoteType)) {
+                0 -> other.emote.code.compareTo(other.emote.code)
+                else -> byType
+            }
     }
 
-    data class Header(val title: String) : EmoteItem()
+    data class Header(
+        val title: String,
+    ) : EmoteItem()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

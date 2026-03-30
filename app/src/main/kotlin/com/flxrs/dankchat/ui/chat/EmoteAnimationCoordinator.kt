@@ -31,7 +31,10 @@ import com.flxrs.dankchat.utils.extensions.setRunning
  * - EmoteRepository.layerCache: LruCache<String, LayerDrawable>(256)
  */
 @Stable
-class EmoteAnimationCoordinator(val imageLoader: ImageLoader, private val platformContext: PlatformContext) {
+class EmoteAnimationCoordinator(
+    val imageLoader: ImageLoader,
+    private val platformContext: PlatformContext,
+) {
     // LruCache for single emote drawables (like badgeCache in EmoteRepository)
     private val emoteCache = LruCache<String, Drawable>(256)
 
@@ -47,7 +50,10 @@ class EmoteAnimationCoordinator(val imageLoader: ImageLoader, private val platfo
      * Returns cached drawable if available, otherwise loads and caches it.
      * Sharing the same Drawable instance keeps animations synchronized.
      */
-    suspend fun getOrLoadEmote(url: String, animateGifs: Boolean): Drawable? {
+    suspend fun getOrLoadEmote(
+        url: String,
+        animateGifs: Boolean,
+    ): Drawable? {
         // Fast path: already cached
         emoteCache.get(url)?.let { cached ->
             // Control animation based on setting
@@ -96,7 +102,10 @@ class EmoteAnimationCoordinator(val imageLoader: ImageLoader, private val platfo
     /**
      * Put a drawable in the cache (used by AsyncImage onSuccess callback).
      */
-    fun putInCache(url: String, drawable: Drawable) {
+    fun putInCache(
+        url: String,
+        drawable: Drawable,
+    ) {
         emoteCache.put(url, drawable)
     }
 
@@ -108,7 +117,10 @@ class EmoteAnimationCoordinator(val imageLoader: ImageLoader, private val platfo
     /**
      * Put a LayerDrawable in the cache for stacked emotes.
      */
-    fun putLayerInCache(cacheKey: String, layerDrawable: LayerDrawable) {
+    fun putLayerInCache(
+        cacheKey: String,
+        layerDrawable: LayerDrawable,
+    ) {
         layerCache.put(cacheKey, layerDrawable)
     }
 

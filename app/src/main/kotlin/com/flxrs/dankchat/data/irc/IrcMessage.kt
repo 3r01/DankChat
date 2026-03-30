@@ -2,7 +2,13 @@ package com.flxrs.dankchat.data.irc
 
 import java.text.ParseException
 
-data class IrcMessage(val raw: String, val prefix: String, val command: String, val params: List<String> = listOf(), val tags: Map<String, String> = mapOf()) {
+data class IrcMessage(
+    val raw: String,
+    val prefix: String,
+    val command: String,
+    val params: List<String> = listOf(),
+    val tags: Map<String, String> = mapOf(),
+) {
     fun isLoginFailed(): Boolean = command == "NOTICE" && params.getOrNull(0) == "*" && params.getOrNull(1) == "Login authentication failed"
 
     companion object {

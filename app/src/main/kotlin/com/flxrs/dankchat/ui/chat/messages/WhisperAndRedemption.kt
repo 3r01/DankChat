@@ -66,13 +66,14 @@ fun WhisperMessageComposable(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(message.textAlpha)
-            .background(backgroundColor)
-            .indication(interactionSource, ripple())
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(message.textAlpha)
+                .background(backgroundColor)
+                .indication(interactionSource, ripple())
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         Box(modifier = Modifier.weight(1f)) {
             WhisperMessageText(
@@ -118,85 +119,86 @@ private fun WhisperMessageText(
     val linkColor = MaterialTheme.colorScheme.primary
 
     // Build annotated string with text content
-    val annotatedString = remember(message, defaultTextColor, senderColor, recipientColor, linkColor) {
-        buildAnnotatedString {
-            // Timestamp
-            if (message.timestamp.isNotEmpty()) {
-                withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
-                    append(message.timestamp)
-                    append(" ")
+    val annotatedString =
+        remember(message, defaultTextColor, senderColor, recipientColor, linkColor) {
+            buildAnnotatedString {
+                // Timestamp
+                if (message.timestamp.isNotEmpty()) {
+                    withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
+                        append(message.timestamp)
+                        append(" ")
+                    }
                 }
-            }
 
-            // Badges (using appendInlineContent for proper rendering)
-            message.badges.forEach { badge ->
-                appendInlineContent("BADGE_${badge.position}", "[badge]")
-                append(" ") // Space between badges
-            }
+                // Badges (using appendInlineContent for proper rendering)
+                message.badges.forEach { badge ->
+                    appendInlineContent("BADGE_${badge.position}", "[badge]")
+                    append(" ") // Space between badges
+                }
 
-            // Sender username with click annotation
-            withStyle(
-                SpanStyle(
-                    fontWeight = FontWeight.Bold,
-                    color = senderColor,
-                ),
-            ) {
-                pushStringAnnotation(
-                    tag = "USER",
-                    annotation = "${message.userId.value}|${message.userName.value}|${message.displayName.value}",
-                )
-                append(message.senderName)
-                pop()
-            }
-            withStyle(SpanStyle(color = defaultTextColor)) {
-                append(" -> ")
-            }
+                // Sender username with click annotation
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = senderColor,
+                    ),
+                ) {
+                    pushStringAnnotation(
+                        tag = "USER",
+                        annotation = "${message.userId.value}|${message.userName.value}|${message.displayName.value}",
+                    )
+                    append(message.senderName)
+                    pop()
+                }
+                withStyle(SpanStyle(color = defaultTextColor)) {
+                    append(" -> ")
+                }
 
-            // Recipient
-            withStyle(
-                SpanStyle(
-                    fontWeight = FontWeight.Bold,
-                    color = recipientColor,
-                ),
-            ) {
-                append(message.recipientName)
-            }
-            withStyle(SpanStyle(color = defaultTextColor)) {
-                append(": ")
-            }
+                // Recipient
+                withStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        color = recipientColor,
+                    ),
+                ) {
+                    append(message.recipientName)
+                }
+                withStyle(SpanStyle(color = defaultTextColor)) {
+                    append(": ")
+                }
 
-            // Message text with emotes
-            withStyle(SpanStyle(color = defaultTextColor)) {
-                var currentPos = 0
-                message.emotes.sortedBy { it.position.first }.forEach { emote ->
-                    // Text before emote
-                    if (currentPos < emote.position.first) {
-                        val segment = message.message.substring(currentPos, emote.position.first)
+                // Message text with emotes
+                withStyle(SpanStyle(color = defaultTextColor)) {
+                    var currentPos = 0
+                    message.emotes.sortedBy { it.position.first }.forEach { emote ->
+                        // Text before emote
+                        if (currentPos < emote.position.first) {
+                            val segment = message.message.substring(currentPos, emote.position.first)
+                            val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
+                            appendWithLinks(segment, linkColor, prevChar)
+                        }
+
+                        // Emote inline content
+                        appendInlineContent("EMOTE_${emote.code}", emote.code)
+
+                        // Add space after emote if next character exists and is not whitespace
+                        val nextPos = emote.position.last + 1
+                        if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {
+                            append(" ")
+                        }
+
+                        currentPos = emote.position.last + 1
+                    }
+
+                    // Remaining text
+                    if (currentPos < message.message.length) {
+                        val segment = message.message.substring(currentPos)
                         val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
                         appendWithLinks(segment, linkColor, prevChar)
                     }
-
-                    // Emote inline content
-                    appendInlineContent("EMOTE_${emote.code}", emote.code)
-
-                    // Add space after emote if next character exists and is not whitespace
-                    val nextPos = emote.position.last + 1
-                    if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {
-                        append(" ")
-                    }
-
-                    currentPos = emote.position.last + 1
-                }
-
-                // Remaining text
-                if (currentPos < message.message.length) {
-                    val segment = message.message.substring(currentPos)
-                    val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
-                    appendWithLinks(segment, linkColor, prevChar)
                 }
             }
         }
-    }
 
     MessageTextWithInlineContent(
         annotatedString = annotatedString,
@@ -206,21 +208,28 @@ private fun WhisperMessageText(
         animateGifs = animateGifs,
         onEmoteClick = onEmoteClick,
         onTextClick = { offset ->
-            annotatedString.getStringAnnotations("USER", offset, offset)
-                .firstOrNull()?.let { annotation ->
+            annotatedString
+                .getStringAnnotations("USER", offset, offset)
+                .firstOrNull()
+                ?.let { annotation ->
                     parseUserAnnotation(annotation.item)?.let { user ->
                         onUserClick(user.userId, user.userName, user.displayName, message.badges, false)
                     }
                 }
 
-            annotatedString.getStringAnnotations("URL", offset, offset)
-                .firstOrNull()?.let { annotation ->
+            annotatedString
+                .getStringAnnotations("URL", offset, offset)
+                .firstOrNull()
+                ?.let { annotation ->
                     launchCustomTab(context, annotation.item)
                 }
         },
         onTextLongClick = { offset ->
-            val user = annotatedString.getStringAnnotations("USER", offset, offset)
-                .firstOrNull()?.let { parseUserAnnotation(it.item) }
+            val user =
+                annotatedString
+                    .getStringAnnotations("USER", offset, offset)
+                    .firstOrNull()
+                    ?.let { parseUserAnnotation(it.item) }
 
             when {
                 user != null -> onUserClick(user.userId, user.userName, user.displayName, message.badges, true)
@@ -234,51 +243,58 @@ private fun WhisperMessageText(
  * Renders a channel point redemption message
  */
 @Composable
-fun PointRedemptionMessageComposable(message: ChatMessageUiState.PointRedemptionMessageUi, fontSize: Float, modifier: Modifier = Modifier, highlightShape: Shape = RectangleShape) {
+fun PointRedemptionMessageComposable(
+    message: ChatMessageUiState.PointRedemptionMessageUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
+) {
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val timestampColor = rememberAdaptiveTextColor(backgroundColor)
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(message.textAlpha)
-            .background(backgroundColor, highlightShape)
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(message.textAlpha)
+                .background(backgroundColor, highlightShape)
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            val annotatedString = remember(message, timestampColor) {
-                buildAnnotatedString {
-                    // Timestamp
-                    if (message.timestamp.isNotEmpty()) {
-                        withStyle(timestampSpanStyle(fontSize, timestampColor)) {
-                            append(message.timestamp)
-                        }
-                        append(" ")
-                    }
-
-                    when {
-                        message.requiresUserInput -> {
-                            append("Redeemed ")
-                        }
-
-                        message.nameText != null -> {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(message.nameText)
+            val annotatedString =
+                remember(message, timestampColor) {
+                    buildAnnotatedString {
+                        // Timestamp
+                        if (message.timestamp.isNotEmpty()) {
+                            withStyle(timestampSpanStyle(fontSize, timestampColor)) {
+                                append(message.timestamp)
                             }
-                            append(" redeemed ")
+                            append(" ")
                         }
-                    }
 
-                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                        append(message.title)
+                        when {
+                            message.requiresUserInput -> {
+                                append("Redeemed ")
+                            }
+
+                            message.nameText != null -> {
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append(message.nameText)
+                                }
+                                append(" redeemed ")
+                            }
+                        }
+
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(message.title)
+                        }
+                        append("  ")
                     }
-                    append("  ")
                 }
-            }
 
             BasicText(
                 text = annotatedString,

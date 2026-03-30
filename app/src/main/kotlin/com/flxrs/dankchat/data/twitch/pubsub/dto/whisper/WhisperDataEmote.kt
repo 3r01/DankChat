@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class WhisperDataEmote(@SerialName("emote_id") val id: String, val start: Int, val end: Int)
+data class WhisperDataEmote(
+    @SerialName("emote_id") val id: String,
+    val start: Int,
+    val end: Int,
+)

@@ -10,9 +10,18 @@ sealed class Message {
     abstract val timestamp: Long
     abstract val highlights: Set<Highlight>
 
-    data class EmoteData(val message: String, val channel: UserName, val emotesWithPositions: List<EmoteWithPositions>)
+    data class EmoteData(
+        val message: String,
+        val channel: UserName,
+        val emotesWithPositions: List<EmoteWithPositions>,
+    )
 
-    data class BadgeData(val userId: UserId?, val channel: UserName?, val badgeTag: String?, val badgeInfoTag: String?)
+    data class BadgeData(
+        val userId: UserId?,
+        val channel: UserName?,
+        val badgeTag: String?,
+        val badgeInfoTag: String?,
+    )
 
     open val emoteData: EmoteData? = null
     open val badgeData: BadgeData? = null
@@ -21,16 +30,23 @@ sealed class Message {
         private const val DEFAULT_COLOR_TAG = "#717171"
         val DEFAULT_COLOR = DEFAULT_COLOR_TAG.toColorInt()
 
-        fun parse(message: IrcMessage, findChannel: (UserId) -> UserName?): Message? = with(message) {
-            return when (command) {
-                "PRIVMSG" -> PrivMessage.parsePrivMessage(message, findChannel)
-                "NOTICE" -> NoticeMessage.parseNotice(message)
-                "USERNOTICE" -> UserNoticeMessage.parseUserNotice(message, findChannel)
-                else -> null
+        fun parse(
+            message: IrcMessage,
+            findChannel: (UserId) -> UserName?,
+        ): Message? =
+            with(message) {
+                return when (command) {
+                    "PRIVMSG" -> PrivMessage.parsePrivMessage(message, findChannel)
+                    "NOTICE" -> NoticeMessage.parseNotice(message)
+                    "USERNOTICE" -> UserNoticeMessage.parseUserNotice(message, findChannel)
+                    else -> null
+                }
             }
-        }
 
-        fun parseEmoteTag(message: String, tag: String): List<EmoteWithPositions> {
+        fun parseEmoteTag(
+            message: String,
+            tag: String,
+        ): List<EmoteWithPositions> {
             return tag.split('/').mapNotNull { emote ->
                 val split = emote.split(':')
                 // bad emote data :)

@@ -10,18 +10,23 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
-class FFZApiClient(private val ffzApi: FFZApi, private val json: Json) {
-    suspend fun getFFZChannelEmotes(channelId: UserId): Result<FFZChannelDto?> = runCatching {
-        ffzApi
-            .getChannelEmotes(channelId)
-            .throwApiErrorOnFailure(json)
-            .body<FFZChannelDto>()
-    }.recoverNotFoundWith(null)
+class FFZApiClient(
+    private val ffzApi: FFZApi,
+    private val json: Json,
+) {
+    suspend fun getFFZChannelEmotes(channelId: UserId): Result<FFZChannelDto?> =
+        runCatching {
+            ffzApi
+                .getChannelEmotes(channelId)
+                .throwApiErrorOnFailure(json)
+                .body<FFZChannelDto>()
+        }.recoverNotFoundWith(null)
 
-    suspend fun getFFZGlobalEmotes(): Result<FFZGlobalDto> = runCatching {
-        ffzApi
-            .getGlobalEmotes()
-            .throwApiErrorOnFailure(json)
-            .body()
-    }
+    suspend fun getFFZGlobalEmotes(): Result<FFZGlobalDto> =
+        runCatching {
+            ffzApi
+                .getGlobalEmotes()
+                .throwApiErrorOnFailure(json)
+                .body()
+        }
 }

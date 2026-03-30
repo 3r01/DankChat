@@ -20,10 +20,19 @@ import androidx.compose.ui.input.pointer.positionChange
  *
  * Returns [Offset.Zero] — scroll is observed, never consumed.
  */
-class ScrollDirectionTracker(private val hideThresholdPx: Float, private val showThresholdPx: Float, private val onHide: () -> Unit, private val onShow: () -> Unit) : NestedScrollConnection {
+class ScrollDirectionTracker(
+    private val hideThresholdPx: Float,
+    private val showThresholdPx: Float,
+    private val onHide: () -> Unit,
+    private val onShow: () -> Unit,
+) : NestedScrollConnection {
     private var accumulated = 0f
 
-    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+    override fun onPostScroll(
+        consumed: Offset,
+        available: Offset,
+        source: NestedScrollSource,
+    ): Offset {
         if (source != NestedScrollSource.UserInput) return Offset.Zero
         val delta = consumed.y
         if (delta == 0f) return Offset.Zero
@@ -53,7 +62,11 @@ class ScrollDirectionTracker(private val hideThresholdPx: Float, private val sho
  * Uses [PointerEventPass.Initial] to observe events before children (text fields,
  * buttons) consume them. Events are never consumed so children still work normally.
  */
-fun Modifier.swipeDownToHide(enabled: Boolean, thresholdPx: Float, onHide: () -> Unit): Modifier {
+fun Modifier.swipeDownToHide(
+    enabled: Boolean,
+    thresholdPx: Float,
+    onHide: () -> Unit,
+): Modifier {
     if (!enabled) return this
     return this.pointerInput(enabled) {
         awaitEachGesture {

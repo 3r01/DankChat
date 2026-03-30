@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class TwitchBadgeSetDto(@SerialName(value = "versions") val versions: Map<String, TwitchBadgeDto>)
+data class TwitchBadgeSetDto(
+    @SerialName(value = "versions") val versions: Map<String, TwitchBadgeDto>,
+)

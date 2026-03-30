@@ -85,7 +85,10 @@ class ChatEventProcessor(
 
     fun getLastMessageForDisplay(channel: UserName?): String? = channel?.let { lastMessage[it]?.withoutInvisibleChar }
 
-    fun setLastMessage(channel: UserName, message: String) {
+    fun setLastMessage(
+        channel: UserName,
+        message: String,
+    ) {
         lastMessage[channel] = message
     }
 
@@ -93,7 +96,10 @@ class ChatEventProcessor(
         lastMessage.remove(channel)
     }
 
-    suspend fun loadRecentMessages(channel: UserName, isReconnect: Boolean = false) {
+    suspend fun loadRecentMessages(
+        channel: UserName,
+        isReconnect: Boolean = false,
+    ) {
         val result = recentMessagesHandler.load(channel, isReconnect)
         chatNotificationRepository.addMentionsDeduped(result.mentionItems)
         usersRepository.updateUsers(channel, result.userSuggestions)
@@ -317,11 +323,11 @@ class ChatEventProcessor(
                 badges = listOf(automodBadge),
                 isUserSide = true,
                 status =
-                when (data.status) {
-                    AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
-                    AutomodMessageStatus.Denied -> AutomodMessage.Status.Denied
-                    AutomodMessageStatus.Expired -> AutomodMessage.Status.Expired
-                },
+                    when (data.status) {
+                        AutomodMessageStatus.Approved -> AutomodMessage.Status.Approved
+                        AutomodMessageStatus.Denied -> AutomodMessage.Status.Denied
+                        AutomodMessageStatus.Expired -> AutomodMessage.Status.Expired
+                    },
             )
         chatMessageRepository.addMessages(eventMessage.channelName, listOf(ChatItem(automodMsg, importance = ChatImportance.SYSTEM)))
     }
@@ -580,34 +586,41 @@ class ChatEventProcessor(
         }
     }
 
-    private fun ConnectionState.toSystemMessageType(): SystemMessageType = when (this) {
-        ConnectionState.DISCONNECTED -> SystemMessageType.Disconnected
+    private fun ConnectionState.toSystemMessageType(): SystemMessageType =
+        when (this) {
+            ConnectionState.DISCONNECTED -> SystemMessageType.Disconnected
 
-        ConnectionState.CONNECTED,
-        ConnectionState.CONNECTED_NOT_LOGGED_IN,
-        -> SystemMessageType.Connected
-    }
-
-    private fun formatAutomodReason(reason: String, automod: AutomodReasonDto?, blockedTerm: BlockedTermReasonDto?, messageText: String): TextResource = when {
-        reason == "automod" && automod != null -> {
-            TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
+            ConnectionState.CONNECTED,
+            ConnectionState.CONNECTED_NOT_LOGGED_IN,
+            -> SystemMessageType.Connected
         }
 
-        reason == "blocked_term" && blockedTerm != null -> {
-            val terms =
-                blockedTerm.termsFound.joinToString { found ->
-                    val start = found.boundary.startPos
-                    val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
-                    "\"${messageText.substring(start, end)}\""
-                }
-            val count = blockedTerm.termsFound.size
-            TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
-        }
+    private fun formatAutomodReason(
+        reason: String,
+        automod: AutomodReasonDto?,
+        blockedTerm: BlockedTermReasonDto?,
+        messageText: String,
+    ): TextResource =
+        when {
+            reason == "automod" && automod != null -> {
+                TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
+            }
 
-        else -> {
-            TextResource.Plain(reason)
+            reason == "blocked_term" && blockedTerm != null -> {
+                val terms =
+                    blockedTerm.termsFound.joinToString { found ->
+                        val start = found.boundary.startPos
+                        val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
+                        "\"${messageText.substring(start, end)}\""
+                    }
+                val count = blockedTerm.termsFound.size
+                TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
+            }
+
+            else -> {
+                TextResource.Plain(reason)
+            }
         }
-    }
 
     companion object {
         private val TAG = ChatEventProcessor::class.java.simpleName

@@ -156,16 +156,17 @@ fun FloatingToolbar(
     // Dismiss scrim for menus
     if (showOverflowMenu || showQuickSwitch) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) {
-                    showOverflowMenu = false
-                    showQuickSwitch = false
-                    overflowInitialMenu = AppBarMenu.Main
-                },
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        showOverflowMenu = false
+                        showQuickSwitch = false
+                        overflowInitialMenu = AppBarMenu.Main
+                    },
         )
     }
 
@@ -175,35 +176,37 @@ fun FloatingToolbar(
         visible = showAppBar && !isFullscreen,
         enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
         exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = if (hasStream) streamHeightDp + 8.dp else 0.dp)
-            .graphicsLayer { alpha = streamToolbarAlpha },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(top = if (hasStream) streamHeightDp + 8.dp else 0.dp)
+                .graphicsLayer { alpha = streamToolbarAlpha },
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
         var toolbarRowHeight by remember { mutableFloatStateOf(0f) }
-        val scrimModifier = if (hasStream) {
-            Modifier.fillMaxWidth()
-        } else {
-            Modifier
-                .fillMaxWidth()
-                .drawBehind {
-                    if (toolbarRowHeight > 0f) {
-                        val gradientHeight = statusBarPx + 8.dp.toPx() + toolbarRowHeight + 16.dp.toPx()
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                0f to scrimColor,
-                                0.75f to scrimColor,
-                                1f to scrimColor.copy(alpha = 0f),
-                                endY = gradientHeight,
-                            ),
-                            size = Size(size.width, gradientHeight),
-                        )
-                    }
-                }
-                .padding(top = with(density) { WindowInsets.statusBars.getTop(density).toDp() } + 8.dp)
-        }
+        val scrimModifier =
+            if (hasStream) {
+                Modifier.fillMaxWidth()
+            } else {
+                Modifier
+                    .fillMaxWidth()
+                    .drawBehind {
+                        if (toolbarRowHeight > 0f) {
+                            val gradientHeight = statusBarPx + 8.dp.toPx() + toolbarRowHeight + 16.dp.toPx()
+                            drawRect(
+                                brush =
+                                    Brush.verticalGradient(
+                                        0f to scrimColor,
+                                        0.75f to scrimColor,
+                                        1f to scrimColor.copy(alpha = 0f),
+                                        endY = gradientHeight,
+                                    ),
+                                size = Size(size.width, gradientHeight),
+                            )
+                        }
+                    }.padding(top = with(density) { WindowInsets.statusBars.getTop(density).toDp() } + 8.dp)
+            }
 
         Box(modifier = scrimModifier) {
             // Center selected tab when selection changes
@@ -243,13 +246,14 @@ fun FloatingToolbar(
             }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
-                    .onSizeChanged {
-                        val h = it.height.toFloat()
-                        if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
-                    },
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .onSizeChanged {
+                            val h = it.height.toFloat()
+                            if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
+                        },
                 verticalAlignment = Alignment.Top,
             ) {
                 // Push action pill to end when no tabs are shown
@@ -269,80 +273,87 @@ fun FloatingToolbar(
                         Surface(
                             shape = MaterialTheme.shapes.extraLarge,
                             color = MaterialTheme.colorScheme.surfaceContainer,
-                            modifier = Modifier
-                                .clip(MaterialTheme.shapes.extraLarge)
-                                .drawWithContent {
-                                    drawContent()
-                                    val gradientWidth = 24.dp.toPx()
-                                    if (hasLeftMention) {
-                                        drawRect(
-                                            brush = Brush.horizontalGradient(
-                                                colors = listOf(
-                                                    mentionGradientColor.copy(alpha = 0.5f),
-                                                    mentionGradientColor.copy(alpha = 0f),
-                                                ),
-                                                endX = gradientWidth,
-                                            ),
-                                            size = Size(gradientWidth, size.height),
-                                        )
-                                    }
-                                    if (hasRightMention) {
-                                        drawRect(
-                                            brush = Brush.horizontalGradient(
-                                                colors = listOf(
-                                                    mentionGradientColor.copy(alpha = 0f),
-                                                    mentionGradientColor.copy(alpha = 0.5f),
-                                                ),
-                                                startX = size.width - gradientWidth,
-                                                endX = size.width,
-                                            ),
-                                            topLeft = Offset(size.width - gradientWidth, 0f),
-                                            size = Size(gradientWidth, size.height),
-                                        )
-                                    }
-                                },
+                            modifier =
+                                Modifier
+                                    .clip(MaterialTheme.shapes.extraLarge)
+                                    .drawWithContent {
+                                        drawContent()
+                                        val gradientWidth = 24.dp.toPx()
+                                        if (hasLeftMention) {
+                                            drawRect(
+                                                brush =
+                                                    Brush.horizontalGradient(
+                                                        colors =
+                                                            listOf(
+                                                                mentionGradientColor.copy(alpha = 0.5f),
+                                                                mentionGradientColor.copy(alpha = 0f),
+                                                            ),
+                                                        endX = gradientWidth,
+                                                    ),
+                                                size = Size(gradientWidth, size.height),
+                                            )
+                                        }
+                                        if (hasRightMention) {
+                                            drawRect(
+                                                brush =
+                                                    Brush.horizontalGradient(
+                                                        colors =
+                                                            listOf(
+                                                                mentionGradientColor.copy(alpha = 0f),
+                                                                mentionGradientColor.copy(alpha = 0.5f),
+                                                            ),
+                                                        startX = size.width - gradientWidth,
+                                                        endX = size.width,
+                                                    ),
+                                                topLeft = Offset(size.width - gradientWidth, 0f),
+                                                size = Size(gradientWidth, size.height),
+                                            )
+                                        }
+                                    },
                         ) {
                             val pillColor = MaterialTheme.colorScheme.surfaceContainer
                             Box {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .padding(horizontal = 12.dp)
-                                        .onSizeChanged { tabViewportWidth = it.width }
-                                        .clipToBounds()
-                                        .horizontalScroll(tabScrollState),
+                                    modifier =
+                                        Modifier
+                                            .padding(horizontal = 12.dp)
+                                            .onSizeChanged { tabViewportWidth = it.width }
+                                            .clipToBounds()
+                                            .horizontalScroll(tabScrollState),
                                 ) {
                                     tabState.tabs.forEachIndexed { index, tab ->
                                         val isSelected = index == selectedIndex
-                                        val textColor = when {
-                                            isSelected -> MaterialTheme.colorScheme.primary
-                                            tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
-                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                        }
+                                        val textColor =
+                                            when {
+                                                isSelected -> MaterialTheme.colorScheme.primary
+                                                tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            }
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier
-                                                .combinedClickable(
-                                                    onClick = { onAction(ToolbarAction.SelectTab(index)) },
-                                                    onLongClick = {
-                                                        showQuickSwitch = false
-                                                        onAction(ToolbarAction.LongClickTab(index))
-                                                        overflowInitialMenu = AppBarMenu.Main
-                                                        showOverflowMenu = true
+                                            modifier =
+                                                Modifier
+                                                    .combinedClickable(
+                                                        onClick = { onAction(ToolbarAction.SelectTab(index)) },
+                                                        onLongClick = {
+                                                            showQuickSwitch = false
+                                                            onAction(ToolbarAction.LongClickTab(index))
+                                                            overflowInitialMenu = AppBarMenu.Main
+                                                            showOverflowMenu = true
+                                                        },
+                                                    ).defaultMinSize(minHeight = 48.dp)
+                                                    .padding(horizontal = 12.dp)
+                                                    .onGloballyPositioned { coords ->
+                                                        val offsets = tabOffsets.value
+                                                        tabWidths.value
+                                                        if (offsets.size != totalTabs) {
+                                                            tabOffsets.value = IntArray(totalTabs)
+                                                            tabWidths.value = IntArray(totalTabs)
+                                                        }
+                                                        tabOffsets.value[index] = coords.positionInParent().x.toInt()
+                                                        tabWidths.value[index] = coords.size.width
                                                     },
-                                                )
-                                                .defaultMinSize(minHeight = 48.dp)
-                                                .padding(horizontal = 12.dp)
-                                                .onGloballyPositioned { coords ->
-                                                    val offsets = tabOffsets.value
-                                                    tabWidths.value
-                                                    if (offsets.size != totalTabs) {
-                                                        tabOffsets.value = IntArray(totalTabs)
-                                                        tabWidths.value = IntArray(totalTabs)
-                                                    }
-                                                    tabOffsets.value[index] = coords.positionInParent().x.toInt()
-                                                    tabWidths.value[index] = coords.size.width
-                                                },
                                         ) {
                                             Text(
                                                 text = tab.displayName,
@@ -364,26 +375,27 @@ fun FloatingToolbar(
                                 // Quick switch dropdown indicator (overlays end of tabs)
                                 if (hasOverflow) {
                                     Box(
-                                        modifier = Modifier
-                                            .align(Alignment.CenterEnd)
-                                            .clickable {
-                                                showOverflowMenu = false
-                                                showQuickSwitch = !showQuickSwitch
-                                            }
-                                            .defaultMinSize(minHeight = 48.dp)
-                                            .padding(start = 4.dp, end = 8.dp)
-                                            .drawBehind {
-                                                val fadeWidth = 12.dp.toPx()
-                                                drawRect(
-                                                    brush = Brush.horizontalGradient(
-                                                        colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
-                                                        endX = fadeWidth,
-                                                    ),
-                                                    size = Size(fadeWidth, size.height),
-                                                    topLeft = Offset(-fadeWidth, 0f),
-                                                )
-                                                drawRect(color = pillColor.copy(alpha = 0.6f))
-                                            },
+                                        modifier =
+                                            Modifier
+                                                .align(Alignment.CenterEnd)
+                                                .clickable {
+                                                    showOverflowMenu = false
+                                                    showQuickSwitch = !showQuickSwitch
+                                                }.defaultMinSize(minHeight = 48.dp)
+                                                .padding(start = 4.dp, end = 8.dp)
+                                                .drawBehind {
+                                                    val fadeWidth = 12.dp.toPx()
+                                                    drawRect(
+                                                        brush =
+                                                            Brush.horizontalGradient(
+                                                                colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
+                                                                endX = fadeWidth,
+                                                            ),
+                                                        size = Size(fadeWidth, size.height),
+                                                        topLeft = Offset(-fadeWidth, 0f),
+                                                    )
+                                                    drawRect(color = pillColor.copy(alpha = 0.6f))
+                                                },
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         Icon(
@@ -402,20 +414,22 @@ fun FloatingToolbar(
                             visible = showQuickSwitch,
                             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .endAlignedOverflow(),
+                            modifier =
+                                Modifier
+                                    .padding(top = 4.dp)
+                                    .endAlignedOverflow(),
                         ) {
                             var quickSwitchBackProgress by remember { mutableFloatStateOf(0f) }
                             Surface(
                                 shape = MaterialTheme.shapes.large,
                                 color = MaterialTheme.colorScheme.surfaceContainer,
-                                modifier = Modifier.graphicsLayer {
-                                    val scale = 1f - (quickSwitchBackProgress * 0.1f)
-                                    scaleX = scale
-                                    scaleY = scale
-                                    alpha = 1f - quickSwitchBackProgress
-                                },
+                                modifier =
+                                    Modifier.graphicsLayer {
+                                        val scale = 1f - (quickSwitchBackProgress * 0.1f)
+                                        scaleX = scale
+                                        scaleY = scale
+                                        alpha = 1f - quickSwitchBackProgress
+                                    },
                             ) {
                                 PredictiveBackHandler { progress ->
                                     try {
@@ -433,37 +447,40 @@ fun FloatingToolbar(
                                 val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
                                 ScrollArea(
                                     state = quickSwitchScrollAreaState,
-                                    modifier = Modifier
-                                        .width(IntrinsicSize.Min)
-                                        .widthIn(min = 125.dp, max = 200.dp)
-                                        .heightIn(max = maxMenuHeight),
+                                    modifier =
+                                        Modifier
+                                            .width(IntrinsicSize.Min)
+                                            .widthIn(min = 125.dp, max = 200.dp)
+                                            .heightIn(max = maxMenuHeight),
                                 ) {
                                     Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .verticalScroll(quickSwitchScrollState)
-                                            .padding(vertical = 8.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .verticalScroll(quickSwitchScrollState)
+                                                .padding(vertical = 8.dp),
                                     ) {
                                         tabState.tabs.forEachIndexed { index, tab ->
                                             val isSelected = index == selectedIndex
                                             Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .clickable {
-                                                        onAction(ToolbarAction.SelectTab(index))
-                                                        showQuickSwitch = false
-                                                    }
-                                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable {
+                                                            onAction(ToolbarAction.SelectTab(index))
+                                                            showQuickSwitch = false
+                                                        }.padding(horizontal = 16.dp, vertical = 10.dp),
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 horizontalArrangement = Arrangement.Center,
                                             ) {
                                                 Text(
                                                     text = tab.displayName,
                                                     style = MaterialTheme.typography.bodyLarge,
-                                                    color = when {
-                                                        isSelected -> MaterialTheme.colorScheme.primary
-                                                        else -> MaterialTheme.colorScheme.onSurface
-                                                    },
+                                                    color =
+                                                        when {
+                                                            isSelected -> MaterialTheme.colorScheme.primary
+                                                            else -> MaterialTheme.colorScheme.onSurface
+                                                        },
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis,
@@ -477,11 +494,12 @@ fun FloatingToolbar(
                                     }
                                     if (quickSwitchScrollState.maxValue > 0) {
                                         VerticalScrollbar(
-                                            modifier = Modifier
-                                                .align(Alignment.TopEnd)
-                                                .fillMaxHeight()
-                                                .width(3.dp)
-                                                .padding(vertical = 2.dp),
+                                            modifier =
+                                                Modifier
+                                                    .align(Alignment.TopEnd)
+                                                    .fillMaxHeight()
+                                                    .width(3.dp)
+                                                    .padding(vertical = 2.dp),
                                         ) {
                                             Thumb(
                                                 Modifier.background(
@@ -531,17 +549,19 @@ fun FloatingToolbar(
                                         onAddChannelTooltipDismiss()
                                     }
                                     TooltipBox(
-                                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-                                            TooltipAnchorPosition.Above,
-                                            spacingBetweenTooltipAndAnchor = 8.dp,
-                                        ),
+                                        positionProvider =
+                                            TooltipDefaults.rememberTooltipPositionProvider(
+                                                TooltipAnchorPosition.Above,
+                                                spacingBetweenTooltipAndAnchor = 8.dp,
+                                            ),
                                         tooltip = {
-                                            val tourColors = TooltipDefaults.richTooltipColors(
-                                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                actionContentColor = MaterialTheme.colorScheme.secondary,
-                                            )
+                                            val tourColors =
+                                                TooltipDefaults.richTooltipColors(
+                                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                    actionContentColor = MaterialTheme.colorScheme.secondary,
+                                                )
                                             RichTooltip(
                                                 colors = tourColors,
                                                 caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
@@ -579,11 +599,12 @@ fun FloatingToolbar(
                                         Icon(
                                             imageVector = Icons.Default.Notifications,
                                             contentDescription = stringResource(R.string.mentions_title),
-                                            tint = if (totalMentionCount > 0) {
-                                                MaterialTheme.colorScheme.error
-                                            } else {
-                                                LocalContentColor.current
-                                            },
+                                            tint =
+                                                if (totalMentionCount > 0) {
+                                                    MaterialTheme.colorScheme.error
+                                                } else {
+                                                    LocalContentColor.current
+                                                },
                                         )
                                     }
                                 }
@@ -604,10 +625,11 @@ fun FloatingToolbar(
                             visible = showOverflowMenu,
                             enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
                             exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            modifier = Modifier
-                                .skipIntrinsicHeight()
-                                .padding(top = 4.dp)
-                                .endAlignedOverflow(),
+                            modifier =
+                                Modifier
+                                    .skipIntrinsicHeight()
+                                    .padding(top = 4.dp)
+                                    .endAlignedOverflow(),
                         ) {
                             Surface(
                                 shape = MaterialTheme.shapes.large,
@@ -638,46 +660,83 @@ fun FloatingToolbar(
  * Reports 0 intrinsic width so [IntrinsicSize.Min] ignores this child.
  * Places the child end-aligned (right edge matches parent right edge).
  */
-private fun Modifier.endAlignedOverflow() = this.then(
-    object : LayoutModifier {
-        override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
-            val parentWidth = constraints.maxWidth
-            val placeable = measurable.measure(
-                constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE)),
-            )
-            return layout(parentWidth, placeable.height) {
-                placeable.place(parentWidth - placeable.width, 0)
+private fun Modifier.endAlignedOverflow() =
+    this.then(
+        object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints,
+            ): MeasureResult {
+                val parentWidth = constraints.maxWidth
+                val placeable =
+                    measurable.measure(
+                        constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE)),
+                    )
+                return layout(parentWidth, placeable.height) {
+                    placeable.place(parentWidth - placeable.width, 0)
+                }
             }
-        }
 
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = 0
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = measurable.minIntrinsicHeight(width)
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int,
+            ): Int = 0
 
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = measurable.maxIntrinsicHeight(width)
-    },
-)
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int,
+            ): Int = 0
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int,
+            ): Int = measurable.minIntrinsicHeight(width)
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int,
+            ): Int = measurable.maxIntrinsicHeight(width)
+        },
+    )
 
 /**
  * Prevents intrinsic height queries from propagating to children.
  * Needed because [com.composables.core.ScrollArea] crashes on intrinsic height measurement,
  * and [IntrinsicSize.Min] on a parent Column triggers these queries.
  */
-private fun Modifier.skipIntrinsicHeight() = this.then(
-    object : LayoutModifier {
-        override fun MeasureScope.measure(measurable: Measurable, constraints: Constraints): MeasureResult {
-            val placeable = measurable.measure(constraints)
-            return layout(placeable.width, placeable.height) {
-                placeable.placeRelative(0, 0)
+private fun Modifier.skipIntrinsicHeight() =
+    this.then(
+        object : LayoutModifier {
+            override fun MeasureScope.measure(
+                measurable: Measurable,
+                constraints: Constraints,
+            ): MeasureResult {
+                val placeable = measurable.measure(constraints)
+                return layout(placeable.width, placeable.height) {
+                    placeable.placeRelative(0, 0)
+                }
             }
-        }
 
-        override fun IntrinsicMeasureScope.minIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
-        override fun IntrinsicMeasureScope.maxIntrinsicHeight(measurable: IntrinsicMeasurable, width: Int): Int = 0
-        override fun IntrinsicMeasureScope.minIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = measurable.minIntrinsicWidth(height)
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int,
+            ): Int = 0
 
-        override fun IntrinsicMeasureScope.maxIntrinsicWidth(measurable: IntrinsicMeasurable, height: Int): Int = measurable.maxIntrinsicWidth(height)
-    },
-)
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurable: IntrinsicMeasurable,
+                width: Int,
+            ): Int = 0
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int,
+            ): Int = measurable.minIntrinsicWidth(height)
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurable: IntrinsicMeasurable,
+                height: Int,
+            ): Int = measurable.maxIntrinsicWidth(height)
+        },
+    )
 
 private const val MAX_LAYOUT_SIZE = 16_777_215

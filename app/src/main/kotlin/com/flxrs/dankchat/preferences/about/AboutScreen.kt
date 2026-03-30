@@ -49,9 +49,10 @@ fun AboutScreen(onBack: () -> Unit) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         topBar = {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -66,35 +67,40 @@ fun AboutScreen(onBack: () -> Unit) {
         },
     ) { padding ->
         val context = LocalContext.current
-        val libraries = produceState<Libs?>(null) {
-            value = withContext(Dispatchers.IO) {
-                Libs.Builder().withContext(context).build()
+        val libraries =
+            produceState<Libs?>(null) {
+                value =
+                    withContext(Dispatchers.IO) {
+                        Libs.Builder().withContext(context).build()
+                    }
             }
-        }
         var selectedLibrary by remember { mutableStateOf<Library?>(null) }
         LibrariesContainer(
             libraries = libraries.value,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
             contentPadding = WindowInsets.navigationBars.asPaddingValues(),
             onLibraryClick = { selectedLibrary = it },
         )
         selectedLibrary?.let { library ->
             val linkStyles = textLinkStyles()
             val rules = TextRuleDefaults.defaultList()
-            val license = remember(library, rules) {
-                val mappedRules = rules.map { it.copy(styles = linkStyles) }
-                library.htmlReadyLicenseContent
-                    .takeIf { it.isNotEmpty() }
-                    ?.let { content ->
-                        val html = AnnotatedString.fromHtml(
-                            htmlString = content,
-                            linkStyles = linkStyles,
-                        )
-                        mappedRules.annotateString(html.text)
-                    }
-            }
+            val license =
+                remember(library, rules) {
+                    val mappedRules = rules.map { it.copy(styles = linkStyles) }
+                    library.htmlReadyLicenseContent
+                        .takeIf { it.isNotEmpty() }
+                        ?.let { content ->
+                            val html =
+                                AnnotatedString.fromHtml(
+                                    htmlString = content,
+                                    linkStyles = linkStyles,
+                                )
+                            mappedRules.annotateString(html.text)
+                        }
+                }
             if (license != null) {
                 AlertDialog(
                     onDismissRequest = { selectedLibrary = null },

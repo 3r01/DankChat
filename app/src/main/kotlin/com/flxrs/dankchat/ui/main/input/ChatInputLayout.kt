@@ -151,42 +151,47 @@ fun ChatInputLayout(
     val onRepeatedSendChange = callbacks.onRepeatedSendChange
 
     val focusRequester = remember { FocusRequester() }
-    val hint = when (inputState) {
-        InputState.Default -> stringResource(R.string.hint_connected)
-        InputState.Replying -> stringResource(R.string.hint_replying)
-        InputState.Announcing -> stringResource(R.string.hint_announcing)
-        InputState.Whispering -> stringResource(R.string.hint_whispering)
-        InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
-        InputState.Disconnected -> stringResource(R.string.hint_disconnected)
-    }
+    val hint =
+        when (inputState) {
+            InputState.Default -> stringResource(R.string.hint_connected)
+            InputState.Replying -> stringResource(R.string.hint_replying)
+            InputState.Announcing -> stringResource(R.string.hint_announcing)
+            InputState.Whispering -> stringResource(R.string.hint_whispering)
+            InputState.NotLoggedIn -> stringResource(R.string.hint_not_logged_int)
+            InputState.Disconnected -> stringResource(R.string.hint_disconnected)
+        }
 
-    val textFieldColors = TextFieldDefaults.colors(
-        focusedContainerColor = Color.Transparent,
-        unfocusedContainerColor = Color.Transparent,
-        disabledContainerColor = Color.Transparent,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent,
-        disabledIndicatorColor = Color.Transparent,
-        errorIndicatorColor = Color.Transparent,
-    )
+    val textFieldColors =
+        TextFieldDefaults.colors(
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+            errorIndicatorColor = Color.Transparent,
+        )
     val defaultColors = TextFieldDefaults.colors()
-    val surfaceColor = if (enabled) {
-        defaultColors.unfocusedContainerColor
-    } else {
-        defaultColors.disabledContainerColor
-    }
+    val surfaceColor =
+        if (enabled) {
+            defaultColors.unfocusedContainerColor
+        } else {
+            defaultColors.disabledContainerColor
+        }
 
     // Filter to actions that would actually render based on current state
-    val effectiveActions = remember(inputActions, isModerator, hasStreamData, isStreamActive, debugMode) {
-        inputActions.filter { action ->
-            when (action) {
-                InputAction.Stream -> hasStreamData || isStreamActive
-                InputAction.ModActions -> isModerator
-                InputAction.Debug -> debugMode
-                else -> true
-            }
-        }.toImmutableList()
-    }
+    val effectiveActions =
+        remember(inputActions, isModerator, hasStreamData, isStreamActive, debugMode) {
+            inputActions
+                .filter { action ->
+                    when (action) {
+                        InputAction.Stream -> hasStreamData || isStreamActive
+                        InputAction.ModActions -> isModerator
+                        InputAction.Debug -> debugMode
+                        else -> true
+                    }
+                }.toImmutableList()
+        }
 
     var visibleActions by remember { mutableStateOf(effectiveActions) }
     val quickActionsExpanded = overflowExpanded || tourState.forceOverflowOpen
@@ -203,9 +208,10 @@ fun ChatInputLayout(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(),
             ) {
                 // Input mode overlay header
                 AnimatedVisibility(
@@ -213,12 +219,13 @@ fun ChatInputLayout(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut(),
                 ) {
-                    val headerText = when (overlay) {
-                        is InputOverlay.Reply -> stringResource(R.string.reply_header, overlay.name.value)
-                        is InputOverlay.Whisper -> stringResource(R.string.whisper_header, overlay.target.value)
-                        is InputOverlay.Announce -> stringResource(R.string.mod_actions_announce_header)
-                        InputOverlay.None -> ""
-                    }
+                    val headerText =
+                        when (overlay) {
+                            is InputOverlay.Reply -> stringResource(R.string.reply_header, overlay.name.value)
+                            is InputOverlay.Whisper -> stringResource(R.string.whisper_header, overlay.target.value)
+                            is InputOverlay.Announce -> stringResource(R.string.mod_actions_announce_header)
+                            InputOverlay.None -> ""
+                        }
                     InputOverlayHeader(
                         text = headerText,
                         onDismiss = onOverlayDismiss,
@@ -229,10 +236,12 @@ fun ChatInputLayout(
                 TextField(
                     state = textFieldState,
                     enabled = enabled && !tourState.isTourActive,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .padding(bottom = 0.dp), // Reduce bottom padding as actions are below
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester)
+                            .padding(bottom = 0.dp),
+                    // Reduce bottom padding as actions are below
                     label = { Text(hint) },
                     suffix = {
                         Row(
@@ -240,15 +249,18 @@ fun ChatInputLayout(
                             modifier = Modifier.height(IntrinsicSize.Min),
                         ) {
                             when (characterCounter) {
-                                is CharacterCounterState.Hidden -> Unit
+                                is CharacterCounterState.Hidden -> {
+                                    Unit
+                                }
 
                                 is CharacterCounterState.Visible -> {
                                     Text(
                                         text = characterCounter.text,
-                                        color = when {
-                                            characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
-                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                        },
+                                        color =
+                                            when {
+                                                characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
+                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                         style = MaterialTheme.typography.labelSmall,
                                     )
                                 }
@@ -262,20 +274,22 @@ fun ChatInputLayout(
                                     imageVector = Icons.Default.Clear,
                                     contentDescription = stringResource(R.string.dialog_dismiss),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier
-                                        .padding(start = 4.dp)
-                                        .size(20.dp)
-                                        .clickable { textFieldState.clearText() },
+                                    modifier =
+                                        Modifier
+                                            .padding(start = 4.dp)
+                                            .size(20.dp)
+                                            .clickable { textFieldState.clearText() },
                                 )
                             }
                         }
                     },
                     colors = textFieldColors,
                     shape = RoundedCornerShape(0.dp),
-                    lineLimits = TextFieldLineLimits.MultiLine(
-                        minHeightInLines = 1,
-                        maxHeightInLines = 5,
-                    ),
+                    lineLimits =
+                        TextFieldLineLimits.MultiLine(
+                            minHeightInLines = 1,
+                            maxHeightInLines = 5,
+                        ),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                     onKeyboardAction = { if (canSend) onSend() },
                 )
@@ -294,16 +308,18 @@ fun ChatInputLayout(
                     val style = MaterialTheme.typography.labelSmall
                     val density = LocalDensity.current
                     BoxWithConstraints(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 4.dp)
-                            .animateContentSize(),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 4.dp)
+                                .animateContentSize(),
                     ) {
                         val maxWidthPx = with(density) { maxWidth.roundToPx() }
-                        val fitsOnOneLine = remember(combinedText, style, maxWidthPx) {
-                            textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
-                        }
+                        val fitsOnOneLine =
+                            remember(combinedText, style, maxWidthPx) {
+                                textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
+                            }
                         when {
                             fitsOnOneLine || streamInfoText == null || roomStateText.isEmpty() -> {
                                 Text(
@@ -344,9 +360,10 @@ fun ChatInputLayout(
                     exit = shrinkVertically() + fadeOut(),
                 ) {
                     LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
 
@@ -398,14 +415,15 @@ fun ChatInputLayout(
             visible = quickActionsExpanded,
             enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
             exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, 0) {
-                        placeable.placeRelative(0, -placeable.height)
-                    }
-                },
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, 0) {
+                            placeable.placeRelative(0, -placeable.height)
+                        }
+                    },
         ) {
             var backProgress by remember { mutableFloatStateOf(0f) }
             PredictiveBackHandler { progress ->
@@ -419,12 +437,13 @@ fun ChatInputLayout(
                 }
             }
             QuickActionsMenu(
-                modifier = Modifier.graphicsLayer {
-                    val scale = 1f - (backProgress * 0.1f)
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = 1f - backProgress
-                },
+                modifier =
+                    Modifier.graphicsLayer {
+                        val scale = 1f - (backProgress * 0.1f)
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = 1f - backProgress
+                    },
                 surfaceColor = surfaceColor,
                 visibleActions = visibleActions,
                 enabled = enabled,
@@ -465,38 +484,53 @@ fun ChatInputLayout(
 }
 
 @Composable
-private fun SendButton(enabled: Boolean, isRepeatedSendEnabled: Boolean, onSend: () -> Unit, onRepeatedSendChange: (Boolean) -> Unit, modifier: Modifier = Modifier) {
-    val contentColor = when {
-        !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-        else -> MaterialTheme.colorScheme.primary
-    }
-
-    val gestureModifier = when {
-        enabled && isRepeatedSendEnabled -> Modifier.pointerInput(Unit) {
-            detectTapGestures(
-                onTap = { onSend() },
-                onLongPress = { onRepeatedSendChange(true) },
-                onPress = {
-                    tryAwaitRelease()
-                    onRepeatedSendChange(false)
-                },
-            )
+private fun SendButton(
+    enabled: Boolean,
+    isRepeatedSendEnabled: Boolean,
+    onSend: () -> Unit,
+    onRepeatedSendChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val contentColor =
+        when {
+            !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+            else -> MaterialTheme.colorScheme.primary
         }
 
-        enabled -> Modifier.clickable(
-            interactionSource = null,
-            indication = null,
-            onClick = onSend,
-        )
+    val gestureModifier =
+        when {
+            enabled && isRepeatedSendEnabled -> {
+                Modifier.pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { onSend() },
+                        onLongPress = { onRepeatedSendChange(true) },
+                        onPress = {
+                            tryAwaitRelease()
+                            onRepeatedSendChange(false)
+                        },
+                    )
+                }
+            }
 
-        else -> Modifier
-    }
+            enabled -> {
+                Modifier.clickable(
+                    interactionSource = null,
+                    indication = null,
+                    onClick = onSend,
+                )
+            }
+
+            else -> {
+                Modifier
+            }
+        }
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
-            .then(gestureModifier)
-            .padding(4.dp),
+        modifier =
+            modifier
+                .then(gestureModifier)
+                .padding(4.dp),
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.Send,
@@ -523,35 +557,51 @@ private fun InputActionButton(
     modifier: Modifier = Modifier,
     onDebugInfoClick: () -> Unit = {},
 ) {
-    val (icon, contentDescription, onClick) = when (action) {
-        InputAction.Search -> Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
+    val (icon, contentDescription, onClick) =
+        when (action) {
+            InputAction.Search -> {
+                Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
+            }
 
-        InputAction.LastMessage -> Triple(Icons.Default.History, R.string.resume_scroll, onLastMessageClick)
+            InputAction.LastMessage -> {
+                Triple(Icons.Default.History, R.string.resume_scroll, onLastMessageClick)
+            }
 
-        InputAction.Stream -> Triple(
-            if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-            R.string.toggle_stream,
-            onToggleStream,
-        )
+            InputAction.Stream -> {
+                Triple(
+                    if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                    R.string.toggle_stream,
+                    onToggleStream,
+                )
+            }
 
-        InputAction.ModActions -> Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
+            InputAction.ModActions -> {
+                Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
+            }
 
-        InputAction.Fullscreen -> Triple(
-            if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-            R.string.toggle_fullscreen,
-            onToggleFullscreen,
-        )
+            InputAction.Fullscreen -> {
+                Triple(
+                    if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                    R.string.toggle_fullscreen,
+                    onToggleFullscreen,
+                )
+            }
 
-        InputAction.HideInput -> Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
+            InputAction.HideInput -> {
+                Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
+            }
 
-        InputAction.Debug -> Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
-    }
+            InputAction.Debug -> {
+                Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
+            }
+        }
 
-    val actionEnabled = when (action) {
-        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-        InputAction.LastMessage -> enabled && hasLastMessage
-        InputAction.Stream, InputAction.ModActions -> enabled
-    }
+    val actionEnabled =
+        when (action) {
+            InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
+            InputAction.LastMessage -> enabled && hasLastMessage
+            InputAction.Stream, InputAction.ModActions -> enabled
+        }
 
     IconButton(
         onClick = onClick,
@@ -566,14 +616,18 @@ private fun InputActionButton(
 }
 
 @Composable
-private fun InputOverlayHeader(text: String, onDismiss: () -> Unit) {
+private fun InputOverlayHeader(
+    text: String,
+    onDismiss: () -> Unit,
+) {
     Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp),
         ) {
             Text(
                 text = text,
@@ -630,9 +684,10 @@ private fun InputActionsRow(
     onRepeatedSendChange: (Boolean) -> Unit = {},
 ) {
     BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     ) {
         val iconSize = 40.dp
         // Fixed slots: emote + overflow + send (+ whisper if present)
@@ -660,9 +715,10 @@ private fun InputActionsRow(
             ) {
                 Icon(
                     imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
-                    contentDescription = stringResource(
-                        if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,
-                    ),
+                    contentDescription =
+                        stringResource(
+                            if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,
+                        ),
                 )
             }
 

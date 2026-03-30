@@ -7,22 +7,29 @@ import kotlinx.serialization.Serializable
 @JvmInline
 @Serializable
 @Parcelize
-value class UserName(val value: String) : Parcelable {
+value class UserName(
+    val value: String,
+) : Parcelable {
     override fun toString() = value
 
     fun lowercase() = UserName(value.lowercase())
 
-    fun formatWithDisplayName(displayName: DisplayName): String = when {
-        matches(displayName) -> displayName.value
-        else -> "$this($displayName)"
-    }
+    fun formatWithDisplayName(displayName: DisplayName): String =
+        when {
+            matches(displayName) -> displayName.value
+            else -> "$this($displayName)"
+        }
 
-    fun valueOrDisplayName(displayName: DisplayName): String = when {
-        matches(displayName) -> displayName.value
-        else -> this.value
-    }
+    fun valueOrDisplayName(displayName: DisplayName): String =
+        when {
+            matches(displayName) -> displayName.value
+            else -> this.value
+        }
 
-    fun matches(other: String, ignoreCase: Boolean = true) = value.equals(other, ignoreCase)
+    fun matches(
+        other: String,
+        ignoreCase: Boolean = true,
+    ) = value.equals(other, ignoreCase)
 
     fun matches(other: UserName) = value.equals(other.value, ignoreCase = true)
 

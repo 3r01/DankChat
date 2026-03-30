@@ -52,7 +52,10 @@ fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
  * to produce an opaque color for accurate contrast calculation.
  */
 @Composable
-fun rememberNormalizedColor(rawColor: Int, backgroundColor: Color): Color {
+fun rememberNormalizedColor(
+    rawColor: Int,
+    backgroundColor: Color,
+): Color {
     val effectiveBg = resolveEffectiveBackground(backgroundColor)
     val effectiveBgArgb = effectiveBg.toArgb()
 

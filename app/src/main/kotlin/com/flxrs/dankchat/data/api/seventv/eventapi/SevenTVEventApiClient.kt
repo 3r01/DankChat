@@ -211,28 +211,37 @@ class SevenTVEventApiClient(
         }
     }
 
-    private fun setupHeartBeatInterval(): Job = scope.launch {
-        delay(heartBeatInterval)
-        timer(heartBeatInterval) {
-            val webSocket = socket
-            if (webSocket == null || System.currentTimeMillis() - lastHeartBeat > 3 * heartBeatInterval.inWholeMilliseconds) {
-                cancel()
-                reconnect()
-                return@timer
+    private fun setupHeartBeatInterval(): Job =
+        scope.launch {
+            delay(heartBeatInterval)
+            timer(heartBeatInterval) {
+                val webSocket = socket
+                if (webSocket == null || System.currentTimeMillis() - lastHeartBeat > 3 * heartBeatInterval.inWholeMilliseconds) {
+                    cancel()
+                    reconnect()
+                    return@timer
+                }
             }
         }
-    }
 
     private inner class EventApiWebSocketListener : WebSocketListener() {
         private var heartBeatJob: Job? = null
 
-        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+        override fun onClosed(
+            webSocket: WebSocket,
+            code: Int,
+            reason: String,
+        ) {
             Log.d(TAG, "[7TV Event-Api] connection closed")
             connected = false
             heartBeatJob?.cancel()
         }
 
-        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+        override fun onFailure(
+            webSocket: WebSocket,
+            t: Throwable,
+            response: Response?,
+        ) {
             Log.e(TAG, "[7TV Event-Api] connection failed: $t")
             Log.e(TAG, "[7TV Event-Api] attempting to reconnect #$reconnectAttempts..")
             connected = false
@@ -242,14 +251,20 @@ class SevenTVEventApiClient(
             attemptReconnect()
         }
 
-        override fun onOpen(webSocket: WebSocket, response: Response) {
+        override fun onOpen(
+            webSocket: WebSocket,
+            response: Response,
+        ) {
             connected = true
             connecting = false
             reconnectAttempts = 1
             Log.i(TAG, "[7TV Event-Api] connected")
         }
 
-        override fun onMessage(webSocket: WebSocket, text: String) {
+        override fun onMessage(
+            webSocket: WebSocket,
+            text: String,
+        ) {
             val message =
                 runCatching { json.decodeFromString<DataMessage>(text) }.getOrElse {
                     Log.d(TAG, "Failed to parse incoming message: ", it)
@@ -349,7 +364,10 @@ class SevenTVEventApiClient(
 
     private inline fun <reified T> T.encodeOrNull(): String? = runCatching { json.encodeToString(this) }.getOrNull()
 
-    data class Status(val connected: Boolean, val subscriptionCount: Int)
+    data class Status(
+        val connected: Boolean,
+        val subscriptionCount: Int,
+    )
 
     fun status(): Status = Status(connected = connected, subscriptionCount = subscriptions.size)
 

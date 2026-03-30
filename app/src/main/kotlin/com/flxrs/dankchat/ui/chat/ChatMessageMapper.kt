@@ -38,8 +38,15 @@ import org.koin.core.annotation.Single
  * Pre-computed all rendering decisions to minimize work during composition.
  */
 @Single
-class ChatMessageMapper(private val usersRepository: UsersRepository) {
-    fun mapToUiState(item: ChatItem, chatSettings: ChatSettings, preferenceStore: DankChatPreferenceStore, isAlternateBackground: Boolean): ChatMessageUiState {
+class ChatMessageMapper(
+    private val usersRepository: UsersRepository,
+) {
+    fun mapToUiState(
+        item: ChatItem,
+        chatSettings: ChatSettings,
+        preferenceStore: DankChatPreferenceStore,
+        isAlternateBackground: Boolean,
+    ): ChatMessageUiState {
         val textAlpha =
             when (item.importance) {
                 ChatImportance.SYSTEM -> 1f
@@ -124,7 +131,12 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         }
     }
 
-    private fun SystemMessage.toSystemMessageUi(tag: Int, chatSettings: ChatSettings, isAlternateBackground: Boolean, textAlpha: Float): ChatMessageUiState.SystemMessageUi {
+    private fun SystemMessage.toSystemMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        isAlternateBackground: Boolean,
+        textAlpha: Float,
+    ): ChatMessageUiState.SystemMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp =
             if (chatSettings.showTimestamps) {
@@ -274,7 +286,12 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         )
     }
 
-    private fun NoticeMessage.toNoticeMessageUi(tag: Int, chatSettings: ChatSettings, isAlternateBackground: Boolean, textAlpha: Float): ChatMessageUiState.NoticeMessageUi {
+    private fun NoticeMessage.toNoticeMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        isAlternateBackground: Boolean,
+        textAlpha: Float,
+    ): ChatMessageUiState.NoticeMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp =
             if (chatSettings.showTimestamps) {
@@ -294,7 +311,12 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         )
     }
 
-    private fun UserNoticeMessage.toUserNoticeMessageUi(tag: Int, chatSettings: ChatSettings, isAlternateBackground: Boolean, textAlpha: Float): ChatMessageUiState.UserNoticeMessageUi {
+    private fun UserNoticeMessage.toUserNoticeMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        isAlternateBackground: Boolean,
+        textAlpha: Float,
+    ): ChatMessageUiState.UserNoticeMessageUi {
         val shouldHighlight =
             highlights.any {
                 it.type == HighlightType.Subscription ||
@@ -372,7 +394,11 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         )
     }
 
-    private fun AutomodMessage.toAutomodMessageUi(tag: Int, chatSettings: ChatSettings, textAlpha: Float): ChatMessageUiState.AutomodMessageUi {
+    private fun AutomodMessage.toAutomodMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        textAlpha: Float,
+    ): ChatMessageUiState.AutomodMessageUi {
         val timestamp =
             if (chatSettings.showTimestamps) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
@@ -398,19 +424,19 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
             heldMessageId = heldMessageId,
             channel = channel,
             badges =
-            badges
-                .mapIndexed { index, badge ->
-                    BadgeUi(
-                        url = badge.url,
-                        badge = badge,
-                        position = index,
-                        drawableResId =
-                        when (badge.badgeTag) {
-                            "automod/1" -> R.drawable.ic_automod_badge
-                            else -> null
-                        },
-                    )
-                }.toImmutableList(),
+                badges
+                    .mapIndexed { index, badge ->
+                        BadgeUi(
+                            url = badge.url,
+                            badge = badge,
+                            position = index,
+                            drawableResId =
+                                when (badge.badgeTag) {
+                                    "automod/1" -> R.drawable.ic_automod_badge
+                                    else -> null
+                                },
+                        )
+                    }.toImmutableList(),
             userDisplayName = userName.formatWithDisplayName(userDisplayName),
             rawNameColor = color,
             messageText = messageText?.takeIf { it.isNotEmpty() },
@@ -557,7 +583,11 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         )
     }
 
-    private fun PointRedemptionMessage.toPointRedemptionMessageUi(tag: Int, chatSettings: ChatSettings, textAlpha: Float): ChatMessageUiState.PointRedemptionMessageUi {
+    private fun PointRedemptionMessage.toPointRedemptionMessageUi(
+        tag: Int,
+        chatSettings: ChatSettings,
+        textAlpha: Float,
+    ): ChatMessageUiState.PointRedemptionMessageUi {
         val backgroundColors = getHighlightColors(HighlightType.ChannelPointRedemption)
         val timestamp =
             if (chatSettings.showTimestamps) {
@@ -683,57 +713,65 @@ class ChatMessageMapper(private val usersRepository: UsersRepository) {
         )
     }
 
-    data class BackgroundColors(val light: Color, val dark: Color)
+    data class BackgroundColors(
+        val light: Color,
+        val dark: Color,
+    )
 
-    private fun calculateCheckeredBackgroundColors(isAlternateBackground: Boolean, enableCheckered: Boolean): BackgroundColors = if (enableCheckered && isAlternateBackground) {
-        BackgroundColors(CHECKERED_LIGHT, CHECKERED_DARK)
-    } else {
-        BackgroundColors(Color.Transparent, Color.Transparent)
-    }
-
-    private fun getHighlightColors(type: HighlightType): BackgroundColors = when (type) {
-        HighlightType.Subscription,
-        HighlightType.Announcement,
-        -> {
-            BackgroundColors(
-                light = COLOR_SUB_HIGHLIGHT_LIGHT,
-                dark = COLOR_SUB_HIGHLIGHT_DARK,
-            )
+    private fun calculateCheckeredBackgroundColors(
+        isAlternateBackground: Boolean,
+        enableCheckered: Boolean,
+    ): BackgroundColors =
+        if (enableCheckered && isAlternateBackground) {
+            BackgroundColors(CHECKERED_LIGHT, CHECKERED_DARK)
+        } else {
+            BackgroundColors(Color.Transparent, Color.Transparent)
         }
 
-        HighlightType.ChannelPointRedemption -> {
-            BackgroundColors(
-                light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
-                dark = COLOR_REDEMPTION_HIGHLIGHT_DARK,
-            )
-        }
+    private fun getHighlightColors(type: HighlightType): BackgroundColors =
+        when (type) {
+            HighlightType.Subscription,
+            HighlightType.Announcement,
+            -> {
+                BackgroundColors(
+                    light = COLOR_SUB_HIGHLIGHT_LIGHT,
+                    dark = COLOR_SUB_HIGHLIGHT_DARK,
+                )
+            }
 
-        HighlightType.ElevatedMessage -> {
-            BackgroundColors(
-                light = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT,
-                dark = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK,
-            )
-        }
+            HighlightType.ChannelPointRedemption -> {
+                BackgroundColors(
+                    light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
+                    dark = COLOR_REDEMPTION_HIGHLIGHT_DARK,
+                )
+            }
 
-        HighlightType.FirstMessage -> {
-            BackgroundColors(
-                light = COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT,
-                dark = COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK,
-            )
-        }
+            HighlightType.ElevatedMessage -> {
+                BackgroundColors(
+                    light = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT,
+                    dark = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK,
+                )
+            }
 
-        HighlightType.Username,
-        HighlightType.Custom,
-        HighlightType.Reply,
-        HighlightType.Badge,
-        HighlightType.Notification,
-        -> {
-            BackgroundColors(
-                light = COLOR_MENTION_HIGHLIGHT_LIGHT,
-                dark = COLOR_MENTION_HIGHLIGHT_DARK,
-            )
+            HighlightType.FirstMessage -> {
+                BackgroundColors(
+                    light = COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT,
+                    dark = COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK,
+                )
+            }
+
+            HighlightType.Username,
+            HighlightType.Custom,
+            HighlightType.Reply,
+            HighlightType.Badge,
+            HighlightType.Notification,
+            -> {
+                BackgroundColors(
+                    light = COLOR_MENTION_HIGHLIGHT_LIGHT,
+                    dark = COLOR_MENTION_HIGHLIGHT_DARK,
+                )
+            }
         }
-    }
 
     private fun Set<Highlight>.toBackgroundColors(): BackgroundColors {
         val highlight =

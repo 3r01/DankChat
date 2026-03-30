@@ -32,9 +32,9 @@ class ChannelPagerViewModel(
             ChannelPagerUiState(
                 channels = channels.map { it.channel }.toImmutableList(),
                 currentPage =
-                channels
-                    .indexOfFirst { it.channel == active }
-                    .coerceAtLeast(0),
+                    channels
+                        .indexOfFirst { it.channel == active }
+                        .coerceAtLeast(0),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelPagerUiState())
 
@@ -62,7 +62,10 @@ class ChannelPagerViewModel(
      * Validates that the message exists in the channel's chat and returns the jump target,
      * or null if the message can't be found.
      */
-    fun resolveJumpTarget(channel: UserName, messageId: String): JumpTarget? {
+    fun resolveJumpTarget(
+        channel: UserName,
+        messageId: String,
+    ): JumpTarget? {
         val channels = preferenceStore.channels
         val index = channels.indexOfFirst { it == channel }
         if (index < 0) return null
@@ -73,7 +76,14 @@ class ChannelPagerViewModel(
 }
 
 @Immutable
-data class JumpTarget(val channelIndex: Int, val channel: UserName, val messageId: String)
+data class JumpTarget(
+    val channelIndex: Int,
+    val channel: UserName,
+    val messageId: String,
+)
 
 @Immutable
-data class ChannelPagerUiState(val channels: ImmutableList<UserName> = persistentListOf(), val currentPage: Int = 0)
+data class ChannelPagerUiState(
+    val channels: ImmutableList<UserName> = persistentListOf(),
+    val currentPage: Int = 0,
+)

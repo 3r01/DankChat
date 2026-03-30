@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.koin.core.annotation.Single
 
 @Single
-class ChatChannelProvider(preferenceStore: DankChatPreferenceStore) {
+class ChatChannelProvider(
+    preferenceStore: DankChatPreferenceStore,
+) {
     private val _activeChannel = MutableStateFlow<UserName?>(null)
     private val _channels = MutableStateFlow(preferenceStore.channels.takeIf { it.isNotEmpty() }?.toImmutableList())
 

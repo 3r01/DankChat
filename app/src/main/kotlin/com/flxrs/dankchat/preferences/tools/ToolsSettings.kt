@@ -20,7 +20,13 @@ data class ToolsSettings(
 }
 
 @Serializable
-data class ImageUploaderConfig(val uploadUrl: String, val formField: String, val headers: String?, val imageLinkPattern: String?, val deletionLinkPattern: String?) {
+data class ImageUploaderConfig(
+    val uploadUrl: String,
+    val formField: String,
+    val headers: String?,
+    val imageLinkPattern: String?,
+    val deletionLinkPattern: String?,
+) {
     @Transient
     val parsedHeaders: List<Pair<String, String>> =
         headers

@@ -9,7 +9,9 @@ sealed interface ChatLoadingStep {
     @get:StringRes
     val displayNameRes: Int
 
-    data class RecentMessages(val channel: UserName) : ChatLoadingStep {
+    data class RecentMessages(
+        val channel: UserName,
+    ) : ChatLoadingStep {
         override val displayNameRes = R.string.data_loading_step_recent_messages
     }
 }

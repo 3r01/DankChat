@@ -22,7 +22,11 @@ object SearchFilterSuggestions {
     private const val MAX_VALUE_SUGGESTIONS = 10
     private const val MIN_KEYWORD_CHARS = 2
 
-    fun filter(input: String, users: Set<DisplayName> = emptySet(), badgeNames: Set<String> = emptySet()): List<Suggestion> {
+    fun filter(
+        input: String,
+        users: Set<DisplayName> = emptySet(),
+        badgeNames: Set<String> = emptySet(),
+    ): List<Suggestion> {
         val lastToken =
             input
                 .trimEnd()

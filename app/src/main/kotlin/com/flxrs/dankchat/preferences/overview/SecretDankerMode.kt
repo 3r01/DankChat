@@ -25,9 +25,10 @@ interface SecretDankerScope {
 @Composable
 fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
     if (LocalInspectionMode.current) {
-        val scope = object : SecretDankerScope {
-            override fun Modifier.dankClickable(): Modifier = this
-        }
+        val scope =
+            object : SecretDankerScope {
+                override fun Modifier.dankClickable(): Modifier = this
+            }
         content(scope)
         return
     }
@@ -36,16 +37,18 @@ fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
     var secretDankerMode by remember { mutableStateOf(preferences.isSecretDankerModeEnabled) }
     var lastToast by remember { mutableStateOf<Toast?>(null) }
     var currentClicks by remember { mutableIntStateOf(0) }
-    val scope = remember {
-        object : SecretDankerScope {
-            override fun Modifier.dankClickable() = clickable(
-                enabled = !secretDankerMode,
-                onClick = { currentClicks++ },
-                interactionSource = null,
-                indication = null,
-            )
+    val scope =
+        remember {
+            object : SecretDankerScope {
+                override fun Modifier.dankClickable() =
+                    clickable(
+                        enabled = !secretDankerMode,
+                        onClick = { currentClicks++ },
+                        interactionSource = null,
+                        indication = null,
+                    )
+            }
         }
-    }
     val context = LocalContext.current
     if (!secretDankerMode) {
         val clicksNeeded = preferences.secretDankerModeClicks
@@ -54,9 +57,10 @@ fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
             when (currentClicks) {
                 in 2..<clicksNeeded -> {
                     val remaining = clicksNeeded - currentClicks
-                    lastToast = Toast
-                        .makeText(context, "$remaining click(s) left to enable secret danker mode", Toast.LENGTH_SHORT)
-                        .apply { show() }
+                    lastToast =
+                        Toast
+                            .makeText(context, "$remaining click(s) left to enable secret danker mode", Toast.LENGTH_SHORT)
+                            .apply { show() }
                 }
 
                 clicksNeeded -> {

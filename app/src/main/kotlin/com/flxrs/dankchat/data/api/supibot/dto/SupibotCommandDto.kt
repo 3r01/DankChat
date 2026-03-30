@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SupibotCommandDto(@SerialName(value = "name") val name: String, @SerialName(value = "aliases") val aliases: List<String>)
+data class SupibotCommandDto(
+    @SerialName(value = "name") val name: String,
+    @SerialName(value = "aliases") val aliases: List<String>,
+)

@@ -7,4 +7,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class FFZEmoteOwnerDto(@SerialName(value = "display_name") val displayName: DisplayName?)
+data class FFZEmoteOwnerDto(
+    @SerialName(value = "display_name") val displayName: DisplayName?,
+)

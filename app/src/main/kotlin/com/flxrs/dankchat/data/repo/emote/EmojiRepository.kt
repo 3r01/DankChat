@@ -16,10 +16,17 @@ import org.koin.core.annotation.Single
 
 @Immutable
 @Serializable
-data class EmojiData(val code: String, val unicode: String)
+data class EmojiData(
+    val code: String,
+    val unicode: String,
+)
 
 @Single
-class EmojiRepository(private val context: Context, private val json: Json, dispatchersProvider: DispatchersProvider) {
+class EmojiRepository(
+    private val context: Context,
+    private val json: Json,
+    dispatchersProvider: DispatchersProvider,
+) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val _emojis = MutableStateFlow<List<EmojiData>>(emptyList())
     val emojis: StateFlow<List<EmojiData>> = _emojis.asStateFlow()

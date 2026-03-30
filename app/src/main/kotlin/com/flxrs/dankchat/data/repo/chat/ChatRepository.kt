@@ -75,7 +75,11 @@ class ChatRepository(
         channelRepository.initRoomState(channel)
     }
 
-    suspend fun sendMessage(input: String, replyId: String? = null, forceIrc: Boolean = false) {
+    suspend fun sendMessage(
+        input: String,
+        replyId: String? = null,
+        forceIrc: Boolean = false,
+    ) {
         val channel = chatChannelProvider.activeChannel.value ?: return
         chatMessageSender.send(channel, input, replyId, forceIrc)
     }
@@ -114,7 +118,10 @@ class ChatRepository(
 
     fun getLastMessage(): String? = chatEventProcessor.getLastMessageForDisplay(chatChannelProvider.activeChannel.value)
 
-    fun appendLastMessage(channel: UserName, message: String) = chatEventProcessor.setLastMessage(channel, message)
+    fun appendLastMessage(
+        channel: UserName,
+        message: String,
+    ) = chatEventProcessor.setLastMessage(channel, message)
 
     suspend fun loadRecentMessagesIfEnabled(channel: UserName) {
         when {
@@ -130,7 +137,10 @@ class ChatRepository(
         }
     }
 
-    fun makeAndPostCustomSystemMessage(msg: String, channel: UserName) {
+    fun makeAndPostCustomSystemMessage(
+        msg: String,
+        channel: UserName,
+    ) {
         chatMessageRepository.addSystemMessage(channel, SystemMessageType.Custom(msg))
     }
 

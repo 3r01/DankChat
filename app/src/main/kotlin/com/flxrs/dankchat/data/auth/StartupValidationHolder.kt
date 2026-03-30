@@ -12,7 +12,9 @@ sealed interface StartupValidation {
 
     data object Validated : StartupValidation
 
-    data class ScopesOutdated(val userName: UserName) : StartupValidation
+    data class ScopesOutdated(
+        val userName: UserName,
+    ) : StartupValidation
 
     data object TokenInvalid : StartupValidation
 }

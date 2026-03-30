@@ -15,36 +15,42 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun DraggableHandle(onDrag: (deltaPx: Float) -> Unit, modifier: Modifier = Modifier) {
+fun DraggableHandle(
+    onDrag: (deltaPx: Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier
-            .width(24.dp)
-            .fillMaxHeight()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { _, dragAmount ->
-                    onDrag(dragAmount)
-                }
-            },
+        modifier =
+            modifier
+                .width(24.dp)
+                .fillMaxHeight()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { _, dragAmount ->
+                        onDrag(dragAmount)
+                    }
+                },
     ) {
         Box(
-            modifier = Modifier
-                .width(16.dp)
-                .height(56.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    shape = RoundedCornerShape(8.dp),
-                ),
+            modifier =
+                Modifier
+                    .width(16.dp)
+                    .height(56.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        shape = RoundedCornerShape(8.dp),
+                    ),
             contentAlignment = Alignment.Center,
         ) {
             Box(
-                modifier = Modifier
-                    .width(4.dp)
-                    .height(40.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        shape = RoundedCornerShape(2.dp),
-                    ),
+                modifier =
+                    Modifier
+                        .width(4.dp)
+                        .height(40.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            shape = RoundedCornerShape(2.dp),
+                        ),
             )
         }
     }

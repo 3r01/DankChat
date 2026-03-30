@@ -6,20 +6,30 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SubscribeRequest(override val op: Int = 35, override val d: SubscriptionData) : DataRequest {
+data class SubscribeRequest(
+    override val op: Int = 35,
+    override val d: SubscriptionData,
+) : DataRequest {
     companion object {
-        fun userUpdates(userId: String) = SubscribeRequest(
-            d = SubscriptionData(type = UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
-        )
+        fun userUpdates(userId: String) =
+            SubscribeRequest(
+                d = SubscriptionData(type = UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
+            )
 
-        fun emoteSetUpdates(emoteSetId: String) = SubscribeRequest(
-            d = SubscriptionData(type = EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
-        )
+        fun emoteSetUpdates(emoteSetId: String) =
+            SubscribeRequest(
+                d = SubscriptionData(type = EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
+            )
     }
 }
 
 @Serializable
-data class SubscriptionData(val type: String, val condition: SubscriptionCondition) : RequestData
+data class SubscriptionData(
+    val type: String,
+    val condition: SubscriptionCondition,
+) : RequestData
 
 @Serializable
-data class SubscriptionCondition(@SerialName("object_id") val objectId: String)
+data class SubscriptionCondition(
+    @SerialName("object_id") val objectId: String,
+)

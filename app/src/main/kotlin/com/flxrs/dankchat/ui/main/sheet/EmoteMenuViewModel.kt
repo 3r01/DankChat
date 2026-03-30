@@ -26,7 +26,11 @@ import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class EmoteMenuViewModel(private val chatChannelProvider: ChatChannelProvider, private val dataRepository: DataRepository, private val emoteUsageRepository: EmoteUsageRepository) : ViewModel() {
+class EmoteMenuViewModel(
+    private val chatChannelProvider: ChatChannelProvider,
+    private val dataRepository: DataRepository,
+    private val emoteUsageRepository: EmoteUsageRepository,
+) : ViewModel() {
     private val activeChannel = chatChannelProvider.activeChannel
 
     private val emotes =

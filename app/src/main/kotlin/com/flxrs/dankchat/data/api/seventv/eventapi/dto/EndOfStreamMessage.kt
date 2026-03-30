@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("7")
-data class EndOfStreamMessage(override val d: EndOfStreamData) : DataMessage
+data class EndOfStreamMessage(
+    override val d: EndOfStreamData,
+) : DataMessage
 
 @Serializable
 data object EndOfStreamData : Data

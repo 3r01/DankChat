@@ -49,7 +49,12 @@ object EmoteScaling {
      * @param baseHeightPx Base height in pixels (line height)
      * @return Pair of (widthPx, heightPx) in pixels
      */
-    fun calculateEmoteDimensionsPx(intrinsicWidth: Int, intrinsicHeight: Int, emote: ChatMessageEmote, baseHeightPx: Int): Pair<Int, Int> {
+    fun calculateEmoteDimensionsPx(
+        intrinsicWidth: Int,
+        intrinsicHeight: Int,
+        emote: ChatMessageEmote,
+        baseHeightPx: Int,
+    ): Pair<Int, Int> {
         val scale = baseHeightPx * SCALE_FACTOR_CONSTANT
 
         val ratio = intrinsicWidth / intrinsicHeight.toFloat()

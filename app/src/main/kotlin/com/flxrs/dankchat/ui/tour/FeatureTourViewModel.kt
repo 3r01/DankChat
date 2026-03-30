@@ -55,8 +55,10 @@ data class FeatureTourUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @KoinViewModel
-class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore, startupValidationHolder: StartupValidationHolder) : ViewModel() {
-
+class FeatureTourViewModel(
+    private val onboardingDataStore: OnboardingDataStore,
+    startupValidationHolder: StartupValidationHolder,
+) : ViewModel() {
     // Material3 tooltip states — UI objects exposed directly, not in the StateFlow.
     val inputActionsTooltipState = TooltipState(isPersistent = true)
     val overflowMenuTooltipState = TooltipState(isPersistent = true)
@@ -73,44 +75,53 @@ class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore,
         val completed: Boolean = false,
     )
 
-    private data class ChannelState(val ready: Boolean = false, val empty: Boolean = true)
+    private data class ChannelState(
+        val ready: Boolean = false,
+        val empty: Boolean = true,
+    )
 
     private val _tourState = MutableStateFlow(TourInternalState())
     private val _channelState = MutableStateFlow(ChannelState())
     private val _toolbarHintDone = MutableStateFlow(false)
 
-    val uiState: StateFlow<FeatureTourUiState> = combine(
-        onboardingDataStore.settings,
-        _tourState,
-        _channelState,
-        _toolbarHintDone,
-        startupValidationHolder.state,
-    ) { settings, tour, channel, hintDone, validation ->
-        val currentStep = when {
-            !tour.isActive -> null
-            tour.stepIndex >= TourStep.entries.size -> null
-            else -> TourStep.entries[tour.stepIndex]
-        }
-        FeatureTourUiState(
-            postOnboardingStep = resolvePostOnboardingStep(
-                settings = settings,
-                channelReady = channel.ready,
-                channelEmpty = channel.empty,
-                toolbarHintDone = hintDone || settings.hasShownToolbarHint,
-                tourActive = tour.isActive,
-                tourCompleted = tour.completed,
-                authValidated = validation is StartupValidation.Validated,
-            ),
-            currentTourStep = currentStep,
-            isTourActive = tour.isActive,
-            forceOverflowOpen = tour.forceOverflowOpen,
-            gestureInputHidden = tour.gestureInputHidden,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), FeatureTourUiState())
+    val uiState: StateFlow<FeatureTourUiState> =
+        combine(
+            onboardingDataStore.settings,
+            _tourState,
+            _channelState,
+            _toolbarHintDone,
+            startupValidationHolder.state,
+        ) { settings, tour, channel, hintDone, validation ->
+            val currentStep =
+                when {
+                    !tour.isActive -> null
+                    tour.stepIndex >= TourStep.entries.size -> null
+                    else -> TourStep.entries[tour.stepIndex]
+                }
+            FeatureTourUiState(
+                postOnboardingStep =
+                    resolvePostOnboardingStep(
+                        settings = settings,
+                        channelReady = channel.ready,
+                        channelEmpty = channel.empty,
+                        toolbarHintDone = hintDone || settings.hasShownToolbarHint,
+                        tourActive = tour.isActive,
+                        tourCompleted = tour.completed,
+                        authValidated = validation is StartupValidation.Validated,
+                    ),
+                currentTourStep = currentStep,
+                isTourActive = tour.isActive,
+                forceOverflowOpen = tour.forceOverflowOpen,
+                gestureInputHidden = tour.gestureInputHidden,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), FeatureTourUiState())
 
     // -- Channel state updates from MainScreen --
 
-    fun onChannelsChanged(empty: Boolean, ready: Boolean) {
+    fun onChannelsChanged(
+        empty: Boolean,
+        ready: Boolean,
+    ) {
         _channelState.value = ChannelState(ready = ready, empty = empty)
     }
 
@@ -141,17 +152,19 @@ class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore,
         val settings = onboardingDataStore.current()
         // Only resume persisted step if it belongs to the current tour (gap == 1).
         // A larger gap means a prior tour was never completed and the step index is stale.
-        val stepIndex = when {
-            CURRENT_TOUR_VERSION - settings.featureTourVersion == 1 -> settings.featureTourStep.coerceIn(0, TourStep.entries.size - 1)
-            else -> 0
-        }
+        val stepIndex =
+            when {
+                CURRENT_TOUR_VERSION - settings.featureTourVersion == 1 -> settings.featureTourStep.coerceIn(0, TourStep.entries.size - 1)
+                else -> 0
+            }
         val step = TourStep.entries[stepIndex]
-        _tourState.value = TourInternalState(
-            isActive = true,
-            stepIndex = stepIndex,
-            forceOverflowOpen = step == TourStep.ConfigureActions,
-            gestureInputHidden = step == TourStep.RecoveryFab,
-        )
+        _tourState.value =
+            TourInternalState(
+                isActive = true,
+                stepIndex = stepIndex,
+                forceOverflowOpen = step == TourStep.ConfigureActions,
+                gestureInputHidden = step == TourStep.RecoveryFab,
+            )
         showTooltipForStep(step)
     }
 
@@ -170,7 +183,9 @@ class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore,
         val nextIndex = tour.stepIndex + 1
         val nextStep = TourStep.entries.getOrNull(nextIndex)
         when {
-            nextStep == null -> completeTour()
+            nextStep == null -> {
+                completeTour()
+            }
 
             else -> {
                 viewModelScope.launch {
@@ -223,13 +238,14 @@ class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore,
         viewModelScope.launch { tooltipStateForStep(step).show() }
     }
 
-    private fun tooltipStateForStep(step: TourStep): TooltipState = when (step) {
-        TourStep.InputActions -> inputActionsTooltipState
-        TourStep.OverflowMenu -> overflowMenuTooltipState
-        TourStep.ConfigureActions -> configureActionsTooltipState
-        TourStep.SwipeGesture -> swipeGestureTooltipState
-        TourStep.RecoveryFab -> recoveryFabTooltipState
-    }
+    private fun tooltipStateForStep(step: TourStep): TooltipState =
+        when (step) {
+            TourStep.InputActions -> inputActionsTooltipState
+            TourStep.OverflowMenu -> overflowMenuTooltipState
+            TourStep.ConfigureActions -> configureActionsTooltipState
+            TourStep.SwipeGesture -> swipeGestureTooltipState
+            TourStep.RecoveryFab -> recoveryFabTooltipState
+        }
 
     private fun resolvePostOnboardingStep(
         settings: OnboardingSettings,
@@ -239,25 +255,26 @@ class FeatureTourViewModel(private val onboardingDataStore: OnboardingDataStore,
         tourActive: Boolean,
         tourCompleted: Boolean,
         authValidated: Boolean,
-    ): PostOnboardingStep = when {
-        tourCompleted -> PostOnboardingStep.Complete
+    ): PostOnboardingStep =
+        when {
+            tourCompleted -> PostOnboardingStep.Complete
 
-        settings.featureTourVersion >= CURRENT_TOUR_VERSION && toolbarHintDone -> PostOnboardingStep.Complete
+            settings.featureTourVersion >= CURRENT_TOUR_VERSION && toolbarHintDone -> PostOnboardingStep.Complete
 
-        !settings.hasCompletedOnboarding -> PostOnboardingStep.Idle
+            !settings.hasCompletedOnboarding -> PostOnboardingStep.Idle
 
-        !authValidated -> PostOnboardingStep.Idle
+            !authValidated -> PostOnboardingStep.Idle
 
-        !channelReady -> PostOnboardingStep.Idle
+            !channelReady -> PostOnboardingStep.Idle
 
-        channelEmpty -> PostOnboardingStep.Idle
+            channelEmpty -> PostOnboardingStep.Idle
 
-        tourActive -> PostOnboardingStep.FeatureTour
+            tourActive -> PostOnboardingStep.FeatureTour
 
-        !toolbarHintDone -> PostOnboardingStep.ToolbarPlusHint
+            !toolbarHintDone -> PostOnboardingStep.ToolbarPlusHint
 
-        // At this point: toolbarHintDone=true but (version >= CURRENT && toolbarHintDone) was false,
-        // so featureTourVersion < CURRENT_TOUR_VERSION is guaranteed.
-        else -> PostOnboardingStep.FeatureTour
-    }
+            // At this point: toolbarHintDone=true but (version >= CURRENT && toolbarHintDone) was false,
+            // so featureTourVersion < CURRENT_TOUR_VERSION is guaranteed.
+            else -> PostOnboardingStep.FeatureTour
+        }
 }

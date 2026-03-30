@@ -13,7 +13,9 @@ import kotlinx.coroutines.withContext
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class UserDisplayViewModel(private val userDisplayRepository: UserDisplayRepository) : ViewModel() {
+class UserDisplayViewModel(
+    private val userDisplayRepository: UserDisplayRepository,
+) : ViewModel() {
     private val eventChannel = Channel<UserDisplayEvent>(Channel.BUFFERED)
 
     val events = eventChannel.receiveAsFlow()
@@ -24,37 +26,44 @@ class UserDisplayViewModel(private val userDisplayRepository: UserDisplayReposit
         userDisplays.replaceAll(items)
     }
 
-    fun addUserDisplay() = viewModelScope.launch {
-        val entity = userDisplayRepository.addUserDisplay()
-        userDisplays += entity.toItem()
-        val position = userDisplays.lastIndex
-        sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
-    }
+    fun addUserDisplay() =
+        viewModelScope.launch {
+            val entity = userDisplayRepository.addUserDisplay()
+            userDisplays += entity.toItem()
+            val position = userDisplays.lastIndex
+            sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
+        }
 
-    fun addUserDisplayItem(item: UserDisplayItem, position: Int) = viewModelScope.launch {
+    fun addUserDisplayItem(
+        item: UserDisplayItem,
+        position: Int,
+    ) = viewModelScope.launch {
         userDisplayRepository.updateUserDisplay(item.toEntity())
         userDisplays.add(position, item)
         val isLast = position == userDisplays.lastIndex
         sendEvent(UserDisplayEvent.ItemAdded(position, isLast))
     }
 
-    fun removeUserDisplayItem(item: UserDisplayItem) = viewModelScope.launch {
-        val position = userDisplays.indexOfFirst { it.id == item.id }
-        if (position == -1) {
-            return@launch
+    fun removeUserDisplayItem(item: UserDisplayItem) =
+        viewModelScope.launch {
+            val position = userDisplays.indexOfFirst { it.id == item.id }
+            if (position == -1) {
+                return@launch
+            }
+
+            userDisplayRepository.removeUserDisplay(item.toEntity())
+            userDisplays.removeAt(position)
+            sendEvent(UserDisplayEvent.ItemRemoved(item, position))
         }
 
-        userDisplayRepository.removeUserDisplay(item.toEntity())
-        userDisplays.removeAt(position)
-        sendEvent(UserDisplayEvent.ItemRemoved(item, position))
-    }
+    fun updateUserDisplays(userDisplayItems: List<UserDisplayItem>) =
+        viewModelScope.launch {
+            val entries = userDisplayItems.map(UserDisplayItem::toEntity)
+            userDisplayRepository.updateUserDisplays(entries)
+        }
 
-    fun updateUserDisplays(userDisplayItems: List<UserDisplayItem>) = viewModelScope.launch {
-        val entries = userDisplayItems.map(UserDisplayItem::toEntity)
-        userDisplayRepository.updateUserDisplays(entries)
-    }
-
-    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(Dispatchers.Main.immediate) {
-        eventChannel.send(event)
-    }
+    private suspend fun sendEvent(event: UserDisplayEvent) =
+        withContext(Dispatchers.Main.immediate) {
+            eventChannel.send(event)
+        }
 }

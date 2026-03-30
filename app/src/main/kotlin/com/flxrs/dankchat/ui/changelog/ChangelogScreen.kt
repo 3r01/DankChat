@@ -59,9 +59,10 @@ fun ChangelogScreen(onBack: () -> Unit) {
     ) { padding ->
         val entries = state.changelog.split("\n").filter { it.isNotBlank() }
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
         ) {
             items(entries) { entry ->
                 Text(

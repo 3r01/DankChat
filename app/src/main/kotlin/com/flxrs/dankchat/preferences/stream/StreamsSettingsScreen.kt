@@ -44,7 +44,11 @@ fun StreamsSettingsScreen(onBack: () -> Unit) {
 }
 
 @Composable
-private fun StreamsSettingsContent(settings: StreamsSettings, onInteraction: (StreamsSettingsInteraction) -> Unit, onBack: () -> Unit) {
+private fun StreamsSettingsContent(
+    settings: StreamsSettings,
+    onInteraction: (StreamsSettingsInteraction) -> Unit,
+    onBack: () -> Unit,
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -63,10 +67,11 @@ private fun StreamsSettingsContent(settings: StreamsSettings, onInteraction: (St
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             SwitchPreferenceItem(
                 title = stringResource(R.string.preference_fetch_streams_title),
@@ -97,10 +102,11 @@ private fun StreamsSettingsContent(settings: StreamsSettings, onInteraction: (St
             )
 
             val activity = LocalActivity.current
-            val pipAvailable = remember {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                    activity != null && activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
-            }
+            val pipAvailable =
+                remember {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                        activity != null && activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+                }
             if (pipAvailable) {
                 SwitchPreferenceItem(
                     title = stringResource(R.string.preference_pip_title),

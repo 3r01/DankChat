@@ -56,30 +56,33 @@ fun RepliesSheet(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     bottomContentPadding: Dp = 0.dp,
 ) {
-    val viewModel: RepliesViewModel = koinViewModel(
-        key = rootMessageId,
-        parameters = { parametersOf(rootMessageId) },
-    )
+    val viewModel: RepliesViewModel =
+        koinViewModel(
+            key = rootMessageId,
+            parameters = { parametersOf(rootMessageId) },
+        )
     val density = LocalDensity.current
     var backProgress by remember { mutableFloatStateOf(0f) }
     var toolbarVisible by remember { mutableStateOf(true) }
 
     val statusBarHeight = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
     val toolbarTopPadding = statusBarHeight + 8.dp + 48.dp + 16.dp
-    val sheetBackgroundColor = lerp(
-        MaterialTheme.colorScheme.surfaceContainer,
-        MaterialTheme.colorScheme.surfaceContainerHigh,
-        fraction = 0.75f,
-    )
-
-    val scrollTracker = remember {
-        ScrollDirectionTracker(
-            hideThresholdPx = with(density) { 100.dp.toPx() },
-            showThresholdPx = with(density) { 36.dp.toPx() },
-            onHide = { toolbarVisible = false },
-            onShow = { toolbarVisible = true },
+    val sheetBackgroundColor =
+        lerp(
+            MaterialTheme.colorScheme.surfaceContainer,
+            MaterialTheme.colorScheme.surfaceContainerHigh,
+            fraction = 0.75f,
         )
-    }
+
+    val scrollTracker =
+        remember {
+            ScrollDirectionTracker(
+                hideThresholdPx = with(density) { 100.dp.toPx() },
+                showThresholdPx = with(density) { 36.dp.toPx() },
+                onHide = { toolbarVisible = false },
+                onShow = { toolbarVisible = true },
+            )
+        }
     val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
     PredictiveBackHandler { progress ->
@@ -94,16 +97,17 @@ fun RepliesSheet(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(sheetBackgroundColor)
-            .graphicsLayer {
-                val scale = 1f - (backProgress * 0.1f)
-                scaleX = scale
-                scaleY = scale
-                alpha = 1f - backProgress
-                translationY = backProgress * 100f
-            },
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(sheetBackgroundColor)
+                .graphicsLayer {
+                    val scale = 1f - (backProgress * 0.1f)
+                    scaleX = scale
+                    scaleY = scale
+                    alpha = 1f - backProgress
+                    translationY = backProgress * 100f
+                },
     ) {
         RepliesComposable(
             repliesViewModel = viewModel,
@@ -124,18 +128,19 @@ fun RepliesSheet(
             modifier = Modifier.align(Alignment.TopCenter),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.verticalGradient(
-                            0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                            1f to sheetBackgroundColor.copy(alpha = 0f),
-                        ),
-                    )
-                    .padding(top = statusBarHeight + 8.dp)
-                    .padding(bottom = 16.dp)
-                    .padding(horizontal = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush =
+                                Brush.verticalGradient(
+                                    0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                    0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                    1f to sheetBackgroundColor.copy(alpha = 0f),
+                                ),
+                        ).padding(top = statusBarHeight + 8.dp)
+                        .padding(bottom = 16.dp)
+                        .padding(horizontal = 8.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -171,11 +176,12 @@ fun RepliesSheet(
 
         if (!toolbarVisible) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .fillMaxWidth()
-                    .height(statusBarHeight)
-                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .fillMaxWidth()
+                        .height(statusBarHeight)
+                        .background(sheetBackgroundColor.copy(alpha = 0.7f)),
             )
         }
     }

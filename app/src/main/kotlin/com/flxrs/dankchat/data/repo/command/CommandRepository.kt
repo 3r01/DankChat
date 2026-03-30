@@ -74,15 +74,22 @@ class CommandRepository(
         }
     }
 
-    fun getCommandTriggers(channel: UserName): Flow<List<String>> = when (channel) {
-        WhisperMessage.WHISPER_CHANNEL -> flowOf(TwitchCommandRepository.asCommandTriggers(TwitchCommand.Whisper.trigger))
-        else -> commandTriggers
-    }
+    fun getCommandTriggers(channel: UserName): Flow<List<String>> =
+        when (channel) {
+            WhisperMessage.WHISPER_CHANNEL -> flowOf(TwitchCommandRepository.asCommandTriggers(TwitchCommand.Whisper.trigger))
+            else -> commandTriggers
+        }
 
     fun getSupibotCommands(channel: UserName): StateFlow<List<String>> = supibotCommands.getOrPut(channel) { MutableStateFlow(emptyList()) }
 
     @Suppress("ReturnCount")
-    suspend fun checkForCommands(message: String, channel: UserName, roomState: RoomState, userState: UserState, skipSuspendingCommands: Boolean = false): CommandResult {
+    suspend fun checkForCommands(
+        message: String,
+        channel: UserName,
+        roomState: RoomState,
+        userState: UserState,
+        skipSuspendingCommands: Boolean = false,
+    ): CommandResult {
         if (!authDataStore.isLoggedIn) {
             return CommandResult.NotFound
         }
@@ -126,7 +133,10 @@ class CommandRepository(
         return checkUserCommands(trigger)
     }
 
-    suspend fun checkForWhisperCommand(message: String, skipSuspendingCommands: Boolean): CommandResult {
+    suspend fun checkForWhisperCommand(
+        message: String,
+        skipSuspendingCommands: Boolean,
+    ): CommandResult {
         if (skipSuspendingCommands) {
             return CommandResult.Blocked
         }
@@ -150,27 +160,28 @@ class CommandRepository(
         }
     }
 
-    suspend fun loadSupibotCommands() = withContext(Dispatchers.Default) {
-        if (!authDataStore.isLoggedIn || !chatSettingsDataStore.settings.first().supibotSuggestions) {
-            return@withContext
-        }
-
-        measureTimeMillis {
-            val channelsDeferred = async { getSupibotChannels() }
-            val commandsDeferred = async { getSupibotCommands() }
-            val aliasesDeferred = async { getSupibotUserAliases() }
-
-            val channels = channelsDeferred.await()
-            val commands = commandsDeferred.await()
-            val aliases = aliasesDeferred.await()
-
-            channels.forEach {
-                supibotCommands
-                    .getOrPut(it) { MutableStateFlow(emptyList()) }
-                    .update { commands + aliases }
+    suspend fun loadSupibotCommands() =
+        withContext(Dispatchers.Default) {
+            if (!authDataStore.isLoggedIn || !chatSettingsDataStore.settings.first().supibotSuggestions) {
+                return@withContext
             }
-        }.let { Log.i(TAG, "Loaded Supibot commands in $it ms") }
-    }
+
+            measureTimeMillis {
+                val channelsDeferred = async { getSupibotChannels() }
+                val commandsDeferred = async { getSupibotCommands() }
+                val aliasesDeferred = async { getSupibotUserAliases() }
+
+                val channels = channelsDeferred.await()
+                val commands = commandsDeferred.await()
+                val aliases = aliasesDeferred.await()
+
+                channels.forEach {
+                    supibotCommands
+                        .getOrPut(it) { MutableStateFlow(emptyList()) }
+                        .update { commands + aliases }
+                }
+            }.let { Log.i(TAG, "Loaded Supibot commands in $it ms") }
+        }
 
     private fun triggerAndArgsOrNull(message: String): Pair<String, List<String>>? {
         val words = message.split(" ")
@@ -186,21 +197,23 @@ class CommandRepository(
         return trigger to words.drop(1)
     }
 
-    private suspend fun getSupibotChannels(): List<UserName> = supibotApiClient
-        .getSupibotChannels()
-        .getOrNull()
-        ?.let { (data) ->
-            data.filter { it.isActive }.map { it.name }
-        }.orEmpty()
+    private suspend fun getSupibotChannels(): List<UserName> =
+        supibotApiClient
+            .getSupibotChannels()
+            .getOrNull()
+            ?.let { (data) ->
+                data.filter { it.isActive }.map { it.name }
+            }.orEmpty()
 
-    private suspend fun getSupibotCommands(): List<String> = supibotApiClient
-        .getSupibotCommands()
-        .getOrNull()
-        ?.let { (data) ->
-            data.flatMap { command ->
-                listOf("$${command.name}") + command.aliases.map { "$$it" }
-            }
-        }.orEmpty()
+    private suspend fun getSupibotCommands(): List<String> =
+        supibotApiClient
+            .getSupibotCommands()
+            .getOrNull()
+            ?.let { (data) ->
+                data.flatMap { command ->
+                    listOf("$${command.name}") + command.aliases.map { "$$it" }
+                }
+            }.orEmpty()
 
     private suspend fun getSupibotUserAliases(): List<String> {
         val user = authDataStore.userName ?: return emptyList()
@@ -212,9 +225,10 @@ class CommandRepository(
             }.orEmpty()
     }
 
-    private fun clearSupibotCommands() = supibotCommands
-        .forEach { it.value.value = emptyList() }
-        .also { supibotCommands.clear() }
+    private fun clearSupibotCommands() =
+        supibotCommands
+            .forEach { it.value.value = emptyList() }
+            .also { supibotCommands.clear() }
 
     private suspend fun blockUserCommand(args: List<String>): CommandResult.AcceptedWithResponse {
         if (args.isEmpty() || args.first().isBlank()) {
@@ -273,7 +287,10 @@ class CommandRepository(
         return CommandResult.AcceptedWithResponse("Uptime: $uptime")
     }
 
-    private fun helpCommand(roomState: RoomState, userState: UserState): CommandResult.AcceptedWithResponse {
+    private fun helpCommand(
+        roomState: RoomState,
+        userState: UserState,
+    ): CommandResult.AcceptedWithResponse {
         val commands =
             twitchCommandRepository
                 .getAvailableCommandTriggers(roomState, userState)

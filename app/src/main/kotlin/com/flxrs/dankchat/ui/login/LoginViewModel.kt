@@ -12,37 +12,46 @@ import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class LoginViewModel(private val authApiClient: AuthApiClient, private val authDataStore: AuthDataStore) : ViewModel() {
-    data class TokenParseEvent(val successful: Boolean)
+class LoginViewModel(
+    private val authApiClient: AuthApiClient,
+    private val authDataStore: AuthDataStore,
+) : ViewModel() {
+    data class TokenParseEvent(
+        val successful: Boolean,
+    )
 
     private val eventChannel = Channel<TokenParseEvent>(Channel.BUFFERED)
     val events = eventChannel.receiveAsFlow()
 
     val loginUrl = AuthApiClient.LOGIN_URL
 
-    fun parseToken(fragment: String) = viewModelScope.launch {
-        if (!fragment.startsWith("access_token")) {
-            eventChannel.send(TokenParseEvent(successful = false))
-            return@launch
+    fun parseToken(fragment: String) =
+        viewModelScope.launch {
+            if (!fragment.startsWith("access_token")) {
+                eventChannel.send(TokenParseEvent(successful = false))
+                return@launch
+            }
+
+            val token =
+                fragment
+                    .substringAfter("access_token=")
+                    .substringBefore("&scope=")
+
+            val result =
+                authApiClient.validateUser(token).fold(
+                    onSuccess = { saveLoginDetails(token, it) },
+                    onFailure = {
+                        Log.e(TAG, "Failed to validate token: ${it.message}")
+                        TokenParseEvent(successful = false)
+                    },
+                )
+            eventChannel.send(result)
         }
 
-        val token =
-            fragment
-                .substringAfter("access_token=")
-                .substringBefore("&scope=")
-
-        val result =
-            authApiClient.validateUser(token).fold(
-                onSuccess = { saveLoginDetails(token, it) },
-                onFailure = {
-                    Log.e(TAG, "Failed to validate token: ${it.message}")
-                    TokenParseEvent(successful = false)
-                },
-            )
-        eventChannel.send(result)
-    }
-
-    private suspend fun saveLoginDetails(oAuth: String, validateDto: ValidateDto): TokenParseEvent {
+    private suspend fun saveLoginDetails(
+        oAuth: String,
+        validateDto: ValidateDto,
+    ): TokenParseEvent {
         authDataStore.login(
             oAuthKey = oAuth,
             userName = validateDto.login.value.lowercase(),

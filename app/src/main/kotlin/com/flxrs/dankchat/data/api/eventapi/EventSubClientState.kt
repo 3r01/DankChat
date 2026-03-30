@@ -7,5 +7,7 @@ sealed interface EventSubClientState {
 
     data object Connecting : EventSubClientState
 
-    data class Connected(val sessionId: String) : EventSubClientState
+    data class Connected(
+        val sessionId: String,
+    ) : EventSubClientState
 }

@@ -23,7 +23,10 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class AuthDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
+class AuthDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
     private val legacyPrefs: SharedPreferences =
         context.getSharedPreferences(
             "com.flxrs.dankchat_preferences",
@@ -32,9 +35,10 @@ class AuthDataStore(context: Context, dispatchersProvider: DispatchersProvider) 
 
     private val sharedPrefsMigration =
         object : DataMigration<AuthSettings> {
-            override suspend fun shouldMigrate(currentData: AuthSettings): Boolean = legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
-                legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
-                legacyPrefs.contains(LEGACY_NAME_KEY)
+            override suspend fun shouldMigrate(currentData: AuthSettings): Boolean =
+                legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
+                    legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
+                    legacyPrefs.contains(LEGACY_NAME_KEY)
 
             override suspend fun migrate(currentData: AuthSettings): AuthSettings {
                 val isLoggedIn = legacyPrefs.getBoolean(LEGACY_LOGGED_IN_KEY, false)
@@ -104,7 +108,12 @@ class AuthDataStore(context: Context, dispatchersProvider: DispatchersProvider) 
         persistScope.launch { update(transform) }
     }
 
-    suspend fun login(oAuthKey: String, userName: String, userId: String, clientId: String) {
+    suspend fun login(
+        oAuthKey: String,
+        userName: String,
+        userId: String,
+        clientId: String,
+    ) {
         update {
             it.copy(
                 oAuthKey = "oauth:$oAuthKey",

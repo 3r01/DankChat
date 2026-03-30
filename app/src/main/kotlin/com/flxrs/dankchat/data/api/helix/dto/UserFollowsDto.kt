@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class UserFollowsDto(@SerialName(value = "total") val total: Int, @SerialName(value = "data") val data: List<UserFollowsDataDto>)
+data class UserFollowsDto(
+    @SerialName(value = "total") val total: Int,
+    @SerialName(value = "data") val data: List<UserFollowsDataDto>,
+)

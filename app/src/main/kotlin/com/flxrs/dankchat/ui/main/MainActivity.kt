@@ -537,7 +537,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: android.content.res.Configuration,
+    ) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         mainEventBus.setInPipMode(isInPictureInPictureMode)
     }
@@ -548,10 +551,11 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
     }
 
-    fun clearNotificationsOfChannel(channel: UserName) = when {
-        isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
-        else -> pendingChannelsToClear += channel
-    }
+    fun clearNotificationsOfChannel(channel: UserName) =
+        when {
+            isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
+            else -> pendingChannelsToClear += channel
+        }
 
     private fun handleShutDown() {
         stopService(Intent(this, NotificationService::class.java))
@@ -598,7 +602,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadMedia(file: java.io.File, imageCapture: Boolean) {
+    private fun uploadMedia(
+        file: java.io.File,
+        imageCapture: Boolean,
+    ) {
         lifecycleScope.launch {
             mainEventBus.emitEvent(MainEvent.UploadLoading)
             withContext(Dispatchers.IO) {
@@ -625,7 +632,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private inner class TwitchServiceConnection : ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+        override fun onServiceConnected(
+            className: ComponentName,
+            service: IBinder,
+        ) {
             val binder = service as NotificationService.LocalBinder
             notificationService = binder.service
             isBound = true

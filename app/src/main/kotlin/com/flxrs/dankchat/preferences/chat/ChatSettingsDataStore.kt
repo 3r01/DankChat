@@ -30,8 +30,13 @@ import org.koin.core.annotation.Single
 import kotlin.time.Duration.Companion.seconds
 
 @Single
-class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class ChatPreferenceKeys(override val id: Int) : PreferenceKeys {
+class ChatSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class ChatPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         Suggestions(R.string.preference_suggestions_key),
         SupibotSuggestions(R.string.preference_supibot_suggestions_key),
         CustomCommands(R.string.preference_commands_key),
@@ -86,9 +91,9 @@ class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersPr
                 ChatPreferenceKeys.UserLongClickBehavior -> {
                     acc.copy(
                         userLongClickBehavior =
-                        value.booleanOrNull()?.let {
-                            if (it) UserLongClickBehavior.MentionsUser else UserLongClickBehavior.OpensPopup
-                        } ?: acc.userLongClickBehavior,
+                            value.booleanOrNull()?.let {
+                                if (it) UserLongClickBehavior.MentionsUser else UserLongClickBehavior.OpensPopup
+                            } ?: acc.userLongClickBehavior,
                     )
                 }
 
@@ -107,13 +112,13 @@ class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersPr
                 ChatPreferenceKeys.VisibleBadges -> {
                     acc.copy(
                         visibleBadges =
-                        value
-                            .mappedStringSetOrDefault(
-                                original = context.resources.getStringArray(R.array.badges_entry_values),
-                                enumEntries = VisibleBadges.entries,
-                                default = acc.visibleBadges,
-                            ).plus(VisibleBadges.SharedChat)
-                            .distinct(),
+                            value
+                                .mappedStringSetOrDefault(
+                                    original = context.resources.getStringArray(R.array.badges_entry_values),
+                                    enumEntries = VisibleBadges.entries,
+                                    default = acc.visibleBadges,
+                                ).plus(VisibleBadges.SharedChat)
+                                .distinct(),
                         sharedChatMigration = true,
                     )
                 }
@@ -121,11 +126,11 @@ class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersPr
                 ChatPreferenceKeys.VisibleEmotes -> {
                     acc.copy(
                         visibleEmotes =
-                        value.mappedStringSetOrDefault(
-                            original = context.resources.getStringArray(R.array.emotes_entry_values),
-                            enumEntries = VisibleThirdPartyEmotes.entries,
-                            default = acc.visibleEmotes,
-                        ),
+                            value.mappedStringSetOrDefault(
+                                original = context.resources.getStringArray(R.array.emotes_entry_values),
+                                enumEntries = VisibleThirdPartyEmotes.entries,
+                                default = acc.visibleEmotes,
+                            ),
                     )
                 }
 
@@ -140,11 +145,11 @@ class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersPr
                 ChatPreferenceKeys.LiveUpdatesTimeout -> {
                     acc.copy(
                         sevenTVLiveEmoteUpdatesBehavior =
-                        value.mappedStringOrDefault(
-                            original = context.resources.getStringArray(R.array.event_api_timeout_entry_values),
-                            enumEntries = LiveUpdatesBackgroundBehavior.entries,
-                            default = acc.sevenTVLiveEmoteUpdatesBehavior,
-                        ),
+                            value.mappedStringOrDefault(
+                                original = context.resources.getStringArray(R.array.event_api_timeout_entry_values),
+                                enumEntries = LiveUpdatesBackgroundBehavior.entries,
+                                default = acc.sevenTVLiveEmoteUpdatesBehavior,
+                            ),
                     )
                 }
 
@@ -174,10 +179,11 @@ class ChatSettingsDataStore(context: Context, dispatchersProvider: DispatchersPr
         object : DataMigration<ChatSettings> {
             override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.sharedChatMigration
 
-            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
-                visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
-                sharedChatMigration = true,
-            )
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings =
+                currentData.copy(
+                    visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
+                    sharedChatMigration = true,
+                )
 
             override suspend fun cleanUp() = Unit
         }

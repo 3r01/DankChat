@@ -6,7 +6,13 @@ import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.shouldNotify
 
-data class NotificationData(val channel: UserName, val name: UserName, val message: String, val isWhisper: Boolean = false, val isNotify: Boolean = false)
+data class NotificationData(
+    val channel: UserName,
+    val name: UserName,
+    val message: String,
+    val isWhisper: Boolean = false,
+    val isNotify: Boolean = false,
+)
 
 fun Message.toNotificationData(): NotificationData? {
     if (!highlights.shouldNotify()) {

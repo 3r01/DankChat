@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class BadgeSetDto(@SerialName("set_id") val id: String, val versions: List<BadgeDto>)
+data class BadgeSetDto(
+    @SerialName("set_id") val id: String,
+    val versions: List<BadgeDto>,
+)

@@ -37,7 +37,11 @@ import com.flxrs.dankchat.utils.resolve
  * Renders a system message (connected, disconnected, emote loading failures, etc.)
  */
 @Composable
-fun SystemMessageComposable(message: ChatMessageUiState.SystemMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
+fun SystemMessageComposable(
+    message: ChatMessageUiState.SystemMessageUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+) {
     SimpleMessageContainer(
         message = message.message.resolve(),
         timestamp = message.timestamp,
@@ -53,7 +57,11 @@ fun SystemMessageComposable(message: ChatMessageUiState.SystemMessageUi, fontSiz
  * Renders a notice message from Twitch
  */
 @Composable
-fun NoticeMessageComposable(message: ChatMessageUiState.NoticeMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
+fun NoticeMessageComposable(
+    message: ChatMessageUiState.NoticeMessageUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+) {
     SimpleMessageContainer(
         message = message.message,
         timestamp = message.timestamp,
@@ -71,7 +79,12 @@ fun NoticeMessageComposable(message: ChatMessageUiState.NoticeMessageUi, fontSiz
  */
 @Suppress("DEPRECATION")
 @Composable
-fun UserNoticeMessageComposable(message: ChatMessageUiState.UserNoticeMessageUi, fontSize: Float, modifier: Modifier = Modifier, highlightShape: Shape = RectangleShape) {
+fun UserNoticeMessageComposable(
+    message: ChatMessageUiState.UserNoticeMessageUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+    highlightShape: Shape = RectangleShape,
+) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = MaterialTheme.colorScheme.onSurface
     val linkColor = MaterialTheme.colorScheme.primary
@@ -80,72 +93,77 @@ fun UserNoticeMessageComposable(message: ChatMessageUiState.UserNoticeMessageUi,
     val textSize = fontSize.sp
     val context = LocalContext.current
 
-    val annotatedString = remember(message, textColor, nameColor, linkColor, timestampColor, textSize) {
-        buildAnnotatedString {
-            // Timestamp
-            if (message.timestamp.isNotEmpty()) {
-                withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
-                    append(message.timestamp)
+    val annotatedString =
+        remember(message, textColor, nameColor, linkColor, timestampColor, textSize) {
+            buildAnnotatedString {
+                // Timestamp
+                if (message.timestamp.isNotEmpty()) {
+                    withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
+                        append(message.timestamp)
+                    }
+                    append(" ")
                 }
-                append(" ")
-            }
 
-            // Message text with colored display name
-            val displayName = message.displayName
-            val msgText = message.message
-            val nameIndex = when {
-                displayName.isNotEmpty() -> msgText.indexOf(displayName, ignoreCase = true)
-                else -> -1
-            }
+                // Message text with colored display name
+                val displayName = message.displayName
+                val msgText = message.message
+                val nameIndex =
+                    when {
+                        displayName.isNotEmpty() -> msgText.indexOf(displayName, ignoreCase = true)
+                        else -> -1
+                    }
 
-            when {
-                nameIndex >= 0 -> {
-                    // Text before name
-                    if (nameIndex > 0) {
-                        withStyle(SpanStyle(color = textColor)) {
-                            appendWithLinks(msgText.substring(0, nameIndex), linkColor)
+                when {
+                    nameIndex >= 0 -> {
+                        // Text before name
+                        if (nameIndex > 0) {
+                            withStyle(SpanStyle(color = textColor)) {
+                                appendWithLinks(msgText.substring(0, nameIndex), linkColor)
+                            }
+                        }
+
+                        // Colored username
+                        withStyle(SpanStyle(color = nameColor, fontWeight = FontWeight.Bold)) {
+                            append(msgText.substring(nameIndex, nameIndex + displayName.length))
+                        }
+
+                        // Text after name
+                        val afterIndex = nameIndex + displayName.length
+                        if (afterIndex < msgText.length) {
+                            withStyle(SpanStyle(color = textColor)) {
+                                appendWithLinks(msgText.substring(afterIndex), linkColor)
+                            }
                         }
                     }
 
-                    // Colored username
-                    withStyle(SpanStyle(color = nameColor, fontWeight = FontWeight.Bold)) {
-                        append(msgText.substring(nameIndex, nameIndex + displayName.length))
-                    }
-
-                    // Text after name
-                    val afterIndex = nameIndex + displayName.length
-                    if (afterIndex < msgText.length) {
+                    else -> {
+                        // No display name found, render as plain text
                         withStyle(SpanStyle(color = textColor)) {
-                            appendWithLinks(msgText.substring(afterIndex), linkColor)
+                            appendWithLinks(msgText, linkColor)
                         }
-                    }
-                }
-
-                else -> {
-                    // No display name found, render as plain text
-                    withStyle(SpanStyle(color = textColor)) {
-                        appendWithLinks(msgText, linkColor)
                     }
                 }
             }
         }
-    }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(message.textAlpha)
-            .background(bgColor, highlightShape)
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(message.textAlpha)
+                .background(bgColor, highlightShape)
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
             style = TextStyle(fontSize = textSize),
             modifier = Modifier.fillMaxWidth(),
             onClick = { offset ->
-                annotatedString.getStringAnnotations("URL", offset, offset)
-                    .firstOrNull()?.let { annotation ->
+                annotatedString
+                    .getStringAnnotations("URL", offset, offset)
+                    .firstOrNull()
+                    ?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
             },
@@ -157,7 +175,11 @@ fun UserNoticeMessageComposable(message: ChatMessageUiState.UserNoticeMessageUi,
  * Renders a date separator between messages from different days
  */
 @Composable
-fun DateSeparatorComposable(message: ChatMessageUiState.DateSeparatorUi, fontSize: Float, modifier: Modifier = Modifier) {
+fun DateSeparatorComposable(
+    message: ChatMessageUiState.DateSeparatorUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+) {
     SimpleMessageContainer(
         message = message.dateText,
         timestamp = message.timestamp,
@@ -170,14 +192,23 @@ fun DateSeparatorComposable(message: ChatMessageUiState.DateSeparatorUi, fontSiz
 }
 
 @Immutable
-private data class StyledRange(val start: Int, val length: Int, val color: Color, val bold: Boolean)
+private data class StyledRange(
+    val start: Int,
+    val length: Int,
+    val color: Color,
+    val bold: Boolean,
+)
 
 /**
  * Renders a moderation message (timeouts, bans, deletions) with colored usernames.
  */
 @Suppress("DEPRECATION")
 @Composable
-fun ModerationMessageComposable(message: ChatMessageUiState.ModerationMessageUi, fontSize: Float, modifier: Modifier = Modifier) {
+fun ModerationMessageComposable(
+    message: ChatMessageUiState.ModerationMessageUi,
+    fontSize: Float,
+    modifier: Modifier = Modifier,
+) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -190,84 +221,98 @@ fun ModerationMessageComposable(message: ChatMessageUiState.ModerationMessageUi,
 
     val dimmedTextColor = textColor.copy(alpha = 0.7f)
 
-    val annotatedString = remember(
-        message, resolvedMessage, textColor, dimmedTextColor, creatorColor, targetColor, linkColor, timestampColor, textSize,
-    ) {
-        // Collect all highlighted ranges: usernames (bold+colored) and arguments (regular text color)
-        val ranges = buildList {
-            var searchFrom = 0
-            message.creatorName?.let { name ->
-                val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
-                if (idx >= 0) {
-                    add(StyledRange(idx, name.length, creatorColor, bold = true))
-                    searchFrom = idx + name.length
-                }
-            }
-            message.targetName?.let { name ->
-                val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
-                if (idx >= 0) {
-                    add(StyledRange(idx, name.length, targetColor, bold = true))
-                }
-            }
-            for (arg in message.arguments) {
-                if (arg.isBlank()) continue
-                val idx = resolvedMessage.indexOf(arg, ignoreCase = true)
-                if (idx >= 0 && none { it.start <= idx && idx < it.start + it.length }) {
-                    add(StyledRange(idx, arg.length, textColor, bold = false))
-                }
-            }
-        }.sortedBy { it.start }
-
-        buildAnnotatedString {
-            // Timestamp
-            if (message.timestamp.isNotEmpty()) {
-                withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
-                    append(message.timestamp)
-                }
-                append(" ")
-            }
-
-            // Render message: highlighted ranges at full opacity, template text dimmed
-            var cursor = 0
-            for (range in ranges) {
-                if (range.start < cursor) continue
-                if (range.start > cursor) {
-                    withStyle(SpanStyle(color = dimmedTextColor)) {
-                        append(resolvedMessage.substring(cursor, range.start))
+    val annotatedString =
+        remember(
+            message,
+            resolvedMessage,
+            textColor,
+            dimmedTextColor,
+            creatorColor,
+            targetColor,
+            linkColor,
+            timestampColor,
+            textSize,
+        ) {
+            // Collect all highlighted ranges: usernames (bold+colored) and arguments (regular text color)
+            val ranges =
+                buildList {
+                    var searchFrom = 0
+                    message.creatorName?.let { name ->
+                        val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                        if (idx >= 0) {
+                            add(StyledRange(idx, name.length, creatorColor, bold = true))
+                            searchFrom = idx + name.length
+                        }
                     }
+                    message.targetName?.let { name ->
+                        val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
+                        if (idx >= 0) {
+                            add(StyledRange(idx, name.length, targetColor, bold = true))
+                        }
+                    }
+                    for (arg in message.arguments) {
+                        if (arg.isBlank()) continue
+                        val idx = resolvedMessage.indexOf(arg, ignoreCase = true)
+                        if (idx >= 0 && none { it.start <= idx && idx < it.start + it.length }) {
+                            add(StyledRange(idx, arg.length, textColor, bold = false))
+                        }
+                    }
+                }.sortedBy { it.start }
+
+            buildAnnotatedString {
+                // Timestamp
+                if (message.timestamp.isNotEmpty()) {
+                    withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
+                        append(message.timestamp)
+                    }
+                    append(" ")
                 }
-                val style = when {
-                    range.bold -> SpanStyle(color = range.color, fontWeight = FontWeight.Bold)
-                    else -> SpanStyle(color = range.color)
+
+                // Render message: highlighted ranges at full opacity, template text dimmed
+                var cursor = 0
+                for (range in ranges) {
+                    if (range.start < cursor) continue
+                    if (range.start > cursor) {
+                        withStyle(SpanStyle(color = dimmedTextColor)) {
+                            append(resolvedMessage.substring(cursor, range.start))
+                        }
+                    }
+                    val style =
+                        when {
+                            range.bold -> SpanStyle(color = range.color, fontWeight = FontWeight.Bold)
+                            else -> SpanStyle(color = range.color)
+                        }
+                    withStyle(style) {
+                        append(resolvedMessage.substring(range.start, range.start + range.length))
+                    }
+                    cursor = range.start + range.length
                 }
-                withStyle(style) {
-                    append(resolvedMessage.substring(range.start, range.start + range.length))
-                }
-                cursor = range.start + range.length
-            }
-            if (cursor < resolvedMessage.length) {
-                withStyle(SpanStyle(color = dimmedTextColor)) {
-                    append(resolvedMessage.substring(cursor))
+                if (cursor < resolvedMessage.length) {
+                    withStyle(SpanStyle(color = dimmedTextColor)) {
+                        append(resolvedMessage.substring(cursor))
+                    }
                 }
             }
         }
-    }
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .alpha(message.textAlpha)
-            .background(bgColor)
-            .padding(horizontal = 2.dp, vertical = 2.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .alpha(message.textAlpha)
+                .background(bgColor)
+                .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
         ClickableText(
             text = annotatedString,
             style = TextStyle(fontSize = textSize),
             modifier = Modifier.fillMaxWidth(),
             onClick = { offset ->
-                annotatedString.getStringAnnotations("URL", offset, offset)
-                    .firstOrNull()?.let { annotation ->
+                annotatedString
+                    .getStringAnnotations("URL", offset, offset)
+                    .firstOrNull()
+                    ?.let { annotation ->
                         launchCustomTab(context, annotation.item)
                     }
             },

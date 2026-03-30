@@ -6,4 +6,8 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class PointRedemptionImages(@SerialName("url_1x") val imageSmall: String, @SerialName("url_2x") val imageMedium: String, @SerialName("url_4x") val imageLarge: String)
+data class PointRedemptionImages(
+    @SerialName("url_1x") val imageSmall: String,
+    @SerialName("url_2x") val imageMedium: String,
+    @SerialName("url_4x") val imageLarge: String,
+)

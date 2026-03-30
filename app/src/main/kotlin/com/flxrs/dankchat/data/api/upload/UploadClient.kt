@@ -26,93 +26,99 @@ import java.net.URLConnection
 import java.time.Instant
 
 @Single
-class UploadClient(@Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient, private val toolsSettingsDataStore: ToolsSettingsDataStore) {
-    suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(Dispatchers.IO) {
-        val uploader = toolsSettingsDataStore.settings.first().uploaderConfig
-        val mimetype = URLConnection.guessContentTypeFromName(file.name)
+class UploadClient(
+    @Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient,
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+) {
+    suspend fun uploadMedia(file: File): Result<UploadDto> =
+        withContext(Dispatchers.IO) {
+            val uploader = toolsSettingsDataStore.settings.first().uploaderConfig
+            val mimetype = URLConnection.guessContentTypeFromName(file.name)
 
-        val requestBody =
-            MultipartBody
-                .Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
-                .build()
-        val request =
-            Request
-                .Builder()
-                .url(uploader.uploadUrl)
-                .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
-                .apply {
-                    uploader.parsedHeaders.forEach { (name, value) ->
-                        header(name, value)
-                    }
-                }.post(requestBody)
-                .build()
+            val requestBody =
+                MultipartBody
+                    .Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
+                    .build()
+            val request =
+                Request
+                    .Builder()
+                    .url(uploader.uploadUrl)
+                    .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
+                    .apply {
+                        uploader.parsedHeaders.forEach { (name, value) ->
+                            header(name, value)
+                        }
+                    }.post(requestBody)
+                    .build()
 
-        val response =
-            runCatching {
-                httpClient.newCall(request).execute()
-            }.getOrElse {
-                return@withContext Result.failure(it)
-            }
-
-        when {
-            response.isSuccessful -> {
-                val imageLinkPattern = uploader.imageLinkPattern
-                val deletionLinkPattern = uploader.deletionLinkPattern
-
-                if (imageLinkPattern == null || imageLinkPattern.isBlank()) {
-                    return@withContext runCatching {
-                        val body = response.body.string()
-                        UploadDto(
-                            imageLink = body,
-                            deleteLink = null,
-                            timestamp = Instant.now(),
-                        )
-                    }
+            val response =
+                runCatching {
+                    httpClient.newCall(request).execute()
+                }.getOrElse {
+                    return@withContext Result.failure(it)
                 }
 
-                response
-                    .asJsonObject()
-                    .mapCatching { json ->
-                        val deleteLink = deletionLinkPattern?.takeIf { it.isNotBlank() }?.let { json.extractLink(it) }
-                        val imageLink = json.extractLink(imageLinkPattern)
-                        UploadDto(
-                            imageLink = imageLink,
-                            deleteLink = deleteLink,
-                            timestamp = Instant.now(),
-                        )
-                    }
-            }
+            when {
+                response.isSuccessful -> {
+                    val imageLinkPattern = uploader.imageLinkPattern
+                    val deletionLinkPattern = uploader.deletionLinkPattern
 
-            else -> {
-                Log.e(TAG, "Upload failed with ${response.code} ${response.message}")
-                val url = URLBuilder(response.request.url.toString()).build()
-                Result.failure(ApiException(HttpStatusCode.fromValue(response.code), url, response.message))
+                    if (imageLinkPattern == null || imageLinkPattern.isBlank()) {
+                        return@withContext runCatching {
+                            val body = response.body.string()
+                            UploadDto(
+                                imageLink = body,
+                                deleteLink = null,
+                                timestamp = Instant.now(),
+                            )
+                        }
+                    }
+
+                    response
+                        .asJsonObject()
+                        .mapCatching { json ->
+                            val deleteLink = deletionLinkPattern?.takeIf { it.isNotBlank() }?.let { json.extractLink(it) }
+                            val imageLink = json.extractLink(imageLinkPattern)
+                            UploadDto(
+                                imageLink = imageLink,
+                                deleteLink = deleteLink,
+                                timestamp = Instant.now(),
+                            )
+                        }
+                }
+
+                else -> {
+                    Log.e(TAG, "Upload failed with ${response.code} ${response.message}")
+                    val url = URLBuilder(response.request.url.toString()).build()
+                    Result.failure(ApiException(HttpStatusCode.fromValue(response.code), url, response.message))
+                }
             }
         }
-    }
 
     @Suppress("RegExpRedundantEscape")
-    private suspend fun JSONObject.extractLink(linkPattern: String): String = withContext(Dispatchers.Default) {
-        var imageLink: String = linkPattern
+    private suspend fun JSONObject.extractLink(linkPattern: String): String =
+        withContext(Dispatchers.Default) {
+            var imageLink: String = linkPattern
 
-        val regex = "\\{(.+?)\\}".toRegex()
-        regex.findAll(linkPattern).forEach {
-            val jsonValue = getValue(it.groupValues[1])
-            if (jsonValue != null) {
-                imageLink = imageLink.replace(it.groupValues[0], jsonValue)
+            val regex = "\\{(.+?)\\}".toRegex()
+            regex.findAll(linkPattern).forEach {
+                val jsonValue = getValue(it.groupValues[1])
+                if (jsonValue != null) {
+                    imageLink = imageLink.replace(it.groupValues[0], jsonValue)
+                }
             }
+            imageLink
         }
-        imageLink
-    }
 
-    private fun Response.asJsonObject(): Result<JSONObject> = runCatching {
-        val bodyString = body.string()
-        JSONObject(bodyString)
-    }.onFailure {
-        Log.d(TAG, "Error creating JsonObject from response: ", it)
-    }
+    private fun Response.asJsonObject(): Result<JSONObject> =
+        runCatching {
+            val bodyString = body.string()
+            JSONObject(bodyString)
+        }.onFailure {
+            Log.d(TAG, "Error creating JsonObject from response: ", it)
+        }
 
     private fun JSONObject.getValue(pattern: String): String? {
         return runCatching {

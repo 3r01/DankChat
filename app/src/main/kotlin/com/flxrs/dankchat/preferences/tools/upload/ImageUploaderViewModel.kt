@@ -12,7 +12,9 @@ import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class ImageUploaderViewModel(private val toolsSettingsDataStore: ToolsSettingsDataStore) : ViewModel() {
+class ImageUploaderViewModel(
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+) : ViewModel() {
     val uploader =
         toolsSettingsDataStore.uploadConfig
             .stateIn(
@@ -21,17 +23,19 @@ class ImageUploaderViewModel(private val toolsSettingsDataStore: ToolsSettingsDa
                 initialValue = toolsSettingsDataStore.current().uploaderConfig,
             )
 
-    fun save(uploader: ImageUploaderConfig) = viewModelScope.launch {
-        val validated =
-            uploader.copy(
-                headers = uploader.headers?.takeIf { it.isNotBlank() },
-                imageLinkPattern = uploader.imageLinkPattern?.takeIf { it.isNotBlank() },
-                deletionLinkPattern = uploader.deletionLinkPattern?.takeIf { it.isNotBlank() },
-            )
-        toolsSettingsDataStore.update { it.copy(uploaderConfig = validated) }
-    }
+    fun save(uploader: ImageUploaderConfig) =
+        viewModelScope.launch {
+            val validated =
+                uploader.copy(
+                    headers = uploader.headers?.takeIf { it.isNotBlank() },
+                    imageLinkPattern = uploader.imageLinkPattern?.takeIf { it.isNotBlank() },
+                    deletionLinkPattern = uploader.deletionLinkPattern?.takeIf { it.isNotBlank() },
+                )
+            toolsSettingsDataStore.update { it.copy(uploaderConfig = validated) }
+        }
 
-    fun reset() = viewModelScope.launch {
-        toolsSettingsDataStore.update { it.copy(uploaderConfig = ImageUploaderConfig.DEFAULT) }
-    }
+    fun reset() =
+        viewModelScope.launch {
+            toolsSettingsDataStore.update { it.copy(uploaderConfig = ImageUploaderConfig.DEFAULT) }
+        }
 }

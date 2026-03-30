@@ -57,7 +57,6 @@ import org.koin.android.ext.android.inject
 import java.io.File
 
 class ShareUploadActivity : ComponentActivity() {
-
     private val dataRepository: DataRepository by inject()
     private var uploadState by mutableStateOf<ShareUploadState>(ShareUploadState.Loading)
 
@@ -91,20 +90,21 @@ class ShareUploadActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             uploadState = ShareUploadState.Loading
-            val file = withContext(Dispatchers.IO) {
-                try {
-                    val copy = createMediaFile(this@ShareUploadActivity, extension)
-                    contentResolver.openInputStream(uri)?.use { input ->
-                        copy.outputStream().use { input.copyTo(it) }
+            val file =
+                withContext(Dispatchers.IO) {
+                    try {
+                        val copy = createMediaFile(this@ShareUploadActivity, extension)
+                        contentResolver.openInputStream(uri)?.use { input ->
+                            copy.outputStream().use { input.copyTo(it) }
+                        }
+                        if (copy.extension == "jpg" || copy.extension == "jpeg") {
+                            copy.removeExifAttributes()
+                        }
+                        copy
+                    } catch (_: Throwable) {
+                        null
                     }
-                    if (copy.extension == "jpg" || copy.extension == "jpeg") {
-                        copy.removeExifAttributes()
-                    }
-                    copy
-                } catch (_: Throwable) {
-                    null
                 }
-            }
 
             if (file == null) {
                 uploadState = ShareUploadState.Error(getString(R.string.snackbar_upload_failed))
@@ -124,9 +124,10 @@ class ShareUploadActivity : ComponentActivity() {
         result.fold(
             onSuccess = { url -> uploadState = ShareUploadState.Success(url) },
             onFailure = { error ->
-                uploadState = ShareUploadState.Error(
-                    error.message ?: getString(R.string.snackbar_upload_failed),
-                )
+                uploadState =
+                    ShareUploadState.Error(
+                        error.message ?: getString(R.string.snackbar_upload_failed),
+                    )
             },
         )
     }
@@ -135,12 +136,22 @@ class ShareUploadActivity : ComponentActivity() {
 @Immutable
 sealed interface ShareUploadState {
     data object Loading : ShareUploadState
-    data class Success(val url: String) : ShareUploadState
-    data class Error(val message: String) : ShareUploadState
+
+    data class Success(
+        val url: String,
+    ) : ShareUploadState
+
+    data class Error(
+        val message: String,
+    ) : ShareUploadState
 }
 
 @Composable
-private fun ShareUploadDialog(state: ShareUploadState, onRetry: () -> Unit, onDismiss: () -> Unit) {
+private fun ShareUploadDialog(
+    state: ShareUploadState,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,

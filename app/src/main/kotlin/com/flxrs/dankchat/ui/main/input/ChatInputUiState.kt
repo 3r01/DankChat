@@ -35,9 +35,13 @@ data class ChatInputUiState(
 sealed interface InputOverlay {
     data object None : InputOverlay
 
-    data class Reply(val name: UserName) : InputOverlay
+    data class Reply(
+        val name: UserName,
+    ) : InputOverlay
 
-    data class Whisper(val target: UserName) : InputOverlay
+    data class Whisper(
+        val target: UserName,
+    ) : InputOverlay
 
     data object Announce : InputOverlay
 }
@@ -47,10 +51,16 @@ sealed interface CharacterCounterState {
     data object Hidden : CharacterCounterState
 
     @Immutable
-    data class Visible(val text: String, val isOverLimit: Boolean) : CharacterCounterState
+    data class Visible(
+        val text: String,
+        val isOverLimit: Boolean,
+    ) : CharacterCounterState
 }
 
 @Immutable
-data class HelperText(val roomStateParts: ImmutableList<TextResource> = persistentListOf(), val streamInfo: String? = null) {
+data class HelperText(
+    val roomStateParts: ImmutableList<TextResource> = persistentListOf(),
+    val streamInfo: String? = null,
+) {
     val isEmpty: Boolean get() = roomStateParts.isEmpty() && streamInfo == null
 }

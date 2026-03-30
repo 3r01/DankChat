@@ -49,20 +49,26 @@ fun MainScreenEventHandler(
     LaunchedEffect(Unit) {
         mainEventBus.events.collect { event ->
             when (event) {
-                is MainEvent.LogOutRequested -> dialogViewModel.showLogout()
+                is MainEvent.LogOutRequested -> {
+                    dialogViewModel.showLogout()
+                }
 
-                is MainEvent.UploadLoading -> dialogViewModel.setUploading(true)
+                is MainEvent.UploadLoading -> {
+                    dialogViewModel.setUploading(true)
+                }
 
                 is MainEvent.UploadSuccess -> {
                     dialogViewModel.setUploading(false)
-                    context.getSystemService<ClipboardManager>()
+                    context
+                        .getSystemService<ClipboardManager>()
                         ?.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", event.url))
                     chatInputViewModel.postSystemMessage(resources.getString(R.string.system_message_upload_complete, event.url))
-                    val result = snackbarHostState.showSnackbar(
-                        message = resources.getString(R.string.snackbar_image_uploaded, event.url),
-                        actionLabel = resources.getString(R.string.snackbar_paste),
-                        duration = SnackbarDuration.Long,
-                    )
+                    val result =
+                        snackbarHostState.showSnackbar(
+                            message = resources.getString(R.string.snackbar_image_uploaded, event.url),
+                            actionLabel = resources.getString(R.string.snackbar_paste),
+                            duration = SnackbarDuration.Long,
+                        )
                     if (result == SnackbarResult.ActionPerformed) {
                         chatInputViewModel.insertText(event.url)
                     }
@@ -70,8 +76,9 @@ fun MainScreenEventHandler(
 
                 is MainEvent.UploadFailed -> {
                     dialogViewModel.setUploading(false)
-                    val message = event.errorMessage?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
-                        ?: resources.getString(R.string.snackbar_upload_failed)
+                    val message =
+                        event.errorMessage?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
+                            ?: resources.getString(R.string.snackbar_upload_failed)
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Long)
                 }
 
@@ -82,7 +89,9 @@ fun MainScreenEventHandler(
                     (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
 
-                else -> Unit
+                else -> {
+                    Unit
+                }
             }
         }
     }
@@ -112,7 +121,9 @@ fun MainScreenEventHandler(
                         )
                     }
 
-                    else -> Unit
+                    else -> {
+                        Unit
+                    }
                 }
             }
         }
@@ -128,15 +139,17 @@ fun MainScreenEventHandler(
         val chatSteps = state.chatFailures.map { it.step }.toDisplayStrings(resources)
         val allSteps = dataSteps + chatSteps
         val stepsText = allSteps.joinToString(", ")
-        val message = when {
-            allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
-            else -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
-        }
-        val result = snackbarHostState.showSnackbar(
-            message = message,
-            actionLabel = resources.getString(R.string.snackbar_retry),
-            duration = SnackbarDuration.Long,
-        )
+        val message =
+            when {
+                allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
+                else -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
+            }
+        val result =
+            snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = resources.getString(R.string.snackbar_retry),
+                duration = SnackbarDuration.Long,
+            )
         if (result == SnackbarResult.ActionPerformed) {
             mainScreenViewModel.retryDataLoading(state)
         }

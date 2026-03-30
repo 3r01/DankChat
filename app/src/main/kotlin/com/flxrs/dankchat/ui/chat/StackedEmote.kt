@@ -72,46 +72,51 @@ fun StackedEmote(
     val estimatedWidthPx = cachedDims?.first ?: estimatedHeightPx
 
     // Load or create LayerDrawable asynchronously
-    val layerDrawableState = produceState<LayerDrawable?>(initialValue = null, key1 = cacheKey) {
-        // Check cache first
-        val cached = emoteCoordinator.getLayerCached(cacheKey)
-        if (cached != null) {
-            value = cached
-            // Control animation
-            cached.forEachLayer<Animatable> { it.setRunning(animateGifs) }
-        } else {
-            // Load all drawables
-            val drawables = emote.urls.mapIndexedNotNull { idx, url ->
-                val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
-                try {
-                    val request = ImageRequest.Builder(context)
-                        .data(url)
-                        .size(Size.ORIGINAL)
-                        .build()
-                    val result = context.imageLoader.execute(request)
-                    result.image?.asDrawable(context.resources)?.let { drawable ->
-                        transformEmoteDrawable(drawable, scaleFactor, emoteData)
-                    }
-                } catch (_: Exception) {
-                    null
-                }
-            }.toTypedArray()
-
-            if (drawables.isNotEmpty()) {
-                // Create LayerDrawable exactly like old implementation
-                val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
-                emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
-                // Store dimensions for future placeholder sizing
-                emoteCoordinator.dimensionCache.put(
-                    cacheKey,
-                    layerDrawable.bounds.width() to layerDrawable.bounds.height(),
-                )
-                value = layerDrawable
+    val layerDrawableState =
+        produceState<LayerDrawable?>(initialValue = null, key1 = cacheKey) {
+            // Check cache first
+            val cached = emoteCoordinator.getLayerCached(cacheKey)
+            if (cached != null) {
+                value = cached
                 // Control animation
-                layerDrawable.forEachLayer<Animatable> { it.setRunning(animateGifs) }
+                cached.forEachLayer<Animatable> { it.setRunning(animateGifs) }
+            } else {
+                // Load all drawables
+                val drawables =
+                    emote.urls
+                        .mapIndexedNotNull { idx, url ->
+                            val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
+                            try {
+                                val request =
+                                    ImageRequest
+                                        .Builder(context)
+                                        .data(url)
+                                        .size(Size.ORIGINAL)
+                                        .build()
+                                val result = context.imageLoader.execute(request)
+                                result.image?.asDrawable(context.resources)?.let { drawable ->
+                                    transformEmoteDrawable(drawable, scaleFactor, emoteData)
+                                }
+                            } catch (_: Exception) {
+                                null
+                            }
+                        }.toTypedArray()
+
+                if (drawables.isNotEmpty()) {
+                    // Create LayerDrawable exactly like old implementation
+                    val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
+                    emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
+                    // Store dimensions for future placeholder sizing
+                    emoteCoordinator.dimensionCache.put(
+                        cacheKey,
+                        layerDrawable.bounds.width() to layerDrawable.bounds.height(),
+                    )
+                    value = layerDrawable
+                    // Control animation
+                    layerDrawable.forEachLayer<Animatable> { it.setRunning(animateGifs) }
+                }
             }
         }
-    }
 
     // Update animation state when setting changes
     LaunchedEffect(animateGifs, layerDrawableState.value) {
@@ -129,18 +134,20 @@ fun StackedEmote(
             painter = painter,
             contentDescription = null,
             alpha = alpha,
-            modifier = modifier
-                .size(width = widthDp, height = heightDp)
-                .clickable { onClick() },
+            modifier =
+                modifier
+                    .size(width = widthDp, height = heightDp)
+                    .clickable { onClick() },
         )
     } else {
         // Placeholder with estimated size to prevent layout shift
         val widthDp = with(density) { estimatedWidthPx.toDp() }
         val heightDp = with(density) { estimatedHeightPx.toDp() }
         Box(
-            modifier = modifier
-                .size(width = widthDp, height = heightDp)
-                .clickable { onClick() },
+            modifier =
+                modifier
+                    .size(width = widthDp, height = heightDp)
+                    .clickable { onClick() },
         )
     }
 }
@@ -166,34 +173,37 @@ private fun SingleEmoteDrawable(
     val cachedDims = emoteCoordinator.dimensionCache.get(url)
 
     // Load drawable asynchronously
-    val drawableState = produceState<Drawable?>(initialValue = null, key1 = url) {
-        // Fast path: check cache first
-        val cached = emoteCoordinator.getCached(url)
-        if (cached != null) {
-            value = cached
-        } else {
-            try {
-                val request = ImageRequest.Builder(context)
-                    .data(url)
-                    .size(Size.ORIGINAL)
-                    .build()
-                val result = context.imageLoader.execute(request)
-                result.image?.asDrawable(context.resources)?.let { drawable ->
-                    // Transform and cache
-                    val transformed = transformEmoteDrawable(drawable, scaleFactor, chatEmote)
-                    emoteCoordinator.putInCache(url, transformed)
-                    // Store dimensions for future placeholder sizing
-                    emoteCoordinator.dimensionCache.put(
-                        url,
-                        transformed.bounds.width() to transformed.bounds.height(),
-                    )
-                    value = transformed
+    val drawableState =
+        produceState<Drawable?>(initialValue = null, key1 = url) {
+            // Fast path: check cache first
+            val cached = emoteCoordinator.getCached(url)
+            if (cached != null) {
+                value = cached
+            } else {
+                try {
+                    val request =
+                        ImageRequest
+                            .Builder(context)
+                            .data(url)
+                            .size(Size.ORIGINAL)
+                            .build()
+                    val result = context.imageLoader.execute(request)
+                    result.image?.asDrawable(context.resources)?.let { drawable ->
+                        // Transform and cache
+                        val transformed = transformEmoteDrawable(drawable, scaleFactor, chatEmote)
+                        emoteCoordinator.putInCache(url, transformed)
+                        // Store dimensions for future placeholder sizing
+                        emoteCoordinator.dimensionCache.put(
+                            url,
+                            transformed.bounds.width() to transformed.bounds.height(),
+                        )
+                        value = transformed
+                    }
+                } catch (_: Exception) {
+                    // Ignore errors
                 }
-            } catch (_: Exception) {
-                // Ignore errors
             }
         }
-    }
 
     // Update animation state when setting changes
     LaunchedEffect(animateGifs, drawableState.value) {
@@ -213,18 +223,20 @@ private fun SingleEmoteDrawable(
             painter = painter,
             contentDescription = null,
             alpha = alpha,
-            modifier = modifier
-                .size(width = widthDp, height = heightDp)
-                .clickable { onClick() },
+            modifier =
+                modifier
+                    .size(width = widthDp, height = heightDp)
+                    .clickable { onClick() },
         )
     } else if (cachedDims != null) {
         // Placeholder with cached size to prevent layout shift
         val widthDp = with(density) { cachedDims.first.toDp() }
         val heightDp = with(density) { cachedDims.second.toDp() }
         Box(
-            modifier = modifier
-                .size(width = widthDp, height = heightDp)
-                .clickable { onClick() },
+            modifier =
+                modifier
+                    .size(width = widthDp, height = heightDp)
+                    .clickable { onClick() },
         )
     }
 }
@@ -233,13 +245,20 @@ private fun SingleEmoteDrawable(
  * Transform emote drawable exactly like old ChatAdapter.transformEmoteDrawable().
  * Phase 1: Individual scaling without maxWidth/maxHeight.
  */
-private fun transformEmoteDrawable(drawable: Drawable, scale: Double, emote: ChatMessageEmote, maxWidth: Int = 0, maxHeight: Int = 0): Drawable {
+private fun transformEmoteDrawable(
+    drawable: Drawable,
+    scale: Double,
+    emote: ChatMessageEmote,
+    maxWidth: Int = 0,
+    maxHeight: Int = 0,
+): Drawable {
     val ratio = drawable.intrinsicWidth / drawable.intrinsicHeight.toFloat()
-    val height = when {
-        drawable.intrinsicHeight < 55 && emote.isTwitch -> (70 * scale).roundToInt()
-        drawable.intrinsicHeight in 55..111 && emote.isTwitch -> (112 * scale).roundToInt()
-        else -> (drawable.intrinsicHeight * scale).roundToInt()
-    }
+    val height =
+        when {
+            drawable.intrinsicHeight < 55 && emote.isTwitch -> (70 * scale).roundToInt()
+            drawable.intrinsicHeight in 55..111 && emote.isTwitch -> (112 * scale).roundToInt()
+            else -> (drawable.intrinsicHeight * scale).roundToInt()
+        }
     val width = (height * ratio).roundToInt()
 
     val scaledWidth = width * emote.scale
@@ -255,14 +274,18 @@ private fun transformEmoteDrawable(drawable: Drawable, scale: Double, emote: Cha
 /**
  * Create LayerDrawable from array of drawables exactly like old ChatAdapter.toLayerDrawable().
  */
-private fun Array<Drawable>.toLayerDrawable(scaleFactor: Double, emotes: List<ChatMessageEmote>): LayerDrawable = LayerDrawable(this).apply {
-    val bounds = this@toLayerDrawable.map { it.bounds }
-    val maxWidth = bounds.maxOf { it.width() }
-    val maxHeight = bounds.maxOf { it.height() }
-    setBounds(0, 0, maxWidth, maxHeight)
+private fun Array<Drawable>.toLayerDrawable(
+    scaleFactor: Double,
+    emotes: List<ChatMessageEmote>,
+): LayerDrawable =
+    LayerDrawable(this).apply {
+        val bounds = this@toLayerDrawable.map { it.bounds }
+        val maxWidth = bounds.maxOf { it.width() }
+        val maxHeight = bounds.maxOf { it.height() }
+        setBounds(0, 0, maxWidth, maxHeight)
 
-    // Phase 2: Re-adjust bounds with maxWidth/maxHeight
-    forEachIndexed { idx, dr ->
-        transformEmoteDrawable(dr, scaleFactor, emotes[idx], maxWidth, maxHeight)
+        // Phase 2: Re-adjust bounds with maxWidth/maxHeight
+        forEachIndexed { idx, dr ->
+            transformEmoteDrawable(dr, scaleFactor, emotes[idx], maxWidth, maxHeight)
+        }
     }
-}

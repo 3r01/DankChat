@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class DebugInfoViewModel(debugSectionRegistry: DebugSectionRegistry) : ViewModel() {
+class DebugInfoViewModel(
+    debugSectionRegistry: DebugSectionRegistry,
+) : ViewModel() {
     val sections: StateFlow<ImmutableList<DebugSectionSnapshot>> =
         debugSectionRegistry
             .allSections()

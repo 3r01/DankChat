@@ -53,7 +53,12 @@ import kotlin.time.Duration.Companion.seconds
 
 @OptIn(DelicateCoroutinesApi::class)
 @Single
-class EventSubClient(private val helixApiClient: HelixApiClient, private val json: Json, httpClient: HttpClient, dispatchersProvider: DispatchersProvider) {
+class EventSubClient(
+    private val helixApiClient: HelixApiClient,
+    private val json: Json,
+    httpClient: HttpClient,
+    dispatchersProvider: DispatchersProvider,
+) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.io)
     private var session: DefaultClientWebSocketSession? = null
     private var previousSession: DefaultClientWebSocketSession? = null
@@ -74,7 +79,10 @@ class EventSubClient(private val helixApiClient: HelixApiClient, private val jso
     val topics = subscriptions.asStateFlow()
     val events = eventsChannel.receiveAsFlow().shareIn(scope = scope, started = SharingStarted.Eagerly)
 
-    fun connect(url: String = DEFAULT_URL, twitchReconnect: Boolean = false) {
+    fun connect(
+        url: String = DEFAULT_URL,
+        twitchReconnect: Boolean = false,
+    ) {
         Log.i(TAG, "[EventSub] starting connection, twitchReconnect=$twitchReconnect")
         emitSystemMessage(message = "[EventSub] connecting, twitchReconnect=$twitchReconnect")
 
@@ -195,46 +203,47 @@ class EventSubClient(private val helixApiClient: HelixApiClient, private val jso
         }
     }
 
-    suspend fun subscribe(topic: EventSubTopic) = subscriptionMutex.withLock {
-        wantedSubscriptions += topic
-        if (subscriptions.value.any { it.topic == topic }) {
-            // already subscribed, nothing to do
-            return@withLock
+    suspend fun subscribe(topic: EventSubTopic) =
+        subscriptionMutex.withLock {
+            wantedSubscriptions += topic
+            if (subscriptions.value.any { it.topic == topic }) {
+                // already subscribed, nothing to do
+                return@withLock
+            }
+
+            // check state, if we are not connected, we need to start a connection
+            val current = state.value
+            if (current is EventSubClientState.Disconnected || current is EventSubClientState.Failed) {
+                Log.d(TAG, "[EventSub] is not connected, connecting")
+                connect()
+            }
+
+            val connectedState =
+                withTimeoutOrNull(SUBSCRIPTION_TIMEOUT) {
+                    state.filterIsInstance<EventSubClientState.Connected>().first()
+                } ?: return@withLock
+
+            val request = topic.createRequest(connectedState.sessionId)
+            val response =
+                helixApiClient
+                    .postEventSubSubscription(request)
+                    .getOrElse {
+                        // TODO: handle errors, maybe retry?
+                        Log.e(TAG, "[EventSub] failed to subscribe: $it")
+                        emitSystemMessage(message = "[EventSub] failed to subscribe: $it")
+                        return@withLock
+                    }
+
+            val subscription = response.data.firstOrNull()?.id
+            if (subscription == null) {
+                Log.e(TAG, "[EventSub] subscription response did not include subscription id: $response")
+                return@withLock
+            }
+
+            Log.d(TAG, "[EventSub] subscribed to $topic")
+            emitSystemMessage(message = "[EventSub] subscribed to ${topic.shortFormatted()}")
+            subscriptions.update { it + SubscribedTopic(subscription, topic) }
         }
-
-        // check state, if we are not connected, we need to start a connection
-        val current = state.value
-        if (current is EventSubClientState.Disconnected || current is EventSubClientState.Failed) {
-            Log.d(TAG, "[EventSub] is not connected, connecting")
-            connect()
-        }
-
-        val connectedState =
-            withTimeoutOrNull(SUBSCRIPTION_TIMEOUT) {
-                state.filterIsInstance<EventSubClientState.Connected>().first()
-            } ?: return@withLock
-
-        val request = topic.createRequest(connectedState.sessionId)
-        val response =
-            helixApiClient
-                .postEventSubSubscription(request)
-                .getOrElse {
-                    // TODO: handle errors, maybe retry?
-                    Log.e(TAG, "[EventSub] failed to subscribe: $it")
-                    emitSystemMessage(message = "[EventSub] failed to subscribe: $it")
-                    return@withLock
-                }
-
-        val subscription = response.data.firstOrNull()?.id
-        if (subscription == null) {
-            Log.e(TAG, "[EventSub] subscription response did not include subscription id: $response")
-            return@withLock
-        }
-
-        Log.d(TAG, "[EventSub] subscribed to $topic")
-        emitSystemMessage(message = "[EventSub] subscribed to ${topic.shortFormatted()}")
-        subscriptions.update { it + SubscribedTopic(subscription, topic) }
-    }
 
     suspend fun unsubscribe(topic: SubscribedTopic) {
         wantedSubscriptions -= topic.topic

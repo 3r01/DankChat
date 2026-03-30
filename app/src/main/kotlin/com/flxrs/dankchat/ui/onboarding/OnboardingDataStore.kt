@@ -15,19 +15,24 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class OnboardingDataStore(context: Context, dispatchersProvider: DispatchersProvider, dankChatPreferenceStore: DankChatPreferenceStore) {
+class OnboardingDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+    dankChatPreferenceStore: DankChatPreferenceStore,
+) {
     // Detect existing users by checking if they already acknowledged the message history disclaimer.
     // If so, they've used the app before and should skip onboarding.
     private val existingUserMigration =
         object : DataMigration<OnboardingSettings> {
             override suspend fun shouldMigrate(currentData: OnboardingSettings): Boolean = !currentData.hasRunExistingUserMigration && dankChatPreferenceStore.hasMessageHistoryAcknowledged
 
-            override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings = currentData.copy(
-                hasCompletedOnboarding = true,
-                hasRunExistingUserMigration = true,
-                hasShownAddChannelHint = true,
-                hasShownToolbarHint = true,
-            )
+            override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings =
+                currentData.copy(
+                    hasCompletedOnboarding = true,
+                    hasRunExistingUserMigration = true,
+                    hasShownAddChannelHint = true,
+                    hasShownToolbarHint = true,
+                )
 
             override suspend fun cleanUp() = Unit
         }

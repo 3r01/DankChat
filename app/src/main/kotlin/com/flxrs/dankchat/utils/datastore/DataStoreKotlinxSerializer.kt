@@ -9,7 +9,11 @@ import kotlinx.serialization.modules.SerializersModule
 import okio.BufferedSink
 import okio.BufferedSource
 
-class DataStoreKotlinxSerializer<T>(override val defaultValue: T, private val serializer: KSerializer<T>, private val customSerializersModule: SerializersModule? = null) : OkioSerializer<T> {
+class DataStoreKotlinxSerializer<T>(
+    override val defaultValue: T,
+    private val serializer: KSerializer<T>,
+    private val customSerializersModule: SerializersModule? = null,
+) : OkioSerializer<T> {
     private val json =
         Json {
             ignoreUnknownKeys = true
@@ -18,11 +22,15 @@ class DataStoreKotlinxSerializer<T>(override val defaultValue: T, private val se
             }
         }
 
-    override suspend fun readFrom(source: BufferedSource): T = runCatching {
-        json.decodeFromBufferedSource(serializer, source)
-    }.getOrDefault(defaultValue)
+    override suspend fun readFrom(source: BufferedSource): T =
+        runCatching {
+            json.decodeFromBufferedSource(serializer, source)
+        }.getOrDefault(defaultValue)
 
-    override suspend fun writeTo(t: T, sink: BufferedSink) {
+    override suspend fun writeTo(
+        t: T,
+        sink: BufferedSink,
+    ) {
         json.encodeToBufferedSink(serializer, t, sink)
     }
 }

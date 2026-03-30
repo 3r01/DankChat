@@ -74,45 +74,53 @@ class ChannelDataLoader(
         }
     }
 
-    suspend fun loadChannelBadges(channel: UserName, channelId: UserId): ChannelLoadingFailure.Badges? = dataRepository.loadChannelBadges(channel, channelId).fold(
-        onSuccess = { null },
-        onFailure = { ChannelLoadingFailure.Badges(channel, channelId, it) },
-    )
-
-    suspend fun loadChannelEmotes(channel: UserName, channelInfo: Channel): List<ChannelLoadingFailure> = withContext(dispatchersProvider.io) {
-        val bttvResult =
-            async {
-                dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.BTTVEmotes(channel, it) },
-                )
-            }
-        val ffzResult =
-            async {
-                dataRepository.loadChannelFFZEmotes(channel, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.FFZEmotes(channel, it) },
-                )
-            }
-        val sevenTvResult =
-            async {
-                dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) },
-                )
-            }
-        val cheermotesResult =
-            async {
-                dataRepository.loadChannelCheermotes(channel, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.Cheermotes(channel, it) },
-                )
-            }
-        listOfNotNull(
-            bttvResult.await(),
-            ffzResult.await(),
-            sevenTvResult.await(),
-            cheermotesResult.await(),
+    suspend fun loadChannelBadges(
+        channel: UserName,
+        channelId: UserId,
+    ): ChannelLoadingFailure.Badges? =
+        dataRepository.loadChannelBadges(channel, channelId).fold(
+            onSuccess = { null },
+            onFailure = { ChannelLoadingFailure.Badges(channel, channelId, it) },
         )
-    }
+
+    suspend fun loadChannelEmotes(
+        channel: UserName,
+        channelInfo: Channel,
+    ): List<ChannelLoadingFailure> =
+        withContext(dispatchersProvider.io) {
+            val bttvResult =
+                async {
+                    dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id).fold(
+                        onSuccess = { null },
+                        onFailure = { ChannelLoadingFailure.BTTVEmotes(channel, it) },
+                    )
+                }
+            val ffzResult =
+                async {
+                    dataRepository.loadChannelFFZEmotes(channel, channelInfo.id).fold(
+                        onSuccess = { null },
+                        onFailure = { ChannelLoadingFailure.FFZEmotes(channel, it) },
+                    )
+                }
+            val sevenTvResult =
+                async {
+                    dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id).fold(
+                        onSuccess = { null },
+                        onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) },
+                    )
+                }
+            val cheermotesResult =
+                async {
+                    dataRepository.loadChannelCheermotes(channel, channelInfo.id).fold(
+                        onSuccess = { null },
+                        onFailure = { ChannelLoadingFailure.Cheermotes(channel, it) },
+                    )
+                }
+            listOfNotNull(
+                bttvResult.await(),
+                ffzResult.await(),
+                sevenTvResult.await(),
+                cheermotesResult.await(),
+            )
+        }
 }

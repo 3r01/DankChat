@@ -17,72 +17,82 @@ fun MutableList<ChatItem>.replaceOrAddHistoryModerationMessage(moderationMessage
     }
 }
 
-fun List<ChatItem>.replaceOrAddModerationMessage(moderationMessage: ModerationMessage, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit): List<ChatItem> = toMutableList().apply {
-    if (!moderationMessage.canClearMessages) {
-        addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
-        return this
-    }
+fun List<ChatItem>.replaceOrAddModerationMessage(
+    moderationMessage: ModerationMessage,
+    scrollBackLength: Int,
+    onMessageRemoved: (ChatItem) -> Unit,
+): List<ChatItem> =
+    toMutableList().apply {
+        if (!moderationMessage.canClearMessages) {
+            addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
+            return this
+        }
 
-    val addSystemMessage = checkForStackedTimeouts(moderationMessage)
-    for (idx in indices) {
-        val item = this[idx]
-        when (moderationMessage.action) {
-            ModerationMessage.Action.Clear -> {
-                this[idx] =
-                    when (item.message) {
-                        is PrivMessage -> item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
-                        else -> item.copy(tag = item.tag + 1, importance = ChatImportance.DELETED)
-                    }
-            }
-
-            ModerationMessage.Action.Timeout,
-            ModerationMessage.Action.Ban,
-            ModerationMessage.Action.SharedTimeout,
-            ModerationMessage.Action.SharedBan,
-            -> {
-                item.message as? PrivMessage ?: continue
-                if (moderationMessage.targetUser != item.message.name) {
-                    continue
+        val addSystemMessage = checkForStackedTimeouts(moderationMessage)
+        for (idx in indices) {
+            val item = this[idx]
+            when (moderationMessage.action) {
+                ModerationMessage.Action.Clear -> {
+                    this[idx] =
+                        when (item.message) {
+                            is PrivMessage -> item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
+                            else -> item.copy(tag = item.tag + 1, importance = ChatImportance.DELETED)
+                        }
                 }
 
-                this[idx] = item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
-            }
+                ModerationMessage.Action.Timeout,
+                ModerationMessage.Action.Ban,
+                ModerationMessage.Action.SharedTimeout,
+                ModerationMessage.Action.SharedBan,
+                -> {
+                    item.message as? PrivMessage ?: continue
+                    if (moderationMessage.targetUser != item.message.name) {
+                        continue
+                    }
 
-            else -> {
-                continue
+                    this[idx] = item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
+                }
+
+                else -> {
+                    continue
+                }
             }
+        }
+
+        if (addSystemMessage) {
+            addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
         }
     }
 
-    if (addSystemMessage) {
+fun List<ChatItem>.replaceWithTimeout(
+    moderationMessage: ModerationMessage,
+    scrollBackLength: Int,
+    onMessageRemoved: (ChatItem) -> Unit,
+): List<ChatItem> =
+    toMutableList().apply {
+        val targetMsgId = moderationMessage.targetMsgId ?: return@apply
+        if (moderationMessage.fromEventSource) {
+            val end = (lastIndex - 20).coerceAtLeast(0)
+            for (idx in lastIndex downTo end) {
+                val item = this[idx]
+                val message = item.message as? ModerationMessage ?: continue
+                if ((message.action == ModerationMessage.Action.Delete || message.action == ModerationMessage.Action.SharedDelete) && message.targetMsgId == targetMsgId && !message.fromEventSource) {
+                    this[idx] = item.copy(tag = item.tag + 1, message = moderationMessage)
+                    return@apply
+                }
+            }
+        }
+
+        for (idx in indices) {
+            val item = this[idx]
+            if (item.message is PrivMessage && item.message.id == targetMsgId) {
+                this[idx] = item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
+                break
+            }
+        }
+
         addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
     }
-}
-
-fun List<ChatItem>.replaceWithTimeout(moderationMessage: ModerationMessage, scrollBackLength: Int, onMessageRemoved: (ChatItem) -> Unit): List<ChatItem> = toMutableList().apply {
-    val targetMsgId = moderationMessage.targetMsgId ?: return@apply
-    if (moderationMessage.fromEventSource) {
-        val end = (lastIndex - 20).coerceAtLeast(0)
-        for (idx in lastIndex downTo end) {
-            val item = this[idx]
-            val message = item.message as? ModerationMessage ?: continue
-            if ((message.action == ModerationMessage.Action.Delete || message.action == ModerationMessage.Action.SharedDelete) && message.targetMsgId == targetMsgId && !message.fromEventSource) {
-                this[idx] = item.copy(tag = item.tag + 1, message = moderationMessage)
-                return@apply
-            }
-        }
-    }
-
-    for (idx in indices) {
-        val item = this[idx]
-        if (item.message is PrivMessage && item.message.id == targetMsgId) {
-            this[idx] = item.copy(tag = item.tag + 1, message = item.message.copy(timedOut = true), importance = ChatImportance.DELETED)
-            break
-        }
-    }
-
-    addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
-}
 
 private fun MutableList<ChatItem>.checkForStackedTimeouts(moderationMessage: ModerationMessage): Boolean {
     if (moderationMessage.canStack) {

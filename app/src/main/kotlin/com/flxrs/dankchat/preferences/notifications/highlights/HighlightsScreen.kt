@@ -153,11 +153,12 @@ private fun HighlightsScreen(
                 focusManager.clearFocus()
                 when (event) {
                     is HighlightEvent.ItemRemoved -> {
-                        val result = snackbarHost.showSnackbar(
-                            message = itemRemovedMsg,
-                            actionLabel = undoMsg,
-                            duration = SnackbarDuration.Short,
-                        )
+                        val result =
+                            snackbarHost.showSnackbar(
+                                message = itemRemovedMsg,
+                                actionLabel = undoMsg,
+                                duration = SnackbarDuration.Short,
+                            )
                         if (result == SnackbarResult.ActionPerformed) {
                             onAdd(event.item, event.position)
                         }
@@ -183,9 +184,10 @@ private fun HighlightsScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -207,9 +209,10 @@ private fun HighlightsScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.multi_entry_add_entry)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.multi_entry_add_entry)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = onAddNew,
                 )
             }
@@ -218,21 +221,24 @@ private fun HighlightsScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             Column(
-                modifier = Modifier
-                    .background(color = appBarContainerColor.value)
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                modifier =
+                    Modifier
+                        .background(color = appBarContainerColor.value)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
             ) {
-                val subtitle = when (currentTab) {
-                    HighlightsTab.Messages -> stringResource(R.string.highlights_messages_title)
-                    HighlightsTab.Users -> stringResource(R.string.highlights_users_title)
-                    HighlightsTab.Badges -> stringResource(R.string.highlights_badges_title)
-                    HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
-                }
+                val subtitle =
+                    when (currentTab) {
+                        HighlightsTab.Messages -> stringResource(R.string.highlights_messages_title)
+                        HighlightsTab.Users -> stringResource(R.string.highlights_users_title)
+                        HighlightsTab.Badges -> stringResource(R.string.highlights_badges_title)
+                        HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
+                    }
                 Text(
                     text = subtitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center,
                 )
@@ -253,70 +259,83 @@ private fun HighlightsScreen(
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = 16.dp, end = 16.dp),
             ) { page ->
                 val listState = listStates[page]
                 when (HighlightsTab.entries[page]) {
-                    HighlightsTab.Messages -> HighlightsList(
-                        highlights = messageHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        MessageHighlightItem(
-                            item = item,
-                            onChange = { messageHighlights[idx] = it },
-                            onRemove = { onRemove(messageHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Messages -> {
+                        HighlightsList(
+                            highlights = messageHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            MessageHighlightItem(
+                                item = item,
+                                onChange = { messageHighlights[idx] = it },
+                                onRemove = { onRemove(messageHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.Users -> HighlightsList(
-                        highlights = userHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        UserHighlightItem(
-                            item = item,
-                            onChange = { userHighlights[idx] = it },
-                            onRemove = { onRemove(userHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Users -> {
+                        HighlightsList(
+                            highlights = userHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            UserHighlightItem(
+                                item = item,
+                                onChange = { userHighlights[idx] = it },
+                                onRemove = { onRemove(userHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.Badges -> HighlightsList(
-                        highlights = badgeHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        BadgeHighlightItem(
-                            item = item,
-                            onChange = { badgeHighlights[idx] = it },
-                            onRemove = { onRemove(badgeHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Badges -> {
+                        HighlightsList(
+                            highlights = badgeHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            BadgeHighlightItem(
+                                item = item,
+                                onChange = { badgeHighlights[idx] = it },
+                                onRemove = { onRemove(badgeHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.BlacklistedUsers -> HighlightsList(
-                        highlights = blacklistedUsers,
-                        listState = listState,
-                    ) { idx, item ->
-                        BlacklistedUserItem(
-                            item = item,
-                            onChange = { blacklistedUsers[idx] = it },
-                            onRemove = { onRemove(blacklistedUsers[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.BlacklistedUsers -> {
+                        HighlightsList(
+                            highlights = blacklistedUsers,
+                            listState = listState,
+                        ) { idx, item ->
+                            BlacklistedUserItem(
+                                item = item,
+                                onChange = { blacklistedUsers[idx] = it },
+                                onRemove = { onRemove(blacklistedUsers[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -325,7 +344,11 @@ private fun HighlightsScreen(
 }
 
 @Composable
-private fun <T : HighlightItem> HighlightsList(highlights: SnapshotStateList<T>, listState: LazyListState, itemContent: @Composable LazyItemScope.(Int, T) -> Unit) {
+private fun <T : HighlightItem> HighlightsList(
+    highlights: SnapshotStateList<T>,
+    listState: LazyListState,
+    itemContent: @Composable LazyItemScope.(Int, T) -> Unit,
+) {
     DankBackground(visible = highlights.isEmpty())
 
     LazyColumn(
@@ -346,24 +369,31 @@ private fun <T : HighlightItem> HighlightsList(highlights: SnapshotStateList<T>,
 }
 
 @Composable
-private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun MessageHighlightItem(
+    item: MessageHighlightItem,
+    onChange: (MessageHighlightItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val launcher = LocalUriHandler.current
-    val titleText = when (item.type) {
-        MessageHighlightItem.Type.Username -> R.string.highlights_entry_username
-        MessageHighlightItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
-        MessageHighlightItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
-        MessageHighlightItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
-        MessageHighlightItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
-        MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
-        MessageHighlightItem.Type.Reply -> R.string.highlights_ignores_entry_replies
-        MessageHighlightItem.Type.Custom -> R.string.highlights_ignores_entry_custom
-    }
+    val titleText =
+        when (item.type) {
+            MessageHighlightItem.Type.Username -> R.string.highlights_entry_username
+            MessageHighlightItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
+            MessageHighlightItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
+            MessageHighlightItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
+            MessageHighlightItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
+            MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
+            MessageHighlightItem.Type.Reply -> R.string.highlights_ignores_entry_replies
+            MessageHighlightItem.Type.Custom -> R.string.highlights_ignores_entry_custom
+        }
     val isCustom = item.type == MessageHighlightItem.Type.Custom
     ElevatedCard(modifier) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
         ) {
             Text(
                 text = stringResource(titleText),
@@ -380,9 +410,10 @@ private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageH
         }
         if (isCustom) {
             OutlinedTextField(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                 value = item.pattern,
                 onValueChange = { onChange(item.copy(pattern = it)) },
                 label = { Text(stringResource(R.string.pattern)) },
@@ -391,9 +422,10 @@ private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageH
             )
         }
         FlowRow(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
         ) {
             CheckboxWithText(
@@ -413,9 +445,10 @@ private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageH
                     onClick = { launcher.openUri(HighlightsViewModel.REGEX_INFO_URL) },
                     content = { Icon(Icons.Outlined.Info, contentDescription = "regex info") },
                     enabled = item.enabled,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(end = 8.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 8.dp),
                 )
                 CheckboxWithText(
                     text = stringResource(R.string.case_sensitive),
@@ -435,14 +468,15 @@ private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageH
                 )
             }
         }
-        val defaultColor = when (item.type) {
-            MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
-            MessageHighlightItem.Type.ChannelPointRedemption -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
-            MessageHighlightItem.Type.ElevatedMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
-            MessageHighlightItem.Type.FirstMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
-            MessageHighlightItem.Type.Username -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-            MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-        }
+        val defaultColor =
+            when (item.type) {
+                MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
+                MessageHighlightItem.Type.ChannelPointRedemption -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
+                MessageHighlightItem.Type.ElevatedMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
+                MessageHighlightItem.Type.FirstMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
+                MessageHighlightItem.Type.Username -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+            }
         HighlightColorPicker(
             color = item.customColor ?: defaultColor,
             defaultColor = defaultColor,
@@ -453,13 +487,19 @@ private fun MessageHighlightItem(item: MessageHighlightItem, onChange: (MessageH
 }
 
 @Composable
-private fun UserHighlightItem(item: UserHighlightItem, onChange: (UserHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun UserHighlightItem(
+    item: UserHighlightItem,
+    onChange: (UserHighlightItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -503,13 +543,19 @@ private fun UserHighlightItem(item: UserHighlightItem, onChange: (UserHighlightI
 }
 
 @Composable
-private fun BadgeHighlightItem(item: BadgeHighlightItem, onChange: (BadgeHighlightItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun BadgeHighlightItem(
+    item: BadgeHighlightItem,
+    onChange: (BadgeHighlightItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 if (item.isCustom) {
                     OutlinedTextField(
@@ -534,9 +580,10 @@ private fun BadgeHighlightItem(item: BadgeHighlightItem, onChange: (BadgeHighlig
                         "subscriber" -> name = stringResource(R.string.badge_subscriber)
                     }
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
                     ) {
                         Text(
                             text = name,
@@ -581,14 +628,20 @@ private fun BadgeHighlightItem(item: BadgeHighlightItem, onChange: (BadgeHighlig
 }
 
 @Composable
-private fun BlacklistedUserItem(item: BlacklistedUserItem, onChange: (BlacklistedUserItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun BlacklistedUserItem(
+    item: BlacklistedUserItem,
+    onChange: (BlacklistedUserItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val launcher = LocalUriHandler.current
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -630,7 +683,12 @@ private fun BlacklistedUserItem(item: BlacklistedUserItem, onChange: (Blackliste
 }
 
 @Composable
-private fun HighlightColorPicker(color: Int, defaultColor: Int, enabled: Boolean, onColorSelect: (Int) -> Unit) {
+private fun HighlightColorPicker(
+    color: Int,
+    defaultColor: Int,
+    enabled: Boolean,
+    onColorSelect: (Int) -> Unit,
+) {
     var showColorPicker by remember { mutableStateOf(false) }
     var selectedColor by remember(color) { mutableIntStateOf(color) }
     OutlinedButton(
@@ -661,9 +719,10 @@ private fun HighlightColorPicker(color: Int, defaultColor: Int, enabled: Boolean
                 text = stringResource(R.string.pick_highlight_color_title),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),

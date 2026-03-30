@@ -24,8 +24,13 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class ToolsSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class ToolsPreferenceKeys(override val id: Int) : PreferenceKeys {
+class ToolsSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class ToolsPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         TTS(R.string.preference_tts_key),
         TTSQueue(R.string.preference_tts_queue_key),
         TTSMessageFormat(R.string.preference_tts_message_format_key),
@@ -35,7 +40,9 @@ class ToolsSettingsDataStore(context: Context, dispatchersProvider: DispatchersP
         TTSUserIgnoreList(R.string.preference_tts_user_ignore_list_key),
     }
 
-    private enum class UploaderKeys(val key: String) {
+    private enum class UploaderKeys(
+        val key: String,
+    ) {
         UploadUrl("uploaderUrl"),
         FormField("uploaderFormField"),
         Headers("uploaderHeaders"),
@@ -53,18 +60,18 @@ class ToolsSettingsDataStore(context: Context, dispatchersProvider: DispatchersP
                 ToolsPreferenceKeys.TTSQueue -> {
                     acc.copy(
                         ttsPlayMode =
-                        value.booleanOrNull()?.let {
-                            if (it) TTSPlayMode.Queue else TTSPlayMode.Newest
-                        } ?: acc.ttsPlayMode,
+                            value.booleanOrNull()?.let {
+                                if (it) TTSPlayMode.Queue else TTSPlayMode.Newest
+                            } ?: acc.ttsPlayMode,
                     )
                 }
 
                 ToolsPreferenceKeys.TTSMessageFormat -> {
                     acc.copy(
                         ttsMessageFormat =
-                        value.booleanOrNull()?.let {
-                            if (it) TTSMessageFormat.UserAndMessage else TTSMessageFormat.Message
-                        } ?: acc.ttsMessageFormat,
+                            value.booleanOrNull()?.let {
+                                if (it) TTSMessageFormat.UserAndMessage else TTSMessageFormat.Message
+                            } ?: acc.ttsMessageFormat,
                     )
                 }
 
@@ -99,13 +106,13 @@ class ToolsSettingsDataStore(context: Context, dispatchersProvider: DispatchersP
                 val delete = dankchatPreferences.getString(UploaderKeys.DeletionLinkPattern.key, null)
                 return currentData.copy(
                     uploaderConfig =
-                    current.copy(
-                        uploadUrl = url,
-                        formField = field,
-                        headers = headers,
-                        imageLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.imageLinkPattern else link.orEmpty(),
-                        deletionLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.deletionLinkPattern else delete.orEmpty(),
-                    ),
+                        current.copy(
+                            uploadUrl = url,
+                            formField = field,
+                            headers = headers,
+                            imageLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.imageLinkPattern else link.orEmpty(),
+                            deletionLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.deletionLinkPattern else delete.orEmpty(),
+                        ),
                 )
             }
 

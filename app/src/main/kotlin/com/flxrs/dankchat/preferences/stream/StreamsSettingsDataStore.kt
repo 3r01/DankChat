@@ -19,8 +19,13 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class StreamsSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class StreamsPreferenceKeys(override val id: Int) : PreferenceKeys {
+class StreamsSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class StreamsPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         FetchStreams(R.string.preference_fetch_streams_key),
         ShowStreamInfo(R.string.preference_streaminfo_key),
         PreventStreamReloads(R.string.preference_retain_webview_new_key),

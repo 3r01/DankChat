@@ -39,53 +39,58 @@ class HighlightsViewModel(
         _currentTab.value = HighlightsTab.entries[position]
     }
 
-    fun fetchHighlights() = viewModelScope.launch {
-        val loggedIn = preferenceStore.isLoggedIn
-        val notificationsEnabled = notificationsSettingsDataStore.settings.first().showNotifications
-        val messageHighlightItems = highlightsRepository.messageHighlights.value.map { it.toItem(loggedIn, notificationsEnabled) }
-        val userHighlightItems = highlightsRepository.userHighlights.value.map { it.toItem(notificationsEnabled) }
-        val badgeHighlightItems = highlightsRepository.badgeHighlights.value.map { it.toItem(notificationsEnabled) }
-        val blacklistedUserItems = highlightsRepository.blacklistedUsers.value.map { it.toItem() }
+    fun fetchHighlights() =
+        viewModelScope.launch {
+            val loggedIn = preferenceStore.isLoggedIn
+            val notificationsEnabled = notificationsSettingsDataStore.settings.first().showNotifications
+            val messageHighlightItems = highlightsRepository.messageHighlights.value.map { it.toItem(loggedIn, notificationsEnabled) }
+            val userHighlightItems = highlightsRepository.userHighlights.value.map { it.toItem(notificationsEnabled) }
+            val badgeHighlightItems = highlightsRepository.badgeHighlights.value.map { it.toItem(notificationsEnabled) }
+            val blacklistedUserItems = highlightsRepository.blacklistedUsers.value.map { it.toItem() }
 
-        messageHighlights.replaceAll(messageHighlightItems)
-        userHighlights.replaceAll(userHighlightItems)
-        badgeHighlights.replaceAll(badgeHighlightItems)
-        blacklistedUsers.replaceAll(blacklistedUserItems)
-    }
-
-    fun addHighlight() = viewModelScope.launch {
-        val loggedIn = preferenceStore.isLoggedIn
-        val notificationsEnabled = notificationsSettingsDataStore.settings.first().showNotifications
-        val position: Int
-        when (_currentTab.value) {
-            HighlightsTab.Messages -> {
-                val entity = highlightsRepository.addMessageHighlight()
-                messageHighlights += entity.toItem(loggedIn, notificationsEnabled)
-                position = messageHighlights.lastIndex
-            }
-
-            HighlightsTab.Users -> {
-                val entity = highlightsRepository.addUserHighlight()
-                userHighlights += entity.toItem(notificationsEnabled)
-                position = userHighlights.lastIndex
-            }
-
-            HighlightsTab.Badges -> {
-                val entity = highlightsRepository.addBadgeHighlight()
-                badgeHighlights += entity.toItem(notificationsEnabled)
-                position = badgeHighlights.lastIndex
-            }
-
-            HighlightsTab.BlacklistedUsers -> {
-                val entity = highlightsRepository.addBlacklistedUser()
-                blacklistedUsers += entity.toItem()
-                position = blacklistedUsers.lastIndex
-            }
+            messageHighlights.replaceAll(messageHighlightItems)
+            userHighlights.replaceAll(userHighlightItems)
+            badgeHighlights.replaceAll(badgeHighlightItems)
+            blacklistedUsers.replaceAll(blacklistedUserItems)
         }
-        sendEvent(HighlightEvent.ItemAdded(position, isLast = true))
-    }
 
-    fun addHighlightItem(item: HighlightItem, position: Int) = viewModelScope.launch {
+    fun addHighlight() =
+        viewModelScope.launch {
+            val loggedIn = preferenceStore.isLoggedIn
+            val notificationsEnabled = notificationsSettingsDataStore.settings.first().showNotifications
+            val position: Int
+            when (_currentTab.value) {
+                HighlightsTab.Messages -> {
+                    val entity = highlightsRepository.addMessageHighlight()
+                    messageHighlights += entity.toItem(loggedIn, notificationsEnabled)
+                    position = messageHighlights.lastIndex
+                }
+
+                HighlightsTab.Users -> {
+                    val entity = highlightsRepository.addUserHighlight()
+                    userHighlights += entity.toItem(notificationsEnabled)
+                    position = userHighlights.lastIndex
+                }
+
+                HighlightsTab.Badges -> {
+                    val entity = highlightsRepository.addBadgeHighlight()
+                    badgeHighlights += entity.toItem(notificationsEnabled)
+                    position = badgeHighlights.lastIndex
+                }
+
+                HighlightsTab.BlacklistedUsers -> {
+                    val entity = highlightsRepository.addBlacklistedUser()
+                    blacklistedUsers += entity.toItem()
+                    position = blacklistedUsers.lastIndex
+                }
+            }
+            sendEvent(HighlightEvent.ItemAdded(position, isLast = true))
+        }
+
+    fun addHighlightItem(
+        item: HighlightItem,
+        position: Int,
+    ) = viewModelScope.launch {
         val isLast: Boolean
         when (item) {
             is MessageHighlightItem -> {
@@ -115,35 +120,36 @@ class HighlightsViewModel(
         sendEvent(HighlightEvent.ItemAdded(position, isLast))
     }
 
-    fun removeHighlight(item: HighlightItem) = viewModelScope.launch {
-        val position: Int
-        when (item) {
-            is MessageHighlightItem -> {
-                position = messageHighlights.indexOfFirst { it.id == item.id }
-                highlightsRepository.removeMessageHighlight(item.toEntity())
-                messageHighlights.removeAt(position)
-            }
+    fun removeHighlight(item: HighlightItem) =
+        viewModelScope.launch {
+            val position: Int
+            when (item) {
+                is MessageHighlightItem -> {
+                    position = messageHighlights.indexOfFirst { it.id == item.id }
+                    highlightsRepository.removeMessageHighlight(item.toEntity())
+                    messageHighlights.removeAt(position)
+                }
 
-            is UserHighlightItem -> {
-                position = userHighlights.indexOfFirst { it.id == item.id }
-                highlightsRepository.removeUserHighlight(item.toEntity())
-                userHighlights.removeAt(position)
-            }
+                is UserHighlightItem -> {
+                    position = userHighlights.indexOfFirst { it.id == item.id }
+                    highlightsRepository.removeUserHighlight(item.toEntity())
+                    userHighlights.removeAt(position)
+                }
 
-            is BadgeHighlightItem -> {
-                position = badgeHighlights.indexOfFirst { it.id == item.id }
-                highlightsRepository.removeBadgeHighlight(item.toEntity())
-                badgeHighlights.removeAt(position)
-            }
+                is BadgeHighlightItem -> {
+                    position = badgeHighlights.indexOfFirst { it.id == item.id }
+                    highlightsRepository.removeBadgeHighlight(item.toEntity())
+                    badgeHighlights.removeAt(position)
+                }
 
-            is BlacklistedUserItem -> {
-                position = blacklistedUsers.indexOfFirst { it.id == item.id }
-                highlightsRepository.removeBlacklistedUser(item.toEntity())
-                blacklistedUsers.removeAt(position)
+                is BlacklistedUserItem -> {
+                    position = blacklistedUsers.indexOfFirst { it.id == item.id }
+                    highlightsRepository.removeBlacklistedUser(item.toEntity())
+                    blacklistedUsers.removeAt(position)
+                }
             }
+            sendEvent(HighlightEvent.ItemRemoved(item, position))
         }
-        sendEvent(HighlightEvent.ItemRemoved(item, position))
-    }
 
     fun updateHighlights(
         messageHighlightItems: List<MessageHighlightItem>,
@@ -172,25 +178,30 @@ class HighlightsViewModel(
         }
     }
 
-    private fun filterMessageHighlights(items: List<MessageHighlightItem>) = items
-        .map { it.toEntity() }
-        .partition { it.type == MessageHighlightEntityType.Custom && it.pattern.isBlank() }
+    private fun filterMessageHighlights(items: List<MessageHighlightItem>) =
+        items
+            .map { it.toEntity() }
+            .partition { it.type == MessageHighlightEntityType.Custom && it.pattern.isBlank() }
 
-    private fun filterUserHighlights(items: List<UserHighlightItem>) = items
-        .map { it.toEntity() }
-        .partition { it.username.isBlank() }
+    private fun filterUserHighlights(items: List<UserHighlightItem>) =
+        items
+            .map { it.toEntity() }
+            .partition { it.username.isBlank() }
 
-    private fun filterBadgeHighlights(items: List<BadgeHighlightItem>) = items
-        .map { it.toEntity() }
-        .partition { it.badgeName.isBlank() }
+    private fun filterBadgeHighlights(items: List<BadgeHighlightItem>) =
+        items
+            .map { it.toEntity() }
+            .partition { it.badgeName.isBlank() }
 
-    private fun filterBlacklistedUsers(items: List<BlacklistedUserItem>) = items
-        .map { it.toEntity() }
-        .partition { it.username.isBlank() }
+    private fun filterBlacklistedUsers(items: List<BlacklistedUserItem>) =
+        items
+            .map { it.toEntity() }
+            .partition { it.username.isBlank() }
 
-    private suspend fun sendEvent(event: HighlightEvent) = withContext(Dispatchers.Main.immediate) {
-        eventChannel.send(event)
-    }
+    private suspend fun sendEvent(event: HighlightEvent) =
+        withContext(Dispatchers.Main.immediate) {
+            eventChannel.send(event)
+        }
 
     companion object {
         const val REGEX_INFO_URL = "https://wiki.chatterino.com/Regex/"

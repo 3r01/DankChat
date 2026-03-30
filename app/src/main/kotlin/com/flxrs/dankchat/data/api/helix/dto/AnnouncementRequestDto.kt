@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class AnnouncementRequestDto(val message: String, val color: AnnouncementColor = AnnouncementColor.Primary)
+data class AnnouncementRequestDto(
+    val message: String,
+    val color: AnnouncementColor = AnnouncementColor.Primary,
+)

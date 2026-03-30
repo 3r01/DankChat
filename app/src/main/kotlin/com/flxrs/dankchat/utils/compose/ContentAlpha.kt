@@ -75,7 +75,10 @@ object ContentAlpha {
      * for, and under what circumstances.
      */
     @Composable
-    private fun resolveAlpha(@FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float, @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float): Float {
+    private fun resolveAlpha(
+        @FloatRange(from = 0.0, to = 1.0) highContrastAlpha: Float,
+        @FloatRange(from = 0.0, to = 1.0) lowContrastAlpha: Float,
+    ): Float {
         val contentColor = LocalContentColor.current
         val isDarkTheme = isSystemInDarkTheme()
         return if (isDarkTheme) {

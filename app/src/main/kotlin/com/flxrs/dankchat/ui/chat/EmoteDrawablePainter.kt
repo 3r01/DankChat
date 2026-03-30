@@ -20,8 +20,9 @@ import androidx.compose.ui.unit.LayoutDirection
  * the callback chain so animations continue after scrolling off/on screen.
  */
 @Stable
-class EmoteDrawablePainter(val drawable: Drawable) :
-    Painter(),
+class EmoteDrawablePainter(
+    val drawable: Drawable,
+) : Painter(),
     androidx.compose.runtime.RememberObserver {
     private var invalidateTick by mutableIntStateOf(0)
 
@@ -33,11 +34,18 @@ class EmoteDrawablePainter(val drawable: Drawable) :
                 invalidateTick++
             }
 
-            override fun scheduleDrawable(d: Drawable, what: Runnable, time: Long) {
+            override fun scheduleDrawable(
+                d: Drawable,
+                what: Runnable,
+                time: Long,
+            ) {
                 mainHandler.postAtTime(what, time)
             }
 
-            override fun unscheduleDrawable(d: Drawable, what: Runnable) {
+            override fun unscheduleDrawable(
+                d: Drawable,
+                what: Runnable,
+            ) {
                 mainHandler.removeCallbacks(what)
             }
         }

@@ -14,7 +14,10 @@ import com.google.android.material.color.MaterialColors
  * theme background to produce an opaque result suitable for contrast calculations.
  */
 @Composable
-fun rememberBackgroundColor(lightColor: Color, darkColor: Color): Color {
+fun rememberBackgroundColor(
+    lightColor: Color,
+    darkColor: Color,
+): Color {
     val raw = if (isSystemInDarkTheme()) darkColor else lightColor
     val background = MaterialTheme.colorScheme.background
     return remember(raw, background) {

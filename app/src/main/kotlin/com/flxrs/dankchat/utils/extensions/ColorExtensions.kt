@@ -11,7 +11,9 @@ import androidx.core.graphics.ColorUtils
  * preserving hue and saturation as much as possible.
  */
 @ColorInt
-fun Int.normalizeColor(@ColorInt background: Int): Int {
+fun Int.normalizeColor(
+    @ColorInt background: Int,
+): Int {
     // calculateContrast requires opaque colors; force full alpha on both
     val opaqueColor = this or 0xFF000000.toInt()
     val opaqueBackground = background or 0xFF000000.toInt()

@@ -18,7 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.ui.theme.DankChatTheme
 
 @Composable
-fun PreferenceCategory(title: String, content: @Composable ColumnScope.() -> Unit) {
+fun PreferenceCategory(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier = Modifier.padding(top = 16.dp),
     ) {
@@ -30,7 +33,10 @@ fun PreferenceCategory(title: String, content: @Composable ColumnScope.() -> Uni
 }
 
 @Composable
-fun PreferenceCategoryWithSummary(title: @Composable () -> Unit, summary: @Composable () -> Unit) {
+fun PreferenceCategoryWithSummary(
+    title: @Composable () -> Unit,
+    summary: @Composable () -> Unit,
+) {
     Column(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
     ) {
@@ -40,7 +46,10 @@ fun PreferenceCategoryWithSummary(title: @Composable () -> Unit, summary: @Compo
 }
 
 @Composable
-fun PreferenceCategoryTitle(text: String, modifier: Modifier = Modifier) {
+fun PreferenceCategoryTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleSmall,
@@ -52,7 +61,9 @@ fun PreferenceCategoryTitle(text: String, modifier: Modifier = Modifier) {
 @Suppress("UnusedPrivateMember")
 @Composable
 @PreviewLightDark
-private fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryPreview(
+    @PreviewParameter(provider = LoremIpsum::class) loremIpsum: String,
+) {
     DankChatTheme {
         Surface {
             PreferenceCategoryWithSummary(
@@ -66,7 +77,9 @@ private fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::c
 @Suppress("UnusedPrivateMember")
 @Composable
 @PreviewLightDark
-private fun PreferenceCategoryWithItemsPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryWithItemsPreview(
+    @PreviewParameter(provider = LoremIpsum::class) loremIpsum: String,
+) {
     DankChatTheme {
         Surface {
             PreferenceCategory(

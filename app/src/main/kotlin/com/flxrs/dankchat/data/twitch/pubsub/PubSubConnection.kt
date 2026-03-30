@@ -48,7 +48,13 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 
 @OptIn(DelicateCoroutinesApi::class)
-class PubSubConnection(val tag: String, private val client: HttpClient, private val scope: CoroutineScope, private val oAuth: String, private val jsonFormat: Json) {
+class PubSubConnection(
+    val tag: String,
+    private val client: HttpClient,
+    private val scope: CoroutineScope,
+    private val oAuth: String,
+    private val jsonFormat: Json,
+) {
     @Volatile
     private var session: DefaultClientWebSocketSession? = null
     private var connectionJob: Job? = null
@@ -70,9 +76,10 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
     val hasWhisperTopic: Boolean
         get() = topics.any { it.topic.startsWith("whispers.") }
 
-    val events = receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
-        (old.isDisconnected && new.isDisconnected) || old == new
-    }
+    val events =
+        receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
+            (old.isDisconnected && new.isDisconnected) || old == new
+        }
 
     fun connect(initialTopics: Set<PubSubTopic>): Set<PubSubTopic> {
         if (connected || connectionJob?.isActive == true) {
@@ -87,72 +94,76 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
         topics.addAll(possibleTopics)
 
         Log.i(TAG, "[PubSub $tag] connecting with ${possibleTopics.size} topics")
-        connectionJob = scope.launch {
-            var retryCount = 1
-            while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
-                var serverRequestedReconnect = false
-                try {
-                    client.webSocket(PUBSUB_URL) {
-                        session = this
-                        retryCount = 1
-                        receiveChannel.trySend(PubSubEvent.Connected)
-                        Log.i(TAG, "[PubSub $tag] connected")
+        connectionJob =
+            scope.launch {
+                var retryCount = 1
+                while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
+                    var serverRequestedReconnect = false
+                    try {
+                        client.webSocket(PUBSUB_URL) {
+                            session = this
+                            retryCount = 1
+                            receiveChannel.trySend(PubSubEvent.Connected)
+                            Log.i(TAG, "[PubSub $tag] connected")
 
-                        possibleTopics
-                            .toRequestMessages()
-                            .forEach { send(Frame.Text(it)) }
-                        Log.d(TAG, "[PubSub $tag] sent LISTEN for ${possibleTopics.size} topics")
+                            possibleTopics
+                                .toRequestMessages()
+                                .forEach { send(Frame.Text(it)) }
+                            Log.d(TAG, "[PubSub $tag] sent LISTEN for ${possibleTopics.size} topics")
 
-                        var pingJob: Job? = null
-                        try {
-                            pingJob = setupPingInterval()
+                            var pingJob: Job? = null
+                            try {
+                                pingJob = setupPingInterval()
 
-                            while (isActive) {
-                                val result = incoming.receiveCatching()
-                                val text = when (val frame = result.getOrNull()) {
-                                    null -> {
-                                        val cause = result.exceptionOrNull()
-                                        if (cause == null) return@webSocket
-                                        throw cause
-                                    }
+                                while (isActive) {
+                                    val result = incoming.receiveCatching()
+                                    val text =
+                                        when (val frame = result.getOrNull()) {
+                                            null -> {
+                                                val cause = result.exceptionOrNull()
+                                                if (cause == null) return@webSocket
+                                                throw cause
+                                            }
 
-                                    else -> (frame as? Frame.Text)?.readText() ?: continue
+                                            else -> {
+                                                (frame as? Frame.Text)?.readText() ?: continue
+                                            }
+                                        }
+
+                                    serverRequestedReconnect = handleMessage(text)
+                                    if (serverRequestedReconnect) return@webSocket
                                 }
-
-                                serverRequestedReconnect = handleMessage(text)
-                                if (serverRequestedReconnect) return@webSocket
+                            } finally {
+                                pingJob?.cancel()
                             }
-                        } finally {
-                            pingJob?.cancel()
                         }
+
+                        session = null
+                        receiveChannel.trySend(PubSubEvent.Closed)
+
+                        if (!serverRequestedReconnect) {
+                            Log.i(TAG, "[PubSub $tag] connection closed")
+                            return@launch
+                        }
+                        Log.i(TAG, "[PubSub $tag] reconnecting after server request")
+                    } catch (t: CancellationException) {
+                        throw t
+                    } catch (t: Throwable) {
+                        Log.e(TAG, "[PubSub $tag] connection failed: $t")
+                        Log.e(TAG, "[PubSub $tag] attempting to reconnect #$retryCount..")
+                        session = null
+                        receiveChannel.trySend(PubSubEvent.Closed)
+
+                        val jitter = randomJitter()
+                        val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
+                        delay(reconnectDelay + jitter)
+                        retryCount = (retryCount + 1).coerceAtMost(RECONNECT_MAX_ATTEMPTS)
                     }
-
-                    session = null
-                    receiveChannel.trySend(PubSubEvent.Closed)
-
-                    if (!serverRequestedReconnect) {
-                        Log.i(TAG, "[PubSub $tag] connection closed")
-                        return@launch
-                    }
-                    Log.i(TAG, "[PubSub $tag] reconnecting after server request")
-                } catch (t: CancellationException) {
-                    throw t
-                } catch (t: Throwable) {
-                    Log.e(TAG, "[PubSub $tag] connection failed: $t")
-                    Log.e(TAG, "[PubSub $tag] attempting to reconnect #$retryCount..")
-                    session = null
-                    receiveChannel.trySend(PubSubEvent.Closed)
-
-                    val jitter = randomJitter()
-                    val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
-                    delay(reconnectDelay + jitter)
-                    retryCount = (retryCount + 1).coerceAtMost(RECONNECT_MAX_ATTEMPTS)
                 }
-            }
 
-            Log.e(TAG, "[PubSub $tag] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
-            session = null
-        }
+                Log.e(TAG, "[PubSub $tag] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
+                session = null
+            }
 
         return remainingTopics.toSet()
     }
@@ -180,9 +191,10 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
     }
 
     fun unlistenByChannel(channel: UserName) {
-        val toUnlisten = topics.filter {
-            (it is PubSubTopic.PointRedemptions && it.channelName == channel) || (it is PubSubTopic.ModeratorActions && it.channelName == channel)
-        }
+        val toUnlisten =
+            topics.filter {
+                (it is PubSubTopic.PointRedemptions && it.channelName == channel) || (it is PubSubTopic.ModeratorActions && it.channelName == channel)
+            }
         unlisten(toUnlisten.toSet())
     }
 
@@ -227,19 +239,20 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
 
     private fun randomJitter() = Random.nextLong(range = 0L..MAX_JITTER).milliseconds
 
-    private fun setupPingInterval() = scope.timer(interval = PING_INTERVAL - randomJitter()) {
-        val currentSession = session
-        if (awaitingPong || currentSession?.isActive != true) {
-            cancel()
-            reconnect()
-            return@timer
-        }
+    private fun setupPingInterval() =
+        scope.timer(interval = PING_INTERVAL - randomJitter()) {
+            val currentSession = session
+            if (awaitingPong || currentSession?.isActive != true) {
+                cancel()
+                reconnect()
+                return@timer
+            }
 
-        if (connected) {
-            awaitingPong = true
-            runCatching { currentSession.send(Frame.Text(PING_PAYLOAD)) }
+            if (connected) {
+                awaitingPong = true
+                runCatching { currentSession.send(Frame.Text(PING_PAYLOAD)) }
+            }
         }
-    }
 
     /**
      * Handles a PubSub message. Returns true if the server requested a reconnect.
@@ -249,7 +262,9 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
         val json = JSONObject(text)
         val type = json.optString("type").ifBlank { return false }
         when (type) {
-            "PONG" -> awaitingPong = false
+            "PONG" -> {
+                awaitingPong = false
+            }
 
             "RECONNECT" -> {
                 Log.i(TAG, "[PubSub $tag] server requested reconnect")
@@ -270,77 +285,83 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
                 val messageObject = JSONObject(message)
                 val messageTopic = messageObject.optString("type")
                 val match = topics.find { topic == it.topic } ?: return false
-                val pubSubMessage = when (match) {
-                    is PubSubTopic.Whispers -> {
-                        if (messageTopic !in listOf("whisper_sent", "whisper_received")) {
-                            return false
-                        }
-
-                        val parsedMessage = jsonFormat.decodeOrNull<PubSubDataObjectMessage<WhisperData>>(message) ?: return false
-                        PubSubMessage.Whisper(parsedMessage.data)
-                    }
-
-                    is PubSubTopic.PointRedemptions -> {
-                        if (messageTopic != "reward-redeemed") {
-                            return false
-                        }
-
-                        val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<PointRedemption>>(message) ?: return false
-                        PubSubMessage.PointRedemption(
-                            timestamp = parsedMessage.data.timestamp,
-                            channelName = match.channelName,
-                            channelId = match.channelId,
-                            data = parsedMessage.data.redemption,
-                        )
-                    }
-
-                    is PubSubTopic.ModeratorActions -> {
-                        when (messageTopic) {
-                            "moderator_added" -> {
-                                val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<ModeratorAddedData>>(message) ?: return false
-                                val timestamp = Clock.System.now()
-                                PubSubMessage.ModeratorAction(
-                                    timestamp = timestamp,
-                                    channelId = parsedMessage.data.channelId,
-                                    data = ModerationActionData(
-                                        args = null,
-                                        targetUserId = parsedMessage.data.targetUserId,
-                                        targetUserName = parsedMessage.data.targetUserName,
-                                        moderationAction = parsedMessage.data.moderationAction,
-                                        creatorUserId = parsedMessage.data.creatorUserId,
-                                        creator = parsedMessage.data.creator,
-                                        createdAt = timestamp.toString(),
-                                        msgId = null,
-                                    ),
-                                )
+                val pubSubMessage =
+                    when (match) {
+                        is PubSubTopic.Whispers -> {
+                            if (messageTopic !in listOf("whisper_sent", "whisper_received")) {
+                                return false
                             }
 
-                            "moderation_action" -> {
-                                val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<ModerationActionData>>(message) ?: return false
-                                if (parsedMessage.data.moderationAction == ModerationActionType.Mod) {
+                            val parsedMessage = jsonFormat.decodeOrNull<PubSubDataObjectMessage<WhisperData>>(message) ?: return false
+                            PubSubMessage.Whisper(parsedMessage.data)
+                        }
+
+                        is PubSubTopic.PointRedemptions -> {
+                            if (messageTopic != "reward-redeemed") {
+                                return false
+                            }
+
+                            val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<PointRedemption>>(message) ?: return false
+                            PubSubMessage.PointRedemption(
+                                timestamp = parsedMessage.data.timestamp,
+                                channelName = match.channelName,
+                                channelId = match.channelId,
+                                data = parsedMessage.data.redemption,
+                            )
+                        }
+
+                        is PubSubTopic.ModeratorActions -> {
+                            when (messageTopic) {
+                                "moderator_added" -> {
+                                    val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<ModeratorAddedData>>(message) ?: return false
+                                    val timestamp = Clock.System.now()
+                                    PubSubMessage.ModeratorAction(
+                                        timestamp = timestamp,
+                                        channelId = parsedMessage.data.channelId,
+                                        data =
+                                            ModerationActionData(
+                                                args = null,
+                                                targetUserId = parsedMessage.data.targetUserId,
+                                                targetUserName = parsedMessage.data.targetUserName,
+                                                moderationAction = parsedMessage.data.moderationAction,
+                                                creatorUserId = parsedMessage.data.creatorUserId,
+                                                creator = parsedMessage.data.creator,
+                                                createdAt = timestamp.toString(),
+                                                msgId = null,
+                                            ),
+                                    )
+                                }
+
+                                "moderation_action" -> {
+                                    val parsedMessage = jsonFormat.decodeOrNull<PubSubDataMessage<ModerationActionData>>(message) ?: return false
+                                    if (parsedMessage.data.moderationAction == ModerationActionType.Mod) {
+                                        return false
+                                    }
+                                    val timestamp =
+                                        when {
+                                            parsedMessage.data.createdAt.isEmpty() -> Clock.System.now()
+                                            else -> Instant.parse(parsedMessage.data.createdAt)
+                                        }
+                                    PubSubMessage.ModeratorAction(
+                                        timestamp = timestamp,
+                                        channelId = topic.substringAfterLast('.').toUserId(),
+                                        data =
+                                            parsedMessage.data.copy(
+                                                msgId = parsedMessage.data.msgId?.ifBlank { null },
+                                                creator = parsedMessage.data.creator?.ifBlank { null },
+                                                creatorUserId = parsedMessage.data.creatorUserId?.ifBlank { null },
+                                                targetUserId = parsedMessage.data.targetUserId?.ifBlank { null },
+                                                targetUserName = parsedMessage.data.targetUserName?.ifBlank { null },
+                                            ),
+                                    )
+                                }
+
+                                else -> {
                                     return false
                                 }
-                                val timestamp = when {
-                                    parsedMessage.data.createdAt.isEmpty() -> Clock.System.now()
-                                    else -> Instant.parse(parsedMessage.data.createdAt)
-                                }
-                                PubSubMessage.ModeratorAction(
-                                    timestamp = timestamp,
-                                    channelId = topic.substringAfterLast('.').toUserId(),
-                                    data = parsedMessage.data.copy(
-                                        msgId = parsedMessage.data.msgId?.ifBlank { null },
-                                        creator = parsedMessage.data.creator?.ifBlank { null },
-                                        creatorUserId = parsedMessage.data.creatorUserId?.ifBlank { null },
-                                        targetUserId = parsedMessage.data.targetUserId?.ifBlank { null },
-                                        targetUserName = parsedMessage.data.targetUserName?.ifBlank { null },
-                                    ),
-                                )
                             }
-
-                            else -> return false
                         }
                     }
-                }
                 receiveChannel.trySend(PubSubEvent.Message(pubSubMessage))
             }
         }
@@ -357,20 +378,24 @@ class PubSubConnection(val tag: String, private val client: HttpClient, private 
         )
     }
 
-    private fun Collection<PubSubTopic>.toRequestMessage(type: String = "LISTEN", withAuth: Boolean = true): String {
+    private fun Collection<PubSubTopic>.toRequestMessage(
+        type: String = "LISTEN",
+        withAuth: Boolean = true,
+    ): String {
         val nonce = UUID.randomUUID().toString()
-        val message = buildJsonObject {
-            put("type", type)
-            put("nonce", nonce)
-            putJsonObject("data") {
-                putJsonArray("topics") {
-                    forEach { add(it.topic) }
-                }
-                if (withAuth) {
-                    put("auth_token", currentOAuth)
+        val message =
+            buildJsonObject {
+                put("type", type)
+                put("nonce", nonce)
+                putJsonObject("data") {
+                    putJsonArray("topics") {
+                        forEach { add(it.topic) }
+                    }
+                    if (withAuth) {
+                        put("auth_token", currentOAuth)
+                    }
                 }
             }
-        }
 
         return message.toString()
     }

@@ -22,7 +22,11 @@ import com.flxrs.dankchat.ui.chat.EmoteUi
 /**
  * Appends a formatted timestamp to the AnnotatedString builder.
  */
-fun AnnotatedString.Builder.appendTimestamp(timestamp: String, fontSize: TextUnit, color: Color) {
+fun AnnotatedString.Builder.appendTimestamp(
+    timestamp: String,
+    fontSize: TextUnit,
+    color: Color,
+) {
     if (timestamp.isNotEmpty()) {
         withStyle(
             SpanStyle(
@@ -52,7 +56,11 @@ fun AnnotatedString.Builder.appendBadges(badges: List<BadgeUi>) {
 /**
  * Appends message text with emotes, handling emote inline content and spacing.
  */
-fun AnnotatedString.Builder.appendMessageWithEmotes(message: String, emotes: List<EmoteUi>, textColor: Color) {
+fun AnnotatedString.Builder.appendMessageWithEmotes(
+    message: String,
+    emotes: List<EmoteUi>,
+    textColor: Color,
+) {
     withStyle(SpanStyle(color = textColor)) {
         var currentPos = 0
         emotes.sortedBy { it.position.first }.forEach { emote ->
@@ -95,7 +103,14 @@ fun AnnotatedString.Builder.appendMessageWithEmotes(message: String, emotes: Lis
 /**
  * Appends a clickable username with annotation for click handling.
  */
-fun AnnotatedString.Builder.appendClickableUsername(displayText: String, userId: UserId?, userName: UserName, displayName: DisplayName, channel: String = "", color: Color) {
+fun AnnotatedString.Builder.appendClickableUsername(
+    displayText: String,
+    userId: UserId?,
+    userName: UserName,
+    displayName: DisplayName,
+    channel: String = "",
+    color: Color,
+) {
     if (displayText.isNotEmpty()) {
         withStyle(
             SpanStyle(
@@ -119,7 +134,12 @@ fun AnnotatedString.Builder.appendClickableUsername(displayText: String, userId:
     }
 }
 
-data class UserAnnotation(val userId: String?, val userName: String, val displayName: String, val channel: String?)
+data class UserAnnotation(
+    val userId: String?,
+    val userName: String,
+    val displayName: String,
+    val channel: String?,
+)
 
 fun parseUserAnnotation(annotation: String): UserAnnotation? {
     val parts = annotation.split("|")

@@ -24,7 +24,12 @@ class ChatMessageSender(
     private val chatEventProcessor: ChatEventProcessor,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
 ) {
-    suspend fun send(channel: UserName, message: String, replyId: String? = null, forceIrc: Boolean = false) {
+    suspend fun send(
+        channel: UserName,
+        message: String,
+        replyId: String? = null,
+        forceIrc: Boolean = false,
+    ) {
         if (message.isBlank()) {
             return
         }
@@ -36,7 +41,11 @@ class ChatMessageSender(
         }
     }
 
-    private suspend fun sendViaIrc(channel: UserName, message: String, replyId: String?) {
+    private suspend fun sendViaIrc(
+        channel: UserName,
+        message: String,
+        replyId: String?,
+    ) {
         val trimmedMessage = message.trimEnd()
         val replyIdOrBlank = replyId?.let { "@reply-parent-msg-id=$it " }.orEmpty()
         val currentLastMessage = chatEventProcessor.getLastMessage(channel).orEmpty()
@@ -52,7 +61,11 @@ class ChatMessageSender(
         chatMessageRepository.incrementSentMessageCount(ChatSendProtocol.IRC)
     }
 
-    private suspend fun sendViaHelix(channel: UserName, message: String, replyId: String?) {
+    private suspend fun sendViaHelix(
+        channel: UserName,
+        message: String,
+        replyId: String?,
+    ) {
         val trimmedMessage = message.trimEnd()
         val senderId =
             authDataStore.userIdString ?: run {
@@ -98,7 +111,10 @@ class ChatMessageSender(
         )
     }
 
-    private fun postError(channel: UserName, type: SystemMessageType) {
+    private fun postError(
+        channel: UserName,
+        type: SystemMessageType,
+    ) {
         chatMessageRepository.addSystemMessage(channel, type)
         chatMessageRepository.incrementSendFailureCount()
     }
@@ -117,22 +133,23 @@ class ChatMessageSender(
         }
     }
 
-    private fun Throwable.toSendErrorType(): SystemMessageType = when (this) {
-        is HelixApiException -> {
-            when (error) {
-                HelixError.NotLoggedIn -> SystemMessageType.SendNotLoggedIn
-                HelixError.MissingScopes -> SystemMessageType.SendMissingScopes
-                HelixError.UserNotAuthorized -> SystemMessageType.SendNotAuthorized
-                HelixError.MessageTooLarge -> SystemMessageType.SendMessageTooLarge
-                HelixError.ChatMessageRateLimited -> SystemMessageType.SendRateLimited
-                else -> SystemMessageType.SendFailed(message)
+    private fun Throwable.toSendErrorType(): SystemMessageType =
+        when (this) {
+            is HelixApiException -> {
+                when (error) {
+                    HelixError.NotLoggedIn -> SystemMessageType.SendNotLoggedIn
+                    HelixError.MissingScopes -> SystemMessageType.SendMissingScopes
+                    HelixError.UserNotAuthorized -> SystemMessageType.SendNotAuthorized
+                    HelixError.MessageTooLarge -> SystemMessageType.SendMessageTooLarge
+                    HelixError.ChatMessageRateLimited -> SystemMessageType.SendRateLimited
+                    else -> SystemMessageType.SendFailed(message)
+                }
+            }
+
+            else -> {
+                SystemMessageType.SendFailed(message)
             }
         }
-
-        else -> {
-            SystemMessageType.SendFailed(message)
-        }
-    }
 
     companion object {
         private val TAG = ChatMessageSender::class.java.simpleName

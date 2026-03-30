@@ -71,22 +71,28 @@ fun ImageUploaderScreen(onNavBack: () -> Unit) {
 }
 
 @Composable
-private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: () -> Unit, onSave: (ImageUploaderConfig) -> Unit, onSaveAndNavBack: (ImageUploaderConfig) -> Unit) {
+private fun ImageUploaderScreen(
+    uploaderConfig: ImageUploaderConfig,
+    onReset: () -> Unit,
+    onSave: (ImageUploaderConfig) -> Unit,
+    onSaveAndNavBack: (ImageUploaderConfig) -> Unit,
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val uploadUrl = rememberTextFieldState(uploaderConfig.uploadUrl)
     val formField = rememberTextFieldState(uploaderConfig.formField)
     val headers = rememberTextFieldState(uploaderConfig.headers.orEmpty())
     val linkPattern = rememberTextFieldState(uploaderConfig.imageLinkPattern.orEmpty())
     val deleteLinkPattern = rememberTextFieldState(uploaderConfig.deletionLinkPattern.orEmpty())
-    val hasChanged = remember(uploaderConfig) {
-        derivedStateOf {
-            uploaderConfig.uploadUrl != uploadUrl.text ||
-                uploaderConfig.formField != formField.text ||
-                uploaderConfig.headers.orEmpty() != headers.text ||
-                uploaderConfig.imageLinkPattern.orEmpty() != linkPattern.text ||
-                uploaderConfig.deletionLinkPattern.orEmpty() != deleteLinkPattern.text
+    val hasChanged =
+        remember(uploaderConfig) {
+            derivedStateOf {
+                uploaderConfig.uploadUrl != uploadUrl.text ||
+                    uploaderConfig.formField != formField.text ||
+                    uploaderConfig.headers.orEmpty() != headers.text ||
+                    uploaderConfig.imageLinkPattern.orEmpty() != linkPattern.text ||
+                    uploaderConfig.deletionLinkPattern.orEmpty() != deleteLinkPattern.text
+            }
         }
-    }
 
     var resetDialog by remember { mutableStateOf(false) }
     val currentConfig = {
@@ -107,9 +113,10 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         topBar = {
             TopAppBar(
                 scrollBehavior = scrollBehavior,
@@ -124,17 +131,19 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                    .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            val description = AnnotatedString.rememberAutoLinkText(
-                text = stringResource(R.string.uploader_description),
-                defaultLinkStyles = textLinkStyles(),
-            )
+            val description =
+                AnnotatedString.rememberAutoLinkText(
+                    text = stringResource(R.string.uploader_description),
+                    defaultLinkStyles = textLinkStyles(),
+                )
             Text(description, style = MaterialTheme.typography.bodyMedium)
 
             TextButton(
@@ -147,11 +156,12 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
                 modifier = Modifier.fillMaxWidth(),
                 state = uploadUrl,
                 label = { Text(stringResource(R.string.uploader_url)) },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Uri,
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Uri,
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next,
+                    ),
                 lineLimits = TextFieldLineLimits.SingleLine,
             )
             Spacer(Modifier.height(8.dp))
@@ -159,10 +169,11 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
                 modifier = Modifier.fillMaxWidth(),
                 state = formField,
                 label = { Text(stringResource(R.string.uploader_field)) },
-                keyboardOptions = KeyboardOptions(
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next,
+                    ),
                 lineLimits = TextFieldLineLimits.SingleLine,
             )
             Spacer(Modifier.height(8.dp))
@@ -170,10 +181,11 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
                 modifier = Modifier.fillMaxWidth(),
                 state = headers,
                 label = { Text(stringResource(R.string.uploader_headers)) },
-                keyboardOptions = KeyboardOptions(
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next,
+                    ),
                 lineLimits = TextFieldLineLimits.SingleLine,
             )
             Spacer(Modifier.height(8.dp))
@@ -181,10 +193,11 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
                 modifier = Modifier.fillMaxWidth(),
                 state = linkPattern,
                 label = { Text(stringResource(R.string.uploader_image_link)) },
-                keyboardOptions = KeyboardOptions(
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next,
+                    ),
                 lineLimits = TextFieldLineLimits.SingleLine,
             )
             Spacer(Modifier.height(8.dp))
@@ -192,18 +205,20 @@ private fun ImageUploaderScreen(uploaderConfig: ImageUploaderConfig, onReset: ()
                 modifier = Modifier.fillMaxWidth(),
                 state = deleteLinkPattern,
                 label = { Text(stringResource(R.string.uploader_deletion_link)) },
-                keyboardOptions = KeyboardOptions(
-                    autoCorrectEnabled = false,
-                    imeAction = ImeAction.Done,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Done,
+                    ),
                 lineLimits = TextFieldLineLimits.SingleLine,
             )
 
             AnimatedVisibility(visible = hasChanged.value) {
                 Button(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth(),
                     onClick = { onSaveAndNavBack(currentConfig()) },
                     content = { Text(stringResource(R.string.save)) },
                 )

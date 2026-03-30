@@ -12,5 +12,10 @@ sealed interface DataLoadingState {
 
     data object Loading : DataLoadingState
 
-    data class Failed(val errorMessage: String, val errorCount: Int, val dataFailures: Set<DataLoadingFailure>, val chatFailures: Set<ChatLoadingFailure>) : DataLoadingState
+    data class Failed(
+        val errorMessage: String,
+        val errorCount: Int,
+        val dataFailures: Set<DataLoadingFailure>,
+        val chatFailures: Set<ChatLoadingFailure>,
+    ) : DataLoadingState
 }

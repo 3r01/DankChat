@@ -81,13 +81,14 @@ fun QuickActionsMenu(
         Column(modifier = Modifier.width(IntrinsicSize.Max)) {
             for (action in InputAction.entries) {
                 if (action in visibleActions) continue
-                val overflowItem = getOverflowItem(
-                    action = action,
-                    isStreamActive = isStreamActive,
-                    hasStreamData = hasStreamData,
-                    isFullscreen = isFullscreen,
-                    isModerator = isModerator,
-                )
+                val overflowItem =
+                    getOverflowItem(
+                        action = action,
+                        isStreamActive = isStreamActive,
+                        hasStreamData = hasStreamData,
+                        isFullscreen = isFullscreen,
+                        isModerator = isModerator,
+                    )
                 if (overflowItem != null) {
                     val actionEnabled = isActionEnabled(action, enabled, hasLastMessage)
                     DropdownMenuItem(
@@ -143,72 +144,115 @@ fun QuickActionsMenu(
                     }
                 }
 
-                else -> configureItem()
+                else -> {
+                    configureItem()
+                }
             }
         }
     }
 }
 
 @Immutable
-private data class OverflowItem(val labelRes: Int, val icon: ImageVector)
+private data class OverflowItem(
+    val labelRes: Int,
+    val icon: ImageVector,
+)
 
-private fun getOverflowItem(action: InputAction, isStreamActive: Boolean, hasStreamData: Boolean, isFullscreen: Boolean, isModerator: Boolean): OverflowItem? = when (action) {
-    InputAction.Search -> OverflowItem(
-        labelRes = R.string.input_action_search,
-        icon = Icons.Default.Search,
-    )
+private fun getOverflowItem(
+    action: InputAction,
+    isStreamActive: Boolean,
+    hasStreamData: Boolean,
+    isFullscreen: Boolean,
+    isModerator: Boolean,
+): OverflowItem? =
+    when (action) {
+        InputAction.Search -> {
+            OverflowItem(
+                labelRes = R.string.input_action_search,
+                icon = Icons.Default.Search,
+            )
+        }
 
-    InputAction.LastMessage -> OverflowItem(
-        labelRes = R.string.input_action_last_message,
-        icon = Icons.Default.History,
-    )
+        InputAction.LastMessage -> {
+            OverflowItem(
+                labelRes = R.string.input_action_last_message,
+                icon = Icons.Default.History,
+            )
+        }
 
-    InputAction.Stream -> when {
-        hasStreamData || isStreamActive -> OverflowItem(
-            labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-            icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-        )
+        InputAction.Stream -> {
+            when {
+                hasStreamData || isStreamActive -> {
+                    OverflowItem(
+                        labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
+                        icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                    )
+                }
 
-        else -> null
+                else -> {
+                    null
+                }
+            }
+        }
+
+        InputAction.ModActions -> {
+            when {
+                isModerator -> {
+                    OverflowItem(
+                        labelRes = R.string.menu_mod_actions,
+                        icon = Icons.Default.Shield,
+                    )
+                }
+
+                else -> {
+                    null
+                }
+            }
+        }
+
+        InputAction.Fullscreen -> {
+            OverflowItem(
+                labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
+                icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+            )
+        }
+
+        InputAction.HideInput -> {
+            OverflowItem(
+                labelRes = R.string.menu_hide_input,
+                icon = Icons.Default.VisibilityOff,
+            )
+        }
+
+        InputAction.Debug -> {
+            OverflowItem(
+                labelRes = R.string.input_action_debug,
+                icon = Icons.Default.BugReport,
+            )
+        }
     }
 
-    InputAction.ModActions -> when {
-        isModerator -> OverflowItem(
-            labelRes = R.string.menu_mod_actions,
-            icon = Icons.Default.Shield,
-        )
-
-        else -> null
+private fun isActionEnabled(
+    action: InputAction,
+    inputEnabled: Boolean,
+    hasLastMessage: Boolean,
+): Boolean =
+    when (action) {
+        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
+        InputAction.LastMessage -> inputEnabled && hasLastMessage
+        InputAction.Stream, InputAction.ModActions -> inputEnabled
     }
-
-    InputAction.Fullscreen -> OverflowItem(
-        labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
-        icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-    )
-
-    InputAction.HideInput -> OverflowItem(
-        labelRes = R.string.menu_hide_input,
-        icon = Icons.Default.VisibilityOff,
-    )
-
-    InputAction.Debug -> OverflowItem(
-        labelRes = R.string.input_action_debug,
-        icon = Icons.Default.BugReport,
-    )
-}
-
-private fun isActionEnabled(action: InputAction, inputEnabled: Boolean, hasLastMessage: Boolean): Boolean = when (action) {
-    InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-    InputAction.LastMessage -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.ModActions -> inputEnabled
-}
 
 /**
  * Tour tooltip positioned to the start of its anchor, with a right-pointing caret on the end side.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EndCaretTourTooltip(text: String, onAction: () -> Unit, onSkip: () -> Unit) {
+private fun EndCaretTourTooltip(
+    text: String,
+    onAction: () -> Unit,
+    onSkip: () -> Unit,
+) {
     val containerColor = MaterialTheme.colorScheme.secondaryContainer
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
@@ -219,9 +263,10 @@ private fun EndCaretTourTooltip(text: String, onAction: () -> Unit, onSkip: () -
             modifier = Modifier.widthIn(max = 220.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp, bottom = 8.dp),
+                modifier =
+                    Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 12.dp, bottom = 8.dp),
             ) {
                 Text(
                     text = text,
@@ -242,12 +287,13 @@ private fun EndCaretTourTooltip(text: String, onAction: () -> Unit, onSkip: () -
             }
         }
         Canvas(modifier = Modifier.size(width = 12.dp, height = 24.dp)) {
-            val path = Path().apply {
-                moveTo(0f, 0f)
-                lineTo(size.width, size.height / 2f)
-                lineTo(0f, size.height)
-                close()
-            }
+            val path =
+                Path().apply {
+                    moveTo(0f, 0f)
+                    lineTo(size.width, size.height / 2f)
+                    lineTo(0f, size.height)
+                    close()
+                }
             drawPath(path, containerColor)
         }
     }
@@ -263,7 +309,12 @@ private fun rememberStartAlignedTooltipPositionProvider(spacingBetweenTooltipAnd
     val spacingPx = with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
     return remember(spacingPx) {
         object : PopupPositionProvider {
-            override fun calculatePosition(anchorBounds: IntRect, windowSize: IntSize, layoutDirection: LayoutDirection, popupContentSize: IntSize): IntOffset {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize,
+            ): IntOffset {
                 val startX = anchorBounds.left - popupContentSize.width - spacingPx
                 return if (startX >= 0) {
                     // Fits to the start — vertically center on anchor
@@ -274,10 +325,12 @@ private fun rememberStartAlignedTooltipPositionProvider(spacingBetweenTooltipAnd
                     )
                 } else {
                     // Not enough space — fall back to above, horizontally end-aligned with anchor
-                    val x = (anchorBounds.right - popupContentSize.width)
-                        .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
-                    val y = (anchorBounds.top - popupContentSize.height - spacingPx)
-                        .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
+                    val x =
+                        (anchorBounds.right - popupContentSize.width)
+                            .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
+                    val y =
+                        (anchorBounds.top - popupContentSize.height - spacingPx)
+                            .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
                     IntOffset(x, y)
                 }
             }

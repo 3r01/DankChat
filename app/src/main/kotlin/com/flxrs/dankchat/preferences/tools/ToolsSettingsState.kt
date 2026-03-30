@@ -3,19 +3,33 @@ package com.flxrs.dankchat.preferences.tools
 import kotlinx.collections.immutable.ImmutableSet
 
 sealed interface ToolsSettingsInteraction {
-    data class TTSEnabled(val value: Boolean) : ToolsSettingsInteraction
+    data class TTSEnabled(
+        val value: Boolean,
+    ) : ToolsSettingsInteraction
 
-    data class TTSMode(val value: TTSPlayMode) : ToolsSettingsInteraction
+    data class TTSMode(
+        val value: TTSPlayMode,
+    ) : ToolsSettingsInteraction
 
-    data class TTSFormat(val value: TTSMessageFormat) : ToolsSettingsInteraction
+    data class TTSFormat(
+        val value: TTSMessageFormat,
+    ) : ToolsSettingsInteraction
 
-    data class TTSForceEnglish(val value: Boolean) : ToolsSettingsInteraction
+    data class TTSForceEnglish(
+        val value: Boolean,
+    ) : ToolsSettingsInteraction
 
-    data class TTSIgnoreUrls(val value: Boolean) : ToolsSettingsInteraction
+    data class TTSIgnoreUrls(
+        val value: Boolean,
+    ) : ToolsSettingsInteraction
 
-    data class TTSIgnoreEmotes(val value: Boolean) : ToolsSettingsInteraction
+    data class TTSIgnoreEmotes(
+        val value: Boolean,
+    ) : ToolsSettingsInteraction
 
-    data class TTSUserIgnoreList(val value: Set<String>) : ToolsSettingsInteraction
+    data class TTSUserIgnoreList(
+        val value: Set<String>,
+    ) : ToolsSettingsInteraction
 }
 
 data class ToolsSettingsState(

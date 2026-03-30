@@ -50,10 +50,11 @@ fun RepliesComposable(
                 ChatScreen(
                     messages = (uiState as RepliesUiState.Found).items,
                     fontSize = displaySettings.fontSize,
-                    callbacks = ChatScreenCallbacks(
-                        onUserClick = onUserClick,
-                        onMessageLongClick = onMessageLongClick,
-                    ),
+                    callbacks =
+                        ChatScreenCallbacks(
+                            onUserClick = onUserClick,
+                            onMessageLongClick = onMessageLongClick,
+                        ),
                     showLineSeparator = displaySettings.showLineSeparator,
                     animateGifs = displaySettings.animateGifs,
                     modifier = modifier,

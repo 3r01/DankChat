@@ -100,77 +100,85 @@ fun MessageOptionsDialog(
             label = "MessageOptionsContent",
         ) { currentView ->
             when (currentView) {
-                null -> MessageOptionsMainView(
-                    canReply = canReply,
-                    canJump = canJump,
-                    canCopy = canCopy,
-                    canModerate = canModerate,
-                    hasReplyThread = hasReplyThread,
-                    channel = channel,
-                    onReply = {
-                        onReply()
-                        onDismiss()
-                    },
-                    onReplyToOriginal = {
-                        onReplyToOriginal()
-                        onDismiss()
-                    },
-                    onJumpToMessage = {
-                        onJumpToMessage()
-                        onDismiss()
-                    },
-                    onViewThread = {
-                        onViewThread()
-                        onDismiss()
-                    },
-                    onCopy = {
-                        onCopy()
-                        onDismiss()
-                    },
-                    onCopyFullMessage = {
-                        onCopyFullMessage()
-                        onDismiss()
-                    },
-                    onCopyMessageId = {
-                        onCopyMessageId()
-                        onDismiss()
-                    },
-                    onUnban = {
-                        onUnban()
-                        onDismiss()
-                    },
-                    onTimeout = { subView = MessageOptionsSubView.Timeout },
-                    onBan = { subView = MessageOptionsSubView.Ban },
-                    onDelete = { subView = MessageOptionsSubView.Delete },
-                )
+                null -> {
+                    MessageOptionsMainView(
+                        canReply = canReply,
+                        canJump = canJump,
+                        canCopy = canCopy,
+                        canModerate = canModerate,
+                        hasReplyThread = hasReplyThread,
+                        channel = channel,
+                        onReply = {
+                            onReply()
+                            onDismiss()
+                        },
+                        onReplyToOriginal = {
+                            onReplyToOriginal()
+                            onDismiss()
+                        },
+                        onJumpToMessage = {
+                            onJumpToMessage()
+                            onDismiss()
+                        },
+                        onViewThread = {
+                            onViewThread()
+                            onDismiss()
+                        },
+                        onCopy = {
+                            onCopy()
+                            onDismiss()
+                        },
+                        onCopyFullMessage = {
+                            onCopyFullMessage()
+                            onDismiss()
+                        },
+                        onCopyMessageId = {
+                            onCopyMessageId()
+                            onDismiss()
+                        },
+                        onUnban = {
+                            onUnban()
+                            onDismiss()
+                        },
+                        onTimeout = { subView = MessageOptionsSubView.Timeout },
+                        onBan = { subView = MessageOptionsSubView.Ban },
+                        onDelete = { subView = MessageOptionsSubView.Delete },
+                    )
+                }
 
-                MessageOptionsSubView.Timeout -> TimeoutSubView(
-                    onConfirm = { index ->
-                        onTimeout(index)
-                        onDismiss()
-                    },
-                    onBack = { subView = null },
-                )
+                MessageOptionsSubView.Timeout -> {
+                    TimeoutSubView(
+                        onConfirm = { index ->
+                            onTimeout(index)
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
 
-                MessageOptionsSubView.Ban -> ConfirmationSubView(
-                    title = stringResource(R.string.confirm_user_ban_message),
-                    confirmText = stringResource(R.string.confirm_user_ban_positive_button),
-                    onConfirm = {
-                        onBan()
-                        onDismiss()
-                    },
-                    onBack = { subView = null },
-                )
+                MessageOptionsSubView.Ban -> {
+                    ConfirmationSubView(
+                        title = stringResource(R.string.confirm_user_ban_message),
+                        confirmText = stringResource(R.string.confirm_user_ban_positive_button),
+                        onConfirm = {
+                            onBan()
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
 
-                MessageOptionsSubView.Delete -> ConfirmationSubView(
-                    title = stringResource(R.string.confirm_user_delete_message),
-                    confirmText = stringResource(R.string.confirm_user_delete_positive_button),
-                    onConfirm = {
-                        onDelete()
-                        onDismiss()
-                    },
-                    onBack = { subView = null },
-                )
+                MessageOptionsSubView.Delete -> {
+                    ConfirmationSubView(
+                        title = stringResource(R.string.confirm_user_delete_message),
+                        confirmText = stringResource(R.string.confirm_user_delete_positive_button),
+                        onConfirm = {
+                            onDelete()
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
             }
         }
     }
@@ -203,9 +211,10 @@ private fun MessageOptionsMainView(
     )
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
     ) {
         if (canReply) {
             MessageOptionItem(Icons.AutoMirrored.Filled.Reply, stringResource(R.string.message_reply), onReply)
@@ -254,7 +263,11 @@ private fun MessageOptionsMainView(
 }
 
 @Composable
-private fun MessageOptionItem(icon: ImageVector, text: String, onClick: () -> Unit) {
+private fun MessageOptionItem(
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit,
+) {
     ListItem(
         headlineContent = { Text(text) },
         leadingContent = { Icon(icon, contentDescription = null) },
@@ -264,16 +277,20 @@ private fun MessageOptionItem(icon: ImageVector, text: String, onClick: () -> Un
 }
 
 @Composable
-private fun TimeoutSubView(onConfirm: (Int) -> Unit, onBack: () -> Unit) {
+private fun TimeoutSubView(
+    onConfirm: (Int) -> Unit,
+    onBack: () -> Unit,
+) {
     val choices = stringArrayResource(R.array.timeout_entries)
     var sliderPosition by remember { mutableFloatStateOf(0f) }
     val currentIndex = sliderPosition.toInt()
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
     ) {
         Text(
             text = stringResource(R.string.confirm_user_timeout_title),
@@ -286,9 +303,10 @@ private fun TimeoutSubView(onConfirm: (Int) -> Unit, onBack: () -> Unit) {
             text = choices[currentIndex],
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = 8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 8.dp),
         )
 
         Slider(
@@ -299,9 +317,10 @@ private fun TimeoutSubView(onConfirm: (Int) -> Unit, onBack: () -> Unit) {
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
         ) {
             OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_cancel))
@@ -315,27 +334,35 @@ private fun TimeoutSubView(onConfirm: (Int) -> Unit, onBack: () -> Unit) {
 }
 
 @Composable
-private fun ConfirmationSubView(title: String, confirmText: String, onConfirm: () -> Unit, onBack: () -> Unit) {
+private fun ConfirmationSubView(
+    title: String,
+    confirmText: String,
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .padding(bottom = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 16.dp),
         )
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
         ) {
             OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
                 Text(stringResource(R.string.dialog_cancel))

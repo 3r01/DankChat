@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-class DataListDto<T>(val data: List<T>)
+class DataListDto<T>(
+    val data: List<T>,
+)

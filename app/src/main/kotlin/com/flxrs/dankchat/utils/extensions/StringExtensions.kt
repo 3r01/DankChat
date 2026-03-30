@@ -39,7 +39,11 @@ fun String.removeDuplicateWhitespace(): Pair<String, List<Int>> {
     return stringBuilder.toString() to removedSpacesPositions
 }
 
-data class CodePointAnalysis(val supplementaryCodePointPositions: List<Int>, val deduplicatedString: String, val removedSpacesPositions: List<Int>)
+data class CodePointAnalysis(
+    val supplementaryCodePointPositions: List<Int>,
+    val deduplicatedString: String,
+    val removedSpacesPositions: List<Int>,
+)
 
 // Combined single-pass: finds supplementary codepoint positions AND removes duplicate whitespace
 fun String.analyzeCodePoints(): CodePointAnalysis {
@@ -198,7 +202,10 @@ val INVISIBLE_CHAR = 0x034f.codePointAsString
 val String.withoutInvisibleChar: String
     get() = trimEnd().removeSuffix(INVISIBLE_CHAR).trimEnd()
 
-inline fun CharSequence.indexOfFirst(startIndex: Int = 0, predicate: (Char) -> Boolean): Int {
+inline fun CharSequence.indexOfFirst(
+    startIndex: Int = 0,
+    predicate: (Char) -> Boolean,
+): Int {
     for (index in startIndex.coerceAtLeast(0)..lastIndex) {
         if (predicate(this[index])) {
             return index
@@ -208,7 +215,8 @@ inline fun CharSequence.indexOfFirst(startIndex: Int = 0, predicate: (Char) -> B
     return -1
 }
 
-fun String.truncate(maxLength: Int = 120) = when {
-    length <= maxLength -> this
-    else -> take(maxLength) + Typography.ellipsis
-}
+fun String.truncate(maxLength: Int = 120) =
+    when {
+        length <= maxLength -> this
+        else -> take(maxLength) + Typography.ellipsis
+    }

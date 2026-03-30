@@ -79,10 +79,16 @@ class ChatMessageRepository(
 
     fun getMessagesFlow(channel: UserName): MutableStateFlow<List<ChatItem>>? = messages[channel]
 
-    fun findMessage(messageId: String, channel: UserName?, whispers: StateFlow<List<ChatItem>>): Message? =
-        (channel?.let { messages[it] } ?: whispers).value.find { it.message.id == messageId }?.message
+    fun findMessage(
+        messageId: String,
+        channel: UserName?,
+        whispers: StateFlow<List<ChatItem>>,
+    ): Message? = (channel?.let { messages[it] } ?: whispers).value.find { it.message.id == messageId }?.message
 
-    fun addMessages(channel: UserName, items: List<ChatItem>) {
+    fun addMessages(
+        channel: UserName,
+        items: List<ChatItem>,
+    ) {
         _sessionMessageCount += items.size
         messages[channel]?.update { current ->
             current.addAndLimit(items = items, scrollBackLength, messageProcessor::onMessageRemoved)
@@ -113,7 +119,11 @@ class ChatMessageRepository(
         messages[channel]?.value = emptyList()
     }
 
-    fun updateAutomodMessageStatus(channel: UserName, heldMessageId: String, status: AutomodMessage.Status) {
+    fun updateAutomodMessageStatus(
+        channel: UserName,
+        heldMessageId: String,
+        status: AutomodMessage.Status,
+    ) {
         messages[channel]?.update { current ->
             current.map { item ->
                 val msg = item.message
@@ -130,30 +140,37 @@ class ChatMessageRepository(
         }
     }
 
-    suspend fun reparseAllEmotesAndBadges() = withContext(Dispatchers.Default) {
-        messages.values
-            .map { flow ->
-                async {
-                    flow.update { items ->
-                        items.map {
-                            it.copy(
-                                tag = it.tag + 1,
-                                message = messageProcessor.reparseEmotesAndBadges(it.message),
-                            )
+    suspend fun reparseAllEmotesAndBadges() =
+        withContext(Dispatchers.Default) {
+            messages.values
+                .map { flow ->
+                    async {
+                        flow.update { items ->
+                            items.map {
+                                it.copy(
+                                    tag = it.tag + 1,
+                                    message = messageProcessor.reparseEmotesAndBadges(it.message),
+                                )
+                            }
                         }
                     }
-                }
-            }.awaitAll()
-        chatNotificationRepository.reparseAll()
-    }
+                }.awaitAll()
+            chatNotificationRepository.reparseAll()
+        }
 
-    fun addSystemMessage(channel: UserName, type: SystemMessageType) {
+    fun addSystemMessage(
+        channel: UserName,
+        type: SystemMessageType,
+    ) {
         messages[channel]?.update {
             it.addSystemMessage(type, scrollBackLength, messageProcessor::onMessageRemoved)
         }
     }
 
-    fun addSystemMessageToChannels(type: SystemMessageType, channels: Set<UserName> = messages.keys): Set<UserName> {
+    fun addSystemMessageToChannels(
+        type: SystemMessageType,
+        channels: Set<UserName> = messages.keys,
+    ): Set<UserName> {
         val reconnectedChannels = mutableSetOf<UserName>()
         channels.forEach { channel ->
             val flow = messages[channel] ?: return@forEach

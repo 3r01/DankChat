@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class PagedDto<T>(val data: List<T>, val pagination: PaginationDto)
+data class PagedDto<T>(
+    val data: List<T>,
+    val pagination: PaginationDto,
+)

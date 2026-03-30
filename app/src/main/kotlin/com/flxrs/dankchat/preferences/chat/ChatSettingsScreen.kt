@@ -54,7 +54,11 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
 
 @Composable
-fun ChatSettingsScreen(onNavToCommands: () -> Unit, onNavToUserDisplays: () -> Unit, onNavBack: () -> Unit) {
+fun ChatSettingsScreen(
+    onNavToCommands: () -> Unit,
+    onNavToUserDisplays: () -> Unit,
+    onNavBack: () -> Unit,
+) {
     val viewModel = koinViewModel<ChatSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
     val restartRequiredTitle = stringResource(R.string.restart_required)
@@ -66,11 +70,12 @@ fun ChatSettingsScreen(onNavToCommands: () -> Unit, onNavToUserDisplays: () -> U
         viewModel.events.collectLatest {
             when (it) {
                 ChatSettingsEvent.RestartRequired -> {
-                    val result = snackbarHostState.showSnackbar(
-                        message = restartRequiredTitle,
-                        actionLabel = restartRequiredAction,
-                        duration = SnackbarDuration.Long,
-                    )
+                    val result =
+                        snackbarHostState.showSnackbar(
+                            message = restartRequiredTitle,
+                            actionLabel = restartRequiredAction,
+                            duration = SnackbarDuration.Long,
+                        )
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)
                     }
@@ -117,10 +122,11 @@ private fun ChatSettingsScreen(
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             GeneralCategory(
                 suggestions = settings.suggestions,
@@ -261,9 +267,10 @@ private fun GeneralCategory(
             onChange = { onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
         )
 
-        val entries = stringArrayResource(R.array.badges_entries)
-            .plus(stringResource(R.string.shared_chat))
-            .toImmutableList()
+        val entries =
+            stringArrayResource(R.array.badges_entries)
+                .plus(stringResource(R.string.shared_chat))
+                .toImmutableList()
 
         PreferenceMultiListDialog(
             title = stringResource(R.string.preference_visible_badges_title),
@@ -305,11 +312,12 @@ private fun SevenTVCategory(
             onClick = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdates(it)) },
         )
         val liveUpdateEntries = stringArrayResource(R.array.event_api_timeout_entries).toImmutableList()
-        val summary = when (sevenTVLiveEmoteUpdatesBehavior) {
-            LiveUpdatesBackgroundBehavior.Never -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_never_active)
-            LiveUpdatesBackgroundBehavior.Always -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_always_active)
-            else -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_timeout, liveUpdateEntries[sevenTVLiveEmoteUpdatesBehavior.ordinal])
-        }
+        val summary =
+            when (sevenTVLiveEmoteUpdatesBehavior) {
+                LiveUpdatesBackgroundBehavior.Never -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_never_active)
+                LiveUpdatesBackgroundBehavior.Always -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_always_active)
+                else -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_timeout, liveUpdateEntries[sevenTVLiveEmoteUpdatesBehavior.ordinal])
+            }
         PreferenceListDialog(
             isEnabled = enabled && sevenTVLiveEmoteUpdates,
             title = stringResource(R.string.preference_7tv_live_updates_timeout_title),
@@ -323,7 +331,12 @@ private fun SevenTVCategory(
 }
 
 @Composable
-private fun MessageHistoryCategory(loadMessageHistory: Boolean, loadMessageHistoryAfterReconnect: Boolean, messageHistoryDashboardUrl: String, onInteraction: (ChatSettingsInteraction) -> Unit) {
+private fun MessageHistoryCategory(
+    loadMessageHistory: Boolean,
+    loadMessageHistoryAfterReconnect: Boolean,
+    messageHistoryDashboardUrl: String,
+    onInteraction: (ChatSettingsInteraction) -> Unit,
+) {
     val launcher = LocalUriHandler.current
     PreferenceCategory(title = stringResource(R.string.preference_message_history_header)) {
         SwitchPreferenceItem(
@@ -346,7 +359,10 @@ private fun MessageHistoryCategory(loadMessageHistory: Boolean, loadMessageHisto
 }
 
 @Composable
-private fun ChannelDataCategory(showChatModes: Boolean, onInteraction: (ChatSettingsInteraction) -> Unit) {
+private fun ChannelDataCategory(
+    showChatModes: Boolean,
+    onInteraction: (ChatSettingsInteraction) -> Unit,
+) {
     PreferenceCategory(title = stringResource(R.string.preference_channel_data_header)) {
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_roomstate_title),

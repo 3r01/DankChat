@@ -11,7 +11,9 @@ import org.koin.android.annotation.KoinViewModel
 import kotlin.time.Duration.Companion.seconds
 
 @KoinViewModel
-class AppearanceSettingsViewModel(private val dataStore: AppearanceSettingsDataStore) : ViewModel() {
+class AppearanceSettingsViewModel(
+    private val dataStore: AppearanceSettingsDataStore,
+) : ViewModel() {
     val settings =
         dataStore.settings
             .map { AppearanceSettingsUiState(settings = it) }

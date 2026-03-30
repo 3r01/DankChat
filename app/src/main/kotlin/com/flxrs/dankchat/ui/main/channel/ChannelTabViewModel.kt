@@ -50,8 +50,8 @@ class ChannelTabViewModel(
                             ChannelTabItem(
                                 channel = channelWithRename.channel,
                                 displayName =
-                                channelWithRename.rename?.value
-                                    ?: channelWithRename.channel.value,
+                                    channelWithRename.rename?.value
+                                        ?: channelWithRename.channel.value,
                                 isSelected = channelWithRename.channel == active,
                                 hasUnread = unread[channelWithRename.channel] ?: false,
                                 mentionCount = mentions[channelWithRename.channel] ?: 0,
@@ -61,12 +61,12 @@ class ChannelTabViewModel(
                     ChannelTabUiState(
                         tabs = tabs.toImmutableList(),
                         selectedIndex =
-                        channels
-                            .indexOfFirst { it.channel == active }
-                            .coerceAtLeast(0),
+                            channels
+                                .indexOfFirst { it.channel == active }
+                                .coerceAtLeast(0),
                         loading =
-                        globalState == GlobalLoadingState.Loading ||
-                            tabs.any { it.loadingState == ChannelLoadingState.Loading },
+                            globalState == GlobalLoadingState.Loading ||
+                                tabs.any { it.loadingState == ChannelLoadingState.Loading },
                     )
                 }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())

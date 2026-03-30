@@ -116,11 +116,12 @@ private fun UserDisplayScreen(
             focusManager.clearFocus()
             when (it) {
                 is UserDisplayEvent.ItemRemoved -> {
-                    val result = snackbarHost.showSnackbar(
-                        message = itemRemovedMsg,
-                        actionLabel = undoMsg,
-                        duration = SnackbarDuration.Short,
-                    )
+                    val result =
+                        snackbarHost.showSnackbar(
+                            message = itemRemovedMsg,
+                            actionLabel = undoMsg,
+                            duration = SnackbarDuration.Short,
+                        )
                     if (result == SnackbarResult.ActionPerformed) {
                         onAdd(it.item, it.position)
                     }
@@ -145,9 +146,10 @@ private fun UserDisplayScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -169,9 +171,10 @@ private fun UserDisplayScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.multi_entry_add_entry)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.multi_entry_add_entry)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = onAddNew,
                 )
             }
@@ -181,22 +184,24 @@ private fun UserDisplayScreen(
         DankBackground(visible = userDisplays.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
             itemsIndexed(userDisplays, key = { _, display -> display.id }) { idx, item ->
                 UserDisplayItem(
                     item = item,
                     onChange = { userDisplays[idx] = it },
                     onRemove = { onRemove(userDisplays[idx]) },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -208,14 +213,20 @@ private fun UserDisplayScreen(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun UserDisplayItem(item: UserDisplayItem, onChange: (UserDisplayItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun UserDisplayItem(
+    item: UserDisplayItem,
+    onChange: (UserDisplayItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     SwipeToDelete(onRemove, modifier) {
         ElevatedCard {
             Row {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -279,16 +290,18 @@ private fun UserDisplayItem(item: UserDisplayItem, onChange: (UserDisplayItem) -
                                     text = stringResource(R.string.pick_custom_user_color_title),
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                                 )
                                 TextButton(
                                     onClick = { selectedColor = Message.DEFAULT_COLOR },
                                     content = { Text(stringResource(R.string.reset)) },
-                                    modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(horizontal = 16.dp),
+                                    modifier =
+                                        Modifier
+                                            .align(Alignment.End)
+                                            .padding(horizontal = 16.dp),
                                 )
                                 AndroidView(
                                     factory = { context ->

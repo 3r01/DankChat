@@ -5,7 +5,9 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
-class ChangelogSheetViewModel(dankChatPreferenceStore: DankChatPreferenceStore) : ViewModel() {
+class ChangelogSheetViewModel(
+    dankChatPreferenceStore: DankChatPreferenceStore,
+) : ViewModel() {
     init {
         dankChatPreferenceStore.setCurrentInstalledVersionCode()
     }

@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class BTTVGlobalEmoteDto(@SerialName(value = "id") val id: String, @SerialName(value = "code") val code: String)
+data class BTTVGlobalEmoteDto(
+    @SerialName(value = "id") val id: String,
+    @SerialName(value = "code") val code: String,
+)

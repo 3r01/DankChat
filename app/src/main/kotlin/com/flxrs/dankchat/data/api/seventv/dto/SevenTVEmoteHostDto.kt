@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SevenTVEmoteHostDto(val url: String, val files: List<SevenTVEmoteFileDto>)
+data class SevenTVEmoteHostDto(
+    val url: String,
+    val files: List<SevenTVEmoteFileDto>,
+)

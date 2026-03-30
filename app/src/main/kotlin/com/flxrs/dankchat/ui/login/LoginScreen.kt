@@ -38,7 +38,10 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit, onCancel: () -> Unit) {
+fun LoginScreen(
+    onLoginSuccess: () -> Unit,
+    onCancel: () -> Unit,
+) {
     val viewModel: LoginViewModel = koinViewModel()
     var isLoading by remember { mutableStateOf(true) }
     var isZoomedOut by remember { mutableStateOf(false) }
@@ -77,9 +80,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onCancel: () -> Unit) {
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
         ) {
             if (isLoading) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -88,10 +92,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onCancel: () -> Unit) {
             AndroidView(
                 factory = { context ->
                     WebView(context).also { webViewRef = it }.apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                        )
+                        layoutParams =
+                            ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                            )
                         @SuppressLint("SetJavaScriptEnabled")
                         settings.javaScriptEnabled = true
                         settings.setSupportZoom(true)
@@ -99,26 +104,41 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onCancel: () -> Unit) {
                         clearCache(true)
                         clearFormData()
 
-                        webViewClient = object : WebViewClient() {
-                            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                                isLoading = true
-                            }
+                        webViewClient =
+                            object : WebViewClient() {
+                                override fun onPageStarted(
+                                    view: WebView?,
+                                    url: String?,
+                                    favicon: Bitmap?,
+                                ) {
+                                    isLoading = true
+                                }
 
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                isLoading = false
-                            }
+                                override fun onPageFinished(
+                                    view: WebView?,
+                                    url: String?,
+                                ) {
+                                    isLoading = false
+                                }
 
-                            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                                val fragment = request?.url?.fragment ?: return false
-                                viewModel.parseToken(fragment)
-                                return true // Consume
-                            }
+                                override fun shouldOverrideUrlLoading(
+                                    view: WebView?,
+                                    request: WebResourceRequest?,
+                                ): Boolean {
+                                    val fragment = request?.url?.fragment ?: return false
+                                    viewModel.parseToken(fragment)
+                                    return true // Consume
+                                }
 
-                            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                                Log.e("LoginScreen", "Error: ${error?.description}")
-                                isLoading = false
+                                override fun onReceivedError(
+                                    view: WebView?,
+                                    request: WebResourceRequest?,
+                                    error: WebResourceError?,
+                                ) {
+                                    Log.e("LoginScreen", "Error: ${error?.description}")
+                                    isLoading = false
+                                }
                             }
-                        }
 
                         loadUrl(viewModel.loginUrl)
                     }

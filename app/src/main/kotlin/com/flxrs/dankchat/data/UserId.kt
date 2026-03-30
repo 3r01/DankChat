@@ -7,7 +7,9 @@ import kotlinx.serialization.Serializable
 @JvmInline
 @Serializable
 @Parcelize
-value class UserId(val value: String) : Parcelable {
+value class UserId(
+    val value: String,
+) : Parcelable {
     override fun toString() = value
 }
 

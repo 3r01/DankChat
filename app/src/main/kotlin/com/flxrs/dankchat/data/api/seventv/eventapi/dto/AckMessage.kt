@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("5")
-data class AckMessage(override val d: AckData) : DataMessage
+data class AckMessage(
+    override val d: AckData,
+) : DataMessage
 
 @Serializable
 data object AckData : Data

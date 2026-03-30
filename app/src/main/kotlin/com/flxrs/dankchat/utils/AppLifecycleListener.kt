@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.koin.core.annotation.Single
 
 @Single
-class AppLifecycleListener(val app: Application) {
+class AppLifecycleListener(
+    val app: Application,
+) {
     sealed interface AppLifecycle {
         data object Background : AppLifecycle
 
@@ -22,7 +24,9 @@ class AppLifecycleListener(val app: Application) {
         app.registerActivityLifecycleCallbacks(LifecycleCallback { _appState.value = it })
     }
 
-    private class LifecycleCallback(private val action: (AppLifecycle) -> Unit) : Application.ActivityLifecycleCallbacks {
+    private class LifecycleCallback(
+        private val action: (AppLifecycle) -> Unit,
+    ) : Application.ActivityLifecycleCallbacks {
         var currentForegroundActivity: Activity? = null
 
         override fun onActivityPaused(activity: Activity) {
@@ -41,10 +45,16 @@ class AppLifecycleListener(val app: Application) {
 
         override fun onActivityDestroyed(activity: Activity) = Unit
 
-        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
+        override fun onActivitySaveInstanceState(
+            activity: Activity,
+            outState: Bundle,
+        ) = Unit
 
         override fun onActivityStopped(activity: Activity) = Unit
 
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
+        override fun onActivityCreated(
+            activity: Activity,
+            savedInstanceState: Bundle?,
+        ) = Unit
     }
 }

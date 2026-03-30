@@ -65,10 +65,11 @@ fun FullScreenSheetOverlay(
             }
 
             val mentionableClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
-                val shouldOpenPopup = when (userLongClickBehavior) {
-                    UserLongClickBehavior.MentionsUser -> !isLongPress
-                    UserLongClickBehavior.OpensPopup -> isLongPress
-                }
+                val shouldOpenPopup =
+                    when (userLongClickBehavior) {
+                        UserLongClickBehavior.MentionsUser -> !isLongPress
+                        UserLongClickBehavior.OpensPopup -> isLongPress
+                    }
                 if (shouldOpenPopup) {
                     onUserClick(
                         UserPopupStateParams(
@@ -85,13 +86,14 @@ fun FullScreenSheetOverlay(
             }
 
             when (sheetState) {
-                is FullScreenSheetState.Closed -> Unit
+                is FullScreenSheetState.Closed -> {
+                    Unit
+                }
 
                 is FullScreenSheetState.Mention -> {
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = false,
-
                         onDismiss = onDismiss,
                         onUserClick = popupOnlyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -117,7 +119,6 @@ fun FullScreenSheetOverlay(
                     MentionSheet(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = true,
-
                         onDismiss = onDismiss,
                         onUserClick = popupOnlyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -142,7 +143,6 @@ fun FullScreenSheetOverlay(
                 is FullScreenSheetState.Replies -> {
                     RepliesSheet(
                         rootMessageId = sheetState.replyMessageId,
-
                         onDismiss = onDismissReplies,
                         onUserClick = mentionableClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->
@@ -163,15 +163,17 @@ fun FullScreenSheetOverlay(
                 }
 
                 is FullScreenSheetState.History -> {
-                    val viewModel: MessageHistoryViewModel = koinViewModel(
-                        key = "history-${sheetState.channel.value}",
-                        parameters = { parametersOf(sheetState.channel) },
-                    )
+                    val viewModel: MessageHistoryViewModel =
+                        koinViewModel(
+                            key = "history-${sheetState.channel.value}",
+                            parameters = { parametersOf(sheetState.channel) },
+                        )
                     val historyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
-                        val shouldOpenPopup = when (userLongClickBehavior) {
-                            UserLongClickBehavior.MentionsUser -> !isLongPress
-                            UserLongClickBehavior.OpensPopup -> isLongPress
-                        }
+                        val shouldOpenPopup =
+                            when (userLongClickBehavior) {
+                                UserLongClickBehavior.MentionsUser -> !isLongPress
+                                UserLongClickBehavior.OpensPopup -> isLongPress
+                            }
                         if (shouldOpenPopup) {
                             onUserClick(
                                 UserPopupStateParams(
@@ -190,7 +192,6 @@ fun FullScreenSheetOverlay(
                         viewModel = viewModel,
                         channel = sheetState.channel,
                         initialFilter = sheetState.initialFilter,
-
                         onDismiss = onDismiss,
                         onUserClick = historyClickHandler,
                         onMessageLongClick = { messageId, channel, fullMessage ->

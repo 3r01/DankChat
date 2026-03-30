@@ -31,12 +31,12 @@ class AppDebugSection : DebugSection {
             DebugSectionSnapshot(
                 title = baseTitle,
                 entries =
-                listOf(
-                    DebugEntry("Total app memory", formatBytes(totalAppMemory)),
-                    DebugEntry("JVM heap", "${formatBytes(heapUsed)} / ${formatBytes(heapMax)}"),
-                    DebugEntry("Native heap", "${formatBytes(nativeAllocated)} / ${formatBytes(nativeTotal)}"),
-                    DebugEntry("Threads", "${Thread.activeCount()}"),
-                ),
+                    listOf(
+                        DebugEntry("Total app memory", formatBytes(totalAppMemory)),
+                        DebugEntry("JVM heap", "${formatBytes(heapUsed)} / ${formatBytes(heapMax)}"),
+                        DebugEntry("Native heap", "${formatBytes(nativeAllocated)} / ${formatBytes(nativeTotal)}"),
+                        DebugEntry("Threads", "${Thread.activeCount()}"),
+                    ),
             )
         }
     }

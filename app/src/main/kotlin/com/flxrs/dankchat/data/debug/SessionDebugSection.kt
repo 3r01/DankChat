@@ -44,15 +44,15 @@ class SessionDebugSection(
             DebugSectionSnapshot(
                 title = baseTitle,
                 entries =
-                listOf(
-                    DebugEntry("Uptime", uptime),
-                    DebugEntry("Send protocol", developerSettingsDataStore.current().chatSendProtocol.name),
-                    DebugEntry("Total messages received", "${chatMessageRepository.sessionMessageCount}"),
-                    DebugEntry("Messages sent (IRC)", "${chatMessageRepository.ircSentCount}"),
-                    DebugEntry("Messages sent (Helix)", "${chatMessageRepository.helixSentCount}"),
-                    DebugEntry("Send failures", "${chatMessageRepository.sendFailureCount}"),
-                    DebugEntry("Active channels", "${channels?.size ?: 0}"),
-                ),
+                    listOf(
+                        DebugEntry("Uptime", uptime),
+                        DebugEntry("Send protocol", developerSettingsDataStore.current().chatSendProtocol.name),
+                        DebugEntry("Total messages received", "${chatMessageRepository.sessionMessageCount}"),
+                        DebugEntry("Messages sent (IRC)", "${chatMessageRepository.ircSentCount}"),
+                        DebugEntry("Messages sent (Helix)", "${chatMessageRepository.helixSentCount}"),
+                        DebugEntry("Send failures", "${chatMessageRepository.sendFailureCount}"),
+                        DebugEntry("Active channels", "${channels?.size ?: 0}"),
+                    ),
             )
         }
     }

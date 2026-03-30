@@ -47,23 +47,28 @@ private val GPS_ATTRIBUTES =
     )
 
 @Throws(IOException::class)
-fun createMediaFile(context: Context, suffix: String = "jpg"): File {
+fun createMediaFile(
+    context: Context,
+    suffix: String = "jpg",
+): File {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
     val storageDir = context.getExternalFilesDir("Media")
     return File.createTempFile(timeStamp, ".$suffix", storageDir)
 }
 
-fun tryClearEmptyFiles(context: Context) = runCatching {
-    val cutoff = System.currentTimeMillis().milliseconds - 1.days
-    context
-        .getExternalFilesDir("Media")
-        ?.listFiles()
-        ?.filter { it.isFile && it.lastModified().milliseconds < cutoff }
-        ?.onEach { it.delete() }
-}
+fun tryClearEmptyFiles(context: Context) =
+    runCatching {
+        val cutoff = System.currentTimeMillis().milliseconds - 1.days
+        context
+            .getExternalFilesDir("Media")
+            ?.listFiles()
+            ?.filter { it.isFile && it.lastModified().milliseconds < cutoff }
+            ?.onEach { it.delete() }
+    }
 
 @Throws(IOException::class, IllegalStateException::class)
-fun File.removeExifAttributes() = ExifInterface(this).run {
-    GPS_ATTRIBUTES.forEach { if (getAttribute(it) != null) setAttribute(it, null) }
-    saveAttributes()
-}
+fun File.removeExifAttributes() =
+    ExifInterface(this).run {
+        GPS_ATTRIBUTES.forEach { if (getAttribute(it) != null) setAttribute(it, null) }
+        saveAttributes()
+    }

@@ -58,10 +58,11 @@ fun ChatBottomBar(
         AnimatedVisibility(
             visible = showInput,
             enter = EnterTransition.None,
-            exit = when {
-                instantHide -> ExitTransition.None
-                else -> slideOutVertically(targetOffsetY = { it })
-            },
+            exit =
+                when {
+                    instantHide -> ExitTransition.None
+                    else -> slideOutVertically(targetOffsetY = { it })
+                },
         ) {
             ChatInputLayout(
                 textFieldState = textFieldState,
@@ -80,9 +81,10 @@ fun ChatBottomBar(
                 onOverflowExpandedChange = onOverflowExpandedChange,
                 tourState = tourState,
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
-                modifier = Modifier.onGloballyPositioned { coordinates ->
-                    onInputHeightChange(coordinates.size.height)
-                },
+                modifier =
+                    Modifier.onGloballyPositioned { coordinates ->
+                        onInputHeightChange(coordinates.size.height)
+                    },
             )
         }
 
@@ -93,34 +95,41 @@ fun ChatBottomBar(
             val roomStateText = resolvedRoomState.joinToString(separator = ", ")
             val helperText = listOfNotNull(roomStateText.ifEmpty { null }, helperTextState.streamInfo).joinToString(separator = " - ")
             if (helperText.isNotEmpty()) {
-                val horizontalPadding = when {
-                    isFullscreen && isInSplitLayout -> {
-                        val rcPadding = rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
-                        val direction = LocalLayoutDirection.current
-                        PaddingValues(start = 16.dp, end = rcPadding.calculateEndPadding(direction))
+                val horizontalPadding =
+                    when {
+                        isFullscreen && isInSplitLayout -> {
+                            val rcPadding = rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+                            val direction = LocalLayoutDirection.current
+                            PaddingValues(start = 16.dp, end = rcPadding.calculateEndPadding(direction))
+                        }
+
+                        isFullscreen -> {
+                            rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
+                        }
+
+                        else -> {
+                            PaddingValues(horizontal = 16.dp)
+                        }
                     }
-
-                    isFullscreen -> rememberRoundedCornerHorizontalPadding(fallback = 16.dp)
-
-                    else -> PaddingValues(horizontal = 16.dp)
-                }
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { onHelperTextHeightChange(it.size.height) },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { onHelperTextHeightChange(it.size.height) },
                 ) {
                     Text(
                         text = helperText,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        modifier = Modifier
-                            .navigationBarsPadding()
-                            .fillMaxWidth()
-                            .padding(horizontalPadding)
-                            .padding(vertical = 6.dp)
-                            .basicMarquee(),
+                        modifier =
+                            Modifier
+                                .navigationBarsPadding()
+                                .fillMaxWidth()
+                                .padding(horizontalPadding)
+                                .padding(vertical = 6.dp)
+                                .basicMarquee(),
                         textAlign = TextAlign.Start,
                     )
                 }

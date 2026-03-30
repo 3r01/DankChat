@@ -18,7 +18,10 @@ import kotlinx.coroutines.flow.stateIn
 import org.koin.core.annotation.Single
 
 @Single
-class UserDisplayRepository(private val userDisplayDao: UserDisplayDao, dispatchersProvider: DispatchersProvider) {
+class UserDisplayRepository(
+    private val userDisplayDao: UserDisplayDao,
+    dispatchersProvider: DispatchersProvider,
+) {
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     val userDisplays =
         userDisplayDao

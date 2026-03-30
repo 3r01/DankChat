@@ -19,7 +19,10 @@ import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Factory
 
 @Factory
-class CustomLoginViewModel(private val authApiClient: AuthApiClient, private val authDataStore: AuthDataStore) {
+class CustomLoginViewModel(
+    private val authApiClient: AuthApiClient,
+    private val authDataStore: AuthDataStore,
+) {
     private val _customLoginState = MutableStateFlow<CustomLoginState>(Default)
     val customLoginState = _customLoginState.asStateFlow()
 
@@ -67,7 +70,10 @@ class CustomLoginViewModel(private val authApiClient: AuthApiClient, private val
         _customLoginState.update { (it as? MissingScopes)?.copy(dialogOpen = false) ?: it }
     }
 
-    fun saveLogin(token: String, validateDto: ValidateDto) {
+    fun saveLogin(
+        token: String,
+        validateDto: ValidateDto,
+    ) {
         authDataStore.updateAsync {
             it.copy(
                 oAuthKey = "oauth:$token",

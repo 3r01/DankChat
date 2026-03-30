@@ -4,8 +4,13 @@ import com.flxrs.dankchat.data.api.ApiException
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.Url
 
-data class HelixApiException(val error: HelixError, override val status: HttpStatusCode, override val url: Url?, override val message: String? = null, override val cause: Throwable? = null) :
-    ApiException(status, url, message, cause)
+data class HelixApiException(
+    val error: HelixError,
+    override val status: HttpStatusCode,
+    override val url: Url?,
+    override val message: String? = null,
+    override val cause: Throwable? = null,
+) : ApiException(status, url, message, cause)
 
 sealed interface HelixError {
     data object MissingScopes : HelixError
@@ -44,7 +49,9 @@ sealed interface HelixError {
 
     data object InvalidColor : HelixError
 
-    data class MarkerError(val message: String?) : HelixError
+    data class MarkerError(
+        val message: String?,
+    ) : HelixError
 
     data object CommercialRateLimited : HelixError
 
@@ -56,7 +63,9 @@ sealed interface HelixError {
 
     data object NoRaidPending : HelixError
 
-    data class NotInRange(val validRange: IntRange?) : HelixError
+    data class NotInRange(
+        val validRange: IntRange?,
+    ) : HelixError
 
     data object Forwarded : HelixError
 

@@ -18,7 +18,10 @@ internal class SuggestionFilteringTest {
             emojiRepository = mockk(),
         )
 
-    private fun emote(code: String, id: String = code) = GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
+    private fun emote(
+        code: String,
+        id: String = code,
+    ) = GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
 
     // region filterEmotes
 

@@ -17,9 +17,15 @@ class UsersRepository {
 
     fun getUsersFlow(channel: UserName): StateFlow<Set<DisplayName>> = usersFlows.getOrPut(channel) { MutableStateFlow(emptySet()) }
 
-    fun findDisplayName(channel: UserName, userName: UserName): DisplayName? = users[channel]?.get(userName)
+    fun findDisplayName(
+        channel: UserName,
+        userName: UserName,
+    ): DisplayName? = users[channel]?.get(userName)
 
-    fun updateUsers(channel: UserName, new: List<Pair<UserName, DisplayName>>) {
+    fun updateUsers(
+        channel: UserName,
+        new: List<Pair<UserName, DisplayName>>,
+    ) {
         val current = users.getOrPut(channel) { LruCache(USER_CACHE_SIZE) }
         new.forEach { current.put(it.first, it.second) }
 
@@ -28,7 +34,11 @@ class UsersRepository {
             .update { current.snapshot().values.toSet() }
     }
 
-    fun updateUser(channel: UserName, name: UserName, displayName: DisplayName) {
+    fun updateUser(
+        channel: UserName,
+        name: UserName,
+        displayName: DisplayName,
+    ) {
         val current = users.getOrPut(channel) { LruCache(USER_CACHE_SIZE) }
         current.put(name, displayName)
 
@@ -37,7 +47,10 @@ class UsersRepository {
             .update { current.snapshot().values.toSet() }
     }
 
-    fun updateGlobalUser(name: UserName, displayName: DisplayName) = updateUser(GLOBAL_CHANNEL_TAG, name, displayName)
+    fun updateGlobalUser(
+        name: UserName,
+        displayName: DisplayName,
+    ) = updateUser(GLOBAL_CHANNEL_TAG, name, displayName)
 
     fun isGlobalChannel(channel: UserName) = channel == GLOBAL_CHANNEL_TAG
 
@@ -51,7 +64,10 @@ class UsersRepository {
         usersFlows.remove(channel)
     }
 
-    fun cacheUserColor(userName: UserName, color: Int) {
+    fun cacheUserColor(
+        userName: UserName,
+        color: Int,
+    ) {
         userColors.put(userName, color)
     }
 

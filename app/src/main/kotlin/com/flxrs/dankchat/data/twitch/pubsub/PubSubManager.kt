@@ -97,18 +97,23 @@ class PubSubManager(
         resetCollectionWith()
     }
 
-    private fun buildTopics(userId: String, channels: List<Channel>, shouldUsePubSub: Boolean): Set<PubSubTopic> = buildSet {
-        val uid = userId.toUserId()
-        for (channel in channels) {
-            add(PubSubTopic.PointRedemptions(channelId = channel.id, channelName = channel.name))
+    private fun buildTopics(
+        userId: String,
+        channels: List<Channel>,
+        shouldUsePubSub: Boolean,
+    ): Set<PubSubTopic> =
+        buildSet {
+            val uid = userId.toUserId()
+            for (channel in channels) {
+                add(PubSubTopic.PointRedemptions(channelId = channel.id, channelName = channel.name))
+                if (shouldUsePubSub) {
+                    add(PubSubTopic.ModeratorActions(userId = uid, channelId = channel.id, channelName = channel.name))
+                }
+            }
             if (shouldUsePubSub) {
-                add(PubSubTopic.ModeratorActions(userId = uid, channelId = channel.id, channelName = channel.name))
+                add(PubSubTopic.Whispers(uid))
             }
         }
-        if (shouldUsePubSub) {
-            add(PubSubTopic.Whispers(uid))
-        }
-    }
 
     private fun listen(topics: Set<PubSubTopic>) {
         val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return
@@ -149,18 +154,19 @@ class PubSubManager(
         connections.clear()
     }
 
-    private fun resetCollectionWith(action: PubSubConnection.() -> Unit = {}) = scope.launch {
-        collectJobs.forEach { it.cancel() }
-        collectJobs.clear()
-        collectJobs.addAll(
-            elements =
-            connections
-                .map { conn ->
-                    conn.action()
-                    launch { conn.collectEvents() }
-                },
-        )
-    }
+    private fun resetCollectionWith(action: PubSubConnection.() -> Unit = {}) =
+        scope.launch {
+            collectJobs.forEach { it.cancel() }
+            collectJobs.clear()
+            collectJobs.addAll(
+                elements =
+                    connections
+                        .map { conn ->
+                            conn.action()
+                            launch { conn.collectEvents() }
+                        },
+            )
+        }
 
     private suspend fun PubSubConnection.collectEvents() {
         events.collect {

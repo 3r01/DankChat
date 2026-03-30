@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class WhisperRequestDto(val message: String)
+data class WhisperRequestDto(
+    val message: String,
+)

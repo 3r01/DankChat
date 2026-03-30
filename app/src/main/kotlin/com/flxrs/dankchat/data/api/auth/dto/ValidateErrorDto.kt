@@ -5,4 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class ValidateErrorDto(val status: Int, val message: String)
+data class ValidateErrorDto(
+    val status: Int,
+    val message: String,
+)

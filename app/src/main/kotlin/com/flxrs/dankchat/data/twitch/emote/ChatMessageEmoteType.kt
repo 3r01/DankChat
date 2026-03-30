@@ -9,33 +9,47 @@ sealed interface ChatMessageEmoteType : Parcelable {
     object TwitchEmote : ChatMessageEmoteType
 
     @Parcelize
-    data class ChannelFFZEmote(val creator: DisplayName?) : ChatMessageEmoteType
+    data class ChannelFFZEmote(
+        val creator: DisplayName?,
+    ) : ChatMessageEmoteType
 
     @Parcelize
-    data class GlobalFFZEmote(val creator: DisplayName?) : ChatMessageEmoteType
+    data class GlobalFFZEmote(
+        val creator: DisplayName?,
+    ) : ChatMessageEmoteType
 
     @Parcelize
-    data class ChannelBTTVEmote(val creator: DisplayName?, val isShared: Boolean) : ChatMessageEmoteType
+    data class ChannelBTTVEmote(
+        val creator: DisplayName?,
+        val isShared: Boolean,
+    ) : ChatMessageEmoteType
 
     @Parcelize
     object GlobalBTTVEmote : ChatMessageEmoteType
 
     @Parcelize
-    data class ChannelSevenTVEmote(val creator: DisplayName?, val baseName: String?) : ChatMessageEmoteType
+    data class ChannelSevenTVEmote(
+        val creator: DisplayName?,
+        val baseName: String?,
+    ) : ChatMessageEmoteType
 
     @Parcelize
-    data class GlobalSevenTVEmote(val creator: DisplayName?, val baseName: String?) : ChatMessageEmoteType
+    data class GlobalSevenTVEmote(
+        val creator: DisplayName?,
+        val baseName: String?,
+    ) : ChatMessageEmoteType
 
     @Parcelize
     data object Cheermote : ChatMessageEmoteType
 }
 
-fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType? = when (this) {
-    is EmoteType.ChannelBTTVEmote -> ChatMessageEmoteType.ChannelBTTVEmote(creator, isShared)
-    is EmoteType.ChannelFFZEmote -> ChatMessageEmoteType.ChannelFFZEmote(creator)
-    is EmoteType.ChannelSevenTVEmote -> ChatMessageEmoteType.ChannelSevenTVEmote(creator, baseName)
-    EmoteType.GlobalBTTVEmote -> ChatMessageEmoteType.GlobalBTTVEmote
-    is EmoteType.GlobalFFZEmote -> ChatMessageEmoteType.GlobalFFZEmote(creator)
-    is EmoteType.GlobalSevenTVEmote -> ChatMessageEmoteType.GlobalSevenTVEmote(creator, baseName)
-    else -> null
-}
+fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType? =
+    when (this) {
+        is EmoteType.ChannelBTTVEmote -> ChatMessageEmoteType.ChannelBTTVEmote(creator, isShared)
+        is EmoteType.ChannelFFZEmote -> ChatMessageEmoteType.ChannelFFZEmote(creator)
+        is EmoteType.ChannelSevenTVEmote -> ChatMessageEmoteType.ChannelSevenTVEmote(creator, baseName)
+        EmoteType.GlobalBTTVEmote -> ChatMessageEmoteType.GlobalBTTVEmote
+        is EmoteType.GlobalFFZEmote -> ChatMessageEmoteType.GlobalFFZEmote(creator)
+        is EmoteType.GlobalSevenTVEmote -> ChatMessageEmoteType.GlobalSevenTVEmote(creator, baseName)
+        else -> null
+    }

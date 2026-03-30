@@ -47,7 +47,6 @@ class MainScreenViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val userStateRepository: UserStateRepository,
 ) : ViewModel() {
-
     val globalLoadingState: StateFlow<GlobalLoadingState> =
         channelDataCoordinator.globalLoadingState
 
@@ -55,24 +54,25 @@ class MainScreenViewModel(
     private val _gestureInputHidden = MutableStateFlow(false)
     private val _gestureToolbarHidden = MutableStateFlow(false)
 
-    val uiState: StateFlow<MainScreenUiState> = combine(
-        appearanceSettingsDataStore.settings,
-        developerSettingsDataStore.settings,
-        _isFullscreen,
-        _gestureInputHidden,
-        _gestureToolbarHidden,
-    ) { appearance, developerSettings, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
-        MainScreenUiState(
-            isFullscreen = isFullscreen,
-            showInput = appearance.showInput,
-            inputActions = appearance.inputActions.toImmutableList(),
-            showCharacterCounter = appearance.showCharacterCounter,
-            isRepeatedSendEnabled = developerSettings.repeatedSending,
-            debugMode = developerSettings.debugMode,
-            gestureInputHidden = gestureInputHidden,
-            gestureToolbarHidden = gestureToolbarHidden,
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
+    val uiState: StateFlow<MainScreenUiState> =
+        combine(
+            appearanceSettingsDataStore.settings,
+            developerSettingsDataStore.settings,
+            _isFullscreen,
+            _gestureInputHidden,
+            _gestureToolbarHidden,
+        ) { appearance, developerSettings, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
+            MainScreenUiState(
+                isFullscreen = isFullscreen,
+                showInput = appearance.showInput,
+                inputActions = appearance.inputActions.toImmutableList(),
+                showCharacterCounter = appearance.showCharacterCounter,
+                isRepeatedSendEnabled = developerSettings.repeatedSending,
+                debugMode = developerSettings.debugMode,
+                gestureInputHidden = gestureInputHidden,
+                gestureToolbarHidden = gestureToolbarHidden,
+            )
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
 
     init {
         viewModelScope.launch {
@@ -91,7 +91,9 @@ class MainScreenViewModel(
                                 appearance.copy(inputActions = actions - InputAction.Debug)
                             }
 
-                            else -> appearance
+                            else -> {
+                                appearance
+                            }
                         }
                     }
                 }
@@ -141,7 +143,11 @@ class MainScreenViewModel(
         _keyboardHeightPx.value = persisted
     }
 
-    fun trackKeyboardHeight(heightPx: Int, isLandscape: Boolean, minHeightPx: Float) {
+    fun trackKeyboardHeight(
+        heightPx: Int,
+        isLandscape: Boolean,
+        minHeightPx: Float,
+    ) {
         if (heightPx > minHeightPx) {
             _keyboardHeightUpdates.tryEmit(KeyboardHeightUpdate(heightPx, isLandscape))
         }
@@ -172,4 +178,7 @@ class MainScreenViewModel(
     }
 }
 
-private data class KeyboardHeightUpdate(val heightPx: Int, val isLandscape: Boolean)
+private data class KeyboardHeightUpdate(
+    val heightPx: Int,
+    val isLandscape: Boolean,
+)

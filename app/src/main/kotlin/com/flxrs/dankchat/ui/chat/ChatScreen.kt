@@ -157,9 +157,10 @@ fun ChatScreen(
                 state = listState,
                 reverseLayout = true,
                 contentPadding = contentPadding,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(scrollModifier),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .then(scrollModifier),
             ) {
                 itemsIndexed(
                     items = reversedMessages,
@@ -213,9 +214,10 @@ fun ChatScreen(
                 )
 
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
                     contentAlignment = Alignment.BottomEnd,
                 ) {
                     if (recoveryFabTooltipState != null) {
@@ -272,7 +274,12 @@ fun ChatScreen(
 }
 
 @Composable
-private fun RecoveryFab(isFullscreen: Boolean, showInput: Boolean, onRecover: () -> Unit, modifier: Modifier = Modifier) {
+private fun RecoveryFab(
+    isFullscreen: Boolean,
+    showInput: Boolean,
+    onRecover: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val visible = isFullscreen || !showInput
     AnimatedVisibility(
         visible = visible,
@@ -295,7 +302,11 @@ private fun RecoveryFab(isFullscreen: Boolean, showInput: Boolean, onRecover: ()
 
 private val HIGHLIGHT_CORNER_RADIUS = 8.dp
 
-private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlightedBelow: Boolean, showLineSeparator: Boolean): Shape {
+private fun ChatMessageUiState.highlightShape(
+    highlightedAbove: Boolean,
+    highlightedBelow: Boolean,
+    showLineSeparator: Boolean,
+): Shape {
     if (!isHighlighted) return RectangleShape
     if (showLineSeparator) return RectangleShape
     val top = if (highlightedAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
@@ -308,72 +319,97 @@ private fun ChatMessageUiState.highlightShape(highlightedAbove: Boolean, highlig
  */
 
 @Composable
-private fun ChatMessageItem(message: ChatMessageUiState, highlightShape: Shape, fontSize: Float, showChannelPrefix: Boolean, animateGifs: Boolean, callbacks: ChatScreenCallbacks) {
+private fun ChatMessageItem(
+    message: ChatMessageUiState,
+    highlightShape: Shape,
+    fontSize: Float,
+    showChannelPrefix: Boolean,
+    animateGifs: Boolean,
+    callbacks: ChatScreenCallbacks,
+) {
     when (message) {
-        is ChatMessageUiState.SystemMessageUi -> SystemMessageComposable(
-            message = message,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.SystemMessageUi -> {
+            SystemMessageComposable(
+                message = message,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.NoticeMessageUi -> NoticeMessageComposable(
-            message = message,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.NoticeMessageUi -> {
+            NoticeMessageComposable(
+                message = message,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.UserNoticeMessageUi -> UserNoticeMessageComposable(
-            message = message,
-            highlightShape = highlightShape,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.UserNoticeMessageUi -> {
+            UserNoticeMessageComposable(
+                message = message,
+                highlightShape = highlightShape,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.ModerationMessageUi -> ModerationMessageComposable(
-            message = message,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.ModerationMessageUi -> {
+            ModerationMessageComposable(
+                message = message,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.AutomodMessageUi -> AutomodMessageComposable(
-            message = message,
-            fontSize = fontSize,
-            onAllow = callbacks.onAutomodAllow,
-            onDeny = callbacks.onAutomodDeny,
-        )
+        is ChatMessageUiState.AutomodMessageUi -> {
+            AutomodMessageComposable(
+                message = message,
+                fontSize = fontSize,
+                onAllow = callbacks.onAutomodAllow,
+                onDeny = callbacks.onAutomodDeny,
+            )
+        }
 
-        is ChatMessageUiState.PrivMessageUi -> PrivMessageComposable(
-            message = message,
-            highlightShape = highlightShape,
-            fontSize = fontSize,
-            showChannelPrefix = showChannelPrefix,
-            animateGifs = animateGifs,
-            onUserClick = callbacks.onUserClick,
-            onMessageLongClick = callbacks.onMessageLongClick,
-            onEmoteClick = callbacks.onEmoteClick,
-            onReplyClick = callbacks.onReplyClick,
-        )
+        is ChatMessageUiState.PrivMessageUi -> {
+            PrivMessageComposable(
+                message = message,
+                highlightShape = highlightShape,
+                fontSize = fontSize,
+                showChannelPrefix = showChannelPrefix,
+                animateGifs = animateGifs,
+                onUserClick = callbacks.onUserClick,
+                onMessageLongClick = callbacks.onMessageLongClick,
+                onEmoteClick = callbacks.onEmoteClick,
+                onReplyClick = callbacks.onReplyClick,
+            )
+        }
 
-        is ChatMessageUiState.PointRedemptionMessageUi -> PointRedemptionMessageComposable(
-            message = message,
-            highlightShape = highlightShape,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.PointRedemptionMessageUi -> {
+            PointRedemptionMessageComposable(
+                message = message,
+                highlightShape = highlightShape,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.DateSeparatorUi -> DateSeparatorComposable(
-            message = message,
-            fontSize = fontSize,
-        )
+        is ChatMessageUiState.DateSeparatorUi -> {
+            DateSeparatorComposable(
+                message = message,
+                fontSize = fontSize,
+            )
+        }
 
-        is ChatMessageUiState.WhisperMessageUi -> WhisperMessageComposable(
-            message = message,
-            fontSize = fontSize,
-            animateGifs = animateGifs,
-            onUserClick = { userId, userName, displayName, badges, isLongPress ->
-                callbacks.onUserClick(userId, userName, displayName, null, badges, isLongPress)
-            },
-            onMessageLongClick = { messageId, fullMessage ->
-                callbacks.onMessageLongClick(messageId, null, fullMessage)
-            },
-            onEmoteClick = callbacks.onEmoteClick,
-            onWhisperReply = callbacks.onWhisperReply,
-        )
+        is ChatMessageUiState.WhisperMessageUi -> {
+            WhisperMessageComposable(
+                message = message,
+                fontSize = fontSize,
+                animateGifs = animateGifs,
+                onUserClick = { userId, userName, displayName, badges, isLongPress ->
+                    callbacks.onUserClick(userId, userName, displayName, null, badges, isLongPress)
+                },
+                onMessageLongClick = { messageId, fullMessage ->
+                    callbacks.onMessageLongClick(messageId, null, fullMessage)
+                },
+                onEmoteClick = callbacks.onEmoteClick,
+                onWhisperReply = callbacks.onWhisperReply,
+            )
+        }
     }
 }
 
@@ -386,7 +422,11 @@ private fun ChatMessageItem(message: ChatMessageUiState, highlightShape: Shape, 
  * 2. Reads the item's actual position, computes the delta needed to center it,
  *    and applies the correction via [scroll].
  */
-private suspend fun LazyListState.scrollToCentered(index: Int, topPaddingPx: Int, bottomPaddingPx: Int) {
+private suspend fun LazyListState.scrollToCentered(
+    index: Int,
+    topPaddingPx: Int,
+    bottomPaddingPx: Int,
+) {
     scrollToItem(index)
 
     val itemInfo = layoutInfo.visibleItemsInfo.firstOrNull { it.index == index } ?: return

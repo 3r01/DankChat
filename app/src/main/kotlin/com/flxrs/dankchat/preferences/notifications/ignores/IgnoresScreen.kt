@@ -145,16 +145,18 @@ private fun IgnoresScreen(
                 focusManager.clearFocus()
                 when (event) {
                     is IgnoreEvent.ItemRemoved -> {
-                        val message = when (event.item) {
-                            is TwitchBlockItem -> resources.getString(R.string.unblocked_user, event.item.username)
-                            else -> itemRemovedMsg
-                        }
+                        val message =
+                            when (event.item) {
+                                is TwitchBlockItem -> resources.getString(R.string.unblocked_user, event.item.username)
+                                else -> itemRemovedMsg
+                            }
 
-                        val result = snackbarHost.showSnackbar(
-                            message = message,
-                            actionLabel = undoMsg,
-                            duration = SnackbarDuration.Short,
-                        )
+                        val result =
+                            snackbarHost.showSnackbar(
+                                message = message,
+                                actionLabel = undoMsg,
+                                duration = SnackbarDuration.Short,
+                            )
                         if (result == SnackbarResult.ActionPerformed) {
                             onAdd(event.item, event.position)
                         }
@@ -190,9 +192,10 @@ private fun IgnoresScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -219,9 +222,10 @@ private fun IgnoresScreen(
                     ExtendedFloatingActionButton(
                         text = { Text(stringResource(R.string.multi_entry_add_entry)) },
                         icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.multi_entry_add_entry)) },
-                        modifier = Modifier
-                            .navigationBarsPadding()
-                            .padding(8.dp),
+                        modifier =
+                            Modifier
+                                .navigationBarsPadding()
+                                .padding(8.dp),
                         onClick = onAddNew,
                     )
                 }
@@ -231,20 +235,23 @@ private fun IgnoresScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             Column(
-                modifier = Modifier
-                    .background(color = appbarContainerColor.value)
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                modifier =
+                    Modifier
+                        .background(color = appbarContainerColor.value)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
             ) {
-                val subtitle = when (currentTab) {
-                    IgnoresTab.Messages -> stringResource(R.string.ignores_messages_title)
-                    IgnoresTab.Users -> stringResource(R.string.ignores_users_title)
-                    IgnoresTab.Twitch -> stringResource(R.string.ignores_twitch_title)
-                }
+                val subtitle =
+                    when (currentTab) {
+                        IgnoresTab.Messages -> stringResource(R.string.ignores_messages_title)
+                        IgnoresTab.Users -> stringResource(R.string.ignores_users_title)
+                        IgnoresTab.Twitch -> stringResource(R.string.ignores_twitch_title)
+                    }
                 Text(
                     text = subtitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center,
                 )
@@ -264,57 +271,67 @@ private fun IgnoresScreen(
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = 16.dp, end = 16.dp),
             ) { page ->
                 val listState = listStates[page]
                 when (val tab = IgnoresTab.entries[page]) {
-                    IgnoresTab.Messages -> IgnoresList(
-                        tab = tab,
-                        ignores = messageIgnores,
-                        listState = listState,
-                    ) { idx, item ->
-                        MessageIgnoreItem(
-                            item = item,
-                            onChange = { messageIgnores[idx] = it },
-                            onRemove = { onRemove(item) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    IgnoresTab.Messages -> {
+                        IgnoresList(
+                            tab = tab,
+                            ignores = messageIgnores,
+                            listState = listState,
+                        ) { idx, item ->
+                            MessageIgnoreItem(
+                                item = item,
+                                onChange = { messageIgnores[idx] = it },
+                                onRemove = { onRemove(item) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    IgnoresTab.Users -> IgnoresList(
-                        tab = tab,
-                        ignores = userIgnores,
-                        listState = listState,
-                    ) { idx, item ->
-                        UserIgnoreItem(
-                            item = item,
-                            onChange = { userIgnores[idx] = it },
-                            onRemove = { onRemove(item) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    IgnoresTab.Users -> {
+                        IgnoresList(
+                            tab = tab,
+                            ignores = userIgnores,
+                            listState = listState,
+                        ) { idx, item ->
+                            UserIgnoreItem(
+                                item = item,
+                                onChange = { userIgnores[idx] = it },
+                                onRemove = { onRemove(item) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    IgnoresTab.Twitch -> IgnoresList(
-                        tab = tab,
-                        ignores = twitchBlocks,
-                        listState = listState,
-                    ) { idx, item ->
-                        TwitchBlockItem(
-                            item = item,
-                            onRemove = { onRemove(item) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    IgnoresTab.Twitch -> {
+                        IgnoresList(
+                            tab = tab,
+                            ignores = twitchBlocks,
+                            listState = listState,
+                        ) { idx, item ->
+                            TwitchBlockItem(
+                                item = item,
+                                onRemove = { onRemove(item) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -323,7 +340,12 @@ private fun IgnoresScreen(
 }
 
 @Composable
-private fun <T : IgnoreItem> IgnoresList(tab: IgnoresTab, ignores: SnapshotStateList<T>, listState: LazyListState, itemContent: @Composable LazyItemScope.(Int, T) -> Unit) {
+private fun <T : IgnoreItem> IgnoresList(
+    tab: IgnoresTab,
+    ignores: SnapshotStateList<T>,
+    listState: LazyListState,
+    itemContent: @Composable LazyItemScope.(Int, T) -> Unit,
+) {
     DankBackground(visible = ignores.isEmpty())
 
     LazyColumn(
@@ -338,32 +360,40 @@ private fun <T : IgnoreItem> IgnoresList(tab: IgnoresTab, ignores: SnapshotState
             itemContent(idx, item)
         }
         item(key = "bottom-spacer") {
-            val height = when (tab) {
-                IgnoresTab.Messages, IgnoresTab.Users -> 112.dp
-                IgnoresTab.Twitch -> Dp.Unspecified
-            }
+            val height =
+                when (tab) {
+                    IgnoresTab.Messages, IgnoresTab.Users -> 112.dp
+                    IgnoresTab.Twitch -> Dp.Unspecified
+                }
             NavigationBarSpacer(Modifier.height(height))
         }
     }
 }
 
 @Composable
-private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun MessageIgnoreItem(
+    item: MessageIgnoreItem,
+    onChange: (MessageIgnoreItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val launcher = LocalUriHandler.current
-    val titleText = when (item.type) {
-        MessageIgnoreItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
-        MessageIgnoreItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
-        MessageIgnoreItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_first_messages
-        MessageIgnoreItem.Type.FirstMessage -> R.string.highlights_ignores_entry_elevated_messages
-        MessageIgnoreItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_redemptions
-        MessageIgnoreItem.Type.Custom -> R.string.highlights_ignores_entry_custom
-    }
+    val titleText =
+        when (item.type) {
+            MessageIgnoreItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
+            MessageIgnoreItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
+            MessageIgnoreItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_first_messages
+            MessageIgnoreItem.Type.FirstMessage -> R.string.highlights_ignores_entry_elevated_messages
+            MessageIgnoreItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_redemptions
+            MessageIgnoreItem.Type.Custom -> R.string.highlights_ignores_entry_custom
+        }
     val isCustom = item.type == MessageIgnoreItem.Type.Custom
     ElevatedCard(modifier) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
         ) {
             Text(
                 text = stringResource(titleText),
@@ -380,9 +410,10 @@ private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreI
         }
         if (isCustom) {
             OutlinedTextField(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                 value = item.pattern,
                 onValueChange = { onChange(item.copy(pattern = it)) },
                 label = { Text(stringResource(R.string.pattern)) },
@@ -391,9 +422,10 @@ private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreI
             )
         }
         FlowRow(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
         ) {
             CheckboxWithText(
@@ -413,9 +445,10 @@ private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreI
                     onClick = { launcher.openUri(HighlightsViewModel.REGEX_INFO_URL) },
                     content = { Icon(Icons.Outlined.Info, contentDescription = "regex info") },
                     enabled = item.enabled,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(end = 8.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 8.dp),
                 )
                 CheckboxWithText(
                     text = stringResource(R.string.case_sensitive),
@@ -435,9 +468,10 @@ private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreI
         }
         AnimatedVisibility(visible = isCustom && !item.isBlockMessage) {
             OutlinedTextField(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                 value = item.replacement,
                 onValueChange = { onChange(item.copy(replacement = it)) },
                 label = { Text(stringResource(R.string.replacement)) },
@@ -449,14 +483,20 @@ private fun MessageIgnoreItem(item: MessageIgnoreItem, onChange: (MessageIgnoreI
 }
 
 @Composable
-private fun UserIgnoreItem(item: UserIgnoreItem, onChange: (UserIgnoreItem) -> Unit, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun UserIgnoreItem(
+    item: UserIgnoreItem,
+    onChange: (UserIgnoreItem) -> Unit,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val launcher = LocalUriHandler.current
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -487,9 +527,10 @@ private fun UserIgnoreItem(item: UserIgnoreItem, onChange: (UserIgnoreItem) -> U
                         onClick = { launcher.openUri(HighlightsViewModel.REGEX_INFO_URL) },
                         content = { Icon(Icons.Outlined.Info, contentDescription = "regex info") },
                         enabled = item.enabled,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
-                            .padding(end = 8.dp),
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterVertically)
+                                .padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.case_sensitive),
@@ -509,21 +550,27 @@ private fun UserIgnoreItem(item: UserIgnoreItem, onChange: (UserIgnoreItem) -> U
 }
 
 @Composable
-private fun TwitchBlockItem(item: TwitchBlockItem, onRemove: () -> Unit, modifier: Modifier = Modifier) {
+private fun TwitchBlockItem(
+    item: TwitchBlockItem,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     ElevatedCard(modifier) {
         Row {
             val colors = OutlinedTextFieldDefaults.colors()
             OutlinedTextField(
                 value = item.username.value,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
                 onValueChange = {},
-                colors = OutlinedTextFieldDefaults.colors(
-                    disabledTextColor = colors.unfocusedTextColor,
-                    disabledBorderColor = colors.unfocusedIndicatorColor,
-                    disabledContainerColor = colors.unfocusedContainerColor,
-                ),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = colors.unfocusedTextColor,
+                        disabledBorderColor = colors.unfocusedIndicatorColor,
+                        disabledContainerColor = colors.unfocusedContainerColor,
+                    ),
                 enabled = false,
                 maxLines = 1,
             )

@@ -41,7 +41,14 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmoteInfoDialog(items: List<EmoteSheetItem>, isLoggedIn: Boolean, onUseEmote: (String) -> Unit, onCopyEmote: (String) -> Unit, onOpenLink: (String) -> Unit, onDismiss: () -> Unit) {
+fun EmoteInfoDialog(
+    items: List<EmoteSheetItem>,
+    isLoggedIn: Boolean,
+    onUseEmote: (String) -> Unit,
+    onCopyEmote: (String) -> Unit,
+    onOpenLink: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(pageCount = { items.size })
 
@@ -93,15 +100,22 @@ fun EmoteInfoDialog(items: List<EmoteSheetItem>, isLoggedIn: Boolean, onUseEmote
 }
 
 @Composable
-private fun EmoteInfoContent(item: EmoteSheetItem, showUseEmote: Boolean, onUseEmote: () -> Unit, onCopyEmote: () -> Unit, onOpenLink: () -> Unit) {
+private fun EmoteInfoContent(
+    item: EmoteSheetItem,
+    showUseEmote: Boolean,
+    onUseEmote: () -> Unit,
+    onCopyEmote: () -> Unit,
+    onOpenLink: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.Top,
         ) {
             AsyncImage(

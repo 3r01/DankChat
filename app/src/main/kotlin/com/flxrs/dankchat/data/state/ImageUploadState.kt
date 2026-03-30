@@ -7,7 +7,13 @@ sealed interface ImageUploadState {
 
     data object Loading : ImageUploadState
 
-    data class Finished(val url: String) : ImageUploadState
+    data class Finished(
+        val url: String,
+    ) : ImageUploadState
 
-    data class Failed(val errorMessage: String?, val mediaFile: File, val imageCapture: Boolean) : ImageUploadState
+    data class Failed(
+        val errorMessage: String?,
+        val mediaFile: File,
+        val imageCapture: Boolean,
+    ) : ImageUploadState
 }

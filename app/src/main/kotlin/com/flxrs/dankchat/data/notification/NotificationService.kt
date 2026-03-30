@@ -73,7 +73,9 @@ class NotificationService :
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + Job()
 
-    inner class LocalBinder(val service: NotificationService = this@NotificationService) : Binder()
+    inner class LocalBinder(
+        val service: NotificationService = this@NotificationService,
+    ) : Binder()
 
     override fun onBind(intent: Intent?): IBinder = binder
 
@@ -116,7 +118,11 @@ class NotificationService :
             .launchIn(this)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         when (intent?.action) {
             STOP_COMMAND -> launch { dataRepository.sendShutdownCommand() }
             else -> startForeground()
@@ -125,7 +131,10 @@ class NotificationService :
         return START_NOT_STICKY
     }
 
-    override fun onTimeout(startId: Int, fgsType: Int) {
+    override fun onTimeout(
+        startId: Int,
+        fgsType: Int,
+    ) {
         Log.w(TAG, "Stopping foreground service due to 6h timeout restriction..")
         stopSelf()
     }
@@ -145,10 +154,11 @@ class NotificationService :
         shouldNotifyOnMention = true
     }
 
-    private suspend fun setTTSEnabled(enabled: Boolean) = when {
-        enabled -> initTTS()
-        else -> shutdownTTS()
-    }
+    private suspend fun setTTSEnabled(enabled: Boolean) =
+        when {
+            enabled -> initTTS()
+            else -> shutdownTTS()
+        }
 
     private suspend fun initTTS() {
         val forceEnglish = toolsSettingsDataStore.settings.first().ttsForceEnglish
@@ -310,30 +320,33 @@ class NotificationService :
         tts?.speak(message, queueMode, null, null)
     }
 
-    private fun String.filterEmotes(emotes: List<ChatMessageEmote>): String = when {
-        toolSettings.ttsIgnoreEmotes -> {
-            emotes.fold(this) { acc, emote ->
-                acc.replace(emote.code, newValue = "", ignoreCase = true)
+    private fun String.filterEmotes(emotes: List<ChatMessageEmote>): String =
+        when {
+            toolSettings.ttsIgnoreEmotes -> {
+                emotes.fold(this) { acc, emote ->
+                    acc.replace(emote.code, newValue = "", ignoreCase = true)
+                }
+            }
+
+            else -> {
+                this
             }
         }
 
-        else -> {
-            this
+    private fun String.filterUnicodeSymbols(): String =
+        when {
+            // Replaces all unicode character that are: So - Symbol Other, Sc - Symbol Currency, Sm - Symbol Math, Cn - Unassigned.
+            // This will not filter out non latin script (Arabic and Japanese for example works fine.)
+            toolSettings.ttsIgnoreEmotes -> replace(UNICODE_SYMBOL_REGEX, replacement = "")
+
+            else -> this
         }
-    }
 
-    private fun String.filterUnicodeSymbols(): String = when {
-        // Replaces all unicode character that are: So - Symbol Other, Sc - Symbol Currency, Sm - Symbol Math, Cn - Unassigned.
-        // This will not filter out non latin script (Arabic and Japanese for example works fine.)
-        toolSettings.ttsIgnoreEmotes -> replace(UNICODE_SYMBOL_REGEX, replacement = "")
-
-        else -> this
-    }
-
-    private fun String.filterUrls(): String = when {
-        toolSettings.ttsIgnoreUrls -> replace(URL_REGEX, replacement = "")
-        else -> this
-    }
+    private fun String.filterUrls(): String =
+        when {
+            toolSettings.ttsIgnoreUrls -> replace(URL_REGEX, replacement = "")
+            else -> this
+        }
 
     private fun NotificationData.createMentionNotification() {
         val pendingStartActivityIntent =

@@ -18,20 +18,27 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("LambdaParameterEventTrailing")
 @Composable
-fun CheckboxWithText(text: String, checked: Boolean, modifier: Modifier = Modifier, enabled: Boolean = true, onCheckedChange: (Boolean) -> Unit) {
+fun CheckboxWithText(
+    text: String,
+    checked: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onCheckedChange: (Boolean) -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .padding(4.dp)
-            .selectable(
-                selected = checked,
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = { onCheckedChange(!checked) },
-                role = Role.Checkbox,
-            ),
+        modifier =
+            modifier
+                .padding(4.dp)
+                .selectable(
+                    selected = checked,
+                    interactionSource = interactionSource,
+                    indication = null,
+                    enabled = enabled,
+                    onClick = { onCheckedChange(!checked) },
+                    role = Role.Checkbox,
+                ),
     ) {
         Checkbox(
             checked = checked,

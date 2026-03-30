@@ -19,8 +19,13 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class NotificationsSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class NotificationsPreferenceKeys(override val id: Int) : PreferenceKeys {
+class NotificationsSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class NotificationsPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         ShowNotifications(R.string.preference_notification_key),
         ShowWhisperNotifications(R.string.preference_notification_whisper_key),
         MentionFormat(R.string.preference_mention_format_key),
@@ -40,9 +45,9 @@ class NotificationsSettingsDataStore(context: Context, dispatchersProvider: Disp
                 NotificationsPreferenceKeys.MentionFormat -> {
                     acc.copy(
                         mentionFormat =
-                        value.stringOrNull()?.let { format ->
-                            MentionFormat.entries.find { it.template == format }
-                        } ?: acc.mentionFormat,
+                            value.stringOrNull()?.let { format ->
+                                MentionFormat.entries.find { it.template == format }
+                            } ?: acc.mentionFormat,
                     )
                 }
             }

@@ -21,8 +21,13 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Single
 
 @Single
-class AppearanceSettingsDataStore(context: Context, dispatchersProvider: DispatchersProvider) {
-    private enum class AppearancePreferenceKeys(override val id: Int) : PreferenceKeys {
+class AppearanceSettingsDataStore(
+    context: Context,
+    dispatchersProvider: DispatchersProvider,
+) {
+    private enum class AppearancePreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         Theme(R.string.preference_theme_key),
         TrueDark(R.string.preference_true_dark_theme_key),
         FontSize(R.string.preference_font_size_key),
@@ -41,11 +46,11 @@ class AppearanceSettingsDataStore(context: Context, dispatchersProvider: Dispatc
                 AppearancePreferenceKeys.Theme -> {
                     acc.copy(
                         theme =
-                        value.mappedStringOrDefault(
-                            original = context.resources.getStringArray(R.array.theme_entry_values),
-                            enumEntries = ThemePreference.entries,
-                            default = acc.theme,
-                        ),
+                            value.mappedStringOrDefault(
+                                original = context.resources.getStringArray(R.array.theme_entry_values),
+                                enumEntries = ThemePreference.entries,
+                                default = acc.theme,
+                            ),
                     )
                 }
 
