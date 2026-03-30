@@ -37,7 +37,7 @@ fun DraggableHandle(
                     .width(16.dp)
                     .height(56.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.85f),
                         shape = RoundedCornerShape(8.dp),
                     ),
             contentAlignment = Alignment.Center,
