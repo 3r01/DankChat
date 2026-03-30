@@ -3,9 +3,11 @@ package com.flxrs.dankchat.ui.main.input
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -18,10 +20,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
@@ -93,8 +97,9 @@ fun ChatBottomBar(
             val helperTextState = uiState.helperText
             val resolvedRoomState = helperTextState.roomStateParts.map { it.resolve() }
             val roomStateText = resolvedRoomState.joinToString(separator = ", ")
-            val helperText = listOfNotNull(roomStateText.ifEmpty { null }, helperTextState.streamInfo).joinToString(separator = " - ")
-            if (helperText.isNotEmpty()) {
+            val streamInfoText = helperTextState.streamInfo
+            val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
+            if (combinedText.isNotEmpty()) {
                 val horizontalPadding =
                     when {
                         isFullscreen && isInSplitLayout -> {
@@ -111,6 +116,9 @@ fun ChatBottomBar(
                             PaddingValues(horizontal = 16.dp)
                         }
                     }
+                val textMeasurer = rememberTextMeasurer()
+                val style = MaterialTheme.typography.labelSmall
+                val density = LocalDensity.current
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer,
                     modifier =
@@ -118,20 +126,51 @@ fun ChatBottomBar(
                             .fillMaxWidth()
                             .onGloballyPositioned { onHelperTextHeightChange(it.size.height) },
                 ) {
-                    Text(
-                        text = helperText,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
+                    BoxWithConstraints(
                         modifier =
                             Modifier
                                 .navigationBarsPadding()
                                 .fillMaxWidth()
                                 .padding(horizontalPadding)
                                 .padding(vertical = 6.dp)
-                                .basicMarquee(),
-                        textAlign = TextAlign.Start,
-                    )
+                                .animateContentSize(),
+                    ) {
+                        val maxWidthPx = with(density) { maxWidth.roundToPx() }
+                        val fitsOnOneLine =
+                            remember(combinedText, style, maxWidthPx) {
+                                textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
+                            }
+                        when {
+                            fitsOnOneLine || streamInfoText == null || roomStateText.isEmpty() -> {
+                                Text(
+                                    text = combinedText,
+                                    style = style,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                                )
+                            }
+
+                            else -> {
+                                Column {
+                                    Text(
+                                        text = roomStateText,
+                                        style = style,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                                    )
+                                    Text(
+                                        text = streamInfoText,
+                                        style = style,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

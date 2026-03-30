@@ -272,7 +272,7 @@ private fun RowScope.PreferenceItemContent(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.basicMarquee(),
+            modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
             maxLines = 1,
             color = color,
         )

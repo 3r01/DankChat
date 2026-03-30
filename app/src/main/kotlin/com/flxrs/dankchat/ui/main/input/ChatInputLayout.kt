@@ -327,7 +327,7 @@ fun ChatInputLayout(
                                     style = style,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                                 )
                             }
 
@@ -338,14 +338,14 @@ fun ChatInputLayout(
                                         style = style,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                                     )
                                     Text(
                                         text = streamInfoText,
                                         style = style,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(),
+                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                                     )
                                 }
                             }
