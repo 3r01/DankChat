@@ -636,13 +636,13 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="menu_fullscreen">Pantalla completa</string>
     <string name="menu_exit_fullscreen">Salir de pantalla completa</string>
     <string name="menu_hide_input">Ocultar entrada</string>
-    <string name="menu_mod_actions">Ajustes del canal</string>
+    <string name="menu_mod_actions">Moderación del canal</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Buscar mensajes</string>
     <string name="input_action_last_message">Último mensaje</string>
     <string name="input_action_stream">Alternar stream</string>
-    <string name="input_action_mod_actions">Ajustes del canal</string>
+    <string name="input_action_mod_actions">Moderación del canal</string>
     <string name="input_action_fullscreen">Pantalla completa</string>
     <string name="input_action_hide_input">Ocultar entrada</string>
     <string name="input_action_configure">Configurar acciones</string>

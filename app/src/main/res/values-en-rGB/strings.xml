@@ -436,11 +436,11 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
-    <string name="menu_mod_actions">Channel settings</string>
+    <string name="menu_mod_actions">Channel moderation</string>
     <string name="input_action_search">Search messages</string>
     <string name="input_action_last_message">Last message</string>
     <string name="input_action_stream">Toggle stream</string>
-    <string name="input_action_mod_actions">Channel settings</string>
+    <string name="input_action_mod_actions">Channel moderation</string>
     <string name="input_action_fullscreen">Fullscreen</string>
     <string name="input_action_hide_input">Hide input</string>
     <string name="input_action_configure">Configure actions</string>

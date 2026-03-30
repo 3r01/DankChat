@@ -628,13 +628,13 @@
     <string name="menu_fullscreen">На весь екран</string>
     <string name="menu_exit_fullscreen">Вийти з повноекранного режиму</string>
     <string name="menu_hide_input">Сховати введення</string>
-    <string name="menu_mod_actions">Налаштування каналу</string>
+    <string name="menu_mod_actions">Модерація каналу</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Пошук повідомлень</string>
     <string name="input_action_last_message">Останнє повідомлення</string>
     <string name="input_action_stream">Перемкнути трансляцію</string>
-    <string name="input_action_mod_actions">Налаштування каналу</string>
+    <string name="input_action_mod_actions">Модерація каналу</string>
     <string name="input_action_fullscreen">На весь екран</string>
     <string name="input_action_hide_input">Сховати введення</string>
     <string name="input_action_configure">Налаштувати дії</string>

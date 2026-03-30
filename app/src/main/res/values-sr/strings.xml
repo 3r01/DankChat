@@ -625,13 +625,13 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="menu_fullscreen">Цео екран</string>
     <string name="menu_exit_fullscreen">Изађи из целог екрана</string>
     <string name="menu_hide_input">Сакриј унос</string>
-    <string name="menu_mod_actions">Подешавања канала</string>
+    <string name="menu_mod_actions">Модерација канала</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Претражи поруке</string>
     <string name="input_action_last_message">Последња порука</string>
     <string name="input_action_stream">Укључи/искључи стрим</string>
-    <string name="input_action_mod_actions">Подешавања канала</string>
+    <string name="input_action_mod_actions">Модерација канала</string>
     <string name="input_action_fullscreen">Цео екран</string>
     <string name="input_action_hide_input">Сакриј унос</string>
     <string name="input_action_configure">Подеси акције</string>

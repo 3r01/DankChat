@@ -261,14 +261,14 @@
     <string name="menu_fullscreen">全螢幕</string>
     <string name="menu_exit_fullscreen">退出全螢幕</string>
     <string name="menu_hide_input">隱藏輸入框</string>
-    <string name="menu_mod_actions">頻道設定</string>
+    <string name="menu_mod_actions">頻道管理</string>
     <plurals name="input_actions_max">
         <item quantity="other">最多 %1$d 個動作</item>
     </plurals>
     <string name="input_action_search">搜尋訊息</string>
     <string name="input_action_last_message">上一則訊息</string>
     <string name="input_action_stream">切換實況</string>
-    <string name="input_action_mod_actions">頻道設定</string>
+    <string name="input_action_mod_actions">頻道管理</string>
     <string name="input_action_fullscreen">全螢幕</string>
     <string name="input_action_hide_input">隱藏輸入框</string>
     <string name="input_action_configure">設定動作</string>

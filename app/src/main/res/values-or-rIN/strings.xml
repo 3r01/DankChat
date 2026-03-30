@@ -259,7 +259,7 @@
     <string name="menu_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="menu_exit_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍ ବାହାରନ୍ତୁ</string>
     <string name="menu_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
-    <string name="menu_mod_actions">ଚ୍ୟାନେଲ ସେଟିଂସ୍</string>
+    <string name="menu_mod_actions">ଚ୍ୟାନେଲ ମଡରେସନ</string>
     <plurals name="input_actions_max">
         <item quantity="one">ସର୍ବାଧିକ %1$d କ୍ରିୟା</item>
         <item quantity="other">ସର୍ବାଧିକ %1$d କ୍ରିୟା</item>
@@ -267,7 +267,7 @@
     <string name="input_action_search">ବାର୍ତ୍ତା ଖୋଜନ୍ତୁ</string>
     <string name="input_action_last_message">ଶେଷ ବାର୍ତ୍ତା</string>
     <string name="input_action_stream">ଷ୍ଟ୍ରିମ୍ ଟୋଗଲ୍ କରନ୍ତୁ</string>
-    <string name="input_action_mod_actions">ଚ୍ୟାନେଲ ସେଟିଂସ୍</string>
+    <string name="input_action_mod_actions">ଚ୍ୟାନେଲ ମଡରେସନ</string>
     <string name="input_action_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="input_action_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
     <string name="input_action_configure">କ୍ରିୟାଗୁଡିକ ବିନ୍ୟାସ କରନ୍ତୁ</string>

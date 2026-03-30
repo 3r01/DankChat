@@ -620,13 +620,13 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="menu_fullscreen">Plein écran</string>
     <string name="menu_exit_fullscreen">Quitter le plein écran</string>
     <string name="menu_hide_input">Masquer la saisie</string>
-    <string name="menu_mod_actions">Paramètres de la chaîne</string>
+    <string name="menu_mod_actions">Modération du canal</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Rechercher des messages</string>
     <string name="input_action_last_message">Dernier message</string>
     <string name="input_action_stream">Basculer le stream</string>
-    <string name="input_action_mod_actions">Paramètres de la chaîne</string>
+    <string name="input_action_mod_actions">Modération du canal</string>
     <string name="input_action_fullscreen">Plein écran</string>
     <string name="input_action_hide_input">Masquer la saisie</string>
     <string name="input_action_configure">Configurer les actions</string>

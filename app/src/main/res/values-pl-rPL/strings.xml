@@ -645,13 +645,13 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="menu_fullscreen">Pełny ekran</string>
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>
-    <string name="menu_mod_actions">Ustawienia kanału</string>
+    <string name="menu_mod_actions">Moderacja kanału</string>
 
     <!-- Input Actions -->
     <string name="input_action_search">Szukaj wiadomości</string>
     <string name="input_action_last_message">Ostatnia wiadomość</string>
     <string name="input_action_stream">Przełącz transmisję</string>
-    <string name="input_action_mod_actions">Ustawienia kanału</string>
+    <string name="input_action_mod_actions">Moderacja kanału</string>
     <string name="input_action_fullscreen">Pełny ekran</string>
     <string name="input_action_hide_input">Ukryj pole wpisywania</string>
     <string name="input_action_configure">Konfiguruj akcje</string>
