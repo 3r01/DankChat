@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -97,6 +98,7 @@ import com.flxrs.dankchat.ui.chat.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.WhisperMessageComposable
 import com.flxrs.dankchat.ui.main.input.TourTooltip
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
+import com.flxrs.dankchat.utils.compose.rememberStartAlignedTooltipPositionProvider
 
 data class ChatScreenCallbacks(
     val onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
@@ -343,18 +345,32 @@ private fun RecoveryFabs(
 ) {
     val visible = isFullscreen || !showInput
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = scaleIn() + fadeIn(),
-        exit = scaleOut() + fadeOut(),
-        modifier = modifier,
-    ) {
+    val escapeFab: @Composable () -> Unit = {
+        SmallFloatingActionButton(
+            onClick = {
+                onMenuExpandedChange(false)
+                onTourAdvance?.invoke()
+                onRecover()
+            },
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ) {
+            Icon(
+                imageVector = Icons.Default.FullscreenExit,
+                contentDescription = stringResource(R.string.menu_exit_fullscreen),
+            )
+        }
+    }
+
+    // TooltipBox must be outside AnimatedVisibility — the scaleIn animation
+    // transforms anchor bounds, causing M3 to miscalculate the caret position.
+    val tooltipContent: @Composable () -> Unit = {
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // More FAB ↔ Actions menu — single animated slot
-            if (!showInput && fabMenuCallbacks != null) {
+            // More FAB ↔ Actions menu — hidden during tour so tooltip points at escape FAB
+            if (!showInput && fabMenuCallbacks != null && recoveryFabTooltipState == null) {
                 AnimatedContent(
                     targetState = menuExpanded,
                     transitionSpec = {
@@ -398,45 +414,93 @@ private fun RecoveryFabs(
                 }
             }
 
-            val escapeFab: @Composable () -> Unit = {
-                SmallFloatingActionButton(
-                    onClick = {
-                        onMenuExpandedChange(false)
-                        onRecover()
-                    },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FullscreenExit,
-                        contentDescription = stringResource(R.string.menu_exit_fullscreen),
-                    )
-                }
+            AnimatedVisibility(
+                visible = visible,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+            ) {
+                escapeFab()
             }
+        }
+    }
 
-            if (recoveryFabTooltipState != null) {
-                Box(modifier = Modifier.align(Alignment.End)) {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Start,
-                                spacingBetweenTooltipAndAnchor = 8.dp,
-                            ),
-                        tooltip = {
-                            TourTooltip(
-                                text = stringResource(R.string.tour_recovery_fab),
-                                onAction = { onTourAdvance?.invoke() },
-                                onSkip = { onTourSkip?.invoke() },
-                                isLast = true,
-                            )
+    if (recoveryFabTooltipState != null) {
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(
+                    TooltipAnchorPosition.Above,
+                    spacingBetweenTooltipAndAnchor = 8.dp,
+                ),
+            tooltip = {
+                TourTooltip(
+                    text = stringResource(R.string.tour_recovery_fab),
+                    onAction = { onTourAdvance?.invoke() },
+                    onSkip = { onTourSkip?.invoke() },
+                    isLast = true,
+                )
+            },
+            state = recoveryFabTooltipState,
+            onDismissRequest = {},
+            hasAction = true,
+            modifier = modifier,
+        ) {
+            tooltipContent()
+        }
+    } else {
+        AnimatedVisibility(
+            visible = visible,
+            enter = scaleIn() + fadeIn(),
+            exit = scaleOut() + fadeOut(),
+            modifier = modifier,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                if (!showInput && fabMenuCallbacks != null) {
+                    AnimatedContent(
+                        targetState = menuExpanded,
+                        transitionSpec = {
+                            (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
                         },
-                        state = recoveryFabTooltipState,
-                        hasAction = true,
-                    ) {
-                        escapeFab()
+                        label = "FabMenuToggle",
+                    ) { expanded ->
+                        when {
+                            expanded -> {
+                                var backProgress by remember { mutableFloatStateOf(0f) }
+                                PredictiveBackHandler { progress ->
+                                    try {
+                                        progress.collect { event ->
+                                            backProgress = event.progress
+                                        }
+                                        onMenuExpandedChange(false)
+                                    } catch (_: Exception) {
+                                        backProgress = 0f
+                                    }
+                                }
+                                FabActionsMenu(
+                                    callbacks = fabMenuCallbacks,
+                                    onDismiss = { onMenuExpandedChange(false) },
+                                    modifier = Modifier.predictiveBackScale(backProgress),
+                                )
+                            }
+
+                            else -> {
+                                SmallFloatingActionButton(
+                                    onClick = { onMenuExpandedChange(true) },
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = stringResource(R.string.more),
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-            } else {
+
                 escapeFab()
             }
         }

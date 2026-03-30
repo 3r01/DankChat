@@ -50,6 +50,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.input.TourOverlayState
+import com.flxrs.dankchat.utils.compose.rememberStartAlignedTooltipPositionProvider
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -295,45 +296,6 @@ private fun EndCaretTourTooltip(
                     close()
                 }
             drawPath(path, containerColor)
-        }
-    }
-}
-
-/**
- * Positions the tooltip to the start (left in LTR) of the anchor, vertically centered.
- * Falls back to above-positioning if there's not enough horizontal space.
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun rememberStartAlignedTooltipPositionProvider(spacingBetweenTooltipAndAnchor: Dp = 4.dp): PopupPositionProvider {
-    val spacingPx = with(LocalDensity.current) { spacingBetweenTooltipAndAnchor.roundToPx() }
-    return remember(spacingPx) {
-        object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize,
-            ): IntOffset {
-                val startX = anchorBounds.left - popupContentSize.width - spacingPx
-                return if (startX >= 0) {
-                    // Fits to the start — vertically center on anchor
-                    val y = anchorBounds.top + (anchorBounds.height - popupContentSize.height) / 2
-                    IntOffset(
-                        startX,
-                        y.coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0)),
-                    )
-                } else {
-                    // Not enough space — fall back to above, horizontally end-aligned with anchor
-                    val x =
-                        (anchorBounds.right - popupContentSize.width)
-                            .coerceIn(0, (windowSize.width - popupContentSize.width).coerceAtLeast(0))
-                    val y =
-                        (anchorBounds.top - popupContentSize.height - spacingPx)
-                            .coerceIn(0, (windowSize.height - popupContentSize.height).coerceAtLeast(0))
-                    IntOffset(x, y)
-                }
-            }
         }
     }
 }
