@@ -13,10 +13,6 @@ import com.flxrs.dankchat.utils.TextResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
-/**
- * UI state for rendering chat messages in Compose.
- * All rendering decisions are pre-computed to avoid work during recomposition.
- */
 @Immutable
 sealed interface ChatMessageUiState {
     val id: String
@@ -28,9 +24,6 @@ sealed interface ChatMessageUiState {
     val enableRipple: Boolean
     val isHighlighted: Boolean
 
-    /**
-     * Regular chat message from a user
-     */
     @Immutable
     data class PrivMessageUi(
         override val id: String,
@@ -56,9 +49,6 @@ sealed interface ChatMessageUiState {
         val fullMessage: String, // For copying
     ) : ChatMessageUiState
 
-    /**
-     * System messages (connected, disconnected, etc.)
-     */
     @Immutable
     data class SystemMessageUi(
         override val id: String,
@@ -72,9 +62,6 @@ sealed interface ChatMessageUiState {
         val message: TextResource,
     ) : ChatMessageUiState
 
-    /**
-     * Notice messages from Twitch
-     */
     @Immutable
     data class NoticeMessageUi(
         override val id: String,
@@ -88,9 +75,6 @@ sealed interface ChatMessageUiState {
         val message: String,
     ) : ChatMessageUiState
 
-    /**
-     * User notice messages (subscriptions, etc.)
-     */
     @Immutable
     data class UserNoticeMessageUi(
         override val id: String,
@@ -107,9 +91,6 @@ sealed interface ChatMessageUiState {
         val shouldHighlight: Boolean,
     ) : ChatMessageUiState
 
-    /**
-     * Moderation messages (timeouts, bans, etc.)
-     */
     @Immutable
     data class ModerationMessageUi(
         override val id: String,
@@ -128,9 +109,6 @@ sealed interface ChatMessageUiState {
         val arguments: ImmutableList<Any> = persistentListOf(),
     ) : ChatMessageUiState
 
-    /**
-     * Channel point redemption messages
-     */
     @Immutable
     data class PointRedemptionMessageUi(
         override val id: String,
@@ -148,9 +126,6 @@ sealed interface ChatMessageUiState {
         val requiresUserInput: Boolean,
     ) : ChatMessageUiState
 
-    /**
-     * Date separator inserted between messages from different days
-     */
     @Immutable
     data class DateSeparatorUi(
         override val id: String,
@@ -164,9 +139,6 @@ sealed interface ChatMessageUiState {
         val dateText: String,
     ) : ChatMessageUiState
 
-    /**
-     * AutoMod held messages with approve/deny actions
-     */
     @Immutable
     data class AutomodMessageUi(
         override val id: String,
@@ -190,9 +162,6 @@ sealed interface ChatMessageUiState {
         enum class AutomodMessageStatus { Pending, Approved, Denied, Expired }
     }
 
-    /**
-     * Whisper messages
-     */
     @Immutable
     data class WhisperMessageUi(
         override val id: String,
@@ -218,9 +187,6 @@ sealed interface ChatMessageUiState {
     ) : ChatMessageUiState
 }
 
-/**
- * UI state for badges
- */
 @Immutable
 data class BadgeUi(
     val url: String,
@@ -229,9 +195,6 @@ data class BadgeUi(
     val drawableResId: Int? = null,
 )
 
-/**
- * UI state for emotes
- */
 @Immutable
 data class EmoteUi(
     val code: String,
@@ -245,9 +208,6 @@ data class EmoteUi(
     val cheerColor: Color? = null,
 )
 
-/**
- * UI state for reply threads
- */
 @Immutable
 data class ThreadUi(
     val rootId: String,
@@ -255,9 +215,6 @@ data class ThreadUi(
     val message: String,
 )
 
-/**
- * Converts MessageThreadHeader to ThreadUi
- */
 fun MessageThreadHeader.toThreadUi(): ThreadUi =
     ThreadUi(
         rootId = rootId,

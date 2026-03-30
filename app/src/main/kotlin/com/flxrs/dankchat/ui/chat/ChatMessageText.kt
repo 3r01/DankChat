@@ -17,16 +17,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.em
 
-/**
- * Renders a chat message text with support for:
- * - Timestamps (monospace, bold)
- * - Username colors
- * - Emotes and badges (via InlineTextContent)
- * - Clickable spans (usernames, links, emotes)
- *
- * NOTE: fontSize should come from appearanceSettings.fontSize, not be hardcoded
- * NOTE: nameColor should come from the message's nameColor, not be hardcoded
- */
 @Composable
 fun ChatMessageText(
     text: String,

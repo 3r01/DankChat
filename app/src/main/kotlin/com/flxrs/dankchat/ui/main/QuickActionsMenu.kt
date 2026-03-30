@@ -53,11 +53,6 @@ import com.flxrs.dankchat.ui.main.input.TourOverlayState
 import com.flxrs.dankchat.utils.compose.rememberStartAlignedTooltipPositionProvider
 import kotlinx.collections.immutable.ImmutableList
 
-/**
- * Inline overflow menu for input actions that don't fit in the quick actions bar.
- * Renders as a Surface with rounded top corners, designed to sit directly above
- * the input Surface in a Column layout.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuickActionsMenu(

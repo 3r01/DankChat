@@ -14,11 +14,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.LayoutDirection
 
-/**
- * A [Painter] that renders a [Drawable] and implements [Drawable.Callback] to support
- * animated drawables (GIF/WebP). Unlike [rememberAsyncImagePainter], this maintains
- * the callback chain so animations continue after scrolling off/on screen.
- */
 @Stable
 class EmoteDrawablePainter(
     val drawable: Drawable,

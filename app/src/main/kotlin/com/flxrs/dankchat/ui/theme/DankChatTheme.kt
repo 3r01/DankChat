@@ -27,10 +27,6 @@ private val TrueDarkColorScheme =
         onBackground = Color.White,
     )
 
-/**
- * Additional color values needed for dynamic text color selection
- * based on background brightness.
- */
 data class AdaptiveColors(
     val onSurfaceLight: Color,
     val onSurfaceDark: Color,

@@ -16,20 +16,6 @@ import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.flxrs.dankchat.utils.extensions.setRunning
 
-/**
- * Coordinates emote loading and animation synchronization across the entire chat.
- *
- * Based on the old ChatAdapter/EmoteRepository approach:
- * - Uses LruCache to cache drawables (bounded memory, unlike ConcurrentHashMap)
- * - Shares Drawable instances across all usages of the same emote
- * - This keeps animated GIF frame counters synchronized naturally
- * - No mutex needed - Coil handles concurrent requests internally
- * - Emote animation controlled via setRunning() based on animateGifs setting
- *
- * Same pattern as:
- * - EmoteRepository.badgeCache: LruCache<String, Drawable>(64)
- * - EmoteRepository.layerCache: LruCache<String, LayerDrawable>(256)
- */
 @Stable
 class EmoteAnimationCoordinator(
     val imageLoader: ImageLoader,
@@ -44,12 +30,6 @@ class EmoteAnimationCoordinator(
     // Cache of known emote dimensions (width, height in px) to avoid layout shifts
     val dimensionCache = LruCache<String, Pair<Int, Int>>(512)
 
-    /**
-     * Get or load an emote drawable.
-     *
-     * Returns cached drawable if available, otherwise loads and caches it.
-     * Sharing the same Drawable instance keeps animations synchronized.
-     */
     suspend fun getOrLoadEmote(
         url: String,
         animateGifs: Boolean,

@@ -23,37 +23,12 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
-/**
- * Data class to hold measured emote dimensions
- */
 data class EmoteDimensions(
     val id: String,
     val widthPx: Int,
     val heightPx: Int,
 )
 
-/**
- * Renders text with inline images (badges, emotes) using SubcomposeLayout.
- *
- * This solves the fundamental problem with InlineTextContent: we need to know
- * the size of images before creating Placeholder objects, but images load asynchronously.
- *
- * SubcomposeLayout allows us to:
- * 1. First measure all inline images to get their actual dimensions
- * 2. Create InlineTextContent with correct Placeholder sizes
- * 3. Finally compose the text with properly sized placeholders
- *
- * This maintains natural text flow (like TextView) while supporting variable-sized
- * inline content (like ImageSpans with different drawable sizes).
- *
- * @param text The AnnotatedString with annotations marking where inline content goes
- * @param inlineContentProviders Map of content IDs to composables that will be measured
- * @param modifier Modifier for the text
- * @param knownDimensions Optional pre-known dimensions for inline content IDs, skipping measurement subcomposition
- * @param onTextClick Callback for click events with offset position
- * @param onTextLongClick Callback for long-click events with offset position
- * @param interactionSource Optional interaction source for ripple effects
- */
 @Composable
 fun TextWithMeasuredInlineContent(
     text: AnnotatedString,

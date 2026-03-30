@@ -37,13 +37,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
-/**
- * ViewModel for Compose-based chat display.
- *
- * Unlike ChatViewModel (which uses SavedStateHandle with Fragment navigation args),
- * this ViewModel takes the channel directly as a constructor parameter, making it
- * suitable for Compose usage where we can pass parameters via koinViewModel().
- */
 @KoinViewModel
 class ChatViewModel(
     @InjectedParam private val channel: UserName,

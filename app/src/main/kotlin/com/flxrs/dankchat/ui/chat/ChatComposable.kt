@@ -16,16 +16,6 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-/**
- * Standalone composable for chat display.
- * Extracted from ChatFragment to enable pure Compose integration.
- *
- * This composable:
- * - Creates its own ChatViewModel scoped to the channel
- * - Collects messages from ViewModel
- * - Collects settings from data stores
- * - Renders ChatScreen with all event handlers
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatComposable(

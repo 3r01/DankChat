@@ -35,9 +35,6 @@ import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.tour.TourStep
 import kotlinx.collections.immutable.ImmutableMap
 
-/**
- * Callbacks for chat message interactions within the pager.
- */
 @Stable
 internal class ChatPagerCallbacks(
     val onShowUserPopup: (UserPopupStateParams) -> Unit,
@@ -52,9 +49,6 @@ internal class ChatPagerCallbacks(
     val scrollConnection: NestedScrollConnection? = null,
 )
 
-/**
- * Scaffold content containing the channel pager, loading states, and edge gesture guards.
- */
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 internal fun MainScreenPagerContent(

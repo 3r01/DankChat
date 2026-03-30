@@ -27,16 +27,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-/**
- * Minimal coordinator ViewModel for MainScreen.
- *
- * Individual components have their own ViewModels:
- * - ChannelTabViewModel - Tab row state
- * - ChannelPagerViewModel - Pager state
- * - ChatInputViewModel - Input state
- * - ChannelManagementViewModel - Channel operations
- *
- */
 @OptIn(FlowPreview::class)
 @KoinViewModel
 class MainScreenViewModel(

@@ -23,15 +23,6 @@ import com.flxrs.dankchat.utils.extensions.forEachLayer
 import com.flxrs.dankchat.utils.extensions.setRunning
 import kotlin.math.roundToInt
 
-/**
- * Renders stacked emotes exactly like old ChatAdapter using LayerDrawable.
- *
- * Key differences from previous approaches:
- * - Creates actual LayerDrawable like ChatAdapter did
- * - Uses LruCache for LayerDrawables (not individual drawables)
- * - Uses AndroidView with ImageView to render the LayerDrawable
- * - NO ContentScale, NO Modifier.size on Image - drawable bounds handle everything
- */
 @Composable
 fun StackedEmote(
     emote: EmoteUi,
@@ -152,9 +143,6 @@ fun StackedEmote(
     }
 }
 
-/**
- * Renders a single emote as a Drawable, matching old ChatAdapter behavior.
- */
 @Composable
 private fun SingleEmoteDrawable(
     url: String,
@@ -241,10 +229,6 @@ private fun SingleEmoteDrawable(
     }
 }
 
-/**
- * Transform emote drawable exactly like old ChatAdapter.transformEmoteDrawable().
- * Phase 1: Individual scaling without maxWidth/maxHeight.
- */
 private fun transformEmoteDrawable(
     drawable: Drawable,
     scale: Double,
@@ -271,9 +255,6 @@ private fun transformEmoteDrawable(
     return drawable
 }
 
-/**
- * Create LayerDrawable from array of drawables exactly like old ChatAdapter.toLayerDrawable().
- */
 private fun Array<Drawable>.toLayerDrawable(
     scaleFactor: Double,
     emotes: List<ChatMessageEmote>,

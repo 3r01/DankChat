@@ -50,10 +50,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.flxrs.dankchat.ui.main.sheet.EmoteMenu
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
 
-/**
- * Observes PiP mode via lifecycle and configures auto-enter PiP parameters.
- * Returns whether the activity is currently in PiP mode.
- */
 @Composable
 internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
     val context = LocalContext.current
@@ -87,10 +83,6 @@ internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
     return isInPipMode
 }
 
-/**
- * Manages system bar visibility based on fullscreen state.
- * Hides system bars when fullscreen, restores them when leaving.
- */
 @Composable
 internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
     val context = LocalContext.current
@@ -112,11 +104,6 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
     }
 }
 
-/**
- * Status bar scrim that keeps text readable when content scrolls behind.
- * [colorAlpha] controls the background color opacity (e.g. 0.7f for semi-transparent).
- * Additional graphicsLayer transforms (e.g. fade with stream) can be applied via [modifier].
- */
 @Composable
 internal fun StatusBarScrim(
     modifier: Modifier = Modifier,
@@ -132,9 +119,6 @@ internal fun StatusBarScrim(
     )
 }
 
-/**
- * Fullscreen scrim that dismisses the input overflow menu when tapped.
- */
 @Composable
 internal fun InputDismissScrim(
     forceOpen: Boolean,
