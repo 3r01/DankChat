@@ -20,6 +20,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.ui.chat.appendWithLinks
+import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
 
@@ -41,7 +42,7 @@ fun SimpleMessageContainer(
 ) {
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
-    val linkColor = MaterialTheme.colorScheme.primary
+    val linkColor = rememberAdaptiveLinkColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface
     val context = LocalContext.current
 

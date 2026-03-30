@@ -43,6 +43,7 @@ import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
+import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
 import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
@@ -116,7 +117,7 @@ private fun WhisperMessageText(
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
     val senderColor = rememberNormalizedColor(message.rawSenderColor, backgroundColor)
     val recipientColor = rememberNormalizedColor(message.rawRecipientColor, backgroundColor)
-    val linkColor = MaterialTheme.colorScheme.primary
+    val linkColor = rememberAdaptiveLinkColor(backgroundColor)
 
     // Build annotated string with text content
     val annotatedString =

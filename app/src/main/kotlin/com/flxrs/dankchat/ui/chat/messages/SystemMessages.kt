@@ -28,6 +28,7 @@ import com.flxrs.dankchat.ui.chat.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
+import com.flxrs.dankchat.ui.chat.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
 import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
@@ -88,7 +89,7 @@ fun UserNoticeMessageComposable(
 ) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = MaterialTheme.colorScheme.onSurface
-    val linkColor = MaterialTheme.colorScheme.primary
+    val linkColor = rememberAdaptiveLinkColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface
     val nameColor = rememberNormalizedColor(message.rawNameColor, bgColor)
     val textSize = fontSize.sp
@@ -218,7 +219,7 @@ fun ModerationMessageComposable(
     val textSize = fontSize.sp
     val resolvedMessage = message.message.resolve()
     val context = LocalContext.current
-    val linkColor = MaterialTheme.colorScheme.primary
+    val linkColor = rememberAdaptiveLinkColor(bgColor)
 
     val dimmedTextColor = textColor.copy(alpha = 0.7f)
 

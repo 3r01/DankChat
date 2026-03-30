@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
 import com.flxrs.dankchat.ui.theme.LocalAdaptiveColors
 import com.flxrs.dankchat.utils.extensions.normalizeColor
 import com.google.android.material.color.MaterialColors
@@ -43,6 +44,28 @@ fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
         adaptiveColors.onSurfaceLight
     } else {
         adaptiveColors.onSurfaceDark
+    }
+}
+
+private const val MIN_LINK_CONTRAST_RATIO = 3.0
+
+/**
+ * Returns a link color with sufficient contrast against the given background.
+ * Uses the theme's primary color when contrast is adequate, otherwise falls back
+ * to a lighter/darker variant that meets the minimum contrast ratio.
+ */
+@Composable
+fun rememberAdaptiveLinkColor(backgroundColor: Color): Color {
+    val primary = MaterialTheme.colorScheme.primary
+    val inversePrimary = MaterialTheme.colorScheme.inversePrimary
+    val effectiveBg = resolveEffectiveBackground(backgroundColor)
+
+    return remember(primary, inversePrimary, effectiveBg) {
+        val primaryContrast = ColorUtils.calculateContrast(primary.toArgb(), effectiveBg.toArgb())
+        when {
+            primaryContrast >= MIN_LINK_CONTRAST_RATIO -> primary
+            else -> inversePrimary
+        }
     }
 }
 
