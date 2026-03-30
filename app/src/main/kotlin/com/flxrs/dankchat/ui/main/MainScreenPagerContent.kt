@@ -27,6 +27,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatComposable
+import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
@@ -74,6 +75,7 @@ internal fun MainScreenPagerContent(
     scrollTargets: ImmutableMap<UserName, String>,
     onClearScrollTarget: (UserName) -> Unit,
     callbacks: ChatPagerCallbacks,
+    fabMenuCallbacks: FabMenuCallbacks?,
     currentTourStep: TourStep?,
     recoveryFabTooltipState: TooltipState?,
     onAddChannel: () -> Unit,
@@ -157,6 +159,7 @@ internal fun MainScreenPagerContent(
                                 isFullscreen = isFullscreen,
                                 showFabs = !isSheetOpen,
                                 onRecover = callbacks.onRecover,
+                                fabMenuCallbacks = fabMenuCallbacks,
                                 contentPadding =
                                     PaddingValues(
                                         top = chatTopPadding + 56.dp,

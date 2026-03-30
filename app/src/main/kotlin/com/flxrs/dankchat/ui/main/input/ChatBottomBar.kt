@@ -120,7 +120,7 @@ fun ChatBottomBar(
                 val style = MaterialTheme.typography.labelSmall
                 val density = LocalDensity.current
                 Surface(
-                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.85f),
                     modifier =
                         Modifier
                             .fillMaxWidth()

@@ -58,6 +58,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
+import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.swipeDownToHide
@@ -668,6 +669,60 @@ fun MainScreen(
             }
 
         // Shared scaffold content (pager)
+        val fabActionHandler: (InputAction) -> Unit =
+            remember {
+                { action ->
+                    val channel =
+                        channelTabViewModel.uiState.value.let { state ->
+                            state.tabs.getOrNull(state.selectedIndex)?.channel
+                        }
+                    when (action) {
+                        InputAction.Search -> {
+                            channel?.let { sheetNavigationViewModel.openHistory(it) }
+                        }
+
+                        InputAction.LastMessage -> {
+                            chatInputViewModel.getLastMessage()
+                        }
+
+                        InputAction.Stream -> {
+                            val stream = streamViewModel.streamState.value.currentStream
+                            when {
+                                stream != null -> streamViewModel.closeStream()
+                                else -> channel?.let { streamViewModel.toggleStream(it) }
+                            }
+                        }
+
+                        InputAction.ModActions -> {
+                            dialogViewModel.showModActions()
+                        }
+
+                        InputAction.Fullscreen -> {
+                            mainScreenViewModel.toggleFullscreen()
+                        }
+
+                        InputAction.HideInput -> {
+                            mainScreenViewModel.toggleInput()
+                        }
+
+                        InputAction.Debug -> {
+                            sheetNavigationViewModel.openDebugInfo()
+                        }
+                    }
+                }
+            }
+        val fabMenuCallbacks =
+            FabMenuCallbacks(
+                onAction = fabActionHandler,
+                isStreamActive = currentStream != null,
+                hasStreamData = hasStreamData,
+                isFullscreen = isFullscreen,
+                isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
+                debugMode = mainState.debugMode,
+                enabled = inputState.enabled,
+                hasLastMessage = inputState.hasLastMessage,
+            )
+
         val scaffoldContent: @Composable (PaddingValues, Dp) -> Unit = { paddingValues, chatTopPadding ->
             MainScreenPagerContent(
                 paddingValues = paddingValues,
@@ -687,6 +742,7 @@ fun MainScreen(
                 scrollTargets = scrollTargets.toImmutableMap(),
                 onClearScrollTarget = { scrollTargets.remove(it) },
                 callbacks = chatPagerCallbacks,
+                fabMenuCallbacks = fabMenuCallbacks,
                 currentTourStep = featureTourState.currentTourStep,
                 recoveryFabTooltipState = featureTourViewModel.recoveryFabTooltipState,
                 onAddChannel = dialogViewModel::showAddChannel,

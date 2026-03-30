@@ -101,6 +101,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
+import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -437,13 +438,7 @@ fun ChatInputLayout(
                 }
             }
             QuickActionsMenu(
-                modifier =
-                    Modifier.graphicsLayer {
-                        val scale = 1f - (backProgress * 0.1f)
-                        scaleX = scale
-                        scaleY = scale
-                        alpha = 1f - backProgress
-                    },
+                modifier = Modifier.predictiveBackScale(backProgress),
                 surfaceColor = surfaceColor,
                 visibleActions = visibleActions,
                 enabled = enabled,
