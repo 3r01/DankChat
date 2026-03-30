@@ -1,14 +1,20 @@
 package com.flxrs.dankchat.ui.main.dialog
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +22,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -23,12 +30,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -55,6 +64,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
@@ -66,7 +76,12 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ManageChannelsDialog(channels: List<ChannelWithRename>, onApplyChanges: (List<ChannelWithRename>) -> Unit, onChannelSelect: (UserName) -> Unit, onDismiss: () -> Unit) {
+fun ManageChannelsDialog(
+    channels: List<ChannelWithRename>,
+    onApplyChanges: (List<ChannelWithRename>) -> Unit,
+    onChannelSelect: (UserName) -> Unit,
+    onDismiss: () -> Unit,
+) {
     var channelToDelete by remember { mutableStateOf<UserName?>(null) }
     var editingChannel by remember { mutableStateOf<UserName?>(null) }
 
@@ -79,13 +94,14 @@ fun ManageChannelsDialog(channels: List<ChannelWithRename>, onApplyChanges: (Lis
     }
 
     val lazyListState = rememberLazyListState()
-    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        if (from.index in localChannels.indices && to.index in localChannels.indices) {
-            localChannels.apply {
-                add(to.index, removeAt(from.index))
+    val reorderableState =
+        rememberReorderableLazyListState(lazyListState) { from, to ->
+            if (from.index in localChannels.indices && to.index in localChannels.indices) {
+                localChannels.apply {
+                    add(to.index, removeAt(from.index))
+                }
             }
         }
-    }
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -96,87 +112,102 @@ fun ManageChannelsDialog(channels: List<ChannelWithRename>, onApplyChanges: (Lis
         contentWindowInsets = { WindowInsets.statusBars },
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
-        val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .nestedScroll(BottomSheetNestedScrollConnection),
-            state = lazyListState,
-            contentPadding = navBarPadding,
-        ) {
-            itemsIndexed(localChannels, key = { _, item -> item.channel.value }) { index, channelWithRename ->
-                ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
-                    val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
-
-                    Surface(
-                        shadowElevation = elevation,
-                        color = when {
-                            isDragging -> MaterialTheme.colorScheme.surfaceContainerHighest
-                            else -> Color.Transparent
-                        },
+        AnimatedContent(
+            targetState = channelToDelete,
+            transitionSpec = {
+                when {
+                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
+                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                }
+            },
+            label = "ManageChannelsContent",
+        ) { deleteTarget ->
+            when (deleteTarget) {
+                null -> {
+                    val navBarPadding = WindowInsets.navigationBars.asPaddingValues()
+                    LazyColumn(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .nestedScroll(BottomSheetNestedScrollConnection),
+                        state = lazyListState,
+                        contentPadding = navBarPadding,
                     ) {
-                        Column {
-                            ChannelItem(
-                                channelWithRename = channelWithRename,
-                                isEditing = editingChannel == channelWithRename.channel,
-                                modifier = Modifier.longPressDraggableHandle(
-                                    onDragStarted = { /* Optional haptic feedback here */ },
-                                    onDragStopped = { /* Optional haptic feedback here */ },
-                                ),
-                                onNavigate = {
-                                    onApplyChanges(localChannels.toList())
-                                    onChannelSelect(channelWithRename.channel)
-                                    onDismiss()
-                                },
-                                onEdit = {
-                                    editingChannel = when (editingChannel) {
-                                        channelWithRename.channel -> null
-                                        else -> channelWithRename.channel
+                        itemsIndexed(localChannels, key = { _, item -> item.channel.value }) { index, channelWithRename ->
+                            ReorderableItem(reorderableState, key = channelWithRename.channel.value) { isDragging ->
+                                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+
+                                Surface(
+                                    shadowElevation = elevation,
+                                    color =
+                                        when {
+                                            isDragging -> MaterialTheme.colorScheme.surfaceContainerHighest
+                                            else -> Color.Transparent
+                                        },
+                                ) {
+                                    Column {
+                                        ChannelItem(
+                                            channelWithRename = channelWithRename,
+                                            isEditing = editingChannel == channelWithRename.channel,
+                                            modifier =
+                                                Modifier.longPressDraggableHandle(
+                                                    onDragStarted = { /* Optional haptic feedback here */ },
+                                                    onDragStopped = { /* Optional haptic feedback here */ },
+                                                ),
+                                            onNavigate = {
+                                                onApplyChanges(localChannels.toList())
+                                                onChannelSelect(channelWithRename.channel)
+                                                onDismiss()
+                                            },
+                                            onEdit = {
+                                                editingChannel =
+                                                    when (editingChannel) {
+                                                        channelWithRename.channel -> null
+                                                        else -> channelWithRename.channel
+                                                    }
+                                            },
+                                            onRename = { newName ->
+                                                val rename = newName?.ifBlank { null }?.let { UserName(it) }
+                                                localChannels[index] = localChannels[index].copy(rename = rename)
+                                                editingChannel = null
+                                            },
+                                            onDelete = { channelToDelete = channelWithRename.channel },
+                                        )
+                                        if (index < localChannels.lastIndex) {
+                                            HorizontalDivider(
+                                                modifier = Modifier.padding(horizontal = 16.dp),
+                                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                            )
+                                        }
                                     }
-                                },
-                                onRename = { newName ->
-                                    val rename = newName?.ifBlank { null }?.let { UserName(it) }
-                                    localChannels[index] = localChannels[index].copy(rename = rename)
-                                    editingChannel = null
-                                },
-                                onDelete = { channelToDelete = channelWithRename.channel },
-                            )
-                            if (index < localChannels.lastIndex) {
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                }
+                            }
+                        }
+
+                        if (localChannels.isEmpty()) {
+                            item {
+                                Text(
+                                    text = stringResource(R.string.no_channels_added),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(16.dp),
                                 )
                             }
                         }
                     }
                 }
-            }
 
-            if (localChannels.isEmpty()) {
-                item {
-                    Text(
-                        text = stringResource(R.string.no_channels_added),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(16.dp),
+                else -> {
+                    DeleteChannelConfirmation(
+                        channelName = deleteTarget,
+                        onConfirm = {
+                            localChannels.removeIf { it.channel == deleteTarget }
+                            channelToDelete = null
+                        },
+                        onBack = { channelToDelete = null },
                     )
                 }
             }
         }
-    }
-
-    if (channelToDelete != null) {
-        ConfirmationDialog(
-            title = stringResource(R.string.confirm_channel_removal_message),
-            confirmText = stringResource(R.string.confirm_channel_removal_positive_button),
-            onConfirm = {
-                val channel = channelToDelete
-                if (channel != null) {
-                    localChannels.removeIf { it.channel == channel }
-                }
-                channelToDelete = null
-            },
-            onDismiss = { channelToDelete = null },
-        )
     }
 }
 
@@ -193,9 +224,10 @@ private fun ChannelItem(
 ) {
     Column(modifier = modifier) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -206,19 +238,21 @@ private fun ChannelItem(
             )
 
             Text(
-                text = buildAnnotatedString {
-                    append(channelWithRename.rename?.value ?: channelWithRename.channel.value)
-                    if (channelWithRename.rename != null && channelWithRename.rename != channelWithRename.channel) {
-                        append(" ")
-                        withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), fontStyle = FontStyle.Italic)) {
-                            append(channelWithRename.channel.value)
+                text =
+                    buildAnnotatedString {
+                        append(channelWithRename.rename?.value ?: channelWithRename.channel.value)
+                        if (channelWithRename.rename != null && channelWithRename.rename != channelWithRename.channel) {
+                            append(" ")
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), fontStyle = FontStyle.Italic)) {
+                                append(channelWithRename.channel.value)
+                            }
                         }
-                    }
-                },
+                    },
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
             )
 
             IconButton(onClick = onNavigate) {
@@ -258,7 +292,10 @@ private fun ChannelItem(
 }
 
 @Composable
-private fun InlineRenameField(channelWithRename: ChannelWithRename, onRename: (String?) -> Unit) {
+private fun InlineRenameField(
+    channelWithRename: ChannelWithRename,
+    onRename: (String?) -> Unit,
+) {
     val initialText = channelWithRename.rename?.value ?: ""
     var renameText by remember(channelWithRename.channel) {
         mutableStateOf(
@@ -275,9 +312,10 @@ private fun InlineRenameField(channelWithRename: ChannelWithRename, onRename: (S
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 56.dp, end = 8.dp, bottom = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 56.dp, end = 8.dp, bottom = 8.dp),
     ) {
         Text(
             text = stringResource(R.string.edit_dialog_title),
@@ -295,30 +333,74 @@ private fun InlineRenameField(channelWithRename: ChannelWithRename, onRename: (S
                 placeholder = { Text(channelWithRename.channel.value) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                keyboardActions = KeyboardActions(onDone = {
-                    onRename(renameText.text)
-                }),
-                trailingIcon = if (renameText.text.isNotEmpty()) {
-                    {
-                        IconButton(onClick = { onRename(null) }) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_clear),
-                                contentDescription = stringResource(R.string.clear),
-                            )
+                keyboardActions =
+                    KeyboardActions(onDone = {
+                        onRename(renameText.text)
+                    }),
+                trailingIcon =
+                    if (renameText.text.isNotEmpty()) {
+                        {
+                            IconButton(onClick = { onRename(null) }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_clear),
+                                    contentDescription = stringResource(R.string.clear),
+                                )
+                            }
                         }
-                    }
-                } else {
-                    null
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .focusRequester(focusRequester),
+                    } else {
+                        null
+                    },
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
             )
 
             TextButton(
                 onClick = { onRename(renameText.text) },
             ) {
                 Text(stringResource(R.string.save))
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteChannelConfirmation(
+    channelName: UserName,
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.confirm_channel_removal_message),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 16.dp),
+        )
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.confirm_channel_removal_positive_button))
             }
         }
     }
