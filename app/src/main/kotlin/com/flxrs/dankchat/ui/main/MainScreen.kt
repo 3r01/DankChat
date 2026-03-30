@@ -381,12 +381,9 @@ fun MainScreen(
         }
     }
 
-    // Clear unread/mention indicators only on settledPage to avoid clearing
-    // for pages scrolled through during programmatic jumps
+    // Clear unread/mention indicators when page settles
     LaunchedEffect(composePagerState.settledPage) {
-        if (composePagerState.settledPage != pagerState.currentPage) {
-            channelPagerViewModel.clearNotifications(composePagerState.settledPage)
-        }
+        channelPagerViewModel.clearNotifications(composePagerState.settledPage)
     }
 
     // Pager swipe reveals toolbar
