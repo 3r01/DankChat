@@ -1,9 +1,9 @@
 import com.android.build.api.artifact.ArtifactTransformationRequest
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.gradle.internal.PropertiesValueSource
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.StringReader
 import java.util.Properties
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -79,7 +79,11 @@ android {
 
     androidComponents.onVariants { variant ->
         val renameTask = tasks.register<RenameApkTask>("renameApk${variant.name.replaceFirstChar { it.uppercase() }}") { apkName.set("DankChat-${variant.name}.apk") }
-        val transformationRequest = variant.artifacts.use(renameTask).wiredWithDirectories(RenameApkTask::inputDirs, RenameApkTask::outputDirs).toTransformMany(SingleArtifact.APK)
+        val transformationRequest =
+            variant.artifacts
+                .use(renameTask)
+                .wiredWithDirectories(RenameApkTask::inputDirs, RenameApkTask::outputDirs)
+                .toTransformMany(SingleArtifact.APK)
         renameTask.configure { this.transformationRequest = transformationRequest }
     }
 
@@ -238,12 +242,14 @@ spotless {
         target("src/**/*.kt")
         targetExclude("${layout.buildDirectory}/**/*.kt")
         ktlint(libs.versions.ktlint.get())
-            .editorConfigOverride(mapOf(
-                "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
-                "ktlint_standard_backing-property-naming" to "disabled",
-                "ktlint_standard_filename" to "disabled",
-                "ktlint_standard_property-naming" to "disabled",
-            ))
+            .editorConfigOverride(
+                mapOf(
+                    "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
+                    "ktlint_standard_backing-property-naming" to "disabled",
+                    "ktlint_standard_filename" to "disabled",
+                    "ktlint_standard_property-naming" to "disabled",
+                ),
+            )
     }
     kotlinGradle {
         target("*.gradle.kts")
@@ -257,7 +263,10 @@ detekt {
     parallel = true
 }
 
-fun gradleLocalProperties(projectRootDir: File, providers: ProviderFactory): Properties {
+fun gradleLocalProperties(
+    projectRootDir: File,
+    providers: ProviderFactory,
+): Properties {
     val properties = Properties()
     val propertiesContent = providers.of(PropertiesValueSource::class.java) { parameters.projectRoot.set(projectRootDir) }.get()
 
