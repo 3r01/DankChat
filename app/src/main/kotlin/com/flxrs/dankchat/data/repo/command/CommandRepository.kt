@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.command
 
 import android.util.Log
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.supibot.SupibotApiClient
@@ -18,6 +19,8 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils.calculateUptime
+import com.flxrs.dankchat.utils.TextResource
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -149,7 +152,7 @@ class CommandRepository(
                         ?.takeIf { authDataStore.isLoggedIn }
                         ?: return CommandResult.AcceptedTwitchCommand(
                             command = twitchCommand,
-                            response = "You must be logged in to use the $trigger command",
+                            response = TextResource.Res(R.string.cmd_error_not_logged_in, persistentListOf(trigger)),
                         )
                 twitchCommandRepository.sendWhisper(twitchCommand, currentUserId, trigger, args)
             }
@@ -232,47 +235,47 @@ class CommandRepository(
 
     private suspend fun blockUserCommand(args: List<String>): CommandResult.AcceptedWithResponse {
         if (args.isEmpty() || args.first().isBlank()) {
-            return CommandResult.AcceptedWithResponse("Usage: /block <user>")
+            return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_block_usage))
         }
 
         val target = args.first().toUserName()
         val targetId =
             helixApiClient
                 .getUserIdByName(target)
-                .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be blocked, no user with that name found!")
+                .getOrNull() ?: return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_block_not_found, persistentListOf(target.toString())))
 
         val result = helixApiClient.blockUser(targetId)
         return when {
             result.isSuccess -> {
                 ignoresRepository.addUserBlock(targetId, target)
-                CommandResult.AcceptedWithResponse("You successfully blocked user $target")
+                CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_block_success, persistentListOf(target.toString())))
             }
 
             else -> {
-                CommandResult.AcceptedWithResponse("User $target couldn't be blocked, an unknown error occurred!")
+                CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_block_error, persistentListOf(target.toString())))
             }
         }
     }
 
     private suspend fun unblockUserCommand(args: List<String>): CommandResult.AcceptedWithResponse {
         if (args.isEmpty() || args.first().isBlank()) {
-            return CommandResult.AcceptedWithResponse("Usage: /unblock <user>")
+            return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_unblock_usage))
         }
 
         val target = args.first().toUserName()
         val targetId =
             helixApiClient
                 .getUserIdByName(target)
-                .getOrNull() ?: return CommandResult.AcceptedWithResponse("User $target couldn't be unblocked, no user with that name found!")
+                .getOrNull() ?: return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_unblock_not_found, persistentListOf(target.toString())))
 
         val result =
             runCatching {
                 ignoresRepository.removeUserBlock(targetId, target)
-                CommandResult.AcceptedWithResponse("You successfully unblocked user $target")
+                CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_unblock_success, persistentListOf(target.toString())))
             }
 
         return result.getOrElse {
-            CommandResult.AcceptedWithResponse("User $target couldn't be unblocked, an unknown error occurred!")
+            CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_unblock_error, persistentListOf(target.toString())))
         }
     }
 
@@ -281,10 +284,10 @@ class CommandRepository(
             helixApiClient
                 .getStreams(listOf(channel))
                 .getOrNull()
-                ?.getOrNull(0) ?: return CommandResult.AcceptedWithResponse("Channel is not live.")
+                ?.getOrNull(0) ?: return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_uptime_not_live))
 
         val uptime = calculateUptime(result.startedAt)
-        return CommandResult.AcceptedWithResponse("Uptime: $uptime")
+        return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_uptime_response, persistentListOf(uptime)))
     }
 
     private fun helpCommand(
@@ -297,8 +300,7 @@ class CommandRepository(
                 .plus(defaultCommandTriggers)
                 .joinToString(separator = " ")
 
-        val response = "Commands available to you in this room: $commands"
-        return CommandResult.AcceptedWithResponse(response)
+        return CommandResult.AcceptedWithResponse(TextResource.Res(R.string.cmd_help_response, persistentListOf(commands)))
     }
 
     private fun checkUserCommands(trigger: String): CommandResult {

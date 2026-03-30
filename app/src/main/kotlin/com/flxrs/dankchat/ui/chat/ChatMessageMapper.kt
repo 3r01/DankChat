@@ -192,7 +192,7 @@ class ChatMessageMapper(
                 }
 
                 is SystemMessageType.Custom -> {
-                    TextResource.Plain(type.message)
+                    type.message
                 }
 
                 is SystemMessageType.Debug -> {

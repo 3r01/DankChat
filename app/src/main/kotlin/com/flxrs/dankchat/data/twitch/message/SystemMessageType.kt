@@ -4,6 +4,7 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.chat.ChatImportance
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.utils.TextResource
 
 sealed interface SystemMessageType {
     data object Connected : SystemMessageType
@@ -62,7 +63,7 @@ sealed interface SystemMessageType {
     ) : SystemMessageType
 
     data class Custom(
-        val message: String,
+        val message: TextResource,
     ) : SystemMessageType
 
     data object SendNotLoggedIn : SystemMessageType

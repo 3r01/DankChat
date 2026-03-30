@@ -1,17 +1,18 @@
 package com.flxrs.dankchat.data.repo.command
 
 import com.flxrs.dankchat.data.twitch.command.TwitchCommand
+import com.flxrs.dankchat.utils.TextResource
 
 sealed interface CommandResult {
     data object Accepted : CommandResult
 
     data class AcceptedTwitchCommand(
         val command: TwitchCommand,
-        val response: String? = null,
+        val response: TextResource? = null,
     ) : CommandResult
 
     data class AcceptedWithResponse(
-        val response: String,
+        val response: TextResource,
     ) : CommandResult
 
     data class Message(

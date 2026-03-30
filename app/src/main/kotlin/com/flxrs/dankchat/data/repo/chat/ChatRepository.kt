@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.TextResource
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
@@ -138,10 +139,17 @@ class ChatRepository(
     }
 
     fun makeAndPostCustomSystemMessage(
-        msg: String,
+        msg: TextResource,
         channel: UserName,
     ) {
         chatMessageRepository.addSystemMessage(channel, SystemMessageType.Custom(msg))
+    }
+
+    fun makeAndPostCustomSystemMessage(
+        msg: String,
+        channel: UserName,
+    ) {
+        makeAndPostCustomSystemMessage(TextResource.Plain(msg), channel)
     }
 
     private fun partChannel(channel: UserName) {
