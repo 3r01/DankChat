@@ -125,7 +125,7 @@ sealed interface ChatMessageUiState {
         val targetName: String? = null,
         val creatorColor: Int = Message.DEFAULT_COLOR,
         val targetColor: Int = Message.DEFAULT_COLOR,
-        val arguments: ImmutableList<String> = persistentListOf(),
+        val arguments: ImmutableList<Any> = persistentListOf(),
     ) : ChatMessageUiState
 
     /**

@@ -372,7 +372,7 @@ class ChatMessageMapper(
             }
 
         val arguments =
-            buildList {
+            buildList<Any> {
                 duration?.let(::add)
                 reason?.takeIf { it.isNotBlank() }?.let(::add)
                 sourceBroadcasterDisplay?.toString()?.let(::add)

@@ -31,7 +31,7 @@ data class ModerationMessage(
     val sourceBroadcasterDisplay: DisplayName? = null,
     val targetMsgId: String? = null,
     val durationInt: Int? = null,
-    val duration: String? = null,
+    val duration: TextResource? = null,
     val reason: String? = null,
     val fromEventSource: Boolean = false,
     val stackCount: Int = 0,
@@ -89,46 +89,13 @@ data class ModerationMessage(
             else -> TextResource.Plain("")
         }
 
-    private fun formatMinutesDuration(minutes: Int): TextResource {
-        val parts = DateTimeUtils.decomposeMinutes(minutes).map { it.toTextResource() }
-        return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_minutes, 0, persistentListOf(0)) })
-    }
-
-    private fun formatSecondsDuration(seconds: Int): TextResource {
-        val parts = DateTimeUtils.decomposeSeconds(seconds).map { it.toTextResource() }
-        return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_seconds, 0, persistentListOf(0)) })
-    }
-
-    private fun DateTimeUtils.DurationPart.toTextResource(): TextResource {
-        val pluralRes =
-            when (unit) {
-                DateTimeUtils.DurationUnit.WEEKS -> R.plurals.duration_weeks
-                DateTimeUtils.DurationUnit.DAYS -> R.plurals.duration_days
-                DateTimeUtils.DurationUnit.HOURS -> R.plurals.duration_hours
-                DateTimeUtils.DurationUnit.MINUTES -> R.plurals.duration_minutes
-                DateTimeUtils.DurationUnit.SECONDS -> R.plurals.duration_seconds
-            }
-        return TextResource.PluralRes(pluralRes, value, persistentListOf(value))
-    }
-
-    private fun joinDurationParts(
-        parts: List<TextResource>,
-        fallback: () -> TextResource,
-    ): TextResource =
-        when (parts.size) {
-            0 -> fallback()
-            1 -> parts[0]
-            2 -> TextResource.Res(R.string.duration_join_2, persistentListOf(parts[0], parts[1]))
-            else -> TextResource.Res(R.string.duration_join_3, persistentListOf(parts[0], parts[1], parts[2]))
-        }
-
     fun getSystemMessage(
         currentUser: UserName?,
         showDeletedMessage: Boolean,
     ): TextResource {
         val creator = creatorUserDisplay.toString()
         val target = targetUserDisplay.toString()
-        val dur = duration.orEmpty()
+        val dur: Any = duration ?: ""
         val source = sourceBroadcasterDisplay.toString()
 
         val message =
@@ -368,12 +335,45 @@ data class ModerationMessage(
     val canStack: Boolean = canClearMessages && action != Action.Clear
 
     companion object {
+        fun formatMinutesDuration(minutes: Int): TextResource {
+            val parts = DateTimeUtils.decomposeMinutes(minutes).map { it.toTextResource() }
+            return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_minutes, 0, persistentListOf(0)) })
+        }
+
+        fun formatSecondsDuration(seconds: Int): TextResource {
+            val parts = DateTimeUtils.decomposeSeconds(seconds).map { it.toTextResource() }
+            return joinDurationParts(parts, fallback = { TextResource.PluralRes(R.plurals.duration_seconds, 0, persistentListOf(0)) })
+        }
+
+        private fun DateTimeUtils.DurationPart.toTextResource(): TextResource {
+            val pluralRes =
+                when (unit) {
+                    DateTimeUtils.DurationUnit.WEEKS -> R.plurals.duration_weeks
+                    DateTimeUtils.DurationUnit.DAYS -> R.plurals.duration_days
+                    DateTimeUtils.DurationUnit.HOURS -> R.plurals.duration_hours
+                    DateTimeUtils.DurationUnit.MINUTES -> R.plurals.duration_minutes
+                    DateTimeUtils.DurationUnit.SECONDS -> R.plurals.duration_seconds
+                }
+            return TextResource.PluralRes(pluralRes, value, persistentListOf(value))
+        }
+
+        private fun joinDurationParts(
+            parts: List<TextResource>,
+            fallback: () -> TextResource,
+        ): TextResource =
+            when (parts.size) {
+                0 -> fallback()
+                1 -> parts[0]
+                2 -> TextResource.Res(R.string.duration_join_2, persistentListOf(parts[0], parts[1]))
+                else -> TextResource.Res(R.string.duration_join_3, persistentListOf(parts[0], parts[1], parts[2]))
+            }
+
         fun parseClearChat(message: IrcMessage): ModerationMessage =
             with(message) {
                 val channel = params[0].substring(1)
                 val target = params.getOrNull(1)
                 val durationSeconds = tags["ban-duration"]?.toIntOrNull()
-                val duration = durationSeconds?.let { DateTimeUtils.formatSeconds(it) }
+                val duration = durationSeconds?.let(::formatSecondsDuration)
                 val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
                 val id = tags["id"] ?: "clearchat-$ts-$channel-${target ?: "all"}"
                 val action =
@@ -457,7 +457,7 @@ data class ModerationMessage(
             val timeZone = TimeZone.currentSystemDefault()
             val timestampMillis = timestamp.toLocalDateTime(timeZone).toInstant(timeZone).toEpochMilliseconds()
             val duration = parseDuration(timestamp, data)
-            val formattedDuration = duration?.let { DateTimeUtils.formatSeconds(it) }
+            val formattedDuration = duration?.let(::formatSecondsDuration)
             val userPair = parseTargetUser(data)
             val targetMsgId = parseTargetMsgId(data)
             val reason = parseReason(data)
@@ -482,9 +482,9 @@ data class ModerationMessage(
         private fun parseDuration(
             seconds: Int?,
             data: ModerationActionData,
-        ): String? =
+        ): TextResource? =
             when (data.moderationAction) {
-                ModerationActionType.Timeout -> seconds?.let { DateTimeUtils.formatSeconds(seconds) }
+                ModerationActionType.Timeout -> seconds?.let(::formatSecondsDuration)
                 else -> null
             }
 

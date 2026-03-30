@@ -31,6 +31,7 @@ import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
 import com.flxrs.dankchat.ui.chat.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.rememberBackgroundColor
 import com.flxrs.dankchat.ui.chat.rememberNormalizedColor
+import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.resolve
 
 /**
@@ -221,10 +222,26 @@ fun ModerationMessageComposable(
 
     val dimmedTextColor = textColor.copy(alpha = 0.7f)
 
+    val resolvedArguments =
+        remember(message.arguments) {
+            message.arguments.map { arg ->
+                when (arg) {
+                    is TextResource -> arg
+                    else -> arg.toString()
+                }
+            }
+        }.map { arg ->
+            when (arg) {
+                is TextResource -> arg.resolve()
+                else -> arg.toString()
+            }
+        }
+
     val annotatedString =
         remember(
             message,
             resolvedMessage,
+            resolvedArguments,
             textColor,
             dimmedTextColor,
             creatorColor,
@@ -250,7 +267,7 @@ fun ModerationMessageComposable(
                             add(StyledRange(idx, name.length, targetColor, bold = true))
                         }
                     }
-                    for (arg in message.arguments) {
+                    for (arg in resolvedArguments) {
                         if (arg.isBlank()) continue
                         val idx = resolvedMessage.indexOf(arg, ignoreCase = true)
                         if (idx >= 0 && none { it.start <= idx && idx < it.start + it.length }) {
