@@ -184,7 +184,7 @@ fun FloatingToolbar(
                 .graphicsLayer { alpha = streamToolbarAlpha },
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-        val statusBarPx = with(density) { WindowInsets.statusBars.getTop(density).toFloat() }
+        val statusBarPx = WindowInsets.statusBars.getTop(density).toFloat()
         var toolbarRowHeight by remember { mutableFloatStateOf(0f) }
         val scrimModifier =
             if (hasStream) {

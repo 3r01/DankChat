@@ -28,9 +28,10 @@ fun DankBackground(visible: Boolean) {
             Icon(
                 tint = MaterialTheme.colorScheme.inverseOnSurface,
                 painter = dank,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .align(Alignment.Center),
                 contentDescription = null,
             )
         }

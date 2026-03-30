@@ -58,15 +58,15 @@ fun <T> PreferenceMultiListDialog(
                 val itemSelected = selected[idx]
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = itemSelected,
-                            onClick = { selected = selected.set(idx, !itemSelected) },
-                            interactionSource = interactionSource,
-                            indication = ripple(),
-                        )
-                        .padding(horizontal = 16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = itemSelected,
+                                onClick = { selected = selected.set(idx, !itemSelected) },
+                                interactionSource = interactionSource,
+                                indication = ripple(),
+                            ).padding(horizontal = 16.dp),
                 ) {
                     Checkbox(
                         checked = itemSelected,

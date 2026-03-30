@@ -52,21 +52,21 @@ fun <T> PreferenceListDialog(
                 val interactionSource = remember { MutableInteractionSource() }
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = selected == value,
-                            onClick = {
-                                onChange(value)
-                                scope.launch {
-                                    sheetState.hide()
-                                    dismiss()
-                                }
-                            },
-                            interactionSource = interactionSource,
-                            indication = ripple(),
-                        )
-                        .padding(horizontal = 16.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = selected == value,
+                                onClick = {
+                                    onChange(value)
+                                    scope.launch {
+                                        sheetState.hide()
+                                        dismiss()
+                                    }
+                                },
+                                interactionSource = interactionSource,
+                                indication = ripple(),
+                            ).padding(horizontal = 16.dp),
                 ) {
                     RadioButton(
                         selected = selected == value,
