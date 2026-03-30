@@ -337,12 +337,7 @@ fun FloatingToolbar(
                                                 Modifier
                                                     .combinedClickable(
                                                         onClick = { onAction(ToolbarAction.SelectTab(index)) },
-                                                        onLongClick = {
-                                                            showQuickSwitch = false
-                                                            onAction(ToolbarAction.LongClickTab(index))
-                                                            overflowInitialMenu = AppBarMenu.Main
-                                                            showOverflowMenu = true
-                                                        },
+                                                        onLongClick = { onAction(ToolbarAction.LongClickTab) },
                                                     ).defaultMinSize(minHeight = 48.dp)
                                                     .padding(horizontal = 12.dp)
                                                     .onGloballyPositioned { coords ->

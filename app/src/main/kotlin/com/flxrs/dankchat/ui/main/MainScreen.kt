@@ -536,9 +536,8 @@ fun MainScreen(
                     scope.launch { composePagerState.scrollToPage(action.index) }
                 }
 
-                is ToolbarAction.LongClickTab -> {
-                    channelTabViewModel.selectTab(action.index)
-                    scope.launch { composePagerState.scrollToPage(action.index) }
+                ToolbarAction.LongClickTab -> {
+                    dialogViewModel.showManageChannels()
                 }
 
                 ToolbarAction.AddChannel -> {

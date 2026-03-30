@@ -8,9 +8,7 @@ sealed interface ToolbarAction {
         val index: Int,
     ) : ToolbarAction
 
-    data class LongClickTab(
-        val index: Int,
-    ) : ToolbarAction
+    data object LongClickTab : ToolbarAction
 
     data object AddChannel : ToolbarAction
 

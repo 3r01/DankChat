@@ -273,41 +273,24 @@ fun ChatScreen(
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
                     contentAlignment = Alignment.BottomEnd,
                 ) {
-                    if (recoveryFabTooltipState != null) {
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                            tooltip = {
-                                TourTooltip(
-                                    text = stringResource(R.string.tour_recovery_fab),
-                                    onAction = { onTourAdvance?.invoke() },
-                                    onSkip = { onTourSkip?.invoke() },
-                                    isLast = true,
-                                )
-                            },
-                            state = recoveryFabTooltipState,
-                            hasAction = true,
-                        ) {
-                            RecoveryFabs(
-                                isFullscreen = isFullscreen,
-                                showInput = showInput,
-                                onRecover = onRecover,
-                                fabMenuCallbacks = fabMenuCallbacks,
-                                menuExpanded = fabMenuExpanded,
-                                onMenuExpandedChange = { fabMenuExpanded = it },
-                                modifier = Modifier.padding(bottom = recoveryBottomPadding),
-                            )
-                        }
-                    } else {
-                        RecoveryFabs(
-                            isFullscreen = isFullscreen,
-                            showInput = showInput,
-                            onRecover = onRecover,
-                            fabMenuCallbacks = fabMenuCallbacks,
-                            menuExpanded = fabMenuExpanded,
-                            onMenuExpandedChange = { fabMenuExpanded = it },
-                            modifier = Modifier.padding(bottom = recoveryBottomPadding),
-                        )
-                    }
+                    RecoveryFabs(
+                        isFullscreen = isFullscreen,
+                        showInput = showInput,
+                        onRecover = onRecover,
+                        fabMenuCallbacks = fabMenuCallbacks,
+                        menuExpanded = fabMenuExpanded,
+                        onMenuExpandedChange = { fabMenuExpanded = it },
+                        recoveryFabTooltipState = recoveryFabTooltipState,
+                        onTourAdvance = {
+                            onTourAdvance?.invoke()
+                            onRecover()
+                        },
+                        onTourSkip = {
+                            onTourSkip?.invoke()
+                            onRecover()
+                        },
+                        modifier = Modifier.padding(bottom = recoveryBottomPadding),
+                    )
                     AnimatedVisibility(
                         visible = showScrollFab,
                         enter = scaleIn() + fadeIn(),
@@ -344,6 +327,7 @@ class FabMenuCallbacks(
     val hasLastMessage: Boolean,
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RecoveryFabs(
     isFullscreen: Boolean,
@@ -353,6 +337,9 @@ private fun RecoveryFabs(
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    recoveryFabTooltipState: TooltipState? = null,
+    onTourAdvance: (() -> Unit)? = null,
+    onTourSkip: (() -> Unit)? = null,
 ) {
     val visible = isFullscreen || !showInput
 
@@ -411,18 +398,46 @@ private fun RecoveryFabs(
                 }
             }
 
-            SmallFloatingActionButton(
-                onClick = {
-                    onMenuExpandedChange(false)
-                    onRecover()
-                },
-                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            ) {
-                Icon(
-                    imageVector = Icons.Default.FullscreenExit,
-                    contentDescription = stringResource(R.string.menu_exit_fullscreen),
-                )
+            val escapeFab: @Composable () -> Unit = {
+                SmallFloatingActionButton(
+                    onClick = {
+                        onMenuExpandedChange(false)
+                        onRecover()
+                    },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FullscreenExit,
+                        contentDescription = stringResource(R.string.menu_exit_fullscreen),
+                    )
+                }
+            }
+
+            if (recoveryFabTooltipState != null) {
+                Box(modifier = Modifier.align(Alignment.End)) {
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Start,
+                                spacingBetweenTooltipAndAnchor = 8.dp,
+                            ),
+                        tooltip = {
+                            TourTooltip(
+                                text = stringResource(R.string.tour_recovery_fab),
+                                onAction = { onTourAdvance?.invoke() },
+                                onSkip = { onTourSkip?.invoke() },
+                                isLast = true,
+                            )
+                        },
+                        state = recoveryFabTooltipState,
+                        hasAction = true,
+                    ) {
+                        escapeFab()
+                    }
+                }
+            } else {
+                escapeFab()
             }
         }
     }

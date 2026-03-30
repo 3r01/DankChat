@@ -379,7 +379,7 @@ private fun DeleteChannelConfirmation(
                 .padding(bottom = 16.dp),
     ) {
         Text(
-            text = stringResource(R.string.confirm_channel_removal_message),
+            text = stringResource(R.string.confirm_channel_removal_message_named, channelName.value),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
