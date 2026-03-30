@@ -102,6 +102,7 @@ import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
+import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.cancellation.CancellationException
@@ -423,13 +424,7 @@ fun FloatingToolbar(
                             Surface(
                                 shape = MaterialTheme.shapes.large,
                                 color = MaterialTheme.colorScheme.surfaceContainer,
-                                modifier =
-                                    Modifier.graphicsLayer {
-                                        val scale = 1f - (quickSwitchBackProgress * 0.1f)
-                                        scaleX = scale
-                                        scaleY = scale
-                                        alpha = 1f - quickSwitchBackProgress
-                                    },
+                                modifier = Modifier.predictiveBackScale(quickSwitchBackProgress),
                             ) {
                                 PredictiveBackHandler { progress ->
                                     try {
@@ -631,21 +626,16 @@ fun FloatingToolbar(
                                     .padding(top = 4.dp)
                                     .endAlignedOverflow(),
                         ) {
-                            Surface(
-                                shape = MaterialTheme.shapes.large,
-                                color = MaterialTheme.colorScheme.surfaceContainer,
-                            ) {
-                                InlineOverflowMenu(
-                                    isLoggedIn = isLoggedIn,
-                                    onDismiss = {
-                                        showOverflowMenu = false
-                                        overflowInitialMenu = AppBarMenu.Main
-                                    },
-                                    initialMenu = overflowInitialMenu,
-                                    onAction = onAction,
-                                    keyboardHeightDp = keyboardHeightDp,
-                                )
-                            }
+                            InlineOverflowMenu(
+                                isLoggedIn = isLoggedIn,
+                                onDismiss = {
+                                    showOverflowMenu = false
+                                    overflowInitialMenu = AppBarMenu.Main
+                                },
+                                initialMenu = overflowInitialMenu,
+                                onAction = onAction,
+                                keyboardHeightDp = keyboardHeightDp,
+                            )
                         }
                     }
                 }

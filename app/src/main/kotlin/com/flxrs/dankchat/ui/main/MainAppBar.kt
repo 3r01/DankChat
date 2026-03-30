@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -68,6 +69,7 @@ import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.coroutines.CancellationException
 
 @Immutable
@@ -120,138 +122,138 @@ fun InlineOverflowMenu(
         scrollState.scrollTo(0)
     }
 
-    ScrollArea(
-        state = scrollAreaState,
-        modifier =
-            Modifier
-                .width(200.dp)
-                .heightIn(max = maxHeight)
-                .graphicsLayer {
-                    val scale = 1f - (backProgress * 0.1f)
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = 1f - backProgress
-                },
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.predictiveBackScale(backProgress),
     ) {
-        AnimatedContent(
-            targetState = currentMenu,
-            transitionSpec = {
-                if (targetState != AppBarMenu.Main) {
-                    (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
-                } else {
-                    (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
-                }.using(SizeTransform(clip = false))
-            },
-            label = "InlineMenuTransition",
-        ) { menu ->
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState)
-                        .padding(vertical = 8.dp),
-            ) {
-                when (menu) {
-                    AppBarMenu.Main -> {
-                        if (!isLoggedIn) {
-                            InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
-                                onAction(ToolbarAction.Login)
+        ScrollArea(
+            state = scrollAreaState,
+            modifier =
+                Modifier
+                    .width(200.dp)
+                    .heightIn(max = maxHeight),
+        ) {
+            AnimatedContent(
+                targetState = currentMenu,
+                transitionSpec = {
+                    if (targetState != AppBarMenu.Main) {
+                        (slideInHorizontally { it } + fadeIn()).togetherWith(slideOutHorizontally { -it } + fadeOut())
+                    } else {
+                        (slideInHorizontally { -it } + fadeIn()).togetherWith(slideOutHorizontally { it } + fadeOut())
+                    }.using(SizeTransform(clip = false))
+                },
+                label = "InlineMenuTransition",
+            ) { menu ->
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(scrollState)
+                            .padding(vertical = 8.dp),
+                ) {
+                    when (menu) {
+                        AppBarMenu.Main -> {
+                            if (!isLoggedIn) {
+                                InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
+                                    onAction(ToolbarAction.Login)
+                                    onDismiss()
+                                }
+                            } else {
+                                InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
+                                    onAction(ToolbarAction.Relogin)
+                                    onDismiss()
+                                }
+                                InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
+                                    onAction(ToolbarAction.Logout)
+                                    onDismiss()
+                                }
+                            }
+
+                            HorizontalDivider()
+
+                            InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
+                                onAction(ToolbarAction.ManageChannels)
                                 onDismiss()
                             }
-                        } else {
-                            InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
-                                onAction(ToolbarAction.Relogin)
+                            InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
+                                onAction(ToolbarAction.RemoveChannel)
                                 onDismiss()
                             }
-                            InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
-                                onAction(ToolbarAction.Logout)
+                            InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
+                                onAction(ToolbarAction.ReloadEmotes)
+                                onDismiss()
+                            }
+                            InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
+                                onAction(ToolbarAction.Reconnect)
+                                onDismiss()
+                            }
+
+                            HorizontalDivider()
+
+                            InlineMenuItem(text = stringResource(R.string.upload_media), icon = Icons.Default.CloudUpload, hasSubMenu = true) { currentMenu = AppBarMenu.Upload }
+                            InlineMenuItem(text = stringResource(R.string.channel), icon = Icons.Default.Info, hasSubMenu = true) { currentMenu = AppBarMenu.Channel }
+
+                            HorizontalDivider()
+
+                            InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
+                                onAction(ToolbarAction.OpenSettings)
                                 onDismiss()
                             }
                         }
 
-                        HorizontalDivider()
-
-                        InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
-                            onAction(ToolbarAction.ManageChannels)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
-                            onAction(ToolbarAction.RemoveChannel)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
-                            onAction(ToolbarAction.ReloadEmotes)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
-                            onAction(ToolbarAction.Reconnect)
-                            onDismiss()
-                        }
-
-                        HorizontalDivider()
-
-                        InlineMenuItem(text = stringResource(R.string.upload_media), icon = Icons.Default.CloudUpload, hasSubMenu = true) { currentMenu = AppBarMenu.Upload }
-                        InlineMenuItem(text = stringResource(R.string.channel), icon = Icons.Default.Info, hasSubMenu = true) { currentMenu = AppBarMenu.Channel }
-
-                        HorizontalDivider()
-
-                        InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
-                            onAction(ToolbarAction.OpenSettings)
-                            onDismiss()
-                        }
-                    }
-
-                    AppBarMenu.Upload -> {
-                        InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
-                        InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
-                            onAction(ToolbarAction.CaptureImage)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
-                            onAction(ToolbarAction.CaptureVideo)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
-                            onAction(ToolbarAction.ChooseMedia)
-                            onDismiss()
-                        }
-                    }
-
-                    AppBarMenu.Channel -> {
-                        InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
-                        InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
-                            onAction(ToolbarAction.OpenChannel)
-                            onDismiss()
-                        }
-                        InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
-                            onAction(ToolbarAction.ReportChannel)
-                            onDismiss()
-                        }
-                        if (isLoggedIn) {
-                            InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
-                                onAction(ToolbarAction.BlockChannel)
+                        AppBarMenu.Upload -> {
+                            InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
+                            InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
+                                onAction(ToolbarAction.CaptureImage)
                                 onDismiss()
+                            }
+                            InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
+                                onAction(ToolbarAction.CaptureVideo)
+                                onDismiss()
+                            }
+                            InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
+                                onAction(ToolbarAction.ChooseMedia)
+                                onDismiss()
+                            }
+                        }
+
+                        AppBarMenu.Channel -> {
+                            InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
+                            InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
+                                onAction(ToolbarAction.OpenChannel)
+                                onDismiss()
+                            }
+                            InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
+                                onAction(ToolbarAction.ReportChannel)
+                                onDismiss()
+                            }
+                            if (isLoggedIn) {
+                                InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
+                                    onAction(ToolbarAction.BlockChannel)
+                                    onDismiss()
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        if (scrollState.maxValue > 0) {
-            VerticalScrollbar(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .fillMaxHeight()
-                        .width(3.dp)
-                        .padding(vertical = 2.dp),
-            ) {
-                Thumb(
-                    Modifier.background(
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                        RoundedCornerShape(100),
-                    ),
-                )
+            if (scrollState.maxValue > 0) {
+                VerticalScrollbar(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .fillMaxHeight()
+                            .width(3.dp)
+                            .padding(vertical = 2.dp),
+                ) {
+                    Thumb(
+                        Modifier.background(
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                            RoundedCornerShape(100),
+                        ),
+                    )
+                }
             }
         }
     }
