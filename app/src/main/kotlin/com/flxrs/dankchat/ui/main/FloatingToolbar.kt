@@ -87,7 +87,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -431,7 +431,11 @@ fun FloatingToolbar(
                                         quickSwitchBackProgress = 0f
                                     }
                                 }
-                                val screenHeight = with(density) { LocalView.current.height.toDp() }
+                                val screenHeight =
+                                    with(density) {
+                                        LocalWindowInfo.current.containerSize.height
+                                            .toDp()
+                                    }
                                 val maxMenuHeight = screenHeight * 0.3f
                                 val quickSwitchScrollState = rememberScrollState()
                                 val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)

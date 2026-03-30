@@ -59,7 +59,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -113,7 +113,11 @@ fun InlineOverflowMenu(
     }
 
     val density = LocalDensity.current
-    val screenHeight = with(density) { LocalView.current.height.toDp() }
+    val screenHeight =
+        with(density) {
+            LocalWindowInfo.current.containerSize.height
+                .toDp()
+        }
     val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
     val scrollState = rememberScrollState()
     val scrollAreaState = rememberScrollAreaState(scrollState)

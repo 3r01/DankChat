@@ -76,6 +76,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -513,8 +514,13 @@ private fun FabActionsMenu(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val configuration = LocalConfiguration.current
-    val menuMaxHeight = (configuration.screenHeightDp * 0.35f).dp
+    val density = LocalDensity.current
+    val windowHeight =
+        with(density) {
+            LocalWindowInfo.current.containerSize.height
+                .toDp()
+        }
+    val menuMaxHeight = windowHeight * 0.35f
     val scrollState = rememberScrollState()
 
     Surface(
