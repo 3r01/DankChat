@@ -28,17 +28,3 @@ fun rememberBackgroundColor(
         }
     }
 }
-
-/**
- * Returns the opaque checkered background color for the current theme.
- * Composites [inverseSurface] at low alpha over [background], matching the
- * old adapter's [MaterialColors.layer] behavior.
- */
-@Composable
-fun rememberCheckeredBackgroundColor(): Color {
-    val background = MaterialTheme.colorScheme.background
-    val inverseSurface = MaterialTheme.colorScheme.inverseSurface
-    return remember(background, inverseSurface) {
-        inverseSurface.copy(alpha = MaterialColors.ALPHA_DISABLED_LOW).compositeOver(background)
-    }
-}

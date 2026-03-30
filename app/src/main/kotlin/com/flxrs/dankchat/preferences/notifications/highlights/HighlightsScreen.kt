@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.preferences.notifications.highlights
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,14 +75,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.twitch.message.HighlightType
 import com.flxrs.dankchat.preferences.components.CheckboxWithText
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceTabRow
+import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
 import com.rarepebble.colorpicker.ColorPickerView
 import kotlinx.coroutines.Dispatchers
@@ -468,14 +470,15 @@ private fun MessageHighlightItem(
                 )
             }
         }
+        val isDark = isSystemInDarkTheme()
         val defaultColor =
             when (item.type) {
-                MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
-                MessageHighlightItem.Type.ChannelPointRedemption -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
-                MessageHighlightItem.Type.ElevatedMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
-                MessageHighlightItem.Type.FirstMessage -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
-                MessageHighlightItem.Type.Username -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-                MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Subscription, isDark)
+                MessageHighlightItem.Type.ChannelPointRedemption -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ChannelPointRedemption, isDark)
+                MessageHighlightItem.Type.ElevatedMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ElevatedMessage, isDark)
+                MessageHighlightItem.Type.FirstMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.FirstMessage, isDark)
+                MessageHighlightItem.Type.Username -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isDark)
+                MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Reply, isDark)
             }
         HighlightColorPicker(
             color = item.customColor ?: defaultColor,
@@ -526,7 +529,7 @@ private fun UserHighlightItem(
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
-                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                val defaultColor = ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isSystemInDarkTheme())
                 HighlightColorPicker(
                     color = item.customColor ?: defaultColor,
                     defaultColor = defaultColor,
@@ -609,7 +612,7 @@ private fun BadgeHighlightItem(
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
-                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
+                val defaultColor = ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isSystemInDarkTheme())
                 HighlightColorPicker(
                     color = item.customColor ?: defaultColor,
                     defaultColor = defaultColor,

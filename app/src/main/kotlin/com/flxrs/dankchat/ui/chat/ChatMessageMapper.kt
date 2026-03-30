@@ -778,8 +778,9 @@ class ChatMessageMapper(
             this.maxByOrNull { it.type.priority.value }
                 ?: return BackgroundColors(Color.Transparent, Color.Transparent)
 
-        if (highlight.customColor != null) {
-            val color = Color(highlight.customColor)
+        val customColor = highlight.customColor
+        if (customColor != null && customColor !in DEFAULT_HIGHLIGHT_COLOR_INTS) {
+            val color = Color(customColor)
             return BackgroundColors(color, color)
         }
 
@@ -787,19 +788,62 @@ class ChatMessageMapper(
     }
 
     companion object {
-        // Highlight colors - Light theme
-        private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFFD1C4E9)
-        private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFEF9A9A)
-        private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF93F1FF)
-        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFC2F18D)
-        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFFFE087)
+        // Highlight colors - Light theme (all dark enough for white text)
+        private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFF7E57C2)
+        private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFCF5050)
+        private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF458B93)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFF558B2F)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFB08D2A)
 
         // Highlight colors - Dark theme
-        private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF543589)
-        private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF773031)
-        private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF004F57)
-        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF2D5000)
-        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF574500)
+        private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF6A45A0)
+        private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF8C3A3B)
+        private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF00606B)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF3A6600)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF6B5800)
+
+        fun defaultHighlightColorInt(
+            type: HighlightType,
+            isDark: Boolean,
+        ): Int =
+            when (type) {
+                HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xFF6A45A0.toInt() else 0xFF7E57C2.toInt()
+                HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xFF8C3A3B.toInt() else 0xFFCF5050.toInt()
+                HighlightType.ChannelPointRedemption -> if (isDark) 0xFF00606B.toInt() else 0xFF458B93.toInt()
+                HighlightType.FirstMessage -> if (isDark) 0xFF3A6600.toInt() else 0xFF558B2F.toInt()
+                HighlightType.ElevatedMessage -> if (isDark) 0xFF6B5800.toInt() else 0xFFB08D2A.toInt()
+            }
+
+        private val DEFAULT_HIGHLIGHT_COLOR_INTS =
+            setOf(
+                // Current defaults
+                0xFF7E57C2.toInt(), // sub light
+                0xFF6A45A0.toInt(), // sub dark
+                0xFFCF5050.toInt(), // mention light
+                0xFF8C3A3B.toInt(), // mention dark
+                0xFF458B93.toInt(), // redemption light
+                0xFF00606B.toInt(), // redemption dark
+                0xFF558B2F.toInt(), // first message light
+                0xFF3A6600.toInt(), // first message dark
+                0xFFB08D2A.toInt(), // elevated light
+                0xFF6B5800.toInt(), // elevated dark
+                // Legacy defaults
+                0xFFD1C4E9.toInt(),
+                0xFF543589.toInt(), // sub (v1)
+                0xFFEF9A9A.toInt(),
+                0xFF773031.toInt(), // mention (v1)
+                0xFF93F1FF.toInt(),
+                0xFF004F57.toInt(), // redemption (v1)
+                0xFFC2F18D.toInt(),
+                0xFF2D5000.toInt(), // first message (v1)
+                0xFFFFE087.toInt(),
+                0xFF574500.toInt(), // elevated (v1)
+                0xFFB5A0D4.toInt(),
+                0xFFE57373.toInt(), // sub/mention (v2 light)
+                0xFFA8D8DF.toInt(),
+                0xFFAED581.toInt(),
+                0xFFEDD59A.toInt(), // redemption/first/elevated (v2 light)
+            )
 
         // Checkered background colors
         private val CHECKERED_LIGHT =
