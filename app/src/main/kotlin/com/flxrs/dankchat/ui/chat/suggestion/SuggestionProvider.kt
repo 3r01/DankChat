@@ -173,14 +173,7 @@ class SuggestionProvider(
         return caseCost + extraChars * 100 + usageBoost
     }
 
-    // Score raw GenericEmotes, only wrap matches
-    internal fun filterEmotes(
-        emotes: List<GenericEmote>,
-        constraint: String,
-        recentEmoteIds: Set<String>,
-    ): List<Suggestion.EmoteSuggestion> = filterEmotesScored(emotes, constraint, recentEmoteIds).map { it.suggestion as Suggestion.EmoteSuggestion }
-
-    private fun filterEmotesScored(
+    internal fun filterEmotesScored(
         emotes: List<GenericEmote>,
         constraint: String,
         recentEmoteIds: Set<String>,

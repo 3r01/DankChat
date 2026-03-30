@@ -88,9 +88,6 @@ class ChannelDataCoordinator(
             MutableStateFlow(ChannelLoadingState.Idle)
         }
 
-    /**
-     * Load data when a channel is added
-     */
     fun loadChannelData(channel: UserName) {
         scope.launch {
             loadChannelDataSuspend(channel)
@@ -108,9 +105,6 @@ class ChannelDataCoordinator(
         chatMessageRepository.reparseAllEmotesAndBadges()
     }
 
-    /**
-     * Load global data (once at startup)
-     */
     fun loadGlobalData() {
         globalLoadJob =
             scope.launch {
@@ -166,17 +160,11 @@ class ChannelDataCoordinator(
             }
     }
 
-    /**
-     * Cancel ongoing global data loading (e.g., on logout)
-     */
     fun cancelGlobalLoading() {
         globalLoadJob?.cancel()
         globalLoadJob = null
     }
 
-    /**
-     * Cleanup when a channel is removed
-     */
     fun cleanupChannel(channel: UserName) {
         channelStates.remove(channel)
         scope.launch {
@@ -184,9 +172,6 @@ class ChannelDataCoordinator(
         }
     }
 
-    /**
-     * Reload all channels (e.g., on reconnect)
-     */
     fun reloadAllChannels() {
         scope.launch {
             preferenceStore.channels.forEach { channel ->
@@ -210,16 +195,10 @@ class ChannelDataCoordinator(
         }
     }
 
-    /**
-     * Reload global data
-     */
     fun reloadGlobalData() {
         loadGlobalData()
     }
 
-    /**
-     * Retry specific failed data and chat steps
-     */
     fun retryDataLoading(failedState: GlobalLoadingState.Failed) {
         scope.launch {
             _globalLoadingState.value = GlobalLoadingState.Loading

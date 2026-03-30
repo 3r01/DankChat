@@ -30,7 +30,6 @@ class ChannelManagementViewModel(
     private val chatRepository: ChatRepository,
     private val chatChannelProvider: ChatChannelProvider,
     private val chatConnector: ChatConnector,
-    private val chatMessageRepository: ChatMessageRepository,
     private val chatNotificationRepository: ChatNotificationRepository,
     private val ignoresRepository: IgnoresRepository,
     private val channelRepository: ChannelRepository,
@@ -113,10 +112,6 @@ class ChannelManagementViewModel(
 
     fun reconnect() {
         chatConnector.reconnect()
-    }
-
-    fun clearChat(channel: UserName) {
-        chatMessageRepository.clearMessages(channel)
     }
 
     fun blockChannel(channel: UserName) =

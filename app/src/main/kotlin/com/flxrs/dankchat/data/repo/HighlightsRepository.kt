@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.flxrs.dankchat.data.repo
 
 import android.util.Log

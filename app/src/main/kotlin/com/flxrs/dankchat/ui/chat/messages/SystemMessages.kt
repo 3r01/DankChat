@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -26,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
-import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
@@ -79,7 +77,6 @@ fun NoticeMessageComposable(
  * Renders a user notice message (subscriptions, announcements, etc.)
  * The display name is highlighted with the user's color.
  */
-@Suppress("DEPRECATION")
 @Composable
 fun UserNoticeMessageComposable(
     message: ChatMessageUiState.UserNoticeMessageUi,
@@ -195,7 +192,6 @@ private data class StyledRange(
 /**
  * Renders a moderation message (timeouts, bans, deletions) with colored usernames.
  */
-@Suppress("DEPRECATION")
 @Composable
 fun ModerationMessageComposable(
     message: ChatMessageUiState.ModerationMessageUi,

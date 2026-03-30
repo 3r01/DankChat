@@ -24,64 +24,62 @@ internal class SuggestionFilteringTest {
         id: String = code,
     ) = GenericEmote(code = code, url = "", lowResUrl = "", id = id, scale = 1, emoteType = EmoteType.GlobalTwitchEmote)
 
-    // region filterEmotes
-
     @Test
     fun `emotes sorted by score - shorter before longer`() {
         val emotes = listOf(emote("PogChamp"), emote("PogU"), emote("Pog"))
-        val result = provider.filterEmotes(emotes, "Pog", emptySet())
+        val result = provider.filterEmotesScored(emotes, "Pog", emptySet())
 
         assertEquals(
             expected = listOf("Pog", "PogU", "PogChamp"),
-            actual = result.map { it.emote.code },
+            actual = result.map { (it.suggestion as Suggestion.EmoteSuggestion).emote.code },
         )
     }
 
     @Test
     fun `emotes sorted by score - exact case beats case mismatch at same length`() {
         val emotes = listOf(emote("POGX"), emote("PogX"))
-        val result = provider.filterEmotes(emotes, "Pog", emptySet())
+        val result = provider.filterEmotesScored(emotes, "Pog", emptySet())
 
         // PogX: 1 case diff + 1*100 = 101, POGX: 2 case diffs + 1*100 = 102
         assertEquals(
             expected = listOf("PogX", "POGX"),
-            actual = result.map { it.emote.code },
+            actual = result.map { (it.suggestion as Suggestion.EmoteSuggestion).emote.code },
         )
     }
 
     @Test
     fun `shorter match beats case mismatch longer match`() {
         val emotes = listOf(emote("wikked"), emote("Wink"))
-        val result = provider.filterEmotes(emotes, "wi", emptySet())
+        val result = provider.filterEmotesScored(emotes, "wi", emptySet())
 
         // Wink: 1 case diff + 2*100 = 201, wikked: -10 + 4*100 = 390
         assertEquals(
             expected = listOf("Wink", "wikked"),
-            actual = result.map { it.emote.code },
+            actual = result.map { (it.suggestion as Suggestion.EmoteSuggestion).emote.code },
         )
     }
 
     @Test
     fun `recently used emote gets boost`() {
         val emotes = listOf(emote("PogChamp", id = "1"), emote("PogU", id = "2"))
-        val result = provider.filterEmotes(emotes, "Pog", setOf("1"))
+        val result = provider.filterEmotesScored(emotes, "Pog", setOf("1"))
 
         // PogChamp: -10 + 5*100 - 50 = 440, PogU: -10 + 1*100 = 90
         // PogU still wins due to length dominance
         assertEquals(
             expected = listOf("PogU", "PogChamp"),
-            actual = result.map { it.emote.code },
+            actual = result.map { (it.suggestion as Suggestion.EmoteSuggestion).emote.code },
         )
     }
 
     @Test
     fun `non-matching emotes are excluded`() {
         val emotes = listOf(emote("Kappa"), emote("PogChamp"), emote("LUL"))
-        val result = provider.filterEmotes(emotes, "Pog", emptySet())
+        val result = provider.filterEmotesScored(emotes, "Pog", emptySet())
 
         assertEquals(
             expected = listOf("PogChamp"),
-            actual = result.map { it.emote.code },
+            actual = result.map { (it.suggestion as Suggestion.EmoteSuggestion).emote.code },
         )
     }
 

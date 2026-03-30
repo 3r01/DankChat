@@ -59,7 +59,7 @@ class FeatureTourViewModel(
     private val onboardingDataStore: OnboardingDataStore,
     startupValidationHolder: StartupValidationHolder,
 ) : ViewModel() {
-    // Material3 tooltip states — UI objects exposed directly, not in the StateFlow.
+    // Material3 tooltip states
     val inputActionsTooltipState = TooltipState(isPersistent = true)
     val overflowMenuTooltipState = TooltipState(isPersistent = true)
     val configureActionsTooltipState = TooltipState(isPersistent = true)
@@ -125,8 +125,6 @@ class FeatureTourViewModel(
         _channelState.value = ChannelState(ready = ready, empty = empty)
     }
 
-    // -- Toolbar hint callbacks --
-
     /** User already used the toolbar + icon, no need to show the hint. */
     fun onAddedChannelFromToolbar() {
         if (_toolbarHintDone.value) return
@@ -143,8 +141,6 @@ class FeatureTourViewModel(
             onboardingDataStore.update { it.copy(hasShownToolbarHint = true) }
         }
     }
-
-    // -- Tour lifecycle --
 
     fun startTour() {
         val tour = _tourState.value

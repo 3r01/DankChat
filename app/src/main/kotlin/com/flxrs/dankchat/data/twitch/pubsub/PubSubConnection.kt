@@ -120,8 +120,7 @@ class PubSubConnection(
                                     val text =
                                         when (val frame = result.getOrNull()) {
                                             null -> {
-                                                val cause = result.exceptionOrNull()
-                                                if (cause == null) return@webSocket
+                                                val cause = result.exceptionOrNull() ?: return@webSocket
                                                 throw cause
                                             }
 

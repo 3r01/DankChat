@@ -52,10 +52,6 @@ class SheetNavigationViewModel : ViewModel() {
         _fullScreenSheetState.value = FullScreenSheetState.Closed
     }
 
-    fun openEmoteSheet() {
-        _inputSheetState.value = InputSheetState.EmoteMenu
-    }
-
     fun openDebugInfo() {
         _inputSheetState.value = InputSheetState.DebugInfo
     }
@@ -63,21 +59,4 @@ class SheetNavigationViewModel : ViewModel() {
     fun closeInputSheet() {
         _inputSheetState.value = InputSheetState.Closed
     }
-
-    fun handleBackPress(): Boolean =
-        when {
-            _inputSheetState.value != InputSheetState.Closed -> {
-                closeInputSheet()
-                true
-            }
-
-            _fullScreenSheetState.value != FullScreenSheetState.Closed -> {
-                closeFullScreenSheet()
-                true
-            }
-
-            else -> {
-                false
-            }
-        }
 }

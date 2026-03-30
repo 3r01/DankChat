@@ -22,18 +22,6 @@ sealed interface MainEvent {
         val imageCapture: Boolean,
     ) : MainEvent
 
-    data class LoginValidated(
-        val username: UserName,
-    ) : MainEvent
-
-    data class LoginOutdated(
-        val username: UserName,
-    ) : MainEvent
-
-    data object LoginTokenInvalid : MainEvent
-
-    data object LoginValidationFailed : MainEvent
-
     data class OpenChannel(
         val channel: UserName,
     ) : MainEvent

@@ -59,13 +59,12 @@ class MessageOptionsViewModel(
                     val thread = asPrivMessage?.thread
                     val rootId = thread?.rootId
                     val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
-                    val replyName = name
                     val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
                     MessageOptionsState.Found(
                         messageId = message.id,
                         rootThreadId = rootId ?: message.id,
                         rootThreadName = thread?.name,
-                        replyName = replyName,
+                        replyName = name,
                         name = name,
                         originalMessage = originalMessage.orEmpty(),
                         canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,

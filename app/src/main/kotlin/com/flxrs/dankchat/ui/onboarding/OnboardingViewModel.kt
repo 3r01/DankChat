@@ -67,10 +67,6 @@ class OnboardingViewModel(
         }
     }
 
-    fun onLoginCompleted() {
-        _state.update { it.copy(loginCompleted = true) }
-    }
-
     fun onMessageHistoryDecision(enabled: Boolean) {
         _state.update { it.copy(messageHistoryDecided = true, messageHistoryEnabled = enabled) }
     }

@@ -134,8 +134,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     private val twitchServiceConnection = TwitchServiceConnection()
-    var notificationService: NotificationService? = null
-    var isBound = false
+    private var notificationService: NotificationService? = null
+    private var isBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val isTrueDarkModeEnabled = viewModel.isTrueDarkModeEnabled
@@ -535,14 +535,6 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, Log.getStackTraceString(t))
             }
         }
-    }
-
-    override fun onPictureInPictureModeChanged(
-        isInPictureInPictureMode: Boolean,
-        newConfig: android.content.res.Configuration,
-    ) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        mainEventBus.setInPipMode(isInPictureInPictureMode)
     }
 
     override fun onNewIntent(intent: Intent) {

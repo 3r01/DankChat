@@ -50,8 +50,6 @@ class ChatNotificationRepository(
     val notificationsFlow: SharedFlow<List<ChatItem>> = _notificationsFlow.asSharedFlow()
     val channelMentionCount: SharedFlow<Map<UserName, Int>> = _channelMentionCount.asSharedFlow()
     val unreadMessagesMap: SharedFlow<Map<UserName, Boolean>> = _unreadMessagesMap.asSharedFlow()
-    val hasMentions = channelMentionCount.map { it.any { (key, value) -> key != WhisperMessage.WHISPER_CHANNEL && value > 0 } }
-    val hasWhispers = channelMentionCount.map { it.getOrDefault(WhisperMessage.WHISPER_CHANNEL, 0) > 0 }
     val mentions: StateFlow<ImmutableList<ChatItem>> = _mentions
     val whispers: StateFlow<ImmutableList<ChatItem>> = _whispers
 

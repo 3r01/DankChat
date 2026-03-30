@@ -1,5 +1,3 @@
-@file:Suppress("DEPRECATION")
-
 package com.flxrs.dankchat.preferences
 
 import android.content.Context
@@ -11,7 +9,6 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
-import com.flxrs.dankchat.data.auth.AuthSettings
 import com.flxrs.dankchat.data.toUserNames
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
@@ -116,10 +113,6 @@ class DankChatPreferenceStore(
             null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
             else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
         }
-
-    fun clearLogin() {
-        authDataStore.updateAsync { it.copy(oAuthKey = null, userName = null, displayName = null, userId = null, clientId = AuthSettings.DEFAULT_CLIENT_ID, isLoggedIn = false) }
-    }
 
     fun removeChannel(channel: UserName): List<UserName> {
         val updated = channels - channel

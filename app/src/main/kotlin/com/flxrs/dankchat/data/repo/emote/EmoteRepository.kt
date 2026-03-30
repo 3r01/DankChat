@@ -94,7 +94,6 @@ class EmoteRepository(
         channelEmoteStates.remove(channel)
     }
 
-    /** Clears user-specific Twitch emotes (subscriber, bit, follower) from global state. */
     fun clearTwitchEmotes() {
         globalEmoteState.update { it.copy(twitchEmotes = emptyList()) }
         channelEmoteStates.values.forEach { state ->

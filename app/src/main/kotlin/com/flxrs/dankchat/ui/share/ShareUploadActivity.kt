@@ -126,7 +126,7 @@ class ShareUploadActivity : ComponentActivity() {
             onFailure = { error ->
                 uploadState =
                     ShareUploadState.Error(
-                        error.message ?: getString(R.string.snackbar_upload_failed),
+                        message = error.message ?: getString(R.string.snackbar_upload_failed),
                     )
             },
         )
