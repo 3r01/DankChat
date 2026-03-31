@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -61,11 +62,13 @@ fun QuickActionsMenu(
     enabled: Boolean,
     hasLastMessage: Boolean,
     isStreamActive: Boolean,
+    isAudioOnly: Boolean,
     hasStreamData: Boolean,
     isFullscreen: Boolean,
     isModerator: Boolean,
     tourState: TourOverlayState,
     onActionClick: (InputAction) -> Unit,
+    onAudioOnly: () -> Unit,
     onConfigureClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -99,6 +102,26 @@ fun QuickActionsMenu(
                         },
                     )
                 }
+            }
+
+            if (isStreamActive) {
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            stringResource(
+                                if (isAudioOnly) R.string.menu_exit_audio_only else R.string.menu_audio_only,
+                            ),
+                        )
+                    },
+                    onClick = onAudioOnly,
+                    enabled = enabled,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = if (isAudioOnly) Icons.Default.Videocam else Icons.Default.Headphones,
+                            contentDescription = null,
+                        )
+                    },
+                )
             }
 
             HorizontalDivider()

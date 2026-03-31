@@ -624,6 +624,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <!-- Menu -->
     <string name="menu_show_stream">Näytä lähetys</string>
     <string name="menu_hide_stream">Piilota lähetys</string>
+    <string name="menu_audio_only">Vain ääni</string>
+    <string name="menu_exit_audio_only">Poistu äänitilasta</string>
     <string name="menu_fullscreen">Koko näyttö</string>
     <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
     <string name="menu_hide_input">Piilota syöttö</string>

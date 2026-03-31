@@ -102,6 +102,7 @@ import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
+import com.flxrs.dankchat.ui.main.stream.AudioOnlyBar
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
@@ -117,9 +118,12 @@ fun FloatingToolbar(
     isFullscreen: Boolean,
     isLoggedIn: Boolean,
     currentStream: UserName?,
+    isAudioOnly: Boolean,
     streamHeightDp: Dp,
     totalMentionCount: Int,
     onAction: (ToolbarAction) -> Unit,
+    onAudioOnly: () -> Unit,
+    onStreamClose: () -> Unit,
     modifier: Modifier = Modifier,
     endAligned: Boolean = false,
     showTabs: Boolean = true,
@@ -209,432 +213,444 @@ fun FloatingToolbar(
                     }.padding(top = with(density) { WindowInsets.statusBars.getTop(density).toDp() } + 8.dp)
             }
 
-        Box(modifier = scrimModifier) {
-            // Center selected tab when selection changes
-            LaunchedEffect(selectedIndex, tabOffsets.value, tabWidths.value, tabViewportWidth) {
-                val offsets = tabOffsets.value
-                val widths = tabWidths.value
-                if (selectedIndex !in offsets.indices || tabViewportWidth <= 0) return@LaunchedEffect
-
-                val tabOffset = offsets[selectedIndex]
-                val tabWidth = widths[selectedIndex]
-                val centeredOffset = tabOffset - (tabViewportWidth / 2 - tabWidth / 2)
-                val clampedOffset = centeredOffset.coerceIn(0, tabScrollState.maxValue)
-                if (tabScrollState.value != clampedOffset) {
-                    tabScrollState.animateScrollTo(clampedOffset)
-                }
+        Column(modifier = scrimModifier) {
+            if (currentStream != null && isAudioOnly) {
+                AudioOnlyBar(
+                    channel = currentStream,
+                    onExpandVideo = onAudioOnly,
+                    onClose = onStreamClose,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
+                )
             }
-
-            // Mention indicators based on scroll position and tab positions
-            val hasLeftMention by remember(tabState.tabs) {
-                derivedStateOf {
-                    val scrollPos = tabScrollState.value
+            Box {
+                // Center selected tab when selection changes
+                LaunchedEffect(selectedIndex, tabOffsets.value, tabWidths.value, tabViewportWidth) {
                     val offsets = tabOffsets.value
                     val widths = tabWidths.value
-                    tabState.tabs.indices.any { i ->
-                        i < offsets.size && offsets[i] + widths[i] < scrollPos && tabState.tabs[i].mentionCount > 0
+                    if (selectedIndex !in offsets.indices || tabViewportWidth <= 0) return@LaunchedEffect
+
+                    val tabOffset = offsets[selectedIndex]
+                    val tabWidth = widths[selectedIndex]
+                    val centeredOffset = tabOffset - (tabViewportWidth / 2 - tabWidth / 2)
+                    val clampedOffset = centeredOffset.coerceIn(0, tabScrollState.maxValue)
+                    if (tabScrollState.value != clampedOffset) {
+                        tabScrollState.animateScrollTo(clampedOffset)
                     }
                 }
-            }
-            val hasRightMention by remember(tabState.tabs) {
-                derivedStateOf {
-                    val scrollPos = tabScrollState.value
-                    val offsets = tabOffsets.value
-                    tabState.tabs.indices.any { i ->
-                        i < offsets.size && offsets[i] > scrollPos + tabViewportWidth && tabState.tabs[i].mentionCount > 0
-                    }
-                }
-            }
 
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .onSizeChanged {
-                            val h = it.height.toFloat()
-                            if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
-                        },
-                verticalAlignment = Alignment.Top,
-            ) {
-                // Push action pill to end when no tabs are shown
-                if (endAligned && (!showTabs || tabState.tabs.isEmpty())) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-
-                // Scrollable tabs pill
-                AnimatedVisibility(
-                    visible = showTabs && tabState.tabs.isNotEmpty(),
-                    modifier = Modifier.weight(1f, fill = endAligned),
-                    enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
-                    exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
-                ) {
-                    Column(modifier = if (endAligned) Modifier.fillMaxWidth() else Modifier) {
-                        val mentionGradientColor = MaterialTheme.colorScheme.error
-                        Surface(
-                            shape = MaterialTheme.shapes.extraLarge,
-                            color = MaterialTheme.colorScheme.surfaceContainer,
-                            modifier =
-                                Modifier
-                                    .clip(MaterialTheme.shapes.extraLarge)
-                                    .drawWithContent {
-                                        drawContent()
-                                        val gradientWidth = 24.dp.toPx()
-                                        if (hasLeftMention) {
-                                            drawRect(
-                                                brush =
-                                                    Brush.horizontalGradient(
-                                                        colors =
-                                                            listOf(
-                                                                mentionGradientColor.copy(alpha = 0.5f),
-                                                                mentionGradientColor.copy(alpha = 0f),
-                                                            ),
-                                                        endX = gradientWidth,
-                                                    ),
-                                                size = Size(gradientWidth, size.height),
-                                            )
-                                        }
-                                        if (hasRightMention) {
-                                            drawRect(
-                                                brush =
-                                                    Brush.horizontalGradient(
-                                                        colors =
-                                                            listOf(
-                                                                mentionGradientColor.copy(alpha = 0f),
-                                                                mentionGradientColor.copy(alpha = 0.5f),
-                                                            ),
-                                                        startX = size.width - gradientWidth,
-                                                        endX = size.width,
-                                                    ),
-                                                topLeft = Offset(size.width - gradientWidth, 0f),
-                                                size = Size(gradientWidth, size.height),
-                                            )
-                                        }
-                                    },
-                        ) {
-                            val pillColor = MaterialTheme.colorScheme.surfaceContainer
-                            Box {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier =
-                                        Modifier
-                                            .padding(horizontal = 12.dp)
-                                            .onSizeChanged { tabViewportWidth = it.width }
-                                            .clipToBounds()
-                                            .horizontalScroll(tabScrollState),
-                                ) {
-                                    tabState.tabs.forEachIndexed { index, tab ->
-                                        val isSelected = index == selectedIndex
-                                        val textColor =
-                                            when {
-                                                isSelected -> MaterialTheme.colorScheme.primary
-                                                tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
-                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                            }
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier =
-                                                Modifier
-                                                    .combinedClickable(
-                                                        onClick = { onAction(ToolbarAction.SelectTab(index)) },
-                                                        onLongClick = { onAction(ToolbarAction.LongClickTab) },
-                                                    ).defaultMinSize(minHeight = 48.dp)
-                                                    .padding(horizontal = 12.dp)
-                                                    .onGloballyPositioned { coords ->
-                                                        val offsets = tabOffsets.value
-                                                        tabWidths.value
-                                                        if (offsets.size != totalTabs) {
-                                                            tabOffsets.value = IntArray(totalTabs)
-                                                            tabWidths.value = IntArray(totalTabs)
-                                                        }
-                                                        tabOffsets.value[index] = coords.positionInParent().x.toInt()
-                                                        tabWidths.value[index] = coords.size.width
-                                                    },
-                                        ) {
-                                            Text(
-                                                text = tab.displayName,
-                                                color = textColor,
-                                                style = MaterialTheme.typography.labelLarge,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                            )
-                                            if (tab.mentionCount > 0) {
-                                                Spacer(Modifier.width(4.dp))
-                                                Badge()
-                                            }
-                                        }
-                                    }
-                                    if (hasOverflow) {
-                                        Spacer(Modifier.width(18.dp))
-                                    }
-                                }
-
-                                // Quick switch dropdown indicator (overlays end of tabs)
-                                if (hasOverflow) {
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .align(Alignment.CenterEnd)
-                                                .clickable {
-                                                    showOverflowMenu = false
-                                                    showQuickSwitch = !showQuickSwitch
-                                                }.defaultMinSize(minHeight = 48.dp)
-                                                .padding(start = 4.dp, end = 8.dp)
-                                                .drawBehind {
-                                                    val fadeWidth = 12.dp.toPx()
-                                                    drawRect(
-                                                        brush =
-                                                            Brush.horizontalGradient(
-                                                                colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
-                                                                endX = fadeWidth,
-                                                            ),
-                                                        size = Size(fadeWidth, size.height),
-                                                        topLeft = Offset(-fadeWidth, 0f),
-                                                    )
-                                                    drawRect(color = pillColor.copy(alpha = 0.6f))
-                                                },
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ArrowDropDown,
-                                            contentDescription = stringResource(R.string.manage_channels),
-                                            modifier = Modifier.size(28.dp),
-                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                }
-                            }
+                // Mention indicators based on scroll position and tab positions
+                val hasLeftMention by remember(tabState.tabs) {
+                    derivedStateOf {
+                        val scrollPos = tabScrollState.value
+                        val offsets = tabOffsets.value
+                        val widths = tabWidths.value
+                        tabState.tabs.indices.any { i ->
+                            i < offsets.size && offsets[i] + widths[i] < scrollPos && tabState.tabs[i].mentionCount > 0
                         }
+                    }
+                }
+                val hasRightMention by remember(tabState.tabs) {
+                    derivedStateOf {
+                        val scrollPos = tabScrollState.value
+                        val offsets = tabOffsets.value
+                        tabState.tabs.indices.any { i ->
+                            i < offsets.size && offsets[i] > scrollPos + tabViewportWidth && tabState.tabs[i].mentionCount > 0
+                        }
+                    }
+                }
 
-                        // Quick switch channel menu
-                        AnimatedVisibility(
-                            visible = showQuickSwitch,
-                            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            modifier =
-                                Modifier
-                                    .padding(top = 4.dp)
-                                    .endAlignedOverflow(),
-                        ) {
-                            var quickSwitchBackProgress by remember { mutableFloatStateOf(0f) }
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .onSizeChanged {
+                                val h = it.height.toFloat()
+                                if (toolbarRowHeight == 0f || h < toolbarRowHeight) toolbarRowHeight = h
+                            },
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    // Push action pill to end when no tabs are shown
+                    if (endAligned && (!showTabs || tabState.tabs.isEmpty())) {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    // Scrollable tabs pill
+                    AnimatedVisibility(
+                        visible = showTabs && tabState.tabs.isNotEmpty(),
+                        modifier = Modifier.weight(1f, fill = endAligned),
+                        enter = expandHorizontally(expandFrom = Alignment.Start) + fadeIn(),
+                        exit = shrinkHorizontally(shrinkTowards = Alignment.Start) + fadeOut(),
+                    ) {
+                        Column(modifier = if (endAligned) Modifier.fillMaxWidth() else Modifier) {
+                            val mentionGradientColor = MaterialTheme.colorScheme.error
                             Surface(
-                                shape = MaterialTheme.shapes.large,
+                                shape = MaterialTheme.shapes.extraLarge,
                                 color = MaterialTheme.colorScheme.surfaceContainer,
-                                modifier = Modifier.predictiveBackScale(quickSwitchBackProgress),
+                                modifier =
+                                    Modifier
+                                        .clip(MaterialTheme.shapes.extraLarge)
+                                        .drawWithContent {
+                                            drawContent()
+                                            val gradientWidth = 24.dp.toPx()
+                                            if (hasLeftMention) {
+                                                drawRect(
+                                                    brush =
+                                                        Brush.horizontalGradient(
+                                                            colors =
+                                                                listOf(
+                                                                    mentionGradientColor.copy(alpha = 0.5f),
+                                                                    mentionGradientColor.copy(alpha = 0f),
+                                                                ),
+                                                            endX = gradientWidth,
+                                                        ),
+                                                    size = Size(gradientWidth, size.height),
+                                                )
+                                            }
+                                            if (hasRightMention) {
+                                                drawRect(
+                                                    brush =
+                                                        Brush.horizontalGradient(
+                                                            colors =
+                                                                listOf(
+                                                                    mentionGradientColor.copy(alpha = 0f),
+                                                                    mentionGradientColor.copy(alpha = 0.5f),
+                                                                ),
+                                                            startX = size.width - gradientWidth,
+                                                            endX = size.width,
+                                                        ),
+                                                    topLeft = Offset(size.width - gradientWidth, 0f),
+                                                    size = Size(gradientWidth, size.height),
+                                                )
+                                            }
+                                        },
                             ) {
-                                PredictiveBackHandler { progress ->
-                                    try {
-                                        progress.collect { event ->
-                                            quickSwitchBackProgress = event.progress
-                                        }
-                                        showQuickSwitch = false
-                                    } catch (_: CancellationException) {
-                                        quickSwitchBackProgress = 0f
-                                    }
-                                }
-                                val screenHeight =
-                                    with(density) {
-                                        LocalWindowInfo.current.containerSize.height
-                                            .toDp()
-                                    }
-                                val maxMenuHeight = screenHeight * 0.3f
-                                val quickSwitchScrollState = rememberScrollState()
-                                val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
-                                ScrollArea(
-                                    state = quickSwitchScrollAreaState,
-                                    modifier =
-                                        Modifier
-                                            .width(IntrinsicSize.Min)
-                                            .widthIn(min = 125.dp, max = 200.dp)
-                                            .heightIn(max = maxMenuHeight),
-                                ) {
-                                    Column(
+                                val pillColor = MaterialTheme.colorScheme.surfaceContainer
+                                Box {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
                                         modifier =
                                             Modifier
-                                                .fillMaxWidth()
-                                                .verticalScroll(quickSwitchScrollState)
-                                                .padding(vertical = 8.dp),
+                                                .padding(horizontal = 12.dp)
+                                                .onSizeChanged { tabViewportWidth = it.width }
+                                                .clipToBounds()
+                                                .horizontalScroll(tabScrollState),
                                     ) {
                                         tabState.tabs.forEachIndexed { index, tab ->
                                             val isSelected = index == selectedIndex
+                                            val textColor =
+                                                when {
+                                                    isSelected -> MaterialTheme.colorScheme.primary
+                                                    tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+                                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                                }
                                             Row(
+                                                verticalAlignment = Alignment.CenterVertically,
                                                 modifier =
                                                     Modifier
-                                                        .fillMaxWidth()
-                                                        .clickable {
-                                                            onAction(ToolbarAction.SelectTab(index))
-                                                            showQuickSwitch = false
-                                                        }.padding(horizontal = 16.dp, vertical = 10.dp),
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.Center,
+                                                        .combinedClickable(
+                                                            onClick = { onAction(ToolbarAction.SelectTab(index)) },
+                                                            onLongClick = { onAction(ToolbarAction.LongClickTab) },
+                                                        ).defaultMinSize(minHeight = 48.dp)
+                                                        .padding(horizontal = 12.dp)
+                                                        .onGloballyPositioned { coords ->
+                                                            val offsets = tabOffsets.value
+                                                            tabWidths.value
+                                                            if (offsets.size != totalTabs) {
+                                                                tabOffsets.value = IntArray(totalTabs)
+                                                                tabWidths.value = IntArray(totalTabs)
+                                                            }
+                                                            tabOffsets.value[index] = coords.positionInParent().x.toInt()
+                                                            tabWidths.value[index] = coords.size.width
+                                                        },
                                             ) {
                                                 Text(
                                                     text = tab.displayName,
-                                                    style = MaterialTheme.typography.bodyLarge,
-                                                    color =
-                                                        when {
-                                                            isSelected -> MaterialTheme.colorScheme.primary
-                                                            else -> MaterialTheme.colorScheme.onSurface
-                                                        },
+                                                    color = textColor,
+                                                    style = MaterialTheme.typography.labelLarge,
                                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                                    maxLines = 1,
-                                                    overflow = TextOverflow.Ellipsis,
                                                 )
                                                 if (tab.mentionCount > 0) {
-                                                    Spacer(Modifier.width(8.dp))
+                                                    Spacer(Modifier.width(4.dp))
                                                     Badge()
                                                 }
                                             }
                                         }
+                                        if (hasOverflow) {
+                                            Spacer(Modifier.width(18.dp))
+                                        }
                                     }
-                                    if (quickSwitchScrollState.maxValue > 0) {
-                                        VerticalScrollbar(
+
+                                    // Quick switch dropdown indicator (overlays end of tabs)
+                                    if (hasOverflow) {
+                                        Box(
                                             modifier =
                                                 Modifier
-                                                    .align(Alignment.TopEnd)
-                                                    .fillMaxHeight()
-                                                    .width(3.dp)
-                                                    .padding(vertical = 2.dp),
+                                                    .align(Alignment.CenterEnd)
+                                                    .clickable {
+                                                        showOverflowMenu = false
+                                                        showQuickSwitch = !showQuickSwitch
+                                                    }.defaultMinSize(minHeight = 48.dp)
+                                                    .padding(start = 4.dp, end = 8.dp)
+                                                    .drawBehind {
+                                                        val fadeWidth = 12.dp.toPx()
+                                                        drawRect(
+                                                            brush =
+                                                                Brush.horizontalGradient(
+                                                                    colors = listOf(pillColor.copy(alpha = 0f), pillColor.copy(alpha = 0.6f)),
+                                                                    endX = fadeWidth,
+                                                                ),
+                                                            size = Size(fadeWidth, size.height),
+                                                            topLeft = Offset(-fadeWidth, 0f),
+                                                        )
+                                                        drawRect(color = pillColor.copy(alpha = 0.6f))
+                                                    },
+                                            contentAlignment = Alignment.Center,
                                         ) {
-                                            Thumb(
-                                                Modifier.background(
-                                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
-                                                    RoundedCornerShape(100),
-                                                ),
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = stringResource(R.string.manage_channels),
+                                                modifier = Modifier.size(28.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Quick switch channel menu
+                            AnimatedVisibility(
+                                visible = showQuickSwitch,
+                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                                modifier =
+                                    Modifier
+                                        .padding(top = 4.dp)
+                                        .endAlignedOverflow(),
+                            ) {
+                                var quickSwitchBackProgress by remember { mutableFloatStateOf(0f) }
+                                Surface(
+                                    shape = MaterialTheme.shapes.large,
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    modifier = Modifier.predictiveBackScale(quickSwitchBackProgress),
+                                ) {
+                                    PredictiveBackHandler { progress ->
+                                        try {
+                                            progress.collect { event ->
+                                                quickSwitchBackProgress = event.progress
+                                            }
+                                            showQuickSwitch = false
+                                        } catch (_: CancellationException) {
+                                            quickSwitchBackProgress = 0f
+                                        }
+                                    }
+                                    val screenHeight =
+                                        with(density) {
+                                            LocalWindowInfo.current.containerSize.height
+                                                .toDp()
+                                        }
+                                    val maxMenuHeight = screenHeight * 0.3f
+                                    val quickSwitchScrollState = rememberScrollState()
+                                    val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
+                                    ScrollArea(
+                                        state = quickSwitchScrollAreaState,
+                                        modifier =
+                                            Modifier
+                                                .width(IntrinsicSize.Min)
+                                                .widthIn(min = 125.dp, max = 200.dp)
+                                                .heightIn(max = maxMenuHeight),
+                                    ) {
+                                        Column(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .verticalScroll(quickSwitchScrollState)
+                                                    .padding(vertical = 8.dp),
+                                        ) {
+                                            tabState.tabs.forEachIndexed { index, tab ->
+                                                val isSelected = index == selectedIndex
+                                                Row(
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                onAction(ToolbarAction.SelectTab(index))
+                                                                showQuickSwitch = false
+                                                            }.padding(horizontal = 16.dp, vertical = 10.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.Center,
+                                                ) {
+                                                    Text(
+                                                        text = tab.displayName,
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color =
+                                                            when {
+                                                                isSelected -> MaterialTheme.colorScheme.primary
+                                                                else -> MaterialTheme.colorScheme.onSurface
+                                                            },
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                    )
+                                                    if (tab.mentionCount > 0) {
+                                                        Spacer(Modifier.width(8.dp))
+                                                        Badge()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (quickSwitchScrollState.maxValue > 0) {
+                                            VerticalScrollbar(
+                                                modifier =
+                                                    Modifier
+                                                        .align(Alignment.TopEnd)
+                                                        .fillMaxHeight()
+                                                        .width(3.dp)
+                                                        .padding(vertical = 2.dp),
+                                            ) {
+                                                Thumb(
+                                                    Modifier.background(
+                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                                        RoundedCornerShape(100),
+                                                    ),
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                // Action icons + inline overflow menu
-                Row(verticalAlignment = Alignment.Top) {
-                    Spacer(Modifier.width(8.dp))
+                    // Action icons + inline overflow menu
+                    Row(verticalAlignment = Alignment.Top) {
+                        Spacer(Modifier.width(8.dp))
 
-                    Column(modifier = Modifier.width(IntrinsicSize.Min)) {
-                        Surface(
-                            shape = MaterialTheme.shapes.extraLarge,
-                            color = MaterialTheme.colorScheme.surfaceContainer,
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                // Reserve space at start when menu is open and not logged in,
-                                // so the pill matches the 3-icon width and icons stay end-aligned
-                                if (!isLoggedIn && showOverflowMenu) {
-                                    Spacer(modifier = Modifier.width(48.dp))
-                                }
-                                val addChannelIcon: @Composable () -> Unit = {
-                                    IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = stringResource(R.string.add_channel),
-                                        )
+                        Column(modifier = Modifier.width(IntrinsicSize.Min)) {
+                            Surface(
+                                shape = MaterialTheme.shapes.extraLarge,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    // Reserve space at start when menu is open and not logged in,
+                                    // so the pill matches the 3-icon width and icons stay end-aligned
+                                    if (!isLoggedIn && showOverflowMenu) {
+                                        Spacer(modifier = Modifier.width(48.dp))
                                     }
-                                }
-                                if (addChannelTooltipState != null) {
-                                    LaunchedEffect(Unit) {
-                                        addChannelTooltipState.show()
+                                    val addChannelIcon: @Composable () -> Unit = {
+                                        IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Add,
+                                                contentDescription = stringResource(R.string.add_channel),
+                                            )
+                                        }
                                     }
-                                    LaunchedEffect(Unit) {
-                                        snapshotFlow { addChannelTooltipState.isVisible }
-                                            .dropWhile { !it } // skip initial false
-                                            .first { !it } // wait for dismiss (any cause)
-                                        onAddChannelTooltipDismiss()
-                                    }
-                                    TooltipBox(
-                                        positionProvider =
-                                            TooltipDefaults.rememberTooltipPositionProvider(
-                                                TooltipAnchorPosition.Above,
-                                                spacingBetweenTooltipAndAnchor = 8.dp,
-                                            ),
-                                        tooltip = {
-                                            val tourColors =
-                                                TooltipDefaults.richTooltipColors(
-                                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                    titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                    actionContentColor = MaterialTheme.colorScheme.secondary,
-                                                )
-                                            RichTooltip(
-                                                colors = tourColors,
-                                                caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
-                                                action = {
-                                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                        TextButton(onClick = {
-                                                            addChannelTooltipState.dismiss()
-                                                            onAddChannelTooltipDismiss()
-                                                            onSkipTour()
-                                                        }) {
-                                                            Text(stringResource(R.string.tour_skip))
+                                    if (addChannelTooltipState != null) {
+                                        LaunchedEffect(Unit) {
+                                            addChannelTooltipState.show()
+                                        }
+                                        LaunchedEffect(Unit) {
+                                            snapshotFlow { addChannelTooltipState.isVisible }
+                                                .dropWhile { !it } // skip initial false
+                                                .first { !it } // wait for dismiss (any cause)
+                                            onAddChannelTooltipDismiss()
+                                        }
+                                        TooltipBox(
+                                            positionProvider =
+                                                TooltipDefaults.rememberTooltipPositionProvider(
+                                                    TooltipAnchorPosition.Above,
+                                                    spacingBetweenTooltipAndAnchor = 8.dp,
+                                                ),
+                                            tooltip = {
+                                                val tourColors =
+                                                    TooltipDefaults.richTooltipColors(
+                                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                        actionContentColor = MaterialTheme.colorScheme.secondary,
+                                                    )
+                                                RichTooltip(
+                                                    colors = tourColors,
+                                                    caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
+                                                    action = {
+                                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                            TextButton(onClick = {
+                                                                addChannelTooltipState.dismiss()
+                                                                onAddChannelTooltipDismiss()
+                                                                onSkipTour()
+                                                            }) {
+                                                                Text(stringResource(R.string.tour_skip))
+                                                            }
+                                                            TextButton(onClick = {
+                                                                addChannelTooltipState.dismiss()
+                                                                onAddChannelTooltipDismiss()
+                                                            }) {
+                                                                Text(stringResource(R.string.tour_next))
+                                                            }
                                                         }
-                                                        TextButton(onClick = {
-                                                            addChannelTooltipState.dismiss()
-                                                            onAddChannelTooltipDismiss()
-                                                        }) {
-                                                            Text(stringResource(R.string.tour_next))
-                                                        }
-                                                    }
-                                                },
-                                            ) {
-                                                Text(stringResource(R.string.tour_add_more_channels_hint))
-                                            }
-                                        },
-                                        state = addChannelTooltipState,
-                                        hasAction = true,
-                                    ) {
+                                                    },
+                                                ) {
+                                                    Text(stringResource(R.string.tour_add_more_channels_hint))
+                                                }
+                                            },
+                                            state = addChannelTooltipState,
+                                            hasAction = true,
+                                        ) {
+                                            addChannelIcon()
+                                        }
+                                    } else {
                                         addChannelIcon()
                                     }
-                                } else {
-                                    addChannelIcon()
-                                }
-                                if (isLoggedIn) {
-                                    IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
+                                    if (isLoggedIn) {
+                                        IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
+                                            Icon(
+                                                imageVector = Icons.Default.Notifications,
+                                                contentDescription = stringResource(R.string.mentions_title),
+                                                tint =
+                                                    if (totalMentionCount > 0) {
+                                                        MaterialTheme.colorScheme.error
+                                                    } else {
+                                                        LocalContentColor.current
+                                                    },
+                                            )
+                                        }
+                                    }
+                                    IconButton(onClick = {
+                                        showQuickSwitch = false
+                                        overflowInitialMenu = AppBarMenu.Main
+                                        showOverflowMenu = !showOverflowMenu
+                                    }) {
                                         Icon(
-                                            imageVector = Icons.Default.Notifications,
-                                            contentDescription = stringResource(R.string.mentions_title),
-                                            tint =
-                                                if (totalMentionCount > 0) {
-                                                    MaterialTheme.colorScheme.error
-                                                } else {
-                                                    LocalContentColor.current
-                                                },
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = stringResource(R.string.more),
                                         )
                                     }
                                 }
-                                IconButton(onClick = {
-                                    showQuickSwitch = false
-                                    overflowInitialMenu = AppBarMenu.Main
-                                    showOverflowMenu = !showOverflowMenu
-                                }) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = stringResource(R.string.more),
-                                    )
-                                }
                             }
-                        }
 
-                        AnimatedVisibility(
-                            visible = showOverflowMenu,
-                            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                            modifier =
-                                Modifier
-                                    .skipIntrinsicHeight()
-                                    .padding(top = 4.dp)
-                                    .endAlignedOverflow(),
-                        ) {
-                            InlineOverflowMenu(
-                                isLoggedIn = isLoggedIn,
-                                onDismiss = {
-                                    showOverflowMenu = false
-                                    overflowInitialMenu = AppBarMenu.Main
-                                },
-                                initialMenu = overflowInitialMenu,
-                                onAction = onAction,
-                                keyboardHeightDp = keyboardHeightDp,
-                            )
+                            AnimatedVisibility(
+                                visible = showOverflowMenu,
+                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                                modifier =
+                                    Modifier
+                                        .skipIntrinsicHeight()
+                                        .padding(top = 4.dp)
+                                        .endAlignedOverflow(),
+                            ) {
+                                InlineOverflowMenu(
+                                    isLoggedIn = isLoggedIn,
+                                    onDismiss = {
+                                        showOverflowMenu = false
+                                        overflowInitialMenu = AppBarMenu.Main
+                                    },
+                                    initialMenu = overflowInitialMenu,
+                                    onAction = onAction,
+                                    keyboardHeightDp = keyboardHeightDp,
+                                )
+                            }
                         }
                     }
                 }

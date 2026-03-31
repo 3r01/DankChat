@@ -611,6 +611,8 @@
     <!-- Menu -->
     <string name="menu_show_stream">Közvetítés megjelenítése</string>
     <string name="menu_hide_stream">Közvetítés elrejtése</string>
+    <string name="menu_audio_only">Csak hang</string>
+    <string name="menu_exit_audio_only">Kilépés a hang módból</string>
     <string name="menu_fullscreen">Teljes képernyő</string>
     <string name="menu_exit_fullscreen">Kilépés a teljes képernyőből</string>
     <string name="menu_hide_input">Bevitel elrejtése</string>

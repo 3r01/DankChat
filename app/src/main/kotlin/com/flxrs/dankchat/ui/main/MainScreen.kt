@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -188,6 +189,7 @@ fun MainScreen(
     val streamVmState by streamViewModel.streamState.collectAsStateWithLifecycle()
     val currentStream = streamVmState.currentStream
     val hasStreamData = streamVmState.hasStreamData
+    val isAudioOnly = streamVmState.isAudioOnly
     val streamState = rememberStreamToolbarState(currentStream)
 
     // PiP state — observe via lifecycle since onPause fires when entering PiP
@@ -406,6 +408,7 @@ fun MainScreen(
                                     else -> activeChannel?.let { streamViewModel.toggleStream(it) }
                                 }
                             },
+                            onAudioOnly = { streamViewModel.toggleAudioOnly() },
                             onModActions = dialogViewModel::showModActions,
                             onInputActionsChange = mainScreenViewModel::updateInputActions,
                             onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
@@ -423,6 +426,7 @@ fun MainScreen(
                     isFullscreen = isFullscreen,
                     isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
                     isStreamActive = currentStream != null,
+                    isAudioOnly = isAudioOnly,
                     hasStreamData = hasStreamData,
                     isSheetOpen = isSheetOpen,
                     inputActions =
@@ -561,9 +565,12 @@ fun MainScreen(
                     isFullscreen = isFullscreen,
                     isLoggedIn = isLoggedIn,
                     currentStream = currentStream,
+                    isAudioOnly = isAudioOnly,
                     streamHeightDp = streamState.heightDp,
                     totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
                     onAction = handleToolbarAction,
+                    onAudioOnly = { streamViewModel.toggleAudioOnly() },
+                    onStreamClose = { streamViewModel.closeStream() },
                     endAligned = endAligned,
                     showTabs = showTabs,
                     addChannelTooltipState = if (featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) featureTourViewModel.addChannelTooltipState else null,
@@ -660,7 +667,9 @@ fun MainScreen(
             val fabMenuCallbacks =
                 FabMenuCallbacks(
                     onAction = fabActionHandler,
+                    onAudioOnly = { streamViewModel.toggleAudioOnly() },
                     isStreamActive = currentStream != null,
+                    isAudioOnly = isAudioOnly,
                     hasStreamData = hasStreamData,
                     isFullscreen = isFullscreen,
                     isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
@@ -727,11 +736,14 @@ fun MainScreen(
                 focusManager.clearFocus()
                 streamViewModel.closeStream()
             }
+            val onAudioOnly = { streamViewModel.toggleAudioOnly() }
 
             if (useWideSplitLayout) {
                 WideSplitLayout(
                     currentStream = currentStream,
+                    isAudioOnly = isAudioOnly,
                     onStreamClose = onStreamClose,
+                    onAudioOnly = onAudioOnly,
                     scaffoldContent = scaffoldContent,
                     floatingToolbar = floatingToolbar,
                     fullScreenSheetOverlay = fullScreenSheetOverlay,
@@ -758,7 +770,9 @@ fun MainScreen(
             } else {
                 NormalStackedLayout(
                     currentStream = currentStream,
+                    isAudioOnly = isAudioOnly,
                     onStreamClose = onStreamClose,
+                    onAudioOnly = onAudioOnly,
                     hasWebViewBeenAttached = streamViewModel.hasWebViewBeenAttached,
                     streamState = streamState,
                     scaffoldContent = scaffoldContent,
@@ -795,7 +809,9 @@ fun MainScreen(
 @Composable
 private fun BoxScope.WideSplitLayout(
     currentStream: UserName?,
+    isAudioOnly: Boolean,
     onStreamClose: () -> Unit,
+    onAudioOnly: () -> Unit,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
     fullScreenSheetOverlay: @Composable (Dp) -> Unit,
@@ -832,17 +848,19 @@ private fun BoxScope.WideSplitLayout(
                 .onSizeChanged { containerWidthPx = it.width },
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            // Left pane: Stream
+            // Left pane: Stream (hidden but composed in audio-only mode to keep audio playing)
             Box(
                 modifier =
-                    Modifier
-                        .weight(splitFraction)
-                        .fillMaxSize(),
+                    when {
+                        isAudioOnly -> Modifier.width(0.dp)
+                        else -> Modifier.weight(splitFraction).fillMaxSize()
+                    },
             ) {
                 StreamView(
                     channel = currentStream ?: return,
                     fillPane = true,
                     onClose = onStreamClose,
+                    onAudioOnly = onAudioOnly,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -851,7 +869,7 @@ private fun BoxScope.WideSplitLayout(
             Box(
                 modifier =
                     Modifier
-                        .weight(1f - splitFraction)
+                        .weight(if (isAudioOnly) 1f else 1f - splitFraction)
                         .fillMaxSize(),
             ) {
                 val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
@@ -926,24 +944,28 @@ private fun BoxScope.WideSplitLayout(
             }
         }
 
-        DraggableHandle(
-            onDrag = { deltaPx ->
-                if (containerWidthPx > 0) {
-                    splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
-                }
-            },
-            modifier =
-                Modifier
-                    .align(Alignment.CenterStart)
-                    .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
-        )
+        if (!isAudioOnly) {
+            DraggableHandle(
+                onDrag = { deltaPx ->
+                    if (containerWidthPx > 0) {
+                        splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
+                    }
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
+            )
+        }
     }
 }
 
 @Composable
 private fun BoxScope.NormalStackedLayout(
     currentStream: UserName?,
+    isAudioOnly: Boolean,
     onStreamClose: () -> Unit,
+    onAudioOnly: () -> Unit,
     hasWebViewBeenAttached: Boolean,
     streamState: StreamToolbarState,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
@@ -998,7 +1020,7 @@ private fun BoxScope.NormalStackedLayout(
     // Stream View layer — kept in composition when hidden so the WebView
     // stays attached and audio/video continues playing without re-buffering.
     currentStream?.let { channel ->
-        val showStream = isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape
+        val showStream = !isAudioOnly && (isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape)
         var streamComposed by remember { mutableStateOf(hasWebViewBeenAttached) }
         LaunchedEffect(showStream) {
             if (showStream) {
@@ -1011,6 +1033,7 @@ private fun BoxScope.NormalStackedLayout(
                 channel = channel,
                 isInPipMode = isInPipMode,
                 onClose = onStreamClose,
+                onAudioOnly = onAudioOnly,
                 modifier =
                     when {
                         isInPipMode -> {
@@ -1041,8 +1064,8 @@ private fun BoxScope.NormalStackedLayout(
         }
     }
 
-    // Status bar scrim when stream is active
-    if (currentStream != null && !isFullscreen && !isInPipMode) {
+    // Status bar scrim when stream video is active (not audio-only)
+    if (currentStream != null && !isAudioOnly && !isFullscreen && !isInPipMode) {
         StatusBarScrim(
             colorAlpha = 1f,
             modifier =

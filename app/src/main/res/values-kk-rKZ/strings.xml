@@ -256,6 +256,8 @@
     <string name="toggle_stream">Ағынды ажырату</string>
     <string name="menu_show_stream">Ағынды көрсету</string>
     <string name="menu_hide_stream">Ағынды жасыру</string>
+    <string name="menu_audio_only">Тек аудио</string>
+    <string name="menu_exit_audio_only">Аудио режимінен шығу</string>
     <string name="menu_fullscreen">Толық экран</string>
     <string name="menu_exit_fullscreen">Толық экраннан шығу</string>
     <string name="menu_hide_input">Енгізуді жасыру</string>

@@ -37,20 +37,24 @@ class StreamViewModel(
         }.distinctUntilChanged()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    private val _isAudioOnly = MutableStateFlow(false)
+
     val streamState: StateFlow<StreamState> =
         combine(
             _currentStreamedChannel,
             hasStreamData,
-        ) { currentStream, hasData ->
-            StreamState(currentStream = currentStream, hasStreamData = hasData)
+            _isAudioOnly,
+        ) { currentStream, hasData, audioOnly ->
+            StreamState(currentStream = currentStream, hasStreamData = hasData, isAudioOnly = audioOnly)
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
 
     val shouldEnablePipAutoMode: StateFlow<Boolean> =
         combine(
             _currentStreamedChannel,
+            _isAudioOnly,
             streamsSettingsDataStore.pipEnabled,
-        ) { currentStream, pipEnabled ->
-            currentStream != null && pipEnabled
+        ) { currentStream, audioOnly, pipEnabled ->
+            currentStream != null && !audioOnly && pipEnabled
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
@@ -108,10 +112,16 @@ class StreamViewModel(
 
     fun toggleStream(channel: UserName) {
         _currentStreamedChannel.update { if (it == channel) null else channel }
+        _isAudioOnly.value = false
+    }
+
+    fun toggleAudioOnly() {
+        _isAudioOnly.update { !it }
     }
 
     fun closeStream() {
         _currentStreamedChannel.value = null
+        _isAudioOnly.value = false
     }
 
     override fun onCleared() {
@@ -127,4 +137,5 @@ class StreamViewModel(
 data class StreamState(
     val currentStream: UserName? = null,
     val hasStreamData: Boolean = false,
+    val isAudioOnly: Boolean = false,
 )

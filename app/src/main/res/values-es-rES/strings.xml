@@ -642,6 +642,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <!-- Menu -->
     <string name="menu_show_stream">Mostrar stream</string>
     <string name="menu_hide_stream">Ocultar stream</string>
+    <string name="menu_audio_only">Solo audio</string>
+    <string name="menu_exit_audio_only">Salir de solo audio</string>
     <string name="menu_fullscreen">Pantalla completa</string>
     <string name="menu_exit_fullscreen">Salir de pantalla completa</string>
     <string name="menu_hide_input">Ocultar entrada</string>

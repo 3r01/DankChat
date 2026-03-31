@@ -633,6 +633,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <!-- Menu -->
     <string name="menu_show_stream">Zobrazit stream</string>
     <string name="menu_hide_stream">Skrýt stream</string>
+    <string name="menu_audio_only">Pouze zvuk</string>
+    <string name="menu_exit_audio_only">Ukončit režim zvuku</string>
     <string name="menu_fullscreen">Celá obrazovka</string>
     <string name="menu_exit_fullscreen">Ukončit celou obrazovku</string>
     <string name="menu_hide_input">Skrýt vstup</string>

@@ -566,6 +566,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <!-- Menu -->
     <string name="menu_show_stream">Mostra l\'emissió</string>
     <string name="menu_hide_stream">Amaga l\'emissió</string>
+    <string name="menu_audio_only">Només àudio</string>
+    <string name="menu_exit_audio_only">Surt del mode àudio</string>
     <string name="menu_fullscreen">Pantalla completa</string>
     <string name="menu_exit_fullscreen">Surt de la pantalla completa</string>
     <string name="menu_hide_input">Amaga l\'entrada</string>

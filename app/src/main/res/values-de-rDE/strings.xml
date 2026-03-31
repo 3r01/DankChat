@@ -633,6 +633,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <!-- Menu -->
     <string name="menu_show_stream">Stream anzeigen</string>
     <string name="menu_hide_stream">Stream ausblenden</string>
+    <string name="menu_audio_only">Nur Audio</string>
+    <string name="menu_exit_audio_only">Audio-Modus beenden</string>
     <string name="menu_fullscreen">Vollbild</string>
     <string name="menu_exit_fullscreen">Vollbild beenden</string>
     <string name="menu_hide_input">Eingabe ausblenden</string>

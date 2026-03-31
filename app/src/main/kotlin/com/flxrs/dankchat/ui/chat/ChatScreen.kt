@@ -35,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
@@ -318,7 +319,9 @@ fun ChatScreen(
 @Stable
 class FabMenuCallbacks(
     val onAction: (InputAction) -> Unit,
+    val onAudioOnly: () -> Unit,
     val isStreamActive: Boolean,
+    val isAudioOnly: Boolean,
     val hasStreamData: Boolean,
     val isFullscreen: Boolean,
     val isModerator: Boolean,
@@ -520,6 +523,29 @@ private fun FabActionsMenu(
                         leadingIcon = {
                             Icon(
                                 imageVector = item.icon,
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                }
+
+                if (callbacks.isStreamActive) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                stringResource(
+                                    if (callbacks.isAudioOnly) R.string.menu_exit_audio_only else R.string.menu_audio_only,
+                                ),
+                            )
+                        },
+                        onClick = {
+                            callbacks.onAudioOnly()
+                            onDismiss()
+                        },
+                        enabled = callbacks.enabled,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (callbacks.isAudioOnly) Icons.Default.Videocam else Icons.Default.Headphones,
                                 contentDescription = null,
                             )
                         },

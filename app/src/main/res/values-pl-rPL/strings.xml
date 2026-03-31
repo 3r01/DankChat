@@ -651,6 +651,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <!-- Menu -->
     <string name="menu_show_stream">Pokaż transmisję</string>
     <string name="menu_hide_stream">Ukryj transmisję</string>
+    <string name="menu_audio_only">Tylko dźwięk</string>
+    <string name="menu_exit_audio_only">Wyłącz tryb audio</string>
     <string name="menu_fullscreen">Pełny ekran</string>
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>

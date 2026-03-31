@@ -258,6 +258,8 @@
     <string name="toggle_stream">開啟/關閉實況</string>
     <string name="menu_show_stream">顯示實況</string>
     <string name="menu_hide_stream">隱藏實況</string>
+    <string name="menu_audio_only">僅音訊</string>
+    <string name="menu_exit_audio_only">退出僅音訊模式</string>
     <string name="menu_fullscreen">全螢幕</string>
     <string name="menu_exit_fullscreen">退出全螢幕</string>
     <string name="menu_hide_input">隱藏輸入框</string>

@@ -621,6 +621,8 @@
     <!-- Menu -->
     <string name="menu_show_stream">Mostrar stream</string>
     <string name="menu_hide_stream">Ocultar stream</string>
+    <string name="menu_audio_only">Apenas áudio</string>
+    <string name="menu_exit_audio_only">Sair do modo áudio</string>
     <string name="menu_fullscreen">Tela cheia</string>
     <string name="menu_exit_fullscreen">Sair da tela cheia</string>
     <string name="menu_hide_input">Ocultar entrada</string>

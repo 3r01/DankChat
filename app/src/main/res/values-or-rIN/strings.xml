@@ -256,6 +256,8 @@
     <string name="toggle_stream">ଷ୍ଟ୍ରିମ୍ ଟୋଗଲ୍ କରନ୍ତୁ |</string>
     <string name="menu_show_stream">ଷ୍ଟ୍ରିମ୍ ଦେଖାନ୍ତୁ</string>
     <string name="menu_hide_stream">ଷ୍ଟ୍ରିମ୍ ଲୁଚାନ୍ତୁ</string>
+    <string name="menu_audio_only">କେବଳ ଅଡିଓ</string>
+    <string name="menu_exit_audio_only">କେବଳ ଅଡିଓ ମୋଡରୁ ବାହାରନ୍ତୁ</string>
     <string name="menu_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="menu_exit_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍ ବାହାରନ୍ତୁ</string>
     <string name="menu_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>

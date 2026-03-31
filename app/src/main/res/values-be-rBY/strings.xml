@@ -632,6 +632,8 @@
     <!-- Menu -->
     <string name="menu_show_stream">Паказаць трансляцыю</string>
     <string name="menu_hide_stream">Схаваць трансляцыю</string>
+    <string name="menu_audio_only">Толькі аўдыё</string>
+    <string name="menu_exit_audio_only">Выйсці з рэжыму аўдыё</string>
     <string name="menu_fullscreen">На ўвесь экран</string>
     <string name="menu_exit_fullscreen">Выйсці з поўнаэкраннага рэжыму</string>
     <string name="menu_hide_input">Схаваць увод</string>

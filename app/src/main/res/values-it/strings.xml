@@ -609,6 +609,8 @@
     <!-- Menu -->
     <string name="menu_show_stream">Mostra stream</string>
     <string name="menu_hide_stream">Nascondi stream</string>
+    <string name="menu_audio_only">Solo audio</string>
+    <string name="menu_exit_audio_only">Esci da solo audio</string>
     <string name="menu_fullscreen">Schermo intero</string>
     <string name="menu_exit_fullscreen">Esci dallo schermo intero</string>
     <string name="menu_hide_input">Nascondi input</string>

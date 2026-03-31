@@ -632,6 +632,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <!-- Menu -->
     <string name="menu_show_stream">Yayını göster</string>
     <string name="menu_hide_stream">Yayını gizle</string>
+    <string name="menu_audio_only">Yalnızca ses</string>
+    <string name="menu_exit_audio_only">Ses modundan çık</string>
     <string name="menu_fullscreen">Tam ekran</string>
     <string name="menu_exit_fullscreen">Tam ekrandan çık</string>
     <string name="menu_hide_input">Girişi gizle</string>

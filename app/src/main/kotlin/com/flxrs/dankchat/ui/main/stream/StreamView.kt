@@ -7,6 +7,7 @@ import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -40,10 +42,11 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun StreamView(
     channel: UserName,
+    onClose: () -> Unit,
+    onAudioOnly: () -> Unit,
     modifier: Modifier = Modifier,
     isInPipMode: Boolean = false,
     fillPane: Boolean = false,
-    onClose: () -> Unit,
 ) {
     val streamViewModel: StreamViewModel = koinViewModel()
     // Track whether the WebView has been attached to a window before.
@@ -137,27 +140,52 @@ fun StreamView(
         }
 
         if (!isInPipMode) {
-            Box(
-                contentAlignment = Alignment.Center,
+            Row(
                 modifier =
                     Modifier
                         .align(Alignment.TopEnd)
                         .statusBarsPadding()
-                        .padding(8.dp)
-                        .size(28.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
-                            shape = CircleShape,
-                        ).clickable(onClick = onClose),
+                        .padding(8.dp),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement
+                    .spacedBy(6.dp),
             ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
+                StreamOverlayButton(
+                    icon = Icons.Default.Headphones,
+                    contentDescription = stringResource(R.string.menu_audio_only),
+                    onClick = onAudioOnly,
+                )
+                StreamOverlayButton(
+                    icon = Icons.Default.Close,
                     contentDescription = stringResource(R.string.dialog_dismiss),
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(18.dp),
+                    onClick = onClose,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun StreamOverlayButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier =
+            Modifier
+                .size(28.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.5f),
+                    shape = CircleShape,
+                ).clickable(onClick = onClick),
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.size(18.dp),
+        )
     }
 }
 

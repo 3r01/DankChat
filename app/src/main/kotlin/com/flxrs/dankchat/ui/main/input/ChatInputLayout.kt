@@ -122,6 +122,7 @@ fun ChatInputLayout(
     isFullscreen: Boolean,
     isModerator: Boolean,
     isStreamActive: Boolean,
+    isAudioOnly: Boolean,
     hasStreamData: Boolean,
     inputActions: ImmutableList<InputAction>,
     modifier: Modifier = Modifier,
@@ -395,6 +396,7 @@ fun ChatInputLayout(
                 enabled = enabled,
                 hasLastMessage = hasLastMessage,
                 isStreamActive = isStreamActive,
+                isAudioOnly = isAudioOnly,
                 hasStreamData = hasStreamData,
                 isFullscreen = isFullscreen,
                 isModerator = isModerator,
@@ -409,6 +411,10 @@ fun ChatInputLayout(
                         InputAction.HideInput -> onToggleInput()
                         InputAction.Debug -> onDebugInfoClick()
                     }
+                    onOverflowExpandedChange(false)
+                },
+                onAudioOnly = {
+                    callbacks.onAudioOnly()
                     onOverflowExpandedChange(false)
                 },
                 onConfigureClick = {

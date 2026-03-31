@@ -631,6 +631,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <!-- Menu -->
     <string name="menu_show_stream">Прикажи стрим</string>
     <string name="menu_hide_stream">Сакриј стрим</string>
+    <string name="menu_audio_only">Само звук</string>
+    <string name="menu_exit_audio_only">Изађи из режима звука</string>
     <string name="menu_fullscreen">Цео екран</string>
     <string name="menu_exit_fullscreen">Изађи из целог екрана</string>
     <string name="menu_hide_input">Сакриј унос</string>

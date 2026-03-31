@@ -11,6 +11,7 @@ data class ChatInputCallbacks(
     val onToggleFullscreen: () -> Unit,
     val onToggleInput: () -> Unit,
     val onToggleStream: () -> Unit,
+    val onAudioOnly: () -> Unit,
     val onModActions: () -> Unit,
     val onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
     val onSearchClick: () -> Unit = {},

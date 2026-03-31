@@ -439,6 +439,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="no_recent_emotes">No recent emotes</string>
     <string name="menu_show_stream">Show stream</string>
     <string name="menu_hide_stream">Hide stream</string>
+    <string name="menu_audio_only">Audio only</string>
+    <string name="menu_exit_audio_only">Exit audio only</string>
     <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
