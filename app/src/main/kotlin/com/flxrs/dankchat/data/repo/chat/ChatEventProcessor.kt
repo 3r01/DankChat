@@ -201,7 +201,7 @@ class ChatEventProcessor(
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
         usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
         chatNotificationRepository.incrementMentionCount(WhisperMessage.WHISPER_CHANNEL, 1)
-        chatNotificationRepository.emitNotification(listOf(item))
+        chatNotificationRepository.emitMessages(listOf(item))
     }
 
     private fun handlePubSubModeration(pubSubMessage: PubSubMessage.ModeratorAction) {
@@ -481,7 +481,7 @@ class ChatEventProcessor(
             }
 
         chatMessageRepository.addMessages(channel, additionalMessages + items)
-        chatNotificationRepository.emitNotification(items)
+        chatNotificationRepository.emitMessages(items)
 
         val mentions =
             items

@@ -43,6 +43,7 @@ import com.flxrs.dankchat.DankChatViewModel
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
+import com.flxrs.dankchat.data.notification.ChatTTSPlayer
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
@@ -91,6 +92,7 @@ class MainActivity : AppCompatActivity() {
     private val mainEventBus: MainEventBus by inject()
     private val onboardingDataStore: OnboardingDataStore by inject()
     private val dataRepository: DataRepository by inject()
+    private val chatTTSPlayer: ChatTTSPlayer by inject()
     private val pendingChannelsToClear = mutableListOf<UserName>()
     private var currentMediaUri: Uri = Uri.EMPTY
 
@@ -508,6 +510,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startService() {
+        chatTTSPlayer.start()
         if (!isBound) {
             Intent(this, NotificationService::class.java).also {
                 try {
@@ -544,7 +547,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun clearNotificationsOfChannel(channel: UserName) = when {
-        isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
+        isBound && notificationService != null -> notificationService?.clearNotificationsForChannel(channel)
         else -> pendingChannelsToClear += channel
     }
 
@@ -632,7 +635,7 @@ class MainActivity : AppCompatActivity() {
             isBound = true
 
             if (pendingChannelsToClear.isNotEmpty()) {
-                pendingChannelsToClear.forEach { notificationService?.setActiveChannel(it) }
+                pendingChannelsToClear.forEach { notificationService?.clearNotificationsForChannel(it) }
                 pendingChannelsToClear.clear()
             }
 

@@ -38,7 +38,7 @@ class ChatNotificationRepository(
 
     private val _mentions = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
     private val _whispers = MutableStateFlow<ImmutableList<ChatItem>>(persistentListOf())
-    private val _notificationsFlow = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10)
+    private val _messageUpdates = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10)
     private val _channelMentionCount = mutableSharedFlowOf(mutableMapOf<UserName, Int>())
     private val _unreadMessagesMap = mutableSharedFlowOf(mutableMapOf<UserName, Boolean>())
 
@@ -47,7 +47,7 @@ class ChatNotificationRepository(
             .stateIn(scope, SharingStarted.Eagerly, 500)
     private val scrollBackLength get() = scrollBackLengthFlow.value
 
-    val notificationsFlow: SharedFlow<List<ChatItem>> = _notificationsFlow.asSharedFlow()
+    val messageUpdates: SharedFlow<List<ChatItem>> = _messageUpdates.asSharedFlow()
     val channelMentionCount: SharedFlow<Map<UserName, Int>> = _channelMentionCount.asSharedFlow()
     val unreadMessagesMap: SharedFlow<Map<UserName, Boolean>> = _unreadMessagesMap.asSharedFlow()
     val mentions: StateFlow<ImmutableList<ChatItem>> = _mentions
@@ -97,8 +97,8 @@ class ChatNotificationRepository(
         }
     }
 
-    fun emitNotification(items: List<ChatItem>) {
-        _notificationsFlow.tryEmit(items)
+    fun emitMessages(items: List<ChatItem>) {
+        _messageUpdates.tryEmit(items)
     }
 
     fun setUnreadIfInactive(channel: UserName) {
