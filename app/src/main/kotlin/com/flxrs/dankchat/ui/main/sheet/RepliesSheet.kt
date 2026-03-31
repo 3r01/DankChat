@@ -122,68 +122,23 @@ fun RepliesSheet(
             modifier = Modifier.fillMaxSize(),
         )
 
-        AnimatedVisibility(
+        SheetToolbar(
             visible = toolbarVisible,
-            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter),
+            statusBarHeight = statusBarHeight,
+            sheetBackgroundColor = sheetBackgroundColor,
+            onBack = onDismiss,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            brush =
-                                Brush.verticalGradient(
-                                    0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    1f to sheetBackgroundColor.copy(alpha = 0f),
-                                ),
-                        ).padding(top = statusBarHeight + 8.dp)
-                        .padding(bottom = 16.dp)
-                        .padding(horizontal = 8.dp),
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                            )
-                        }
-                    }
-
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                        modifier = Modifier.padding(start = 8.dp),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.replies_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        )
-                    }
-                }
+                Text(
+                    text = stringResource(R.string.replies_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                )
             }
-        }
-
-        if (!toolbarVisible) {
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .height(statusBarHeight)
-                        .background(sheetBackgroundColor.copy(alpha = 0.7f)),
-            )
         }
     }
 }

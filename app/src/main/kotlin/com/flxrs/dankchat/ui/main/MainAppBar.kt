@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -157,88 +158,26 @@ fun InlineOverflowMenu(
                             .padding(vertical = 8.dp),
                 ) {
                     when (menu) {
-                        AppBarMenu.Main -> {
-                            if (!isLoggedIn) {
-                                InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
-                                    onAction(ToolbarAction.Login)
-                                    onDismiss()
-                                }
-                            } else {
-                                InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
-                                    onAction(ToolbarAction.Relogin)
-                                    onDismiss()
-                                }
-                                InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
-                                    onAction(ToolbarAction.Logout)
-                                    onDismiss()
-                                }
-                            }
+                        AppBarMenu.Main -> MainMenuContent(
+                            isLoggedIn = isLoggedIn,
+                            onAction = onAction,
+                            onDismiss = onDismiss,
+                            onNavigateToUpload = { currentMenu = AppBarMenu.Upload },
+                            onNavigateToChannel = { currentMenu = AppBarMenu.Channel },
+                        )
 
-                            HorizontalDivider()
+                        AppBarMenu.Upload -> UploadMenuContent(
+                            onAction = onAction,
+                            onDismiss = onDismiss,
+                            onBack = { currentMenu = AppBarMenu.Main },
+                        )
 
-                            InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
-                                onAction(ToolbarAction.ManageChannels)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
-                                onAction(ToolbarAction.RemoveChannel)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
-                                onAction(ToolbarAction.ReloadEmotes)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
-                                onAction(ToolbarAction.Reconnect)
-                                onDismiss()
-                            }
-
-                            HorizontalDivider()
-
-                            InlineMenuItem(text = stringResource(R.string.upload_media), icon = Icons.Default.CloudUpload, hasSubMenu = true) { currentMenu = AppBarMenu.Upload }
-                            InlineMenuItem(text = stringResource(R.string.channel), icon = Icons.Default.Info, hasSubMenu = true) { currentMenu = AppBarMenu.Channel }
-
-                            HorizontalDivider()
-
-                            InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
-                                onAction(ToolbarAction.OpenSettings)
-                                onDismiss()
-                            }
-                        }
-
-                        AppBarMenu.Upload -> {
-                            InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = { currentMenu = AppBarMenu.Main })
-                            InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
-                                onAction(ToolbarAction.CaptureImage)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
-                                onAction(ToolbarAction.CaptureVideo)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
-                                onAction(ToolbarAction.ChooseMedia)
-                                onDismiss()
-                            }
-                        }
-
-                        AppBarMenu.Channel -> {
-                            InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = { currentMenu = AppBarMenu.Main })
-                            InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
-                                onAction(ToolbarAction.OpenChannel)
-                                onDismiss()
-                            }
-                            InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
-                                onAction(ToolbarAction.ReportChannel)
-                                onDismiss()
-                            }
-                            if (isLoggedIn) {
-                                InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
-                                    onAction(ToolbarAction.BlockChannel)
-                                    onDismiss()
-                                }
-                            }
-                        }
+                        AppBarMenu.Channel -> ChannelMenuContent(
+                            isLoggedIn = isLoggedIn,
+                            onAction = onAction,
+                            onDismiss = onDismiss,
+                            onBack = { currentMenu = AppBarMenu.Main },
+                        )
                     }
                 }
             }
@@ -328,5 +267,106 @@ private fun InlineSubMenuHeader(
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
         )
+    }
+}
+
+@Composable
+private fun ColumnScope.MainMenuContent(
+    isLoggedIn: Boolean,
+    onAction: (ToolbarAction) -> Unit,
+    onDismiss: () -> Unit,
+    onNavigateToUpload: () -> Unit,
+    onNavigateToChannel: () -> Unit,
+) {
+    if (!isLoggedIn) {
+        InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
+            onAction(ToolbarAction.Login)
+            onDismiss()
+        }
+    } else {
+        InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
+            onAction(ToolbarAction.Relogin)
+            onDismiss()
+        }
+        InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
+            onAction(ToolbarAction.Logout)
+            onDismiss()
+        }
+    }
+
+    HorizontalDivider()
+
+    InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
+        onAction(ToolbarAction.ManageChannels)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
+        onAction(ToolbarAction.RemoveChannel)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
+        onAction(ToolbarAction.ReloadEmotes)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
+        onAction(ToolbarAction.Reconnect)
+        onDismiss()
+    }
+
+    HorizontalDivider()
+
+    InlineMenuItem(text = stringResource(R.string.upload_media), icon = Icons.Default.CloudUpload, hasSubMenu = true, onClick = onNavigateToUpload)
+    InlineMenuItem(text = stringResource(R.string.channel), icon = Icons.Default.Info, hasSubMenu = true, onClick = onNavigateToChannel)
+
+    HorizontalDivider()
+
+    InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
+        onAction(ToolbarAction.OpenSettings)
+        onDismiss()
+    }
+}
+
+@Composable
+private fun ColumnScope.UploadMenuContent(
+    onAction: (ToolbarAction) -> Unit,
+    onDismiss: () -> Unit,
+    onBack: () -> Unit,
+) {
+    InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = onBack)
+    InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
+        onAction(ToolbarAction.CaptureImage)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
+        onAction(ToolbarAction.CaptureVideo)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
+        onAction(ToolbarAction.ChooseMedia)
+        onDismiss()
+    }
+}
+
+@Composable
+private fun ColumnScope.ChannelMenuContent(
+    isLoggedIn: Boolean,
+    onAction: (ToolbarAction) -> Unit,
+    onDismiss: () -> Unit,
+    onBack: () -> Unit,
+) {
+    InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = onBack)
+    InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
+        onAction(ToolbarAction.OpenChannel)
+        onDismiss()
+    }
+    InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
+        onAction(ToolbarAction.ReportChannel)
+        onDismiss()
+    }
+    if (isLoggedIn) {
+        InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
+            onAction(ToolbarAction.BlockChannel)
+            onDismiss()
+        }
     }
 }

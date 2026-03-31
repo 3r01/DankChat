@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -112,76 +114,12 @@ fun EmoteMenu(
                     beyondViewportPageCount = 1,
                 ) { page ->
                     val tab = tabItems[page]
-                    val items = tab.items
-
-                    if (tab.type == EmoteMenuTab.RECENT && items.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            DankBackground(visible = true)
-                            Text(
-                                text = stringResource(R.string.no_recent_emotes),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 160.dp), // Offset below logo
-                            )
-                        }
-                    } else {
-                        val gridState = if (tab.type == EmoteMenuTab.SUBS) subsGridState else rememberLazyGridState()
-                        LazyVerticalGrid(
-                            columns = GridCells.Adaptive(minSize = 40.dp),
-                            state = gridState,
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 56.dp + navBarBottomDp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            items(
-                                items = items,
-                                key = { item ->
-                                    when (item) {
-                                        is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
-                                        is EmoteItem.Header -> "header-${item.title}"
-                                    }
-                                },
-                                span = { item ->
-                                    when (item) {
-                                        is EmoteItem.Header -> GridItemSpan(maxLineSpan)
-                                        is EmoteItem.Emote -> GridItemSpan(1)
-                                    }
-                                },
-                                contentType = { item ->
-                                    when (item) {
-                                        is EmoteItem.Header -> "header"
-                                        is EmoteItem.Emote -> "emote"
-                                    }
-                                },
-                            ) { item ->
-                                when (item) {
-                                    is EmoteItem.Header -> {
-                                        Text(
-                                            text = item.title,
-                                            style = MaterialTheme.typography.titleMedium,
-                                            modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 8.dp),
-                                        )
-                                    }
-
-                                    is EmoteItem.Emote -> {
-                                        AsyncImage(
-                                            model = item.emote.url,
-                                            contentDescription = item.emote.code,
-                                            modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .aspectRatio(1f)
-                                                    .clickable { onEmoteClick(item.emote.code, item.emote.id) },
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    EmoteGridPage(
+                        tab = tab,
+                        subsGridState = subsGridState,
+                        navBarBottomDp = navBarBottomDp,
+                        onEmoteClick = onEmoteClick,
+                    )
                 }
 
                 // Floating backspace button at bottom-end, matching keyboard position
@@ -202,6 +140,89 @@ fun EmoteMenu(
                         contentDescription = stringResource(R.string.backspace),
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmoteGridPage(
+    tab: EmoteMenuTabItem,
+    subsGridState: LazyGridState,
+    navBarBottomDp: Dp,
+    onEmoteClick: (code: String, id: String) -> Unit,
+) {
+    val items = tab.items
+
+    if (tab.type == EmoteMenuTab.RECENT && items.isEmpty()) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            DankBackground(visible = true)
+            Text(
+                text = stringResource(R.string.no_recent_emotes),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 160.dp),
+            )
+        }
+    } else {
+        val gridState =
+            when (tab.type) {
+                EmoteMenuTab.SUBS -> subsGridState
+                else -> rememberLazyGridState()
+            }
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = 40.dp),
+            state = gridState,
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 56.dp + navBarBottomDp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(
+                items = items,
+                key = { item ->
+                    when (item) {
+                        is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
+                        is EmoteItem.Header -> "header-${item.title}"
+                    }
+                },
+                span = { item ->
+                    when (item) {
+                        is EmoteItem.Header -> GridItemSpan(maxLineSpan)
+                        is EmoteItem.Emote -> GridItemSpan(1)
+                    }
+                },
+                contentType = { item ->
+                    when (item) {
+                        is EmoteItem.Header -> "header"
+                        is EmoteItem.Emote -> "emote"
+                    }
+                },
+            ) { item ->
+                when (item) {
+                    is EmoteItem.Header -> {
+                        Text(
+                            text = item.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                        )
+                    }
+
+                    is EmoteItem.Emote -> {
+                        AsyncImage(
+                            model = item.emote.url,
+                            contentDescription = item.emote.code,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .clickable { onEmoteClick(item.emote.code, item.emote.id) },
+                        )
+                    }
                 }
             }
         }

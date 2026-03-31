@@ -11,8 +11,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -145,87 +148,105 @@ fun MentionSheet(
             )
         }
 
-        AnimatedVisibility(
+        SheetToolbar(
             visible = toolbarVisible,
-            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter),
+            statusBarHeight = statusBarHeight,
+            sheetBackgroundColor = sheetBackgroundColor,
+            onBack = onDismiss,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            brush =
-                                Brush.verticalGradient(
-                                    0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    1f to sheetBackgroundColor.copy(alpha = 0f),
-                                ),
-                        ).padding(top = statusBarHeight + 8.dp)
-                        .padding(bottom = 16.dp)
-                        .padding(horizontal = 8.dp),
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                            )
-                        }
-                    }
-
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        Row {
-                            val tabs = listOf(R.string.mentions, R.string.whispers)
-                            tabs.forEachIndexed { index, stringRes ->
-                                val isSelected = pagerState.currentPage == index
-                                val textColor =
-                                    when {
-                                        isSelected -> MaterialTheme.colorScheme.primary
-                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier =
-                                        Modifier
-                                            .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                                            .defaultMinSize(minHeight = 48.dp)
-                                            .padding(horizontal = 16.dp),
-                                ) {
-                                    Text(
-                                        text = stringResource(stringRes),
-                                        color = textColor,
-                                        style = MaterialTheme.typography.titleSmall,
-                                    )
-                                }
+                Row {
+                    val tabs = listOf(R.string.mentions, R.string.whispers)
+                    tabs.forEachIndexed { index, stringRes ->
+                        val isSelected = pagerState.currentPage == index
+                        val textColor =
+                            when {
+                                isSelected -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
                             }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier =
+                                Modifier
+                                    .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                    .defaultMinSize(minHeight = 48.dp)
+                                    .padding(horizontal = 16.dp),
+                        ) {
+                            Text(
+                                text = stringResource(stringRes),
+                                color = textColor,
+                                style = MaterialTheme.typography.titleSmall,
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
 
-        if (!toolbarVisible) {
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.TopCenter)
-                        .fillMaxWidth()
-                        .height(statusBarHeight)
-                        .background(sheetBackgroundColor.copy(alpha = 0.7f)),
-            )
+@Composable
+internal fun BoxScope.SheetToolbar(
+    visible: Boolean,
+    statusBarHeight: Dp,
+    sheetBackgroundColor: Color,
+    onBack: () -> Unit,
+    content: @Composable RowScope.() -> Unit,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+        modifier = Modifier.align(Alignment.TopCenter),
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush =
+                            Brush.verticalGradient(
+                                0f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
+                                1f to sheetBackgroundColor.copy(alpha = 0f),
+                            ),
+                    ).padding(top = statusBarHeight + 8.dp)
+                    .padding(bottom = 16.dp)
+                    .padding(horizontal = 8.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                        )
+                    }
+                }
+
+                content()
+            }
         }
+    }
+
+    if (!visible) {
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(statusBarHeight)
+                    .background(sheetBackgroundColor.copy(alpha = 0.7f)),
+        )
     }
 }
