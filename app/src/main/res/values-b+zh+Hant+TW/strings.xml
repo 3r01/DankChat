@@ -418,6 +418,9 @@
     <string name="preference_tts_message_ignore_url_title">忽略 URL</string>
     <string name="preference_tts_message_ignore_emote_message">在文字朗讀時忽略表情符號</string>
     <string name="preference_tts_message_ignore_emote_title">忽略 表情符號</string>
+    <string name="preference_tts_volume_title">音量</string>
+    <string name="preference_tts_audio_ducking_title">音訊閃避</string>
+    <string name="preference_tts_audio_ducking_summary">TTS朗讀時降低其他應用程式的音量</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">行列顏色調整</string>
     <string name="preference_checkered_lines_summary">以不同顏色隔開訊息</string>

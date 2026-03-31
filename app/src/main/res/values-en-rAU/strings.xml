@@ -514,6 +514,9 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_tts_message_ignore_url_title">Ignore URLs</string>
     <string name="preference_tts_message_ignore_emote_message">Ignores emotes and emojis in TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignore emotes</string>
+    <string name="preference_tts_volume_title">Volume</string>
+    <string name="preference_tts_audio_ducking_title">Audio ducking</string>
+    <string name="preference_tts_audio_ducking_summary">Lower other audio volume while TTS is speaking</string>
     <string name="preference_rm_host_title">Custom recent messages host</string>
     <string name="preference_fetch_streams_title">Fetch stream information</string>
     <string name="preference_fetch_streams_summary">Periodically fetches stream information of open channels. Required to start embedded stream.</string>

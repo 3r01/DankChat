@@ -285,6 +285,9 @@
     <string name="preference_tts_message_ignore_url_title">Ігнараваць URL</string>
     <string name="preference_tts_message_ignore_emote_message">Ігнараваць смайлы і эмодзі ў сінтэзатары гаворкі</string>
     <string name="preference_tts_message_ignore_emote_title">Ігнараваць смайлы</string>
+    <string name="preference_tts_volume_title">Гучнасць</string>
+    <string name="preference_tts_audio_ducking_title">Прыглушэнне гуку</string>
+    <string name="preference_tts_audio_ducking_summary">Змяншаць гучнасць іншых праграм падчас агучкі</string>
     <string name="preference_tts_header">Сінтэзатар гаворкі</string>
     <string name="preference_checkered_lines_title">Шахматныя лініі</string>
     <string name="preference_checkered_lines_summary">Падзяляць кожную лінію, карыстаючыся колерамі фону з рознай яркасцю</string>

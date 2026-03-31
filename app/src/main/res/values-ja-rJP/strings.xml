@@ -269,6 +269,9 @@
     <string name="preference_tts_message_ignore_url_title">URLを無視</string>
     <string name="preference_tts_message_ignore_emote_message">TTSのエモートと絵文字を無視</string>
     <string name="preference_tts_message_ignore_emote_title">エモートを無視</string>
+    <string name="preference_tts_volume_title">音量</string>
+    <string name="preference_tts_audio_ducking_title">オーディオダッキング</string>
+    <string name="preference_tts_audio_ducking_summary">TTS再生中に他のアプリの音量を下げる</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">ラインの色調整</string>
     <string name="preference_checkered_lines_summary">ラインごとに背景の明るさを変更</string>

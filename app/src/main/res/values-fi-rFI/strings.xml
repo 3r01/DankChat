@@ -282,6 +282,9 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_tts_message_ignore_url_title">Ohita URL-osoitteet</string>
     <string name="preference_tts_message_ignore_emote_message">Ohittaa emotet ja emojit TTS:ssä</string>
     <string name="preference_tts_message_ignore_emote_title">Ohita emotet</string>
+    <string name="preference_tts_volume_title">Äänenvoimakkuus</string>
+    <string name="preference_tts_audio_ducking_title">Äänen vaimennus</string>
+    <string name="preference_tts_audio_ducking_summary">Hiljennä muiden sovellusten ääntä TTS:n puhuessa</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">Ruudulliset viivat</string>
     <string name="preference_checkered_lines_summary">Erota kukin rivi erillaisella taustan kirkkaudella</string>

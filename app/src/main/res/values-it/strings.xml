@@ -279,6 +279,9 @@
     <string name="preference_tts_message_ignore_url_title">Ignora URL</string>
     <string name="preference_tts_message_ignore_emote_message">Ignora emote ed emoji in TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignora emote</string>
+    <string name="preference_tts_volume_title">Volume</string>
+    <string name="preference_tts_audio_ducking_title">Attenuazione audio</string>
+    <string name="preference_tts_audio_ducking_summary">Abbassa il volume delle altre app durante la riproduzione TTS</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">Righe a Scacchiera</string>
     <string name="preference_checkered_lines_summary">Separa ogni riga con una diversa luminosità dello sfondo</string>

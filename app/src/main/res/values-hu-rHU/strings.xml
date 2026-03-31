@@ -275,6 +275,9 @@
     <string name="preference_tts_message_ignore_url_title">URL-ek figyelmen kívül hagyása</string>
     <string name="preference_tts_message_ignore_emote_message">Hangulatjelek és emojik mellőzése a TTS-ben</string>
     <string name="preference_tts_message_ignore_emote_title">Hangulatjelek figyelmen kívül hagyása</string>
+    <string name="preference_tts_volume_title">Hangerő</string>
+    <string name="preference_tts_audio_ducking_title">Hangerő csökkentés</string>
+    <string name="preference_tts_audio_ducking_summary">Más alkalmazások hangerejének csökkentése TTS lejátszás közben</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">Kockás vonalak</string>
     <string name="preference_checkered_lines_summary">Minden vonal szétválasztása különböző háttér fényerősséggel</string>

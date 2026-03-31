@@ -38,6 +38,8 @@ class ToolsSettingsViewModel(
                 is ToolsSettingsInteraction.TTSForceEnglish -> toolsSettingsDataStore.update { it.copy(ttsForceEnglish = interaction.value) }
                 is ToolsSettingsInteraction.TTSIgnoreUrls -> toolsSettingsDataStore.update { it.copy(ttsIgnoreUrls = interaction.value) }
                 is ToolsSettingsInteraction.TTSIgnoreEmotes -> toolsSettingsDataStore.update { it.copy(ttsIgnoreEmotes = interaction.value) }
+                is ToolsSettingsInteraction.TTSVolume -> toolsSettingsDataStore.update { it.copy(ttsVolume = interaction.value) }
+                is ToolsSettingsInteraction.TTSAudioDucking -> toolsSettingsDataStore.update { it.copy(ttsAudioDucking = interaction.value) }
                 is ToolsSettingsInteraction.TTSUserIgnoreList -> toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = interaction.value) }
             }
         }
@@ -53,5 +55,7 @@ private fun ToolsSettings.toState(hasRecentUploads: Boolean) = ToolsSettingsStat
     ttsForceEnglish = ttsForceEnglish,
     ttsIgnoreUrls = ttsIgnoreUrls,
     ttsIgnoreEmotes = ttsIgnoreEmotes,
+    ttsVolume = ttsVolume,
+    ttsAudioDucking = ttsAudioDucking,
     ttsUserIgnoreList = ttsUserIgnoreList.toImmutableSet(),
 )

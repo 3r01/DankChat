@@ -275,6 +275,9 @@
     <string name="preference_tts_message_ignore_url_title">Ignore URLs</string>
     <string name="preference_tts_message_ignore_emote_message">Ignores emotes and emojis in TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignore emotes</string>
+    <string name="preference_tts_volume_title">Volume</string>
+    <string name="preference_tts_audio_ducking_title">Audio ducking</string>
+    <string name="preference_tts_audio_ducking_summary">Lower other audio volume while TTS is speaking</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">Checkered Lines</string>
     <string name="preference_checkered_lines_summary">Separate each line with different background brightness</string>

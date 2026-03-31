@@ -416,6 +416,9 @@
     <string name="preference_tts_message_ignore_url_title">URL କୁ ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ |</string>
     <string name="preference_tts_message_ignore_emote_message">TTS ରେ ଇମୋଟ ଏବଂ ଇମୋଜିଗୁଡ଼ିକୁ ଉପେକ୍ଷା କରେ |</string>
     <string name="preference_tts_message_ignore_emote_title">ଇମୋଟ୍କୁ ଉପେକ୍ଷା କରନ୍ତୁ |</string>
+    <string name="preference_tts_volume_title">ଧ୍ୱନି</string>
+    <string name="preference_tts_audio_ducking_title">ଅଡିଓ ଡକିଂ</string>
+    <string name="preference_tts_audio_ducking_summary">TTS ବୋଲୁଥିବା ସମୟରେ ଅନ୍ୟ ଅଡିଓ ଧ୍ୱନି କମ୍ କରନ୍ତୁ</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">ଚେକେଡ୍ ଲାଇନ୍ସ |</string>
     <string name="preference_checkered_lines_summary">ବିଭିନ୍ନ ପୃଷ୍ଠଭୂମି ଉଜ୍ଜ୍ୱଳତା ସହିତ ପ୍ରତ୍ୟେକ ଧାଡି ଅଲଗା କରନ୍ତୁ |</string>

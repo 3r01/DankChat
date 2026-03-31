@@ -47,6 +47,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,6 +72,7 @@ import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceItem
 import com.flxrs.dankchat.preferences.components.PreferenceListDialog
+import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.preferences.tools.upload.RecentUpload
 import com.flxrs.dankchat.preferences.tools.upload.RecentUploadsViewModel
@@ -81,6 +83,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.autolinktext.rememberAutoLinkText
+import kotlin.math.roundToInt
 
 @Composable
 fun ToolsSettingsScreen(
@@ -356,6 +359,28 @@ fun TextToSpeechCategory(
             isEnabled = settings.ttsEnabled,
             onClick = { onInteraction(ToolsSettingsInteraction.TTSIgnoreEmotes(it)) },
         )
+
+        var volume by remember(settings.ttsVolume) { mutableFloatStateOf(settings.ttsVolume) }
+        val volumePercent = remember(volume) { "${(volume * 100).roundToInt()}%" }
+        SliderPreferenceItem(
+            title = stringResource(R.string.preference_tts_volume_title),
+            value = volume,
+            range = 0f..1f,
+            steps = 19,
+            onDrag = { volume = it },
+            onDragFinish = { onInteraction(ToolsSettingsInteraction.TTSVolume(volume)) },
+            summary = volumePercent,
+            isEnabled = settings.ttsEnabled,
+            displayValue = false,
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_tts_audio_ducking_title),
+            summary = stringResource(R.string.preference_tts_audio_ducking_summary),
+            isChecked = settings.ttsAudioDucking,
+            isEnabled = settings.ttsEnabled,
+            onClick = { onInteraction(ToolsSettingsInteraction.TTSAudioDucking(it)) },
+        )
+
         PreferenceItem(
             title = stringResource(R.string.preference_tts_user_ignore_list_title),
             summary = stringResource(R.string.preference_tts_user_ignore_list_summary),

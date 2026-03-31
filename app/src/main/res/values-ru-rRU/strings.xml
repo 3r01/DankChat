@@ -290,6 +290,9 @@
     <string name="preference_tts_message_ignore_url_title">Игнорировать URL</string>
     <string name="preference_tts_message_ignore_emote_message">Игнорировать смайлы и эмодзи в синтезаторе речи </string>
     <string name="preference_tts_message_ignore_emote_title">Игнорировать смайлы </string>
+    <string name="preference_tts_volume_title">Громкость</string>
+    <string name="preference_tts_audio_ducking_title">Приглушение звука</string>
+    <string name="preference_tts_audio_ducking_summary">Уменьшать громкость других приложений во время озвучки</string>
     <string name="preference_tts_header">Синтезатор речи</string>
     <string name="preference_checkered_lines_title">Шахматные линии</string>
     <string name="preference_checkered_lines_summary">Разделять каждую линию, используя цвета фона с разной яркостью</string>

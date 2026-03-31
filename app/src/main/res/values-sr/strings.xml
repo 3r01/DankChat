@@ -380,6 +380,9 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_tts_message_ignore_url_title">Игнориши URL адресе</string>
     <string name="preference_tts_message_ignore_emote_message">Игнорише емотиконе и емоџије у TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Игнориши емотиконе</string>
+    <string name="preference_tts_volume_title">Јачина звука</string>
+    <string name="preference_tts_audio_ducking_title">Пригушивање звука</string>
+    <string name="preference_tts_audio_ducking_summary">Смањи јачину других апликација док TTS говори</string>
     <string name="preference_tts_header">Tekst u govor</string>
     <string name="preference_tts_force_english_title">Forsiraj engleski jezik</string>
     <string name="preference_tts_force_english_summary">Forisraj čitanje teksta na engleskom umesto na podrazumevanom jeziku</string>

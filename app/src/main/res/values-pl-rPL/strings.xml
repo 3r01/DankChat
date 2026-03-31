@@ -289,6 +289,9 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_tts_message_ignore_url_title">Ignoruj URLs</string>
     <string name="preference_tts_message_ignore_emote_message">Ignoruje emotki i emotikony podczas korzystania z TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignoruj emotki</string>
+    <string name="preference_tts_volume_title">Głośność</string>
+    <string name="preference_tts_audio_ducking_title">Wyciszanie dźwięku</string>
+    <string name="preference_tts_audio_ducking_summary">Zmniejsz głośność innych aplikacji podczas odtwarzania TTS</string>
     <string name="preference_tts_header">TTS</string>
     <string name="preference_checkered_lines_title">Zmienny kolor tła</string>
     <string name="preference_checkered_lines_summary">Oddziel każdą wiadomość inną jasnością tła</string>

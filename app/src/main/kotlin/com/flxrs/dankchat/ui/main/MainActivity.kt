@@ -93,7 +93,6 @@ class MainActivity : AppCompatActivity() {
     private val onboardingDataStore: OnboardingDataStore by inject()
     private val dataRepository: DataRepository by inject()
     private val chatTTSPlayer: ChatTTSPlayer by inject()
-    private val pendingChannelsToClear = mutableListOf<UserName>()
     private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher =
@@ -178,6 +177,7 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
+        chatTTSPlayer.start()
         setupComposeUi()
         intent.parcelable<UserName>(OPEN_CHANNEL_KEY)?.let { channel ->
             lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channel)) }
@@ -510,7 +510,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startService() {
-        chatTTSPlayer.start()
         if (!isBound) {
             Intent(this, NotificationService::class.java).also {
                 try {
@@ -527,10 +526,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         if (isBound) {
-            if (!isChangingConfigurations) {
-                notificationService?.enableNotifications()
-            }
-
             isBound = false
             try {
                 unbindService(twitchServiceConnection)
@@ -546,9 +541,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
     }
 
-    fun clearNotificationsOfChannel(channel: UserName) = when {
-        isBound && notificationService != null -> notificationService?.clearNotificationsForChannel(channel)
-        else -> pendingChannelsToClear += channel
+    fun clearNotificationsOfChannel(channel: UserName) {
+        notificationService?.clearNotificationsForChannel(channel)
     }
 
     private fun handleShutDown() {
@@ -633,13 +627,6 @@ class MainActivity : AppCompatActivity() {
             val binder = service as NotificationService.LocalBinder
             notificationService = binder.service
             isBound = true
-
-            if (pendingChannelsToClear.isNotEmpty()) {
-                pendingChannelsToClear.forEach { notificationService?.clearNotificationsForChannel(it) }
-                pendingChannelsToClear.clear()
-            }
-
-            binder.service.checkForNotification()
         }
 
         override fun onServiceDisconnected(className: ComponentName?) {

@@ -10,20 +10,23 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import androidx.core.content.getSystemService
 import androidx.media.app.NotificationCompat.MediaStyle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.ui.main.MainActivity
+import com.flxrs.dankchat.utils.AppLifecycleListener
+import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import kotlin.concurrent.atomics.AtomicInt
@@ -35,20 +38,16 @@ class NotificationService :
     private val binder = LocalBinder()
     private val manager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
 
-    private var notificationsEnabled = false
-
-    private var notificationsJob: Job? = null
     private val notifications = mutableMapOf<UserName, MutableList<Int>>()
     private val notifiedMessageIds = LinkedHashSet<String>()
 
     private val chatNotificationRepository: ChatNotificationRepository by inject()
+    private val chatChannelProvider: ChatChannelProvider by inject()
     private val dataRepository: DataRepository by inject()
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore by inject()
+    private val appLifecycleListener: AppLifecycleListener by inject()
 
-    // minSdk 30 guarantees PendingIntent.FLAG_IMMUTABLE support (API 23+)
     private val pendingIntentFlag: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-
-    private var shouldNotifyOnMention = false
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + Job()
@@ -70,7 +69,6 @@ class NotificationService :
 
     override fun onCreate() {
         super.onCreate()
-        // minSdk 30 guarantees notification channel support (API 26+)
         val name = getString(R.string.app_name)
         val channel =
             NotificationChannel(CHANNEL_ID_LOW, name, NotificationManager.IMPORTANCE_LOW).apply {
@@ -83,9 +81,46 @@ class NotificationService :
         manager.createNotificationChannel(mentionChannel)
         manager.createNotificationChannel(channel)
 
-        notificationsSettingsDataStore.showNotifications
-            .onEach { notificationsEnabled = it }
-            .launchIn(this)
+        launch {
+            appLifecycleListener.appState
+                .map { it == AppLifecycle.Foreground }
+                .distinctUntilChanged()
+                .collect { isForeground ->
+                    if (isForeground) {
+                        notifiedMessageIds.clear()
+                        val activeChannel = chatChannelProvider.activeChannel.value
+                        if (activeChannel != null) {
+                            clearNotificationsForChannel(activeChannel)
+                        }
+                    }
+                }
+        }
+
+        launch {
+            combine(
+                chatNotificationRepository.messageUpdates,
+                notificationsSettingsDataStore.showNotifications,
+                appLifecycleListener.appState,
+            ) { items, enabled, lifecycle ->
+                Triple(items, enabled, lifecycle)
+            }.collect { (items, enabled, lifecycle) ->
+                if (!enabled || lifecycle != AppLifecycle.Background) {
+                    return@collect
+                }
+
+                items.forEach { (message) ->
+                    if (!notifiedMessageIds.add(message.id)) {
+                        return@forEach
+                    }
+                    if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
+                        val iterator = notifiedMessageIds.iterator()
+                        iterator.next()
+                        iterator.remove()
+                    }
+                    message.toNotificationData()?.createMentionNotification()
+                }
+            }
+        }
     }
 
     override fun onStartCommand(
@@ -119,10 +154,6 @@ class NotificationService :
         }
     }
 
-    fun enableNotifications() {
-        shouldNotifyOnMention = true
-    }
-
     private fun startForeground() {
         val title = getString(R.string.notification_title)
         val message = getString(R.string.notification_message)
@@ -146,39 +177,12 @@ class NotificationService :
                 .setContentTitle(title)
                 .setContentText(message)
                 .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent)
-                .setStyle(MediaStyle().setShowActionsInCompactView(0)) // minSdk 30 guarantees MediaStyle support
+                .setStyle(MediaStyle().setShowActionsInCompactView(0))
                 .setContentIntent(pendingStartActivityIntent)
                 .setSmallIcon(R.drawable.ic_notification_icon)
                 .build()
 
         startForeground(NOTIFICATION_ID, notification)
-    }
-
-    fun checkForNotification() {
-        shouldNotifyOnMention = false
-        notifiedMessageIds.clear()
-
-        notificationsJob?.cancel()
-        notificationsJob =
-            launch {
-                chatNotificationRepository.messageUpdates.collect { items ->
-                    if (!shouldNotifyOnMention || !notificationsEnabled) {
-                        return@collect
-                    }
-
-                    items.forEach { (message) ->
-                        if (!notifiedMessageIds.add(message.id)) {
-                            return@forEach
-                        }
-                        if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
-                            val iterator = notifiedMessageIds.iterator()
-                            iterator.next()
-                            iterator.remove()
-                        }
-                        message.toNotificationData()?.createMentionNotification()
-                    }
-                }
-            }
     }
 
     private fun NotificationData.createMentionNotification() {

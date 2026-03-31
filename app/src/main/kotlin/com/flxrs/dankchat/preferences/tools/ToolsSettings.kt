@@ -13,6 +13,8 @@ data class ToolsSettings(
     val ttsForceEnglish: Boolean = false,
     val ttsIgnoreUrls: Boolean = false,
     val ttsIgnoreEmotes: Boolean = false,
+    val ttsVolume: Float = 1.0f,
+    val ttsAudioDucking: Boolean = false,
     val ttsUserIgnoreList: Set<String> = emptySet(),
 ) {
     @Transient

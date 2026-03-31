@@ -27,6 +27,14 @@ sealed interface ToolsSettingsInteraction {
         val value: Boolean,
     ) : ToolsSettingsInteraction
 
+    data class TTSVolume(
+        val value: Float,
+    ) : ToolsSettingsInteraction
+
+    data class TTSAudioDucking(
+        val value: Boolean,
+    ) : ToolsSettingsInteraction
+
     data class TTSUserIgnoreList(
         val value: Set<String>,
     ) : ToolsSettingsInteraction
@@ -41,5 +49,7 @@ data class ToolsSettingsState(
     val ttsForceEnglish: Boolean,
     val ttsIgnoreUrls: Boolean,
     val ttsIgnoreEmotes: Boolean,
+    val ttsVolume: Float,
+    val ttsAudioDucking: Boolean,
     val ttsUserIgnoreList: ImmutableSet<String>,
 )

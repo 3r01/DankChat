@@ -292,6 +292,9 @@
     <string name="preference_tts_message_ignore_url_title">Ігнорувати URL-адреси</string>
     <string name="preference_tts_message_ignore_emote_message">Ігнорує емоції та емодзі в TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ігнорувати емоції</string>
+    <string name="preference_tts_volume_title">Гучність</string>
+    <string name="preference_tts_audio_ducking_title">Приглушення звуку</string>
+    <string name="preference_tts_audio_ducking_summary">Зменшувати гучність інших додатків під час озвучення</string>
     <string name="preference_tts_header">Синтезатор мовлення</string>
     <string name="preference_checkered_lines_title">Строкаті лінії</string>
     <string name="preference_checkered_lines_summary">Відокремлювати кожну строку з різною яскравістю фону</string>
