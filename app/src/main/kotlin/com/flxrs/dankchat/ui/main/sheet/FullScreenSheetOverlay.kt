@@ -100,7 +100,6 @@ fun FullScreenSheetOverlay(
                         onMessageLongClick = onMessageLongClick,
                         onEmoteClick = onEmoteClick,
                         userLongClickBehavior = userLongClickBehavior,
-                        bottomContentPadding = bottomContentPadding,
                     )
                 }
             }
@@ -117,7 +116,6 @@ private fun HistorySheetContent(
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
     userLongClickBehavior: UserLongClickBehavior,
-    bottomContentPadding: Dp,
 ) {
     val viewModel: MessageHistoryViewModel =
         koinViewModel(

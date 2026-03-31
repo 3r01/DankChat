@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.ui.chat.history
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
@@ -136,6 +137,8 @@ class MessageHistoryViewModel(
                 replace(0, length, normalizedQuery)
                 placeCursorAtEnd()
             }
+        } else {
+            searchFieldState.clearText()
         }
     }
 
