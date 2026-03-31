@@ -355,8 +355,12 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_font_size_summary_small">Malo</string>
     <string name="preference_font_size_summary_large">Veliko</string>
     <string name="preference_font_size_summary_very_large">Veoma veliko</string>
-    <string name="preference_suggestions_title">Emotovi i korisnički predlozi</string>
-    <string name="preference_suggestions_summary">Prikaži predloge za emotove i aktivne korisnike dok kucate</string>
+    <string name="preference_suggestions_title">Предлози</string>
+    <string name="preference_suggestions_summary">Изаберите које предлоге приказати приликом куцања</string>
+    <string name="preference_suggestions_emotes">Емоте</string>
+    <string name="preference_suggestions_users">Корисници</string>
+    <string name="preference_suggestions_commands">Команде</string>
+    <string name="preference_suggestions_supibot">Supibot команде</string>
     <string name="preference_load_message_history_title">Učitaj istoriju poruka na početku</string>
     <string name="preference_load_messages_on_reconnect_title">Учитај историју порука после поновног повезивања</string>
     <string name="preference_load_messages_on_reconnect_summary">Покушава да преузме пропуштене поруке које нису примљене током прекида везе</string>

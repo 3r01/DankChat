@@ -393,8 +393,12 @@
     <string name="preference_font_size_summary_small">小</string>
     <string name="preference_font_size_summary_large">大</string>
     <string name="preference_font_size_summary_very_large">非常大</string>
-    <string name="preference_suggestions_title">自動完成表情符號及使用者</string>
-    <string name="preference_suggestions_summary">於輸入訊息時，依照輸入字串顯示相關表情符號以及使用者名</string>
+    <string name="preference_suggestions_title">建議</string>
+    <string name="preference_suggestions_summary">選擇輸入時顯示的建議類型</string>
+    <string name="preference_suggestions_emotes">表情</string>
+    <string name="preference_suggestions_users">用戶</string>
+    <string name="preference_suggestions_commands">指令</string>
+    <string name="preference_suggestions_supibot">Supibot指令</string>
     <string name="preference_load_message_history_title">啟動時自動讀取聊天紀錄</string>
     <string name="preference_load_messages_on_reconnect_title">在重新連接後載入訊息歷史</string>
     <string name="preference_load_messages_on_reconnect_summary">嘗試捕捉在連接斷開時漏掉的訊息</string>

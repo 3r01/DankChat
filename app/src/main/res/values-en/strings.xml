@@ -250,8 +250,12 @@
     <string name="preference_font_size_summary_small">Small</string>
     <string name="preference_font_size_summary_large">Large</string>
     <string name="preference_font_size_summary_very_large">Very large</string>
-    <string name="preference_suggestions_title">Emote and user suggestions</string>
-    <string name="preference_suggestions_summary">Shows suggestions for emotes and active users while typing</string>
+    <string name="preference_suggestions_title">Suggestions</string>
+    <string name="preference_suggestions_summary">Choose which suggestions to show while typing</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Users</string>
+    <string name="preference_suggestions_commands">Commands</string>
+    <string name="preference_suggestions_supibot">Supibot commands</string>
     <string name="preference_load_message_history_title">Load message history on start</string>
     <string name="preference_load_messages_on_reconnect_title">Load message history after a reconnect</string>
     <string name="preference_load_messages_on_reconnect_summary">Attempts to fetch missed messages that were not received during connection drops</string>

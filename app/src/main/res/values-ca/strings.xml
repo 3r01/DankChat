@@ -265,8 +265,12 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_font_size_summary_small">Petita</string>
     <string name="preference_font_size_summary_large">Gran</string>
     <string name="preference_font_size_summary_very_large">Molt gran</string>
-    <string name="preference_suggestions_title">Suggeriments d\'usuari i emotes</string>
-    <string name="preference_suggestions_summary">Mostrar suggeriments per emotes i usuaris actius al escriure</string>
+    <string name="preference_suggestions_title">Suggeriments</string>
+    <string name="preference_suggestions_summary">Tria quins suggeriments mostrar mentre escrius</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Usuaris</string>
+    <string name="preference_suggestions_commands">Ordres</string>
+    <string name="preference_suggestions_supibot">Ordres de Supibot</string>
     <string name="preference_load_message_history_title">Carregar historial de missatges a l\'inici</string>
     <string name="preference_load_messages_on_reconnect_title">Carregar historial de missatges després de reconnectar</string>
     <string name="preference_load_messages_on_reconnect_summary">Intenta obtenir els missatges perduts que no s\'han rebut durant les caigudes de connexió</string>

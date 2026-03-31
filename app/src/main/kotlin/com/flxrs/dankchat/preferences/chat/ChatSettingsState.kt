@@ -8,12 +8,8 @@ sealed interface ChatSettingsEvent {
 }
 
 sealed interface ChatSettingsInteraction {
-    data class Suggestions(
-        val value: Boolean,
-    ) : ChatSettingsInteraction
-
-    data class SupibotSuggestions(
-        val value: Boolean,
+    data class SuggestionTypes(
+        val value: List<SuggestionType>,
     ) : ChatSettingsInteraction
 
     data class CustomCommands(
@@ -87,8 +83,7 @@ sealed interface ChatSettingsInteraction {
 
 @Immutable
 data class ChatSettingsState(
-    val suggestions: Boolean,
-    val supibotSuggestions: Boolean,
+    val suggestionTypes: ImmutableList<SuggestionType>,
     val customCommands: ImmutableList<CustomCommand>,
     val animateGifs: Boolean,
     val scrollbackLength: Int,

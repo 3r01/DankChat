@@ -111,15 +111,12 @@ class ChatInputViewModel(
         combine(
             debouncedTextAndCursor,
             chatChannelProvider.activeChannel,
-            chatSettingsDataStore.suggestions,
-        ) { (text, cursorPos), channel, enabled ->
-            Triple(text, cursorPos, channel) to enabled
-        }.flatMapLatest { (triple, enabled) ->
+            chatSettingsDataStore.suggestionTypes,
+        ) { (text, cursorPos), channel, enabledTypes ->
+            Triple(text, cursorPos, channel) to enabledTypes
+        }.flatMapLatest { (triple, enabledTypes) ->
             val (text, cursorPos, channel) = triple
-            when {
-                enabled -> suggestionProvider.getSuggestions(text, cursorPos, channel)
-                else -> flowOf(emptyList())
-            }
+            suggestionProvider.getSuggestions(text, cursorPos, channel, enabledTypes)
         }.map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 

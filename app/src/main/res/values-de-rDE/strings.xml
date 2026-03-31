@@ -257,8 +257,12 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_font_size_summary_small">Klein</string>
     <string name="preference_font_size_summary_large">Groß</string>
     <string name="preference_font_size_summary_very_large">Sehr Groß</string>
-    <string name="preference_suggestions_title">Emote- und Nutzervorschläge</string>
-    <string name="preference_suggestions_summary">Zeige Vorschläge für Emotes und aktive Nutzer während der Eingabe</string>
+    <string name="preference_suggestions_title">Vorschläge</string>
+    <string name="preference_suggestions_summary">Wähle, welche Vorschläge beim Tippen angezeigt werden</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Benutzer</string>
+    <string name="preference_suggestions_commands">Befehle</string>
+    <string name="preference_suggestions_supibot">Supibot-Befehle</string>
     <string name="preference_load_message_history_title">Chatverlauf laden</string>
     <string name="preference_load_messages_on_reconnect_title">Nachrichtenverlauf nach Verbindungsabbrüchen neu laden</string>
     <string name="preference_load_messages_on_reconnect_summary">Versucht, verpasste Nachrichten zu laden, die bei Verbindungsabbrüchen verloren gingen</string>

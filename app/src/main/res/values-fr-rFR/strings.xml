@@ -260,8 +260,12 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_font_size_summary_small">Petit</string>
     <string name="preference_font_size_summary_large">Grand</string>
     <string name="preference_font_size_summary_very_large">Très grand</string>
-    <string name="preference_suggestions_title">Suggestions d\'émoticônes et d\'utilisateurs</string>
-    <string name="preference_suggestions_summary">Propose des suggestions de nom d\'émotes lorsque vous tappez</string>
+    <string name="preference_suggestions_title">Suggestions</string>
+    <string name="preference_suggestions_summary">Choisir les suggestions à afficher lors de la saisie</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Utilisateurs</string>
+    <string name="preference_suggestions_commands">Commandes</string>
+    <string name="preference_suggestions_supibot">Commandes Supibot</string>
     <string name="preference_load_message_history_title">Charger les anciens messages au démarrage</string>
     <string name="preference_load_messages_on_reconnect_title">Charger l\'historique des messages après une reconnexion</string>
     <string name="preference_load_messages_on_reconnect_summary">Tente de récupérer les messages manquants qui n\'ont pas été reçus pendant la connexion</string>

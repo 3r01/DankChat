@@ -17,6 +17,7 @@ import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
+import com.flxrs.dankchat.preferences.chat.SuggestionType
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils.calculateUptime
 import com.flxrs.dankchat.utils.TextResource
@@ -66,7 +67,7 @@ class CommandRepository(
     init {
         scope.launch {
             chatSettingsDataStore.settings
-                .map { it.supibotSuggestions }
+                .map { SuggestionType.SupibotCommands in it.suggestionTypes }
                 .distinctUntilChanged()
                 .collect { enabled ->
                     when {
@@ -163,7 +164,7 @@ class CommandRepository(
     }
 
     suspend fun loadSupibotCommands() = withContext(Dispatchers.Default) {
-        if (!authDataStore.isLoggedIn || !chatSettingsDataStore.settings.first().supibotSuggestions) {
+        if (!authDataStore.isLoggedIn || SuggestionType.SupibotCommands !in chatSettingsDataStore.settings.first().suggestionTypes) {
             return@withContext
         }
 

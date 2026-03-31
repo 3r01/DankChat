@@ -250,8 +250,12 @@
     <string name="preference_font_size_summary_small">Kicsi</string>
     <string name="preference_font_size_summary_large">Nagy</string>
     <string name="preference_font_size_summary_very_large">Nagyon nagy</string>
-    <string name="preference_suggestions_title">Hangulatjel és felhasználó javaslatok</string>
-    <string name="preference_suggestions_summary">Javaslatokat mutat hangulatjelekre és aktív felhasználókra gépelés közben</string>
+    <string name="preference_suggestions_title">Javaslatok</string>
+    <string name="preference_suggestions_summary">Válaszd ki, milyen javaslatokat mutasson gépelés közben</string>
+    <string name="preference_suggestions_emotes">Emoték</string>
+    <string name="preference_suggestions_users">Felhasználók</string>
+    <string name="preference_suggestions_commands">Parancsok</string>
+    <string name="preference_suggestions_supibot">Supibot parancsok</string>
     <string name="preference_load_message_history_title">Üzenet előzmények betöltése induláskor</string>
     <string name="preference_load_messages_on_reconnect_title">Üzenet előzmények betöltése újracsatlakozáskor</string>
     <string name="preference_load_messages_on_reconnect_summary">Kihagyott üzenetek elragadásának próbálkozása amiket lehetett elkapni csatlakozás ingadozás közben</string>

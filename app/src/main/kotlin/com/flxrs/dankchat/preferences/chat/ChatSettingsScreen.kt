@@ -129,8 +129,7 @@ private fun ChatSettingsScreen(
                     .verticalScroll(rememberScrollState()),
         ) {
             GeneralCategory(
-                suggestions = settings.suggestions,
-                supibotSuggestions = settings.supibotSuggestions,
+                suggestionTypes = settings.suggestionTypes,
                 animateGifs = settings.animateGifs,
                 scrollbackLength = settings.scrollbackLength,
                 showUsernames = settings.showUsernames,
@@ -172,8 +171,7 @@ private fun ChatSettingsScreen(
 
 @Composable
 private fun GeneralCategory(
-    suggestions: Boolean,
-    supibotSuggestions: Boolean,
+    suggestionTypes: ImmutableList<SuggestionType>,
     animateGifs: Boolean,
     scrollbackLength: Int,
     showUsernames: Boolean,
@@ -189,16 +187,19 @@ private fun GeneralCategory(
     onInteraction: (ChatSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_general_header)) {
-        SwitchPreferenceItem(
+        val suggestionEntries = listOf(
+            stringResource(R.string.preference_suggestions_emotes),
+            stringResource(R.string.preference_suggestions_users),
+            stringResource(R.string.preference_suggestions_commands),
+            stringResource(R.string.preference_suggestions_supibot),
+        ).toImmutableList()
+        PreferenceMultiListDialog(
             title = stringResource(R.string.preference_suggestions_title),
             summary = stringResource(R.string.preference_suggestions_summary),
-            isChecked = suggestions,
-            onClick = { onInteraction(ChatSettingsInteraction.Suggestions(it)) },
-        )
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_supibot_suggestions_title),
-            isChecked = supibotSuggestions,
-            onClick = { onInteraction(ChatSettingsInteraction.SupibotSuggestions(it)) },
+            values = remember { SuggestionType.entries.toImmutableList() },
+            initialSelected = suggestionTypes,
+            entries = suggestionEntries,
+            onChange = { onInteraction(ChatSettingsInteraction.SuggestionTypes(it)) },
         )
         PreferenceItem(
             title = stringResource(R.string.commands_title),

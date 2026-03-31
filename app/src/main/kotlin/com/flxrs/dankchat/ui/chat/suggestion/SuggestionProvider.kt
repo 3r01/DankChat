@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.repo.emote.EmojiRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
+import com.flxrs.dankchat.preferences.chat.SuggestionType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -26,8 +27,9 @@ class SuggestionProvider(
         inputText: String,
         cursorPosition: Int,
         channel: UserName?,
+        enabledTypes: List<SuggestionType>,
     ): Flow<List<Suggestion>> {
-        if (inputText.isBlank() || channel == null) {
+        if (inputText.isBlank() || channel == null || enabledTypes.isEmpty()) {
             return flowOf(emptyList())
         }
 
@@ -35,6 +37,11 @@ class SuggestionProvider(
         if (currentWord.isBlank()) {
             return flowOf(emptyList())
         }
+
+        val emotesEnabled = SuggestionType.Emotes in enabledTypes
+        val usersEnabled = SuggestionType.Users in enabledTypes
+        val commandsEnabled = SuggestionType.Commands in enabledTypes
+        val supibotEnabled = SuggestionType.SupibotCommands in enabledTypes
 
         // ':' trigger: emote + emoji mode with reduced min chars
         val isEmoteTrigger = currentWord.startsWith(':')
@@ -51,7 +58,7 @@ class SuggestionProvider(
             return flowOf(emptyList())
         }
 
-        if (isEmoteTrigger) {
+        if (isEmoteTrigger && emotesEnabled) {
             val emojiResults = filterEmojis(emojiRepository.emojis.value, emoteQuery)
             return getScoredEmoteSuggestions(channel, emoteQuery).map { emoteResults ->
                 mergeSorted(emoteResults, emojiResults)
@@ -59,7 +66,7 @@ class SuggestionProvider(
         }
 
         // '@' trigger: users only
-        if (currentWord.startsWith('@')) {
+        if (currentWord.startsWith('@') && usersEnabled) {
             return getUserSuggestions(channel, currentWord).map { users ->
                 users.take(MAX_SUGGESTIONS)
             }
@@ -67,17 +74,22 @@ class SuggestionProvider(
 
         // Commands only when prefix matches a command trigger character
         val isCommandTrigger = currentWord.startsWith('/') || currentWord.startsWith('$')
-        if (isCommandTrigger) {
-            return getCommandSuggestions(channel, currentWord).map { commands ->
+        if (isCommandTrigger && (commandsEnabled || supibotEnabled)) {
+            return getCommandSuggestions(channel, currentWord, commandsEnabled, supibotEnabled).map { commands ->
                 commands.take(MAX_SUGGESTIONS)
             }
         }
 
-        // General: score emotes + users together, emotes slightly preferred
-        return combine(
-            getScoredEmoteSuggestions(channel, currentWord),
-            getScoredUserSuggestions(channel, currentWord),
-        ) { emotes, users ->
+        // General: score enabled types together
+        val emoteFlow = when {
+            emotesEnabled -> getScoredEmoteSuggestions(channel, currentWord)
+            else -> flowOf(emptyList())
+        }
+        val userFlow = when {
+            usersEnabled -> getScoredUserSuggestions(channel, currentWord)
+            else -> flowOf(emptyList())
+        }
+        return combine(emoteFlow, userFlow) { emotes, users ->
             mergeSorted(emotes, users)
         }
     }
@@ -107,11 +119,17 @@ class SuggestionProvider(
     private fun getCommandSuggestions(
         channel: UserName,
         constraint: String,
+        commandsEnabled: Boolean,
+        supibotEnabled: Boolean,
     ): Flow<List<Suggestion.CommandSuggestion>> = combine(
         commandRepository.getCommandTriggers(channel),
         commandRepository.getSupibotCommands(channel),
     ) { triggers, supibotCommands ->
-        filterCommands(triggers + supibotCommands, constraint)
+        val combined = buildList {
+            if (commandsEnabled) addAll(triggers)
+            if (supibotEnabled) addAll(supibotCommands)
+        }
+        filterCommands(combined, constraint)
     }
 
     // Merge two pre-sorted lists in O(n+m) without intermediate allocations

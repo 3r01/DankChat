@@ -267,8 +267,12 @@
     <string name="preference_font_size_summary_small">Маленький</string>
     <string name="preference_font_size_summary_large">Великий</string>
     <string name="preference_font_size_summary_very_large">Величезний</string>
-    <string name="preference_suggestions_title">Підказки імен користувачів та смайлів</string>
-    <string name="preference_suggestions_summary">Показувати підказки для імен користувачів та назв смайлів</string>
+    <string name="preference_suggestions_title">Підказки</string>
+    <string name="preference_suggestions_summary">Оберіть, які підказки показувати під час введення</string>
+    <string name="preference_suggestions_emotes">Емоції</string>
+    <string name="preference_suggestions_users">Користувачі</string>
+    <string name="preference_suggestions_commands">Команди</string>
+    <string name="preference_suggestions_supibot">Команди Supibot</string>
     <string name="preference_load_message_history_title">Завантажувати історію повідомлень при запуску</string>
     <string name="preference_load_messages_on_reconnect_title">Завантаження історії повідомлень після повторного підключення</string>
     <string name="preference_load_messages_on_reconnect_summary">Спроби отримати пропущені повідомлення, які не були отримані під час з\'єднання, обриваються</string>

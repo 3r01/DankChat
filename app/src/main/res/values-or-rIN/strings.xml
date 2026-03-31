@@ -391,8 +391,12 @@
     <string name="preference_font_size_summary_small">ଛୋଟ</string>
     <string name="preference_font_size_summary_large">ବଡ଼</string>
     <string name="preference_font_size_summary_very_large">ବହୁତ ବଡ଼</string>
-    <string name="preference_suggestions_title">ଇମୋଟ୍ ଏବଂ ଉପଭୋକ୍ତା ପରାମର୍ଶ |</string>
-    <string name="preference_suggestions_summary">ଟାଇପ୍ କରିବା ସମୟରେ ଇମୋଟ ଏବଂ ସକ୍ରିୟ ଉପଭୋକ୍ତାମାନଙ୍କ ପାଇଁ ପରାମର୍ଶ ଦେଖାଏ |</string>
+    <string name="preference_suggestions_title">ପରାମର୍ଶ</string>
+    <string name="preference_suggestions_summary">ଟାଇପ୍ କରିବା ସମୟରେ କେଉଁ ପରାମର୍ଶ ଦେଖାଇବେ ବାଛନ୍ତୁ</string>
+    <string name="preference_suggestions_emotes">ଇମୋଟ</string>
+    <string name="preference_suggestions_users">ଉପଭୋକ୍ତା</string>
+    <string name="preference_suggestions_commands">କಮାଣ୍ଡ</string>
+    <string name="preference_suggestions_supibot">Supibot କମାଣ୍ଡ</string>
     <string name="preference_load_message_history_title">ଆରମ୍ଭରେ ବାର୍ତ୍ତା ଇତିହାସ ଲୋଡ୍ କରନ୍ତୁ |</string>
     <string name="preference_load_messages_on_reconnect_title">ପୁନ recon ସଂଯୋଗ ପରେ ବାର୍ତ୍ତା ଇତିହାସ ଲୋଡ୍ କରନ୍ତୁ |</string>
     <string name="preference_load_messages_on_reconnect_summary">ମିସ୍ ଡ୍ରପ୍ ସମୟରେ ଗ୍ରହଣ ହୋଇନଥିବା ସନ୍ଦେଶ ଆଣିବାକୁ ଚେଷ୍ଟା କରିବାକୁ ଚେଷ୍ଟା କରେ |</string>

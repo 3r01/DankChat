@@ -265,8 +265,12 @@
     <string name="preference_font_size_summary_small">Маленький</string>
     <string name="preference_font_size_summary_large">Большой</string>
     <string name="preference_font_size_summary_very_large">Огромный</string>
-    <string name="preference_suggestions_title">Подсказки пользователей и смайлов</string>
-    <string name="preference_suggestions_summary">Отображать подсказки для имён пользователей и смайлов при наборе сообщения</string>
+    <string name="preference_suggestions_title">Подсказки</string>
+    <string name="preference_suggestions_summary">Выберите, какие подсказки показывать при вводе</string>
+    <string name="preference_suggestions_emotes">Эмоции</string>
+    <string name="preference_suggestions_users">Пользователи</string>
+    <string name="preference_suggestions_commands">Команды</string>
+    <string name="preference_suggestions_supibot">Команды Supibot</string>
     <string name="preference_load_message_history_title">Загружать историю сообщений сразу</string>
     <string name="preference_load_messages_on_reconnect_title">Загружать историю сообщений после переподключения</string>
     <string name="preference_load_messages_on_reconnect_summary">Попытаться получить пропущенные сообщения, которые не были получены во время разрыва соединения</string>

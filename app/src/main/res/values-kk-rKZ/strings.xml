@@ -391,8 +391,12 @@
     <string name="preference_font_size_summary_small">Кіші</string>
     <string name="preference_font_size_summary_large">Үлкен</string>
     <string name="preference_font_size_summary_very_large">Өте үлкен</string>
-    <string name="preference_suggestions_title">Эмоция және пайдаланушы ұсыныстары</string>
-    <string name="preference_suggestions_summary">Теру кезінде эмоциялар мен белсенді пайдаланушыларға арналған ұсыныстарды көрсетеді</string>
+    <string name="preference_suggestions_title">Ұсыныстар</string>
+    <string name="preference_suggestions_summary">Теру кезінде қандай ұсыныстарды көрсету керектігін таңдаңыз</string>
+    <string name="preference_suggestions_emotes">Эмоттар</string>
+    <string name="preference_suggestions_users">Пайдаланушылар</string>
+    <string name="preference_suggestions_commands">Командалар</string>
+    <string name="preference_suggestions_supibot">Supibot командалары</string>
     <string name="preference_load_message_history_title">Хабар журналын бастауға жүктеу</string>
     <string name="preference_load_messages_on_reconnect_title">Қайта қосылғаннан кейін хабар журналын жүктеңіз</string>
     <string name="preference_load_messages_on_reconnect_summary">Байланыс үзілген кезде қабылданбаған хабарларды алу әрекеті</string>

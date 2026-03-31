@@ -60,11 +60,15 @@ class ChatSettingsDataStore(
     private val initialMigration =
         dankChatPreferencesMigration<ChatPreferenceKeys, ChatSettings>(context) { acc, key, value ->
             when (key) {
-                ChatPreferenceKeys.Suggestions -> {
+                @Suppress("DEPRECATION")
+                ChatPreferenceKeys.Suggestions,
+                -> {
                     acc.copy(suggestions = value.booleanOrDefault(acc.suggestions))
                 }
 
-                ChatPreferenceKeys.SupibotSuggestions -> {
+                @Suppress("DEPRECATION")
+                ChatPreferenceKeys.SupibotSuggestions,
+                -> {
                     acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
                 }
 
@@ -187,6 +191,31 @@ class ChatSettingsDataStore(
             override suspend fun cleanUp() = Unit
         }
 
+    @Suppress("DEPRECATION")
+    private val suggestionTypeMigration =
+        object : DataMigration<ChatSettings> {
+            override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.suggestionsMigrated
+
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings {
+                val types = buildList {
+                    if (currentData.suggestions) {
+                        add(SuggestionType.Emotes)
+                        add(SuggestionType.Users)
+                        add(SuggestionType.Commands)
+                    }
+                    if (currentData.supibotSuggestions) {
+                        add(SuggestionType.SupibotCommands)
+                    }
+                }
+                return currentData.copy(
+                    suggestionTypes = types,
+                    suggestionsMigrated = true,
+                )
+            }
+
+            override suspend fun cleanUp() = Unit
+        }
+
     private val dataStore =
         createDataStore(
             fileName = "chat",
@@ -194,7 +223,7 @@ class ChatSettingsDataStore(
             defaultValue = ChatSettings(),
             serializer = ChatSettings.serializer(),
             scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-            migrations = listOf(initialMigration, scrollbackResetMigration, sharedChatMigration),
+            migrations = listOf(initialMigration, scrollbackResetMigration, sharedChatMigration, suggestionTypeMigration),
         )
 
     val settings = dataStore.safeData(ChatSettings())
@@ -209,9 +238,9 @@ class ChatSettingsDataStore(
         settings
             .map { it.customCommands }
             .distinctUntilChanged()
-    val suggestions =
+    val suggestionTypes =
         settings
-            .map { it.suggestions }
+            .map { it.suggestionTypes }
             .distinctUntilChanged()
     val showChatModes =
         settings
@@ -232,16 +261,6 @@ class ChatSettingsDataStore(
             .map { it.sevenTVLiveEmoteUpdates }
             .distinctUntilChanged()
             .debounce(2.seconds)
-
-    val restartChat =
-        settings.distinctUntilChanged { old, new ->
-            old.showTimestamps != new.showTimestamps ||
-                old.timestampFormat != new.timestampFormat ||
-                old.showTimedOutMessages != new.showTimedOutMessages ||
-                old.animateGifs != new.animateGifs ||
-                old.showUsernames != new.showUsernames ||
-                old.visibleBadges != new.visibleBadges
-        }
 
     fun current() = currentSettings.value
 

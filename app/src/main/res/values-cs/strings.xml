@@ -267,8 +267,12 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_font_size_summary_small">Malé</string>
     <string name="preference_font_size_summary_large">Velké</string>
     <string name="preference_font_size_summary_very_large">Velmi velké</string>
-    <string name="preference_suggestions_title">Návrhy uživatelů a emotikon</string>
-    <string name="preference_suggestions_summary">Zobrazí návrhy emotikonů a uživatelských jmen při psaní</string>
+    <string name="preference_suggestions_title">Návrhy</string>
+    <string name="preference_suggestions_summary">Zvolte, které návrhy zobrazovat při psaní</string>
+    <string name="preference_suggestions_emotes">Emotikony</string>
+    <string name="preference_suggestions_users">Uživatelé</string>
+    <string name="preference_suggestions_commands">Příkazy</string>
+    <string name="preference_suggestions_supibot">Příkazy Supibota</string>
     <string name="preference_load_message_history_title">Při zapnutí načíst historii zpráv</string>
     <string name="preference_load_messages_on_reconnect_title">Načíst historii zpráv po opětovném připojení</string>
     <string name="preference_load_messages_on_reconnect_summary">Pokusí se o načtení zmeškaných zpráv, které nebyly načteny při výpadcích spojení</string>

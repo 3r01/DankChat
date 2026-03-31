@@ -33,12 +33,8 @@ class ChatSettingsViewModel(
     fun onInteraction(interaction: ChatSettingsInteraction) = viewModelScope.launch {
         runCatching {
             when (interaction) {
-                is ChatSettingsInteraction.Suggestions -> {
-                    chatSettingsDataStore.update { it.copy(suggestions = interaction.value) }
-                }
-
-                is ChatSettingsInteraction.SupibotSuggestions -> {
-                    chatSettingsDataStore.update { it.copy(supibotSuggestions = interaction.value) }
+                is ChatSettingsInteraction.SuggestionTypes -> {
+                    chatSettingsDataStore.update { it.copy(suggestionTypes = interaction.value) }
                 }
 
                 is ChatSettingsInteraction.CustomCommands -> {
@@ -120,8 +116,7 @@ class ChatSettingsViewModel(
 }
 
 private fun ChatSettings.toState() = ChatSettingsState(
-    suggestions = suggestions,
-    supibotSuggestions = supibotSuggestions,
+    suggestionTypes = suggestionTypes.toImmutableList(),
     customCommands = customCommands.toImmutableList(),
     animateGifs = animateGifs,
     scrollbackLength = scrollbackLength,

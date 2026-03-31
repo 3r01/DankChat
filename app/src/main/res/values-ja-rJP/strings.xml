@@ -244,8 +244,12 @@
     <string name="preference_font_size_summary_small">小</string>
     <string name="preference_font_size_summary_large">大</string>
     <string name="preference_font_size_summary_very_large">極大</string>
-    <string name="preference_suggestions_title">エモートとユーザーの候補</string>
-    <string name="preference_suggestions_summary">入力中にエモートとアクティブユーザーの候補を表示する</string>
+    <string name="preference_suggestions_title">サジェスト</string>
+    <string name="preference_suggestions_summary">入力中に表示するサジェストを選択</string>
+    <string name="preference_suggestions_emotes">エモート</string>
+    <string name="preference_suggestions_users">ユーザー</string>
+    <string name="preference_suggestions_commands">コマンド</string>
+    <string name="preference_suggestions_supibot">Supibotコマンド</string>
     <string name="preference_load_message_history_title">開始時にメッセージ履歴を読み込む</string>
     <string name="preference_load_messages_on_reconnect_title">再接続後にメッセージ履歴を読み込む</string>
     <string name="preference_load_messages_on_reconnect_summary">接続が切断中に受信されずに失われたメッセージを取得しようとしています</string>

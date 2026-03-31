@@ -256,8 +256,12 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_font_size_summary_small">Küçük</string>
     <string name="preference_font_size_summary_large">Büyük</string>
     <string name="preference_font_size_summary_very_large">Çok büyük</string>
-    <string name="preference_suggestions_title">İfade ve kullanıcı önerileri</string>
-    <string name="preference_suggestions_summary">Yazarken ifadeler ve etkin kullanıcılar için öneriler göster</string>
+    <string name="preference_suggestions_title">Öneriler</string>
+    <string name="preference_suggestions_summary">Yazarken hangi önerilerin gösterileceğini seçin</string>
+    <string name="preference_suggestions_emotes">İfadeler</string>
+    <string name="preference_suggestions_users">Kullanıcılar</string>
+    <string name="preference_suggestions_commands">Komutlar</string>
+    <string name="preference_suggestions_supibot">Supibot komutları</string>
     <string name="preference_load_message_history_title">Başlangıçta mesaj tarihini yükle</string>
     <string name="preference_load_messages_on_reconnect_title">Yeniden bağlandıktan sonra mesaj tarihini yükle</string>
     <string name="preference_load_messages_on_reconnect_summary">Bağlantı kesintileri sırasında alınmamış yitik mesajları almayı dener</string>

@@ -255,8 +255,12 @@
     <string name="preference_font_size_summary_small">Pequena</string>
     <string name="preference_font_size_summary_large">Grande</string>
     <string name="preference_font_size_summary_very_large">Muito Grande</string>
-    <string name="preference_suggestions_title">Sugestões de emotes e usuários</string>
-    <string name="preference_suggestions_summary">Mostra sugestões de emotes e usuários ativos enquanto digita</string>
+    <string name="preference_suggestions_title">Sugestões</string>
+    <string name="preference_suggestions_summary">Escolha quais sugestões mostrar ao digitar</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Usuários</string>
+    <string name="preference_suggestions_commands">Comandos</string>
+    <string name="preference_suggestions_supibot">Comandos do Supibot</string>
     <string name="preference_load_message_history_title">Carregar histórico de mensagens no início</string>
     <string name="preference_load_messages_on_reconnect_title">Carregar histórico de mensagens após reconexão</string>
     <string name="preference_load_messages_on_reconnect_summary">Tenta carregar mensagens perdidas que não foram recebidas durante quedas de conexão</string>

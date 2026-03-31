@@ -264,8 +264,12 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_font_size_summary_small">Mały</string>
     <string name="preference_font_size_summary_large">Duży</string>
     <string name="preference_font_size_summary_very_large">Bardzo duży</string>
-    <string name="preference_suggestions_title">Emotki i sugestie</string>
-    <string name="preference_suggestions_summary">Pokazuj sugestie i aktywnych użytkowników podczas pisania</string>
+    <string name="preference_suggestions_title">Podpowiedzi</string>
+    <string name="preference_suggestions_summary">Wybierz, które podpowiedzi wyświetlać podczas pisania</string>
+    <string name="preference_suggestions_emotes">Emotki</string>
+    <string name="preference_suggestions_users">Użytkownicy</string>
+    <string name="preference_suggestions_commands">Komendy</string>
+    <string name="preference_suggestions_supibot">Komendy Supibota</string>
     <string name="preference_load_message_history_title">Ładuj historię wiadomości podczas startu</string>
     <string name="preference_load_messages_on_reconnect_title">Załaduj historie wiadomości po ponownym połączeniu</string>
     <string name="preference_load_messages_on_reconnect_summary">Próbuje pobrać brakujące wiadomości, które nie zostały odebrane podczas zerwania połączenia</string>

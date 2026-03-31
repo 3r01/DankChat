@@ -261,8 +261,12 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_font_size_summary_small">Pequeña</string>
     <string name="preference_font_size_summary_large">Grande</string>
     <string name="preference_font_size_summary_very_large">Muy grande</string>
-    <string name="preference_suggestions_title">Sugerencias de emoticonos y usuarios</string>
-    <string name="preference_suggestions_summary">Muestra sugerencias para emoticonos y usuarios activos al escribir</string>
+    <string name="preference_suggestions_title">Sugerencias</string>
+    <string name="preference_suggestions_summary">Elige qué sugerencias mostrar al escribir</string>
+    <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_users">Usuarios</string>
+    <string name="preference_suggestions_commands">Comandos</string>
+    <string name="preference_suggestions_supibot">Comandos de Supibot</string>
     <string name="preference_load_message_history_title">Cargar historial de mensajes al inicio</string>
     <string name="preference_load_messages_on_reconnect_title">Cargar el historial de mensajes después de una reconexión</string>
     <string name="preference_load_messages_on_reconnect_summary">Intentos de recuperar los mensajes perdidos que no fueron recibidos durante caídas de conexión</string>

@@ -260,8 +260,12 @@
     <string name="preference_font_size_summary_small">Маленькі</string>
     <string name="preference_font_size_summary_large">Вялікі</string>
     <string name="preference_font_size_summary_very_large">Вялізны</string>
-    <string name="preference_suggestions_title">Падказкі карыстальнікаў і смайлаў</string>
-    <string name="preference_suggestions_summary">Адлюстроўваць падказкі для нікаў карыстальнікаў і смайлаў пры наборы паведамленняў</string>
+    <string name="preference_suggestions_title">Падказкі</string>
+    <string name="preference_suggestions_summary">Абярыце, якія падказкі паказваць пры ўводзе</string>
+    <string name="preference_suggestions_emotes">Эмоцыі</string>
+    <string name="preference_suggestions_users">Карыстальнікі</string>
+    <string name="preference_suggestions_commands">Каманды</string>
+    <string name="preference_suggestions_supibot">Каманды Supibot</string>
     <string name="preference_load_message_history_title">Загружаць гісторыю паведамленняў адразу</string>
     <string name="preference_load_messages_on_reconnect_title">Загрузіць гісторыю паведамленняў пасля паўторнага падключэння</string>
     <string name="preference_load_messages_on_reconnect_summary">Спрабаваць атрымаць прапушчаныя паведамленні, якія не былі атрыманы падчас разрыву злучэння</string>

@@ -257,8 +257,12 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_font_size_summary_small">Pieni</string>
     <string name="preference_font_size_summary_large">Suuri</string>
     <string name="preference_font_size_summary_very_large">Hyvin suuri</string>
-    <string name="preference_suggestions_title">Hymiö ja käyttäjä ehdotukset</string>
-    <string name="preference_suggestions_summary">Näyttää ehdotuksia hymiöille ja aktiivisille käyttäjille kirjoittaessasi</string>
+    <string name="preference_suggestions_title">Ehdotukset</string>
+    <string name="preference_suggestions_summary">Valitse mitkä ehdotukset näytetään kirjoittaessa</string>
+    <string name="preference_suggestions_emotes">Emojit</string>
+    <string name="preference_suggestions_users">Käyttäjät</string>
+    <string name="preference_suggestions_commands">Komennot</string>
+    <string name="preference_suggestions_supibot">Supibot-komennot</string>
     <string name="preference_load_message_history_title">Lataa viestihistoria käynnistyessä</string>
     <string name="preference_load_messages_on_reconnect_title">Lataa viestihistoria uudelleenyhdistyksen jälkeen</string>
     <string name="preference_load_messages_on_reconnect_summary">Yrittää hakea puuttuvat viestit, joita ei vastaanotettu yhteyskatkosten aikana</string>

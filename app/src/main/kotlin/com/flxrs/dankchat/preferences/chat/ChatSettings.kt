@@ -8,8 +8,10 @@ import kotlin.uuid.Uuid
 
 @Serializable
 data class ChatSettings(
-    val suggestions: Boolean = true,
-    val supibotSuggestions: Boolean = false,
+    val suggestionTypes: List<SuggestionType> = SuggestionType.DEFAULT,
+    val suggestionsMigrated: Boolean = false,
+    @Deprecated("Migrated to suggestionTypes") val suggestions: Boolean = true,
+    @Deprecated("Migrated to suggestionTypes") val supibotSuggestions: Boolean = false,
     val customCommands: List<CustomCommand> = emptyList(),
     val animateGifs: Boolean = true,
     val scrollbackLength: Int = 500,
@@ -46,6 +48,19 @@ data class CustomCommand(
     val command: String,
     @Transient val id: String = Uuid.random().toString(),
 )
+
+@Serializable
+enum class SuggestionType {
+    Emotes,
+    Users,
+    Commands,
+    SupibotCommands,
+    ;
+
+    companion object {
+        val DEFAULT = listOf(Emotes, Users, Commands)
+    }
+}
 
 enum class UserLongClickBehavior {
     MentionsUser,
