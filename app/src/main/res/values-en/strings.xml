@@ -267,7 +267,7 @@
     <string name="palette_style_fruit_salad">Fruit Salad</string>
     <string name="palette_style_fruit_salad_desc">Playful, multi-colored palette</string>
     <string name="palette_style_monochrome">Monochrome</string>
-    <string name="palette_style_monochrome_desc">Black, white, and grey only</string>
+    <string name="palette_style_monochrome_desc">Black, white, and gray only</string>
     <string name="palette_style_fidelity">Fidelity</string>
     <string name="palette_style_fidelity_desc">Stays true to the accent color</string>
     <string name="palette_style_content">Content</string>
