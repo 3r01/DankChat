@@ -8,7 +8,6 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserName
-import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.toChatItem
@@ -102,9 +101,9 @@ class ChatRepository(
                     userId = userState.userId,
                     name = name,
                     displayName = displayName,
-                    color = userState.color?.let(Color::parseColor) ?: Message.DEFAULT_COLOR,
+                    color = userState.color?.let(Color::parseColor),
                     recipientId = null,
-                    recipientColor = Message.DEFAULT_COLOR,
+                    recipientColor = null,
                     recipientName = split[1].toUserName(),
                     recipientDisplayName = split[1].toDisplayName(),
                     message = message,

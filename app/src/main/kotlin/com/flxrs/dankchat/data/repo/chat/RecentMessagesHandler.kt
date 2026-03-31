@@ -103,8 +103,9 @@ class RecentMessagesHandler(
                         if (message is PrivMessage) {
                             val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
                             userSuggestions += message.name.lowercase() to userForSuggestion
-                            if (message.color != Message.DEFAULT_COLOR) {
-                                usersRepository.cacheUserColor(message.name, message.color)
+                            val color = message.color
+                            if (color != null) {
+                                usersRepository.cacheUserColor(message.name, color)
                             }
                         }
 

@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
 import android.graphics.Color
-import androidx.annotation.ColorInt
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -12,7 +11,6 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.pubsub.dto.whisper.WhisperData
-import com.flxrs.dankchat.utils.extensions.normalizeColor
 import java.util.UUID
 
 data class WhisperMessage(
@@ -22,11 +20,11 @@ data class WhisperMessage(
     val userId: UserId?,
     val name: UserName,
     val displayName: DisplayName,
-    val color: Int = DEFAULT_COLOR,
+    val color: Int? = null,
     val recipientId: UserId?,
     val recipientName: UserName,
     val recipientDisplayName: DisplayName,
-    val recipientColor: Int = DEFAULT_COLOR,
+    val recipientColor: Int? = null,
     val message: String,
     val rawEmotes: String,
     val rawBadges: String?,
@@ -49,8 +47,8 @@ data class WhisperMessage(
         ): WhisperMessage = with(ircMessage) {
             val name = prefix.substringBefore('!')
             val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
-            val recipientColor = recipientColorTag?.let(Color::parseColor) ?: DEFAULT_COLOR
+            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor)
+            val recipientColor = recipientColorTag?.let(Color::parseColor)
             val emoteTag = tags["emotes"] ?: ""
             val message = params.getOrElse(1) { "" }
 
@@ -76,11 +74,11 @@ data class WhisperMessage(
             val color =
                 data.tags.color
                     .ifBlank { null }
-                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
+                    ?.let(Color::parseColor)
             val recipientColor =
                 data.recipient.color
                     .ifBlank { null }
-                    ?.let(Color::parseColor) ?: DEFAULT_COLOR
+                    ?.let(Color::parseColor)
             val badgeTag = data.tags.badges.joinToString(",") { "${it.id}/${it.version}" }
             val emotesTag =
                 data.tags.emotes
@@ -112,13 +110,5 @@ data class WhisperMessage(
 val WhisperMessage.senderAliasOrFormattedName: String
     get() = userDisplay?.alias ?: name.formatWithDisplayName(displayName)
 
-fun WhisperMessage.senderColorOnBackground(
-    @ColorInt background: Int,
-): Int = userDisplay.colorOrElse(color.normalizeColor(background))
-
 val WhisperMessage.recipientAliasOrFormattedName: String
     get() = recipientDisplay?.alias ?: recipientName.formatWithDisplayName(recipientDisplayName)
-
-fun WhisperMessage.recipientColorOnBackground(
-    @ColorInt background: Int,
-): Int = recipientDisplay.colorOrElse(recipientColor.normalizeColor(background))

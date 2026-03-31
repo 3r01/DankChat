@@ -341,7 +341,6 @@ class ChatMessageMapper(
         val ircColor =
             tags["color"]?.ifBlank { null }?.let(android.graphics.Color::parseColor)
                 ?: login?.let { usersRepository.getCachedUserColor(it) }
-                ?: Message.DEFAULT_COLOR
         val rawNameColor = resolveNameColor(null, ircColor, tags["user-id"]?.toUserId(), chatSettings)
 
         return ChatMessageUiState.UserNoticeMessageUi(
@@ -441,7 +440,7 @@ class ChatMessageMapper(
                         )
                     }.toImmutableList(),
             userDisplayName = userName.formatWithDisplayName(userDisplayName),
-            rawNameColor = color,
+            rawNameColor = color ?: Message.DEFAULT_COLOR,
             messageText = messageText?.takeIf { it.isNotEmpty() },
             reason = reason,
             status = uiStatus,
@@ -716,14 +715,14 @@ class ChatMessageMapper(
 
     private fun resolveNameColor(
         customColor: Int?,
-        ircColor: Int,
+        ircColor: Int?,
         userId: UserId?,
         chatSettings: ChatSettings,
     ): Int = when {
         customColor != null -> customColor
-        ircColor != Message.DEFAULT_COLOR -> ircColor
+        ircColor != null -> ircColor
         chatSettings.colorizeNicknames && userId != null -> getStableColor(userId)
-        else -> ircColor
+        else -> Message.DEFAULT_COLOR
     }
 
     data class BackgroundColors(

@@ -16,7 +16,7 @@ data class AutomodMessage(
     val messageText: String?,
     val reason: TextResource,
     val badges: List<Badge> = emptyList(),
-    val color: Int = DEFAULT_COLOR,
+    val color: Int? = null,
     val status: Status = Status.Pending,
     val isUserSide: Boolean = false,
 ) : Message() {

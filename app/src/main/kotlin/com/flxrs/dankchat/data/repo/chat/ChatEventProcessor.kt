@@ -232,7 +232,7 @@ class ChatEventProcessor(
         val data = eventMessage.data
         knownAutomodHeldIds.add(data.messageId)
         val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
-        val userColor = usersRepository.getCachedUserColor(data.userLogin) ?: Message.DEFAULT_COLOR
+        val userColor = usersRepository.getCachedUserColor(data.userLogin)
         val automodBadge =
             Badge.GlobalBadge(
                 title = "AutoMod",
@@ -539,8 +539,9 @@ class ChatEventProcessor(
             return
         }
 
-        if (message.color != Message.DEFAULT_COLOR) {
-            usersRepository.cacheUserColor(message.name, message.color)
+        val color = message.color
+        if (color != null) {
+            usersRepository.cacheUserColor(message.name, color)
         }
 
         if (message.name == authDataStore.userName) {

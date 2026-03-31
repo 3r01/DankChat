@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.twitch.message
 
 import android.graphics.Color
-import androidx.annotation.ColorInt
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -11,7 +10,6 @@ import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.utils.extensions.normalizeColor
 import java.util.UUID
 
 data class PrivMessage(
@@ -23,7 +21,7 @@ data class PrivMessage(
     val userId: UserId? = null,
     val name: UserName,
     val displayName: DisplayName,
-    val color: Int = DEFAULT_COLOR,
+    val color: Int? = null,
     val message: String,
     val originalMessage: String = message,
     val emotes: List<ChatMessageEmote> = emptyList(),
@@ -54,7 +52,7 @@ data class PrivMessage(
                 }
 
             val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor) ?: DEFAULT_COLOR
+            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor)
 
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
             var isAction = false
@@ -114,7 +112,3 @@ val PrivMessage.isElevatedMessage: Boolean
 /** format name for display in chat */
 val PrivMessage.aliasOrFormattedName: String
     get() = userDisplay?.alias ?: name.formatWithDisplayName(displayName)
-
-fun PrivMessage.customOrUserColorOn(
-    @ColorInt bgColor: Int,
-): Int = userDisplay?.color ?: color.normalizeColor(bgColor)
