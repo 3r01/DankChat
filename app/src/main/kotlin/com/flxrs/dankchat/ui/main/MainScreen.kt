@@ -188,8 +188,7 @@ fun MainScreen(
     val streamVmState by streamViewModel.streamState.collectAsStateWithLifecycle()
     val currentStream = streamVmState.currentStream
     val hasStreamData = streamVmState.hasStreamData
-    val imeTargetBottom = WindowInsets.imeAnimationTarget.getBottom(density)
-    val streamState = rememberStreamToolbarState(currentStream, isKeyboardVisible, imeTargetBottom)
+    val streamState = rememberStreamToolbarState(currentStream)
 
     // PiP state — observe via lifecycle since onPause fires when entering PiP
     val isInPipMode = observePipMode(streamViewModel)
@@ -990,7 +989,7 @@ private fun BoxScope.NormalStackedLayout(
 
     // Stream View layer
     currentStream?.let { channel ->
-        val showStream = isInPipMode || !isKeyboardVisible || isLandscape
+        val showStream = isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape
         var streamComposed by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
         LaunchedEffect(showStream) {
             if (showStream) {

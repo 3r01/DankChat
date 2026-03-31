@@ -19,37 +19,31 @@ internal class StreamToolbarState(
 ) {
     var heightDp by mutableStateOf(0.dp)
     private var prevHasVisibleStream by mutableStateOf(false)
-    private var isKeyboardClosingWithStream by mutableStateOf(false)
-    private var wasKeyboardClosingWithStream by mutableStateOf(false)
 
     val hasVisibleStream: Boolean
         get() = heightDp > 0.dp
 
     val effectiveAlpha: Float
-        get() = if (hasVisibleStream || isKeyboardClosingWithStream || wasKeyboardClosingWithStream) alpha.value else 1f
+        get() = alpha.value
 
-    suspend fun updateAnimation(
-        hasVisibleStream: Boolean,
-        keyboardClosingWithStream: Boolean,
-    ) {
-        isKeyboardClosingWithStream = keyboardClosingWithStream
-        if (keyboardClosingWithStream) wasKeyboardClosingWithStream = true
-        if (hasVisibleStream) wasKeyboardClosingWithStream = false
-
+    suspend fun updateAnimation(hasVisibleStream: Boolean) {
         when {
-            keyboardClosingWithStream -> {
-                alpha.animateTo(0f, tween(durationMillis = 150))
-            }
-
             hasVisibleStream && !prevHasVisibleStream -> {
                 prevHasVisibleStream = true
-                alpha.snapTo(0f)
-                alpha.animateTo(1f, tween(durationMillis = 350))
+                // Only fade in from 0 if toolbar isn't already visible
+                // (e.g. first stream open). When returning from keyboard/emote menu
+                // the toolbar is already at 1.0, so skip the fade-in animation.
+                if (alpha.value < 0.1f) {
+                    alpha.snapTo(0f)
+                    alpha.animateTo(1f, tween(durationMillis = 350))
+                }
             }
 
             !hasVisibleStream && prevHasVisibleStream -> {
                 prevHasVisibleStream = false
-                alpha.snapTo(0f)
+                // Stream is hiding — animate toolbar to fully visible so it stays
+                // visible while the stream is gone (keyboard/emote menu open).
+                alpha.animateTo(1f, tween(durationMillis = 150))
             }
         }
     }
@@ -58,19 +52,19 @@ internal class StreamToolbarState(
 @Composable
 internal fun rememberStreamToolbarState(
     currentStream: UserName?,
-    isKeyboardVisible: Boolean,
-    imeTargetBottom: Int,
 ): StreamToolbarState {
-    val state = remember { StreamToolbarState(alpha = Animatable(0f)) }
+    val state = remember { StreamToolbarState(alpha = Animatable(1f)) }
 
     val hasVisibleStream = currentStream != null && state.heightDp > 0.dp
-    val isKeyboardClosingWithStream = currentStream != null && isKeyboardVisible && imeTargetBottom == 0
 
-    LaunchedEffect(hasVisibleStream, isKeyboardClosingWithStream) {
-        state.updateAnimation(hasVisibleStream, isKeyboardClosingWithStream)
+    LaunchedEffect(hasVisibleStream) {
+        state.updateAnimation(hasVisibleStream)
     }
     LaunchedEffect(currentStream) {
-        if (currentStream == null) state.heightDp = 0.dp
+        if (currentStream == null) {
+            state.heightDp = 0.dp
+            state.alpha.snapTo(1f)
+        }
     }
 
     return state
