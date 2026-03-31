@@ -161,13 +161,6 @@ class DataRepository(
         .loadUserEmotes(userId, onFirstPageLoaded)
         .getOrEmitFailure { DataLoadingStep.TwitchEmotes }
 
-    suspend fun loadUserStateEmotes(
-        globalEmoteSetIds: List<String>,
-        followerEmoteSetIds: Map<UserName, List<String>>,
-    ) {
-        emoteRepository.loadUserStateEmotes(globalEmoteSetIds, followerEmoteSetIds)
-    }
-
     suspend fun sendShutdownCommand() {
         serviceEventChannel.send(ServiceEvent.Shutdown)
     }

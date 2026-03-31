@@ -13,9 +13,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.bttv.dto.BTTVChannelDto
 import com.flxrs.dankchat.data.api.bttv.dto.BTTVEmoteDto
 import com.flxrs.dankchat.data.api.bttv.dto.BTTVGlobalEmoteDto
-import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.dankchat.dto.DankChatBadgeDto
-import com.flxrs.dankchat.data.api.dankchat.dto.DankChatEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
@@ -65,7 +63,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Single
 class EmoteRepository(
-    private val dankChatApiClient: DankChatApiClient,
     private val helixApiClient: HelixApiClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val channelRepository: ChannelRepository,
@@ -485,55 +482,6 @@ class EmoteRepository(
         Log.d(TAG, "Helix getUserEmotes: $totalCount total, ${seenIds.size} unique, ${allEmotes.size} resolved")
     }
 
-    suspend fun loadUserStateEmotes(
-        globalEmoteSetIds: List<String>,
-        followerEmoteSetIds: Map<UserName, List<String>>,
-    ) = withContext(Dispatchers.Default) {
-        val sets =
-            (globalEmoteSetIds + followerEmoteSetIds.values.flatten())
-                .distinct()
-                .chunkedBy(maxSize = MAX_PARAMS_LENGTH) { it.length + 3 }
-                .concurrentMap {
-                    dankChatApiClient
-                        .getUserSets(it)
-                        .getOrNull()
-                        .orEmpty()
-                }.flatten()
-
-        val twitchEmotes =
-            sets.flatMap { emoteSet ->
-                val type =
-                    when (val set = emoteSet.id) {
-                        "0", "42" -> {
-                            EmoteType.GlobalTwitchEmote
-                        }
-
-                        // 42 == monkey emote set, move them to the global emote section
-                        else -> {
-                            followerEmoteSetIds.entries
-                                .find { (_, sets) ->
-                                    set in sets
-                                }?.let { EmoteType.ChannelTwitchFollowerEmote(it.key) }
-                                ?: emoteSet.channelName.twitchEmoteType
-                        }
-                    }
-                emoteSet.emotes.mapToGenericEmotes(type)
-            }
-
-        val globalTwitchEmotes = twitchEmotes.filter { it.emoteType is EmoteType.GlobalTwitchEmote || it.emoteType is EmoteType.ChannelTwitchEmote }
-        val followerEmotes = twitchEmotes.filter { it.emoteType is EmoteType.ChannelTwitchFollowerEmote }
-
-        globalEmoteState.update { it.copy(twitchEmotes = globalTwitchEmotes) }
-
-        channelEmoteStates.forEach { (channel, flow) ->
-            flow.update {
-                it.copy(
-                    twitchEmotes = followerEmotes.filterNot { emote -> emote.emoteType is EmoteType.ChannelTwitchFollowerEmote && emote.emoteType.channel != channel },
-                )
-            }
-        }
-    }
-
     suspend fun setFFZEmotes(
         channel: UserName,
         ffzResult: FFZChannelDto,
@@ -749,16 +697,6 @@ class EmoteRepository(
         }
     }
 
-    private val UserName?.twitchEmoteType: EmoteType
-        get() =
-            when {
-                this == null || isGlobalTwitchChannel -> EmoteType.GlobalTwitchEmote
-                else -> EmoteType.ChannelTwitchEmote(this)
-            }
-
-    private val UserName.isGlobalTwitchChannel: Boolean
-        get() = value.equals("qa_TW_Partner", ignoreCase = true) || value.equals("Twitch", ignoreCase = true)
-
     private fun UserEmoteDto.toGenericEmote(type: EmoteType): GenericEmote {
         val code =
             when (type) {
@@ -774,23 +712,6 @@ class EmoteRepository(
             emoteType = type,
         )
     }
-
-    private fun List<DankChatEmoteDto>?.mapToGenericEmotes(type: EmoteType): List<GenericEmote> = this
-        ?.map { (name, id) ->
-            val code =
-                when (type) {
-                    is EmoteType.GlobalTwitchEmote -> EMOTE_REPLACEMENTS[name] ?: name
-                    else -> name
-                }
-            GenericEmote(
-                code = code,
-                url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
-                lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
-                id = id,
-                scale = 1,
-                emoteType = type,
-            )
-        }.orEmpty()
 
     @VisibleForTesting
     fun adjustOverlayEmotes(
@@ -1009,7 +930,6 @@ class EmoteRepository(
         val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
         const val ZERO_WIDTH_JOINER = 0x200D.toChar().toString()
 
-        private const val MAX_PARAMS_LENGTH = 2000
         private val CHANNEL_EMOTE_TYPES = setOf("subscriptions", "bitstier", "follower")
 
         private const val TWITCH_EMOTE_TEMPLATE = "https://static-cdn.jtvnw.net/emoticons/v2/%s/default/dark/%s"
