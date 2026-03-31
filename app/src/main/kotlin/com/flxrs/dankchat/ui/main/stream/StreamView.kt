@@ -34,17 +34,18 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnAttach
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import org.koin.compose.viewmodel.koinViewModel
 
 @Suppress("LambdaParameterEventTrailing")
 @Composable
 fun StreamView(
     channel: UserName,
-    streamViewModel: StreamViewModel,
     modifier: Modifier = Modifier,
     isInPipMode: Boolean = false,
     fillPane: Boolean = false,
     onClose: () -> Unit,
 ) {
+    val streamViewModel: StreamViewModel = koinViewModel()
     // Track whether the WebView has been attached to a window before.
     // First open: load URL while detached, attach after page loads (avoids white SurfaceView flash).
     // Subsequent opens: attach immediately, load URL while attached (video surface already initialized).

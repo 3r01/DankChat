@@ -50,9 +50,7 @@ internal class StreamToolbarState(
 }
 
 @Composable
-internal fun rememberStreamToolbarState(
-    currentStream: UserName?,
-): StreamToolbarState {
+internal fun rememberStreamToolbarState(currentStream: UserName?): StreamToolbarState {
     val state = remember { StreamToolbarState(alpha = Animatable(1f)) }
 
     val hasVisibleStream = currentStream != null && state.heightDp > 0.dp

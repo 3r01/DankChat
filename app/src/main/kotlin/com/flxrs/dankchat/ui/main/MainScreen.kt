@@ -717,10 +717,16 @@ fun MainScreen(
                 )
             }
 
+            val onStreamClose = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+                streamViewModel.closeStream()
+            }
+
             if (useWideSplitLayout) {
                 WideSplitLayout(
                     currentStream = currentStream,
-                    streamViewModel = streamViewModel,
+                    onStreamClose = onStreamClose,
                     scaffoldContent = scaffoldContent,
                     floatingToolbar = floatingToolbar,
                     fullScreenSheetOverlay = fullScreenSheetOverlay,
@@ -747,7 +753,8 @@ fun MainScreen(
             } else {
                 NormalStackedLayout(
                     currentStream = currentStream,
-                    streamViewModel = streamViewModel,
+                    onStreamClose = onStreamClose,
+                    hasWebViewBeenAttached = streamViewModel.hasWebViewBeenAttached,
                     streamState = streamState,
                     scaffoldContent = scaffoldContent,
                     floatingToolbar = floatingToolbar,
@@ -783,7 +790,7 @@ fun MainScreen(
 @Composable
 private fun BoxScope.WideSplitLayout(
     currentStream: UserName?,
-    streamViewModel: StreamViewModel,
+    onStreamClose: () -> Unit,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
     fullScreenSheetOverlay: @Composable (Dp) -> Unit,
@@ -815,7 +822,7 @@ private fun BoxScope.WideSplitLayout(
 
     Box(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .onSizeChanged { containerWidthPx = it.width },
     ) {
@@ -829,13 +836,8 @@ private fun BoxScope.WideSplitLayout(
             ) {
                 StreamView(
                     channel = currentStream ?: return,
-                    streamViewModel = streamViewModel,
                     fillPane = true,
-                    onClose = {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        streamViewModel.closeStream()
-                    },
+                    onClose = onStreamClose,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -851,7 +853,7 @@ private fun BoxScope.WideSplitLayout(
 
                 Scaffold(
                     modifier =
-                        modifier
+                        Modifier
                             .fillMaxSize()
                             .padding(bottom = scaffoldBottomPadding),
                     contentWindowInsets = WindowInsets(0),
@@ -936,7 +938,8 @@ private fun BoxScope.WideSplitLayout(
 @Composable
 private fun BoxScope.NormalStackedLayout(
     currentStream: UserName?,
-    streamViewModel: StreamViewModel,
+    onStreamClose: () -> Unit,
+    hasWebViewBeenAttached: Boolean,
     streamState: StreamToolbarState,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
@@ -990,7 +993,7 @@ private fun BoxScope.NormalStackedLayout(
     // Stream View layer
     currentStream?.let { channel ->
         val showStream = isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape
-        var streamComposed by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
+        var streamComposed by remember { mutableStateOf(hasWebViewBeenAttached) }
         LaunchedEffect(showStream) {
             if (showStream) {
                 delay(100)
@@ -1002,13 +1005,8 @@ private fun BoxScope.NormalStackedLayout(
         if (showStream && streamComposed) {
             StreamView(
                 channel = channel,
-                streamViewModel = streamViewModel,
                 isInPipMode = isInPipMode,
-                onClose = {
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
-                    streamViewModel.closeStream()
-                },
+                onClose = onStreamClose,
                 modifier =
                     if (isInPipMode) {
                         Modifier.fillMaxSize()
