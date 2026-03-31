@@ -153,10 +153,6 @@ class ChatMessageMapper(
                     TextResource.Res(R.string.system_message_disconnected)
                 }
 
-                is SystemMessageType.NoHistoryLoaded -> {
-                    TextResource.Res(R.string.system_message_no_history)
-                }
-
                 is SystemMessageType.Connected -> {
                     TextResource.Res(R.string.system_message_connected)
                 }

@@ -13,8 +13,6 @@ sealed interface SystemMessageType {
 
     data object Reconnected : SystemMessageType
 
-    data object NoHistoryLoaded : SystemMessageType
-
     data object LoginExpired : SystemMessageType
 
     data object MessageHistoryIncomplete : SystemMessageType

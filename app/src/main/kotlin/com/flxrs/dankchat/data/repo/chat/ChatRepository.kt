@@ -124,16 +124,8 @@ class ChatRepository(
     ) = chatEventProcessor.setLastMessage(channel, message)
 
     suspend fun loadRecentMessagesIfEnabled(channel: UserName) {
-        when {
-            chatSettingsDataStore.settings.first().loadMessageHistory -> {
-                chatEventProcessor.loadRecentMessages(channel)
-            }
-
-            else -> {
-                chatMessageRepository.getMessagesFlow(channel)?.update { current ->
-                    current + SystemMessageType.NoHistoryLoaded.toChatItem()
-                }
-            }
+        if (chatSettingsDataStore.settings.first().loadMessageHistory) {
+            chatEventProcessor.loadRecentMessages(channel)
         }
     }
 
