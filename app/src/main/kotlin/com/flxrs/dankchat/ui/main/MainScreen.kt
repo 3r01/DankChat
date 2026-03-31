@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.main
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -68,8 +69,10 @@ import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import com.flxrs.dankchat.ui.chat.swipeDownToHide
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
+import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelTabViewModel
 import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
@@ -85,10 +88,12 @@ import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.ui.main.stream.StreamView
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
+import com.flxrs.dankchat.ui.tour.FeatureTourUiState
 import com.flxrs.dankchat.ui.tour.FeatureTourViewModel
 import com.flxrs.dankchat.ui.tour.PostOnboardingStep
 import com.flxrs.dankchat.ui.tour.TourStep
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -232,41 +237,14 @@ fun MainScreen(
     val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
 
-    // Post-onboarding flow: toolbar hint → feature tour
-    val channelsReady = !tabState.loading
-    val channelsEmpty = tabState.tabs.isEmpty() && channelsReady
-
-    // Notify tour VM when channel state changes
-    LaunchedEffect(channelsReady, channelsEmpty) {
-        featureTourViewModel.onChannelsChanged(empty = channelsEmpty, ready = channelsReady)
-    }
-
-    // Drive tooltip dismissals and tour start from the typed step.
-    // Tooltip .show() calls live in FloatingToolbar.
-    LaunchedEffect(featureTourState.postOnboardingStep) {
-        when (featureTourState.postOnboardingStep) {
-            PostOnboardingStep.FeatureTour -> {
-                featureTourViewModel.addChannelTooltipState.dismiss()
-                featureTourViewModel.startTour()
-            }
-
-            PostOnboardingStep.Complete, PostOnboardingStep.Idle -> {
-                featureTourViewModel.addChannelTooltipState.dismiss()
-            }
-
-            PostOnboardingStep.ToolbarPlusHint -> {
-                Unit
-            }
-        }
-    }
-
-    // Sync tour's gestureInputHidden with MainScreenViewModel (only during active tour
-    // to avoid resetting the persisted state on Activity recreation)
-    LaunchedEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
-        if (featureTourState.isTourActive) {
-            mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
-        }
-    }
+    MainScreenTourEffects(
+        featureTourViewModel = featureTourViewModel,
+        featureTourState = featureTourState,
+        mainScreenViewModel = mainScreenViewModel,
+        mainState = mainState,
+        channelsReady = !tabState.loading,
+        channelsEmpty = tabState.tabs.isEmpty() && !tabState.loading,
+    )
 
     MainScreenDialogs(
         dialogViewModel = dialogViewModel,
@@ -303,20 +281,6 @@ fun MainScreen(
     val effectiveShowInput = mainState.effectiveShowInput
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
-    // Auto-advance tour when input is hidden during the SwipeGesture step (e.g. by actual swipe)
-    LaunchedEffect(mainState.gestureInputHidden, featureTourState.currentTourStep) {
-        if (mainState.gestureInputHidden && featureTourState.currentTourStep == TourStep.SwipeGesture) {
-            featureTourViewModel.advance()
-        }
-    }
-
-    // Keep toolbar visible during tour
-    LaunchedEffect(featureTourState.isTourActive, mainState.gestureToolbarHidden) {
-        if (featureTourState.isTourActive && mainState.gestureToolbarHidden) {
-            mainScreenViewModel.setGestureToolbarHidden(false)
-        }
-    }
-
     val toolbarTracker =
         remember {
             ScrollDirectionTracker(
@@ -346,59 +310,20 @@ fun MainScreen(
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
 
-    // Clear focus when keyboard fully reaches the bottom, but not when
-    // switching to the emote menu. Prevents keyboard from reopening when
-    // returning from background. Debounced to avoid premature focus loss
-    // during heavy recomposition (e.g. emote loading/reparsing).
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(Unit) {
-        snapshotFlow { imeHeightState.value == 0 && !inputState.isEmoteMenuOpen }
-            .debounce(150)
-            .distinctUntilChanged()
-            .collect { shouldClearFocus ->
-                if (shouldClearFocus) {
-                    focusManager.clearFocus()
-                }
-            }
-    }
+    MainScreenFocusEffects(
+        imeHeight = imeHeightState,
+        isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+        currentStream = currentStream,
+    )
 
-    // Clear focus after stream closes — the layout shift from removing StreamView
-    // can cause the TextField to regain focus and open the keyboard.
-    LaunchedEffect(currentStream) {
-        if (currentStream == null) {
-            keyboardController?.hide()
-            focusManager.clearFocus()
-        }
-    }
-
-    // Sync Compose pager with ViewModel state
-    LaunchedEffect(pagerState.currentPage, pagerState.channels.size) {
-        if (!composePagerState.isScrollInProgress &&
-            composePagerState.currentPage != pagerState.currentPage &&
-            pagerState.currentPage in 0 until composePagerState.pageCount
-        ) {
-            composePagerState.scrollToPage(pagerState.currentPage)
-        }
-    }
-
-    // Eagerly update active channel on page change for snappy UI (room state, stream info)
-    LaunchedEffect(composePagerState.currentPage) {
-        if (composePagerState.currentPage != pagerState.currentPage) {
-            channelPagerViewModel.setActivePage(composePagerState.currentPage)
-        }
-    }
-
-    // Clear unread/mention indicators when page settles
-    LaunchedEffect(composePagerState.settledPage) {
-        channelPagerViewModel.clearNotifications(composePagerState.settledPage)
-    }
-
-    // Pager swipe reveals toolbar
-    LaunchedEffect(composePagerState.isScrollInProgress) {
-        if (composePagerState.isScrollInProgress) {
-            mainScreenViewModel.setGestureToolbarHidden(false)
-        }
-    }
+    MainScreenPagerEffects(
+        composePagerState = composePagerState,
+        pagerState = pagerState,
+        onSetActivePage = channelPagerViewModel::setActivePage,
+        onClearNotifications = channelPagerViewModel::clearNotifications,
+        onShowToolbar = { mainScreenViewModel.setGestureToolbarHidden(false) },
+    )
 
     val emoteCoordinator = rememberEmoteAnimationCoordinator()
     val customTabContext = LocalContext.current
@@ -794,260 +719,196 @@ fun MainScreen(
             }
 
             if (useWideSplitLayout) {
-                // --- Wide split layout: stream (left) | handle | chat (right) ---
-                var splitFraction by remember { mutableFloatStateOf(0.6f) }
-                var containerWidthPx by remember { mutableIntStateOf(0) }
+                WideSplitLayout(
+                    currentStream = currentStream,
+                    streamViewModel = streamViewModel,
+                    scaffoldContent = scaffoldContent,
+                    floatingToolbar = floatingToolbar,
+                    fullScreenSheetOverlay = fullScreenSheetOverlay,
+                    bottomBar = bottomBar,
+                    emoteMenuLayer = emoteMenuLayer,
+                    snackbarHostState = snackbarHostState,
+                    scaffoldBottomPadding = scaffoldBottomPadding,
+                    inputHeightDp = inputHeightDp,
+                    isFullscreen = isFullscreen,
+                    gestureToolbarHidden = mainState.gestureToolbarHidden,
+                    isKeyboardVisible = isKeyboardVisible,
+                    isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                    isSheetOpen = isSheetOpen,
+                    effectiveShowInput = effectiveShowInput,
+                    inputOverflowExpanded = inputOverflowExpanded,
+                    forceOverflowOpen = featureTourState.forceOverflowOpen,
+                    swipeDownThresholdPx = swipeDownThresholdPx,
+                    suggestions = inputState.suggestions,
+                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    onHideInput = { mainScreenViewModel.setGestureInputHidden(true) },
+                    onDismissOverflow = { inputOverflowExpanded = false },
+                    modifier = modifier,
+                )
+            } else {
+                NormalStackedLayout(
+                    currentStream = currentStream,
+                    streamViewModel = streamViewModel,
+                    streamState = streamState,
+                    scaffoldContent = scaffoldContent,
+                    floatingToolbar = floatingToolbar,
+                    fullScreenSheetOverlay = fullScreenSheetOverlay,
+                    bottomBar = bottomBar,
+                    emoteMenuLayer = emoteMenuLayer,
+                    snackbarHostState = snackbarHostState,
+                    scaffoldBottomPadding = scaffoldBottomPadding,
+                    inputHeightDp = inputHeightDp,
+                    isFullscreen = isFullscreen,
+                    gestureToolbarHidden = mainState.gestureToolbarHidden,
+                    isKeyboardVisible = isKeyboardVisible,
+                    isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                    isSheetOpen = isSheetOpen,
+                    isInPipMode = isInPipMode,
+                    isWideWindow = isWideWindow,
+                    isLandscape = isLandscape,
+                    effectiveShowInput = effectiveShowInput,
+                    inputOverflowExpanded = inputOverflowExpanded,
+                    forceOverflowOpen = featureTourState.forceOverflowOpen,
+                    swipeDownThresholdPx = swipeDownThresholdPx,
+                    suggestions = inputState.suggestions,
+                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    onHideInput = { mainScreenViewModel.setGestureInputHidden(true) },
+                    onDismissOverflow = { inputOverflowExpanded = false },
+                    modifier = modifier,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.WideSplitLayout(
+    currentStream: UserName?,
+    streamViewModel: StreamViewModel,
+    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
+    floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
+    fullScreenSheetOverlay: @Composable (Dp) -> Unit,
+    bottomBar: @Composable () -> Unit,
+    emoteMenuLayer: @Composable (Modifier) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    scaffoldBottomPadding: Dp,
+    inputHeightDp: Dp,
+    isFullscreen: Boolean,
+    gestureToolbarHidden: Boolean,
+    isKeyboardVisible: Boolean,
+    isEmoteMenuOpen: Boolean,
+    isSheetOpen: Boolean,
+    effectiveShowInput: Boolean,
+    inputOverflowExpanded: Boolean,
+    forceOverflowOpen: Boolean,
+    swipeDownThresholdPx: Float,
+    suggestions: ImmutableList<Suggestion>,
+    onSuggestionClick: (Suggestion) -> Unit,
+    onHideInput: () -> Unit,
+    onDismissOverflow: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+    var splitFraction by remember { mutableFloatStateOf(0.6f) }
+    var containerWidthPx by remember { mutableIntStateOf(0) }
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .onSizeChanged { containerWidthPx = it.width },
+    ) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            // Left pane: Stream
+            Box(
+                modifier =
+                    Modifier
+                        .weight(splitFraction)
+                        .fillMaxSize(),
+            ) {
+                StreamView(
+                    channel = currentStream ?: return,
+                    streamViewModel = streamViewModel,
+                    fillPane = true,
+                    onClose = {
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
+                        streamViewModel.closeStream()
+                    },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+
+            // Right pane: Chat + all overlays
+            Box(
+                modifier =
+                    Modifier
+                        .weight(1f - splitFraction)
+                        .fillMaxSize(),
+            ) {
+                val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+
+                Scaffold(
+                    modifier =
+                        modifier
+                            .fillMaxSize()
+                            .padding(bottom = scaffoldBottomPadding),
+                    contentWindowInsets = WindowInsets(0),
+                    snackbarHost = {
+                        SnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.padding(bottom = inputHeightDp),
+                        )
+                    },
+                ) { paddingValues ->
+                    scaffoldContent(paddingValues, statusBarTop)
+                }
+
+                val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
+                val showTabsInSplit = chatPaneWidthDp > 250.dp
+
+                floatingToolbar(
+                    Modifier.align(Alignment.TopCenter),
+                    !isKeyboardVisible && !isEmoteMenuOpen && !isSheetOpen,
+                    false,
+                    showTabsInSplit,
+                )
+
+                if (!isFullscreen && gestureToolbarHidden) {
+                    StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
+                }
+
+                fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+
+                if (inputOverflowExpanded) {
+                    InputDismissScrim(
+                        forceOpen = forceOverflowOpen,
+                        onDismiss = onDismissOverflow,
+                    )
+                }
 
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxSize()
-                            .onSizeChanged { containerWidthPx = it.width },
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = scaffoldBottomPadding)
+                            .swipeDownToHide(
+                                enabled = effectiveShowInput,
+                                thresholdPx = swipeDownThresholdPx,
+                                onHide = onHideInput,
+                            ),
                 ) {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        // Left pane: Stream
-                        Box(
-                            modifier =
-                                Modifier
-                                    .weight(splitFraction)
-                                    .fillMaxSize(),
-                        ) {
-                            StreamView(
-                                channel = currentStream,
-                                streamViewModel = streamViewModel,
-                                fillPane = true,
-                                onClose = {
-                                    keyboardController?.hide()
-                                    focusManager.clearFocus()
-                                    streamViewModel.closeStream()
-                                },
-                                modifier = Modifier.fillMaxSize(),
-                            )
-                        }
-
-                        // Right pane: Chat + all overlays
-                        Box(
-                            modifier =
-                                Modifier
-                                    .weight(1f - splitFraction)
-                                    .fillMaxSize(),
-                        ) {
-                            val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
-
-                            Scaffold(
-                                modifier =
-                                    modifier
-                                        .fillMaxSize()
-                                        .padding(bottom = scaffoldBottomPadding),
-                                contentWindowInsets = WindowInsets(0),
-                                snackbarHost = {
-                                    SnackbarHost(
-                                        hostState = snackbarHostState,
-                                        modifier = Modifier.padding(bottom = inputHeightDp),
-                                    )
-                                },
-                            ) { paddingValues ->
-                                scaffoldContent(paddingValues, statusBarTop)
-                            }
-
-                            val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
-                            val showTabsInSplit = chatPaneWidthDp > 250.dp
-
-                            floatingToolbar(
-                                Modifier.align(Alignment.TopCenter),
-                                !isKeyboardVisible && !inputState.isEmoteMenuOpen && !isSheetOpen,
-                                false,
-                                showTabsInSplit,
-                            )
-
-                            // Status bar scrim when toolbar is gesture-hidden
-                            if (!isFullscreen && mainState.gestureToolbarHidden) {
-                                StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
-                            }
-
-                            fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
-
-                            // Dismiss scrim for input overflow menu
-                            if (inputOverflowExpanded) {
-                                InputDismissScrim(
-                                    forceOpen = featureTourState.forceOverflowOpen,
-                                    onDismiss = { inputOverflowExpanded = false },
-                                )
-                            }
-
-                            // Input bar - rendered after sheet overlay so it's on top
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .align(Alignment.BottomCenter)
-                                        .padding(bottom = scaffoldBottomPadding)
-                                        .swipeDownToHide(
-                                            enabled = effectiveShowInput,
-                                            thresholdPx = swipeDownThresholdPx,
-                                            onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                                        ),
-                            ) {
-                                bottomBar()
-                            }
-
-                            emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-                            if (effectiveShowInput && isKeyboardVisible) {
-                                SuggestionDropdown(
-                                    suggestions = inputState.suggestions,
-                                    onSuggestionClick = chatInputViewModel::applySuggestion,
-                                    modifier =
-                                        Modifier
-                                            .align(Alignment.BottomStart)
-                                            .navigationBarsPadding()
-                                            .imePadding()
-                                            .padding(bottom = inputHeightDp + 2.dp),
-                                )
-                            }
-                        }
-                    }
-
-                    // Draggable handle overlaid at the split edge
-                    DraggableHandle(
-                        onDrag = { deltaPx ->
-                            if (containerWidthPx > 0) {
-                                splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
-                            }
-                        },
-                        modifier =
-                            Modifier
-                                .align(Alignment.CenterStart)
-                                .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
-                    )
-                }
-            } else {
-                // --- Normal stacked layout (portrait / narrow-without-stream / PiP) ---
-                if (!isInPipMode) {
-                    Scaffold(
-                        modifier =
-                            modifier
-                                .fillMaxSize()
-                                .padding(bottom = scaffoldBottomPadding),
-                        contentWindowInsets = WindowInsets(0),
-                        snackbarHost = {
-                            SnackbarHost(
-                                hostState = snackbarHostState,
-                                modifier = Modifier.padding(bottom = inputHeightDp),
-                            )
-                        },
-                    ) { paddingValues ->
-                        val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp * streamState.alpha.value)
-                        scaffoldContent(paddingValues, chatTopPadding)
-                    }
-                } // end !isInPipMode
-
-                // Stream View layer
-                currentStream?.let { channel ->
-                    val showStream = isInPipMode || !isKeyboardVisible || isLandscape
-                    // Delay adding StreamView to composition to prevent WebView flash on first open.
-                    // If the WebView was already attached (e.g. switching from wide layout), skip the delay.
-                    var streamComposed by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
-                    LaunchedEffect(showStream) {
-                        if (showStream) {
-                            delay(100)
-                            streamComposed = true
-                        } else {
-                            streamComposed = false
-                        }
-                    }
-                    if (showStream && streamComposed) {
-                        StreamView(
-                            channel = channel,
-                            streamViewModel = streamViewModel,
-                            isInPipMode = isInPipMode,
-                            onClose = {
-                                keyboardController?.hide()
-                                focusManager.clearFocus()
-                                streamViewModel.closeStream()
-                            },
-                            modifier =
-                                if (isInPipMode) {
-                                    Modifier.fillMaxSize()
-                                } else {
-                                    Modifier
-                                        .align(Alignment.TopCenter)
-                                        .fillMaxWidth()
-                                        .graphicsLayer { alpha = streamState.alpha.value }
-                                        .onSizeChanged { size ->
-                                            streamState.heightDp = with(density) { size.height.toDp() }
-                                        }
-                                },
-                        )
-                    }
-                    if (!showStream) {
-                        streamState.heightDp = 0.dp
-                    }
+                    bottomBar()
                 }
 
-                // Status bar scrim when stream is active — fades with stream/toolbar
-                if (currentStream != null && !isFullscreen && !isInPipMode) {
-                    StatusBarScrim(
-                        colorAlpha = 1f,
-                        modifier =
-                            Modifier
-                                .align(Alignment.TopCenter)
-                                .graphicsLayer { alpha = streamState.alpha.value },
-                    )
-                }
+                emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
-                // Floating Toolbars - collapsible tabs (expand on swipe) + actions
-                if (!isInPipMode) {
-                    floatingToolbar(
-                        Modifier.align(Alignment.TopCenter),
-                        (!isWideWindow || (!isKeyboardVisible && !inputState.isEmoteMenuOpen)) && !isSheetOpen,
-                        true,
-                        true,
-                    )
-                }
-
-                // Status bar scrim when toolbar is gesture-hidden — keeps status bar readable
-                if (!isInPipMode && !isFullscreen && mainState.gestureToolbarHidden) {
-                    StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
-                }
-
-                // Fullscreen Overlay Sheets — after toolbar/scrims so sheets render on top
-                if (!isInPipMode) {
-                    fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
-                }
-
-                // Dismiss scrim for input overflow menu — before input bar so menu items stay clickable
-                if (!isInPipMode && inputOverflowExpanded) {
-                    InputDismissScrim(
-                        forceOpen = featureTourState.forceOverflowOpen,
-                        onDismiss = { inputOverflowExpanded = false },
-                    )
-                }
-
-                // Input bar — on top of sheets and dismiss scrim for whisper/reply input
-                if (!isInPipMode) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = scaffoldBottomPadding)
-                                .swipeDownToHide(
-                                    enabled = effectiveShowInput,
-                                    thresholdPx = swipeDownThresholdPx,
-                                    onHide = { mainScreenViewModel.setGestureInputHidden(true) },
-                                ),
-                    ) {
-                        bottomBar()
-                    }
-                }
-
-                // Emote Menu Layer - slides up/down independently of keyboard
-                // Fast tween to match system keyboard animation speed
-                if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-                if (!isInPipMode && effectiveShowInput && isKeyboardVisible) {
+                if (effectiveShowInput && isKeyboardVisible) {
                     SuggestionDropdown(
-                        suggestions = inputState.suggestions,
-                        onSuggestionClick = chatInputViewModel::applySuggestion,
+                        suggestions = suggestions,
+                        onSuggestionClick = onSuggestionClick,
                         modifier =
                             Modifier
                                 .align(Alignment.BottomStart)
@@ -1057,6 +918,305 @@ fun MainScreen(
                     )
                 }
             }
+        }
+
+        DraggableHandle(
+            onDrag = { deltaPx ->
+                if (containerWidthPx > 0) {
+                    splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
+                }
+            },
+            modifier =
+                Modifier
+                    .align(Alignment.CenterStart)
+                    .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.NormalStackedLayout(
+    currentStream: UserName?,
+    streamViewModel: StreamViewModel,
+    streamState: StreamToolbarState,
+    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
+    floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
+    fullScreenSheetOverlay: @Composable (Dp) -> Unit,
+    bottomBar: @Composable () -> Unit,
+    emoteMenuLayer: @Composable (Modifier) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    scaffoldBottomPadding: Dp,
+    inputHeightDp: Dp,
+    isFullscreen: Boolean,
+    gestureToolbarHidden: Boolean,
+    isKeyboardVisible: Boolean,
+    isEmoteMenuOpen: Boolean,
+    isSheetOpen: Boolean,
+    isInPipMode: Boolean,
+    isWideWindow: Boolean,
+    isLandscape: Boolean,
+    effectiveShowInput: Boolean,
+    inputOverflowExpanded: Boolean,
+    forceOverflowOpen: Boolean,
+    swipeDownThresholdPx: Float,
+    suggestions: ImmutableList<Suggestion>,
+    onSuggestionClick: (Suggestion) -> Unit,
+    onHideInput: () -> Unit,
+    onDismissOverflow: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusManager = LocalFocusManager.current
+
+    if (!isInPipMode) {
+        Scaffold(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(bottom = scaffoldBottomPadding),
+            contentWindowInsets = WindowInsets(0),
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.padding(bottom = inputHeightDp),
+                )
+            },
+        ) { paddingValues ->
+            val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp * streamState.alpha.value)
+            scaffoldContent(paddingValues, chatTopPadding)
+        }
+    }
+
+    // Stream View layer
+    currentStream?.let { channel ->
+        val showStream = isInPipMode || !isKeyboardVisible || isLandscape
+        var streamComposed by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
+        LaunchedEffect(showStream) {
+            if (showStream) {
+                delay(100)
+                streamComposed = true
+            } else {
+                streamComposed = false
+            }
+        }
+        if (showStream && streamComposed) {
+            StreamView(
+                channel = channel,
+                streamViewModel = streamViewModel,
+                isInPipMode = isInPipMode,
+                onClose = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    streamViewModel.closeStream()
+                },
+                modifier =
+                    if (isInPipMode) {
+                        Modifier.fillMaxSize()
+                    } else {
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .graphicsLayer { alpha = streamState.alpha.value }
+                            .onSizeChanged { size ->
+                                streamState.heightDp = with(density) { size.height.toDp() }
+                            }
+                    },
+            )
+        }
+        if (!showStream) {
+            streamState.heightDp = 0.dp
+        }
+    }
+
+    // Status bar scrim when stream is active
+    if (currentStream != null && !isFullscreen && !isInPipMode) {
+        StatusBarScrim(
+            colorAlpha = 1f,
+            modifier =
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .graphicsLayer { alpha = streamState.alpha.value },
+        )
+    }
+
+    if (!isInPipMode) {
+        floatingToolbar(
+            Modifier.align(Alignment.TopCenter),
+            (!isWideWindow || (!isKeyboardVisible && !isEmoteMenuOpen)) && !isSheetOpen,
+            true,
+            true,
+        )
+    }
+
+    if (!isInPipMode && !isFullscreen && gestureToolbarHidden) {
+        StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
+    }
+
+    if (!isInPipMode) {
+        fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+    }
+
+    if (!isInPipMode && inputOverflowExpanded) {
+        InputDismissScrim(
+            forceOpen = forceOverflowOpen,
+            onDismiss = onDismissOverflow,
+        )
+    }
+
+    if (!isInPipMode) {
+        Box(
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = scaffoldBottomPadding)
+                    .swipeDownToHide(
+                        enabled = effectiveShowInput,
+                        thresholdPx = swipeDownThresholdPx,
+                        onHide = onHideInput,
+                    ),
+        ) {
+            bottomBar()
+        }
+    }
+
+    if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
+
+    if (!isInPipMode && effectiveShowInput && isKeyboardVisible) {
+        SuggestionDropdown(
+            suggestions = suggestions,
+            onSuggestionClick = onSuggestionClick,
+            modifier =
+                Modifier
+                    .align(Alignment.BottomStart)
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(bottom = inputHeightDp + 2.dp),
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MainScreenPagerEffects(
+    composePagerState: PagerState,
+    pagerState: ChannelPagerUiState,
+    onSetActivePage: (Int) -> Unit,
+    onClearNotifications: (Int) -> Unit,
+    onShowToolbar: () -> Unit,
+) {
+    // Sync Compose pager with ViewModel state
+    LaunchedEffect(pagerState.currentPage, pagerState.channels.size) {
+        if (!composePagerState.isScrollInProgress &&
+            composePagerState.currentPage != pagerState.currentPage &&
+            pagerState.currentPage in 0 until composePagerState.pageCount
+        ) {
+            composePagerState.scrollToPage(pagerState.currentPage)
+        }
+    }
+
+    // Eagerly update active channel on page change for snappy UI (room state, stream info)
+    LaunchedEffect(composePagerState.currentPage) {
+        if (composePagerState.currentPage != pagerState.currentPage) {
+            onSetActivePage(composePagerState.currentPage)
+        }
+    }
+
+    // Clear unread/mention indicators when page settles
+    LaunchedEffect(composePagerState.settledPage) {
+        onClearNotifications(composePagerState.settledPage)
+    }
+
+    // Pager swipe reveals toolbar
+    LaunchedEffect(composePagerState.isScrollInProgress) {
+        if (composePagerState.isScrollInProgress) {
+            onShowToolbar()
+        }
+    }
+}
+
+@Composable
+private fun MainScreenTourEffects(
+    featureTourViewModel: FeatureTourViewModel,
+    featureTourState: FeatureTourUiState,
+    mainScreenViewModel: MainScreenViewModel,
+    mainState: MainScreenUiState,
+    channelsReady: Boolean,
+    channelsEmpty: Boolean,
+) {
+    // Notify tour VM when channel state changes
+    LaunchedEffect(channelsReady, channelsEmpty) {
+        featureTourViewModel.onChannelsChanged(empty = channelsEmpty, ready = channelsReady)
+    }
+
+    // Drive tooltip dismissals and tour start from the typed step
+    LaunchedEffect(featureTourState.postOnboardingStep) {
+        when (featureTourState.postOnboardingStep) {
+            PostOnboardingStep.FeatureTour -> {
+                featureTourViewModel.addChannelTooltipState.dismiss()
+                featureTourViewModel.startTour()
+            }
+
+            PostOnboardingStep.Complete, PostOnboardingStep.Idle -> {
+                featureTourViewModel.addChannelTooltipState.dismiss()
+            }
+
+            PostOnboardingStep.ToolbarPlusHint -> {
+                Unit
+            }
+        }
+    }
+
+    // Sync tour's gestureInputHidden with MainScreenViewModel
+    LaunchedEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
+        if (featureTourState.isTourActive) {
+            mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
+        }
+    }
+
+    // Auto-advance tour when input is hidden during the SwipeGesture step
+    LaunchedEffect(mainState.gestureInputHidden, featureTourState.currentTourStep) {
+        if (mainState.gestureInputHidden && featureTourState.currentTourStep == TourStep.SwipeGesture) {
+            featureTourViewModel.advance()
+        }
+    }
+
+    // Keep toolbar visible during tour
+    LaunchedEffect(featureTourState.isTourActive, mainState.gestureToolbarHidden) {
+        if (featureTourState.isTourActive && mainState.gestureToolbarHidden) {
+            mainScreenViewModel.setGestureToolbarHidden(false)
+        }
+    }
+}
+
+@Composable
+private fun MainScreenFocusEffects(
+    imeHeight: androidx.compose.runtime.State<Int>,
+    isEmoteMenuOpen: Boolean,
+    currentStream: UserName?,
+) {
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Clear focus when keyboard fully reaches the bottom, but not when
+    // switching to the emote menu. Debounced to avoid premature focus loss.
+    LaunchedEffect(Unit) {
+        snapshotFlow { imeHeight.value == 0 && !isEmoteMenuOpen }
+            .debounce(150)
+            .distinctUntilChanged()
+            .collect { shouldClearFocus ->
+                if (shouldClearFocus) {
+                    focusManager.clearFocus()
+                }
+            }
+    }
+
+    // Clear focus after stream closes — the layout shift from removing StreamView
+    // can cause the TextField to regain focus and open the keyboard.
+    LaunchedEffect(currentStream) {
+        if (currentStream == null) {
+            keyboardController?.hide()
+            focusManager.clearFocus()
         }
     }
 }

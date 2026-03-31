@@ -99,11 +99,7 @@ fun ChatBottomBar(
         // Sticky helper text + nav bar spacer when input is hidden
         if (!showInput && !isSheetOpen) {
             val helperTextState = uiState.helperText
-            val resolvedRoomState = helperTextState.roomStateParts.map { it.resolve() }
-            val roomStateText = resolvedRoomState.joinToString(separator = ", ")
-            val streamInfoText = helperTextState.streamInfo
-            val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
-            if (combinedText.isNotEmpty()) {
+            if (!helperTextState.isEmpty) {
                 val horizontalPadding =
                     when {
                         isFullscreen && isInSplitLayout -> {
@@ -120,9 +116,6 @@ fun ChatBottomBar(
                             PaddingValues(horizontal = 16.dp)
                         }
                     }
-                val textMeasurer = rememberTextMeasurer()
-                val style = MaterialTheme.typography.labelSmall
-                val density = LocalDensity.current
                 Surface(
                     color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.85f),
                     modifier =
@@ -130,54 +123,14 @@ fun ChatBottomBar(
                             .fillMaxWidth()
                             .onSizeChanged { onHelperTextHeightChange(it.height) },
                 ) {
-                    var expanded by remember { mutableStateOf(false) }
-                    BoxWithConstraints(
+                    ExpandableHelperText(
+                        helperText = helperTextState,
                         modifier =
                             Modifier
                                 .navigationBarsPadding()
-                                .fillMaxWidth()
-                                .clickable { expanded = !expanded }
                                 .padding(horizontalPadding)
-                                .padding(vertical = 6.dp)
-                                .animateContentSize(),
-                    ) {
-                        val maxWidthPx = with(density) { maxWidth.roundToPx() }
-                        val fitsOnOneLine =
-                            remember(combinedText, style, maxWidthPx) {
-                                textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
-                            }
-                        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
-                        when {
-                            showTwoLines -> {
-                                Column {
-                                    Text(
-                                        text = roomStateText,
-                                        style = style,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                    )
-                                    Text(
-                                        text = streamInfoText,
-                                        style = style,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                    )
-                                }
-                            }
-
-                            else -> {
-                                Text(
-                                    text = combinedText,
-                                    style = style,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                )
-                            }
-                        }
-                    }
+                                .padding(vertical = 6.dp),
+                    )
                 }
             }
         }

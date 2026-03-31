@@ -295,67 +295,7 @@ fun ChatInputLayout(
                     onKeyboardAction = { if (canSend) onSend() },
                 )
 
-                // Helper text (roomstate + live info)
-                val resolvedRoomState = helperText.roomStateParts.map { it.resolve() }
-                val roomStateText = resolvedRoomState.joinToString(separator = ", ")
-                val streamInfoText = helperText.streamInfo
-                AnimatedVisibility(
-                    visible = !helperText.isEmpty,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut(),
-                ) {
-                    val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
-                    val textMeasurer = rememberTextMeasurer()
-                    val style = MaterialTheme.typography.labelSmall
-                    val density = LocalDensity.current
-                    var expanded by remember { mutableStateOf(false) }
-                    BoxWithConstraints(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .clickable { expanded = !expanded }
-                                .padding(horizontal = 16.dp)
-                                .padding(bottom = 4.dp)
-                                .animateContentSize(),
-                    ) {
-                        val maxWidthPx = with(density) { maxWidth.roundToPx() }
-                        val fitsOnOneLine =
-                            remember(combinedText, style, maxWidthPx) {
-                                textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
-                            }
-                        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
-                        when {
-                            showTwoLines -> {
-                                Column {
-                                    Text(
-                                        text = roomStateText,
-                                        style = style,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                    )
-                                    Text(
-                                        text = streamInfoText,
-                                        style = style,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                    )
-                                }
-                            }
-
-                            else -> {
-                                Text(
-                                    text = combinedText,
-                                    style = style,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                                )
-                            }
-                        }
-                    }
-                }
+                HelperTextRow(helperText = helperText)
 
                 // Progress indicator for uploads and data loading
                 AnimatedVisibility(
@@ -867,4 +807,81 @@ private fun EndAlignedActionGroup(
         onRepeatedSendChange = onRepeatedSendChange,
         modifier = Modifier.size(44.dp),
     )
+}
+
+@Composable
+private fun HelperTextRow(helperText: HelperText) {
+    AnimatedVisibility(
+        visible = !helperText.isEmpty,
+        enter = expandVertically() + fadeIn(),
+        exit = shrinkVertically() + fadeOut(),
+    ) {
+        ExpandableHelperText(
+            helperText = helperText,
+            modifier =
+                Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 4.dp),
+        )
+    }
+}
+
+@Composable
+internal fun ExpandableHelperText(
+    helperText: HelperText,
+    modifier: Modifier = Modifier,
+) {
+    val resolvedRoomState = helperText.roomStateParts.map { it.resolve() }
+    val roomStateText = resolvedRoomState.joinToString(separator = ", ")
+    val streamInfoText = helperText.streamInfo
+    val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
+    val textMeasurer = rememberTextMeasurer()
+    val style = MaterialTheme.typography.labelSmall
+    val density = LocalDensity.current
+    var expanded by remember { mutableStateOf(false) }
+
+    BoxWithConstraints(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .animateContentSize(),
+    ) {
+        val maxWidthPx = with(density) { maxWidth.roundToPx() }
+        val fitsOnOneLine =
+            remember(combinedText, style, maxWidthPx) {
+                textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
+            }
+        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
+        when {
+            showTwoLines -> {
+                Column {
+                    Text(
+                        text = roomStateText,
+                        style = style,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                    )
+                    Text(
+                        text = streamInfoText,
+                        style = style,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                    )
+                }
+            }
+
+            else -> {
+                Text(
+                    text = combinedText,
+                    style = style,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                )
+            }
+        }
+    }
 }

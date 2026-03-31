@@ -35,11 +35,14 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.StartupValidation
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
+import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.user.UserPopupDialog
+import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
@@ -105,20 +108,10 @@ fun MainScreenDialogs(
     }
 
     if (dialogState.showModActions && modActionsChannel != null) {
-        val modActionsViewModel: ModActionsViewModel =
-            koinViewModel(
-                key = "mod-actions-${modActionsChannel.value}",
-                parameters = { parametersOf(modActionsChannel) },
-            )
-        val shieldModeActive by modActionsViewModel.shieldModeActive.collectAsStateWithLifecycle()
-        ModActionsDialog(
-            roomState = modActionsViewModel.roomState,
-            isBroadcaster = modActionsViewModel.isBroadcaster,
+        ModActionsDialogContainer(
+            channel = modActionsChannel,
             isStreamActive = isStreamActive,
-            shieldModeActive = shieldModeActive,
-            onSendCommand = { command ->
-                chatInputViewModel.trySendMessageOrCommand(command)
-            },
+            onSendCommand = chatInputViewModel::trySendMessageOrCommand,
             onAnnounce = { chatInputViewModel.setAnnouncing(true) },
             onDismiss = dialogViewModel::dismissModActions,
         )
@@ -214,130 +207,41 @@ fun MainScreenDialogs(
     }
 
     dialogState.messageOptionsParams?.let { params ->
-        val viewModel: MessageOptionsViewModel =
-            koinViewModel(
-                key = params.messageId,
-                parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
-            )
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        (state as? MessageOptionsState.Found)?.let { s ->
-            MessageOptionsDialog(
-                channel = params.channel?.value,
-                canModerate = s.canModerate,
-                canReply = s.canReply,
-                canCopy = params.canCopy,
-                canJump = params.canJump,
-                hasReplyThread = s.hasReplyThread,
-                onJumpToMessage = {
-                    params.channel?.let { channel ->
-                        onJumpToMessage(params.messageId, channel)
-                    }
-                },
-                onReply = {
-                    chatInputViewModel.setReplying(true, s.messageId, s.replyName)
-                },
-                onReplyToOriginal = {
-                    chatInputViewModel.setReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName)
-                },
-                onViewThread = {
-                    sheetNavigationViewModel.openReplies(s.rootThreadId, s.replyName)
-                },
-                onCopy = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                        snackbarHostState.showSnackbar(messageCopiedMsg)
-                    }
-                },
-                onCopyFullMessage = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
-                        snackbarHostState.showSnackbar(messageCopiedMsg)
-                    }
-                },
-                onCopyMessageId = {
-                    scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
-                        snackbarHostState.showSnackbar(messageIdCopiedMsg)
-                    }
-                },
-                onDelete = viewModel::deleteMessage,
-                onTimeout = viewModel::timeoutUser,
-                onBan = viewModel::banUser,
-                onUnban = viewModel::unbanUser,
-                onDismiss = dialogViewModel::dismissMessageOptions,
-            )
-        }
+        MessageOptionsDialogContainer(
+            params = params,
+            snackbarHostState = snackbarHostState,
+            onJumpToMessage = onJumpToMessage,
+            onSetReplying = chatInputViewModel::setReplying,
+            onOpenReplies = sheetNavigationViewModel::openReplies,
+            onDismiss = dialogViewModel::dismissMessageOptions,
+        )
     }
 
     dialogState.emoteInfoEmotes?.let { emotes ->
-        val viewModel: EmoteInfoViewModel =
-            koinViewModel(
-                key = emotes.joinToString { it.id },
-                parameters = { parametersOf(emotes) },
-            )
-        val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
-        val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
-        val canUseEmote =
-            isLoggedIn &&
-                when (sheetState) {
-                    is FullScreenSheetState.Closed,
-                    is FullScreenSheetState.Replies,
-                    -> true
-
-                    is FullScreenSheetState.Mention,
-                    is FullScreenSheetState.Whisper,
-                    -> whisperTarget != null
-
-                    is FullScreenSheetState.History -> false
-                }
-        EmoteInfoDialog(
-            items = viewModel.items,
-            isLoggedIn = canUseEmote,
-            onUseEmote = { chatInputViewModel.insertText("$it ") },
-            onCopyEmote = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("emote", it)))
-                }
-            },
-            onOpenLink = { onOpenUrl(it) },
+        EmoteInfoDialogContainer(
+            emotes = emotes,
+            isLoggedIn = isLoggedIn,
+            onInsertText = chatInputViewModel::insertText,
+            onOpenUrl = onOpenUrl,
             onDismiss = dialogViewModel::dismissEmoteInfo,
         )
     }
 
     dialogState.userPopupParams?.let { params ->
-        val viewModel: UserPopupViewModel =
-            koinViewModel(
-                key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
-                parameters = { parametersOf(params) },
-            )
-        val state by viewModel.userPopupState.collectAsStateWithLifecycle()
-        UserPopupDialog(
-            state = state,
-            badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) }.toImmutableList(),
-            isOwnUser = viewModel.isOwnUser,
-            onBlockUser = viewModel::blockUser,
-            onUnblockUser = viewModel::unblockUser,
-            onDismiss = dialogViewModel::dismissUserPopup,
-            onMention = { name, displayName ->
-                chatInputViewModel.mentionUser(
-                    user = UserName(name),
-                    display = DisplayName(displayName),
-                )
-            },
-            onWhisper = { name ->
+        UserPopupDialogContainer(
+            params = params,
+            onMention = chatInputViewModel::mentionUser,
+            onWhisper = { userName ->
                 sheetNavigationViewModel.openWhispers()
-                chatInputViewModel.setWhisperTarget(UserName(name))
+                chatInputViewModel.setWhisperTarget(userName)
             },
-            onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
-            onReport = { _ ->
-                onReportChannel()
-            },
-            onMessageHistory = { userName ->
-                params.channel?.let { channel ->
-                    sheetNavigationViewModel.openHistory(channel, "from:$userName")
-                }
+            onOpenUrl = onOpenUrl,
+            onReportChannel = onReportChannel,
+            onOpenHistory = { channel, filter ->
+                sheetNavigationViewModel.openHistory(channel, filter)
                 dialogViewModel.dismissUserPopup()
             },
+            onDismiss = dialogViewModel::dismissUserPopup,
         )
     }
 
@@ -426,4 +330,176 @@ private fun UploadDisclaimerSheet(
             }
         }
     }
+}
+
+@Composable
+private fun ModActionsDialogContainer(
+    channel: UserName,
+    isStreamActive: Boolean,
+    onSendCommand: (String) -> Unit,
+    onAnnounce: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val viewModel: ModActionsViewModel =
+        koinViewModel(
+            key = "mod-actions-${channel.value}",
+            parameters = { parametersOf(channel) },
+        )
+    val shieldModeActive by viewModel.shieldModeActive.collectAsStateWithLifecycle()
+    ModActionsDialog(
+        roomState = viewModel.roomState,
+        isBroadcaster = viewModel.isBroadcaster,
+        isStreamActive = isStreamActive,
+        shieldModeActive = shieldModeActive,
+        onSendCommand = onSendCommand,
+        onAnnounce = onAnnounce,
+        onDismiss = onDismiss,
+    )
+}
+
+@Composable
+private fun MessageOptionsDialogContainer(
+    params: MessageOptionsParams,
+    snackbarHostState: SnackbarHostState,
+    onJumpToMessage: (String, UserName) -> Unit,
+    onSetReplying: (Boolean, String, UserName) -> Unit,
+    onOpenReplies: (String, UserName) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val viewModel: MessageOptionsViewModel =
+        koinViewModel(
+            key = params.messageId,
+            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
+        )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val messageCopiedMsg = stringResource(R.string.snackbar_message_copied)
+    val messageIdCopiedMsg = stringResource(R.string.snackbar_message_id_copied)
+
+    (state as? MessageOptionsState.Found)?.let { s ->
+        MessageOptionsDialog(
+            channel = params.channel?.value,
+            canModerate = s.canModerate,
+            canReply = s.canReply,
+            canCopy = params.canCopy,
+            canJump = params.canJump,
+            hasReplyThread = s.hasReplyThread,
+            onJumpToMessage = {
+                params.channel?.let { channel ->
+                    onJumpToMessage(params.messageId, channel)
+                }
+            },
+            onReply = { onSetReplying(true, s.messageId, s.replyName) },
+            onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName) },
+            onViewThread = { onOpenReplies(s.rootThreadId, s.replyName) },
+            onCopy = {
+                scope.launch {
+                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
+                    snackbarHostState.showSnackbar(messageCopiedMsg)
+                }
+            },
+            onCopyFullMessage = {
+                scope.launch {
+                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
+                    snackbarHostState.showSnackbar(messageCopiedMsg)
+                }
+            },
+            onCopyMessageId = {
+                scope.launch {
+                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
+                    snackbarHostState.showSnackbar(messageIdCopiedMsg)
+                }
+            },
+            onDelete = viewModel::deleteMessage,
+            onTimeout = viewModel::timeoutUser,
+            onBan = viewModel::banUser,
+            onUnban = viewModel::unbanUser,
+            onDismiss = onDismiss,
+        )
+    }
+}
+
+@Composable
+private fun EmoteInfoDialogContainer(
+    emotes: List<ChatMessageEmote>,
+    isLoggedIn: Boolean,
+    onInsertText: (String) -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val viewModel: EmoteInfoViewModel =
+        koinViewModel(
+            key = emotes.joinToString { it.id },
+            parameters = { parametersOf(emotes) },
+        )
+    val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
+    val chatInputViewModel: ChatInputViewModel = koinViewModel()
+    val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+    val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+
+    val canUseEmote =
+        isLoggedIn &&
+            when (sheetState) {
+                is FullScreenSheetState.Closed,
+                is FullScreenSheetState.Replies,
+                -> true
+
+                is FullScreenSheetState.Mention,
+                is FullScreenSheetState.Whisper,
+                -> whisperTarget != null
+
+                is FullScreenSheetState.History -> false
+            }
+    EmoteInfoDialog(
+        items = viewModel.items,
+        isLoggedIn = canUseEmote,
+        onUseEmote = { onInsertText("$it ") },
+        onCopyEmote = {
+            scope.launch {
+                clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("emote", it)))
+            }
+        },
+        onOpenLink = onOpenUrl,
+        onDismiss = onDismiss,
+    )
+}
+
+@Composable
+private fun UserPopupDialogContainer(
+    params: UserPopupStateParams,
+    onMention: (UserName, DisplayName) -> Unit,
+    onWhisper: (UserName) -> Unit,
+    onOpenUrl: (String) -> Unit,
+    onReportChannel: () -> Unit,
+    onOpenHistory: (UserName, String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val viewModel: UserPopupViewModel =
+        koinViewModel(
+            key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
+            parameters = { parametersOf(params) },
+        )
+    val state by viewModel.userPopupState.collectAsStateWithLifecycle()
+    UserPopupDialog(
+        state = state,
+        badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) }.toImmutableList(),
+        isOwnUser = viewModel.isOwnUser,
+        onBlockUser = viewModel::blockUser,
+        onUnblockUser = viewModel::unblockUser,
+        onDismiss = onDismiss,
+        onMention = { name, displayName ->
+            onMention(UserName(name), DisplayName(displayName))
+        },
+        onWhisper = { name -> onWhisper(UserName(name)) },
+        onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
+        onReport = { _ -> onReportChannel() },
+        onMessageHistory = { userName ->
+            params.channel?.let { channel ->
+                onOpenHistory(channel, "from:$userName")
+            }
+        },
+    )
 }

@@ -49,42 +49,7 @@ fun FullScreenSheetOverlay(
         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
         modifier = modifier.fillMaxSize(),
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            val popupOnlyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, _ ->
-                onUserClick(
-                    UserPopupStateParams(
-                        targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                        targetUserName = UserName(userName),
-                        targetDisplayName = DisplayName(displayName),
-                        channel = channel?.let { UserName(it) },
-                        badges = badges.map { it.badge },
-                    ),
-                )
-            }
-
-            val mentionableClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
-                val shouldOpenPopup =
-                    when (userLongClickBehavior) {
-                        UserLongClickBehavior.MentionsUser -> !isLongPress
-                        UserLongClickBehavior.OpensPopup -> isLongPress
-                    }
-                if (shouldOpenPopup) {
-                    onUserClick(
-                        UserPopupStateParams(
-                            targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                            targetUserName = UserName(userName),
-                            targetDisplayName = DisplayName(displayName),
-                            channel = channel?.let { UserName(it) },
-                            badges = badges.map { it.badge },
-                        ),
-                    )
-                } else {
-                    onUserMention(UserName(userName), DisplayName(displayName))
-                }
-            }
-
+        Box(modifier = Modifier.fillMaxSize()) {
             when (sheetState) {
                 is FullScreenSheetState.Closed -> {
                     Unit
@@ -95,20 +60,8 @@ fun FullScreenSheetOverlay(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = false,
                         onDismiss = onDismiss,
-                        onUserClick = popupOnlyClickHandler,
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            onMessageLongClick(
-                                MessageOptionsParams(
-                                    messageId = messageId,
-                                    channel = channel?.let { UserName(it) },
-                                    fullMessage = fullMessage,
-                                    canModerate = false,
-                                    canReply = false,
-                                    canCopy = true,
-                                    canJump = true,
-                                ),
-                            )
-                        },
+                        onUserClick = popupOnlyClickHandler(onUserClick),
+                        onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
                         bottomContentPadding = bottomContentPadding,
@@ -120,20 +73,8 @@ fun FullScreenSheetOverlay(
                         mentionViewModel = mentionViewModel,
                         initialisWhisperTab = true,
                         onDismiss = onDismiss,
-                        onUserClick = popupOnlyClickHandler,
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            onMessageLongClick(
-                                MessageOptionsParams(
-                                    messageId = messageId,
-                                    channel = channel?.let { UserName(it) },
-                                    fullMessage = fullMessage,
-                                    canModerate = false,
-                                    canReply = false,
-                                    canCopy = true,
-                                    canJump = false,
-                                ),
-                            )
-                        },
+                        onUserClick = popupOnlyClickHandler(onUserClick),
+                        onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = false),
                         onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
                         bottomContentPadding = bottomContentPadding,
@@ -144,73 +85,117 @@ fun FullScreenSheetOverlay(
                     RepliesSheet(
                         rootMessageId = sheetState.replyMessageId,
                         onDismiss = onDismissReplies,
-                        onUserClick = mentionableClickHandler,
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            onMessageLongClick(
-                                MessageOptionsParams(
-                                    messageId = messageId,
-                                    channel = channel?.let { UserName(it) },
-                                    fullMessage = fullMessage,
-                                    canModerate = false,
-                                    canReply = false,
-                                    canCopy = true,
-                                    canJump = true,
-                                ),
-                            )
-                        },
+                        onUserClick = mentionableClickHandler(onUserClick, onUserMention, userLongClickBehavior),
+                        onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
 
                 is FullScreenSheetState.History -> {
-                    val viewModel: MessageHistoryViewModel =
-                        koinViewModel(
-                            key = "history-${sheetState.channel.value}",
-                            parameters = { parametersOf(sheetState.channel) },
-                        )
-                    val historyClickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
-                        val shouldOpenPopup =
-                            when (userLongClickBehavior) {
-                                UserLongClickBehavior.MentionsUser -> !isLongPress
-                                UserLongClickBehavior.OpensPopup -> isLongPress
-                            }
-                        if (shouldOpenPopup) {
-                            onUserClick(
-                                UserPopupStateParams(
-                                    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                    targetUserName = UserName(userName),
-                                    targetDisplayName = DisplayName(displayName),
-                                    channel = channel?.let { UserName(it) },
-                                    badges = badges.map { it.badge },
-                                ),
-                            )
-                        } else {
-                            viewModel.insertText("${UserName(userName).valueOrDisplayName(DisplayName(displayName))} ")
-                        }
-                    }
-                    MessageHistorySheet(
-                        viewModel = viewModel,
+                    HistorySheetContent(
                         channel = sheetState.channel,
                         initialFilter = sheetState.initialFilter,
                         onDismiss = onDismiss,
-                        onUserClick = historyClickHandler,
-                        onMessageLongClick = { messageId, channel, fullMessage ->
-                            onMessageLongClick(
-                                MessageOptionsParams(
-                                    messageId = messageId,
-                                    channel = channel?.let { UserName(it) },
-                                    fullMessage = fullMessage,
-                                    canModerate = false,
-                                    canReply = false,
-                                    canCopy = true,
-                                    canJump = true,
-                                ),
-                            )
-                        },
+                        onUserClick = onUserClick,
+                        onMessageLongClick = onMessageLongClick,
                         onEmoteClick = onEmoteClick,
+                        userLongClickBehavior = userLongClickBehavior,
+                        bottomContentPadding = bottomContentPadding,
                     )
                 }
             }
         }
     }
 }
+
+@Composable
+private fun HistorySheetContent(
+    channel: UserName,
+    initialFilter: String,
+    onDismiss: () -> Unit,
+    onUserClick: (UserPopupStateParams) -> Unit,
+    onMessageLongClick: (MessageOptionsParams) -> Unit,
+    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    userLongClickBehavior: UserLongClickBehavior,
+    bottomContentPadding: Dp,
+) {
+    val viewModel: MessageHistoryViewModel =
+        koinViewModel(
+            key = "history-${channel.value}",
+            parameters = { parametersOf(channel) },
+        )
+    val clickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, clickChannel, badges, isLongPress ->
+        val shouldOpenPopup =
+            when (userLongClickBehavior) {
+                UserLongClickBehavior.MentionsUser -> !isLongPress
+                UserLongClickBehavior.OpensPopup -> isLongPress
+            }
+        if (shouldOpenPopup) {
+            onUserClick(buildUserPopupParams(userId, userName, displayName, clickChannel, badges))
+        } else {
+            viewModel.insertText("${UserName(userName).valueOrDisplayName(DisplayName(displayName))} ")
+        }
+    }
+    MessageHistorySheet(
+        viewModel = viewModel,
+        channel = channel,
+        initialFilter = initialFilter,
+        onDismiss = onDismiss,
+        onUserClick = clickHandler,
+        onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
+        onEmoteClick = onEmoteClick,
+    )
+}
+
+private fun popupOnlyClickHandler(onUserClick: (UserPopupStateParams) -> Unit): (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit =
+    { userId, userName, displayName, channel, badges, _ ->
+        onUserClick(buildUserPopupParams(userId, userName, displayName, channel, badges))
+    }
+
+private fun mentionableClickHandler(
+    onUserClick: (UserPopupStateParams) -> Unit,
+    onUserMention: (UserName, DisplayName) -> Unit,
+    userLongClickBehavior: UserLongClickBehavior,
+): (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, channel, badges, isLongPress ->
+    val shouldOpenPopup =
+        when (userLongClickBehavior) {
+            UserLongClickBehavior.MentionsUser -> !isLongPress
+            UserLongClickBehavior.OpensPopup -> isLongPress
+        }
+    if (shouldOpenPopup) {
+        onUserClick(buildUserPopupParams(userId, userName, displayName, channel, badges))
+    } else {
+        onUserMention(UserName(userName), DisplayName(displayName))
+    }
+}
+
+private fun messageOptionsHandler(
+    onMessageLongClick: (MessageOptionsParams) -> Unit,
+    canJump: Boolean,
+): (String, String?, String) -> Unit = { messageId, channel, fullMessage ->
+    onMessageLongClick(
+        MessageOptionsParams(
+            messageId = messageId,
+            channel = channel?.let { UserName(it) },
+            fullMessage = fullMessage,
+            canModerate = false,
+            canReply = false,
+            canCopy = true,
+            canJump = canJump,
+        ),
+    )
+}
+
+private fun buildUserPopupParams(
+    userId: String?,
+    userName: String,
+    displayName: String,
+    channel: String?,
+    badges: List<BadgeUi>,
+) = UserPopupStateParams(
+    targetUserId = userId?.let { UserId(it) } ?: UserId(""),
+    targetUserName = UserName(userName),
+    targetDisplayName = DisplayName(displayName),
+    channel = channel?.let { UserName(it) },
+    badges = badges.map { it.badge },
+)

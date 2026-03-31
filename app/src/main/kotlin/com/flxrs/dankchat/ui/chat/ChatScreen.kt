@@ -361,66 +361,6 @@ private fun RecoveryFabs(
 
     // TooltipBox must be outside AnimatedVisibility — the scaleIn animation
     // transforms anchor bounds, causing M3 to miscalculate the caret position.
-    val tooltipContent: @Composable () -> Unit = {
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // More FAB ↔ Actions menu — hidden during tour so tooltip points at escape FAB
-            if (!showInput && fabMenuCallbacks != null && recoveryFabTooltipState == null) {
-                AnimatedContent(
-                    targetState = menuExpanded,
-                    transitionSpec = {
-                        (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
-                    },
-                    label = "FabMenuToggle",
-                ) { expanded ->
-                    when {
-                        expanded -> {
-                            var backProgress by remember { mutableFloatStateOf(0f) }
-                            PredictiveBackHandler { progress ->
-                                try {
-                                    progress.collect { event ->
-                                        backProgress = event.progress
-                                    }
-                                    onMenuExpandedChange(false)
-                                } catch (_: Exception) {
-                                    backProgress = 0f
-                                }
-                            }
-                            FabActionsMenu(
-                                callbacks = fabMenuCallbacks,
-                                onDismiss = { onMenuExpandedChange(false) },
-                                modifier = Modifier.predictiveBackScale(backProgress),
-                            )
-                        }
-
-                        else -> {
-                            SmallFloatingActionButton(
-                                onClick = { onMenuExpandedChange(true) },
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = stringResource(R.string.more),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-
-            AnimatedVisibility(
-                visible = visible,
-                enter = scaleIn() + fadeIn(),
-                exit = scaleOut() + fadeOut(),
-            ) {
-                escapeFab()
-            }
-        }
-    }
-
     if (recoveryFabTooltipState != null) {
         TooltipBox(
             positionProvider =
@@ -441,7 +381,14 @@ private fun RecoveryFabs(
             hasAction = true,
             modifier = modifier,
         ) {
-            tooltipContent()
+            // During tour, only show escape FAB (menu toggle hidden so tooltip points at it)
+            AnimatedVisibility(
+                visible = visible,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+            ) {
+                escapeFab()
+            }
         }
     } else {
         AnimatedVisibility(
@@ -455,50 +402,62 @@ private fun RecoveryFabs(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 if (!showInput && fabMenuCallbacks != null) {
-                    AnimatedContent(
-                        targetState = menuExpanded,
-                        transitionSpec = {
-                            (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
-                        },
-                        label = "FabMenuToggle",
-                    ) { expanded ->
-                        when {
-                            expanded -> {
-                                var backProgress by remember { mutableFloatStateOf(0f) }
-                                PredictiveBackHandler { progress ->
-                                    try {
-                                        progress.collect { event ->
-                                            backProgress = event.progress
-                                        }
-                                        onMenuExpandedChange(false)
-                                    } catch (_: Exception) {
-                                        backProgress = 0f
-                                    }
-                                }
-                                FabActionsMenu(
-                                    callbacks = fabMenuCallbacks,
-                                    onDismiss = { onMenuExpandedChange(false) },
-                                    modifier = Modifier.predictiveBackScale(backProgress),
-                                )
-                            }
+                    FabMenuToggle(
+                        fabMenuCallbacks = fabMenuCallbacks,
+                        menuExpanded = menuExpanded,
+                        onMenuExpandedChange = onMenuExpandedChange,
+                    )
+                }
+                escapeFab()
+            }
+        }
+    }
+}
 
-                            else -> {
-                                SmallFloatingActionButton(
-                                    onClick = { onMenuExpandedChange(true) },
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = stringResource(R.string.more),
-                                    )
-                                }
-                            }
+@Composable
+private fun FabMenuToggle(
+    fabMenuCallbacks: FabMenuCallbacks,
+    menuExpanded: Boolean,
+    onMenuExpandedChange: (Boolean) -> Unit,
+) {
+    AnimatedContent(
+        targetState = menuExpanded,
+        transitionSpec = {
+            (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut())
+        },
+        label = "FabMenuToggle",
+    ) { expanded ->
+        when {
+            expanded -> {
+                var backProgress by remember { mutableFloatStateOf(0f) }
+                PredictiveBackHandler { progress ->
+                    try {
+                        progress.collect { event ->
+                            backProgress = event.progress
                         }
+                        onMenuExpandedChange(false)
+                    } catch (_: Exception) {
+                        backProgress = 0f
                     }
                 }
+                FabActionsMenu(
+                    callbacks = fabMenuCallbacks,
+                    onDismiss = { onMenuExpandedChange(false) },
+                    modifier = Modifier.predictiveBackScale(backProgress),
+                )
+            }
 
-                escapeFab()
+            else -> {
+                SmallFloatingActionButton(
+                    onClick = { onMenuExpandedChange(true) },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = stringResource(R.string.more),
+                    )
+                }
             }
         }
     }
