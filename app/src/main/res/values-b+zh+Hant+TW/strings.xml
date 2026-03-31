@@ -427,6 +427,8 @@
     <string name="preference_user_long_click_title">使用者長按行為</string>
     <string name="preference_user_long_click_summary_on">輕觸開啟用戶資訊；長按提及用戶</string>
     <string name="preference_user_long_click_summary_off">輕觸提及用戶；長按開啟用戶資訊</string>
+    <string name="preference_colorize_nicknames_title">為暱稱上色</string>
+    <string name="preference_colorize_nicknames_summary">為未設定顏色的用戶隨機分配顏色</string>
     <string name="preference_tts_force_english_title">強制使用英文</string>
     <string name="preference_tts_force_english_summary">強制文字朗讀使用英文，而非系統預設語言</string>
     <string name="preference_visible_emotes_title">顯示第三方表情符號</string>

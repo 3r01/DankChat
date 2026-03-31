@@ -135,6 +135,7 @@ private fun ChatSettingsScreen(
                 scrollbackLength = settings.scrollbackLength,
                 showUsernames = settings.showUsernames,
                 userLongClickBehavior = settings.userLongClickBehavior,
+                colorizeNicknames = settings.colorizeNicknames,
                 showTimedOutMessages = settings.showTimedOutMessages,
                 showTimestamps = settings.showTimestamps,
                 timestampFormat = settings.timestampFormat,
@@ -177,6 +178,7 @@ private fun GeneralCategory(
     scrollbackLength: Int,
     showUsernames: Boolean,
     userLongClickBehavior: UserLongClickBehavior,
+    colorizeNicknames: Boolean,
     showTimedOutMessages: Boolean,
     showTimestamps: Boolean,
     timestampFormat: String,
@@ -238,6 +240,13 @@ private fun GeneralCategory(
             entries = longClickEntries,
             selected = userLongClickBehavior,
             onChange = { onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
+        )
+
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_colorize_nicknames_title),
+            summary = stringResource(R.string.preference_colorize_nicknames_summary),
+            isChecked = colorizeNicknames,
+            onClick = { onInteraction(ChatSettingsInteraction.ColorizeNicknames(it)) },
         )
 
         PreferenceItem(

@@ -281,6 +281,8 @@
     <string name="preference_user_long_click_title">ユーザーの長押しの動作</string>
     <string name="preference_user_long_click_summary_on">通常のクリックでポップアップを開き、長押しでメンション</string>
     <string name="preference_user_long_click_summary_off">通常のクリックでメンション、長押しでポップアップを開く</string>
+    <string name="preference_colorize_nicknames_title">ニックネームに色を付ける</string>
+    <string name="preference_colorize_nicknames_summary">色が設定されていないユーザーにランダムな色を割り当てる</string>
     <string name="preference_tts_force_english_title">強制的に言語を英語にする</string>
     <string name="preference_tts_force_english_summary">システムのデフォルトの代わりにTTS音声言語を英語にする</string>
     <string name="preference_visible_emotes_title">サードパーティのエモートの表示</string>

@@ -2,10 +2,12 @@ package com.flxrs.dankchat.ui.chat
 
 import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.chat.ChatImportance
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
@@ -336,10 +338,11 @@ class ChatMessageMapper(
 
         val displayName = tags["display-name"].orEmpty()
         val login = tags["login"]?.toUserName()
-        val rawNameColor =
+        val ircColor =
             tags["color"]?.ifBlank { null }?.let(android.graphics.Color::parseColor)
                 ?: login?.let { usersRepository.getCachedUserColor(it) }
                 ?: Message.DEFAULT_COLOR
+        val rawNameColor = resolveNameColor(null, ircColor, tags["user-id"]?.toUserId(), chatSettings)
 
         return ChatMessageUiState.UserNoticeMessageUi(
             id = id,
@@ -555,8 +558,7 @@ class ChatMessageMapper(
                 append(message)
             }
 
-        // Store raw color for normalization at render time (needs Compose theme context)
-        val rawNameColor = userDisplay?.color ?: color
+        val rawNameColor = resolveNameColor(userDisplay?.color, color, userId, chatSettings)
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
@@ -686,9 +688,8 @@ class ChatMessageMapper(
                 append(message)
             }
 
-        // Store raw colors for normalization at render time (needs Compose theme context)
-        val rawSenderColor = userDisplay?.color ?: color
-        val rawRecipientColor = recipientDisplay?.color ?: recipientColor
+        val rawSenderColor = resolveNameColor(userDisplay?.color, color, userId, chatSettings)
+        val rawRecipientColor = resolveNameColor(recipientDisplay?.color, recipientColor, recipientId, chatSettings)
 
         return ChatMessageUiState.WhisperMessageUi(
             id = id,
@@ -711,6 +712,18 @@ class ChatMessageMapper(
             fullMessage = fullMessage,
             replyTargetName = if (currentUserName != null && name.value.equals(currentUserName.value, ignoreCase = true)) recipientName else name,
         )
+    }
+
+    private fun resolveNameColor(
+        customColor: Int?,
+        ircColor: Int,
+        userId: UserId?,
+        chatSettings: ChatSettings,
+    ): Int = when {
+        customColor != null -> customColor
+        ircColor != Message.DEFAULT_COLOR -> ircColor
+        chatSettings.colorizeNicknames && userId != null -> getStableColor(userId)
+        else -> ircColor
     }
 
     data class BackgroundColors(
@@ -844,6 +857,31 @@ class ChatMessageMapper(
                 0xFFAED581.toInt(),
                 0xFFEDD59A.toInt(), // redemption/first/elevated (v2 light)
             )
+
+        // Twitch's 15 default username colors
+        private val TWITCH_USERNAME_COLORS = intArrayOf(
+            0xFFFF0000.toInt(), // Red
+            0xFF0000FF.toInt(), // Blue
+            0xFF00FF00.toInt(), // Green
+            0xFFB22222.toInt(), // FireBrick
+            0xFFFF7F50.toInt(), // Coral
+            0xFF9ACD32.toInt(), // YellowGreen
+            0xFFFF4500.toInt(), // OrangeRed
+            0xFF2E8B57.toInt(), // SeaGreen
+            0xFFDAA520.toInt(), // GoldenRod
+            0xFFD2691E.toInt(), // Chocolate
+            0xFF5F9EA0.toInt(), // CadetBlue
+            0xFF1E90FF.toInt(), // DodgerBlue
+            0xFFFF69B4.toInt(), // HotPink
+            0xFF8A2BE2.toInt(), // BlueViolet
+            0xFF00FF7F.toInt(), // SpringGreen
+        )
+
+        private fun getStableColor(userId: UserId): Int {
+            val colorSeed = userId.value.toIntOrNull()
+                ?: userId.value.sumOf { it.code }
+            return TWITCH_USERNAME_COLORS[colorSeed % TWITCH_USERNAME_COLORS.size]
+        }
 
         // Checkered background colors
         private val CHECKERED_LIGHT =

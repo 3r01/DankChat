@@ -36,6 +36,10 @@ sealed interface ChatSettingsInteraction {
         val value: UserLongClickBehavior,
     ) : ChatSettingsInteraction
 
+    data class ColorizeNicknames(
+        val value: Boolean,
+    ) : ChatSettingsInteraction
+
     data class ShowTimedOutMessages(
         val value: Boolean,
     ) : ChatSettingsInteraction
@@ -90,6 +94,7 @@ data class ChatSettingsState(
     val scrollbackLength: Int,
     val showUsernames: Boolean,
     val userLongClickBehavior: UserLongClickBehavior,
+    val colorizeNicknames: Boolean,
     val showTimedOutMessages: Boolean,
     val showTimestamps: Boolean,
     val timestampFormat: String,

@@ -425,6 +425,8 @@
     <string name="preference_user_long_click_title">ଉପଭୋକ୍ତା ଲମ୍ବା କ୍ଲିକ୍ ଆଚରଣ |</string>
     <string name="preference_user_long_click_summary_on">ନିୟମିତ କ୍ଲିକ୍ ପପ୍ଅପ୍ ଖୋଲିବ, ଲମ୍ବା କ୍ଲିକ୍ ଉଲ୍ଲେଖ |</string>
     <string name="preference_user_long_click_summary_off">ନିୟମିତ କ୍ଲିକ୍ ଉଲ୍ଲେଖ, ଲମ୍ବା କ୍ଲିକ୍ ପପ୍ଅପ୍ ଖୋଲିବ |</string>
+    <string name="preference_colorize_nicknames_title">ଡାକନାମ ରଙ୍ଗ କରନ୍ତୁ</string>
+    <string name="preference_colorize_nicknames_summary">ରଙ୍ଗ ସେଟ୍ ନଥିବା ଉପଭୋକ୍ତାମାନଙ୍କୁ ଏକ ଯାଦୃଚ୍ଛିକ ରଙ୍ଗ ନିର୍ଦ୍ଧାରଣ କରନ୍ତୁ</string>
     <string name="preference_tts_force_english_title">ଇଂରାଜୀକୁ ବାଧ୍ୟ କର |</string>
     <string name="preference_tts_force_english_summary">ସିଷ୍ଟମ୍ ଡିଫଲ୍ଟ ପରିବର୍ତ୍ତେ TTS ଭଏସ୍ ଭାଷାକୁ ଇଂରାଜୀକୁ ବାଧ୍ୟ କରନ୍ତୁ |</string>
     <string name="preference_visible_emotes_title">ଦୃଶ୍ୟମାନ ତୃତୀୟ ପକ୍ଷ ଇମୋଟ୍ |</string>

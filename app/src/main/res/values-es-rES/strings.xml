@@ -298,6 +298,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_user_long_click_title">Comportamiento pulsación larga sobre un usuario</string>
     <string name="preference_user_long_click_summary_on">Un click normal abre popup, una pulsación larga menciona al usuario</string>
     <string name="preference_user_long_click_summary_off">Un click normal menciona al usuario, una pulsación larga abre popup</string>
+    <string name="preference_colorize_nicknames_title">Colorear apodos</string>
+    <string name="preference_colorize_nicknames_summary">Asignar un color aleatorio a los usuarios sin un color definido</string>
     <string name="preference_tts_force_english_title">Forzar inglés como idioma</string>
     <string name="preference_tts_force_english_summary">Forzar el idioma de la voz TTS al inglés</string>
     <string name="preference_visible_emotes_title">Emoticonos de terceros visibles</string>

@@ -62,6 +62,10 @@ class ChatSettingsViewModel(
                         chatSettingsDataStore.update { it.copy(userLongClickBehavior = interaction.value) }
                     }
 
+                    is ChatSettingsInteraction.ColorizeNicknames -> {
+                        chatSettingsDataStore.update { it.copy(colorizeNicknames = interaction.value) }
+                    }
+
                     is ChatSettingsInteraction.ShowTimedOutMessages -> {
                         chatSettingsDataStore.update { it.copy(showTimedOutMessages = interaction.value) }
                     }
@@ -125,6 +129,7 @@ private fun ChatSettings.toState() =
         scrollbackLength = scrollbackLength,
         showUsernames = showUsernames,
         userLongClickBehavior = userLongClickBehavior,
+        colorizeNicknames = colorizeNicknames,
         showTimedOutMessages = showTimedOutMessages,
         showTimestamps = showTimestamps,
         timestampFormat = timestampFormat,

@@ -15,6 +15,7 @@ data class ChatSettings(
     val scrollbackLength: Int = 500,
     val showUsernames: Boolean = true,
     val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
+    val colorizeNicknames: Boolean = true,
     val showTimedOutMessages: Boolean = true,
     val showTimestamps: Boolean = true,
     val timestampFormat: String = DEFAULT_TIMESTAMP_FORMAT,

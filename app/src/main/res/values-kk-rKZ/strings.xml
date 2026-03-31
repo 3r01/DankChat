@@ -425,6 +425,8 @@
     <string name="preference_user_long_click_title">Пайдаланушының ұзақ басу әрекеті</string>
     <string name="preference_user_long_click_summary_on">Тұрақты басу қалқымалы терезені ашады, ескертулерді ұзақ басыңыз</string>
     <string name="preference_user_long_click_summary_off">Ескертулерді тұрақты басу, қалқымалы терезені ашу түймешігін ұзақ басыңыз</string>
+    <string name="preference_colorize_nicknames_title">Лақап аттарды бояу</string>
+    <string name="preference_colorize_nicknames_summary">Түсі орнатылмаған пайдаланушыларға кездейсоқ түс тағайындау</string>
     <string name="preference_tts_force_english_title">Ағылшын тіліне форс тілі</string>
     <string name="preference_tts_force_english_summary">Жүйелік жала жабудың орнына TTS дауыс тілін ағылшын тіліне мәжбүрлеу</string>
     <string name="preference_visible_emotes_title">Көрінетін үшінші тарап эмоциясы</string>

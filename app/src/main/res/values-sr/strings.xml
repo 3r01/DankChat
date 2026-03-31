@@ -396,6 +396,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_user_long_click_title">Ponašanje korisničkog dugog klika</string>
     <string name="preference_user_long_click_summary_on">Običan klik otvara iskačući prozor, duži klik otvara pominjanja</string>
     <string name="preference_user_long_click_summary_off">Obićan klik otvara pominjanja, duži klik otvara iskačući prozor</string>
+    <string name="preference_colorize_nicknames_title">Обојите надимке</string>
+    <string name="preference_colorize_nicknames_summary">Додели насумичну боју корисницима без постављене боје</string>
     <string name="preference_visible_emotes_title">Vidljivost emotova nezavisnih servisa</string>
     <string name="preference_about_tos">Twitch услови коришћења и правила:</string>
     <string name="preference_show_chip_actions_title">Прикажи акције чипова</string>

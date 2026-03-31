@@ -294,6 +294,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_user_long_click_title">Käyttäjänimen pitkä painallus</string>
     <string name="preference_user_long_click_summary_on">Tavallinen painallus popup-ikkuna ja pitkä painallus maininnat</string>
     <string name="preference_user_long_click_summary_off">Tavallinen painallus maininnat ja pitkä painallus popup-ikkuna</string>
+    <string name="preference_colorize_nicknames_title">Väritä nimimerkit</string>
+    <string name="preference_colorize_nicknames_summary">Määritä satunnainen väri käyttäjille, joilla ei ole asetettua väriä</string>
     <string name="preference_tts_force_english_title">Aseta kieli englanniksi</string>
     <string name="preference_tts_force_english_summary">Pakottaa TTS-äänen kieleksi englannin järjestelmän oletuksen sijaan</string>
     <string name="preference_visible_emotes_title">Näkyvät kolmannen osapuolen hymiöt</string>
