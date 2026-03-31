@@ -22,6 +22,7 @@ import com.flxrs.dankchat.data.twitch.message.hasMention
 import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.utils.extensions.addAndLimit
 import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
+import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
@@ -35,7 +36,7 @@ class RecentMessagesHandler(
     private val chatMessageRepository: ChatMessageRepository,
     private val usersRepository: UsersRepository,
 ) {
-    private val loadedChannels = mutableSetOf<UserName>()
+    private val loadedChannels = ConcurrentSet<UserName>()
 
     data class Result(
         val mentionItems: List<ChatItem>,

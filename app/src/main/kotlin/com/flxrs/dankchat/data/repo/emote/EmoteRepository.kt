@@ -386,6 +386,7 @@ class EmoteRepository(
     }
 
     fun setDankChatBadges(dto: List<DankChatBadgeDto>) {
+        dankChatBadges.clear()
         dankChatBadges.addAll(dto)
     }
 

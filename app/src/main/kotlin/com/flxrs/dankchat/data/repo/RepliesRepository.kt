@@ -86,10 +86,8 @@ class RepliesRepository(
                     existing.copy(replies = existing.replies + strippedMessage, participated = existing.updateParticipated(strippedMessage))
                 }
             }
-        when {
-            !threads.containsKey(rootId) -> threads[rootId] = MutableStateFlow(thread)
-            else -> threads.getValue(rootId).update { thread }
-        }
+        val existing = threads.putIfAbsent(rootId, MutableStateFlow(thread))
+        existing?.update { thread }
 
         val parentMessageId = message.tags[PARENT_MESSAGE_ID_TAG]
         val parentInThread =

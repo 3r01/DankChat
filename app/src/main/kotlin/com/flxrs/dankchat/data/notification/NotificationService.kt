@@ -20,15 +20,17 @@ import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataSto
 import com.flxrs.dankchat.ui.main.MainActivity
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
+import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
 
@@ -38,8 +40,8 @@ class NotificationService :
     private val binder = LocalBinder()
     private val manager: NotificationManager by lazy { getSystemService(NOTIFICATION_SERVICE) as NotificationManager }
 
-    private val notifications = mutableMapOf<UserName, MutableList<Int>>()
-    private val notifiedMessageIds = LinkedHashSet<String>()
+    private val notifications = ConcurrentHashMap<UserName, MutableList<Int>>()
+    private val notifiedMessageIds: MutableSet<String> = ConcurrentSet()
 
     private val chatNotificationRepository: ChatNotificationRepository by inject()
     private val chatChannelProvider: ChatChannelProvider by inject()
@@ -49,8 +51,8 @@ class NotificationService :
 
     private val pendingIntentFlag: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.IO + Job()
+    private val job = SupervisorJob()
+    override val coroutineContext: CoroutineContext = Dispatchers.IO + job
 
     inner class LocalBinder(
         val service: NotificationService = this@NotificationService,
@@ -83,43 +85,41 @@ class NotificationService :
 
         launch {
             appLifecycleListener.appState
-                .map { it == AppLifecycle.Foreground }
-                .distinctUntilChanged()
-                .collect { isForeground ->
-                    if (isForeground) {
-                        notifiedMessageIds.clear()
-                        val activeChannel = chatChannelProvider.activeChannel.value
-                        if (activeChannel != null) {
-                            clearNotificationsForChannel(activeChannel)
+                .flatMapLatest { state ->
+                    when (state) {
+                        AppLifecycle.Foreground -> {
+                            notifiedMessageIds.clear()
+                            val activeChannel = chatChannelProvider.activeChannel.value
+                            if (activeChannel != null) {
+                                clearNotificationsForChannel(activeChannel)
+                            }
+                            emptyFlow()
+                        }
+
+                        AppLifecycle.Background -> {
+                            combine(
+                                chatNotificationRepository.messageUpdates,
+                                notificationsSettingsDataStore.showNotifications,
+                            ) { items, enabled -> items to enabled }
                         }
                     }
-                }
-        }
-
-        launch {
-            combine(
-                chatNotificationRepository.messageUpdates,
-                notificationsSettingsDataStore.showNotifications,
-                appLifecycleListener.appState,
-            ) { items, enabled, lifecycle ->
-                Triple(items, enabled, lifecycle)
-            }.collect { (items, enabled, lifecycle) ->
-                if (!enabled || lifecycle != AppLifecycle.Background) {
-                    return@collect
-                }
-
-                items.forEach { (message) ->
-                    if (!notifiedMessageIds.add(message.id)) {
-                        return@forEach
+                }.collect { (items, enabled) ->
+                    if (!enabled) {
+                        return@collect
                     }
-                    if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
-                        val iterator = notifiedMessageIds.iterator()
-                        iterator.next()
-                        iterator.remove()
+
+                    items.forEach { (message) ->
+                        if (!notifiedMessageIds.add(message.id)) {
+                            return@forEach
+                        }
+                        if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
+                            val iterator = notifiedMessageIds.iterator()
+                            iterator.next()
+                            iterator.remove()
+                        }
+                        message.toNotificationData()?.createMentionNotification()
                     }
-                    message.toNotificationData()?.createMentionNotification()
                 }
-            }
         }
     }
 
