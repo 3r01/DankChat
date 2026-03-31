@@ -227,9 +227,10 @@ class ChatInputViewModel(
                         chatConnector.getConnectionState(channel)
                     }
                 },
-                combine(preferenceStore.isLoggedInFlow, appearanceSettingsDataStore.settings.map { it.autoDisableInput }) { a, b -> a to b },
-            ) { text, suggestions, activeChannel, connectionState, (isLoggedIn, autoDisableInput) ->
-                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput)
+                appearanceSettingsDataStore.settings.map { it.autoDisableInput to it.showCharacterCounter },
+                preferenceStore.isLoggedInFlow,
+            ) { text, suggestions, activeChannel, connectionState, (autoDisableInput, showCharacterCounter), isLoggedIn ->
+                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput, showCharacterCounter)
             }
 
         val replyStateFlow =
@@ -325,10 +326,14 @@ class ChatInputViewModel(
                 helperText = helperText,
                 isWhisperTabActive = isWhisperTabActive,
                 characterCounter =
-                    CharacterCounterState.Visible(
-                        text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
-                        isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
-                    ),
+                    when {
+                        deps.showCharacterCounter -> CharacterCounterState.Visible(
+                            text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
+                            isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
+                        )
+
+                        else -> CharacterCounterState.Hidden
+                    },
                 userLongClickBehavior = userLongClickBehavior,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState()).also { _uiState = it }
@@ -574,6 +579,7 @@ private data class UiDependencies(
     val connectionState: ConnectionState,
     val isLoggedIn: Boolean,
     val autoDisableInput: Boolean,
+    val showCharacterCounter: Boolean,
 )
 
 private data class InputOverlayState(
