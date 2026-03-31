@@ -19,9 +19,19 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import org.koin.compose.koinInject
 
+// True dark surface tones based on achromatic M3 neutral palette, compressed toward black.
+// Standard dark tones: 0,  4,  4,  6,  9, 12, 15, 18
+// True dark tones:     0,  0,  0,  2,  4,  6,  8, 10
 private val TrueDarkColorScheme =
     darkColorScheme(
         surface = Color.Black,
+        surfaceDim = Color.Black,
+        surfaceBright = Color(0xFF222222),
+        surfaceContainerLowest = Color.Black,
+        surfaceContainerLow = Color(0xFF0A0A0A),
+        surfaceContainer = Color(0xFF0E0E0E),
+        surfaceContainerHigh = Color(0xFF141414),
+        surfaceContainerHighest = Color(0xFF1C1C1C),
         background = Color.Black,
         onSurface = Color.White,
         onBackground = Color.White,
@@ -62,6 +72,13 @@ fun DankChatTheme(
             dynamicColor && trueDarkTheme -> {
                 dynamicDarkColorScheme(LocalContext.current).copy(
                     surface = TrueDarkColorScheme.surface,
+                    surfaceDim = TrueDarkColorScheme.surfaceDim,
+                    surfaceBright = TrueDarkColorScheme.surfaceBright,
+                    surfaceContainerLowest = TrueDarkColorScheme.surfaceContainerLowest,
+                    surfaceContainerLow = TrueDarkColorScheme.surfaceContainerLow,
+                    surfaceContainer = TrueDarkColorScheme.surfaceContainer,
+                    surfaceContainerHigh = TrueDarkColorScheme.surfaceContainerHigh,
+                    surfaceContainerHighest = TrueDarkColorScheme.surfaceContainerHighest,
                     background = TrueDarkColorScheme.background,
                 )
             }
