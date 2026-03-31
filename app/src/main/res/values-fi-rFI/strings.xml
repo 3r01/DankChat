@@ -621,6 +621,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
     <string name="menu_hide_input">Piilota syöttö</string>
     <string name="menu_show_input">Näytä syöttö</string>
+    <string name="preference_swipe_navigation_title">Kanavien pyyhkäisynavigaatio</string>
+    <string name="preference_swipe_navigation_summary">Vaihda kanavaa pyyhkäisemällä chatissa</string>
     <string name="menu_mod_actions">Kanavan moderointi</string>
 
     <!-- Input Actions -->

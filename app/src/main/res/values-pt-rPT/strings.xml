@@ -608,6 +608,8 @@
     <string name="menu_exit_fullscreen">Sair do ecrã inteiro</string>
     <string name="menu_hide_input">Ocultar entrada</string>
     <string name="menu_show_input">Mostrar entrada</string>
+    <string name="preference_swipe_navigation_title">Navegação de canais por deslize</string>
+    <string name="preference_swipe_navigation_summary">Trocar de canal deslizando no chat</string>
     <string name="menu_mod_actions">Moderação do canal</string>
 
     <!-- Input Actions -->

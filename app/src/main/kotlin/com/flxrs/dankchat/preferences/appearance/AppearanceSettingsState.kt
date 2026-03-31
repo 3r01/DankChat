@@ -38,6 +38,10 @@ sealed interface AppearanceSettingsInteraction {
     data class ShowCharacterCounter(
         val value: Boolean,
     ) : AppearanceSettingsInteraction
+
+    data class SwipeNavigation(
+        val value: Boolean,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable

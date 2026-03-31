@@ -262,6 +262,8 @@
     <string name="menu_exit_fullscreen">退出全螢幕</string>
     <string name="menu_hide_input">隱藏輸入框</string>
     <string name="menu_show_input">顯示輸入框</string>
+    <string name="preference_swipe_navigation_title">頻道滑動導航</string>
+    <string name="preference_swipe_navigation_summary">在聊天中滑動切換頻道</string>
     <string name="menu_mod_actions">頻道管理</string>
     <plurals name="input_actions_max">
         <item quantity="other">最多 %1$d 個動作</item>

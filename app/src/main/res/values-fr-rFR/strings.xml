@@ -623,6 +623,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="menu_exit_fullscreen">Quitter le plein écran</string>
     <string name="menu_hide_input">Masquer la saisie</string>
     <string name="menu_show_input">Afficher la saisie</string>
+    <string name="preference_swipe_navigation_title">Navigation par balayage des canaux</string>
+    <string name="preference_swipe_navigation_summary">Changer de canal en balayant le chat</string>
     <string name="menu_mod_actions">Modération du canal</string>
 
     <!-- Input Actions -->

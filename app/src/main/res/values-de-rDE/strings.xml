@@ -630,6 +630,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="menu_exit_fullscreen">Vollbild beenden</string>
     <string name="menu_hide_input">Eingabe ausblenden</string>
     <string name="menu_show_input">Eingabe einblenden</string>
+    <string name="preference_swipe_navigation_title">Kanal-Wischnavigation</string>
+    <string name="preference_swipe_navigation_summary">Kanäle durch Wischen im Chat wechseln</string>
     <string name="menu_mod_actions">Kanalmoderation</string>
 
     <!-- Input Actions -->

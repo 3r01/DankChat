@@ -260,6 +260,8 @@
     <string name="menu_exit_fullscreen">Толық экраннан шығу</string>
     <string name="menu_hide_input">Енгізуді жасыру</string>
     <string name="menu_show_input">Енгізуді көрсету</string>
+    <string name="preference_swipe_navigation_title">Арна сырғыту навигациясы</string>
+    <string name="preference_swipe_navigation_summary">Чатта сырғыту арқылы арналарды ауыстыру</string>
     <string name="menu_mod_actions">Арна модерациясы</string>
     <plurals name="input_actions_max">
         <item quantity="one">Ең көбі %1$d әрекет</item>

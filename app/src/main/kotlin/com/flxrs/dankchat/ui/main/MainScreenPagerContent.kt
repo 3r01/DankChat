@@ -60,6 +60,7 @@ internal fun MainScreenPagerContent(
     isLoggedIn: Boolean,
     effectiveShowInput: Boolean,
     isFullscreen: Boolean,
+    swipeNavigation: Boolean,
     isSheetOpen: Boolean,
     inputHeightDp: Dp,
     helperTextHeightDp: Dp,
@@ -105,6 +106,7 @@ internal fun MainScreenPagerContent(
                     HorizontalPager(
                         state = composePagerState,
                         modifier = Modifier.fillMaxSize(),
+                        userScrollEnabled = swipeNavigation,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
                         if (page in pagerState.channels.indices) {

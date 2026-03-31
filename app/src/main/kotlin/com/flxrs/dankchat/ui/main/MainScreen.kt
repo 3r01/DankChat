@@ -278,6 +278,7 @@ fun MainScreen(
 
     val isFullscreen = mainState.isFullscreen
     val effectiveShowInput = mainState.effectiveShowInput
+    val swipeNavigation = mainState.swipeNavigation
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
     val toolbarTracker =
@@ -678,6 +679,7 @@ fun MainScreen(
                     isLoggedIn = isLoggedIn,
                     effectiveShowInput = effectiveShowInput,
                     isFullscreen = isFullscreen,
+                    swipeNavigation = swipeNavigation,
                     isSheetOpen = isSheetOpen,
                     inputHeightDp = inputHeightDp,
                     helperTextHeightDp = helperTextHeightDp,

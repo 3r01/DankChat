@@ -46,6 +46,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.F
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.SwipeNavigation
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.TrueDarkTheme
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
@@ -120,6 +121,7 @@ private fun AppearanceSettingsContent(
             ComponentsCategory(
                 autoDisableInput = settings.autoDisableInput,
                 showCharacterCounter = settings.showCharacterCounter,
+                swipeNavigation = settings.swipeNavigation,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -131,6 +133,7 @@ private fun AppearanceSettingsContent(
 private fun ComponentsCategory(
     autoDisableInput: Boolean,
     showCharacterCounter: Boolean,
+    swipeNavigation: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(
@@ -146,6 +149,12 @@ private fun ComponentsCategory(
             summary = stringResource(R.string.preference_show_character_counter_summary),
             isChecked = showCharacterCounter,
             onClick = { onInteraction(ShowCharacterCounter(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_swipe_navigation_title),
+            summary = stringResource(R.string.preference_swipe_navigation_summary),
+            isChecked = swipeNavigation,
+            onClick = { onInteraction(SwipeNavigation(it)) },
         )
     }
 }

@@ -13,6 +13,7 @@ data class MainScreenUiState(
     val showCharacterCounter: Boolean = false,
     val isRepeatedSendEnabled: Boolean = false,
     val debugMode: Boolean = false,
+    val swipeNavigation: Boolean = true,
     val gestureInputHidden: Boolean = false,
     val gestureToolbarHidden: Boolean = false,
 ) {

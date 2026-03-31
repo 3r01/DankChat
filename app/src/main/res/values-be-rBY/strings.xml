@@ -629,6 +629,8 @@
     <string name="menu_exit_fullscreen">Выйсці з поўнаэкраннага рэжыму</string>
     <string name="menu_hide_input">Схаваць увод</string>
     <string name="menu_show_input">Паказаць увод</string>
+    <string name="preference_swipe_navigation_title">Навігацыя каналаў свайпам</string>
+    <string name="preference_swipe_navigation_summary">Пераключэнне каналаў свайпам па чаце</string>
     <string name="menu_mod_actions">Мадэрацыя канала</string>
 
     <!-- Input Actions -->

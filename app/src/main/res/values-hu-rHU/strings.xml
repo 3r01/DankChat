@@ -608,6 +608,8 @@
     <string name="menu_exit_fullscreen">Kilépés a teljes képernyőből</string>
     <string name="menu_hide_input">Bevitel elrejtése</string>
     <string name="menu_show_input">Bevitel megjelenítése</string>
+    <string name="preference_swipe_navigation_title">Csatorna csúsztatásos navigáció</string>
+    <string name="preference_swipe_navigation_summary">Csatornák váltása csúsztatással a chaten</string>
     <string name="menu_mod_actions">Csatorna moderálás</string>
 
     <!-- Input Actions -->
