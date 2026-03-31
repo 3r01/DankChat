@@ -629,6 +629,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="menu_fullscreen">Vollbild</string>
     <string name="menu_exit_fullscreen">Vollbild beenden</string>
     <string name="menu_hide_input">Eingabe ausblenden</string>
+    <string name="menu_show_input">Eingabe einblenden</string>
     <string name="menu_mod_actions">Kanalmoderation</string>
 
     <!-- Input Actions -->

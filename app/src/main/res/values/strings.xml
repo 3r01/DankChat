@@ -289,6 +289,7 @@
     <string name="menu_fullscreen">Fullscreen</string>
     <string name="menu_exit_fullscreen">Exit fullscreen</string>
     <string name="menu_hide_input">Hide input</string>
+    <string name="menu_show_input">Show input</string>
     <string name="menu_mod_actions">Channel moderation</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maximum of %1$d action</item>

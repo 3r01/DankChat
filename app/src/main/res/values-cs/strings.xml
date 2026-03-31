@@ -629,6 +629,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="menu_fullscreen">Celá obrazovka</string>
     <string name="menu_exit_fullscreen">Ukončit celou obrazovku</string>
     <string name="menu_hide_input">Skrýt vstup</string>
+    <string name="menu_show_input">Zobrazit vstup</string>
     <string name="menu_mod_actions">Moderování kanálu</string>
 
     <!-- Input Actions -->

@@ -622,6 +622,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="menu_fullscreen">Plein écran</string>
     <string name="menu_exit_fullscreen">Quitter le plein écran</string>
     <string name="menu_hide_input">Masquer la saisie</string>
+    <string name="menu_show_input">Afficher la saisie</string>
     <string name="menu_mod_actions">Modération du canal</string>
 
     <!-- Input Actions -->

@@ -647,6 +647,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="menu_fullscreen">Pełny ekran</string>
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>
+    <string name="menu_show_input">Pokaż pole wpisywania</string>
     <string name="menu_mod_actions">Moderacja kanału</string>
 
     <!-- Input Actions -->

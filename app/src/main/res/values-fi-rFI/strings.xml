@@ -620,6 +620,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="menu_fullscreen">Koko näyttö</string>
     <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
     <string name="menu_hide_input">Piilota syöttö</string>
+    <string name="menu_show_input">Näytä syöttö</string>
     <string name="menu_mod_actions">Kanavan moderointi</string>
 
     <!-- Input Actions -->

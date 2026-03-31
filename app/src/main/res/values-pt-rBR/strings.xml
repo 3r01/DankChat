@@ -617,6 +617,7 @@
     <string name="menu_fullscreen">Tela cheia</string>
     <string name="menu_exit_fullscreen">Sair da tela cheia</string>
     <string name="menu_hide_input">Ocultar entrada</string>
+    <string name="menu_show_input">Mostrar entrada</string>
     <string name="menu_mod_actions">Moderação do canal</string>
 
     <!-- Input Actions -->

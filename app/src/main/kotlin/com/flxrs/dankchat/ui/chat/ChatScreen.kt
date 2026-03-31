@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VideocamOff
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -598,10 +599,9 @@ private fun getFabMenuItem(
     }
 
     InputAction.HideInput -> {
-        null
+        FabMenuItem(R.string.menu_show_input, Icons.Default.Visibility)
     }
 
-    // Already hidden, no point showing this
     InputAction.Debug -> {
         when {
             debugMode -> FabMenuItem(R.string.input_action_debug, Icons.Default.BugReport)

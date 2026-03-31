@@ -588,6 +588,7 @@
     <string name="menu_fullscreen">全画面</string>
     <string name="menu_exit_fullscreen">全画面を終了</string>
     <string name="menu_hide_input">入力欄を非表示</string>
+    <string name="menu_show_input">入力欄を表示</string>
     <string name="menu_mod_actions">チャンネルモデレーション</string>
 
     <!-- Input Actions -->

@@ -644,7 +644,10 @@ fun MainScreen(
                             }
 
                             InputAction.HideInput -> {
-                                mainScreenViewModel.toggleInput()
+                                if (!mainScreenViewModel.uiState.value.showInput) {
+                                    mainScreenViewModel.toggleInput()
+                                }
+                                mainScreenViewModel.resetGestureState()
                             }
 
                             InputAction.Debug -> {

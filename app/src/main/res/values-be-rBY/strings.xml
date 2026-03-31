@@ -628,6 +628,7 @@
     <string name="menu_fullscreen">На ўвесь экран</string>
     <string name="menu_exit_fullscreen">Выйсці з поўнаэкраннага рэжыму</string>
     <string name="menu_hide_input">Схаваць увод</string>
+    <string name="menu_show_input">Паказаць увод</string>
     <string name="menu_mod_actions">Мадэрацыя канала</string>
 
     <!-- Input Actions -->

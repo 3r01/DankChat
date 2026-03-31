@@ -261,6 +261,7 @@
     <string name="menu_fullscreen">全螢幕</string>
     <string name="menu_exit_fullscreen">退出全螢幕</string>
     <string name="menu_hide_input">隱藏輸入框</string>
+    <string name="menu_show_input">顯示輸入框</string>
     <string name="menu_mod_actions">頻道管理</string>
     <plurals name="input_actions_max">
         <item quantity="other">最多 %1$d 個動作</item>

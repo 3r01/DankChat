@@ -259,6 +259,7 @@
     <string name="menu_fullscreen">Толық экран</string>
     <string name="menu_exit_fullscreen">Толық экраннан шығу</string>
     <string name="menu_hide_input">Енгізуді жасыру</string>
+    <string name="menu_show_input">Енгізуді көрсету</string>
     <string name="menu_mod_actions">Арна модерациясы</string>
     <plurals name="input_actions_max">
         <item quantity="one">Ең көбі %1$d әрекет</item>

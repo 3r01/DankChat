@@ -259,6 +259,7 @@
     <string name="menu_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="menu_exit_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍ ବାହାରନ୍ତୁ</string>
     <string name="menu_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
+    <string name="menu_show_input">ଇନପୁଟ୍ ଦେଖାନ୍ତୁ</string>
     <string name="menu_mod_actions">ଚ୍ୟାନେଲ ମଡରେସନ</string>
     <plurals name="input_actions_max">
         <item quantity="one">ସର୍ବାଧିକ %1$d କ୍ରିୟା</item>
