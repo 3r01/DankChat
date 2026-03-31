@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.ColorUtils
 import com.flxrs.dankchat.ui.theme.LocalAdaptiveColors
 import com.flxrs.dankchat.utils.extensions.normalizeColor
-import com.google.android.material.color.MaterialColors
+import com.materialkolor.ktx.isLight
 
 /**
  * Resolves the effective opaque background for contrast calculations.
@@ -27,7 +27,7 @@ private fun resolveEffectiveBackground(backgroundColor: Color): Color {
 
 /**
  * Returns appropriate text color (light or dark) based on background brightness.
- * Uses MaterialColors.isColorLight() to determine if background is light,
+ * Uses Color.isLight() to determine if background is light,
  * then selects dark text for light backgrounds and vice versa.
  *
  * For transparent backgrounds, uses the surface color for brightness calculation
@@ -38,7 +38,7 @@ fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
     val adaptiveColors = LocalAdaptiveColors.current
     val effectiveBackground = resolveEffectiveBackground(backgroundColor)
 
-    val isLightBackground = MaterialColors.isColorLight(effectiveBackground.toArgb())
+    val isLightBackground = effectiveBackground.isLight()
 
     return if (isLightBackground) {
         adaptiveColors.onSurfaceLight

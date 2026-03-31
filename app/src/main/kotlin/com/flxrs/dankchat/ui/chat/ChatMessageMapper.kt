@@ -30,7 +30,6 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
-import com.google.android.material.color.MaterialColors
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.core.annotation.Single
@@ -875,24 +874,9 @@ class ChatMessageMapper(
             return TWITCH_USERNAME_COLORS[colorSeed % TWITCH_USERNAME_COLORS.size]
         }
 
-        // Checkered background colors
-        private val CHECKERED_LIGHT =
-            Color(
-                android.graphics.Color.argb(
-                    (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
-                    0,
-                    0,
-                    0,
-                ),
-            )
-        private val CHECKERED_DARK =
-            Color(
-                android.graphics.Color.argb(
-                    (255 * MaterialColors.ALPHA_DISABLED_LOW).toInt(),
-                    255,
-                    255,
-                    255,
-                ),
-            )
+        // Checkered background colors — 12% opacity overlay
+        private const val CHECKERED_ALPHA = (255 * 0.12f).toInt()
+        private val CHECKERED_LIGHT = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 0, 0, 0))
+        private val CHECKERED_DARK = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 255, 255, 255))
     }
 }

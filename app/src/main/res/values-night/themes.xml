@@ -7,18 +7,5 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="chipStyle">@style/Widget.App.Chip</item>
-    </style>
-
-    <style name="AppTheme.TrueDarkTheme" parent="AppTheme">
-        <item name="colorSurface">@android:color/black</item>
-        <item name="android:colorBackground">@android:color/black</item>
-    </style>
-
-    <style name="AppTheme.TrueDarkOverlay" parent="ThemeOverlay.Material3.DynamicColors.Dark">
-        <item name="colorSurface">@android:color/black</item>
-        <item name="android:colorBackground">@android:color/black</item>
-        <item name="colorOnSurface">@android:color/white</item>
-        <item name="colorOnBackground">@android:color/white</item>
     </style>
 </resources>

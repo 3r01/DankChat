@@ -11,12 +11,12 @@ import android.os.IBinder
 import android.provider.MediaStore
 import android.util.Log
 import android.webkit.MimeTypeMap
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -75,8 +75,6 @@ import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
 import com.flxrs.dankchat.utils.extensions.keepScreenOn
 import com.flxrs.dankchat.utils.extensions.parcelable
 import com.flxrs.dankchat.utils.removeExifAttributes
-import com.google.android.material.color.DynamicColors
-import com.google.android.material.color.DynamicColorsOptions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -86,7 +84,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.IOException
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     private val viewModel: DankChatViewModel by viewModel()
     private val dankChatPreferenceStore: DankChatPreferenceStore by inject()
     private val mainEventBus: MainEventBus by inject()
@@ -139,39 +137,6 @@ class MainActivity : AppCompatActivity() {
     private var isBound = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val isTrueDarkModeEnabled = viewModel.isTrueDarkModeEnabled
-        val isDynamicColorAvailable = DynamicColors.isDynamicColorAvailable()
-        when {
-            isTrueDarkModeEnabled && isDynamicColorAvailable -> {
-                val dynamicColorsOptions =
-                    DynamicColorsOptions
-                        .Builder()
-                        .setThemeOverlay(R.style.AppTheme_TrueDarkOverlay)
-                        .build()
-                DynamicColors.applyToActivityIfAvailable(this, dynamicColorsOptions)
-                // TODO check if still neded in future material alphas
-                theme.applyStyle(R.style.AppTheme_TrueDarkOverlay, true)
-                window
-                    .peekDecorView()
-                    ?.context
-                    ?.theme
-                    ?.applyStyle(R.style.AppTheme_TrueDarkOverlay, true)
-            }
-
-            isTrueDarkModeEnabled -> {
-                theme.applyStyle(R.style.AppTheme_TrueDarkTheme, true)
-                window
-                    .peekDecorView()
-                    ?.context
-                    ?.theme
-                    ?.applyStyle(R.style.AppTheme_TrueDarkTheme, true)
-            }
-
-            else -> {
-                DynamicColors.applyToActivityIfAvailable(this)
-            }
-        }
-
         enableEdgeToEdge()
         window.isNavigationBarContrastEnforced = false
 

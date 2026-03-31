@@ -7,12 +7,7 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="chipStyle">@style/Widget.App.Chip</item>
     </style>
-
-    <style name="AppTheme.TrueDarkTheme" parent="AppTheme" />
-
-    <style name="AppTheme.TrueDarkOverlay" parent="ThemeOverlay.Material3.DynamicColors.Light" />
 
     <style name="AppTheme.ShareUpload" parent="Theme.Material3.DayNight.Dialog">
         <item name="android:windowNoTitle">true</item>
@@ -20,10 +15,5 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">true</item>
-    </style>
-
-    <style name="Widget.App.Chip" parent="Widget.Material3.Chip.Assist">
-        <item name="android:checkable">false</item>
-        <item name="android:elevation">4dp</item>
     </style>
 </resources>

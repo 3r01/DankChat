@@ -1,43 +1,70 @@
 package com.flxrs.dankchat.preferences.appearance
 
-import android.app.Activity
 import android.content.Context
-import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
-import androidx.core.app.ActivityCompat
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.AutoDisableInput
@@ -49,6 +76,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.S
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.SwipeNavigation
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.TrueDarkTheme
+import com.flxrs.dankchat.preferences.components.ExpandablePreferenceItem
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceListDialog
@@ -107,6 +135,8 @@ private fun AppearanceSettingsContent(
             ThemeCategory(
                 theme = settings.theme,
                 trueDarkTheme = settings.trueDarkTheme,
+                accentColor = settings.accentColor,
+                paletteStyle = settings.paletteStyle,
                 onInteraction = onSuspendingInteraction,
             )
             HorizontalDivider(thickness = Dp.Hairline)
@@ -201,18 +231,21 @@ private fun DisplayCategory(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ThemeCategory(
     theme: ThemePreference,
     trueDarkTheme: Boolean,
+    accentColor: AccentColor?,
+    paletteStyle: PaletteStylePreference,
     onInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val themeState = rememberThemeState(theme, trueDarkTheme, isSystemInDarkTheme())
+    val hasCustomAccent = accentColor != null
     PreferenceCategory(
         title = stringResource(R.string.preference_theme_title),
     ) {
-        val activity = LocalActivity.current
         PreferenceListDialog(
             title = stringResource(R.string.preference_theme_title),
             summary = themeState.summary,
@@ -222,24 +255,28 @@ private fun ThemeCategory(
             selected = themeState.preference,
             onChange = {
                 scope.launch {
-                    activity ?: return@launch
                     onInteraction(Theme(it))
-                    setDarkMode(it, activity)
+                    setDarkMode(it)
                 }
             },
+        )
+        AccentColorPicker(
+            selectedColor = accentColor,
+            onColorSelect = { color ->
+                scope.launch { onInteraction(AppearanceSettingsInteraction.SetAccentColor(color)) }
+            },
+        )
+        PaletteStyleDialog(
+            paletteStyle = paletteStyle,
+            isEnabled = hasCustomAccent,
+            onChange = { scope.launch { onInteraction(AppearanceSettingsInteraction.SetPaletteStyle(it)) } },
         )
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_true_dark_theme_title),
             summary = stringResource(R.string.preference_true_dark_theme_summary),
             isChecked = themeState.trueDarkPreference,
             isEnabled = themeState.trueDarkEnabled,
-            onClick = {
-                scope.launch {
-                    activity ?: return@launch
-                    onInteraction(TrueDarkTheme(it))
-                    ActivityCompat.recreate(activity)
-                }
-            },
+            onClick = { scope.launch { onInteraction(TrueDarkTheme(it)) } },
         )
     }
 }
@@ -298,16 +335,231 @@ private fun getFontSizeSummary(
     else -> context.getString(R.string.preference_font_size_summary_very_large)
 }
 
-private fun setDarkMode(
-    themePreference: ThemePreference,
-    activity: Activity,
+@Composable
+private fun AccentColorPicker(
+    selectedColor: AccentColor?,
+    onColorSelect: (AccentColor?) -> Unit,
 ) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        Text(
+            text = stringResource(R.string.preference_accent_color_title),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = when (selectedColor) {
+                null -> stringResource(R.string.preference_accent_color_summary_default)
+                else -> stringResource(selectedColor.labelRes)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            // System default option
+            AccentColorCircle(
+                color = null,
+                isSelected = selectedColor == null,
+                onClick = { onColorSelect(null) },
+            )
+            // Preset colors
+            AccentColor.entries.forEach { accent ->
+                AccentColorCircle(
+                    color = accent,
+                    isSelected = selectedColor == accent,
+                    onClick = { onColorSelect(accent) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccentColorCircle(
+    color: AccentColor?,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val circleSize = 40.dp
+    val borderColor = MaterialTheme.colorScheme.outline
+    Box(
+        modifier =
+            Modifier
+                .size(circleSize)
+                .clip(CircleShape)
+                .then(
+                    when {
+                        isSelected -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                        else -> Modifier
+                    },
+                ).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (color != null) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(circleSize - 4.dp)
+                        .background(color.seedColor, CircleShape),
+            )
+        } else {
+            // System default: outlined circle with auto icon
+            Box(
+                modifier =
+                    Modifier
+                        .size(circleSize - 4.dp)
+                        .border(1.dp, borderColor, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Palette,
+                    contentDescription = stringResource(R.string.preference_accent_color_summary_default),
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        if (isSelected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = when (color) {
+                    null -> MaterialTheme.colorScheme.primary
+                    else -> MaterialTheme.colorScheme.surface
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaletteStyleDialog(
+    paletteStyle: PaletteStylePreference,
+    isEnabled: Boolean,
+    onChange: (PaletteStylePreference) -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    ExpandablePreferenceItem(
+        title = stringResource(R.string.preference_palette_style_title),
+        summary = stringResource(paletteStyle.labelRes),
+        isEnabled = isEnabled,
+    ) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val standardStyles = remember { PaletteStylePreference.entries.filter { it.isStandard } }
+        val extraStyles = remember { PaletteStylePreference.entries.filter { !it.isStandard } }
+        var showExtra by remember { mutableStateOf(!paletteStyle.isStandard) }
+
+        ModalBottomSheet(
+            onDismissRequest = ::dismiss,
+            sheetState = sheetState,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            standardStyles.forEach { style ->
+                PaletteStyleRow(
+                    style = style,
+                    isSelected = paletteStyle == style,
+                    onClick = {
+                        onChange(style)
+                        scope.launch {
+                            sheetState.hide()
+                            dismiss()
+                        }
+                    },
+                )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable { showExtra = !showExtra }
+                        .padding(start = 28.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+            ) {
+                Icon(
+                    imageVector = if (showExtra) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = stringResource(R.string.palette_style_more),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 12.dp),
+                )
+            }
+
+            AnimatedVisibility(visible = showExtra) {
+                Column {
+                    extraStyles.forEach { style ->
+                        PaletteStyleRow(
+                            style = style,
+                            isSelected = paletteStyle == style,
+                            onClick = {
+                                onChange(style)
+                                scope.launch {
+                                    sheetState.hide()
+                                    dismiss()
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+        }
+    }
+}
+
+@Composable
+private fun PaletteStyleRow(
+    style: PaletteStylePreference,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .selectable(
+                    selected = isSelected,
+                    onClick = onClick,
+                    interactionSource = interactionSource,
+                    indication = ripple(),
+                ).padding(horizontal = 16.dp),
+    ) {
+        RadioButton(
+            selected = isSelected,
+            onClick = onClick,
+            interactionSource = interactionSource,
+        )
+        Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
+            Text(
+                text = stringResource(style.labelRes),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = stringResource(style.descriptionRes),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+private fun setDarkMode(themePreference: ThemePreference) {
     AppCompatDelegate.setDefaultNightMode(
         when (themePreference) {
             ThemePreference.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
             ThemePreference.Dark -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_NO
+            ThemePreference.Light -> AppCompatDelegate.MODE_NIGHT_NO
         },
     )
-    ActivityCompat.recreate(activity)
 }

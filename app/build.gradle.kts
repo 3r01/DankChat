@@ -210,6 +210,7 @@ dependencies {
 
     // Other
     implementation(libs.colorpicker.android)
+    implementation(libs.materialkolor)
     implementation(libs.process.phoenix)
     implementation(libs.autolinktext)
     implementation(libs.aboutlibraries.compose.m3)

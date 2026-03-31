@@ -42,6 +42,7 @@ autoLinkText = "2.0.2"
 processPhoenix = "3.0.0"
 
 colorPicker = "3.1.0"
+materialKolor = "4.1.1"
 reorderable = "2.4.3"
 
 spotless = "8.4.0"
@@ -132,6 +133,7 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver3-junit5", version.ref = "okhttp" }
 
 colorpicker-android = { module = "com.github.martin-stone:hsv-alpha-color-picker-android", version.ref = "colorPicker" }
+materialkolor = { module = "com.materialkolor:material-kolor", version.ref = "materialKolor" }
 autolinktext = { module = "sh.calvin.autolinktext:autolinktext", version.ref = "autoLinkText" }
 
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "processPhoenix" }

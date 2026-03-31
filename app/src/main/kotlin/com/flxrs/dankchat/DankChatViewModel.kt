@@ -31,7 +31,6 @@ class DankChatViewModel(
             .map { it.isLoggedIn }
             .distinctUntilChanged()
 
-    val isTrueDarkModeEnabled get() = appearanceSettingsDataStore.current().trueDarkTheme
     val keepScreenOn =
         appearanceSettingsDataStore.settings
             .map { it.keepScreenOn }

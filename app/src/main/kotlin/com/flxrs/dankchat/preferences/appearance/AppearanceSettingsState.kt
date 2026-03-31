@@ -42,6 +42,14 @@ sealed interface AppearanceSettingsInteraction {
     data class SwipeNavigation(
         val value: Boolean,
     ) : AppearanceSettingsInteraction
+
+    data class SetAccentColor(
+        val color: AccentColor?,
+    ) : AppearanceSettingsInteraction
+
+    data class SetPaletteStyle(
+        val style: PaletteStylePreference,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable
