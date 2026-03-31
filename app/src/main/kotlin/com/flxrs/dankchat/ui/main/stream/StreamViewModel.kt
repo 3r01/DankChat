@@ -62,6 +62,10 @@ class StreamViewModel(
             chatChannelProvider.channels.collect { channels ->
                 if (channels != null) {
                     streamDataRepository.fetchStreamData(channels)
+                    val current = _currentStreamedChannel.value
+                    if (current != null && current !in channels) {
+                        closeStream()
+                    }
                 }
             }
         }
