@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -73,6 +74,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,6 +88,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -234,15 +237,20 @@ fun ChatInputLayout(
                 }
 
                 // Text Field
+                val density = LocalDensity.current
+                var singleLineHeight by remember { mutableIntStateOf(0) }
                 TextField(
                     state = textFieldState,
                     enabled = enabled && !tourState.isTourActive,
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .focusRequester(focusRequester)
-                            .padding(bottom = 0.dp),
-                    // Reduce bottom padding as actions are below
+                            .defaultMinSize(minHeight = with(density) { singleLineHeight.toDp() })
+                            .onSizeChanged { size ->
+                                if (textFieldState.text.isEmpty()) {
+                                    singleLineHeight = maxOf(singleLineHeight, size.height)
+                                }
+                            }.focusRequester(focusRequester),
                     label = { Text(hint) },
                     suffix = {
                         Row(
