@@ -100,15 +100,14 @@ private val FOLLOWER_MODE_PRESETS =
     )
 
 @Composable
-private fun formatFollowerPreset(minutes: Int): String =
-    when (minutes) {
-        0 -> stringResource(R.string.room_state_follower_any)
-        in 1..59 -> stringResource(R.string.room_state_duration_minutes, minutes)
-        in 60..1439 -> stringResource(R.string.room_state_duration_hours, minutes / 60)
-        in 1440..10079 -> stringResource(R.string.room_state_duration_days, minutes / 1440)
-        in 10080..43199 -> stringResource(R.string.room_state_duration_weeks, minutes / 10080)
-        else -> stringResource(R.string.room_state_duration_months, minutes / 43200)
-    }
+private fun formatFollowerPreset(minutes: Int): String = when (minutes) {
+    0 -> stringResource(R.string.room_state_follower_any)
+    in 1..59 -> stringResource(R.string.room_state_duration_minutes, minutes)
+    in 60..1439 -> stringResource(R.string.room_state_duration_hours, minutes / 60)
+    in 1440..10079 -> stringResource(R.string.room_state_duration_days, minutes / 1440)
+    in 10080..43199 -> stringResource(R.string.room_state_duration_weeks, minutes / 10080)
+    else -> stringResource(R.string.room_state_duration_months, minutes / 43200)
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable

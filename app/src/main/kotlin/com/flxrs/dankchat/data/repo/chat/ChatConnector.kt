@@ -60,13 +60,12 @@ class ChatConnector(
         }
     }
 
-    fun closeAndReconnect(channels: List<UserName>) =
-        scope.launch {
-            readConnection.close()
-            writeConnection.close()
-            eventSubManager.close()
-            connectAndJoin(channels)
-        }
+    fun closeAndReconnect(channels: List<UserName>) = scope.launch {
+        readConnection.close()
+        writeConnection.close()
+        eventSubManager.close()
+        connectAndJoin(channels)
+    }
 
     fun reconnect(reconnectPubsub: Boolean = true) {
         readConnection.reconnect()

@@ -38,10 +38,9 @@ class RecentUploadsViewModel(
                 initialValue = emptyList(),
             )
 
-    fun clearUploads() =
-        viewModelScope.launch {
-            recentUploadsRepository.clearUploads()
-        }
+    fun clearUploads() = viewModelScope.launch {
+        recentUploadsRepository.clearUploads()
+    }
 
     companion object {
         private val formatter =
@@ -49,9 +48,8 @@ class RecentUploadsViewModel(
                 .ofLocalizedDateTime(FormatStyle.SHORT)
                 .withZone(ZoneId.systemDefault())
 
-        private fun Instant.formatWithLocale(locale: Locale) =
-            formatter
-                .withLocale(locale)
-                .format(this)
+        private fun Instant.formatWithLocale(locale: Locale) = formatter
+            .withLocale(locale)
+            .format(this)
     }
 }

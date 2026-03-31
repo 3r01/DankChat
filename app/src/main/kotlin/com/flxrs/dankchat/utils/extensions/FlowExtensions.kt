@@ -14,21 +14,19 @@ fun <T> mutableSharedFlowOf(
     replayValue: Int = 1,
     extraBufferCapacity: Int = 0,
     onBufferOverflow: BufferOverflow = BufferOverflow.DROP_OLDEST,
-): MutableSharedFlow<T> =
-    MutableSharedFlow<T>(replayValue, extraBufferCapacity, onBufferOverflow).apply {
-        tryEmit(defaultValue)
-    }
+): MutableSharedFlow<T> = MutableSharedFlow<T>(replayValue, extraBufferCapacity, onBufferOverflow).apply {
+    tryEmit(defaultValue)
+}
 
 inline fun <T, R> Flow<T?>.flatMapLatestOrDefault(
     defaultValue: R,
     crossinline transform: suspend (value: T) -> Flow<R>,
-): Flow<R> =
-    transformLatest {
-        when (it) {
-            null -> emit(defaultValue)
-            else -> emitAll(transform(it))
-        }
+): Flow<R> = transformLatest {
+    when (it) {
+        null -> emit(defaultValue)
+        else -> emitAll(transform(it))
     }
+}
 
 inline val <T> SharedFlow<T>.firstValue: T
     get() = replayCache.first()
@@ -46,12 +44,11 @@ fun MutableSharedFlow<MutableMap<UserName, Int>>.increment(
     },
 )
 
-fun MutableSharedFlow<MutableMap<UserName, Int>>.clear(key: UserName) =
-    tryEmit(
-        firstValue.apply {
-            put(key, 0)
-        },
-    )
+fun MutableSharedFlow<MutableMap<UserName, Int>>.clear(key: UserName) = tryEmit(
+    firstValue.apply {
+        put(key, 0)
+    },
+)
 
 fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow1: Flow<T1>,
@@ -61,18 +58,17 @@ fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow5: Flow<T5>,
     flow6: Flow<T6>,
     transform: suspend (T1, T2, T3, T4, T5, T6) -> R,
-): Flow<R> =
-    combine(flow1, flow2, flow3, flow4, flow5, flow6) { args: Array<*> ->
-        @Suppress("UNCHECKED_CAST")
-        transform(
-            args[0] as T1,
-            args[1] as T2,
-            args[2] as T3,
-            args[3] as T4,
-            args[4] as T5,
-            args[5] as T6,
-        )
-    }
+): Flow<R> = combine(flow1, flow2, flow3, flow4, flow5, flow6) { args: Array<*> ->
+    @Suppress("UNCHECKED_CAST")
+    transform(
+        args[0] as T1,
+        args[1] as T2,
+        args[2] as T3,
+        args[3] as T4,
+        args[4] as T5,
+        args[5] as T6,
+    )
+}
 
 fun <T> MutableSharedFlow<MutableMap<UserName, T>>.assign(
     key: UserName,

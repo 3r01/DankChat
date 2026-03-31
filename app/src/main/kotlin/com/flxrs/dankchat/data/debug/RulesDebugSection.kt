@@ -14,24 +14,23 @@ class RulesDebugSection(
     override val order = 8
     override val baseTitle = "Rules"
 
-    override fun entries(): Flow<DebugSectionSnapshot> =
-        combine(
-            highlightsRepository.messageHighlights,
-            highlightsRepository.userHighlights,
-            highlightsRepository.badgeHighlights,
-            highlightsRepository.blacklistedUsers,
-            ignoresRepository.messageIgnores,
-        ) { msgHighlights, userHighlights, badgeHighlights, blacklisted, msgIgnores ->
-            DebugSectionSnapshot(
-                title = baseTitle,
-                entries =
-                    listOf(
-                        DebugEntry("Message highlights", "${msgHighlights.size}"),
-                        DebugEntry("User highlights", "${userHighlights.size}"),
-                        DebugEntry("Badge highlights", "${badgeHighlights.size}"),
-                        DebugEntry("Blacklisted users", "${blacklisted.size}"),
-                        DebugEntry("Message ignores", "${msgIgnores.size}"),
-                    ),
-            )
-        }
+    override fun entries(): Flow<DebugSectionSnapshot> = combine(
+        highlightsRepository.messageHighlights,
+        highlightsRepository.userHighlights,
+        highlightsRepository.badgeHighlights,
+        highlightsRepository.blacklistedUsers,
+        ignoresRepository.messageIgnores,
+    ) { msgHighlights, userHighlights, badgeHighlights, blacklisted, msgIgnores ->
+        DebugSectionSnapshot(
+            title = baseTitle,
+            entries =
+                listOf(
+                    DebugEntry("Message highlights", "${msgHighlights.size}"),
+                    DebugEntry("User highlights", "${userHighlights.size}"),
+                    DebugEntry("Badge highlights", "${badgeHighlights.size}"),
+                    DebugEntry("Blacklisted users", "${blacklisted.size}"),
+                    DebugEntry("Message ignores", "${msgIgnores.size}"),
+                ),
+        )
+    }
 }

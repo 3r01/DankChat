@@ -14,17 +14,15 @@ value class UserName(
 
     fun lowercase() = UserName(value.lowercase())
 
-    fun formatWithDisplayName(displayName: DisplayName): String =
-        when {
-            matches(displayName) -> displayName.value
-            else -> "$this($displayName)"
-        }
+    fun formatWithDisplayName(displayName: DisplayName): String = when {
+        matches(displayName) -> displayName.value
+        else -> "$this($displayName)"
+    }
 
-    fun valueOrDisplayName(displayName: DisplayName): String =
-        when {
-            matches(displayName) -> displayName.value
-            else -> this.value
-        }
+    fun valueOrDisplayName(displayName: DisplayName): String = when {
+        matches(displayName) -> displayName.value
+        else -> this.value
+    }
 
     fun matches(
         other: String,

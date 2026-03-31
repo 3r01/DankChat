@@ -9,10 +9,9 @@ import io.ktor.http.parameters
 class AuthApi(
     private val ktorClient: HttpClient,
 ) {
-    suspend fun validateUser(token: String) =
-        ktorClient.get("validate") {
-            bearerAuth(token)
-        }
+    suspend fun validateUser(token: String) = ktorClient.get("validate") {
+        bearerAuth(token)
+    }
 
     suspend fun revokeToken(
         token: String,

@@ -26,11 +26,10 @@ class TTSUserIgnoreListViewModel(
                 initialValue = toolsSettingsDataStore.current().ttsUserIgnoreList.mapToUserIgnores(),
             )
 
-    fun save(ignores: List<UserIgnore>) =
-        viewModelScope.launch {
-            val filtered = ignores.mapNotNullTo(mutableSetOf()) { it.user.takeIf { it.isNotBlank() } }
-            toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = filtered) }
-        }
+    fun save(ignores: List<UserIgnore>) = viewModelScope.launch {
+        val filtered = ignores.mapNotNullTo(mutableSetOf()) { it.user.takeIf { it.isNotBlank() } }
+        toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = filtered) }
+    }
 
     private fun Set<String>.mapToUserIgnores() = map { UserIgnore(user = it) }.toImmutableList()
 }

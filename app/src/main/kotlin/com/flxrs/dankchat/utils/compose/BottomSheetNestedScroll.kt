@@ -20,11 +20,10 @@ object BottomSheetNestedScrollConnection : NestedScrollConnection {
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource,
-    ): Offset =
-        when (source) {
-            NestedScrollSource.SideEffect -> available.copy(x = 0f)
-            else -> Offset.Zero
-        }
+    ): Offset = when (source) {
+        NestedScrollSource.SideEffect -> available.copy(x = 0f)
+        else -> Offset.Zero
+    }
 
     override suspend fun onPostFling(
         consumed: Velocity,

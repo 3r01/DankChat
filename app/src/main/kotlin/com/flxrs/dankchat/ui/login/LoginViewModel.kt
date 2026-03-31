@@ -25,28 +25,27 @@ class LoginViewModel(
 
     val loginUrl = AuthApiClient.LOGIN_URL
 
-    fun parseToken(fragment: String) =
-        viewModelScope.launch {
-            if (!fragment.startsWith("access_token")) {
-                eventChannel.send(TokenParseEvent(successful = false))
-                return@launch
-            }
-
-            val token =
-                fragment
-                    .substringAfter("access_token=")
-                    .substringBefore("&scope=")
-
-            val result =
-                authApiClient.validateUser(token).fold(
-                    onSuccess = { saveLoginDetails(token, it) },
-                    onFailure = {
-                        Log.e(TAG, "Failed to validate token: ${it.message}")
-                        TokenParseEvent(successful = false)
-                    },
-                )
-            eventChannel.send(result)
+    fun parseToken(fragment: String) = viewModelScope.launch {
+        if (!fragment.startsWith("access_token")) {
+            eventChannel.send(TokenParseEvent(successful = false))
+            return@launch
         }
+
+        val token =
+            fragment
+                .substringAfter("access_token=")
+                .substringBefore("&scope=")
+
+        val result =
+            authApiClient.validateUser(token).fold(
+                onSuccess = { saveLoginDetails(token, it) },
+                onFailure = {
+                    Log.e(TAG, "Failed to validate token: ${it.message}")
+                    TokenParseEvent(successful = false)
+                },
+            )
+        eventChannel.send(result)
+    }
 
     private suspend fun saveLoginDetails(
         oAuth: String,

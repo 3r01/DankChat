@@ -35,10 +35,9 @@ class AuthDataStore(
 
     private val sharedPrefsMigration =
         object : DataMigration<AuthSettings> {
-            override suspend fun shouldMigrate(currentData: AuthSettings): Boolean =
-                legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
-                    legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
-                    legacyPrefs.contains(LEGACY_NAME_KEY)
+            override suspend fun shouldMigrate(currentData: AuthSettings): Boolean = legacyPrefs.contains(LEGACY_LOGGED_IN_KEY) ||
+                legacyPrefs.contains(LEGACY_OAUTH_KEY) ||
+                legacyPrefs.contains(LEGACY_NAME_KEY)
 
             override suspend fun migrate(currentData: AuthSettings): AuthSettings {
                 val isLoggedIn = legacyPrefs.getBoolean(LEGACY_LOGGED_IN_KEY, false)

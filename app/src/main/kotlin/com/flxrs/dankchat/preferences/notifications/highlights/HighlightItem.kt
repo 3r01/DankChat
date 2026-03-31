@@ -82,94 +82,85 @@ fun MessageHighlightEntity.toItem(
     customColor = customColor,
 )
 
-fun MessageHighlightItem.toEntity() =
-    MessageHighlightEntity(
-        id = id,
-        enabled = enabled,
-        type = type.toEntityType(),
-        pattern = pattern,
-        isRegex = isRegex,
-        isCaseSensitive = isCaseSensitive,
-        createNotification = createNotification,
-        customColor = customColor,
-    )
+fun MessageHighlightItem.toEntity() = MessageHighlightEntity(
+    id = id,
+    enabled = enabled,
+    type = type.toEntityType(),
+    pattern = pattern,
+    isRegex = isRegex,
+    isCaseSensitive = isCaseSensitive,
+    createNotification = createNotification,
+    customColor = customColor,
+)
 
-fun MessageHighlightItem.Type.toEntityType(): MessageHighlightEntityType =
-    when (this) {
-        MessageHighlightItem.Type.Username -> MessageHighlightEntityType.Username
-        MessageHighlightItem.Type.Subscription -> MessageHighlightEntityType.Subscription
-        MessageHighlightItem.Type.Announcement -> MessageHighlightEntityType.Announcement
-        MessageHighlightItem.Type.ChannelPointRedemption -> MessageHighlightEntityType.ChannelPointRedemption
-        MessageHighlightItem.Type.FirstMessage -> MessageHighlightEntityType.FirstMessage
-        MessageHighlightItem.Type.ElevatedMessage -> MessageHighlightEntityType.ElevatedMessage
-        MessageHighlightItem.Type.Reply -> MessageHighlightEntityType.Reply
-        MessageHighlightItem.Type.Custom -> MessageHighlightEntityType.Custom
-    }
+fun MessageHighlightItem.Type.toEntityType(): MessageHighlightEntityType = when (this) {
+    MessageHighlightItem.Type.Username -> MessageHighlightEntityType.Username
+    MessageHighlightItem.Type.Subscription -> MessageHighlightEntityType.Subscription
+    MessageHighlightItem.Type.Announcement -> MessageHighlightEntityType.Announcement
+    MessageHighlightItem.Type.ChannelPointRedemption -> MessageHighlightEntityType.ChannelPointRedemption
+    MessageHighlightItem.Type.FirstMessage -> MessageHighlightEntityType.FirstMessage
+    MessageHighlightItem.Type.ElevatedMessage -> MessageHighlightEntityType.ElevatedMessage
+    MessageHighlightItem.Type.Reply -> MessageHighlightEntityType.Reply
+    MessageHighlightItem.Type.Custom -> MessageHighlightEntityType.Custom
+}
 
-fun MessageHighlightEntityType.toItemType(): MessageHighlightItem.Type =
-    when (this) {
-        MessageHighlightEntityType.Username -> MessageHighlightItem.Type.Username
-        MessageHighlightEntityType.Subscription -> MessageHighlightItem.Type.Subscription
-        MessageHighlightEntityType.Announcement -> MessageHighlightItem.Type.Announcement
-        MessageHighlightEntityType.ChannelPointRedemption -> MessageHighlightItem.Type.ChannelPointRedemption
-        MessageHighlightEntityType.FirstMessage -> MessageHighlightItem.Type.FirstMessage
-        MessageHighlightEntityType.ElevatedMessage -> MessageHighlightItem.Type.ElevatedMessage
-        MessageHighlightEntityType.Reply -> MessageHighlightItem.Type.Reply
-        MessageHighlightEntityType.Custom -> MessageHighlightItem.Type.Custom
-    }
+fun MessageHighlightEntityType.toItemType(): MessageHighlightItem.Type = when (this) {
+    MessageHighlightEntityType.Username -> MessageHighlightItem.Type.Username
+    MessageHighlightEntityType.Subscription -> MessageHighlightItem.Type.Subscription
+    MessageHighlightEntityType.Announcement -> MessageHighlightItem.Type.Announcement
+    MessageHighlightEntityType.ChannelPointRedemption -> MessageHighlightItem.Type.ChannelPointRedemption
+    MessageHighlightEntityType.FirstMessage -> MessageHighlightItem.Type.FirstMessage
+    MessageHighlightEntityType.ElevatedMessage -> MessageHighlightItem.Type.ElevatedMessage
+    MessageHighlightEntityType.Reply -> MessageHighlightItem.Type.Reply
+    MessageHighlightEntityType.Custom -> MessageHighlightItem.Type.Custom
+}
 
-fun UserHighlightEntity.toItem(notificationsEnabled: Boolean) =
-    UserHighlightItem(
-        id = id,
-        enabled = enabled,
-        username = username,
-        createNotification = createNotification,
-        notificationsEnabled = notificationsEnabled,
-        customColor = customColor,
-    )
+fun UserHighlightEntity.toItem(notificationsEnabled: Boolean) = UserHighlightItem(
+    id = id,
+    enabled = enabled,
+    username = username,
+    createNotification = createNotification,
+    notificationsEnabled = notificationsEnabled,
+    customColor = customColor,
+)
 
-fun UserHighlightItem.toEntity() =
-    UserHighlightEntity(
-        id = id,
-        enabled = enabled,
-        username = username,
-        createNotification = createNotification,
-        customColor = customColor,
-    )
+fun UserHighlightItem.toEntity() = UserHighlightEntity(
+    id = id,
+    enabled = enabled,
+    username = username,
+    createNotification = createNotification,
+    customColor = customColor,
+)
 
-fun BadgeHighlightEntity.toItem(notificationsEnabled: Boolean) =
-    BadgeHighlightItem(
-        id = id,
-        enabled = enabled,
-        badgeName = badgeName,
-        isCustom = isCustom,
-        customColor = customColor,
-        createNotification = createNotification,
-        notificationsEnabled = notificationsEnabled,
-    )
+fun BadgeHighlightEntity.toItem(notificationsEnabled: Boolean) = BadgeHighlightItem(
+    id = id,
+    enabled = enabled,
+    badgeName = badgeName,
+    isCustom = isCustom,
+    customColor = customColor,
+    createNotification = createNotification,
+    notificationsEnabled = notificationsEnabled,
+)
 
-fun BadgeHighlightItem.toEntity() =
-    BadgeHighlightEntity(
-        id = id,
-        enabled = enabled,
-        badgeName = badgeName,
-        isCustom = isCustom,
-        customColor = customColor,
-        createNotification = createNotification,
-    )
+fun BadgeHighlightItem.toEntity() = BadgeHighlightEntity(
+    id = id,
+    enabled = enabled,
+    badgeName = badgeName,
+    isCustom = isCustom,
+    customColor = customColor,
+    createNotification = createNotification,
+)
 
-fun BlacklistedUserEntity.toItem() =
-    BlacklistedUserItem(
-        id = id,
-        enabled = enabled,
-        username = username,
-        isRegex = isRegex,
-    )
+fun BlacklistedUserEntity.toItem() = BlacklistedUserItem(
+    id = id,
+    enabled = enabled,
+    username = username,
+    isRegex = isRegex,
+)
 
-fun BlacklistedUserItem.toEntity() =
-    BlacklistedUserEntity(
-        id = id,
-        enabled = enabled,
-        username = username,
-        isRegex = isRegex,
-    )
+fun BlacklistedUserItem.toEntity() = BlacklistedUserEntity(
+    id = id,
+    enabled = enabled,
+    username = username,
+    isRegex = isRegex,
+)

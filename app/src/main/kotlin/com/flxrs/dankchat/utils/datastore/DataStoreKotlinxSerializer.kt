@@ -22,10 +22,9 @@ class DataStoreKotlinxSerializer<T>(
             }
         }
 
-    override suspend fun readFrom(source: BufferedSource): T =
-        runCatching {
-            json.decodeFromBufferedSource(serializer, source)
-        }.getOrDefault(defaultValue)
+    override suspend fun readFrom(source: BufferedSource): T = runCatching {
+        json.decodeFromBufferedSource(serializer, source)
+    }.getOrDefault(defaultValue)
 
     override suspend fun writeTo(
         t: T,

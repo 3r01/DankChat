@@ -19,45 +19,44 @@ class EmoteDebugSection(
     override val order = 6
     override val baseTitle = "Emotes"
 
-    override fun entries(): Flow<DebugSectionSnapshot> =
-        combine(
-            chatChannelProvider.activeChannel.flatMapLatest { channel ->
-                when (channel) {
-                    null -> flowOf(null)
-                    else -> emoteRepository.getEmotes(channel).map { channel to it }
-                }
-            },
-            emojiRepository.emojis,
-        ) { channelEmotes, emojis ->
-            val (channel, emotes) = channelEmotes ?: (null to null)
-            val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
-            when (emotes) {
-                null -> {
-                    DebugSectionSnapshot(
-                        title = "$baseTitle$channelSuffix",
-                        entries = listOf(DebugEntry("Emojis", "${emojis.size}")),
-                    )
-                }
+    override fun entries(): Flow<DebugSectionSnapshot> = combine(
+        chatChannelProvider.activeChannel.flatMapLatest { channel ->
+            when (channel) {
+                null -> flowOf(null)
+                else -> emoteRepository.getEmotes(channel).map { channel to it }
+            }
+        },
+        emojiRepository.emojis,
+    ) { channelEmotes, emojis ->
+        val (channel, emotes) = channelEmotes ?: (null to null)
+        val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
+        when (emotes) {
+            null -> {
+                DebugSectionSnapshot(
+                    title = "$baseTitle$channelSuffix",
+                    entries = listOf(DebugEntry("Emojis", "${emojis.size}")),
+                )
+            }
 
-                else -> {
-                    val twitch = emotes.twitchEmotes.size
-                    val ffz = emotes.ffzChannelEmotes.size + emotes.ffzGlobalEmotes.size
-                    val bttv = emotes.bttvChannelEmotes.size + emotes.bttvGlobalEmotes.size
-                    val sevenTv = emotes.sevenTvChannelEmotes.size + emotes.sevenTvGlobalEmotes.size
-                    val total = twitch + ffz + bttv + sevenTv
-                    DebugSectionSnapshot(
-                        title = "$baseTitle$channelSuffix",
-                        entries =
-                            listOf(
-                                DebugEntry("Twitch", "$twitch"),
-                                DebugEntry("FFZ", "$ffz"),
-                                DebugEntry("BTTV", "$bttv"),
-                                DebugEntry("7TV", "$sevenTv"),
-                                DebugEntry("Total emotes", "$total"),
-                                DebugEntry("Emojis", "${emojis.size}"),
-                            ),
-                    )
-                }
+            else -> {
+                val twitch = emotes.twitchEmotes.size
+                val ffz = emotes.ffzChannelEmotes.size + emotes.ffzGlobalEmotes.size
+                val bttv = emotes.bttvChannelEmotes.size + emotes.bttvGlobalEmotes.size
+                val sevenTv = emotes.sevenTvChannelEmotes.size + emotes.sevenTvGlobalEmotes.size
+                val total = twitch + ffz + bttv + sevenTv
+                DebugSectionSnapshot(
+                    title = "$baseTitle$channelSuffix",
+                    entries =
+                        listOf(
+                            DebugEntry("Twitch", "$twitch"),
+                            DebugEntry("FFZ", "$ffz"),
+                            DebugEntry("BTTV", "$bttv"),
+                            DebugEntry("7TV", "$sevenTv"),
+                            DebugEntry("Total emotes", "$total"),
+                            DebugEntry("Emojis", "${emojis.size}"),
+                        ),
+                )
             }
         }
+    }
 }

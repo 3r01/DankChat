@@ -19,12 +19,11 @@ data class DankChatVersion(
                 .thenComparingInt(DankChatVersion::minor)
                 .thenComparingInt(DankChatVersion::patch)
 
-        fun fromString(version: String): DankChatVersion? =
-            version
-                .split(".")
-                .mapNotNull(String::toIntOrNull)
-                .takeIf { it.size == 3 }
-                ?.let { (major, minor, patch) -> DankChatVersion(major, minor, patch) }
+        fun fromString(version: String): DankChatVersion? = version
+            .split(".")
+            .mapNotNull(String::toIntOrNull)
+            .takeIf { it.size == 3 }
+            ?.let { (major, minor, patch) -> DankChatVersion(major, minor, patch) }
 
         val LATEST_CHANGELOG = DankChatChangelog.entries.findLast { CURRENT >= it.version }
         val HAS_CHANGELOG = LATEST_CHANGELOG != null

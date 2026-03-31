@@ -81,138 +81,128 @@ internal class ChannelDataLoaderTest {
     }
 
     @Test
-    fun `loadChannelData returns Loaded when all steps succeed`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
-            stubAllEmotesAndBadgesSuccess()
+    fun `loadChannelData returns Loaded when all steps succeed`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        stubAllEmotesAndBadgesSuccess()
 
-            val result = loader.loadChannelData(testChannel)
+        val result = loader.loadChannelData(testChannel)
 
-            assertEquals(ChannelLoadingState.Loaded, result)
-        }
-
-    @Test
-    fun `loadChannelData returns Failed with empty list when channel info is null`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns null
-            coEvery { getChannelsUseCase(listOf(testChannel)) } returns emptyList()
-
-            val result = loader.loadChannelData(testChannel)
-
-            assertIs<ChannelLoadingState.Failed>(result)
-            assertTrue(result.failures.isEmpty())
-        }
+        assertEquals(ChannelLoadingState.Loaded, result)
+    }
 
     @Test
-    fun `loadChannelData falls back to GetChannelsUseCase when channelRepository returns null`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns null
-            coEvery { getChannelsUseCase(listOf(testChannel)) } returns listOf(testChannelInfo)
-            stubAllEmotesAndBadgesSuccess()
+    fun `loadChannelData returns Failed with empty list when channel info is null`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns null
+        coEvery { getChannelsUseCase(listOf(testChannel)) } returns emptyList()
 
-            val result = loader.loadChannelData(testChannel)
+        val result = loader.loadChannelData(testChannel)
 
-            assertEquals(ChannelLoadingState.Loaded, result)
-            coVerify { getChannelsUseCase(listOf(testChannel)) }
-        }
+        assertIs<ChannelLoadingState.Failed>(result)
+        assertTrue(result.failures.isEmpty())
+    }
 
     @Test
-    fun `loadChannelData returns Failed with BTTV failure`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
-            coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
-            coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
+    fun `loadChannelData falls back to GetChannelsUseCase when channelRepository returns null`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns null
+        coEvery { getChannelsUseCase(listOf(testChannel)) } returns listOf(testChannelInfo)
+        stubAllEmotesAndBadgesSuccess()
 
-            val result = loader.loadChannelData(testChannel)
+        val result = loader.loadChannelData(testChannel)
 
-            assertIs<ChannelLoadingState.Failed>(result)
-            assertEquals(1, result.failures.size)
-            assertIs<ChannelLoadingFailure.BTTVEmotes>(result.failures.first())
-        }
+        assertEquals(ChannelLoadingState.Loaded, result)
+        coVerify { getChannelsUseCase(listOf(testChannel)) }
+    }
 
     @Test
-    fun `loadChannelData collects multiple failures`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
-            coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("badges down"))
-            coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
-            coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("ffz down"))
-            coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
+    fun `loadChannelData returns Failed with BTTV failure`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
-            val result = loader.loadChannelData(testChannel)
+        val result = loader.loadChannelData(testChannel)
 
-            assertIs<ChannelLoadingState.Failed>(result)
-            assertEquals(3, result.failures.size)
-            assertTrue(result.failures.any { it is ChannelLoadingFailure.Badges })
-            assertTrue(result.failures.any { it is ChannelLoadingFailure.BTTVEmotes })
-            assertTrue(result.failures.any { it is ChannelLoadingFailure.FFZEmotes })
-        }
+        assertIs<ChannelLoadingState.Failed>(result)
+        assertEquals(1, result.failures.size)
+        assertIs<ChannelLoadingFailure.BTTVEmotes>(result.failures.first())
+    }
 
     @Test
-    fun `loadChannelData posts system messages for emote failures`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
-            coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv"))
-            coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-            coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("7tv"))
-            coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
+    fun `loadChannelData collects multiple failures`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("badges down"))
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("ffz down"))
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
-            loader.loadChannelData(testChannel)
+        val result = loader.loadChannelData(testChannel)
 
-            coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelBTTVEmotesFailed }) }
-            coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelSevenTVEmotesFailed }) }
-        }
-
-    @Test
-    fun `loadChannelData returns Failed on unexpected exception`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } throws RuntimeException("unexpected")
-
-            val result = loader.loadChannelData(testChannel)
-
-            assertIs<ChannelLoadingState.Failed>(result)
-            assertTrue(result.failures.isEmpty())
-        }
+        assertIs<ChannelLoadingState.Failed>(result)
+        assertEquals(3, result.failures.size)
+        assertTrue(result.failures.any { it is ChannelLoadingFailure.Badges })
+        assertTrue(result.failures.any { it is ChannelLoadingFailure.BTTVEmotes })
+        assertTrue(result.failures.any { it is ChannelLoadingFailure.FFZEmotes })
+    }
 
     @Test
-    fun `loadChannelData creates flows and loads history before channel info`() =
-        runTest(testDispatcher) {
-            coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
-            stubAllEmotesAndBadgesSuccess()
+    fun `loadChannelData posts system messages for emote failures`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv"))
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("7tv"))
+        coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
-            loader.loadChannelData(testChannel)
+        loader.loadChannelData(testChannel)
 
-            coVerify(ordering = io.mockk.Ordering.ORDERED) {
-                dataRepository.createFlowsIfNecessary(listOf(testChannel))
-                chatRepository.createFlowsIfNecessary(testChannel)
-                chatRepository.loadRecentMessagesIfEnabled(testChannel)
-                channelRepository.getChannel(testChannel)
-            }
-        }
-
-    @Test
-    fun `loadChannelBadges returns null on success`() =
-        runTest(testDispatcher) {
-            coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-
-            val result = loader.loadChannelBadges(testChannel, testChannelId)
-
-            assertEquals(null, result)
-        }
+        coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelBTTVEmotesFailed }) }
+        coVerify { chatMessageRepository.addSystemMessage(testChannel, match { it is SystemMessageType.ChannelSevenTVEmotesFailed }) }
+    }
 
     @Test
-    fun `loadChannelBadges returns failure on error`() =
-        runTest(testDispatcher) {
-            coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("fail"))
+    fun `loadChannelData returns Failed on unexpected exception`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } throws RuntimeException("unexpected")
 
-            val result = loader.loadChannelBadges(testChannel, testChannelId)
+        val result = loader.loadChannelData(testChannel)
 
-            assertIs<ChannelLoadingFailure.Badges>(result)
-            assertEquals(testChannel, result.channel)
+        assertIs<ChannelLoadingState.Failed>(result)
+        assertTrue(result.failures.isEmpty())
+    }
+
+    @Test
+    fun `loadChannelData creates flows and loads history before channel info`() = runTest(testDispatcher) {
+        coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
+        stubAllEmotesAndBadgesSuccess()
+
+        loader.loadChannelData(testChannel)
+
+        coVerify(ordering = io.mockk.Ordering.ORDERED) {
+            dataRepository.createFlowsIfNecessary(listOf(testChannel))
+            chatRepository.createFlowsIfNecessary(testChannel)
+            chatRepository.loadRecentMessagesIfEnabled(testChannel)
+            channelRepository.getChannel(testChannel)
         }
+    }
+
+    @Test
+    fun `loadChannelBadges returns null on success`() = runTest(testDispatcher) {
+        coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
+
+        val result = loader.loadChannelBadges(testChannel, testChannelId)
+
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `loadChannelBadges returns failure on error`() = runTest(testDispatcher) {
+        coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("fail"))
+
+        val result = loader.loadChannelBadges(testChannel, testChannelId)
+
+        assertIs<ChannelLoadingFailure.Badges>(result)
+        assertEquals(testChannel, result.channel)
+    }
 }

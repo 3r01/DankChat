@@ -21,16 +21,15 @@ class NotificationsSettingsViewModel(
                 initialValue = notificationsSettingsDataStore.current(),
             )
 
-    fun onInteraction(interaction: NotificationsSettingsInteraction) =
-        viewModelScope.launch {
-            runCatching {
-                when (interaction) {
-                    is NotificationsSettingsInteraction.Notifications -> notificationsSettingsDataStore.update { it.copy(showNotifications = interaction.value) }
-                    is NotificationsSettingsInteraction.WhisperNotifications -> notificationsSettingsDataStore.update { it.copy(showWhisperNotifications = interaction.value) }
-                    is NotificationsSettingsInteraction.Mention -> notificationsSettingsDataStore.update { it.copy(mentionFormat = interaction.value) }
-                }
+    fun onInteraction(interaction: NotificationsSettingsInteraction) = viewModelScope.launch {
+        runCatching {
+            when (interaction) {
+                is NotificationsSettingsInteraction.Notifications -> notificationsSettingsDataStore.update { it.copy(showNotifications = interaction.value) }
+                is NotificationsSettingsInteraction.WhisperNotifications -> notificationsSettingsDataStore.update { it.copy(showWhisperNotifications = interaction.value) }
+                is NotificationsSettingsInteraction.Mention -> notificationsSettingsDataStore.update { it.copy(mentionFormat = interaction.value) }
             }
         }
+    }
 }
 
 sealed interface NotificationsSettingsInteraction {

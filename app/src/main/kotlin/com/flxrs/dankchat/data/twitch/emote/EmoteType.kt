@@ -69,24 +69,23 @@ sealed interface EmoteType : Comparable<EmoteType> {
         override val title = ""
     }
 
-    override fun compareTo(other: EmoteType): Int =
-        when {
-            this is ChannelTwitchBitEmote || this is ChannelTwitchFollowerEmote -> {
-                when (other) {
-                    is ChannelTwitchBitEmote,
-                    is ChannelTwitchFollowerEmote,
-                    -> 0
+    override fun compareTo(other: EmoteType): Int = when {
+        this is ChannelTwitchBitEmote || this is ChannelTwitchFollowerEmote -> {
+            when (other) {
+                is ChannelTwitchBitEmote,
+                is ChannelTwitchFollowerEmote,
+                -> 0
 
-                    else -> 1
-                }
-            }
-
-            other is ChannelTwitchBitEmote || other is ChannelTwitchFollowerEmote -> {
-                -1
-            }
-
-            else -> {
-                0
+                else -> 1
             }
         }
+
+        other is ChannelTwitchBitEmote || other is ChannelTwitchFollowerEmote -> {
+            -1
+        }
+
+        else -> {
+            0
+        }
+    }
 }

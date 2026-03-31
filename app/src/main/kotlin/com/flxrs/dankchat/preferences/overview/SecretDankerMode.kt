@@ -40,13 +40,12 @@ fun SecretDankerModeTrigger(content: @Composable SecretDankerScope.() -> Unit) {
     val scope =
         remember {
             object : SecretDankerScope {
-                override fun Modifier.dankClickable() =
-                    clickable(
-                        enabled = !secretDankerMode,
-                        onClick = { currentClicks++ },
-                        interactionSource = null,
-                        indication = null,
-                    )
+                override fun Modifier.dankClickable() = clickable(
+                    enabled = !secretDankerMode,
+                    onClick = { currentClicks++ },
+                    interactionSource = null,
+                    indication = null,
+                )
             }
         }
     val context = LocalContext.current

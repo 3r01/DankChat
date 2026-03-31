@@ -7,10 +7,9 @@ import io.ktor.client.request.parameter
 class DankChatApi(
     private val ktorClient: HttpClient,
 ) {
-    suspend fun getSets(ids: String) =
-        ktorClient.get("sets") {
-            parameter("id", ids)
-        }
+    suspend fun getSets(ids: String) = ktorClient.get("sets") {
+        parameter("id", ids)
+    }
 
     suspend fun getDankChatBadges() = ktorClient.get("badges")
 }

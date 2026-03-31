@@ -31,38 +31,34 @@ class MessageProcessor(
     suspend fun processIrcMessage(
         ircMessage: IrcMessage,
         findMessageById: (UserName, String) -> Message? = { _, _ -> null },
-    ): Message? =
-        Message
-            .parse(ircMessage, channelRepository::tryGetUserNameById)
-            ?.let { process(it, findMessageById) }
+    ): Message? = Message
+        .parse(ircMessage, channelRepository::tryGetUserNameById)
+        ?.let { process(it, findMessageById) }
 
     /** Full pipeline on an already-parsed message. Returns null if ignored. */
     suspend fun process(
         message: Message,
         findMessageById: (UserName, String) -> Message? = { _, _ -> null },
-    ): Message? =
-        message
-            .applyIgnores()
-            ?.calculateMessageThread(findMessageById)
-            ?.calculateUserDisplays()
-            ?.parseEmotesAndBadges()
-            ?.calculateHighlightState()
-            ?.updateMessageInThread()
+    ): Message? = message
+        .applyIgnores()
+        ?.calculateMessageThread(findMessageById)
+        ?.calculateUserDisplays()
+        ?.parseEmotesAndBadges()
+        ?.calculateHighlightState()
+        ?.updateMessageInThread()
 
     /** Partial pipeline for PubSub reward messages (no thread/emote steps). */
-    suspend fun processReward(message: Message): Message? =
-        message
-            .applyIgnores()
-            ?.calculateHighlightState()
-            ?.calculateUserDisplays()
+    suspend fun processReward(message: Message): Message? = message
+        .applyIgnores()
+        ?.calculateHighlightState()
+        ?.calculateUserDisplays()
 
     /** Partial pipeline for whisper messages (no thread step). */
-    suspend fun processWhisper(message: Message): Message? =
-        message
-            .applyIgnores()
-            ?.calculateHighlightState()
-            ?.calculateUserDisplays()
-            ?.parseEmotesAndBadges()
+    suspend fun processWhisper(message: Message): Message? = message
+        .applyIgnores()
+        ?.calculateHighlightState()
+        ?.calculateUserDisplays()
+        ?.parseEmotesAndBadges()
 
     /** Re-parse emotes and badges (e.g. after emote set changes). */
     suspend fun reparseEmotesAndBadges(message: Message): Message = message.parseEmotesAndBadges().updateMessageInThread()

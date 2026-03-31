@@ -9,35 +9,32 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.style.TextDecoration
 
 @Composable
-fun textLinkStyles(): TextLinkStyles =
-    TextLinkStyles(
-        style =
-            SpanStyle(
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline,
-            ),
-        pressedStyle =
-            SpanStyle(
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline,
-                background = MaterialTheme.colorScheme.primary.copy(alpha = ContentAlpha.medium),
-            ),
-    )
+fun textLinkStyles(): TextLinkStyles = TextLinkStyles(
+    style =
+        SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+        ),
+    pressedStyle =
+        SpanStyle(
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            background = MaterialTheme.colorScheme.primary.copy(alpha = ContentAlpha.medium),
+        ),
+)
 
 @Composable
-fun buildLinkAnnotation(url: String): LinkAnnotation =
-    LinkAnnotation.Url(
-        url = url,
-        styles = textLinkStyles(),
-    )
+fun buildLinkAnnotation(url: String): LinkAnnotation = LinkAnnotation.Url(
+    url = url,
+    styles = textLinkStyles(),
+)
 
 @Composable
 fun buildClickableAnnotation(
     text: String,
     onClick: LinkInteractionListener,
-): LinkAnnotation =
-    LinkAnnotation.Clickable(
-        tag = text,
-        styles = textLinkStyles(),
-        linkInteractionListener = onClick,
-    )
+): LinkAnnotation = LinkAnnotation.Clickable(
+    tag = text,
+    styles = textLinkStyles(),
+    linkInteractionListener = onClick,
+)

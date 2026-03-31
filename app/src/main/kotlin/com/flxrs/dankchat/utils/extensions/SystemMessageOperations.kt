@@ -10,11 +10,10 @@ fun List<ChatItem>.addSystemMessage(
     scrollBackLength: Int,
     onMessageRemoved: (ChatItem) -> Unit,
     onReconnect: () -> Unit = {},
-): List<ChatItem> =
-    when {
-        type != SystemMessageType.Connected -> addAndLimit(type.toChatItem(), scrollBackLength, onMessageRemoved)
-        else -> replaceLastSystemMessageIfNecessary(scrollBackLength, onMessageRemoved, onReconnect)
-    }
+): List<ChatItem> = when {
+    type != SystemMessageType.Connected -> addAndLimit(type.toChatItem(), scrollBackLength, onMessageRemoved)
+    else -> replaceLastSystemMessageIfNecessary(scrollBackLength, onMessageRemoved, onReconnect)
+}
 
 private fun List<ChatItem>.replaceLastSystemMessageIfNecessary(
     scrollBackLength: Int,

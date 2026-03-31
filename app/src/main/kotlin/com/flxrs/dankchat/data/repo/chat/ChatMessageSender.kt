@@ -133,23 +133,22 @@ class ChatMessageSender(
         }
     }
 
-    private fun Throwable.toSendErrorType(): SystemMessageType =
-        when (this) {
-            is HelixApiException -> {
-                when (error) {
-                    HelixError.NotLoggedIn -> SystemMessageType.SendNotLoggedIn
-                    HelixError.MissingScopes -> SystemMessageType.SendMissingScopes
-                    HelixError.UserNotAuthorized -> SystemMessageType.SendNotAuthorized
-                    HelixError.MessageTooLarge -> SystemMessageType.SendMessageTooLarge
-                    HelixError.ChatMessageRateLimited -> SystemMessageType.SendRateLimited
-                    else -> SystemMessageType.SendFailed(message)
-                }
-            }
-
-            else -> {
-                SystemMessageType.SendFailed(message)
+    private fun Throwable.toSendErrorType(): SystemMessageType = when (this) {
+        is HelixApiException -> {
+            when (error) {
+                HelixError.NotLoggedIn -> SystemMessageType.SendNotLoggedIn
+                HelixError.MissingScopes -> SystemMessageType.SendMissingScopes
+                HelixError.UserNotAuthorized -> SystemMessageType.SendNotAuthorized
+                HelixError.MessageTooLarge -> SystemMessageType.SendMessageTooLarge
+                HelixError.ChatMessageRateLimited -> SystemMessageType.SendRateLimited
+                else -> SystemMessageType.SendFailed(message)
             }
         }
+
+        else -> {
+            SystemMessageType.SendFailed(message)
+        }
+    }
 
     companion object {
         private val TAG = ChatMessageSender::class.java.simpleName

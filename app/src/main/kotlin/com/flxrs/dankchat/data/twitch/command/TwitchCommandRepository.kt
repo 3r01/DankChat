@@ -202,25 +202,24 @@ class TwitchCommandRepository(
     private suspend fun getModerators(
         command: TwitchCommand,
         context: CommandContext,
-    ): CommandResult =
-        helixApiClient.getModerators(context.channelId).fold(
-            onSuccess = { result ->
-                when {
-                    result.isEmpty() -> {
-                        CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_no_moderators))
-                    }
-
-                    else -> {
-                        val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
-                        CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_moderators_list, persistentListOf(users)))
-                    }
+    ): CommandResult = helixApiClient.getModerators(context.channelId).fold(
+        onSuccess = { result ->
+            when {
+                result.isEmpty() -> {
+                    CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_no_moderators))
                 }
-            },
-            onFailure = {
-                val response = TextResource.Res(R.string.cmd_fail_list_moderators, persistentListOf(it.toErrorMessage(command)))
-                CommandResult.AcceptedTwitchCommand(command, response)
-            },
-        )
+
+                else -> {
+                    val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
+                    CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_moderators_list, persistentListOf(users)))
+                }
+            }
+        },
+        onFailure = {
+            val response = TextResource.Res(R.string.cmd_fail_list_moderators, persistentListOf(it.toErrorMessage(command)))
+            CommandResult.AcceptedTwitchCommand(command, response)
+        },
+    )
 
     private suspend fun addModerator(
         command: TwitchCommand,
@@ -275,25 +274,24 @@ class TwitchCommandRepository(
     private suspend fun getVips(
         command: TwitchCommand,
         context: CommandContext,
-    ): CommandResult =
-        helixApiClient.getVips(context.channelId).fold(
-            onSuccess = { result ->
-                when {
-                    result.isEmpty() -> {
-                        CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_no_vips))
-                    }
-
-                    else -> {
-                        val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
-                        CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_vips_list, persistentListOf(users)))
-                    }
+    ): CommandResult = helixApiClient.getVips(context.channelId).fold(
+        onSuccess = { result ->
+            when {
+                result.isEmpty() -> {
+                    CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_no_vips))
                 }
-            },
-            onFailure = {
-                val response = TextResource.Res(R.string.cmd_fail_list_vips, persistentListOf(it.toErrorMessage(command)))
-                CommandResult.AcceptedTwitchCommand(command, response)
-            },
-        )
+
+                else -> {
+                    val users = result.joinToString { it.userLogin.formatWithDisplayName(it.userName) }
+                    CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_vips_list, persistentListOf(users)))
+                }
+            }
+        },
+        onFailure = {
+            val response = TextResource.Res(R.string.cmd_fail_list_vips, persistentListOf(it.toErrorMessage(command)))
+            CommandResult.AcceptedTwitchCommand(command, response)
+        },
+    )
 
     private suspend fun addVip(
         command: TwitchCommand,
@@ -449,14 +447,13 @@ class TwitchCommandRepository(
         command: TwitchCommand,
         currentUserId: UserId,
         context: CommandContext,
-    ): CommandResult =
-        helixApiClient.deleteMessages(context.channelId, currentUserId).fold(
-            onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
-            onFailure = {
-                val response = TextResource.Res(R.string.cmd_fail_clear, persistentListOf(it.toErrorMessage(command)))
-                CommandResult.AcceptedTwitchCommand(command, response)
-            },
-        )
+    ): CommandResult = helixApiClient.deleteMessages(context.channelId, currentUserId).fold(
+        onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
+        onFailure = {
+            val response = TextResource.Res(R.string.cmd_fail_clear, persistentListOf(it.toErrorMessage(command)))
+            CommandResult.AcceptedTwitchCommand(command, response)
+        },
+    )
 
     private suspend fun deleteMessage(
         command: TwitchCommand,
@@ -579,14 +576,13 @@ class TwitchCommandRepository(
     private suspend fun cancelRaid(
         command: TwitchCommand,
         context: CommandContext,
-    ): CommandResult =
-        helixApiClient.deleteRaid(context.channelId).fold(
-            onSuccess = { CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_success_unraid)) },
-            onFailure = {
-                val response = TextResource.Res(R.string.cmd_fail_unraid, persistentListOf(it.toErrorMessage(command)))
-                CommandResult.AcceptedTwitchCommand(command, response)
-            },
-        )
+    ): CommandResult = helixApiClient.deleteRaid(context.channelId).fold(
+        onSuccess = { CommandResult.AcceptedTwitchCommand(command, response = TextResource.Res(R.string.cmd_success_unraid)) },
+        onFailure = {
+            val response = TextResource.Res(R.string.cmd_fail_unraid, persistentListOf(it.toErrorMessage(command)))
+            CommandResult.AcceptedTwitchCommand(command, response)
+        },
+    )
 
     private suspend fun enableFollowersMode(
         command: TwitchCommand,
@@ -745,14 +741,13 @@ class TwitchCommandRepository(
         context: CommandContext,
         request: ChatSettingsRequestDto,
         formatRange: ((IntRange) -> String)? = null,
-    ): CommandResult =
-        helixApiClient.patchChatSettings(context.channelId, currentUserId, request).fold(
-            onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
-            onFailure = {
-                val response = TextResource.Res(R.string.cmd_fail_chat_settings, persistentListOf(it.toErrorMessage(command, formatRange = formatRange)))
-                CommandResult.AcceptedTwitchCommand(command, response)
-            },
-        )
+    ): CommandResult = helixApiClient.patchChatSettings(context.channelId, currentUserId, request).fold(
+        onSuccess = { CommandResult.AcceptedTwitchCommand(command) },
+        onFailure = {
+            val response = TextResource.Res(R.string.cmd_fail_chat_settings, persistentListOf(it.toErrorMessage(command, formatRange = formatRange)))
+            CommandResult.AcceptedTwitchCommand(command, response)
+        },
+    )
 
     private suspend fun sendShoutout(
         command: TwitchCommand,

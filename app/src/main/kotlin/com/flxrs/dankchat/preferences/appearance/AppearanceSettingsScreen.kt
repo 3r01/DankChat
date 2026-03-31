@@ -282,13 +282,12 @@ private fun rememberThemeState(
 private fun getFontSizeSummary(
     value: Int,
     context: Context,
-): String =
-    when {
-        value < 13 -> context.getString(R.string.preference_font_size_summary_very_small)
-        value in 13..17 -> context.getString(R.string.preference_font_size_summary_small)
-        value in 18..22 -> context.getString(R.string.preference_font_size_summary_large)
-        else -> context.getString(R.string.preference_font_size_summary_very_large)
-    }
+): String = when {
+    value < 13 -> context.getString(R.string.preference_font_size_summary_very_small)
+    value in 13..17 -> context.getString(R.string.preference_font_size_summary_small)
+    value in 18..22 -> context.getString(R.string.preference_font_size_summary_large)
+    else -> context.getString(R.string.preference_font_size_summary_very_large)
+}
 
 private fun setDarkMode(
     themePreference: ThemePreference,

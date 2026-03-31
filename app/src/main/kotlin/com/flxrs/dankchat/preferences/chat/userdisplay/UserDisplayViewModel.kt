@@ -26,13 +26,12 @@ class UserDisplayViewModel(
         userDisplays.replaceAll(items)
     }
 
-    fun addUserDisplay() =
-        viewModelScope.launch {
-            val entity = userDisplayRepository.addUserDisplay()
-            userDisplays += entity.toItem()
-            val position = userDisplays.lastIndex
-            sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
-        }
+    fun addUserDisplay() = viewModelScope.launch {
+        val entity = userDisplayRepository.addUserDisplay()
+        userDisplays += entity.toItem()
+        val position = userDisplays.lastIndex
+        sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
+    }
 
     fun addUserDisplayItem(
         item: UserDisplayItem,
@@ -44,26 +43,23 @@ class UserDisplayViewModel(
         sendEvent(UserDisplayEvent.ItemAdded(position, isLast))
     }
 
-    fun removeUserDisplayItem(item: UserDisplayItem) =
-        viewModelScope.launch {
-            val position = userDisplays.indexOfFirst { it.id == item.id }
-            if (position == -1) {
-                return@launch
-            }
-
-            userDisplayRepository.removeUserDisplay(item.toEntity())
-            userDisplays.removeAt(position)
-            sendEvent(UserDisplayEvent.ItemRemoved(item, position))
+    fun removeUserDisplayItem(item: UserDisplayItem) = viewModelScope.launch {
+        val position = userDisplays.indexOfFirst { it.id == item.id }
+        if (position == -1) {
+            return@launch
         }
 
-    fun updateUserDisplays(userDisplayItems: List<UserDisplayItem>) =
-        viewModelScope.launch {
-            val entries = userDisplayItems.map(UserDisplayItem::toEntity)
-            userDisplayRepository.updateUserDisplays(entries)
-        }
+        userDisplayRepository.removeUserDisplay(item.toEntity())
+        userDisplays.removeAt(position)
+        sendEvent(UserDisplayEvent.ItemRemoved(item, position))
+    }
 
-    private suspend fun sendEvent(event: UserDisplayEvent) =
-        withContext(Dispatchers.Main.immediate) {
-            eventChannel.send(event)
-        }
+    fun updateUserDisplays(userDisplayItems: List<UserDisplayItem>) = viewModelScope.launch {
+        val entries = userDisplayItems.map(UserDisplayItem::toEntity)
+        userDisplayRepository.updateUserDisplays(entries)
+    }
+
+    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(Dispatchers.Main.immediate) {
+        eventChannel.send(event)
+    }
 }

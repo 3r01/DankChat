@@ -78,28 +78,27 @@ class DankChatApplication :
     }
 
     @OptIn(ExperimentalCoilApi::class)
-    override fun newImageLoader(context: PlatformContext): ImageLoader =
-        ImageLoader
-            .Builder(this)
-            .diskCache {
-                DiskCache
-                    .Builder()
-                    .directory(context.cacheDir.resolve("image_cache"))
-                    .build()
-            }.components {
-                // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
-                add(AnimatedImageDecoder.Factory())
-                val client =
-                    HttpClient(OkHttp) {
-                        install(UserAgent) {
-                            agent = "dankchat/${BuildConfig.VERSION_NAME}"
-                        }
+    override fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader
+        .Builder(this)
+        .diskCache {
+            DiskCache
+                .Builder()
+                .directory(context.cacheDir.resolve("image_cache"))
+                .build()
+        }.components {
+            // minSdk 30 guarantees AnimatedImageDecoder support (API 28+)
+            add(AnimatedImageDecoder.Factory())
+            val client =
+                HttpClient(OkHttp) {
+                    install(UserAgent) {
+                        agent = "dankchat/${BuildConfig.VERSION_NAME}"
                     }
-                val fetcher =
-                    KtorNetworkFetcherFactory(
-                        httpClient = { client },
-                        cacheStrategy = { CacheControlCacheStrategy() },
-                    )
-                add(fetcher)
-            }.build()
+                }
+            val fetcher =
+                KtorNetworkFetcherFactory(
+                    httpClient = { client },
+                    cacheStrategy = { CacheControlCacheStrategy() },
+                )
+            add(fetcher)
+        }.build()
 }

@@ -14,19 +14,17 @@ class FFZApiClient(
     private val ffzApi: FFZApi,
     private val json: Json,
 ) {
-    suspend fun getFFZChannelEmotes(channelId: UserId): Result<FFZChannelDto?> =
-        runCatching {
-            ffzApi
-                .getChannelEmotes(channelId)
-                .throwApiErrorOnFailure(json)
-                .body<FFZChannelDto>()
-        }.recoverNotFoundWith(null)
+    suspend fun getFFZChannelEmotes(channelId: UserId): Result<FFZChannelDto?> = runCatching {
+        ffzApi
+            .getChannelEmotes(channelId)
+            .throwApiErrorOnFailure(json)
+            .body<FFZChannelDto>()
+    }.recoverNotFoundWith(null)
 
-    suspend fun getFFZGlobalEmotes(): Result<FFZGlobalDto> =
-        runCatching {
-            ffzApi
-                .getGlobalEmotes()
-                .throwApiErrorOnFailure(json)
-                .body()
-        }
+    suspend fun getFFZGlobalEmotes(): Result<FFZGlobalDto> = runCatching {
+        ffzApi
+            .getGlobalEmotes()
+            .throwApiErrorOnFailure(json)
+            .body()
+    }
 }

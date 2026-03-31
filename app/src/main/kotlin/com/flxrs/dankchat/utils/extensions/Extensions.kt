@@ -10,13 +10,12 @@ import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteItem
 import kotlinx.serialization.json.Json
 
-fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> =
-    this
-        ?.groupBy { it.emoteType.title }
-        ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
-        ?.mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
-        ?.flatMap { it.value }
-        .orEmpty()
+fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> = this
+    ?.groupBy { it.emoteType.title }
+    ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
+    ?.mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
+    ?.flatMap { it.value }
+    .orEmpty()
 
 fun List<GenericEmote>?.toEmoteItemsWithFront(channel: UserName?): List<EmoteItem> {
     if (this == null) return emptyList()
@@ -38,10 +37,9 @@ fun List<GenericEmote>?.toEmoteItemsWithFront(channel: UserName?): List<EmoteIte
         .flatMap { it.value }
 }
 
-fun List<GenericEmote>.moveToFront(channel: UserName?): List<GenericEmote> =
-    this
-        .partition { it.emoteType.title.equals(channel?.value, ignoreCase = true) }
-        .run { first + second }
+fun List<GenericEmote>.moveToFront(channel: UserName?): List<GenericEmote> = this
+    .partition { it.emoteType.title.equals(channel?.value, ignoreCase = true) }
+    .run { first + second }
 
 inline fun <V> measureTimeValue(block: () -> V): Pair<V, Long> {
     val start = System.currentTimeMillis()
@@ -62,10 +60,9 @@ inline fun <V> measureTimeAndLog(
     return result
 }
 
-inline fun <reified T> Json.decodeOrNull(json: String): T? =
-    runCatching {
-        decodeFromString<T>(json)
-    }.getOrNull()
+inline fun <reified T> Json.decodeOrNull(json: String): T? = runCatching {
+    decodeFromString<T>(json)
+}.getOrNull()
 
 val Int.isEven get() = (this % 2 == 0)
 

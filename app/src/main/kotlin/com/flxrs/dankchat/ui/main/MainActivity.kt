@@ -543,11 +543,10 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch { mainEventBus.emitEvent(MainEvent.OpenChannel(channelExtra)) }
     }
 
-    fun clearNotificationsOfChannel(channel: UserName) =
-        when {
-            isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
-            else -> pendingChannelsToClear += channel
-        }
+    fun clearNotificationsOfChannel(channel: UserName) = when {
+        isBound && notificationService != null -> notificationService?.setActiveChannel(channel)
+        else -> pendingChannelsToClear += channel
+    }
 
     private fun handleShutDown() {
         stopService(Intent(this, NotificationService::class.java))

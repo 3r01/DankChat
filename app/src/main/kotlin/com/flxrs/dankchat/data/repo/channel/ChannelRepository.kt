@@ -84,10 +84,9 @@ class ChannelRepository(
 
     fun tryGetUserNameById(id: UserId): UserName? = roomStates.values.find { it.channelId == id }?.channel
 
-    fun getRoomStateFlow(channel: UserName): SharedFlow<RoomState> =
-        roomStateFlows.getOrPut(channel) {
-            MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-        }
+    fun getRoomStateFlow(channel: UserName): SharedFlow<RoomState> = roomStateFlows.getOrPut(channel) {
+        MutableSharedFlow(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    }
 
     fun getRoomState(channel: UserName): RoomState? = roomStateFlows[channel]?.firstValueOrNull
 
@@ -109,45 +108,43 @@ class ChannelRepository(
         flow.tryEmit(state)
     }
 
-    suspend fun getChannelsByIds(ids: Collection<UserId>): List<Channel> =
-        withContext(Dispatchers.IO) {
-            val cached = ids.mapNotNull { getCachedChannelByIdOrNull(it) }
-            val cachedIds = cached.mapTo(mutableSetOf(), Channel::id)
-            val remaining = ids.filterNot { it in cachedIds }
-            if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
-                return@withContext cached
-            }
-
-            val channels =
-                helixApiClient
-                    .getUsersByIds(remaining)
-                    .getOrNull()
-                    .orEmpty()
-                    .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
-
-            channels.forEach { channelCache[it.name] = it }
-            return@withContext cached + channels
+    suspend fun getChannelsByIds(ids: Collection<UserId>): List<Channel> = withContext(Dispatchers.IO) {
+        val cached = ids.mapNotNull { getCachedChannelByIdOrNull(it) }
+        val cachedIds = cached.mapTo(mutableSetOf(), Channel::id)
+        val remaining = ids.filterNot { it in cachedIds }
+        if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
+            return@withContext cached
         }
 
-    suspend fun getChannels(names: Collection<UserName>): List<Channel> =
-        withContext(Dispatchers.IO) {
-            val cached = names.mapNotNull { channelCache[it] }
-            val cachedNames = cached.mapTo(mutableSetOf(), Channel::name)
-            val remaining = names - cachedNames
-            if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
-                return@withContext cached
-            }
+        val channels =
+            helixApiClient
+                .getUsersByIds(remaining)
+                .getOrNull()
+                .orEmpty()
+                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
-            val channels =
-                helixApiClient
-                    .getUsersByNames(remaining)
-                    .getOrNull()
-                    .orEmpty()
-                    .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        channels.forEach { channelCache[it.name] = it }
+        return@withContext cached + channels
+    }
 
-            channels.forEach { channelCache[it.name] = it }
-            return@withContext cached + channels
+    suspend fun getChannels(names: Collection<UserName>): List<Channel> = withContext(Dispatchers.IO) {
+        val cached = names.mapNotNull { channelCache[it] }
+        val cachedNames = cached.mapTo(mutableSetOf(), Channel::name)
+        val remaining = names - cachedNames
+        if (remaining.isEmpty() || !authDataStore.isLoggedIn) {
+            return@withContext cached
         }
+
+        val channels =
+            helixApiClient
+                .getUsersByNames(remaining)
+                .getOrNull()
+                .orEmpty()
+                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+
+        channels.forEach { channelCache[it.name] = it }
+        return@withContext cached + channels
+    }
 
     fun cacheChannels(channels: List<Channel>) {
         channels.forEach { channelCache[it.name] = it }

@@ -14,19 +14,17 @@ class BTTVApiClient(
     private val bttvApi: BTTVApi,
     private val json: Json,
 ) {
-    suspend fun getBTTVChannelEmotes(channelId: UserId): Result<BTTVChannelDto?> =
-        runCatching {
-            bttvApi
-                .getChannelEmotes(channelId)
-                .throwApiErrorOnFailure(json)
-                .body<BTTVChannelDto>()
-        }.recoverNotFoundWith(null)
+    suspend fun getBTTVChannelEmotes(channelId: UserId): Result<BTTVChannelDto?> = runCatching {
+        bttvApi
+            .getChannelEmotes(channelId)
+            .throwApiErrorOnFailure(json)
+            .body<BTTVChannelDto>()
+    }.recoverNotFoundWith(null)
 
-    suspend fun getBTTVGlobalEmotes(): Result<List<BTTVGlobalEmoteDto>> =
-        runCatching {
-            bttvApi
-                .getGlobalEmotes()
-                .throwApiErrorOnFailure(json)
-                .body()
-        }
+    suspend fun getBTTVGlobalEmotes(): Result<List<BTTVGlobalEmoteDto>> = runCatching {
+        bttvApi
+            .getGlobalEmotes()
+            .throwApiErrorOnFailure(json)
+            .body()
+    }
 }

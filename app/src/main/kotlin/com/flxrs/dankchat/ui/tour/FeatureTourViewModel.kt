@@ -234,14 +234,13 @@ class FeatureTourViewModel(
         viewModelScope.launch { tooltipStateForStep(step).show() }
     }
 
-    private fun tooltipStateForStep(step: TourStep): TooltipState =
-        when (step) {
-            TourStep.InputActions -> inputActionsTooltipState
-            TourStep.OverflowMenu -> overflowMenuTooltipState
-            TourStep.ConfigureActions -> configureActionsTooltipState
-            TourStep.SwipeGesture -> swipeGestureTooltipState
-            TourStep.RecoveryFab -> recoveryFabTooltipState
-        }
+    private fun tooltipStateForStep(step: TourStep): TooltipState = when (step) {
+        TourStep.InputActions -> inputActionsTooltipState
+        TourStep.OverflowMenu -> overflowMenuTooltipState
+        TourStep.ConfigureActions -> configureActionsTooltipState
+        TourStep.SwipeGesture -> swipeGestureTooltipState
+        TourStep.RecoveryFab -> recoveryFabTooltipState
+    }
 
     private fun resolvePostOnboardingStep(
         settings: OnboardingSettings,
@@ -251,26 +250,25 @@ class FeatureTourViewModel(
         tourActive: Boolean,
         tourCompleted: Boolean,
         authValidated: Boolean,
-    ): PostOnboardingStep =
-        when {
-            tourCompleted -> PostOnboardingStep.Complete
+    ): PostOnboardingStep = when {
+        tourCompleted -> PostOnboardingStep.Complete
 
-            settings.featureTourVersion >= CURRENT_TOUR_VERSION && toolbarHintDone -> PostOnboardingStep.Complete
+        settings.featureTourVersion >= CURRENT_TOUR_VERSION && toolbarHintDone -> PostOnboardingStep.Complete
 
-            !settings.hasCompletedOnboarding -> PostOnboardingStep.Idle
+        !settings.hasCompletedOnboarding -> PostOnboardingStep.Idle
 
-            !authValidated -> PostOnboardingStep.Idle
+        !authValidated -> PostOnboardingStep.Idle
 
-            !channelReady -> PostOnboardingStep.Idle
+        !channelReady -> PostOnboardingStep.Idle
 
-            channelEmpty -> PostOnboardingStep.Idle
+        channelEmpty -> PostOnboardingStep.Idle
 
-            tourActive -> PostOnboardingStep.FeatureTour
+        tourActive -> PostOnboardingStep.FeatureTour
 
-            !toolbarHintDone -> PostOnboardingStep.ToolbarPlusHint
+        !toolbarHintDone -> PostOnboardingStep.ToolbarPlusHint
 
-            // At this point: toolbarHintDone=true but (version >= CURRENT && toolbarHintDone) was false,
-            // so featureTourVersion < CURRENT_TOUR_VERSION is guaranteed.
-            else -> PostOnboardingStep.FeatureTour
-        }
+        // At this point: toolbarHintDone=true but (version >= CURRENT && toolbarHintDone) was false,
+        // so featureTourVersion < CURRENT_TOUR_VERSION is guaranteed.
+        else -> PostOnboardingStep.FeatureTour
+    }
 }

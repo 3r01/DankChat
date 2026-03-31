@@ -160,84 +160,82 @@ private fun getOverflowItem(
     hasStreamData: Boolean,
     isFullscreen: Boolean,
     isModerator: Boolean,
-): OverflowItem? =
-    when (action) {
-        InputAction.Search -> {
-            OverflowItem(
-                labelRes = R.string.input_action_search,
-                icon = Icons.Default.Search,
-            )
-        }
+): OverflowItem? = when (action) {
+    InputAction.Search -> {
+        OverflowItem(
+            labelRes = R.string.input_action_search,
+            icon = Icons.Default.Search,
+        )
+    }
 
-        InputAction.LastMessage -> {
-            OverflowItem(
-                labelRes = R.string.input_action_last_message,
-                icon = Icons.Default.History,
-            )
-        }
+    InputAction.LastMessage -> {
+        OverflowItem(
+            labelRes = R.string.input_action_last_message,
+            icon = Icons.Default.History,
+        )
+    }
 
-        InputAction.Stream -> {
-            when {
-                hasStreamData || isStreamActive -> {
-                    OverflowItem(
-                        labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-                        icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                    )
-                }
-
-                else -> {
-                    null
-                }
+    InputAction.Stream -> {
+        when {
+            hasStreamData || isStreamActive -> {
+                OverflowItem(
+                    labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
+                    icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                )
             }
-        }
 
-        InputAction.ModActions -> {
-            when {
-                isModerator -> {
-                    OverflowItem(
-                        labelRes = R.string.menu_mod_actions,
-                        icon = Icons.Default.Shield,
-                    )
-                }
-
-                else -> {
-                    null
-                }
+            else -> {
+                null
             }
-        }
-
-        InputAction.Fullscreen -> {
-            OverflowItem(
-                labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
-                icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-            )
-        }
-
-        InputAction.HideInput -> {
-            OverflowItem(
-                labelRes = R.string.menu_hide_input,
-                icon = Icons.Default.VisibilityOff,
-            )
-        }
-
-        InputAction.Debug -> {
-            OverflowItem(
-                labelRes = R.string.input_action_debug,
-                icon = Icons.Default.BugReport,
-            )
         }
     }
+
+    InputAction.ModActions -> {
+        when {
+            isModerator -> {
+                OverflowItem(
+                    labelRes = R.string.menu_mod_actions,
+                    icon = Icons.Default.Shield,
+                )
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+
+    InputAction.Fullscreen -> {
+        OverflowItem(
+            labelRes = if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
+            icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+        )
+    }
+
+    InputAction.HideInput -> {
+        OverflowItem(
+            labelRes = R.string.menu_hide_input,
+            icon = Icons.Default.VisibilityOff,
+        )
+    }
+
+    InputAction.Debug -> {
+        OverflowItem(
+            labelRes = R.string.input_action_debug,
+            icon = Icons.Default.BugReport,
+        )
+    }
+}
 
 private fun isActionEnabled(
     action: InputAction,
     inputEnabled: Boolean,
     hasLastMessage: Boolean,
-): Boolean =
-    when (action) {
-        InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
-        InputAction.LastMessage -> inputEnabled && hasLastMessage
-        InputAction.Stream, InputAction.ModActions -> inputEnabled
-    }
+): Boolean = when (action) {
+    InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
+    InputAction.LastMessage -> inputEnabled && hasLastMessage
+    InputAction.Stream, InputAction.ModActions -> inputEnabled
+}
 
 /**
  * Tour tooltip positioned to the start of its anchor, with a right-pointing caret on the end side.

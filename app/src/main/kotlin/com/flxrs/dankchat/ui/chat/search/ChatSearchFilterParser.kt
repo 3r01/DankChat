@@ -63,9 +63,8 @@ object ChatSearchFilterParser {
         return ChatSearchFilter.Text(query = raw, negate = negate)
     }
 
-    private fun extractNegation(token: String): Pair<Boolean, String> =
-        when {
-            token.startsWith('!') || token.startsWith('-') -> true to token.substring(1)
-            else -> false to token
-        }
+    private fun extractNegation(token: String): Pair<Boolean, String> = when {
+        token.startsWith('!') || token.startsWith('-') -> true to token.substring(1)
+        else -> false to token
+    }
 }

@@ -17,36 +17,34 @@ inline fun <reified K, T> dankChatPreferencesMigration(
     context: Context,
     prefs: SharedPreferences = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE),
     crossinline migrateValue: suspend (currentData: T, key: K, value: Any?) -> T,
-): DataMigration<T> where K : Enum<K>, K : PreferenceKeys =
-    dankChatMigration(
-        context = context,
-        prefs = prefs,
-        keyMapper = { context.getString(it.id) },
-        migrateValue = migrateValue,
-    )
+): DataMigration<T> where K : Enum<K>, K : PreferenceKeys = dankChatMigration(
+    context = context,
+    prefs = prefs,
+    keyMapper = { context.getString(it.id) },
+    migrateValue = migrateValue,
+)
 
 inline fun <reified K, T> dankChatMigration(
     context: Context,
     prefs: SharedPreferences = context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE),
     crossinline keyMapper: (K) -> String,
     crossinline migrateValue: suspend (currentData: T, key: K, value: Any?) -> T,
-): DataMigration<T> where K : Enum<K> =
-    object : DataMigration<T> {
-        val map = enumEntries<K>().associateBy(keyMapper)
+): DataMigration<T> where K : Enum<K> = object : DataMigration<T> {
+    val map = enumEntries<K>().associateBy(keyMapper)
 
-        override suspend fun migrate(currentData: T): T {
-            return runCatching {
-                prefs.all.filterKeys { it in map.keys }.entries.fold(currentData) { acc, (key, value) ->
-                    val mapped = map[key] ?: return@fold acc
-                    migrateValue(acc, mapped, value)
-                }
-            }.getOrDefault(currentData)
-        }
-
-        override suspend fun shouldMigrate(currentData: T): Boolean = map.keys.any(prefs::contains)
-
-        override suspend fun cleanUp() = prefs.edit { map.keys.forEach(::remove) }
+    override suspend fun migrate(currentData: T): T {
+        return runCatching {
+            prefs.all.filterKeys { it in map.keys }.entries.fold(currentData) { acc, (key, value) ->
+                val mapped = map[key] ?: return@fold acc
+                migrateValue(acc, mapped, value)
+            }
+        }.getOrDefault(currentData)
     }
+
+    override suspend fun shouldMigrate(currentData: T): Boolean = map.keys.any(prefs::contains)
+
+    override suspend fun cleanUp() = prefs.edit { map.keys.forEach(::remove) }
+}
 
 fun Any?.booleanOrNull() = this as? Boolean
 
@@ -76,7 +74,6 @@ fun <T : Enum<T>> Any?.mappedStringSetOrDefault(
     original: Array<String>,
     enumEntries: EnumEntries<T>,
     default: List<T>,
-): List<T> =
-    stringSetOrNull()?.toList()?.mapNotNull {
-        enumEntries.getOrNull(original.indexOf(it))
-    } ?: default
+): List<T> = stringSetOrNull()?.toList()?.mapNotNull {
+    enumEntries.getOrNull(original.indexOf(it))
+} ?: default

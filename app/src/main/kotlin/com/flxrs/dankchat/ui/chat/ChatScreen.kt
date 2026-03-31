@@ -600,57 +600,56 @@ private fun getFabMenuItem(
     isFullscreen: Boolean,
     isModerator: Boolean,
     debugMode: Boolean,
-): FabMenuItem? =
-    when (action) {
-        InputAction.Search -> {
-            FabMenuItem(R.string.input_action_search, Icons.Default.Search)
-        }
+): FabMenuItem? = when (action) {
+    InputAction.Search -> {
+        FabMenuItem(R.string.input_action_search, Icons.Default.Search)
+    }
 
-        InputAction.LastMessage -> {
-            FabMenuItem(R.string.input_action_last_message, Icons.Default.History)
-        }
+    InputAction.LastMessage -> {
+        FabMenuItem(R.string.input_action_last_message, Icons.Default.History)
+    }
 
-        InputAction.Stream -> {
-            when {
-                hasStreamData || isStreamActive -> {
-                    FabMenuItem(
-                        if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-                        if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                    )
-                }
-
-                else -> {
-                    null
-                }
+    InputAction.Stream -> {
+        when {
+            hasStreamData || isStreamActive -> {
+                FabMenuItem(
+                    if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
+                    if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                )
             }
-        }
 
-        InputAction.ModActions -> {
-            when {
-                isModerator -> FabMenuItem(R.string.menu_mod_actions, Icons.Default.Shield)
-                else -> null
-            }
-        }
-
-        InputAction.Fullscreen -> {
-            FabMenuItem(
-                if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
-                if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-            )
-        }
-
-        InputAction.HideInput -> {
-            null
-        }
-
-        // Already hidden, no point showing this
-        InputAction.Debug -> {
-            when {
-                debugMode -> FabMenuItem(R.string.input_action_debug, Icons.Default.BugReport)
-                else -> null
+            else -> {
+                null
             }
         }
     }
+
+    InputAction.ModActions -> {
+        when {
+            isModerator -> FabMenuItem(R.string.menu_mod_actions, Icons.Default.Shield)
+            else -> null
+        }
+    }
+
+    InputAction.Fullscreen -> {
+        FabMenuItem(
+            if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
+            if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+        )
+    }
+
+    InputAction.HideInput -> {
+        null
+    }
+
+    // Already hidden, no point showing this
+    InputAction.Debug -> {
+        when {
+            debugMode -> FabMenuItem(R.string.input_action_debug, Icons.Default.BugReport)
+            else -> null
+        }
+    }
+}
 
 private val HIGHLIGHT_CORNER_RADIUS = 8.dp
 

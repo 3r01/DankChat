@@ -323,41 +323,39 @@ class ChatConnection(
 
     private fun randomJitter() = Random.nextLong(range = 0L..MAX_JITTER).milliseconds
 
-    private fun setupPingInterval() =
-        scope.timer(interval = PING_INTERVAL - randomJitter()) {
-            val currentSession = session
-            if (awaitingPong || currentSession?.isActive != true) {
-                cancel()
-                reconnect()
-                return@timer
-            }
-
-            if (_connected.value) {
-                awaitingPong = true
-                runCatching { currentSession.send(Frame.Text("PING\r\n")) }
-            }
+    private fun setupPingInterval() = scope.timer(interval = PING_INTERVAL - randomJitter()) {
+        val currentSession = session
+        if (awaitingPong || currentSession?.isActive != true) {
+            cancel()
+            reconnect()
+            return@timer
         }
 
-    private fun setupJoinCheckInterval(channelsToCheck: List<UserName>) =
-        scope.launch {
-            Log.d(TAG, "[$chatConnectionType] setting up join check for $channelsToCheck")
-            if (session?.isActive != true || !_connected.value || channelsAttemptedToJoin.isEmpty()) {
-                return@launch
-            }
+        if (_connected.value) {
+            awaitingPong = true
+            runCatching { currentSession.send(Frame.Text("PING\r\n")) }
+        }
+    }
 
-            delay(JOIN_CHECK_DELAY)
-            if (session?.isActive != true || !_connected.value) {
-                channelsAttemptedToJoin.removeAll(channelsToCheck.toSet())
-                return@launch
-            }
+    private fun setupJoinCheckInterval(channelsToCheck: List<UserName>) = scope.launch {
+        Log.d(TAG, "[$chatConnectionType] setting up join check for $channelsToCheck")
+        if (session?.isActive != true || !_connected.value || channelsAttemptedToJoin.isEmpty()) {
+            return@launch
+        }
 
-            channelsToCheck.forEach {
-                if (it in channelsAttemptedToJoin) {
-                    channelsAttemptedToJoin.remove(it)
-                    receiveChannel.send(ChatEvent.ChannelNonExistent(it))
-                }
+        delay(JOIN_CHECK_DELAY)
+        if (session?.isActive != true || !_connected.value) {
+            channelsAttemptedToJoin.removeAll(channelsToCheck.toSet())
+            return@launch
+        }
+
+        channelsToCheck.forEach {
+            if (it in channelsAttemptedToJoin) {
+                channelsAttemptedToJoin.remove(it)
+                receiveChannel.send(ChatEvent.ChannelNonExistent(it))
             }
         }
+    }
 
     private suspend fun DefaultClientWebSocketSession.sendIrc(msg: String) {
         send(Frame.Text("${msg.trimEnd()}\r\n"))

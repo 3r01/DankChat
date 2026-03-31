@@ -114,18 +114,17 @@ class ChannelManagementViewModel(
         chatConnector.reconnect()
     }
 
-    fun blockChannel(channel: UserName) =
-        viewModelScope.launch {
-            runCatching {
-                if (!preferenceStore.isLoggedIn) {
-                    return@launch
-                }
-
-                val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
-                ignoresRepository.addUserBlock(channelId, channel)
-                removeChannel(channel)
+    fun blockChannel(channel: UserName) = viewModelScope.launch {
+        runCatching {
+            if (!preferenceStore.isLoggedIn) {
+                return@launch
             }
+
+            val channelId = channelRepository.getChannel(channel)?.id ?: return@launch
+            ignoresRepository.addUserBlock(channelId, channel)
+            removeChannel(channel)
         }
+    }
 
     fun selectChannel(channel: UserName) {
         chatChannelProvider.setActiveChannel(channel)

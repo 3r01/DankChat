@@ -11,15 +11,13 @@ data class SubscribeRequest(
     override val d: SubscriptionData,
 ) : DataRequest {
     companion object {
-        fun userUpdates(userId: String) =
-            SubscribeRequest(
-                d = SubscriptionData(type = UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
-            )
+        fun userUpdates(userId: String) = SubscribeRequest(
+            d = SubscriptionData(type = UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
+        )
 
-        fun emoteSetUpdates(emoteSetId: String) =
-            SubscribeRequest(
-                d = SubscriptionData(type = EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
-            )
+        fun emoteSetUpdates(emoteSetId: String) = SubscribeRequest(
+            d = SubscriptionData(type = EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
+        )
     }
 }
 

@@ -18,11 +18,10 @@ import org.koin.core.annotation.Single
 @Module
 class DatabaseModule {
     @Single
-    fun provideDatabase(context: Context): DankChatDatabase =
-        Room
-            .databaseBuilder(context, DankChatDatabase::class.java, DB_NAME)
-            .addMigrations(DankChatDatabase.MIGRATION_4_5)
-            .build()
+    fun provideDatabase(context: Context): DankChatDatabase = Room
+        .databaseBuilder(context, DankChatDatabase::class.java, DB_NAME)
+        .addMigrations(DankChatDatabase.MIGRATION_4_5)
+        .build()
 
     @Single
     fun provideEmoteUsageDao(database: DankChatDatabase): EmoteUsageDao = database.emoteUsageDao()

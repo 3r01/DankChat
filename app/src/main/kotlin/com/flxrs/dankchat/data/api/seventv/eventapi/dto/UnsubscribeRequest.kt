@@ -8,14 +8,12 @@ data class UnsubscribeRequest(
     override val d: SubscriptionData,
 ) : DataRequest {
     companion object {
-        fun userUpdates(userId: String) =
-            UnsubscribeRequest(
-                d = SubscriptionData(type = SubscriptionType.UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
-            )
+        fun userUpdates(userId: String) = UnsubscribeRequest(
+            d = SubscriptionData(type = SubscriptionType.UserUpdates.type, condition = SubscriptionCondition(objectId = userId)),
+        )
 
-        fun emoteSetUpdates(emoteSetId: String) =
-            UnsubscribeRequest(
-                d = SubscriptionData(type = SubscriptionType.EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
-            )
+        fun emoteSetUpdates(emoteSetId: String) = UnsubscribeRequest(
+            d = SubscriptionData(type = SubscriptionType.EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
+        )
     }
 }

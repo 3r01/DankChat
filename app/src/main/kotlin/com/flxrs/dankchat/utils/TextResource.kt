@@ -31,31 +31,30 @@ sealed interface TextResource {
 }
 
 @Composable
-fun TextResource.resolve(): String =
-    when (this) {
-        is TextResource.Plain -> {
-            value
-        }
-
-        is TextResource.Res -> {
-            val resolvedArgs =
-                args.map { arg ->
-                    when (arg) {
-                        is TextResource -> arg.resolve()
-                        else -> arg
-                    }
-                }
-            stringResource(id, *resolvedArgs.toTypedArray())
-        }
-
-        is TextResource.PluralRes -> {
-            val resolvedArgs =
-                args.map { arg ->
-                    when (arg) {
-                        is TextResource -> arg.resolve()
-                        else -> arg
-                    }
-                }
-            pluralStringResource(id, quantity, *resolvedArgs.toTypedArray())
-        }
+fun TextResource.resolve(): String = when (this) {
+    is TextResource.Plain -> {
+        value
     }
+
+    is TextResource.Res -> {
+        val resolvedArgs =
+            args.map { arg ->
+                when (arg) {
+                    is TextResource -> arg.resolve()
+                    else -> arg
+                }
+            }
+        stringResource(id, *resolvedArgs.toTypedArray())
+    }
+
+    is TextResource.PluralRes -> {
+        val resolvedArgs =
+            args.map { arg ->
+                when (arg) {
+                    is TextResource -> arg.resolve()
+                    else -> arg
+                }
+            }
+        pluralStringResource(id, quantity, *resolvedArgs.toTypedArray())
+    }
+}

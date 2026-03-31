@@ -586,41 +586,39 @@ class ChatEventProcessor(
         }
     }
 
-    private fun ConnectionState.toSystemMessageType(): SystemMessageType =
-        when (this) {
-            ConnectionState.DISCONNECTED -> SystemMessageType.Disconnected
+    private fun ConnectionState.toSystemMessageType(): SystemMessageType = when (this) {
+        ConnectionState.DISCONNECTED -> SystemMessageType.Disconnected
 
-            ConnectionState.CONNECTED,
-            ConnectionState.CONNECTED_NOT_LOGGED_IN,
-            -> SystemMessageType.Connected
-        }
+        ConnectionState.CONNECTED,
+        ConnectionState.CONNECTED_NOT_LOGGED_IN,
+        -> SystemMessageType.Connected
+    }
 
     private fun formatAutomodReason(
         reason: String,
         automod: AutomodReasonDto?,
         blockedTerm: BlockedTermReasonDto?,
         messageText: String,
-    ): TextResource =
-        when {
-            reason == "automod" && automod != null -> {
-                TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
-            }
-
-            reason == "blocked_term" && blockedTerm != null -> {
-                val terms =
-                    blockedTerm.termsFound.joinToString { found ->
-                        val start = found.boundary.startPos
-                        val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
-                        "\"${messageText.substring(start, end)}\""
-                    }
-                val count = blockedTerm.termsFound.size
-                TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
-            }
-
-            else -> {
-                TextResource.Plain(reason)
-            }
+    ): TextResource = when {
+        reason == "automod" && automod != null -> {
+            TextResource.Res(R.string.automod_reason_category, persistentListOf(automod.category, automod.level))
         }
+
+        reason == "blocked_term" && blockedTerm != null -> {
+            val terms =
+                blockedTerm.termsFound.joinToString { found ->
+                    val start = found.boundary.startPos
+                    val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
+                    "\"${messageText.substring(start, end)}\""
+                }
+            val count = blockedTerm.termsFound.size
+            TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
+        }
+
+        else -> {
+            TextResource.Plain(reason)
+        }
+    }
 
     companion object {
         private val TAG = ChatEventProcessor::class.java.simpleName

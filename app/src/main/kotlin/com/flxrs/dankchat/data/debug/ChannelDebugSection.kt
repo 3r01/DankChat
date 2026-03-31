@@ -18,33 +18,32 @@ class ChannelDebugSection(
     override val order = 4
     override val baseTitle = "Channel"
 
-    override fun entries(): Flow<DebugSectionSnapshot> =
-        chatChannelProvider.activeChannel.flatMapLatest { channel ->
-            when (channel) {
-                null -> {
-                    flowOf(DebugSectionSnapshot(title = baseTitle, entries = listOf(DebugEntry("Channel", "None"))))
-                }
+    override fun entries(): Flow<DebugSectionSnapshot> = chatChannelProvider.activeChannel.flatMapLatest { channel ->
+        when (channel) {
+            null -> {
+                flowOf(DebugSectionSnapshot(title = baseTitle, entries = listOf(DebugEntry("Channel", "None"))))
+            }
 
-                else -> {
-                    chatMessageRepository.getChat(channel).map { messages ->
-                        val roomState = channelRepository.getRoomState(channel)
-                        val entries =
-                            buildList {
-                                add(DebugEntry("Messages in buffer", "${messages.size} / ${chatMessageRepository.scrollBackLength}"))
-                                when (roomState) {
-                                    null -> {
-                                        add(DebugEntry("Room state", "Unknown"))
-                                    }
+            else -> {
+                chatMessageRepository.getChat(channel).map { messages ->
+                    val roomState = channelRepository.getRoomState(channel)
+                    val entries =
+                        buildList {
+                            add(DebugEntry("Messages in buffer", "${messages.size} / ${chatMessageRepository.scrollBackLength}"))
+                            when (roomState) {
+                                null -> {
+                                    add(DebugEntry("Room state", "Unknown"))
+                                }
 
-                                    else -> {
-                                        val display = roomState.toDebugText()
-                                        add(DebugEntry("Room state", display.ifEmpty { "None" }))
-                                    }
+                                else -> {
+                                    val display = roomState.toDebugText()
+                                    add(DebugEntry("Room state", display.ifEmpty { "None" }))
                                 }
                             }
-                        DebugSectionSnapshot(title = "$baseTitle (${channel.value})", entries = entries)
-                    }
+                        }
+                    DebugSectionSnapshot(title = "$baseTitle (${channel.value})", entries = entries)
                 }
             }
         }
+    }
 }

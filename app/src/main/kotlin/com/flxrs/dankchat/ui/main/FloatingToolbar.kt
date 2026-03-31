@@ -649,83 +649,81 @@ fun FloatingToolbar(
  * Reports 0 intrinsic width so [IntrinsicSize.Min] ignores this child.
  * Places the child end-aligned (right edge matches parent right edge).
  */
-private fun Modifier.endAlignedOverflow() =
-    this.then(
-        object : LayoutModifier {
-            override fun MeasureScope.measure(
-                measurable: Measurable,
-                constraints: Constraints,
-            ): MeasureResult {
-                val parentWidth = constraints.maxWidth
-                val placeable =
-                    measurable.measure(
-                        constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE)),
-                    )
-                return layout(parentWidth, placeable.height) {
-                    placeable.place(parentWidth - placeable.width, 0)
-                }
+private fun Modifier.endAlignedOverflow() = this.then(
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val parentWidth = constraints.maxWidth
+            val placeable =
+                measurable.measure(
+                    constraints.copy(minWidth = 0, maxWidth = (parentWidth * 3).coerceAtMost(MAX_LAYOUT_SIZE)),
+                )
+            return layout(parentWidth, placeable.height) {
+                placeable.place(parentWidth - placeable.width, 0)
             }
+        }
 
-            override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                measurable: IntrinsicMeasurable,
-                height: Int,
-            ): Int = 0
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int,
+        ): Int = 0
 
-            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                measurable: IntrinsicMeasurable,
-                height: Int,
-            ): Int = 0
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int,
+        ): Int = 0
 
-            override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                measurable: IntrinsicMeasurable,
-                width: Int,
-            ): Int = measurable.minIntrinsicHeight(width)
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int,
+        ): Int = measurable.minIntrinsicHeight(width)
 
-            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                measurable: IntrinsicMeasurable,
-                width: Int,
-            ): Int = measurable.maxIntrinsicHeight(width)
-        },
-    )
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int,
+        ): Int = measurable.maxIntrinsicHeight(width)
+    },
+)
 
 /**
  * Prevents intrinsic height queries from propagating to children.
  * Needed because [com.composables.core.ScrollArea] crashes on intrinsic height measurement,
  * and [IntrinsicSize.Min] on a parent Column triggers these queries.
  */
-private fun Modifier.skipIntrinsicHeight() =
-    this.then(
-        object : LayoutModifier {
-            override fun MeasureScope.measure(
-                measurable: Measurable,
-                constraints: Constraints,
-            ): MeasureResult {
-                val placeable = measurable.measure(constraints)
-                return layout(placeable.width, placeable.height) {
-                    placeable.placeRelative(0, 0)
-                }
+private fun Modifier.skipIntrinsicHeight() = this.then(
+    object : LayoutModifier {
+        override fun MeasureScope.measure(
+            measurable: Measurable,
+            constraints: Constraints,
+        ): MeasureResult {
+            val placeable = measurable.measure(constraints)
+            return layout(placeable.width, placeable.height) {
+                placeable.placeRelative(0, 0)
             }
+        }
 
-            override fun IntrinsicMeasureScope.minIntrinsicHeight(
-                measurable: IntrinsicMeasurable,
-                width: Int,
-            ): Int = 0
+        override fun IntrinsicMeasureScope.minIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int,
+        ): Int = 0
 
-            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-                measurable: IntrinsicMeasurable,
-                width: Int,
-            ): Int = 0
+        override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+            measurable: IntrinsicMeasurable,
+            width: Int,
+        ): Int = 0
 
-            override fun IntrinsicMeasureScope.minIntrinsicWidth(
-                measurable: IntrinsicMeasurable,
-                height: Int,
-            ): Int = measurable.minIntrinsicWidth(height)
+        override fun IntrinsicMeasureScope.minIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int,
+        ): Int = measurable.minIntrinsicWidth(height)
 
-            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-                measurable: IntrinsicMeasurable,
-                height: Int,
-            ): Int = measurable.maxIntrinsicWidth(height)
-        },
-    )
+        override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+            measurable: IntrinsicMeasurable,
+            height: Int,
+        ): Int = measurable.maxIntrinsicWidth(height)
+    },
+)
 
 private const val MAX_LAYOUT_SIZE = 16_777_215

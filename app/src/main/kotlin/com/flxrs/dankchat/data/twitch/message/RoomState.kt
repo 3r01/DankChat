@@ -33,62 +33,59 @@ data class RoomState(
     val followerModeDuration get() = tags[RoomStateTag.FOLLOW]?.takeIf { it >= 0 }
     val slowModeWaitTime get() = tags[RoomStateTag.SLOW]?.takeIf { it > 0 }
 
-    fun toDebugText(): String =
-        tags
-            .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
-            .map { (tag, value) ->
-                when (tag) {
-                    RoomStateTag.FOLLOW -> {
-                        when (value) {
-                            0 -> "follow"
-                            else -> "follow(${DateTimeUtils.formatSeconds(value * 60)})"
-                        }
-                    }
-
-                    RoomStateTag.SLOW -> {
-                        "slow(${DateTimeUtils.formatSeconds(value)})"
-                    }
-
-                    else -> {
-                        tag.name.lowercase()
+    fun toDebugText(): String = tags
+        .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
+        .map { (tag, value) ->
+            when (tag) {
+                RoomStateTag.FOLLOW -> {
+                    when (value) {
+                        0 -> "follow"
+                        else -> "follow(${DateTimeUtils.formatSeconds(value * 60)})"
                     }
                 }
-            }.joinToString()
 
-    fun toDisplayTextResources(): ImmutableList<TextResource> =
-        tags
-            .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
-            .map { (tag, value) ->
-                when (tag) {
-                    RoomStateTag.EMOTE -> {
-                        TextResource.Res(R.string.room_state_emote_only)
-                    }
+                RoomStateTag.SLOW -> {
+                    "slow(${DateTimeUtils.formatSeconds(value)})"
+                }
 
-                    RoomStateTag.SUBS -> {
-                        TextResource.Res(R.string.room_state_subscriber_only)
-                    }
+                else -> {
+                    tag.name.lowercase()
+                }
+            }
+        }.joinToString()
 
-                    RoomStateTag.R9K -> {
-                        TextResource.Res(R.string.room_state_unique_chat)
-                    }
+    fun toDisplayTextResources(): ImmutableList<TextResource> = tags
+        .filter { (it.key == RoomStateTag.FOLLOW && it.value >= 0) || it.value > 0 }
+        .map { (tag, value) ->
+            when (tag) {
+                RoomStateTag.EMOTE -> {
+                    TextResource.Res(R.string.room_state_emote_only)
+                }
 
-                    RoomStateTag.SLOW -> {
-                        TextResource.Res(R.string.room_state_slow_mode_duration, persistentListOf(DateTimeUtils.formatSeconds(value)))
-                    }
+                RoomStateTag.SUBS -> {
+                    TextResource.Res(R.string.room_state_subscriber_only)
+                }
 
-                    RoomStateTag.FOLLOW -> {
-                        when (value) {
-                            0 -> TextResource.Res(R.string.room_state_follower_only)
-                            else -> TextResource.Res(R.string.room_state_follower_only_duration, persistentListOf(DateTimeUtils.formatSeconds(value * 60)))
-                        }
+                RoomStateTag.R9K -> {
+                    TextResource.Res(R.string.room_state_unique_chat)
+                }
+
+                RoomStateTag.SLOW -> {
+                    TextResource.Res(R.string.room_state_slow_mode_duration, persistentListOf(DateTimeUtils.formatSeconds(value)))
+                }
+
+                RoomStateTag.FOLLOW -> {
+                    when (value) {
+                        0 -> TextResource.Res(R.string.room_state_follower_only)
+                        else -> TextResource.Res(R.string.room_state_follower_only_duration, persistentListOf(DateTimeUtils.formatSeconds(value * 60)))
                     }
                 }
-            }.toImmutableList()
+            }
+        }.toImmutableList()
 
-    fun copyFromIrcMessage(msg: IrcMessage): RoomState =
-        copy(
-            tags = tags.mapValues { (key, value) -> msg.getRoomStateTag(key, value) },
-        )
+    fun copyFromIrcMessage(msg: IrcMessage): RoomState = copy(
+        tags = tags.mapValues { (key, value) -> msg.getRoomStateTag(key, value) },
+    )
 
     private fun IrcMessage.getRoomStateTag(
         tag: RoomStateTag,

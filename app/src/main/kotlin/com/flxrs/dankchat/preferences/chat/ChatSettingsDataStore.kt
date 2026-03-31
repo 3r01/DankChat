@@ -179,11 +179,10 @@ class ChatSettingsDataStore(
         object : DataMigration<ChatSettings> {
             override suspend fun shouldMigrate(currentData: ChatSettings): Boolean = !currentData.sharedChatMigration
 
-            override suspend fun migrate(currentData: ChatSettings): ChatSettings =
-                currentData.copy(
-                    visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
-                    sharedChatMigration = true,
-                )
+            override suspend fun migrate(currentData: ChatSettings): ChatSettings = currentData.copy(
+                visibleBadges = currentData.visibleBadges.plus(VisibleBadges.SharedChat).distinct(),
+                sharedChatMigration = true,
+            )
 
             override suspend fun cleanUp() = Unit
         }

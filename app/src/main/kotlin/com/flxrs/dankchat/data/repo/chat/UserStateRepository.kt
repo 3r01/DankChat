@@ -24,20 +24,18 @@ class UserStateRepository(
     private val _userState = MutableStateFlow(UserState())
     val userState = _userState.asStateFlow()
 
-    suspend fun getLatestValidUserState(minChannelsSize: Int = 0): UserState =
-        userState
-            .filter {
-                it.userId != null && it.userId.value.isNotBlank() && it.globalEmoteSets.isNotEmpty() && it.followerEmoteSets.size >= minChannelsSize
-            }.take(count = 1)
-            .single()
+    suspend fun getLatestValidUserState(minChannelsSize: Int = 0): UserState = userState
+        .filter {
+            it.userId != null && it.userId.value.isNotBlank() && it.globalEmoteSets.isNotEmpty() && it.followerEmoteSets.size >= minChannelsSize
+        }.take(count = 1)
+        .single()
 
     suspend fun tryGetUserStateOrFallback(
         minChannelsSize: Int,
         initialTimeout: Duration = IRC_TIMEOUT_DELAY,
         fallbackTimeout: Duration = IRC_TIMEOUT_SHORT_DELAY,
-    ): UserState? =
-        withTimeoutOrNull(initialTimeout) { getLatestValidUserState(minChannelsSize) }
-            ?: withTimeoutOrNull(fallbackTimeout) { getLatestValidUserState(minChannelsSize = 0) }
+    ): UserState? = withTimeoutOrNull(initialTimeout) { getLatestValidUserState(minChannelsSize) }
+        ?: withTimeoutOrNull(fallbackTimeout) { getLatestValidUserState(minChannelsSize = 0) }
 
     fun isModeratorInChannel(channel: UserName?): Boolean = channel != null && channel in userState.value.moderationChannels
 

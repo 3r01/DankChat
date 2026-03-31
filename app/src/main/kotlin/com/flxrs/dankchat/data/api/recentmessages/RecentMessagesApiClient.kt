@@ -19,14 +19,13 @@ class RecentMessagesApiClient(
     suspend fun getRecentMessages(
         channel: UserName,
         messageLimit: Int? = null,
-    ): Result<RecentMessagesDto> =
-        runCatching {
-            val limit = messageLimit ?: chatSettingsDataStore.settings.first().scrollbackLength
-            recentMessagesApi
-                .getRecentMessages(channel, limit)
-                .throwRecentMessagesErrorOnFailure()
-                .body()
-        }
+    ): Result<RecentMessagesDto> = runCatching {
+        val limit = messageLimit ?: chatSettingsDataStore.settings.first().scrollbackLength
+        recentMessagesApi
+            .getRecentMessages(channel, limit)
+            .throwRecentMessagesErrorOnFailure()
+            .body()
+    }
 
     private suspend fun HttpResponse.throwRecentMessagesErrorOnFailure(): HttpResponse {
         if (status.isSuccess()) {

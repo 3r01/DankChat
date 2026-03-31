@@ -16,39 +16,38 @@ import org.koin.core.annotation.Single
 class GetChannelsUseCase(
     private val channelRepository: ChannelRepository,
 ) {
-    suspend operator fun invoke(names: List<UserName>): List<Channel> =
-        coroutineScope {
-            val channels = channelRepository.getChannels(names)
-            val remaining = names - channels.mapTo(mutableSetOf(), Channel::name)
-            val (roomStatePairs, remainingForRoomState) =
-                remaining.fold(Pair(emptyList<RoomState>(), emptyList<UserName>())) { (states, remaining), user ->
-                    when (val state = channelRepository.getRoomState(user)) {
-                        null -> states to remaining + user
-                        else -> states + state to remaining
-                    }
+    suspend operator fun invoke(names: List<UserName>): List<Channel> = coroutineScope {
+        val channels = channelRepository.getChannels(names)
+        val remaining = names - channels.mapTo(mutableSetOf(), Channel::name)
+        val (roomStatePairs, remainingForRoomState) =
+            remaining.fold(Pair(emptyList<RoomState>(), emptyList<UserName>())) { (states, remaining), user ->
+                when (val state = channelRepository.getRoomState(user)) {
+                    null -> states to remaining + user
+                    else -> states + state to remaining
                 }
+            }
 
-            val remainingPairs =
-                remainingForRoomState
-                    .map { user ->
-                        async {
-                            withTimeoutOrNull(getRoomStateDelay(remainingForRoomState)) {
-                                channelRepository.getRoomStateFlow(user).firstOrNull()?.let {
-                                    Channel(id = it.channelId, name = it.channel, displayName = it.channel.toDisplayName(), avatarUrl = null)
-                                }
+        val remainingPairs =
+            remainingForRoomState
+                .map { user ->
+                    async {
+                        withTimeoutOrNull(getRoomStateDelay(remainingForRoomState)) {
+                            channelRepository.getRoomStateFlow(user).firstOrNull()?.let {
+                                Channel(id = it.channelId, name = it.channel, displayName = it.channel.toDisplayName(), avatarUrl = null)
                             }
                         }
-                    }.awaitAll()
-                    .filterNotNull()
+                    }
+                }.awaitAll()
+                .filterNotNull()
 
-            val roomStateChannels =
-                roomStatePairs.map {
-                    Channel(id = it.channelId, name = it.channel, displayName = it.channel.toDisplayName(), avatarUrl = null)
-                } + remainingPairs
-            channelRepository.cacheChannels(roomStateChannels)
+        val roomStateChannels =
+            roomStatePairs.map {
+                Channel(id = it.channelId, name = it.channel, displayName = it.channel.toDisplayName(), avatarUrl = null)
+            } + remainingPairs
+        channelRepository.cacheChannels(roomStateChannels)
 
-            channels + roomStateChannels
-        }
+        channels + roomStateChannels
+    }
 
     companion object {
         private const val IRC_TIMEOUT_DELAY = 5_000L

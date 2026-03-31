@@ -83,10 +83,9 @@ class ChannelDataCoordinator(
         }
     }
 
-    fun getChannelLoadingState(channel: UserName): StateFlow<ChannelLoadingState> =
-        channelStates.getOrPut(channel) {
-            MutableStateFlow(ChannelLoadingState.Idle)
-        }
+    fun getChannelLoadingState(channel: UserName): StateFlow<ChannelLoadingState> = channelStates.getOrPut(channel) {
+        MutableStateFlow(ChannelLoadingState.Idle)
+    }
 
     fun loadChannelData(channel: UserName) {
         scope.launch {

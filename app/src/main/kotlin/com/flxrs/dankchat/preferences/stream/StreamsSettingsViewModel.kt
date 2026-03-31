@@ -20,18 +20,17 @@ class StreamsSettingsViewModel(
             initialValue = dataStore.current(),
         )
 
-    fun onInteraction(interaction: StreamsSettingsInteraction) =
-        viewModelScope.launch {
-            runCatching {
-                when (interaction) {
-                    is StreamsSettingsInteraction.FetchStreams -> dataStore.update { it.copy(fetchStreams = interaction.value) }
-                    is StreamsSettingsInteraction.ShowStreamInfo -> dataStore.update { it.copy(showStreamInfo = interaction.value) }
-                    is StreamsSettingsInteraction.ShowStreamCategory -> dataStore.update { it.copy(showStreamCategory = interaction.value) }
-                    is StreamsSettingsInteraction.PreventStreamReloads -> dataStore.update { it.copy(preventStreamReloads = interaction.value) }
-                    is StreamsSettingsInteraction.EnablePiP -> dataStore.update { it.copy(enablePiP = interaction.value) }
-                }
+    fun onInteraction(interaction: StreamsSettingsInteraction) = viewModelScope.launch {
+        runCatching {
+            when (interaction) {
+                is StreamsSettingsInteraction.FetchStreams -> dataStore.update { it.copy(fetchStreams = interaction.value) }
+                is StreamsSettingsInteraction.ShowStreamInfo -> dataStore.update { it.copy(showStreamInfo = interaction.value) }
+                is StreamsSettingsInteraction.ShowStreamCategory -> dataStore.update { it.copy(showStreamCategory = interaction.value) }
+                is StreamsSettingsInteraction.PreventStreamReloads -> dataStore.update { it.copy(preventStreamReloads = interaction.value) }
+                is StreamsSettingsInteraction.EnablePiP -> dataStore.update { it.copy(enablePiP = interaction.value) }
             }
         }
+    }
 }
 
 sealed interface StreamsSettingsInteraction {

@@ -33,15 +33,14 @@ sealed class Message {
         fun parse(
             message: IrcMessage,
             findChannel: (UserId) -> UserName?,
-        ): Message? =
-            with(message) {
-                return when (command) {
-                    "PRIVMSG" -> PrivMessage.parsePrivMessage(message, findChannel)
-                    "NOTICE" -> NoticeMessage.parseNotice(message)
-                    "USERNOTICE" -> UserNoticeMessage.parseUserNotice(message, findChannel)
-                    else -> null
-                }
+        ): Message? = with(message) {
+            return when (command) {
+                "PRIVMSG" -> PrivMessage.parsePrivMessage(message, findChannel)
+                "NOTICE" -> NoticeMessage.parseNotice(message)
+                "USERNOTICE" -> UserNoticeMessage.parseUserNotice(message, findChannel)
+                else -> null
             }
+        }
 
         fun parseEmoteTag(
             message: String,

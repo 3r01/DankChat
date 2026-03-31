@@ -211,18 +211,17 @@ class SevenTVEventApiClient(
         }
     }
 
-    private fun setupHeartBeatInterval(): Job =
-        scope.launch {
-            delay(heartBeatInterval)
-            timer(heartBeatInterval) {
-                val webSocket = socket
-                if (webSocket == null || System.currentTimeMillis() - lastHeartBeat > 3 * heartBeatInterval.inWholeMilliseconds) {
-                    cancel()
-                    reconnect()
-                    return@timer
-                }
+    private fun setupHeartBeatInterval(): Job = scope.launch {
+        delay(heartBeatInterval)
+        timer(heartBeatInterval) {
+            val webSocket = socket
+            if (webSocket == null || System.currentTimeMillis() - lastHeartBeat > 3 * heartBeatInterval.inWholeMilliseconds) {
+                cancel()
+                reconnect()
+                return@timer
             }
         }
+    }
 
     private inner class EventApiWebSocketListener : WebSocketListener() {
         private var heartBeatJob: Job? = null

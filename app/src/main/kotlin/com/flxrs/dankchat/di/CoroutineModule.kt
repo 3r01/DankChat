@@ -8,13 +8,12 @@ import org.koin.core.annotation.Single
 @Module
 class CoroutineModule {
     @Single
-    fun provideDispatchersProvider(): DispatchersProvider =
-        object : DispatchersProvider {
-            override val default: CoroutineDispatcher = Dispatchers.Default
-            override val io: CoroutineDispatcher = Dispatchers.IO
-            override val main: CoroutineDispatcher = Dispatchers.Main
-            override val immediate: CoroutineDispatcher = Dispatchers.Main.immediate
-        }
+    fun provideDispatchersProvider(): DispatchersProvider = object : DispatchersProvider {
+        override val default: CoroutineDispatcher = Dispatchers.Default
+        override val io: CoroutineDispatcher = Dispatchers.IO
+        override val main: CoroutineDispatcher = Dispatchers.Main
+        override val immediate: CoroutineDispatcher = Dispatchers.Main.immediate
+    }
 }
 
 interface DispatchersProvider {

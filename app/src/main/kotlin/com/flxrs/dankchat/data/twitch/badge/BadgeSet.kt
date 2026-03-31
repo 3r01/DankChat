@@ -16,38 +16,36 @@ data class BadgeVersion(
     val imageUrlHigh: String,
 )
 
-fun TwitchBadgeSetsDto.toBadgeSets(): Map<String, BadgeSet> =
-    sets.mapValues { (id, set) ->
+fun TwitchBadgeSetsDto.toBadgeSets(): Map<String, BadgeSet> = sets.mapValues { (id, set) ->
+    BadgeSet(
+        id = id,
+        versions =
+            set.versions.mapValues { (badgeId, badge) ->
+                BadgeVersion(
+                    id = badgeId,
+                    title = badge.title,
+                    imageUrlLow = badge.imageUrlLow,
+                    imageUrlMedium = badge.imageUrlMedium,
+                    imageUrlHigh = badge.imageUrlHigh,
+                )
+            },
+    )
+}
+
+fun List<BadgeSetDto>.toBadgeSets(): Map<String, BadgeSet> = associate { (id, versions) ->
+    id to
         BadgeSet(
             id = id,
             versions =
-                set.versions.mapValues { (badgeId, badge) ->
-                    BadgeVersion(
-                        id = badgeId,
-                        title = badge.title,
-                        imageUrlLow = badge.imageUrlLow,
-                        imageUrlMedium = badge.imageUrlMedium,
-                        imageUrlHigh = badge.imageUrlHigh,
-                    )
+                versions.associate { badge ->
+                    badge.id to
+                        BadgeVersion(
+                            id = badge.id,
+                            title = badge.title,
+                            imageUrlLow = badge.imageUrlLow,
+                            imageUrlMedium = badge.imageUrlMedium,
+                            imageUrlHigh = badge.imageUrlHigh,
+                        )
                 },
         )
-    }
-
-fun List<BadgeSetDto>.toBadgeSets(): Map<String, BadgeSet> =
-    associate { (id, versions) ->
-        id to
-            BadgeSet(
-                id = id,
-                versions =
-                    versions.associate { badge ->
-                        badge.id to
-                            BadgeVersion(
-                                id = badge.id,
-                                title = badge.title,
-                                imageUrlLow = badge.imageUrlLow,
-                                imageUrlMedium = badge.imageUrlMedium,
-                                imageUrlHigh = badge.imageUrlHigh,
-                            )
-                    },
-            )
-    }
+}

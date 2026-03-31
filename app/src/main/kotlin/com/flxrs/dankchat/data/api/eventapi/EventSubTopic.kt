@@ -19,21 +19,20 @@ sealed interface EventSubTopic {
         val broadcasterId: UserId,
         val moderatorId: UserId,
     ) : EventSubTopic {
-        override fun createRequest(sessionId: String) =
-            EventSubSubscriptionRequestDto(
-                type = EventSubSubscriptionType.ChannelModerate,
-                version = "2",
-                condition =
-                    EventSubModeratorConditionDto(
-                        broadcasterUserId = broadcasterId,
-                        moderatorUserId = moderatorId,
-                    ),
-                transport =
-                    EventSubTransportDto(
-                        sessionId = sessionId,
-                        method = EventSubMethod.Websocket,
-                    ),
-            )
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.ChannelModerate,
+            version = "2",
+            condition =
+                EventSubModeratorConditionDto(
+                    broadcasterUserId = broadcasterId,
+                    moderatorUserId = moderatorId,
+                ),
+            transport =
+                EventSubTransportDto(
+                    sessionId = sessionId,
+                    method = EventSubMethod.Websocket,
+                ),
+        )
 
         override fun shortFormatted(): String = "ChannelModerate($channel)"
     }
@@ -43,21 +42,20 @@ sealed interface EventSubTopic {
         val broadcasterId: UserId,
         val moderatorId: UserId,
     ) : EventSubTopic {
-        override fun createRequest(sessionId: String) =
-            EventSubSubscriptionRequestDto(
-                type = EventSubSubscriptionType.AutomodMessageHold,
-                version = "2",
-                condition =
-                    EventSubModeratorConditionDto(
-                        broadcasterUserId = broadcasterId,
-                        moderatorUserId = moderatorId,
-                    ),
-                transport =
-                    EventSubTransportDto(
-                        sessionId = sessionId,
-                        method = EventSubMethod.Websocket,
-                    ),
-            )
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.AutomodMessageHold,
+            version = "2",
+            condition =
+                EventSubModeratorConditionDto(
+                    broadcasterUserId = broadcasterId,
+                    moderatorUserId = moderatorId,
+                ),
+            transport =
+                EventSubTransportDto(
+                    sessionId = sessionId,
+                    method = EventSubMethod.Websocket,
+                ),
+        )
 
         override fun shortFormatted(): String = "AutomodMessageHold($channel)"
     }
@@ -67,21 +65,20 @@ sealed interface EventSubTopic {
         val broadcasterId: UserId,
         val moderatorId: UserId,
     ) : EventSubTopic {
-        override fun createRequest(sessionId: String) =
-            EventSubSubscriptionRequestDto(
-                type = EventSubSubscriptionType.AutomodMessageUpdate,
-                version = "2",
-                condition =
-                    EventSubModeratorConditionDto(
-                        broadcasterUserId = broadcasterId,
-                        moderatorUserId = moderatorId,
-                    ),
-                transport =
-                    EventSubTransportDto(
-                        sessionId = sessionId,
-                        method = EventSubMethod.Websocket,
-                    ),
-            )
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.AutomodMessageUpdate,
+            version = "2",
+            condition =
+                EventSubModeratorConditionDto(
+                    broadcasterUserId = broadcasterId,
+                    moderatorUserId = moderatorId,
+                ),
+            transport =
+                EventSubTransportDto(
+                    sessionId = sessionId,
+                    method = EventSubMethod.Websocket,
+                ),
+        )
 
         override fun shortFormatted(): String = "AutomodMessageUpdate($channel)"
     }
@@ -91,21 +88,20 @@ sealed interface EventSubTopic {
         val broadcasterId: UserId,
         val userId: UserId,
     ) : EventSubTopic {
-        override fun createRequest(sessionId: String) =
-            EventSubSubscriptionRequestDto(
-                type = EventSubSubscriptionType.ChannelChatUserMessageHold,
-                version = "1",
-                condition =
-                    EventSubBroadcasterUserConditionDto(
-                        broadcasterUserId = broadcasterId,
-                        userId = userId,
-                    ),
-                transport =
-                    EventSubTransportDto(
-                        sessionId = sessionId,
-                        method = EventSubMethod.Websocket,
-                    ),
-            )
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.ChannelChatUserMessageHold,
+            version = "1",
+            condition =
+                EventSubBroadcasterUserConditionDto(
+                    broadcasterUserId = broadcasterId,
+                    userId = userId,
+                ),
+            transport =
+                EventSubTransportDto(
+                    sessionId = sessionId,
+                    method = EventSubMethod.Websocket,
+                ),
+        )
 
         override fun shortFormatted(): String = "UserMessageHold($channel)"
     }
@@ -115,21 +111,20 @@ sealed interface EventSubTopic {
         val broadcasterId: UserId,
         val userId: UserId,
     ) : EventSubTopic {
-        override fun createRequest(sessionId: String) =
-            EventSubSubscriptionRequestDto(
-                type = EventSubSubscriptionType.ChannelChatUserMessageUpdate,
-                version = "1",
-                condition =
-                    EventSubBroadcasterUserConditionDto(
-                        broadcasterUserId = broadcasterId,
-                        userId = userId,
-                    ),
-                transport =
-                    EventSubTransportDto(
-                        sessionId = sessionId,
-                        method = EventSubMethod.Websocket,
-                    ),
-            )
+        override fun createRequest(sessionId: String) = EventSubSubscriptionRequestDto(
+            type = EventSubSubscriptionType.ChannelChatUserMessageUpdate,
+            version = "1",
+            condition =
+                EventSubBroadcasterUserConditionDto(
+                    broadcasterUserId = broadcasterId,
+                    userId = userId,
+                ),
+            transport =
+                EventSubTransportDto(
+                    sessionId = sessionId,
+                    method = EventSubMethod.Websocket,
+                ),
+        )
 
         override fun shortFormatted(): String = "UserMessageUpdate($channel)"
     }

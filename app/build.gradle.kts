@@ -246,6 +246,8 @@ spotless {
                     "ktlint_standard_backing-property-naming" to "disabled",
                     "ktlint_standard_filename" to "disabled",
                     "ktlint_standard_property-naming" to "disabled",
+                    "ktlint_standard_multiline-expression-wrapping" to "disabled",
+                    "ktlint_function_signature_body_expression_wrapping" to "default",
                 ),
             )
     }

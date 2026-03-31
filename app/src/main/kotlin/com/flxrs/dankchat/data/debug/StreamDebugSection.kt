@@ -15,31 +15,30 @@ class StreamDebugSection(
     override val order = 5
     override val baseTitle = "Stream"
 
-    override fun entries(): Flow<DebugSectionSnapshot> =
-        combine(chatChannelProvider.activeChannel, streamDataRepository.streamData) { channel, streams ->
-            val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
-            val stream = channel?.let { ch -> streams.find { it.channel == ch } }
-            when (stream) {
-                null -> {
-                    DebugSectionSnapshot(
-                        title = "$baseTitle$channelSuffix",
-                        entries = listOf(DebugEntry("Status", "Offline")),
-                    )
-                }
+    override fun entries(): Flow<DebugSectionSnapshot> = combine(chatChannelProvider.activeChannel, streamDataRepository.streamData) { channel, streams ->
+        val channelSuffix = channel?.let { " (${it.value})" }.orEmpty()
+        val stream = channel?.let { ch -> streams.find { it.channel == ch } }
+        when (stream) {
+            null -> {
+                DebugSectionSnapshot(
+                    title = "$baseTitle$channelSuffix",
+                    entries = listOf(DebugEntry("Status", "Offline")),
+                )
+            }
 
-                else -> {
-                    DebugSectionSnapshot(
-                        title = "$baseTitle$channelSuffix",
-                        entries =
-                            listOf(
-                                DebugEntry("Status", "Live"),
-                                DebugEntry("Viewers", "${stream.viewerCount}"),
-                                DebugEntry("Uptime", DateTimeUtils.calculateUptime(stream.startedAt)),
-                                DebugEntry("Category", stream.category?.ifBlank { null } ?: "None"),
-                                DebugEntry("Stream fetches", "${streamDataRepository.fetchCount}"),
-                            ),
-                    )
-                }
+            else -> {
+                DebugSectionSnapshot(
+                    title = "$baseTitle$channelSuffix",
+                    entries =
+                        listOf(
+                            DebugEntry("Status", "Live"),
+                            DebugEntry("Viewers", "${stream.viewerCount}"),
+                            DebugEntry("Uptime", DateTimeUtils.calculateUptime(stream.startedAt)),
+                            DebugEntry("Category", stream.category?.ifBlank { null } ?: "None"),
+                            DebugEntry("Stream fetches", "${streamDataRepository.fetchCount}"),
+                        ),
+                )
             }
         }
+    }
 }

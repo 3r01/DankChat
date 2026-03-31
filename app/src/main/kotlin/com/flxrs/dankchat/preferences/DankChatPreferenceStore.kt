@@ -108,11 +108,10 @@ class DankChatPreferenceStore(
         viewers: Int,
         uptime: String,
         category: String?,
-    ): String =
-        when (category) {
-            null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
-            else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
-        }
+    ): String = when (category) {
+        null -> context.resources.getQuantityString(R.plurals.viewers_and_uptime, viewers, viewers, uptime)
+        else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
+    }
 
     fun removeChannel(channel: UserName): List<UserName> {
         val updated = channels - channel
@@ -133,20 +132,19 @@ class DankChatPreferenceStore(
         }
     }
 
-    fun getChannelsWithRenamesFlow(): Flow<List<ChannelWithRename>> =
-        callbackFlow {
-            send(getChannelsWithRenames())
+    fun getChannelsWithRenamesFlow(): Flow<List<ChannelWithRename>> = callbackFlow {
+        send(getChannelsWithRenames())
 
-            val listener =
-                SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                    if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
-                        trySend(getChannelsWithRenames())
-                    }
+        val listener =
+            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
+                if (key == RENAME_KEY || key == CHANNELS_AS_STRING_KEY) {
+                    trySend(getChannelsWithRenames())
                 }
+            }
 
-            dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
-            awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
-        }
+        dankChatPreferences.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { dankChatPreferences.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
 
     fun setRenamedChannel(channelWithRename: ChannelWithRename) {
         withChannelRenames {
@@ -185,11 +183,10 @@ class DankChatPreferenceStore(
         channelRenames = renameMap.toJson()
     }
 
-    private fun String.toMutableMap(): MutableMap<UserName, UserName> =
-        json
-            .decodeOrNull<Map<UserName, UserName>>(this)
-            .orEmpty()
-            .toMutableMap()
+    private fun String.toMutableMap(): MutableMap<UserName, UserName> = json
+        .decodeOrNull<Map<UserName, UserName>>(this)
+        .orEmpty()
+        .toMutableMap()
 
     private fun Map<UserName, UserName>.toJson(): String = json.encodeToString(this)
 

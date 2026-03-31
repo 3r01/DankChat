@@ -9,11 +9,10 @@ data class UserDisplay(
     val color: Int?,
 )
 
-fun UserDisplayEntity.toUserDisplay() =
-    UserDisplay(
-        alias = alias?.takeIf { enabled && aliasEnabled && it.isNotBlank() },
-        color = color.takeIf { enabled && colorEnabled },
-    )
+fun UserDisplayEntity.toUserDisplay() = UserDisplay(
+    alias = alias?.takeIf { enabled && aliasEnabled && it.isNotBlank() },
+    color = color.takeIf { enabled && colorEnabled },
+)
 
 @ColorInt
 fun UserDisplay?.colorOrElse(

@@ -75,29 +75,25 @@ class MessageOptionsViewModel(
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MessageOptionsState.Loading)
 
-    fun timeoutUser(index: Int) =
-        viewModelScope.launch {
-            val duration = TIMEOUT_MAP[index] ?: return@launch
-            val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
-            sendCommand(".timeout $name $duration")
-        }
+    fun timeoutUser(index: Int) = viewModelScope.launch {
+        val duration = TIMEOUT_MAP[index] ?: return@launch
+        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        sendCommand(".timeout $name $duration")
+    }
 
-    fun banUser() =
-        viewModelScope.launch {
-            val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
-            sendCommand(".ban $name")
-        }
+    fun banUser() = viewModelScope.launch {
+        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        sendCommand(".ban $name")
+    }
 
-    fun unbanUser() =
-        viewModelScope.launch {
-            val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
-            sendCommand(".unban $name")
-        }
+    fun unbanUser() = viewModelScope.launch {
+        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        sendCommand(".unban $name")
+    }
 
-    fun deleteMessage() =
-        viewModelScope.launch {
-            sendCommand(".delete $messageId")
-        }
+    fun deleteMessage() = viewModelScope.launch {
+        sendCommand(".delete $messageId")
+    }
 
     private suspend fun sendCommand(message: String) {
         val activeChannel = channel ?: return

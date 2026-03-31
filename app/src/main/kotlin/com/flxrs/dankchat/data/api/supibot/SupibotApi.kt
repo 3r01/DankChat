@@ -8,10 +8,9 @@ import io.ktor.client.request.parameter
 class SupibotApi(
     private val ktorClient: HttpClient,
 ) {
-    suspend fun getChannels(platformName: String = "twitch") =
-        ktorClient.get("bot/channel/list") {
-            parameter("platformName", platformName)
-        }
+    suspend fun getChannels(platformName: String = "twitch") = ktorClient.get("bot/channel/list") {
+        parameter("platformName", platformName)
+    }
 
     suspend fun getCommands() = ktorClient.get("bot/command/list/")
 

@@ -48,402 +48,362 @@ class HelixApiClient(
     private val helixApi: HelixApi,
     private val json: Json,
 ) {
-    suspend fun getUsersByNames(names: List<UserName>): Result<List<UserDto>> =
-        runCatching {
-            names.chunked(DEFAULT_PAGE_SIZE).flatMap {
-                helixApi
-                    .getUsersByName(it)
-                    .throwHelixApiErrorOnFailure()
-                    .body<DataListDto<UserDto>>()
-                    .data
-            }
+    suspend fun getUsersByNames(names: List<UserName>): Result<List<UserDto>> = runCatching {
+        names.chunked(DEFAULT_PAGE_SIZE).flatMap {
+            helixApi
+                .getUsersByName(it)
+                .throwHelixApiErrorOnFailure()
+                .body<DataListDto<UserDto>>()
+                .data
         }
+    }
 
-    suspend fun getUsersByIds(ids: List<UserId>): Result<List<UserDto>> =
-        runCatching {
-            ids.chunked(DEFAULT_PAGE_SIZE).flatMap {
-                helixApi
-                    .getUsersByIds(it)
-                    .throwHelixApiErrorOnFailure()
-                    .body<DataListDto<UserDto>>()
-                    .data
-            }
+    suspend fun getUsersByIds(ids: List<UserId>): Result<List<UserDto>> = runCatching {
+        ids.chunked(DEFAULT_PAGE_SIZE).flatMap {
+            helixApi
+                .getUsersByIds(it)
+                .throwHelixApiErrorOnFailure()
+                .body<DataListDto<UserDto>>()
+                .data
         }
+    }
 
-    suspend fun getUser(userId: UserId): Result<UserDto> =
-        getUsersByIds(listOf(userId))
-            .mapCatching { it.first() }
+    suspend fun getUser(userId: UserId): Result<UserDto> = getUsersByIds(listOf(userId))
+        .mapCatching { it.first() }
 
-    suspend fun getUserByName(name: UserName): Result<UserDto> =
-        getUsersByNames(listOf(name))
-            .mapCatching { it.first() }
+    suspend fun getUserByName(name: UserName): Result<UserDto> = getUsersByNames(listOf(name))
+        .mapCatching { it.first() }
 
-    suspend fun getUserIdByName(name: UserName): Result<UserId> =
-        getUserByName(name)
-            .mapCatching { it.id }
+    suspend fun getUserIdByName(name: UserName): Result<UserId> = getUserByName(name)
+        .mapCatching { it.id }
 
     suspend fun getChannelFollowers(
         broadcastUserId: UserId,
         targetUserId: UserId,
-    ): Result<UserFollowsDto> =
-        runCatching {
-            helixApi
-                .getChannelFollowers(broadcastUserId, targetUserId)
-                .throwHelixApiErrorOnFailure()
-                .body()
-        }
+    ): Result<UserFollowsDto> = runCatching {
+        helixApi
+            .getChannelFollowers(broadcastUserId, targetUserId)
+            .throwHelixApiErrorOnFailure()
+            .body()
+    }
 
-    suspend fun getStreams(channels: List<UserName>): Result<List<StreamDto>> =
-        runCatching {
-            channels.chunked(DEFAULT_PAGE_SIZE).flatMap {
-                helixApi
-                    .getStreams(it)
-                    .throwHelixApiErrorOnFailure()
-                    .body<DataListDto<StreamDto>>()
-                    .data
-            }
+    suspend fun getStreams(channels: List<UserName>): Result<List<StreamDto>> = runCatching {
+        channels.chunked(DEFAULT_PAGE_SIZE).flatMap {
+            helixApi
+                .getStreams(it)
+                .throwHelixApiErrorOnFailure()
+                .body<DataListDto<StreamDto>>()
+                .data
         }
+    }
 
     suspend fun getUserBlocks(
         userId: UserId,
         maxUserBlocksToFetch: Int = 500,
-    ): Result<List<UserBlockDto>> =
-        runCatching {
-            pageUntil(maxUserBlocksToFetch) { cursor ->
-                helixApi.getUserBlocks(userId, DEFAULT_PAGE_SIZE, cursor)
-            }
+    ): Result<List<UserBlockDto>> = runCatching {
+        pageUntil(maxUserBlocksToFetch) { cursor ->
+            helixApi.getUserBlocks(userId, DEFAULT_PAGE_SIZE, cursor)
         }
+    }
 
-    suspend fun blockUser(targetUserId: UserId): Result<Unit> =
-        runCatching {
-            helixApi
-                .putUserBlock(targetUserId)
-                .throwHelixApiErrorOnFailure()
-        }
+    suspend fun blockUser(targetUserId: UserId): Result<Unit> = runCatching {
+        helixApi
+            .putUserBlock(targetUserId)
+            .throwHelixApiErrorOnFailure()
+    }
 
-    suspend fun unblockUser(targetUserId: UserId): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteUserBlock(targetUserId)
-                .throwHelixApiErrorOnFailure()
-        }
+    suspend fun unblockUser(targetUserId: UserId): Result<Unit> = runCatching {
+        helixApi
+            .deleteUserBlock(targetUserId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun postAnnouncement(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         request: AnnouncementRequestDto,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postAnnouncement(broadcastUserId, moderatorUserId, request)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postAnnouncement(broadcastUserId, moderatorUserId, request)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun postWhisper(
         fromUserId: UserId,
         toUserId: UserId,
         request: WhisperRequestDto,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postWhisper(fromUserId, toUserId, request)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postWhisper(fromUserId, toUserId, request)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun getModerators(
         broadcastUserId: UserId,
         maxModeratorsToFetch: Int = 500,
-    ): Result<List<ModVipDto>> =
-        runCatching {
-            pageUntil(maxModeratorsToFetch) { cursor ->
-                helixApi.getModerators(broadcastUserId, DEFAULT_PAGE_SIZE, cursor)
-            }
+    ): Result<List<ModVipDto>> = runCatching {
+        pageUntil(maxModeratorsToFetch) { cursor ->
+            helixApi.getModerators(broadcastUserId, DEFAULT_PAGE_SIZE, cursor)
         }
+    }
 
     suspend fun postModerator(
         broadcastUserId: UserId,
         userId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postModerator(broadcastUserId, userId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postModerator(broadcastUserId, userId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun deleteModerator(
         broadcastUserId: UserId,
         userId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteModerator(broadcastUserId, userId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .deleteModerator(broadcastUserId, userId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun getVips(
         broadcastUserId: UserId,
         maxVipsToFetch: Int = 500,
-    ): Result<List<ModVipDto>> =
-        runCatching {
-            pageUntil(maxVipsToFetch) { cursor ->
-                helixApi.getVips(broadcastUserId, DEFAULT_PAGE_SIZE, cursor)
-            }
+    ): Result<List<ModVipDto>> = runCatching {
+        pageUntil(maxVipsToFetch) { cursor ->
+            helixApi.getVips(broadcastUserId, DEFAULT_PAGE_SIZE, cursor)
         }
+    }
 
     suspend fun postVip(
         broadcastUserId: UserId,
         userId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postVip(broadcastUserId, userId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postVip(broadcastUserId, userId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun deleteVip(
         broadcastUserId: UserId,
         userId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteVip(broadcastUserId, userId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .deleteVip(broadcastUserId, userId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun postBan(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         requestDto: BanRequestDto,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postBan(broadcastUserId, moderatorUserId, requestDto)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postBan(broadcastUserId, moderatorUserId, requestDto)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun deleteBan(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         targetUserId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteBan(broadcastUserId, moderatorUserId, targetUserId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .deleteBan(broadcastUserId, moderatorUserId, targetUserId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun deleteMessages(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         messageId: String? = null,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteMessages(broadcastUserId, moderatorUserId, messageId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .deleteMessages(broadcastUserId, moderatorUserId, messageId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun putUserChatColor(
         targetUserId: UserId,
         color: String,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .putUserChatColor(targetUserId, color)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .putUserChatColor(targetUserId, color)
+            .throwHelixApiErrorOnFailure()
+    }
 
-    suspend fun postMarker(requestDto: MarkerRequestDto): Result<MarkerDto> =
-        runCatching {
-            helixApi
-                .postMarker(requestDto)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<MarkerDto>>()
-                .data
-                .first()
-        }
+    suspend fun postMarker(requestDto: MarkerRequestDto): Result<MarkerDto> = runCatching {
+        helixApi
+            .postMarker(requestDto)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<MarkerDto>>()
+            .data
+            .first()
+    }
 
-    suspend fun postCommercial(request: CommercialRequestDto): Result<CommercialDto> =
-        runCatching {
-            helixApi
-                .postCommercial(request)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<CommercialDto>>()
-                .data
-                .first()
-        }
+    suspend fun postCommercial(request: CommercialRequestDto): Result<CommercialDto> = runCatching {
+        helixApi
+            .postCommercial(request)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<CommercialDto>>()
+            .data
+            .first()
+    }
 
     suspend fun postRaid(
         broadcastUserId: UserId,
         targetUserId: UserId,
-    ): Result<RaidDto> =
-        runCatching {
-            helixApi
-                .postRaid(broadcastUserId, targetUserId)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<RaidDto>>()
-                .data
-                .first()
-        }
+    ): Result<RaidDto> = runCatching {
+        helixApi
+            .postRaid(broadcastUserId, targetUserId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<RaidDto>>()
+            .data
+            .first()
+    }
 
-    suspend fun deleteRaid(broadcastUserId: UserId): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteRaid(broadcastUserId)
-                .throwHelixApiErrorOnFailure()
-        }
+    suspend fun deleteRaid(broadcastUserId: UserId): Result<Unit> = runCatching {
+        helixApi
+            .deleteRaid(broadcastUserId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun patchChatSettings(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         request: ChatSettingsRequestDto,
-    ): Result<ChatSettingsDto> =
-        runCatching {
-            helixApi
-                .patchChatSettings(broadcastUserId, moderatorUserId, request)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<ChatSettingsDto>>()
-                .data
-                .first()
-        }
+    ): Result<ChatSettingsDto> = runCatching {
+        helixApi
+            .patchChatSettings(broadcastUserId, moderatorUserId, request)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ChatSettingsDto>>()
+            .data
+            .first()
+    }
 
-    suspend fun getGlobalBadges(): Result<List<BadgeSetDto>> =
-        runCatching {
-            helixApi
-                .getGlobalBadges()
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<BadgeSetDto>>()
-                .data
-        }
+    suspend fun getGlobalBadges(): Result<List<BadgeSetDto>> = runCatching {
+        helixApi
+            .getGlobalBadges()
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<BadgeSetDto>>()
+            .data
+    }
 
-    suspend fun getChannelBadges(broadcastUserId: UserId): Result<List<BadgeSetDto>> =
-        runCatching {
-            helixApi
-                .getChannelBadges(broadcastUserId)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<BadgeSetDto>>()
-                .data
-        }
+    suspend fun getChannelBadges(broadcastUserId: UserId): Result<List<BadgeSetDto>> = runCatching {
+        helixApi
+            .getChannelBadges(broadcastUserId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<BadgeSetDto>>()
+            .data
+    }
 
-    suspend fun getCheermotes(broadcasterId: UserId): Result<List<CheermoteSetDto>> =
-        runCatching {
-            helixApi
-                .getCheermotes(broadcasterId)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<CheermoteSetDto>>()
-                .data
-        }
+    suspend fun getCheermotes(broadcasterId: UserId): Result<List<CheermoteSetDto>> = runCatching {
+        helixApi
+            .getCheermotes(broadcasterId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<CheermoteSetDto>>()
+            .data
+    }
 
     suspend fun manageAutomodMessage(
         userId: UserId,
         msgId: String,
         action: String,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postManageAutomodMessage(ManageAutomodMessageRequestDto(userId = userId, msgId = msgId, action = action))
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postManageAutomodMessage(ManageAutomodMessageRequestDto(userId = userId, msgId = msgId, action = action))
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun postShoutout(
         broadcastUserId: UserId,
         targetUserId: UserId,
         moderatorUserId: UserId,
-    ): Result<Unit> =
-        runCatching {
-            helixApi
-                .postShoutout(broadcastUserId, targetUserId, moderatorUserId)
-                .throwHelixApiErrorOnFailure()
-        }
+    ): Result<Unit> = runCatching {
+        helixApi
+            .postShoutout(broadcastUserId, targetUserId, moderatorUserId)
+            .throwHelixApiErrorOnFailure()
+    }
 
     suspend fun getShieldMode(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
-    ): Result<ShieldModeStatusDto> =
-        runCatching {
-            helixApi
-                .getShieldMode(broadcastUserId, moderatorUserId)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<ShieldModeStatusDto>>()
-                .data
-                .first()
-        }
+    ): Result<ShieldModeStatusDto> = runCatching {
+        helixApi
+            .getShieldMode(broadcastUserId, moderatorUserId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ShieldModeStatusDto>>()
+            .data
+            .first()
+    }
 
     suspend fun putShieldMode(
         broadcastUserId: UserId,
         moderatorUserId: UserId,
         request: ShieldModeRequestDto,
-    ): Result<ShieldModeStatusDto> =
-        runCatching {
-            helixApi
-                .putShieldMode(broadcastUserId, moderatorUserId, request)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<ShieldModeStatusDto>>()
-                .data
-                .first()
-        }
+    ): Result<ShieldModeStatusDto> = runCatching {
+        helixApi
+            .putShieldMode(broadcastUserId, moderatorUserId, request)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ShieldModeStatusDto>>()
+            .data
+            .first()
+    }
 
-    suspend fun postEventSubSubscription(request: EventSubSubscriptionRequestDto): Result<EventSubSubscriptionResponseListDto> =
-        runCatching {
-            helixApi
-                .postEventSubSubscription(request)
-                .throwHelixApiErrorOnFailure()
-                .body<EventSubSubscriptionResponseListDto>()
-        }
+    suspend fun postEventSubSubscription(request: EventSubSubscriptionRequestDto): Result<EventSubSubscriptionResponseListDto> = runCatching {
+        helixApi
+            .postEventSubSubscription(request)
+            .throwHelixApiErrorOnFailure()
+            .body<EventSubSubscriptionResponseListDto>()
+    }
 
-    suspend fun deleteEventSubSubscription(id: String): Result<Unit> =
-        runCatching {
-            helixApi
-                .deleteEventSubSubscription(id)
-                .throwHelixApiErrorOnFailure()
-        }
+    suspend fun deleteEventSubSubscription(id: String): Result<Unit> = runCatching {
+        helixApi
+            .deleteEventSubSubscription(id)
+            .throwHelixApiErrorOnFailure()
+    }
 
-    fun getUserEmotesFlow(userId: UserId): Flow<List<UserEmoteDto>> =
-        pageAsFlow(MAX_USER_EMOTES) { cursor ->
-            helixApi.getUserEmotes(userId, cursor)
-        }
+    fun getUserEmotesFlow(userId: UserId): Flow<List<UserEmoteDto>> = pageAsFlow(MAX_USER_EMOTES) { cursor ->
+        helixApi.getUserEmotes(userId, cursor)
+    }
 
-    suspend fun getChannelEmotes(broadcasterId: UserId): Result<List<ChannelEmoteDto>> =
-        runCatching {
-            helixApi
-                .getChannelEmotes(broadcasterId)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<ChannelEmoteDto>>()
-                .data
-        }
+    suspend fun getChannelEmotes(broadcasterId: UserId): Result<List<ChannelEmoteDto>> = runCatching {
+        helixApi
+            .getChannelEmotes(broadcasterId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<ChannelEmoteDto>>()
+            .data
+    }
 
-    suspend fun postChatMessage(request: SendChatMessageRequestDto): Result<SendChatMessageResponseDto> =
-        runCatching {
-            helixApi
-                .postChatMessage(request)
-                .throwHelixApiErrorOnFailure()
-                .body<DataListDto<SendChatMessageResponseDto>>()
-                .data
-                .first()
-        }
+    suspend fun postChatMessage(request: SendChatMessageRequestDto): Result<SendChatMessageResponseDto> = runCatching {
+        helixApi
+            .postChatMessage(request)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<SendChatMessageResponseDto>>()
+            .data
+            .first()
+    }
 
     private inline fun <reified T> pageAsFlow(
         amountToFetch: Int,
         crossinline request: suspend (cursor: String?) -> HttpResponse?,
-    ): Flow<List<T>> =
-        flow {
-            val initialPage =
-                request(null)
+    ): Flow<List<T>> = flow {
+        val initialPage =
+            request(null)
+                .throwHelixApiErrorOnFailure()
+                .body<PagedDto<T>>()
+        emit(initialPage.data)
+        var cursor = initialPage.pagination.cursor
+        var count = initialPage.data.size
+        while (cursor != null && count < amountToFetch) {
+            val result =
+                request(cursor)
                     .throwHelixApiErrorOnFailure()
                     .body<PagedDto<T>>()
-            emit(initialPage.data)
-            var cursor = initialPage.pagination.cursor
-            var count = initialPage.data.size
-            while (cursor != null && count < amountToFetch) {
-                val result =
-                    request(cursor)
-                        .throwHelixApiErrorOnFailure()
-                        .body<PagedDto<T>>()
-                emit(result.data)
-                count += result.data.size
-                cursor = result.pagination.cursor
-            }
+            emit(result.data)
+            count += result.data.size
+            cursor = result.pagination.cursor
         }
+    }
 
     private suspend inline fun <reified T> pageUntil(
         amountToFetch: Int,

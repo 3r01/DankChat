@@ -238,20 +238,19 @@ class PubSubConnection(
 
     private fun randomJitter() = Random.nextLong(range = 0L..MAX_JITTER).milliseconds
 
-    private fun setupPingInterval() =
-        scope.timer(interval = PING_INTERVAL - randomJitter()) {
-            val currentSession = session
-            if (awaitingPong || currentSession?.isActive != true) {
-                cancel()
-                reconnect()
-                return@timer
-            }
-
-            if (connected) {
-                awaitingPong = true
-                runCatching { currentSession.send(Frame.Text(PING_PAYLOAD)) }
-            }
+    private fun setupPingInterval() = scope.timer(interval = PING_INTERVAL - randomJitter()) {
+        val currentSession = session
+        if (awaitingPong || currentSession?.isActive != true) {
+            cancel()
+            reconnect()
+            return@timer
         }
+
+        if (connected) {
+            awaitingPong = true
+            runCatching { currentSession.send(Frame.Text(PING_PAYLOAD)) }
+        }
+    }
 
     /**
      * Handles a PubSub message. Returns true if the server requested a reconnect.

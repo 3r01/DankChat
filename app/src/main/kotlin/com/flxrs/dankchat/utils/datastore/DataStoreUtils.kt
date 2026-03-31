@@ -40,10 +40,9 @@ fun <T> createDataStore(
     migrations = migrations,
 )
 
-inline fun <reified T> DataStore<T>.safeData(defaultValue: T): Flow<T> =
-    data.catch { e ->
-        when (e) {
-            is IOException -> emit(defaultValue)
-            else -> throw e
-        }
+inline fun <reified T> DataStore<T>.safeData(defaultValue: T): Flow<T> = data.catch { e ->
+    when (e) {
+        is IOException -> emit(defaultValue)
+        else -> throw e
     }
+}

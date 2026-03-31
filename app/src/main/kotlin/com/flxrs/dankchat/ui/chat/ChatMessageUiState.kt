@@ -215,9 +215,8 @@ data class ThreadUi(
     val message: String,
 )
 
-fun MessageThreadHeader.toThreadUi(): ThreadUi =
-    ThreadUi(
-        rootId = rootId,
-        userName = name.value,
-        message = message,
-    )
+fun MessageThreadHeader.toThreadUi(): ThreadUi = ThreadUi(
+    rootId = rootId,
+    userName = name.value,
+    message = message,
+)

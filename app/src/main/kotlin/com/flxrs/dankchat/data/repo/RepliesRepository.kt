@@ -25,12 +25,11 @@ class RepliesRepository(
 ) {
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
-    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> =
-        threads[rootMessageId]?.map { thread ->
-            val root = ChatItem(thread.rootMessage.clearHighlight(), isInReplies = true)
-            val replies = thread.replies.map { ChatItem(it.clearHighlight(), isInReplies = true) }
-            listOf(root) + replies
-        } ?: flowOf(emptyList())
+    fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
+        val root = ChatItem(thread.rootMessage.clearHighlight(), isInReplies = true)
+        val replies = thread.replies.map { ChatItem(it.clearHighlight(), isInReplies = true) }
+        listOf(root) + replies
+    } ?: flowOf(emptyList())
 
     fun hasMessageThread(rootMessageId: String) = threads.containsKey(rootMessageId)
 

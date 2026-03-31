@@ -734,57 +734,55 @@ class ChatMessageMapper(
     private fun calculateCheckeredBackgroundColors(
         isAlternateBackground: Boolean,
         enableCheckered: Boolean,
-    ): BackgroundColors =
-        if (enableCheckered && isAlternateBackground) {
-            BackgroundColors(CHECKERED_LIGHT, CHECKERED_DARK)
-        } else {
-            BackgroundColors(Color.Transparent, Color.Transparent)
+    ): BackgroundColors = if (enableCheckered && isAlternateBackground) {
+        BackgroundColors(CHECKERED_LIGHT, CHECKERED_DARK)
+    } else {
+        BackgroundColors(Color.Transparent, Color.Transparent)
+    }
+
+    private fun getHighlightColors(type: HighlightType): BackgroundColors = when (type) {
+        HighlightType.Subscription,
+        HighlightType.Announcement,
+        -> {
+            BackgroundColors(
+                light = COLOR_SUB_HIGHLIGHT_LIGHT,
+                dark = COLOR_SUB_HIGHLIGHT_DARK,
+            )
         }
 
-    private fun getHighlightColors(type: HighlightType): BackgroundColors =
-        when (type) {
-            HighlightType.Subscription,
-            HighlightType.Announcement,
-            -> {
-                BackgroundColors(
-                    light = COLOR_SUB_HIGHLIGHT_LIGHT,
-                    dark = COLOR_SUB_HIGHLIGHT_DARK,
-                )
-            }
-
-            HighlightType.ChannelPointRedemption -> {
-                BackgroundColors(
-                    light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
-                    dark = COLOR_REDEMPTION_HIGHLIGHT_DARK,
-                )
-            }
-
-            HighlightType.ElevatedMessage -> {
-                BackgroundColors(
-                    light = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT,
-                    dark = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK,
-                )
-            }
-
-            HighlightType.FirstMessage -> {
-                BackgroundColors(
-                    light = COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT,
-                    dark = COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK,
-                )
-            }
-
-            HighlightType.Username,
-            HighlightType.Custom,
-            HighlightType.Reply,
-            HighlightType.Badge,
-            HighlightType.Notification,
-            -> {
-                BackgroundColors(
-                    light = COLOR_MENTION_HIGHLIGHT_LIGHT,
-                    dark = COLOR_MENTION_HIGHLIGHT_DARK,
-                )
-            }
+        HighlightType.ChannelPointRedemption -> {
+            BackgroundColors(
+                light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
+                dark = COLOR_REDEMPTION_HIGHLIGHT_DARK,
+            )
         }
+
+        HighlightType.ElevatedMessage -> {
+            BackgroundColors(
+                light = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT,
+                dark = COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK,
+            )
+        }
+
+        HighlightType.FirstMessage -> {
+            BackgroundColors(
+                light = COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT,
+                dark = COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK,
+            )
+        }
+
+        HighlightType.Username,
+        HighlightType.Custom,
+        HighlightType.Reply,
+        HighlightType.Badge,
+        HighlightType.Notification,
+        -> {
+            BackgroundColors(
+                light = COLOR_MENTION_HIGHLIGHT_LIGHT,
+                dark = COLOR_MENTION_HIGHLIGHT_DARK,
+            )
+        }
+    }
 
     private fun Set<Highlight>.toBackgroundColors(): BackgroundColors {
         val highlight =
@@ -818,14 +816,13 @@ class ChatMessageMapper(
         fun defaultHighlightColorInt(
             type: HighlightType,
             isDark: Boolean,
-        ): Int =
-            when (type) {
-                HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xFF6A45A0 else 0xFF7E57C2
-                HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xFF8C3A3B else 0xFFCF5050
-                HighlightType.ChannelPointRedemption -> if (isDark) 0xFF00606B else 0xFF458B93
-                HighlightType.FirstMessage -> if (isDark) 0xFF3A6600 else 0xFF558B2F
-                HighlightType.ElevatedMessage -> if (isDark) 0xFF6B5800 else 0xFFB08D2A
-            }.toInt()
+        ): Int = when (type) {
+            HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xFF6A45A0 else 0xFF7E57C2
+            HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xFF8C3A3B else 0xFFCF5050
+            HighlightType.ChannelPointRedemption -> if (isDark) 0xFF00606B else 0xFF458B93
+            HighlightType.FirstMessage -> if (isDark) 0xFF3A6600 else 0xFF558B2F
+            HighlightType.ElevatedMessage -> if (isDark) 0xFF6B5800 else 0xFFB08D2A
+        }.toInt()
 
         private val DEFAULT_HIGHLIGHT_COLOR_INTS =
             setOf(

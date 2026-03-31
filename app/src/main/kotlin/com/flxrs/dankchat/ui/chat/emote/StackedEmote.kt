@@ -267,15 +267,14 @@ private fun transformEmoteDrawable(
 private fun Array<Drawable>.toLayerDrawable(
     scaleFactor: Double,
     emotes: List<ChatMessageEmote>,
-): LayerDrawable =
-    LayerDrawable(this).apply {
-        val bounds = this@toLayerDrawable.map { it.bounds }
-        val maxWidth = bounds.maxOf { it.width() }
-        val maxHeight = bounds.maxOf { it.height() }
-        setBounds(0, 0, maxWidth, maxHeight)
+): LayerDrawable = LayerDrawable(this).apply {
+    val bounds = this@toLayerDrawable.map { it.bounds }
+    val maxWidth = bounds.maxOf { it.width() }
+    val maxHeight = bounds.maxOf { it.height() }
+    setBounds(0, 0, maxWidth, maxHeight)
 
-        // Phase 2: Re-adjust bounds with maxWidth/maxHeight
-        forEachIndexed { idx, dr ->
-            transformEmoteDrawable(dr, scaleFactor, emotes[idx], maxWidth, maxHeight)
-        }
+    // Phase 2: Re-adjust bounds with maxWidth/maxHeight
+    forEachIndexed { idx, dr ->
+        transformEmoteDrawable(dr, scaleFactor, emotes[idx], maxWidth, maxHeight)
     }
+}

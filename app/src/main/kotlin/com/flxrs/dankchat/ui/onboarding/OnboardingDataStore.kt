@@ -26,13 +26,12 @@ class OnboardingDataStore(
         object : DataMigration<OnboardingSettings> {
             override suspend fun shouldMigrate(currentData: OnboardingSettings): Boolean = !currentData.hasRunExistingUserMigration && dankChatPreferenceStore.hasMessageHistoryAcknowledged
 
-            override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings =
-                currentData.copy(
-                    hasCompletedOnboarding = true,
-                    hasRunExistingUserMigration = true,
-                    hasShownAddChannelHint = true,
-                    hasShownToolbarHint = true,
-                )
+            override suspend fun migrate(currentData: OnboardingSettings): OnboardingSettings = currentData.copy(
+                hasCompletedOnboarding = true,
+                hasRunExistingUserMigration = true,
+                hasShownAddChannelHint = true,
+                hasShownToolbarHint = true,
+            )
 
             override suspend fun cleanUp() = Unit
         }

@@ -17,28 +17,26 @@ class AuthApiClient(
     private val authApi: AuthApi,
     private val json: Json,
 ) {
-    suspend fun validateUser(token: String): Result<ValidateDto> =
-        runCatching {
-            val response = authApi.validateUser(token)
-            when {
-                response.status.isSuccess() -> {
-                    response.body()
-                }
+    suspend fun validateUser(token: String): Result<ValidateDto> = runCatching {
+        val response = authApi.validateUser(token)
+        when {
+            response.status.isSuccess() -> {
+                response.body()
+            }
 
-                else -> {
-                    val error = json.decodeOrNull<ValidateErrorDto>(response.bodyAsText())
-                    throw ApiException(status = response.status, response.request.url, error?.message)
-                }
+            else -> {
+                val error = json.decodeOrNull<ValidateErrorDto>(response.bodyAsText())
+                throw ApiException(status = response.status, response.request.url, error?.message)
             }
         }
+    }
 
     suspend fun revokeToken(
         token: String,
         clientId: String,
-    ): Result<Unit> =
-        runCatching {
-            authApi.revokeToken(token, clientId)
-        }
+    ): Result<Unit> = runCatching {
+        authApi.revokeToken(token, clientId)
+    }
 
     fun validateScopes(scopes: List<String>): Boolean = scopes.containsAll(SCOPES)
 

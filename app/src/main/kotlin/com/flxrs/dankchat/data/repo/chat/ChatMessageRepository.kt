@@ -140,23 +140,22 @@ class ChatMessageRepository(
         }
     }
 
-    suspend fun reparseAllEmotesAndBadges() =
-        withContext(Dispatchers.Default) {
-            messages.values
-                .map { flow ->
-                    async {
-                        flow.update { items ->
-                            items.map {
-                                it.copy(
-                                    tag = it.tag + 1,
-                                    message = messageProcessor.reparseEmotesAndBadges(it.message),
-                                )
-                            }
+    suspend fun reparseAllEmotesAndBadges() = withContext(Dispatchers.Default) {
+        messages.values
+            .map { flow ->
+                async {
+                    flow.update { items ->
+                        items.map {
+                            it.copy(
+                                tag = it.tag + 1,
+                                message = messageProcessor.reparseEmotesAndBadges(it.message),
+                            )
                         }
                     }
-                }.awaitAll()
-            chatNotificationRepository.reparseAll()
-        }
+                }
+            }.awaitAll()
+        chatNotificationRepository.reparseAll()
+    }
 
     fun addSystemMessage(
         channel: UserName,

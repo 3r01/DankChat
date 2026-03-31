@@ -46,103 +46,102 @@ class RecentMessagesHandler(
     suspend fun load(
         channel: UserName,
         isReconnect: Boolean = false,
-    ): Result =
-        withContext(Dispatchers.IO) {
-            if (!isReconnect && channel in loadedChannels) {
+    ): Result = withContext(Dispatchers.IO) {
+        if (!isReconnect && channel in loadedChannels) {
+            return@withContext Result(emptyList(), emptyList())
+        }
+
+        val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
+        val result =
+            recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
+                if (!isReconnect) {
+                    handleFailure(throwable, channel)
+                }
                 return@withContext Result(emptyList(), emptyList())
             }
 
-            val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
-            val result =
-                recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
-                    if (!isReconnect) {
-                        handleFailure(throwable, channel)
-                    }
-                    return@withContext Result(emptyList(), emptyList())
+        loadedChannels += channel
+        val recentMessages = result.messages.orEmpty()
+        val items = mutableListOf<ChatItem>()
+        val messageIndex = HashMap<String, Message>(recentMessages.size)
+        val userSuggestions = mutableListOf<Pair<UserName, DisplayName>>()
+
+        measureTimeMillis {
+            for (recentMessage in recentMessages) {
+                val parsedIrc = IrcMessage.parse(recentMessage)
+                val isDeleted = parsedIrc.tags["rm-deleted"] == "1"
+                if (messageProcessor.isUserBlocked(parsedIrc.tags["user-id"]?.toUserId())) {
+                    continue
                 }
 
-            loadedChannels += channel
-            val recentMessages = result.messages.orEmpty()
-            val items = mutableListOf<ChatItem>()
-            val messageIndex = HashMap<String, Message>(recentMessages.size)
-            val userSuggestions = mutableListOf<Pair<UserName, DisplayName>>()
+                when (parsedIrc.command) {
+                    "CLEARCHAT" -> {
+                        val parsed =
+                            runCatching {
+                                ModerationMessage.parseClearChat(parsedIrc)
+                            }.getOrNull() ?: continue
 
-            measureTimeMillis {
-                for (recentMessage in recentMessages) {
-                    val parsedIrc = IrcMessage.parse(recentMessage)
-                    val isDeleted = parsedIrc.tags["rm-deleted"] == "1"
-                    if (messageProcessor.isUserBlocked(parsedIrc.tags["user-id"]?.toUserId())) {
-                        continue
+                        items.replaceOrAddHistoryModerationMessage(parsed)
                     }
 
-                    when (parsedIrc.command) {
-                        "CLEARCHAT" -> {
-                            val parsed =
-                                runCatching {
-                                    ModerationMessage.parseClearChat(parsedIrc)
-                                }.getOrNull() ?: continue
+                    "CLEARMSG" -> {
+                        val parsed =
+                            runCatching {
+                                ModerationMessage.parseClearMessage(parsedIrc)
+                            }.getOrNull() ?: continue
 
-                            items.replaceOrAddHistoryModerationMessage(parsed)
-                        }
+                        items += ChatItem(parsed, importance = ChatImportance.SYSTEM)
+                    }
 
-                        "CLEARMSG" -> {
-                            val parsed =
-                                runCatching {
-                                    ModerationMessage.parseClearMessage(parsedIrc)
-                                }.getOrNull() ?: continue
+                    else -> {
+                        val message =
+                            runCatching {
+                                messageProcessor.processIrcMessage(parsedIrc) { _, id -> messageIndex[id] }
+                            }.getOrNull() ?: continue
 
-                            items += ChatItem(parsed, importance = ChatImportance.SYSTEM)
-                        }
-
-                        else -> {
-                            val message =
-                                runCatching {
-                                    messageProcessor.processIrcMessage(parsedIrc) { _, id -> messageIndex[id] }
-                                }.getOrNull() ?: continue
-
-                            messageIndex[message.id] = message
-                            if (message is PrivMessage) {
-                                val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
-                                userSuggestions += message.name.lowercase() to userForSuggestion
-                                if (message.color != Message.DEFAULT_COLOR) {
-                                    usersRepository.cacheUserColor(message.name, message.color)
-                                }
+                        messageIndex[message.id] = message
+                        if (message is PrivMessage) {
+                            val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
+                            userSuggestions += message.name.lowercase() to userForSuggestion
+                            if (message.color != Message.DEFAULT_COLOR) {
+                                usersRepository.cacheUserColor(message.name, message.color)
                             }
-
-                            val importance =
-                                when {
-                                    isDeleted -> ChatImportance.DELETED
-                                    isReconnect -> ChatImportance.SYSTEM
-                                    else -> ChatImportance.REGULAR
-                                }
-                            if (message is UserNoticeMessage && message.childMessage != null) {
-                                items += ChatItem(message.childMessage, importance = importance)
-                            }
-                            items += ChatItem(message, importance = importance)
                         }
+
+                        val importance =
+                            when {
+                                isDeleted -> ChatImportance.DELETED
+                                isReconnect -> ChatImportance.SYSTEM
+                                else -> ChatImportance.REGULAR
+                            }
+                        if (message is UserNoticeMessage && message.childMessage != null) {
+                            items += ChatItem(message.childMessage, importance = importance)
+                        }
+                        items += ChatItem(message, importance = importance)
                     }
                 }
-            }.let { Log.i(TAG, "Parsing message history for #$channel took $it ms") }
-
-            val messagesFlow = chatMessageRepository.getMessagesFlow(channel)
-            messagesFlow?.update { current ->
-                val withIncompleteWarning =
-                    when {
-                        !isReconnect && recentMessages.isNotEmpty() && result.errorCode == RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> {
-                            current + SystemMessageType.MessageHistoryIncomplete.toChatItem()
-                        }
-
-                        else -> {
-                            current
-                        }
-                    }
-
-                withIncompleteWarning.addAndLimit(items, chatMessageRepository.scrollBackLength, messageProcessor::onMessageRemoved, checkForDuplications = true)
             }
+        }.let { Log.i(TAG, "Parsing message history for #$channel took $it ms") }
 
-            val mentionItems = items.filter { it.message.highlights.hasMention() }.toMentionTabItems()
-            Result(mentionItems, userSuggestions)
+        val messagesFlow = chatMessageRepository.getMessagesFlow(channel)
+        messagesFlow?.update { current ->
+            val withIncompleteWarning =
+                when {
+                    !isReconnect && recentMessages.isNotEmpty() && result.errorCode == RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> {
+                        current + SystemMessageType.MessageHistoryIncomplete.toChatItem()
+                    }
+
+                    else -> {
+                        current
+                    }
+                }
+
+            withIncompleteWarning.addAndLimit(items, chatMessageRepository.scrollBackLength, messageProcessor::onMessageRemoved, checkForDuplications = true)
         }
+
+        val mentionItems = items.filter { it.message.highlights.hasMention() }.toMentionTabItems()
+        Result(mentionItems, userSuggestions)
+    }
 
     private fun handleFailure(
         throwable: Throwable,

@@ -83,40 +83,38 @@ class HighlightsRepository(
             .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
-    suspend fun calculateHighlightState(message: Message): Message =
-        when (message) {
-            is UserNoticeMessage -> message.calculateHighlightState()
-            is PointRedemptionMessage -> message.calculateHighlightState()
-            is PrivMessage -> message.calculateHighlightState()
-            is WhisperMessage -> message.calculateHighlightState()
-            else -> message
-        }
+    suspend fun calculateHighlightState(message: Message): Message = when (message) {
+        is UserNoticeMessage -> message.calculateHighlightState()
+        is PointRedemptionMessage -> message.calculateHighlightState()
+        is PrivMessage -> message.calculateHighlightState()
+        is WhisperMessage -> message.calculateHighlightState()
+        else -> message
+    }
 
-    fun runMigrationsIfNeeded() =
-        coroutineScope.launch {
+    fun runMigrationsIfNeeded() = coroutineScope.launch {
+        runCatching {
+            if (messageHighlightDao.getMessageHighlights().isEmpty()) {
+                Log.d(TAG, "Running message highlights migration...")
+                messageHighlightDao.addHighlights(DEFAULT_MESSAGE_HIGHLIGHTS)
+                val totalMessageHighlights = DEFAULT_MESSAGE_HIGHLIGHTS.size
+                Log.d(TAG, "Message highlights migration completed, added $totalMessageHighlights entries.")
+            }
+            if (badgeHighlightDao.getBadgeHighlights().isEmpty()) {
+                Log.d(TAG, "Running badge highlights migration...")
+                badgeHighlightDao.addHighlights(DEFAULT_BADGE_HIGHLIGHTS)
+                val totalBadgeHighlights = DEFAULT_BADGE_HIGHLIGHTS.size
+                Log.d(TAG, "Badge highlights migration completed, added $totalBadgeHighlights entries.")
+            }
+        }.getOrElse {
+            Log.e(TAG, "Failed to run highlights migration", it)
             runCatching {
-                if (messageHighlightDao.getMessageHighlights().isEmpty()) {
-                    Log.d(TAG, "Running message highlights migration...")
-                    messageHighlightDao.addHighlights(DEFAULT_MESSAGE_HIGHLIGHTS)
-                    val totalMessageHighlights = DEFAULT_MESSAGE_HIGHLIGHTS.size
-                    Log.d(TAG, "Message highlights migration completed, added $totalMessageHighlights entries.")
-                }
-                if (badgeHighlightDao.getBadgeHighlights().isEmpty()) {
-                    Log.d(TAG, "Running badge highlights migration...")
-                    badgeHighlightDao.addHighlights(DEFAULT_BADGE_HIGHLIGHTS)
-                    val totalBadgeHighlights = DEFAULT_BADGE_HIGHLIGHTS.size
-                    Log.d(TAG, "Badge highlights migration completed, added $totalBadgeHighlights entries.")
-                }
-            }.getOrElse {
-                Log.e(TAG, "Failed to run highlights migration", it)
-                runCatching {
-                    messageHighlightDao.deleteAllHighlights()
-                    userHighlightDao.deleteAllHighlights()
-                    badgeHighlightDao.deleteAllHighlights()
-                    return@launch
-                }
+                messageHighlightDao.deleteAllHighlights()
+                userHighlightDao.deleteAllHighlights()
+                badgeHighlightDao.deleteAllHighlights()
+                return@launch
             }
         }
+    }
 
     suspend fun addMessageHighlight(): MessageHighlightEntity {
         val entity =
@@ -337,11 +335,10 @@ class HighlightsRepository(
         return copy(highlights = highlights)
     }
 
-    private suspend fun WhisperMessage.calculateHighlightState(): WhisperMessage =
-        when {
-            notificationsSettingsDataStore.settings.first().showWhisperNotifications -> copy(highlights = setOf(Highlight(HighlightType.Notification)))
-            else -> this
-        }
+    private suspend fun WhisperMessage.calculateHighlightState(): WhisperMessage = when {
+        notificationsSettingsDataStore.settings.first().showWhisperNotifications -> copy(highlights = setOf(Highlight(HighlightType.Notification)))
+        else -> this
+    }
 
     private fun List<MessageHighlightEntity>.ofType(type: MessageHighlightEntityType): MessageHighlightEntity? = find { it.type == type }
 
@@ -393,14 +390,13 @@ class HighlightsRepository(
         return false
     }
 
-    private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> =
-        (this + DEFAULT_MESSAGE_HIGHLIGHTS)
-            .distinctBy {
-                when (it.type) {
-                    MessageHighlightEntityType.Custom -> it.id
-                    else -> it.type
-                }
-            }.sortedBy { it.type.ordinal }
+    private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> = (this + DEFAULT_MESSAGE_HIGHLIGHTS)
+        .distinctBy {
+            when (it.type) {
+                MessageHighlightEntityType.Custom -> it.id
+                else -> it.type
+            }
+        }.sortedBy { it.type.ordinal }
 
     companion object {
         private val TAG = HighlightsRepository::class.java.simpleName

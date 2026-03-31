@@ -10,16 +10,14 @@ object DateTimeUtils {
     fun timestampToLocalTime(
         ts: Long,
         formatter: DateTimeFormatter,
-    ): String =
-        Instant
-            .ofEpochMilli(ts)
-            .atZone(ZoneId.systemDefault())
-            .format(formatter)
+    ): String = Instant
+        .ofEpochMilli(ts)
+        .atZone(ZoneId.systemDefault())
+        .format(formatter)
 
-    fun String.asParsedZonedDateTime(): String =
-        ZonedDateTime
-            .parse(this)
-            .format(DateTimeFormatter.ISO_LOCAL_DATE)
+    fun String.asParsedZonedDateTime(): String = ZonedDateTime
+        .parse(this)
+        .format(DateTimeFormatter.ISO_LOCAL_DATE)
 
     fun formatSeconds(durationInSeconds: Int): String {
         val seconds = durationInSeconds % 60
@@ -69,15 +67,14 @@ object DateTimeUtils {
         return seconds
     }
 
-    private fun secondsMultiplierForUnit(char: Char): Int? =
-        when (char) {
-            's' -> 1
-            'm' -> 60
-            'h' -> 60 * 60
-            'd' -> 60 * 60 * 24
-            'w' -> 60 * 60 * 24 * 7
-            else -> null
-        }
+    private fun secondsMultiplierForUnit(char: Char): Int? = when (char) {
+        's' -> 1
+        'm' -> 60
+        'h' -> 60 * 60
+        'd' -> 60 * 60 * 24
+        'w' -> 60 * 60 * 24 * 7
+        else -> null
+    }
 
     enum class DurationUnit { WEEKS, DAYS, HOURS, MINUTES, SECONDS }
 
@@ -86,28 +83,26 @@ object DateTimeUtils {
         val unit: DurationUnit,
     )
 
-    fun decomposeMinutes(totalMinutes: Int): List<DurationPart> =
-        buildList {
-            var remaining = totalMinutes
-            val weeks = remaining / 10080
-            remaining %= 10080
-            if (weeks > 0) add(DurationPart(weeks, DurationUnit.WEEKS))
-            val days = remaining / 1440
-            remaining %= 1440
-            if (days > 0) add(DurationPart(days, DurationUnit.DAYS))
-            val hours = remaining / 60
-            remaining %= 60
-            if (hours > 0) add(DurationPart(hours, DurationUnit.HOURS))
-            if (remaining > 0) add(DurationPart(remaining, DurationUnit.MINUTES))
-        }
+    fun decomposeMinutes(totalMinutes: Int): List<DurationPart> = buildList {
+        var remaining = totalMinutes
+        val weeks = remaining / 10080
+        remaining %= 10080
+        if (weeks > 0) add(DurationPart(weeks, DurationUnit.WEEKS))
+        val days = remaining / 1440
+        remaining %= 1440
+        if (days > 0) add(DurationPart(days, DurationUnit.DAYS))
+        val hours = remaining / 60
+        remaining %= 60
+        if (hours > 0) add(DurationPart(hours, DurationUnit.HOURS))
+        if (remaining > 0) add(DurationPart(remaining, DurationUnit.MINUTES))
+    }
 
-    fun decomposeSeconds(totalSeconds: Int): List<DurationPart> =
-        buildList {
-            val mins = totalSeconds / 60
-            val secs = totalSeconds % 60
-            if (mins > 0) add(DurationPart(mins, DurationUnit.MINUTES))
-            if (secs > 0) add(DurationPart(secs, DurationUnit.SECONDS))
-        }
+    fun decomposeSeconds(totalSeconds: Int): List<DurationPart> = buildList {
+        val mins = totalSeconds / 60
+        val secs = totalSeconds % 60
+        if (mins > 0) add(DurationPart(mins, DurationUnit.MINUTES))
+        if (secs > 0) add(DurationPart(secs, DurationUnit.SECONDS))
+    }
 
     fun calculateUptime(startedAtString: String): String {
         val startedAt = Instant.parse(startedAtString).atZone(ZoneId.systemDefault()).toEpochSecond()
