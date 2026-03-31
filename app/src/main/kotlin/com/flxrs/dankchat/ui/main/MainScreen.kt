@@ -1204,11 +1204,13 @@ private fun MainScreenFocusEffects(
 ) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val emoteMenuOpenState = rememberUpdatedState(isEmoteMenuOpen)
 
-    // Clear focus when keyboard fully reaches the bottom, but not when
-    // switching to the emote menu. Debounced to avoid premature focus loss.
+    // Clear focus when keyboard fully reaches the bottom and emote menu is closed.
+    // Uses rememberUpdatedState so snapshotFlow reads the latest emote menu state.
+    // Debounced to avoid premature focus loss during transitions.
     LaunchedEffect(Unit) {
-        snapshotFlow { imeHeight.value == 0 && !isEmoteMenuOpen }
+        snapshotFlow { imeHeight.value == 0 && !emoteMenuOpenState.value }
             .debounce(150)
             .distinctUntilChanged()
             .collect { shouldClearFocus ->
