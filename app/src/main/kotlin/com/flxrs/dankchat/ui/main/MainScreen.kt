@@ -990,7 +990,8 @@ private fun BoxScope.NormalStackedLayout(
         }
     }
 
-    // Stream View layer
+    // Stream View layer — kept in composition when hidden so the WebView
+    // stays attached and audio/video continues playing without re-buffering.
     currentStream?.let { channel ->
         val showStream = isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape
         var streamComposed by remember { mutableStateOf(hasWebViewBeenAttached) }
@@ -998,26 +999,35 @@ private fun BoxScope.NormalStackedLayout(
             if (showStream) {
                 delay(100)
                 streamComposed = true
-            } else {
-                streamComposed = false
             }
         }
-        if (showStream && streamComposed) {
+        if (streamComposed) {
             StreamView(
                 channel = channel,
                 isInPipMode = isInPipMode,
                 onClose = onStreamClose,
                 modifier =
-                    if (isInPipMode) {
-                        Modifier.fillMaxSize()
-                    } else {
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .fillMaxWidth()
-                            .graphicsLayer { alpha = streamState.alpha.value }
-                            .onSizeChanged { size ->
-                                streamState.heightDp = with(density) { size.height.toDp() }
-                            }
+                    when {
+                        isInPipMode -> {
+                            Modifier.fillMaxSize()
+                        }
+
+                        showStream -> {
+                            Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .graphicsLayer { alpha = streamState.alpha.value }
+                                .onSizeChanged { size ->
+                                    streamState.heightDp = with(density) { size.height.toDp() }
+                                }
+                        }
+
+                        else -> {
+                            Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .graphicsLayer { alpha = 0f }
+                        }
                     },
             )
         }
