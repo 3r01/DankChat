@@ -58,12 +58,17 @@ fun EmoteMenu(
     viewModel: EmoteMenuViewModel = koinViewModel(),
 ) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
+    val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val pagerState =
         rememberPagerState(
-            initialPage = 0,
+            initialPage = selectedTabIndex,
             pageCount = { tabItems.size },
         )
+
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.selectTab(pagerState.currentPage)
+    }
     val subsGridState = rememberLazyGridState()
     val subsFirstHeader =
         tabItems

@@ -17,8 +17,10 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
@@ -31,6 +33,13 @@ class EmoteMenuViewModel(
     chatChannelProvider: ChatChannelProvider,
     emoteUsageRepository: EmoteUsageRepository,
 ) : ViewModel() {
+    private val _selectedTabIndex = MutableStateFlow(0)
+    val selectedTabIndex: StateFlow<Int> = _selectedTabIndex.asStateFlow()
+
+    fun selectTab(index: Int) {
+        _selectedTabIndex.value = index
+    }
+
     private val activeChannel = chatChannelProvider.activeChannel
 
     private val emotes =

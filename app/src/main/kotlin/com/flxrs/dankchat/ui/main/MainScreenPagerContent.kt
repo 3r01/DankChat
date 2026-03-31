@@ -58,7 +58,7 @@ internal fun MainScreenPagerContent(
     composePagerState: PagerState,
     pagerState: ChannelPagerUiState,
     isLoggedIn: Boolean,
-    effectiveShowInput: Boolean,
+    showInput: Boolean,
     isFullscreen: Boolean,
     swipeNavigation: Boolean,
     isSheetOpen: Boolean,
@@ -151,7 +151,7 @@ internal fun MainScreenPagerContent(
                                 onReplyClick = { replyMessageId, replyName ->
                                     callbacks.onOpenReplies(replyMessageId, replyName)
                                 },
-                                showInput = effectiveShowInput,
+                                showInput = showInput,
                                 isFullscreen = isFullscreen,
                                 showFabs = !isSheetOpen,
                                 onRecover = callbacks.onRecover,
@@ -162,7 +162,7 @@ internal fun MainScreenPagerContent(
                                         bottom =
                                             paddingValues.calculateBottomPadding() +
                                                 when {
-                                                    effectiveShowInput -> {
+                                                    showInput -> {
                                                         inputHeightDp
                                                     }
 

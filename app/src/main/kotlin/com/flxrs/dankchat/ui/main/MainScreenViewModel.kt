@@ -40,7 +40,6 @@ class MainScreenViewModel(
         channelDataCoordinator.globalLoadingState
 
     private val _isFullscreen = MutableStateFlow(false)
-    private val _gestureInputHidden = MutableStateFlow(false)
     private val _gestureToolbarHidden = MutableStateFlow(false)
 
     val uiState: StateFlow<MainScreenUiState> =
@@ -48,9 +47,8 @@ class MainScreenViewModel(
             appearanceSettingsDataStore.settings,
             developerSettingsDataStore.settings,
             _isFullscreen,
-            _gestureInputHidden,
             _gestureToolbarHidden,
-        ) { appearance, developerSettings, isFullscreen, gestureInputHidden, gestureToolbarHidden ->
+        ) { appearance, developerSettings, isFullscreen, gestureToolbarHidden ->
             MainScreenUiState(
                 isFullscreen = isFullscreen,
                 showInput = appearance.showInput,
@@ -59,7 +57,6 @@ class MainScreenViewModel(
                 isRepeatedSendEnabled = developerSettings.repeatedSending,
                 debugMode = developerSettings.debugMode,
                 swipeNavigation = appearance.swipeNavigation,
-                gestureInputHidden = gestureInputHidden,
                 gestureToolbarHidden = gestureToolbarHidden,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
@@ -98,17 +95,14 @@ class MainScreenViewModel(
     private val _keyboardHeightPx = MutableStateFlow(0)
     val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
 
-    fun setGestureInputHidden(hidden: Boolean) {
-        _gestureInputHidden.value = hidden
-    }
-
     fun setGestureToolbarHidden(hidden: Boolean) {
         _gestureToolbarHidden.value = hidden
     }
 
-    fun resetGestureState() {
-        _gestureInputHidden.value = false
-        _gestureToolbarHidden.value = false
+    fun hideInput() {
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update { it.copy(showInput = false) }
+        }
     }
 
     init {
@@ -146,6 +140,14 @@ class MainScreenViewModel(
     fun toggleInput() {
         viewModelScope.launch {
             appearanceSettingsDataStore.update { it.copy(showInput = !it.showInput) }
+        }
+    }
+
+    fun recoverInputAndFullscreen() {
+        _isFullscreen.value = false
+        _gestureToolbarHidden.value = false
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update { it.copy(showInput = true) }
         }
     }
 

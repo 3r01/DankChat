@@ -279,7 +279,7 @@ fun MainScreen(
     )
 
     val isFullscreen = mainState.isFullscreen
-    val effectiveShowInput = mainState.effectiveShowInput
+    val showInput = mainState.showInput
     val swipeNavigation = mainState.swipeNavigation
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
@@ -307,8 +307,8 @@ fun MainScreen(
     var inputHeightPx by remember { mutableIntStateOf(0) }
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
-    if (!effectiveShowInput) inputHeightPx = 0
-    if (effectiveShowInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
+    if (!showInput) inputHeightPx = 0
+    if (showInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
 
@@ -377,7 +377,7 @@ fun MainScreen(
             // Shared bottom bar content
             val bottomBar: @Composable () -> Unit = {
                 ChatBottomBar(
-                    showInput = effectiveShowInput && !isHistorySheet,
+                    showInput = showInput && !isHistorySheet,
                     textFieldState = chatInputViewModel.textFieldState,
                     uiState = inputState,
                     callbacks =
@@ -607,9 +607,7 @@ fun MainScreen(
                         onShowEmoteInfo = dialogViewModel::showEmoteInfo,
                         onOpenReplies = sheetNavigationViewModel::openReplies,
                         onRecover = {
-                            if (mainScreenViewModel.uiState.value.isFullscreen) mainScreenViewModel.toggleFullscreen()
-                            if (!mainScreenViewModel.uiState.value.showInput) mainScreenViewModel.toggleInput()
-                            mainScreenViewModel.resetGestureState()
+                            mainScreenViewModel.recoverInputAndFullscreen()
                         },
                         onScrollToBottom = { mainScreenViewModel.setGestureToolbarHidden(false) },
                         onTourAdvance = featureTourViewModel::advance,
@@ -652,10 +650,7 @@ fun MainScreen(
                             }
 
                             InputAction.HideInput -> {
-                                if (!mainScreenViewModel.uiState.value.showInput) {
-                                    mainScreenViewModel.toggleInput()
-                                }
-                                mainScreenViewModel.resetGestureState()
+                                mainScreenViewModel.hideInput()
                             }
 
                             InputAction.Debug -> {
@@ -686,7 +681,7 @@ fun MainScreen(
                     composePagerState = composePagerState,
                     pagerState = pagerState,
                     isLoggedIn = isLoggedIn,
-                    effectiveShowInput = effectiveShowInput,
+                    showInput = showInput,
                     isFullscreen = isFullscreen,
                     swipeNavigation = swipeNavigation,
                     isSheetOpen = isSheetOpen,
@@ -710,7 +705,7 @@ fun MainScreen(
             val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
                 val effectiveBottomPadding =
                     when {
-                        !effectiveShowInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
+                        !showInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
                         else -> bottomPadding
                     }
                 FullScreenSheetOverlay(
@@ -757,13 +752,13 @@ fun MainScreen(
                     isKeyboardVisible = isKeyboardVisible,
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     isSheetOpen = isSheetOpen,
-                    effectiveShowInput = effectiveShowInput,
+                    showInput = showInput,
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestions = inputState.suggestions,
                     onSuggestionClick = chatInputViewModel::applySuggestion,
-                    onHideInput = { mainScreenViewModel.setGestureInputHidden(true) },
+                    onHideInput = { mainScreenViewModel.hideInput() },
                     onDismissOverflow = { inputOverflowExpanded = false },
                     modifier = modifier,
                 )
@@ -791,13 +786,13 @@ fun MainScreen(
                     isInPipMode = isInPipMode,
                     isWideWindow = isWideWindow,
                     isLandscape = isLandscape,
-                    effectiveShowInput = effectiveShowInput,
+                    showInput = showInput,
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestions = inputState.suggestions,
                     onSuggestionClick = chatInputViewModel::applySuggestion,
-                    onHideInput = { mainScreenViewModel.setGestureInputHidden(true) },
+                    onHideInput = { mainScreenViewModel.hideInput() },
                     onDismissOverflow = { inputOverflowExpanded = false },
                     modifier = modifier,
                 )
@@ -825,7 +820,7 @@ private fun BoxScope.WideSplitLayout(
     isKeyboardVisible: Boolean,
     isEmoteMenuOpen: Boolean,
     isSheetOpen: Boolean,
-    effectiveShowInput: Boolean,
+    showInput: Boolean,
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
@@ -919,7 +914,7 @@ private fun BoxScope.WideSplitLayout(
                             .align(Alignment.BottomCenter)
                             .padding(bottom = scaffoldBottomPadding)
                             .swipeDownToHide(
-                                enabled = effectiveShowInput,
+                                enabled = showInput,
                                 thresholdPx = swipeDownThresholdPx,
                                 onHide = onHideInput,
                             ),
@@ -929,7 +924,7 @@ private fun BoxScope.WideSplitLayout(
 
                 emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
-                if (effectiveShowInput && isKeyboardVisible) {
+                if (showInput && isKeyboardVisible) {
                     SuggestionDropdown(
                         suggestions = suggestions,
                         onSuggestionClick = onSuggestionClick,
@@ -984,7 +979,7 @@ private fun BoxScope.NormalStackedLayout(
     isInPipMode: Boolean,
     isWideWindow: Boolean,
     isLandscape: Boolean,
-    effectiveShowInput: Boolean,
+    showInput: Boolean,
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
@@ -1106,7 +1101,7 @@ private fun BoxScope.NormalStackedLayout(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = scaffoldBottomPadding)
                     .swipeDownToHide(
-                        enabled = effectiveShowInput,
+                        enabled = showInput,
                         thresholdPx = swipeDownThresholdPx,
                         onHide = onHideInput,
                     ),
@@ -1117,7 +1112,7 @@ private fun BoxScope.NormalStackedLayout(
 
     if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
-    if (!isInPipMode && effectiveShowInput && isKeyboardVisible) {
+    if (!isInPipMode && showInput && isKeyboardVisible) {
         SuggestionDropdown(
             suggestions = suggestions,
             onSuggestionClick = onSuggestionClick,
@@ -1202,16 +1197,19 @@ private fun MainScreenTourEffects(
         }
     }
 
-    // Sync tour's gestureInputHidden with MainScreenViewModel
+    // Sync tour's input hidden state with MainScreenViewModel
     LaunchedEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
         if (featureTourState.isTourActive) {
-            mainScreenViewModel.setGestureInputHidden(featureTourState.gestureInputHidden)
+            when {
+                featureTourState.gestureInputHidden -> mainScreenViewModel.hideInput()
+                else -> mainScreenViewModel.recoverInputAndFullscreen()
+            }
         }
     }
 
     // Auto-advance tour when input is hidden during the SwipeGesture step
-    LaunchedEffect(mainState.gestureInputHidden, featureTourState.currentTourStep) {
-        if (mainState.gestureInputHidden && featureTourState.currentTourStep == TourStep.SwipeGesture) {
+    LaunchedEffect(mainState.showInput, featureTourState.currentTourStep) {
+        if (!mainState.showInput && featureTourState.currentTourStep == TourStep.SwipeGesture) {
             featureTourViewModel.advance()
         }
     }
