@@ -426,6 +426,7 @@
     <string name="highlights_entry_username">Felhasználóneved</string>
     <string name="highlights_ignores_entry_subscriptions">Feliratkozások és Események</string>
     <string name="highlights_ignores_entry_announcements">Bejelentések</string>
+    <string name="highlights_ignores_entry_watch_streaks">Nézési sorozatok</string>
     <string name="highlights_ignores_entry_first_messages">Első üzenet</string>
     <string name="highlights_ignores_entry_elevated_messages">Kiemelt üzenetek</string>
     <string name="highlights_ignores_entry_redemptions">Kiemelések kiváltása csatorna pontokkal</string>

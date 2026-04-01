@@ -435,6 +435,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="highlights_entry_username">Dein Benutzername</string>
     <string name="highlights_ignores_entry_subscriptions">Abonnements und Events</string>
     <string name="highlights_ignores_entry_announcements">Ankündigungen</string>
+    <string name="highlights_ignores_entry_watch_streaks">Zuschauer-Serien</string>
     <string name="highlights_ignores_entry_first_messages">Erste Nachrichten</string>
     <string name="highlights_ignores_entry_elevated_messages">Hervorgehobene Nachrichten</string>
     <string name="highlights_ignores_entry_redemptions">Mit Kanalpunkten eingelöste Hervorhebungen</string>

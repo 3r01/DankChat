@@ -534,6 +534,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="highlights_entry_username">Ваше корисничко име</string>
     <string name="highlights_ignores_entry_subscriptions">Претплате и догађаји</string>
     <string name="highlights_ignores_entry_announcements">Обавештења</string>
+    <string name="highlights_ignores_entry_watch_streaks">Серије гледања</string>
     <string name="highlights_ignores_entry_first_messages">Прве поруке</string>
     <string name="highlights_ignores_entry_elevated_messages">Истакнуте поруке</string>
     <string name="highlights_ignores_entry_redemptions">Истицања откупљена поенима канала</string>

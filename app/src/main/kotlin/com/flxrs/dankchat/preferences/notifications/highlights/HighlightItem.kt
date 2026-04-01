@@ -26,6 +26,7 @@ data class MessageHighlightItem(
         Username,
         Subscription,
         Announcement,
+        WatchStreak,
         ChannelPointRedemption,
         FirstMessage,
         ElevatedMessage,
@@ -97,6 +98,7 @@ fun MessageHighlightItem.Type.toEntityType(): MessageHighlightEntityType = when 
     MessageHighlightItem.Type.Username -> MessageHighlightEntityType.Username
     MessageHighlightItem.Type.Subscription -> MessageHighlightEntityType.Subscription
     MessageHighlightItem.Type.Announcement -> MessageHighlightEntityType.Announcement
+    MessageHighlightItem.Type.WatchStreak -> MessageHighlightEntityType.WatchStreak
     MessageHighlightItem.Type.ChannelPointRedemption -> MessageHighlightEntityType.ChannelPointRedemption
     MessageHighlightItem.Type.FirstMessage -> MessageHighlightEntityType.FirstMessage
     MessageHighlightItem.Type.ElevatedMessage -> MessageHighlightEntityType.ElevatedMessage
@@ -108,6 +110,7 @@ fun MessageHighlightEntityType.toItemType(): MessageHighlightItem.Type = when (t
     MessageHighlightEntityType.Username -> MessageHighlightItem.Type.Username
     MessageHighlightEntityType.Subscription -> MessageHighlightItem.Type.Subscription
     MessageHighlightEntityType.Announcement -> MessageHighlightItem.Type.Announcement
+    MessageHighlightEntityType.WatchStreak -> MessageHighlightItem.Type.WatchStreak
     MessageHighlightEntityType.ChannelPointRedemption -> MessageHighlightItem.Type.ChannelPointRedemption
     MessageHighlightEntityType.FirstMessage -> MessageHighlightItem.Type.FirstMessage
     MessageHighlightEntityType.ElevatedMessage -> MessageHighlightItem.Type.ElevatedMessage

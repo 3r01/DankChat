@@ -434,6 +434,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="highlights_entry_username">Kullanıcı adınız</string>
     <string name="highlights_ignores_entry_subscriptions">Abonelikler ile Etkinlikler</string>
     <string name="highlights_ignores_entry_announcements">Duyurular</string>
+    <string name="highlights_ignores_entry_watch_streaks">İzleme Serileri</string>
     <string name="highlights_ignores_entry_first_messages">İlk Mesajlar</string>
     <string name="highlights_ignores_entry_elevated_messages">Yükseltilmiş Mesaj</string>
     <string name="highlights_ignores_entry_redemptions">Kanal Puanlarıyla alınan Öne Çıkarmalar</string>

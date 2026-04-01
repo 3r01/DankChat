@@ -27,6 +27,7 @@ data class UserNoticeMessage(
                 "bitsbadgetier",
                 "ritual",
                 "announcement",
+                "viewermilestone",
             )
 
         fun parseUserNotice(
@@ -98,7 +99,10 @@ data class UserNoticeMessage(
 
 // TODO split into different user notice message types
 val UserNoticeMessage.isSub: Boolean
-    get() = tags["msg-id"] != "announcement"
+    get() = tags["msg-id"].let { it != "announcement" && it != "viewermilestone" }
 
 val UserNoticeMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
+
+val UserNoticeMessage.isViewerMilestone: Boolean
+    get() = tags["msg-id"] == "viewermilestone"

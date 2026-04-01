@@ -439,6 +439,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="highlights_entry_username">Tu usuario</string>
     <string name="highlights_ignores_entry_subscriptions">Suscripciones y Eventos</string>
     <string name="highlights_ignores_entry_announcements">Anuncios</string>
+    <string name="highlights_ignores_entry_watch_streaks">Rachas de visualización</string>
     <string name="highlights_ignores_entry_first_messages">Primeros Mensajes</string>
     <string name="highlights_ignores_entry_elevated_messages">Mensajes Elevados</string>
     <string name="highlights_ignores_entry_redemptions">Destacados canjeados con Puntos Canal</string>

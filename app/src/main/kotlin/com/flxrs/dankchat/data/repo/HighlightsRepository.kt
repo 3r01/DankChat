@@ -24,6 +24,7 @@ import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
 import com.flxrs.dankchat.data.twitch.message.isFirstMessage
 import com.flxrs.dankchat.data.twitch.message.isReward
 import com.flxrs.dankchat.data.twitch.message.isSub
+import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
@@ -224,6 +225,11 @@ class HighlightsRepository(
                 if (isAnnouncement && announcementsHighlight != null) {
                     add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
                 }
+
+                val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)
+                if (isViewerMilestone && watchStreakHighlight != null) {
+                    add(Highlight(HighlightType.WatchStreak, watchStreakHighlight.customColor))
+                }
             }
 
         return copy(
@@ -263,6 +269,11 @@ class HighlightsRepository(
                 val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
                 if (isAnnouncement && announcementsHighlight != null) {
                     add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
+                }
+
+                val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)
+                if (isViewerMilestone && watchStreakHighlight != null) {
+                    add(Highlight(HighlightType.WatchStreak, watchStreakHighlight.customColor))
                 }
 
                 val rewardsHighlight = messageHighlights.ofType(MessageHighlightEntityType.ChannelPointRedemption)
@@ -405,6 +416,7 @@ class HighlightsRepository(
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Username, pattern = ""),
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Subscription, pattern = "", createNotification = false),
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Announcement, pattern = "", createNotification = false),
+                MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.WatchStreak, pattern = "", createNotification = false),
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ChannelPointRedemption, pattern = "", createNotification = false),
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.FirstMessage, pattern = "", createNotification = false),
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.ElevatedMessage, pattern = "", createNotification = false),

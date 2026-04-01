@@ -442,6 +442,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="highlights_entry_username">Twoja nazwa użytkownika</string>
     <string name="highlights_ignores_entry_subscriptions">Subskrypcje i Wydarzenia</string>
     <string name="highlights_ignores_entry_announcements">Ogłoszenia</string>
+    <string name="highlights_ignores_entry_watch_streaks">Serie oglądania</string>
     <string name="highlights_ignores_entry_first_messages">Pierwsza Wiadomość</string>
     <string name="highlights_ignores_entry_elevated_messages">Podwyższone Czaty</string>
     <string name="highlights_ignores_entry_redemptions">Wyróżnienie odebrane za Punkty Kanału</string>

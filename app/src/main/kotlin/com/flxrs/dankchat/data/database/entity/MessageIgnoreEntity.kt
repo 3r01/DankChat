@@ -54,6 +54,7 @@ data class MessageIgnoreEntity(
 enum class MessageIgnoreEntityType {
     Subscription,
     Announcement,
+    WatchStreak,
     ChannelPointRedemption,
     FirstMessage,
     ElevatedMessage,

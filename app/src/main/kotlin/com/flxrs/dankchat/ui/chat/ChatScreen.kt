@@ -219,9 +219,9 @@ fun ChatScreen(
                     },
                 ) { index, message ->
                     // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
-                    val highlightedBelow = reversedMessages.getOrNull(index - 1)?.isHighlighted == true
-                    val highlightedAbove = reversedMessages.getOrNull(index + 1)?.isHighlighted == true
-                    val highlightShape = message.highlightShape(highlightedAbove, highlightedBelow, showLineSeparator)
+                    val below = reversedMessages.getOrNull(index - 1)
+                    val above = reversedMessages.getOrNull(index + 1)
+                    val highlightShape = message.highlightShape(above, below, showLineSeparator)
                     ChatMessageItem(
                         message = message,
                         highlightShape = highlightShape,
@@ -639,14 +639,16 @@ private fun getFabMenuItem(
 private val HIGHLIGHT_CORNER_RADIUS = 8.dp
 
 private fun ChatMessageUiState.highlightShape(
-    highlightedAbove: Boolean,
-    highlightedBelow: Boolean,
+    above: ChatMessageUiState?,
+    below: ChatMessageUiState?,
     showLineSeparator: Boolean,
 ): Shape {
     if (!isHighlighted) return RectangleShape
     if (showLineSeparator) return RectangleShape
-    val top = if (highlightedAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
-    val bottom = if (highlightedBelow) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    val sameAbove = above != null && above.lightBackgroundColor == lightBackgroundColor && above.darkBackgroundColor == darkBackgroundColor
+    val sameBelow = below != null && below.lightBackgroundColor == lightBackgroundColor && below.darkBackgroundColor == darkBackgroundColor
+    val top = if (sameAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    val bottom = if (sameBelow) 0.dp else HIGHLIGHT_CORNER_RADIUS
     return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
 }
 

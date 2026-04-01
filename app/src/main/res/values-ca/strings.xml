@@ -443,6 +443,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="highlights_entry_username">El vostre nom d\'usuari</string>
     <string name="highlights_ignores_entry_subscriptions">Subscripcions i esdeveniments</string>
     <string name="highlights_ignores_entry_announcements">Anuncis</string>
+    <string name="highlights_ignores_entry_watch_streaks">Ratxes de visualització</string>
     <string name="highlights_ignores_entry_first_messages">Primers missatges</string>
     <string name="highlights_ignores_entry_elevated_messages">Missatges destacats</string>
     <string name="highlights_ignores_entry_redemptions">Missatges destacats amb punts de canal</string>

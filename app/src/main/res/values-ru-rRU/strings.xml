@@ -441,6 +441,7 @@
     <string name="highlights_entry_username">Ваше имя пользователя</string>
     <string name="highlights_ignores_entry_subscriptions">Подписки и События</string>
     <string name="highlights_ignores_entry_announcements">Анонсы</string>
+    <string name="highlights_ignores_entry_watch_streaks">Серии просмотров</string>
     <string name="highlights_ignores_entry_first_messages">Первые сообщения</string>
     <string name="highlights_ignores_entry_elevated_messages">Возвышенные сообщения</string>
     <string name="highlights_ignores_entry_redemptions">Выделения купленные за баллы канала</string>

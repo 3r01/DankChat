@@ -431,6 +431,7 @@
     <string name="highlights_entry_username">O teu nome de utilizador</string>
     <string name="highlights_ignores_entry_subscriptions">Subscrições e Eventos</string>
     <string name="highlights_ignores_entry_announcements">Anúncios</string>
+    <string name="highlights_ignores_entry_watch_streaks">Sequências de visualização</string>
     <string name="highlights_ignores_entry_first_messages">Primeira mensagem</string>
     <string name="highlights_ignores_entry_elevated_messages">Mensagens elevadas</string>
     <string name="highlights_ignores_entry_redemptions">Destaques resgatados com pontos de canal</string>

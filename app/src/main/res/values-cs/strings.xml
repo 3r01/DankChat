@@ -443,6 +443,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="highlights_entry_username">Tvá přezdívka</string>
     <string name="highlights_ignores_entry_subscriptions">Předplatné a Události</string>
     <string name="highlights_ignores_entry_announcements">Oznámení v chatu</string>
+    <string name="highlights_ignores_entry_watch_streaks">Série sledování</string>
     <string name="highlights_ignores_entry_first_messages">První zprávy</string>
     <string name="highlights_ignores_entry_elevated_messages">Zvýrazněné zprávy</string>
     <string name="highlights_ignores_entry_redemptions">Zvýraznění zakoupené přes věrnostní body</string>

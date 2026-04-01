@@ -24,6 +24,7 @@ data class MessageIgnoreItem(
     enum class Type {
         Subscription,
         Announcement,
+        WatchStreak,
         ChannelPointRedemption,
         FirstMessage,
         ElevatedMessage,
@@ -74,6 +75,7 @@ fun MessageIgnoreItem.toEntity() = MessageIgnoreEntity(
 fun MessageIgnoreItem.Type.toEntityType(): MessageIgnoreEntityType = when (this) {
     MessageIgnoreItem.Type.Subscription -> MessageIgnoreEntityType.Subscription
     MessageIgnoreItem.Type.Announcement -> MessageIgnoreEntityType.Announcement
+    MessageIgnoreItem.Type.WatchStreak -> MessageIgnoreEntityType.WatchStreak
     MessageIgnoreItem.Type.ChannelPointRedemption -> MessageIgnoreEntityType.ChannelPointRedemption
     MessageIgnoreItem.Type.FirstMessage -> MessageIgnoreEntityType.FirstMessage
     MessageIgnoreItem.Type.ElevatedMessage -> MessageIgnoreEntityType.ElevatedMessage
@@ -83,6 +85,7 @@ fun MessageIgnoreItem.Type.toEntityType(): MessageIgnoreEntityType = when (this)
 fun MessageIgnoreEntityType.toItemType(): MessageIgnoreItem.Type = when (this) {
     MessageIgnoreEntityType.Subscription -> MessageIgnoreItem.Type.Subscription
     MessageIgnoreEntityType.Announcement -> MessageIgnoreItem.Type.Announcement
+    MessageIgnoreEntityType.WatchStreak -> MessageIgnoreItem.Type.WatchStreak
     MessageIgnoreEntityType.ChannelPointRedemption -> MessageIgnoreItem.Type.ChannelPointRedemption
     MessageIgnoreEntityType.FirstMessage -> MessageIgnoreItem.Type.FirstMessage
     MessageIgnoreEntityType.ElevatedMessage -> MessageIgnoreItem.Type.ElevatedMessage

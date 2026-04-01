@@ -382,9 +382,10 @@ private fun MessageIgnoreItem(
         when (item.type) {
             MessageIgnoreItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
             MessageIgnoreItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
-            MessageIgnoreItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_first_messages
-            MessageIgnoreItem.Type.FirstMessage -> R.string.highlights_ignores_entry_elevated_messages
-            MessageIgnoreItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_redemptions
+            MessageIgnoreItem.Type.WatchStreak -> R.string.highlights_ignores_entry_watch_streaks
+            MessageIgnoreItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
+            MessageIgnoreItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
+            MessageIgnoreItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
             MessageIgnoreItem.Type.Custom -> R.string.highlights_ignores_entry_custom
         }
     val isCustom = item.type == MessageIgnoreItem.Type.Custom

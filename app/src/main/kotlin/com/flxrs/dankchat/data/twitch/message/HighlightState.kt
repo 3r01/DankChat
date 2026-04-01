@@ -23,6 +23,7 @@ enum class HighlightType(
 ) {
     Subscription(HighlightPriority.HIGH),
     Announcement(HighlightPriority.HIGH),
+    WatchStreak(HighlightPriority.HIGH),
     ChannelPointRedemption(HighlightPriority.HIGH),
     FirstMessage(HighlightPriority.MEDIUM),
     ElevatedMessage(HighlightPriority.MEDIUM),

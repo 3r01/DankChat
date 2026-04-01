@@ -443,6 +443,7 @@
     <string name="highlights_entry_username">Ваше ім’я користувача</string>
     <string name="highlights_ignores_entry_subscriptions">Підписки та події</string>
     <string name="highlights_ignores_entry_announcements">Оголошення</string>
+    <string name="highlights_ignores_entry_watch_streaks">Серії переглядів</string>
     <string name="highlights_ignores_entry_first_messages">Перші повідомлення</string>
     <string name="highlights_ignores_entry_elevated_messages">Піднесені повідомлення</string>
     <string name="highlights_ignores_entry_redemptions">Виділення куплені балами каналу</string>

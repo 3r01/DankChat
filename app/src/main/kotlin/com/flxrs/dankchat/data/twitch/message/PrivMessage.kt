@@ -95,10 +95,13 @@ data class PrivMessage(
 }
 
 val PrivMessage.isSub: Boolean
-    get() = tags["msg-id"] in UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement"
+    get() = tags["msg-id"] in UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement" - "viewermilestone"
 
 val PrivMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
+
+val PrivMessage.isViewerMilestone: Boolean
+    get() = tags["msg-id"] == "viewermilestone"
 
 val PrivMessage.isReward: Boolean
     get() = tags["msg-id"] == "highlighted-message" || !tags["custom-reward-id"].isNullOrEmpty()

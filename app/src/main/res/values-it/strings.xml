@@ -430,6 +430,7 @@
     <string name="highlights_entry_username">Il tuo nome utente</string>
     <string name="highlights_ignores_entry_subscriptions">Iscrizioni ed Eventi</string>
     <string name="highlights_ignores_entry_announcements">Annunci</string>
+    <string name="highlights_ignores_entry_watch_streaks">Serie di visualizzazione</string>
     <string name="highlights_ignores_entry_first_messages">Primi Messaggi</string>
     <string name="highlights_ignores_entry_elevated_messages">Messaggi Elevati</string>
     <string name="highlights_ignores_entry_redemptions">Evidenziazioni riscattate con Punti Canale</string>

@@ -571,6 +571,7 @@
     <string name="highlights_entry_username">ଆପଣଙ୍କର ଉପଯୋଗକର୍ତ୍ତା ନାମ</string>
     <string name="highlights_ignores_entry_subscriptions">ସଦସ୍ୟତା ଏବଂ ଘଟଣା |</string>
     <string name="highlights_ignores_entry_announcements">ଘୋଷଣା</string>
+    <string name="highlights_ignores_entry_watch_streaks">ଦେଖିବା ଧାରା</string>
     <string name="highlights_ignores_entry_first_messages">ପ୍ରଥମ ବାର୍ତ୍ତା |</string>
     <string name="highlights_ignores_entry_elevated_messages">ଉଚ୍ଚତର ବାର୍ତ୍ତା |</string>
     <string name="highlights_ignores_entry_redemptions">ଚ୍ୟାନେଲ ପଏଣ୍ଟ ସହିତ ମୁକ୍ତ ହୋଇଥିବା ହାଇଲାଇଟ୍ |</string>

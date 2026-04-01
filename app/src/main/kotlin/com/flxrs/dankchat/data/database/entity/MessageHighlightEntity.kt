@@ -50,6 +50,7 @@ enum class MessageHighlightEntityType {
     Username,
     Subscription,
     Announcement,
+    WatchStreak,
     ChannelPointRedemption,
     FirstMessage,
     ElevatedMessage,

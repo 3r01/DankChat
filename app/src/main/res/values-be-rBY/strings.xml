@@ -436,6 +436,7 @@
     <string name="highlights_entry_username">Ваша імя карыстальніка</string>
     <string name="highlights_ignores_entry_subscriptions">Падпіскі і падзеі</string>
     <string name="highlights_ignores_entry_announcements">Аб\'явы</string>
+    <string name="highlights_ignores_entry_watch_streaks">Серыі праглядаў</string>
     <string name="highlights_ignores_entry_first_messages">Першыя паведамленні</string>
     <string name="highlights_ignores_entry_elevated_messages">Павышаныя паведамленні</string>
     <string name="highlights_ignores_entry_redemptions">Выдзяленні, абмененыя за балы канала</string>

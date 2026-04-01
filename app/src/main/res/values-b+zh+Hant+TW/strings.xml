@@ -573,6 +573,7 @@
     <string name="highlights_entry_username">您的使用者名稱</string>
     <string name="highlights_ignores_entry_subscriptions">訂閱與活動</string>
     <string name="highlights_ignores_entry_announcements">公告</string>
+    <string name="highlights_ignores_entry_watch_streaks">連續觀看</string>
     <string name="highlights_ignores_entry_first_messages">第一則訊息</string>
     <string name="highlights_ignores_entry_elevated_messages">固定訊息顯示</string>
     <string name="highlights_ignores_entry_redemptions">使用頻道點數兌換的醒目訊息</string>

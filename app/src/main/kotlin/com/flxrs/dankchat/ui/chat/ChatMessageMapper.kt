@@ -314,14 +314,15 @@ class ChatMessageMapper(
         isAlternateBackground: Boolean,
         textAlpha: Float,
     ): ChatMessageUiState.UserNoticeMessageUi {
-        val shouldHighlight =
-            highlights.any {
+        val highlightType =
+            highlights.firstOrNull {
                 it.type == HighlightType.Subscription ||
-                    it.type == HighlightType.Announcement
+                    it.type == HighlightType.Announcement ||
+                    it.type == HighlightType.WatchStreak
             }
         val backgroundColors =
             when {
-                shouldHighlight -> getHighlightColors(HighlightType.Subscription)
+                highlightType != null -> highlights.toBackgroundColors()
                 else -> calculateCheckeredBackgroundColors(isAlternateBackground, false)
             }
         val timestamp =
@@ -345,11 +346,11 @@ class ChatMessageMapper(
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
-            isHighlighted = shouldHighlight,
+            isHighlighted = highlightType != null,
             message = message,
             displayName = displayName,
             rawNameColor = rawNameColor,
-            shouldHighlight = shouldHighlight,
+            shouldHighlight = highlightType != null,
         )
     }
 
@@ -744,6 +745,13 @@ class ChatMessageMapper(
             )
         }
 
+        HighlightType.WatchStreak -> {
+            BackgroundColors(
+                light = COLOR_WATCH_STREAK_HIGHLIGHT_LIGHT,
+                dark = COLOR_WATCH_STREAK_HIGHLIGHT_DARK,
+            )
+        }
+
         HighlightType.ChannelPointRedemption -> {
             BackgroundColors(
                 light = COLOR_REDEMPTION_HIGHLIGHT_LIGHT,
@@ -799,6 +807,7 @@ class ChatMessageMapper(
         private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF458B93)
         private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFF558B2F)
         private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFB08D2A)
+        private val COLOR_WATCH_STREAK_HIGHLIGHT_LIGHT = Color(0xFF2979B7)
 
         // Highlight colors - Dark theme
         private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF6A45A0)
@@ -806,12 +815,14 @@ class ChatMessageMapper(
         private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF00606B)
         private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF3A6600)
         private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF6B5800)
+        private val COLOR_WATCH_STREAK_HIGHLIGHT_DARK = Color(0xFF1A5C8A)
 
         fun defaultHighlightColorInt(
             type: HighlightType,
             isDark: Boolean,
         ): Int = when (type) {
             HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xFF6A45A0 else 0xFF7E57C2
+            HighlightType.WatchStreak -> if (isDark) 0xFF1A5C8A else 0xFF2979B7
             HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xFF8C3A3B else 0xFFCF5050
             HighlightType.ChannelPointRedemption -> if (isDark) 0xFF00606B else 0xFF458B93
             HighlightType.FirstMessage -> if (isDark) 0xFF3A6600 else 0xFF558B2F
@@ -831,6 +842,8 @@ class ChatMessageMapper(
                 0xFF3A6600.toInt(), // first message dark
                 0xFFB08D2A.toInt(), // elevated light
                 0xFF6B5800.toInt(), // elevated dark
+                0xFF2979B7.toInt(), // watch streak light
+                0xFF1A5C8A.toInt(), // watch streak dark
                 // Legacy defaults
                 0xFFD1C4E9.toInt(),
                 0xFF543589.toInt(), // sub (v1)

@@ -420,6 +420,7 @@
     <string name="highlights_entry_username">あなたのユーザー名</string>
     <string name="highlights_ignores_entry_subscriptions">サブスクリプションとイベント</string>
     <string name="highlights_ignores_entry_announcements">お知らせ</string>
+    <string name="highlights_ignores_entry_watch_streaks">視聴ストリーク</string>
     <string name="highlights_ignores_entry_first_messages">最初のメッセージ</string>
     <string name="highlights_ignores_entry_elevated_messages">メッセージのピン留め表示</string>
     <string name="highlights_ignores_entry_redemptions">チャンネルポイントで交換されたメッセージのハイライト</string>

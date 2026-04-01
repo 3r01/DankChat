@@ -20,6 +20,7 @@ import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
 import com.flxrs.dankchat.data.twitch.message.isFirstMessage
 import com.flxrs.dankchat.data.twitch.message.isReward
 import com.flxrs.dankchat.data.twitch.message.isSub
+import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +53,11 @@ class IgnoresRepository(
 
     private val _twitchBlocks = MutableStateFlow(emptySet<TwitchBlock>())
 
-    val messageIgnores = messageIgnoreDao.getMessageIgnoresFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    val messageIgnores =
+        messageIgnoreDao
+            .getMessageIgnoresFlow()
+            .map { it.addDefaultsIfNecessary() }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val userIgnores = userIgnoreDao.getUserIgnoresFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val twitchBlocks = _twitchBlocks.asStateFlow()
 
@@ -222,6 +227,10 @@ class IgnoresRepository(
             return null
         }
 
+        if (isViewerMilestone && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.WatchStreak)) {
+            return null
+        }
+
         return copy(
             childMessage = childMessage?.applyIgnores(),
         )
@@ -368,11 +377,20 @@ class IgnoresRepository(
         private val TAG = IgnoresRepository::class.java.simpleName
         private val DEFAULT_IGNORES =
             listOf(
-                MessageIgnoreEntity(id = 1, enabled = false, type = MessageIgnoreEntityType.Subscription, pattern = ""),
-                MessageIgnoreEntity(id = 2, enabled = false, type = MessageIgnoreEntityType.Announcement, pattern = ""),
-                MessageIgnoreEntity(id = 3, enabled = false, type = MessageIgnoreEntityType.ChannelPointRedemption, pattern = ""),
-                MessageIgnoreEntity(id = 4, enabled = false, type = MessageIgnoreEntityType.FirstMessage, pattern = ""),
-                MessageIgnoreEntity(id = 5, enabled = false, type = MessageIgnoreEntityType.ElevatedMessage, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.Subscription, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.Announcement, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.WatchStreak, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.ChannelPointRedemption, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.FirstMessage, pattern = ""),
+                MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.ElevatedMessage, pattern = ""),
             )
+
+        private fun List<MessageIgnoreEntity>.addDefaultsIfNecessary(): List<MessageIgnoreEntity> = (this + DEFAULT_IGNORES)
+            .distinctBy {
+                when (it.type) {
+                    MessageIgnoreEntityType.Custom -> it.id
+                    else -> it.type
+                }
+            }.sortedBy { it.type.ordinal }
     }
 }

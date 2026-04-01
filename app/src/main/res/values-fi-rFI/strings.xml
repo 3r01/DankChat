@@ -435,6 +435,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="highlights_entry_username">Käyttäjänimesi</string>
     <string name="highlights_ignores_entry_subscriptions">Tilaukset ja tapahtumat</string>
     <string name="highlights_ignores_entry_announcements">Ilmoitukset</string>
+    <string name="highlights_ignores_entry_watch_streaks">Katseluputket</string>
     <string name="highlights_ignores_entry_first_messages">Ensimmäiset viestit</string>
     <string name="highlights_ignores_entry_elevated_messages">Korostetut viestit</string>
     <string name="highlights_ignores_entry_redemptions">Kanavapisteiden korostukset</string>

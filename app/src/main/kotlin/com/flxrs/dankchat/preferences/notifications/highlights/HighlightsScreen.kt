@@ -383,6 +383,7 @@ private fun MessageHighlightItem(
             MessageHighlightItem.Type.Username -> R.string.highlights_entry_username
             MessageHighlightItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
             MessageHighlightItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
+            MessageHighlightItem.Type.WatchStreak -> R.string.highlights_ignores_entry_watch_streaks
             MessageHighlightItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
             MessageHighlightItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
             MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
@@ -474,6 +475,7 @@ private fun MessageHighlightItem(
         val defaultColor =
             when (item.type) {
                 MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Subscription, isDark)
+                MessageHighlightItem.Type.WatchStreak -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.WatchStreak, isDark)
                 MessageHighlightItem.Type.ChannelPointRedemption -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ChannelPointRedemption, isDark)
                 MessageHighlightItem.Type.ElevatedMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ElevatedMessage, isDark)
                 MessageHighlightItem.Type.FirstMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.FirstMessage, isDark)

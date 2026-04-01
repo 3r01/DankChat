@@ -571,6 +571,7 @@
     <string name="highlights_entry_username">Сіздің пайдаланушы атыңыз</string>
     <string name="highlights_ignores_entry_subscriptions">Жазылымдар мен оқиғалар</string>
     <string name="highlights_ignores_entry_announcements">Хабарландырулар</string>
+    <string name="highlights_ignores_entry_watch_streaks">Көру сериялары</string>
     <string name="highlights_ignores_entry_first_messages">Алғашқы хабарлар</string>
     <string name="highlights_ignores_entry_elevated_messages">Көтерілген хабарлар</string>
     <string name="highlights_ignores_entry_redemptions">Арна ұпайларымен сатып алынған ерекшелеулер</string>
