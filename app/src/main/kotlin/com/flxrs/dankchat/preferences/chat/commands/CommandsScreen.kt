@@ -64,6 +64,7 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
     val commands = viewModel.commands.collectAsStateWithLifecycle().value
     CustomCommandsScreen(
         initialCommands = commands,
+        reservedTriggers = viewModel.reservedTriggers,
         onSaveAndNavBack = {
             viewModel.save(it)
             onNavBack()
@@ -75,6 +76,7 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
 @Composable
 private fun CustomCommandsScreen(
     initialCommands: ImmutableList<CustomCommand>,
+    reservedTriggers: Set<String>,
     onSaveAndNavBack: (List<CustomCommand>) -> Unit,
     onSave: (List<CustomCommand>) -> Unit,
 ) {
@@ -146,9 +148,16 @@ private fun CustomCommandsScreen(
                     .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
             itemsIndexed(commands, key = { _, cmd -> cmd.id }) { idx, command ->
+                val triggerError = when {
+                    command.trigger.isBlank() -> null
+                    command.trigger in reservedTriggers -> TriggerError.Reserved
+                    commands.indexOfFirst { it.trigger == command.trigger } != idx -> TriggerError.Duplicate
+                    else -> null
+                }
                 CustomCommandItem(
                     trigger = command.trigger,
                     command = command.command,
+                    triggerError = triggerError,
                     onTriggerChange = { commands[idx] = command.copy(trigger = it) },
                     onCommandChange = { commands[idx] = command.copy(command = it) },
                     onRemove = {
@@ -185,10 +194,16 @@ private fun CustomCommandsScreen(
     }
 }
 
+private enum class TriggerError {
+    Reserved,
+    Duplicate,
+}
+
 @Composable
 private fun CustomCommandItem(
     trigger: String,
     command: String,
+    triggerError: TriggerError?,
     onTriggerChange: (String) -> Unit,
     onCommandChange: (String) -> Unit,
     onRemove: () -> Unit,
@@ -208,6 +223,12 @@ private fun CustomCommandItem(
                         value = trigger,
                         onValueChange = onTriggerChange,
                         label = { Text(stringResource(R.string.command_trigger_hint)) },
+                        isError = triggerError != null,
+                        supportingText = when (triggerError) {
+                            TriggerError.Reserved -> ({ Text(stringResource(R.string.command_trigger_reserved)) })
+                            TriggerError.Duplicate -> ({ Text(stringResource(R.string.command_trigger_duplicate)) })
+                            null -> null
+                        },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         maxLines = 1,
                     )

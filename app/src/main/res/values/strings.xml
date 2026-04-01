@@ -370,6 +370,8 @@
     <string name="add_command">Add a command</string>
     <string name="remove_command">Remove the command</string>
     <string name="command_trigger_hint">Trigger</string>
+    <string name="command_trigger_reserved">This trigger is reserved by a built-in command</string>
+    <string name="command_trigger_duplicate">This trigger is already used by another command</string>
     <string name="command__hint">Command</string>
     <string name="commands_title">Custom commands</string>
     <string name="user_popup_report">Report</string>

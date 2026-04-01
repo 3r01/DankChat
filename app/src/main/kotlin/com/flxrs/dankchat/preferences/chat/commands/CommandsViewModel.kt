@@ -2,6 +2,7 @@ package com.flxrs.dankchat.preferences.chat.commands
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import kotlinx.collections.immutable.toImmutableList
@@ -16,6 +17,7 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class CommandsViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val commandRepository: CommandRepository,
 ) : ViewModel() {
     val commands =
         chatSettingsDataStore.settings
@@ -26,8 +28,14 @@ class CommandsViewModel(
                 initialValue = chatSettingsDataStore.current().customCommands.toImmutableList(),
             )
 
+    val reservedTriggers: Set<String> get() = commandRepository.getReservedTriggers()
+
     fun save(commands: List<CustomCommand>) = viewModelScope.launch {
-        val filtered = commands.filter { it.trigger.isNotBlank() && it.command.isNotBlank() }
+        val reserved = commandRepository.getReservedTriggers()
+        val filtered = commands
+            .filter { it.trigger.isNotBlank() && it.command.isNotBlank() }
+            .filter { it.trigger !in reserved }
+            .distinctBy { it.trigger }
         chatSettingsDataStore.update { it.copy(customCommands = filtered) }
     }
 }

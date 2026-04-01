@@ -78,6 +78,13 @@ class CommandRepository(
         }
     }
 
+    fun getReservedTriggers(): Set<String> {
+        val builtIn = defaultCommandTriggers
+        val twitch = TwitchCommandRepository.ALL_COMMAND_TRIGGERS
+        val supibot = supibotCommands.values.flatMap { it.value }
+        return (builtIn + twitch + supibot).toSet()
+    }
+
     fun getCommandTriggers(channel: UserName): Flow<List<String>> = when (channel) {
         WhisperMessage.WHISPER_CHANNEL -> flowOf(TwitchCommandRepository.asCommandTriggers(TwitchCommand.Whisper.trigger))
         else -> commandTriggers
