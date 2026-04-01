@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
+import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -20,14 +21,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class MentionViewModel(
-    chatNotificationRepository: ChatNotificationRepository,
+    private val chatNotificationRepository: ChatNotificationRepository,
     private val chatMessageMapper: ChatMessageMapper,
     private val preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
@@ -48,8 +52,17 @@ class MentionViewModel(
     private val _currentTab = MutableStateFlow(0)
     val currentTab: StateFlow<Int> = _currentTab
 
+    val whisperMentionCount: StateFlow<Int> =
+        chatNotificationRepository.channelMentionCount
+            .map { it[WhisperMessage.WHISPER_CHANNEL] ?: 0 }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     fun setCurrentTab(index: Int) {
         _currentTab.value = index
+    }
+
+    fun clearWhisperMentionCount() {
+        chatNotificationRepository.clearMentionCount(WhisperMessage.WHISPER_CHANNEL)
     }
 
     val mentions: StateFlow<ImmutableList<ChatItem>> =
@@ -60,6 +73,13 @@ class MentionViewModel(
         chatNotificationRepository.whispers
             .map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
+
+    init {
+        combine(whispers, currentTab) { _, tab -> tab }
+            .filter { it == 1 }
+            .onEach { clearWhisperMentionCount() }
+            .launchIn(viewModelScope)
+    }
 
     val mentionsUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(

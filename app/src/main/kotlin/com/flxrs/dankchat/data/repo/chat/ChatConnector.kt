@@ -98,8 +98,6 @@ class ChatConnector(
         writeConnection.sendMessage(message)
     }
 
-    val connectedAndHasWhisperTopic: Boolean get() = pubSubManager.connectedAndHasWhisperTopic
-
     fun connectedAndHasModerateTopic(channel: UserName): Boolean = eventSubManager.connectedAndHasModerateTopic(channel)
 
     val connectedAndHasUserMessageTopic: Boolean get() = eventSubManager.connectedAndHasUserMessageTopic

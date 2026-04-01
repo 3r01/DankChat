@@ -130,7 +130,6 @@ class ChatEventProcessor(
         chatConnector.pubSubEvents.collect { pubSubMessage ->
             when (pubSubMessage) {
                 is PubSubMessage.PointRedemption -> handlePubSubReward(pubSubMessage)
-                is PubSubMessage.Whisper -> handlePubSubWhisper(pubSubMessage)
                 is PubSubMessage.ModeratorAction -> handlePubSubModeration(pubSubMessage)
             }
         }
@@ -182,29 +181,6 @@ class ChatEventProcessor(
 
             chatMessageRepository.addMessages(pubSubMessage.channelName, listOf(ChatItem(message)))
         }
-    }
-
-    private suspend fun handlePubSubWhisper(pubSubMessage: PubSubMessage.Whisper) {
-        if (messageProcessor.isUserBlocked(pubSubMessage.data.userId)) {
-            return
-        }
-
-        val message =
-            runCatching {
-                messageProcessor.processWhisper(WhisperMessage.fromPubSub(pubSubMessage.data)) as? WhisperMessage
-            }.getOrNull() ?: return
-
-        val item = ChatItem(message, isMentionTab = true)
-        chatNotificationRepository.addWhisper(item)
-
-        if (pubSubMessage.data.userId == userStateRepository.userState.value.userId) {
-            return
-        }
-
-        val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
-        usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
-        chatNotificationRepository.incrementMentionCount(WhisperMessage.WHISPER_CHANNEL, 1)
-        chatNotificationRepository.emitMessages(listOf(item))
     }
 
     private fun handlePubSubModeration(pubSubMessage: PubSubMessage.ModeratorAction) {
@@ -399,10 +375,6 @@ class ChatEventProcessor(
     }
 
     private suspend fun handleWhisper(ircMessage: IrcMessage) {
-        if (chatConnector.connectedAndHasWhisperTopic) {
-            return
-        }
-
         val userId = ircMessage.tags["user-id"]?.toUserId()
         if (messageProcessor.isUserBlocked(userId)) {
             return
@@ -419,10 +391,15 @@ class ChatEventProcessor(
 
         val userForSuggestion = message.name.valueOrDisplayName(message.displayName).toDisplayName()
         usersRepository.updateGlobalUser(message.name.lowercase(), userForSuggestion)
+        val color = message.color
+        if (color != null) {
+            usersRepository.cacheUserColor(message.name, color)
+        }
 
         val item = ChatItem(message, isMentionTab = true)
         chatNotificationRepository.addWhisper(item)
         chatNotificationRepository.incrementMentionCount(WhisperMessage.WHISPER_CHANNEL, 1)
+        chatNotificationRepository.emitMessages(listOf(item))
     }
 
     private suspend fun handleMessage(ircMessage: IrcMessage) {

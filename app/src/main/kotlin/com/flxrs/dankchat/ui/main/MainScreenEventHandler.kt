@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.auth.StartupValidation
@@ -27,6 +28,7 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.main.channel.ChannelTabViewModel
 import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
+import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -38,6 +40,7 @@ fun MainScreenEventHandler(
     dialogViewModel: DialogStateViewModel,
     chatInputViewModel: ChatInputViewModel,
     channelTabViewModel: ChannelTabViewModel,
+    sheetNavigationViewModel: SheetNavigationViewModel,
     mainScreenViewModel: MainScreenViewModel,
     preferenceStore: DankChatPreferenceStore,
 ) {
@@ -83,9 +86,13 @@ fun MainScreenEventHandler(
                 }
 
                 is MainEvent.OpenChannel -> {
-                    channelTabViewModel.selectTab(
-                        preferenceStore.channels.indexOf(event.channel),
-                    )
+                    if (event.channel == UserName.EMPTY) {
+                        sheetNavigationViewModel.openWhispers()
+                    } else {
+                        channelTabViewModel.selectTab(
+                            preferenceStore.channels.indexOf(event.channel),
+                        )
+                    }
                     (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
 

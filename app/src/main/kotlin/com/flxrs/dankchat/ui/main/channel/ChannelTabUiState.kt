@@ -11,6 +11,7 @@ data class ChannelTabUiState(
     val tabs: ImmutableList<ChannelTabItem> = persistentListOf(),
     val selectedIndex: Int = 0,
     val loading: Boolean = true,
+    val whisperMentionCount: Int = 0,
 )
 
 @Immutable

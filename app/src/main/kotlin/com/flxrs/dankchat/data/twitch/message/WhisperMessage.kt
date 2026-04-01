@@ -10,7 +10,6 @@ import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
-import com.flxrs.dankchat.data.twitch.pubsub.dto.whisper.WhisperData
 import java.util.UUID
 
 data class WhisperMessage(
@@ -67,41 +66,6 @@ data class WhisperMessage(
                 rawEmotes = emoteTag,
                 rawBadges = tags["badges"],
                 rawBadgeInfo = tags["badge-info"],
-            )
-        }
-
-        fun fromPubSub(data: WhisperData): WhisperMessage = with(data) {
-            val color =
-                data.tags.color
-                    .ifBlank { null }
-                    ?.let(Color::parseColor)
-            val recipientColor =
-                data.recipient.color
-                    .ifBlank { null }
-                    ?.let(Color::parseColor)
-            val badgeTag = data.tags.badges.joinToString(",") { "${it.id}/${it.version}" }
-            val emotesTag =
-                data.tags.emotes
-                    .groupBy { it.id }
-                    .entries
-                    .joinToString("/") { entry ->
-                        "${entry.key}:" + entry.value.joinToString(",") { "${it.start}-${it.end}" }
-                    }
-
-            return WhisperMessage(
-                timestamp = data.timestamp * 1_000L, // PubSub uses seconds instead of millis, nice
-                id = data.messageId,
-                userId = data.userId,
-                name = data.tags.name,
-                displayName = data.tags.displayName,
-                color = color,
-                recipientId = data.recipient.id,
-                recipientName = data.recipient.name,
-                recipientDisplayName = data.recipient.displayName,
-                recipientColor = recipientColor,
-                message = message,
-                rawEmotes = emotesTag,
-                rawBadges = badgeTag,
             )
         }
     }

@@ -231,6 +231,7 @@ fun MainScreen(
         dialogViewModel = dialogViewModel,
         chatInputViewModel = chatInputViewModel,
         channelTabViewModel = channelTabViewModel,
+        sheetNavigationViewModel = sheetNavigationViewModel,
         mainScreenViewModel = mainScreenViewModel,
         preferenceStore = preferenceStore,
     )
@@ -576,7 +577,7 @@ fun MainScreen(
                     currentStream = currentStream,
                     isAudioOnly = isAudioOnly,
                     streamHeightDp = streamState.heightDp,
-                    totalMentionCount = tabState.tabs.sumOf { it.mentionCount },
+                    totalMentionCount = tabState.tabs.sumOf { it.mentionCount } + tabState.whisperMentionCount,
                     onAction = handleToolbarAction,
                     onAudioOnly = { streamViewModel.toggleAudioOnly() },
                     onStreamClose = { streamViewModel.closeStream() },

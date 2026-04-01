@@ -85,10 +85,6 @@ class ChatRepository(
     }
 
     fun fakeWhisperIfNecessary(input: String) {
-        if (chatConnector.connectedAndHasWhisperTopic) {
-            return
-        }
-
         val split = input.split(" ")
         if (split.size > 2 && (split[0] == "/w" || split[0] == ".w") && split[1].isNotBlank()) {
             val message = input.substring(4 + split[1].length)
@@ -103,7 +99,7 @@ class ChatRepository(
                     displayName = displayName,
                     color = userState.color?.let(Color::parseColor),
                     recipientId = null,
-                    recipientColor = null,
+                    recipientColor = usersRepository.getCachedUserColor(split[1].toUserName()),
                     recipientName = split[1].toUserName(),
                     recipientDisplayName = split[1].toDisplayName(),
                     message = message,

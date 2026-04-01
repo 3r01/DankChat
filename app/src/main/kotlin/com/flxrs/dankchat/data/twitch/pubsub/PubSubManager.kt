@@ -52,9 +52,6 @@ class PubSubManager(
     val connected: Boolean
         get() = connections.any { it.connected }
 
-    val connectedAndHasWhisperTopic: Boolean
-        get() = connections.any { it.connected && it.hasWhisperTopic }
-
     init {
         scope.launch {
             startupValidationHolder.awaitResolved()
@@ -108,9 +105,6 @@ class PubSubManager(
             if (shouldUsePubSub) {
                 add(PubSubTopic.ModeratorActions(userId = uid, channelId = channel.id, channelName = channel.name))
             }
-        }
-        if (shouldUsePubSub) {
-            add(PubSubTopic.Whispers(uid))
         }
     }
 

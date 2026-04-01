@@ -6,12 +6,10 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.ifBlank
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.twitch.pubsub.dto.PubSubDataMessage
-import com.flxrs.dankchat.data.twitch.pubsub.dto.PubSubDataObjectMessage
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionType
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModeratorAddedData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.redemption.PointRedemption
-import com.flxrs.dankchat.data.twitch.pubsub.dto.whisper.WhisperData
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
 import com.flxrs.dankchat.utils.extensions.timer
 import io.ktor.client.HttpClient
@@ -73,9 +71,6 @@ class PubSubConnection(
 
     val hasTopics: Boolean
         get() = topics.isNotEmpty()
-    val hasWhisperTopic: Boolean
-        get() = topics.any { it.topic.startsWith("whispers.") }
-
     val events =
         receiveChannel.receiveAsFlow().distinctUntilChanged { old, new ->
             (old.isDisconnected && new.isDisconnected) || old == new
@@ -285,15 +280,6 @@ class PubSubConnection(
                 val match = topics.find { topic == it.topic } ?: return false
                 val pubSubMessage =
                     when (match) {
-                        is PubSubTopic.Whispers -> {
-                            if (messageTopic !in listOf("whisper_sent", "whisper_received")) {
-                                return false
-                            }
-
-                            val parsedMessage = jsonFormat.decodeOrNull<PubSubDataObjectMessage<WhisperData>>(message) ?: return false
-                            PubSubMessage.Whisper(parsedMessage.data)
-                        }
-
                         is PubSubTopic.PointRedemptions -> {
                             if (messageTopic !in POINT_REDEMPTION_TOPICS) {
                                 return false

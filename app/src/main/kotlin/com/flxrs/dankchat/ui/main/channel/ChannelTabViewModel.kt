@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.state.GlobalLoadingState
+import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import kotlinx.collections.immutable.toImmutableList
@@ -67,6 +68,7 @@ class ChannelTabViewModel(
                         loading =
                             globalState == GlobalLoadingState.Loading ||
                                 tabs.any { it.loadingState == ChannelLoadingState.Loading },
+                        whisperMentionCount = mentions[WhisperMessage.WHISPER_CHANNEL] ?: 0,
                     )
                 }
             }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChannelTabUiState())
