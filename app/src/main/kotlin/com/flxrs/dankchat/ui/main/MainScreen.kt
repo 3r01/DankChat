@@ -297,6 +297,15 @@ fun MainScreen(
 
     FullscreenSystemBarsEffect(isFullscreen)
 
+    val isInputSheet = fullScreenSheetState is FullScreenSheetState.Replies ||
+        fullScreenSheetState is FullScreenSheetState.Mention ||
+        fullScreenSheetState is FullScreenSheetState.Whisper
+    LaunchedEffect(isInputSheet) {
+        if (isInputSheet && !showInput) {
+            mainScreenViewModel.toggleInput()
+        }
+    }
+
     val pagerState by channelPagerViewModel.uiState.collectAsStateWithLifecycle()
 
     val composePagerState =
@@ -914,7 +923,7 @@ private fun BoxScope.WideSplitLayout(
                             .align(Alignment.BottomCenter)
                             .padding(bottom = scaffoldBottomPadding)
                             .swipeDownToHide(
-                                enabled = showInput,
+                                enabled = showInput && !isSheetOpen,
                                 thresholdPx = swipeDownThresholdPx,
                                 onHide = onHideInput,
                             ),
@@ -1101,7 +1110,7 @@ private fun BoxScope.NormalStackedLayout(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = scaffoldBottomPadding)
                     .swipeDownToHide(
-                        enabled = showInput,
+                        enabled = showInput && !isSheetOpen,
                         thresholdPx = swipeDownThresholdPx,
                         onHide = onHideInput,
                     ),
