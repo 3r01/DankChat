@@ -80,6 +80,10 @@
 
     <string name="highlight_header_first_time_chat">První zpráva</string>
     <string name="highlight_header_elevated_chat">Zvýrazněná zpráva</string>
+    <string name="highlight_header_gigantified_emote">Obří emote</string>
+    <string name="highlight_header_gigantified_emote_cost">Obří emote · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Animovaná zpráva</string>
+    <string name="highlight_header_animated_message_cost">Animovaná zpráva · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d sekundu</item>
         <item quantity="few">%1$d sekundy</item>

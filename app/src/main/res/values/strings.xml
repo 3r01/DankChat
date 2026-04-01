@@ -86,6 +86,10 @@
 
     <string name="highlight_header_first_time_chat">First Time Chat</string>
     <string name="highlight_header_elevated_chat">Elevated Chat</string>
+    <string name="highlight_header_gigantified_emote">Gigantified Emote</string>
+    <string name="highlight_header_gigantified_emote_cost">Gigantified Emote · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Animated Message</string>
+    <string name="highlight_header_animated_message_cost">Animated Message · %1$d Bits</string>
 
     <plurals name="duration_seconds">
         <item quantity="one">%1$d second</item>

@@ -32,11 +32,12 @@ data class PointRedemptionMessage(
                 id = data.id,
                 name = data.user.name,
                 displayName = data.user.displayName,
-                title = data.reward.title,
+                title = data.reward.effectiveTitle,
                 rewardImageUrl =
                     data.reward.images?.imageLarge
-                        ?: data.reward.defaultImages.imageLarge,
-                cost = data.reward.cost,
+                        ?: data.reward.defaultImages?.imageLarge
+                        ?: "",
+                cost = data.reward.effectiveCost,
                 requiresUserInput = data.reward.requiresUserInput,
             )
         }

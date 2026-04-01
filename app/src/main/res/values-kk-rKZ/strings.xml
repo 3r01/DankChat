@@ -84,6 +84,10 @@
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">Алғашқы рет чат</string>
     <string name="highlight_header_elevated_chat">Көтерілген чат</string>
+    <string name="highlight_header_gigantified_emote">Алып эмоут</string>
+    <string name="highlight_header_gigantified_emote_cost">Алып эмоут · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Анимациялық хабарлама</string>
+    <string name="highlight_header_animated_message_cost">Анимациялық хабарлама · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d секунд</item>
         <item quantity="other">%1$d секунд</item>

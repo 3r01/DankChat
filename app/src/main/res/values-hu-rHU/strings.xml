@@ -80,6 +80,10 @@
 
     <string name="highlight_header_first_time_chat">Első üzenet</string>
     <string name="highlight_header_elevated_chat">Kiemelt üzenet</string>
+    <string name="highlight_header_gigantified_emote">Óriás emote</string>
+    <string name="highlight_header_gigantified_emote_cost">Óriás emote · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Animált üzenet</string>
+    <string name="highlight_header_animated_message_cost">Animált üzenet · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d másodperc</item>
         <item quantity="other">%1$d másodperc</item>

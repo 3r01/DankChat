@@ -195,7 +195,10 @@ fun ChatScreen(
             LazyColumn(
                 state = listState,
                 reverseLayout = true,
-                contentPadding = contentPadding,
+                contentPadding = PaddingValues(
+                    top = contentPadding.calculateTopPadding() + MESSAGE_GAP,
+                    bottom = contentPadding.calculateBottomPadding() + MESSAGE_GAP,
+                ),
                 modifier =
                     Modifier
                         .fillMaxSize()
@@ -636,6 +639,7 @@ private fun getFabMenuItem(
     }
 }
 
+private val MESSAGE_GAP = 4.dp
 private val HIGHLIGHT_CORNER_RADIUS = 8.dp
 
 private fun ChatMessageUiState.highlightShape(

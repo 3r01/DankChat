@@ -32,6 +32,7 @@ data class PrivMessage(
     val userDisplay: UserDisplay? = null,
     val thread: MessageThreadHeader? = null,
     val replyMentionOffset: Int = 0,
+    val rewardCost: Int? = null,
     override val emoteData: EmoteData =
         EmoteData(
             message = originalMessage,
@@ -104,13 +105,49 @@ val PrivMessage.isViewerMilestone: Boolean
     get() = tags["msg-id"] == "viewermilestone"
 
 val PrivMessage.isReward: Boolean
-    get() = tags["msg-id"] == "highlighted-message" || !tags["custom-reward-id"].isNullOrEmpty()
+    get() = tags["msg-id"] in REWARD_MSG_IDS || !tags["custom-reward-id"].isNullOrEmpty()
+
+val PrivMessage.isGigantifiedEmote: Boolean
+    get() = tags["msg-id"] == "gigantified-emote-message"
+
+val PrivMessage.isAnimatedMessage: Boolean
+    get() = tags["msg-id"] == "animated-message"
+
+private val REWARD_MSG_IDS = setOf(
+    "highlighted-message",
+    "gigantified-emote-message",
+    "animated-message",
+)
 
 val PrivMessage.isFirstMessage: Boolean
     get() = tags["first-msg"] == "1"
 
 val PrivMessage.isElevatedMessage: Boolean
     get() = tags["pinned-chat-paid-amount"] != null
+
+val PrivMessage.hypeChatInfo: String?
+    get() {
+        val amount = tags["pinned-chat-paid-amount"]?.toLongOrNull() ?: return null
+        val exponent = tags["pinned-chat-paid-exponent"]?.toIntOrNull() ?: 0
+        val currency = tags["pinned-chat-paid-currency"] ?: return null
+        val level = tags["pinned-chat-paid-level"]?.let { HYPE_CHAT_LEVELS[it] } ?: return null
+        val divisor = Math.pow(10.0, exponent.toDouble())
+        val formatted = "%.2f".format(amount / divisor)
+        return "Hype Chat Level $level — $formatted $currency"
+    }
+
+private val HYPE_CHAT_LEVELS = mapOf(
+    "ONE" to 1,
+    "TWO" to 2,
+    "THREE" to 3,
+    "FOUR" to 4,
+    "FIVE" to 5,
+    "SIX" to 6,
+    "SEVEN" to 7,
+    "EIGHT" to 8,
+    "NINE" to 9,
+    "TEN" to 10,
+)
 
 /** format name for display in chat */
 val PrivMessage.aliasOrFormattedName: String

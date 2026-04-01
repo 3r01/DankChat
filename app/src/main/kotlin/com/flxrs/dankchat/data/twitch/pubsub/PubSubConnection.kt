@@ -295,7 +295,7 @@ class PubSubConnection(
                         }
 
                         is PubSubTopic.PointRedemptions -> {
-                            if (messageTopic != "reward-redeemed") {
+                            if (messageTopic !in POINT_REDEMPTION_TOPICS) {
                                 return false
                             }
 
@@ -408,5 +408,6 @@ class PubSubConnection(
         private const val PING_PAYLOAD = "{\"type\":\"PING\"}"
         private const val PUBSUB_URL = "wss://pubsub-edge.twitch.tv"
         private val TAG = PubSubConnection::class.java.simpleName
+        private val POINT_REDEMPTION_TOPICS = setOf("reward-redeemed", "automatic-reward-redeemed")
     }
 }

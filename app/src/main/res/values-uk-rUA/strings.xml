@@ -80,6 +80,10 @@
 
     <string name="highlight_header_first_time_chat">Перше повідомлення</string>
     <string name="highlight_header_elevated_chat">Піднесене повідомлення</string>
+    <string name="highlight_header_gigantified_emote">Гігантський емоут</string>
+    <string name="highlight_header_gigantified_emote_cost">Гігантський емоут · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Анімоване повідомлення</string>
+    <string name="highlight_header_animated_message_cost">Анімоване повідомлення · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d секунду</item>
         <item quantity="few">%1$d секунди</item>

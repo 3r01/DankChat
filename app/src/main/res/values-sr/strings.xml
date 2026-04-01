@@ -84,6 +84,10 @@
 
     <string name="highlight_header_first_time_chat">Прва порука</string>
     <string name="highlight_header_elevated_chat">Истакнута порука</string>
+    <string name="highlight_header_gigantified_emote">Гигантски емоут</string>
+    <string name="highlight_header_gigantified_emote_cost">Гигантски емоут · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Анимирана порука</string>
+    <string name="highlight_header_animated_message_cost">Анимирана порука · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d секунду</item>
         <item quantity="few">%1$d секунде</item>

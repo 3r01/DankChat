@@ -80,6 +80,10 @@
 
     <string name="highlight_header_first_time_chat">Premier message</string>
     <string name="highlight_header_elevated_chat">Message mis en avant</string>
+    <string name="highlight_header_gigantified_emote">Emote géant</string>
+    <string name="highlight_header_gigantified_emote_cost">Emote géant · %1$d Bits</string>
+    <string name="highlight_header_animated_message">Message animé</string>
+    <string name="highlight_header_animated_message_cost">Message animé · %1$d Bits</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d seconde</item>
         <item quantity="many">%1$d secondes</item>

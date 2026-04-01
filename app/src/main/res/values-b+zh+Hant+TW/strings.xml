@@ -85,6 +85,10 @@
 
     <string name="highlight_header_first_time_chat">首次聊天</string>
     <string name="highlight_header_elevated_chat">固定聊天訊息</string>
+    <string name="highlight_header_gigantified_emote">巨大表情</string>
+    <string name="highlight_header_gigantified_emote_cost">巨大表情 · %1$d Bits</string>
+    <string name="highlight_header_animated_message">動畫訊息</string>
+    <string name="highlight_header_animated_message_cost">動畫訊息 · %1$d Bits</string>
 
     <plurals name="duration_seconds">
         <item quantity="other">%1$d 秒</item>

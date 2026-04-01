@@ -154,8 +154,11 @@ class ChatEventProcessor(
             return
         }
 
-        if (pubSubMessage.data.reward.requiresUserInput) {
-            val id = pubSubMessage.data.reward.id
+        // Automatic rewards (gigantified emotes, animated messages) are stored
+        // for cost lookup but don't create separate PointRedemptionMessages.
+        val isAutomaticReward = pubSubMessage.data.reward.rewardType != null
+        if (pubSubMessage.data.reward.requiresUserInput || isAutomaticReward) {
+            val id = pubSubMessage.data.reward.effectiveId
             rewardMutex.withLock {
                 when {
                     knownRewards.containsKey(id) -> {
@@ -450,7 +453,7 @@ class ChatEventProcessor(
             }.getOrElse {
                 Log.e(TAG, "Failed to parse message", it)
                 return
-            } ?: return
+            }?.let { resolveAutomaticRewardCost(it) } ?: return
 
         if (message is NoticeMessage && usersRepository.isGlobalChannel(message.channel)) {
             chatMessageRepository.broadcastToAllChannels(ChatItem(message, importance = ChatImportance.SYSTEM))
@@ -532,6 +535,23 @@ class ChatEventProcessor(
                 val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(it.timestamp, it.data))
                 listOfNotNull(processed?.let(::ChatItem))
             }.orEmpty()
+    }
+
+    private suspend fun resolveAutomaticRewardCost(message: Message): Message {
+        if (message !is PrivMessage) return message
+        val msgId = message.tags["msg-id"] ?: return message
+        if (msgId != "gigantified-emote-message" && msgId != "animated-message") return message
+
+        val reward = rewardMutex.withLock {
+            knownRewards.remove(msgId)
+        } ?: withTimeoutOrNull(PUBSUB_TIMEOUT) {
+            chatConnector.pubSubEvents
+                .filterIsInstance<PubSubMessage.PointRedemption>()
+                .first { it.data.reward.effectiveId == msgId }
+        }
+
+        val cost = reward?.data?.reward?.effectiveCost ?: return message
+        return message.copy(rewardCost = cost)
     }
 
     private fun trackUserState(message: Message) {

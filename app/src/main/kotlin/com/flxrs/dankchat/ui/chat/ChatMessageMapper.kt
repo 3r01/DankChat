@@ -24,6 +24,10 @@ import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.aliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.highestPriorityHighlight
+import com.flxrs.dankchat.data.twitch.message.hypeChatInfo
+import com.flxrs.dankchat.data.twitch.message.isAnimatedMessage
+import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
+import com.flxrs.dankchat.data.twitch.message.isGigantifiedEmote
 import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -533,11 +537,28 @@ class ChatMessageMapper(
             }
 
         val highlightHeader =
-            highlights.highestPriorityHighlight()?.let {
-                when (it.type) {
-                    HighlightType.FirstMessage -> TextResource.Res(R.string.highlight_header_first_time_chat)
-                    HighlightType.ElevatedMessage -> TextResource.Res(R.string.highlight_header_elevated_chat)
-                    else -> null
+            when {
+                isGigantifiedEmote -> {
+                    rewardCost?.let { TextResource.Res(R.string.highlight_header_gigantified_emote_cost, persistentListOf(it)) }
+                        ?: TextResource.Res(R.string.highlight_header_gigantified_emote)
+                }
+
+                isAnimatedMessage -> {
+                    rewardCost?.let { TextResource.Res(R.string.highlight_header_animated_message_cost, persistentListOf(it)) }
+                        ?: TextResource.Res(R.string.highlight_header_animated_message)
+                }
+
+                isElevatedMessage -> {
+                    hypeChatInfo?.let { TextResource.Plain(it) }
+                        ?: TextResource.Res(R.string.highlight_header_elevated_chat)
+                }
+
+                highlights.highestPriorityHighlight()?.type == HighlightType.FirstMessage -> {
+                    TextResource.Res(R.string.highlight_header_first_time_chat)
+                }
+
+                else -> {
+                    null
                 }
             }
 
