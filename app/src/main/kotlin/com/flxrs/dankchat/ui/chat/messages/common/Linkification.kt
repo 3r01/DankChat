@@ -3,9 +3,7 @@ package com.flxrs.dankchat.ui.chat.messages.common
 import android.util.Patterns
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 
@@ -18,10 +16,6 @@ fun AnnotatedString.Builder.appendWithLinks(
 ) {
     val matcher = Patterns.WEB_URL.matcher(text)
     var lastIndex = 0
-    val linkStyles =
-        TextLinkStyles(
-            style = SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
-        )
 
     while (matcher.find()) {
         val start = matcher.start()
@@ -53,8 +47,7 @@ fun AnnotatedString.Builder.appendWithLinks(
             append(text.substring(lastIndex, start))
         }
 
-        val link = LinkAnnotation.Url(url = url, styles = linkStyles)
-        pushLink(link)
+        pushStringAnnotation(tag = URL_ANNOTATION_TAG, annotation = url)
         withStyle(SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline)) {
             append(rawUrl)
         }
@@ -67,3 +60,5 @@ fun AnnotatedString.Builder.appendWithLinks(
         append(text.substring(lastIndex))
     }
 }
+
+const val URL_ANNOTATION_TAG = "URL"

@@ -209,31 +209,25 @@ private fun WhisperMessageText(
         animateGifs = animateGifs,
         onEmoteClick = onEmoteClick,
         onTextClick = { offset ->
-            annotatedString
-                .getStringAnnotations("USER", offset, offset)
-                .firstOrNull()
-                ?.let { annotation ->
-                    parseUserAnnotation(annotation.item)?.let { user ->
-                        onUserClick(user.userId, user.userName, user.displayName, message.badges, false)
-                    }
-                }
-
-            annotatedString
-                .getStringAnnotations("URL", offset, offset)
-                .firstOrNull()
-                ?.let { annotation ->
-                    launchCustomTab(context, annotation.item)
-                }
-        },
-        onTextLongClick = { offset ->
-            val user =
-                annotatedString
-                    .getStringAnnotations("USER", offset, offset)
-                    .firstOrNull()
-                    ?.let { parseUserAnnotation(it.item) }
+            val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+            val url = annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()
 
             when {
-                user != null -> onUserClick(user.userId, user.userName, user.displayName, message.badges, true)
+                user != null -> parseUserAnnotation(user.item)?.let {
+                    onUserClick(it.userId, it.userName, it.displayName, message.badges, false)
+                }
+
+                url != null -> launchCustomTab(context, url.item)
+            }
+        },
+        onTextLongClick = { offset ->
+            val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+
+            when {
+                user != null -> parseUserAnnotation(user.item)?.let {
+                    onUserClick(it.userId, it.userName, it.displayName, message.badges, true)
+                }
+
                 else -> onMessageLongClick(message.id, message.fullMessage)
             }
         },

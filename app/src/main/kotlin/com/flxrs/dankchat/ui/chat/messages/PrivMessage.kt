@@ -279,31 +279,25 @@ private fun PrivMessageText(
         interactionSource = interactionSource,
         onEmoteClick = onEmoteClick,
         onTextClick = { offset ->
-            annotatedString
-                .getStringAnnotations("USER", offset, offset)
-                .firstOrNull()
-                ?.let { annotation ->
-                    parseUserAnnotation(annotation.item)?.let { user ->
-                        onUserClick(user.userId, user.userName, user.displayName, user.channel.orEmpty(), message.badges, false)
-                    }
-                }
-
-            annotatedString
-                .getStringAnnotations("URL", offset, offset)
-                .firstOrNull()
-                ?.let { annotation ->
-                    launchCustomTab(context, annotation.item)
-                }
-        },
-        onTextLongClick = { offset ->
-            val user =
-                annotatedString
-                    .getStringAnnotations("USER", offset, offset)
-                    .firstOrNull()
-                    ?.let { parseUserAnnotation(it.item) }
+            val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+            val url = annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()
 
             when {
-                user != null -> onUserClick(user.userId, user.userName, user.displayName, user.channel.orEmpty(), message.badges, true)
+                user != null -> parseUserAnnotation(user.item)?.let {
+                    onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), message.badges, false)
+                }
+
+                url != null -> launchCustomTab(context, url.item)
+            }
+        },
+        onTextLongClick = { offset ->
+            val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+
+            when {
+                user != null -> parseUserAnnotation(user.item)?.let {
+                    onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), message.badges, true)
+                }
+
                 else -> onMessageLongClick(message.id, message.channel.value, message.fullMessage)
             }
         },
