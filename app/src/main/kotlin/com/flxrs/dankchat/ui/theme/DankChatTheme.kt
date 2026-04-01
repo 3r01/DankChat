@@ -107,9 +107,9 @@ fun DankChatTheme(content: @Composable () -> Unit) {
             onSurfaceDark = darkColorScheme.onSurface,
         )
     val colors = if (darkTheme) darkColorScheme else lightColorScheme
-
+    val motionScheme = remember { MotionScheme.expressive() }
     MaterialExpressiveTheme(
-        motionScheme = MotionScheme.expressive(),
+        motionScheme = motionScheme,
         colorScheme = colors,
     ) {
         CompositionLocalProvider(LocalAdaptiveColors provides adaptiveColors) {

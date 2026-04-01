@@ -168,8 +168,8 @@ class MainActivity : ComponentActivity() {
 
     private fun setupComposeUi() {
         setContent {
+            val navController = rememberNavController()
             DankChatTheme {
-                val navController = rememberNavController()
                 val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(
                     initialValue = dankChatPreferenceStore.isLoggedIn,
                 )
@@ -456,7 +456,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         if (!isChangingConfigurations && !isInSupportedPictureInPictureMode) {
             handleShutDown()
         }
@@ -465,7 +464,6 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("InlinedApi")
     override fun onStart() {
         super.onStart()
-
         val hasCompletedOnboarding = onboardingDataStore.current().hasCompletedOnboarding
         val needsNotificationPermission = hasCompletedOnboarding && isAtLeastTiramisu && !hasPermission(Manifest.permission.POST_NOTIFICATIONS)
         when {
