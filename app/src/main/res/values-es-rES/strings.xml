@@ -204,6 +204,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="add_command">Añadir un comando</string>
     <string name="remove_command">Eliminar el comando</string>
     <string name="command_trigger_hint">Trigger</string>
+    <string name="command_trigger_reserved">Este trigger está reservado por un comando integrado</string>
+    <string name="command_trigger_duplicate">Este trigger ya está siendo usado por otro comando</string>
     <string name="command__hint">Comando</string>
     <string name="commands_title">Comandos personalizados</string>
     <string name="user_popup_report">Reportar</string>

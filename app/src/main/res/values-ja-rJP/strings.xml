@@ -188,6 +188,8 @@
     <string name="add_command">コマンドの追加</string>
     <string name="remove_command">コマンドを削除</string>
     <string name="command_trigger_hint">トリガー</string>
+    <string name="command_trigger_reserved">このトリガーは組み込みコマンドによって予約されています</string>
+    <string name="command_trigger_duplicate">このトリガーは既に別のコマンドで使用されています</string>
     <string name="command__hint">コマンド</string>
     <string name="commands_title">カスタムコマンド</string>
     <string name="user_popup_report">通報</string>

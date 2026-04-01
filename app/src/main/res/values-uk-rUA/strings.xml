@@ -210,6 +210,8 @@
     <string name="add_command">Додати команду</string>
     <string name="remove_command">Видалити команду</string>
     <string name="command_trigger_hint">Тригер</string>
+    <string name="command_trigger_reserved">Цей тригер зарезервований вбудованою командою</string>
+    <string name="command_trigger_duplicate">Цей тригер вже використовується іншою командою</string>
     <string name="command__hint">Команда</string>
     <string name="commands_title">Користувацькі команди</string>
     <string name="user_popup_report">Поскаржитися</string>

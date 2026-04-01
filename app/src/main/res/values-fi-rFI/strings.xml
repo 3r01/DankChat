@@ -201,6 +201,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="add_command">Lisää komento</string>
     <string name="remove_command">Poista komento</string>
     <string name="command_trigger_hint">Laukaisin</string>
+    <string name="command_trigger_reserved">Tämä laukaisin on varattu sisäänrakennetulle komennolle</string>
+    <string name="command_trigger_duplicate">Tämä laukaisin on jo toisen komennon käytössä</string>
     <string name="command__hint">Komento</string>
     <string name="commands_title">Mukautetut komennot</string>
     <string name="user_popup_report">Ilmoita</string>

@@ -199,6 +199,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="add_command">Komut ekle</string>
     <string name="remove_command">Komutu sil</string>
     <string name="command_trigger_hint">Tetik</string>
+    <string name="command_trigger_reserved">Bu tetik yerleşik bir komut tarafından ayrılmış</string>
+    <string name="command_trigger_duplicate">Bu tetik zaten başka bir komut tarafından kullanılıyor</string>
     <string name="command__hint">Komut</string>
     <string name="commands_title">Özel komutlar</string>
     <string name="user_popup_report">Bildir</string>

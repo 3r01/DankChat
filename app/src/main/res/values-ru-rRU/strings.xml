@@ -209,6 +209,8 @@
     <string name="add_command">Добавить команду</string>
     <string name="remove_command">Удалить команду</string>
     <string name="command_trigger_hint">Триггер</string>
+    <string name="command_trigger_reserved">Этот триггер зарезервирован встроенной командой</string>
+    <string name="command_trigger_duplicate">Этот триггер уже используется другой командой</string>
     <string name="command__hint">Команда</string>
     <string name="commands_title">Пользовательские команды</string>
     <string name="user_popup_report">Пожаловаться</string>

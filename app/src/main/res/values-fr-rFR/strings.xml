@@ -204,6 +204,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="add_command">Ajouter une commande</string>
     <string name="remove_command">Supprimer la commande</string>
     <string name="command_trigger_hint">Déclencheur</string>
+    <string name="command_trigger_reserved">Ce déclencheur est réservé par une commande intégrée</string>
+    <string name="command_trigger_duplicate">Ce déclencheur est déjà utilisé par une autre commande</string>
     <string name="command__hint">Commande</string>
     <string name="commands_title">Commandes personnalisées</string>
     <string name="user_popup_report">Signaler</string>

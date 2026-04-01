@@ -208,6 +208,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="add_command">Dodaj polecenie</string>
     <string name="remove_command">Usuń to polecenie</string>
     <string name="command_trigger_hint">Uruchom</string>
+    <string name="command_trigger_reserved">Ten wyzwalacz jest zarezerwowany przez wbudowane polecenie</string>
+    <string name="command_trigger_duplicate">Ten wyzwalacz jest już używany przez inne polecenie</string>
     <string name="command__hint">Polecenie</string>
     <string name="commands_title">Niestandardowe polecenia</string>
     <string name="user_popup_report">Zgłoś</string>

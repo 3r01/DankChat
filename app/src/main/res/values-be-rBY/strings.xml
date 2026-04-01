@@ -204,6 +204,8 @@
     <string name="add_command">Дадаць каманду</string>
     <string name="remove_command">Выдаліць каманду</string>
     <string name="command_trigger_hint">Трыгер</string>
+    <string name="command_trigger_reserved">Гэты трыгер зарэзерваваны ўбудаванай камандай</string>
+    <string name="command_trigger_duplicate">Гэты трыгер ужо выкарыстоўваецца іншай камандай</string>
     <string name="command__hint">Каманда</string>
     <string name="commands_title">Уласныя каманды</string>
     <string name="user_popup_report">Паскардзіцца</string>

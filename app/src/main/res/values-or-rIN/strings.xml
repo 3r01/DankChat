@@ -337,6 +337,8 @@
     <string name="add_command">ଏକ କମାଣ୍ଡ ଯୋଡନ୍ତୁ</string>
     <string name="remove_command">କମାଣ୍ଡ ଅପସାରଣ କରନ୍ତୁ</string>
     <string name="command_trigger_hint">ଟ୍ରିଗର୍</string>
+    <string name="command_trigger_reserved">ଏହି ଟ୍ରିଗର୍ ଏକ ଅନ୍ତର୍ନିର୍ମିତ କମାଣ୍ଡ ଦ୍ୱାରା ସଂରକ୍ଷିତ</string>
+    <string name="command_trigger_duplicate">ଏହି ଟ୍ରିଗର୍ ଅନ୍ୟ ଏକ କମାଣ୍ଡ ଦ୍ୱାରା ବ୍ୟବହୃତ ହେଉଛି</string>
     <string name="command__hint">କମାଣ୍ଡ[ସମ୍ପାଦନା]</string>
     <string name="commands_title">କଷ୍ଟମ୍ କମାଣ୍ଡସ୍</string>
     <string name="user_popup_report">ରିପୋର୍ଟ</string>

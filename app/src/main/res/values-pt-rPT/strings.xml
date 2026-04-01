@@ -199,6 +199,8 @@
     <string name="add_command">Adicionar comando</string>
     <string name="remove_command">Remover comando</string>
     <string name="command_trigger_hint">Desencadear</string>
+    <string name="command_trigger_reserved">Este desencadeador está reservado por um comando integrado</string>
+    <string name="command_trigger_duplicate">Este desencadeador já está a ser utilizado por outro comando</string>
     <string name="command__hint">Comando</string>
     <string name="commands_title">Comandos personalizados</string>
     <string name="user_popup_report">Reportar</string>

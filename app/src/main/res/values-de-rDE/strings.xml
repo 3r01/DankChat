@@ -200,6 +200,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="add_command">Befehl hinzufügen</string>
     <string name="remove_command">Befehl entfernen</string>
     <string name="command_trigger_hint">Auslöser</string>
+    <string name="command_trigger_reserved">Dieser Auslöser ist durch einen integrierten Befehl reserviert</string>
+    <string name="command_trigger_duplicate">Dieser Auslöser wird bereits von einem anderen Befehl verwendet</string>
     <string name="command__hint">Befehl</string>
     <string name="commands_title">Benutzerdefinierte Befehle</string>
     <string name="user_popup_report">Melden</string>

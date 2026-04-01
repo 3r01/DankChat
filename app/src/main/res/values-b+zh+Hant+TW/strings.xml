@@ -338,6 +338,8 @@
     <string name="add_command">新增指令</string>
     <string name="remove_command">移除指令</string>
     <string name="command_trigger_hint">觸發</string>
+    <string name="command_trigger_reserved">此觸發器已被內建指令保留</string>
+    <string name="command_trigger_duplicate">此觸發器已被其他指令使用</string>
     <string name="command__hint">指令</string>
     <string name="commands_title">自訂指令</string>
     <string name="user_popup_report">檢舉</string>

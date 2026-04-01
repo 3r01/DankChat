@@ -208,6 +208,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="add_command">Afegir un commandament</string>
     <string name="remove_command">Eliminar el commandament</string>
     <string name="command_trigger_hint">Disparador</string>
+    <string name="command_trigger_reserved">Aquest disparador està reservat per un comandament integrat</string>
+    <string name="command_trigger_duplicate">Aquest disparador ja està en ús per un altre comandament</string>
     <string name="command__hint">Commandaments</string>
     <string name="commands_title">Comandaments personalitzats</string>
     <string name="user_popup_report">Reportar</string>

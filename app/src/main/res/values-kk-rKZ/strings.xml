@@ -337,6 +337,8 @@
     <string name="add_command">Пәрмен қосу</string>
     <string name="remove_command">Пәрменді жою</string>
     <string name="command_trigger_hint">Триггер</string>
+    <string name="command_trigger_reserved">Бұл триггер кірістірілген пәрменмен сақталған</string>
+    <string name="command_trigger_duplicate">Бұл триггер басқа пәрменде қолданылуда</string>
     <string name="command__hint">Пәрмен</string>
     <string name="commands_title">Пайдаланушы командалары</string>
     <string name="user_popup_report">Есеп</string>

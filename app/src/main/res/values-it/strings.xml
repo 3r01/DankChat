@@ -198,6 +198,8 @@
     <string name="add_command">Aggiungi un comando</string>
     <string name="remove_command">Rimuovi il comando</string>
     <string name="command_trigger_hint">Innesco</string>
+    <string name="command_trigger_reserved">Questo innesco è riservato da un comando integrato</string>
+    <string name="command_trigger_duplicate">Questo innesco è già utilizzato da un altro comando</string>
     <string name="command__hint">Comando</string>
     <string name="commands_title">Comandi personalizzati</string>
     <string name="user_popup_report">Segnala</string>

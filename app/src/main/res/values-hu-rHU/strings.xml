@@ -194,6 +194,8 @@
     <string name="add_command">Parancs hozzáadása</string>
     <string name="remove_command">Parancs eltávolítása</string>
     <string name="command_trigger_hint">Feltétel</string>
+    <string name="command_trigger_reserved">Ez a feltétel egy beépített parancs által van lefoglalva</string>
+    <string name="command_trigger_duplicate">Ezt a feltételt már egy másik parancs használja</string>
     <string name="command__hint">Parancs</string>
     <string name="commands_title">Egyéni parancsok</string>
     <string name="user_popup_report">Jelentés</string>

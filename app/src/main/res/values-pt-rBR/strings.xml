@@ -199,6 +199,8 @@
     <string name="add_command">Adicionar um comando</string>
     <string name="remove_command">Remover o comando</string>
     <string name="command_trigger_hint">Ativador</string>
+    <string name="command_trigger_reserved">Este ativador é reservado por um comando integrado</string>
+    <string name="command_trigger_duplicate">Este ativador já está sendo usado por outro comando</string>
     <string name="command__hint">Comando</string>
     <string name="commands_title">Comandos personalizados</string>
     <string name="user_popup_report">Denunciar</string>
