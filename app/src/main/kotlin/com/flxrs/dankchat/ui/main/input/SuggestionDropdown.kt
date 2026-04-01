@@ -94,7 +94,7 @@ fun SuggestionDropdown(
         ) {
             LazyColumn(
                 state = listState,
-                contentPadding = PaddingValues(vertical = 4.dp),
+                contentPadding = PaddingValues(vertical = 5.dp),
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -134,7 +134,7 @@ private fun SuggestionItem(
             modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(horizontal = 16.dp, vertical = 4.dp),
+                .padding(horizontal = 16.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         when (suggestion) {
