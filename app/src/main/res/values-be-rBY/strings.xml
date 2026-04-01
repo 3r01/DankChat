@@ -277,6 +277,8 @@
     <string name="accent_color_brown">Карычневы</string>
     <string name="accent_color_grey">Шэры</string>
     <string name="preference_palette_style_title">Стыль колераў</string>
+    <string name="palette_style_system_default">Сістэмны па змаўчанні</string>
+    <string name="palette_style_system_default_desc">Выкарыстоўваць стандартную колеравую палітру сістэмы</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Спакойныя і прыглушаныя колеры</string>
     <string name="palette_style_neutral">Neutral</string>

@@ -258,6 +258,8 @@
     <string name="accent_color_brown">茶</string>
     <string name="accent_color_grey">グレー</string>
     <string name="preference_palette_style_title">カラースタイル</string>
+    <string name="palette_style_system_default">システムデフォルト</string>
+    <string name="palette_style_system_default_desc">システムのデフォルトカラーパレットを使用</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">落ち着いた控えめな色合い</string>
     <string name="palette_style_neutral">Neutral</string>

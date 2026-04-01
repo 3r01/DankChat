@@ -269,6 +269,8 @@
     <string name="accent_color_brown">Marrom</string>
     <string name="accent_color_grey">Cinza</string>
     <string name="preference_palette_style_title">Estilo de cor</string>
+    <string name="palette_style_system_default">Padrão do sistema</string>
+    <string name="palette_style_system_default_desc">Usar a paleta de cores padrão do sistema</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Cores calmas e suaves</string>
     <string name="palette_style_neutral">Neutral</string>

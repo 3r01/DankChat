@@ -264,6 +264,8 @@
     <string name="accent_color_brown">Brown</string>
     <string name="accent_color_grey">Gray</string>
     <string name="preference_palette_style_title">Color style</string>
+    <string name="palette_style_system_default">System default</string>
+    <string name="palette_style_system_default_desc">Use the default system color palette</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Calm and subdued colors</string>
     <string name="palette_style_neutral">Neutral</string>

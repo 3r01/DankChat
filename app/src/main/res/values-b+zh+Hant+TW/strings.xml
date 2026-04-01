@@ -412,6 +412,8 @@
     <string name="accent_color_brown">棕色</string>
     <string name="accent_color_grey">灰色</string>
     <string name="preference_palette_style_title">色彩風格</string>
+    <string name="palette_style_system_default">系統預設</string>
+    <string name="palette_style_system_default_desc">使用系統預設色彩配置</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">沉穩柔和的色調</string>
     <string name="palette_style_neutral">Neutral</string>

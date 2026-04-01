@@ -410,6 +410,8 @@
     <string name="accent_color_brown">Қоңыр</string>
     <string name="accent_color_grey">Сұр</string>
     <string name="preference_palette_style_title">Түс стилі</string>
+    <string name="palette_style_system_default">Жүйе әдепкісі</string>
+    <string name="palette_style_system_default_desc">Жүйенің әдепкі түс палитрасын пайдалану</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Тыныш және бәсең түстер</string>
     <string name="palette_style_neutral">Neutral</string>

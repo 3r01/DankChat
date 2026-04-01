@@ -22,7 +22,7 @@ data class AppearanceSettings(
     val theme: ThemePreference = ThemePreference.System,
     val trueDarkTheme: Boolean = false,
     val accentColor: AccentColor? = null,
-    val paletteStyle: PaletteStylePreference = PaletteStylePreference.TonalSpot,
+    val paletteStyle: PaletteStylePreference = PaletteStylePreference.SystemDefault,
     val fontSize: Int = 14,
     val keepScreenOn: Boolean = true,
     val lineSeparator: Boolean = false,
@@ -51,6 +51,7 @@ enum class PaletteStylePreference(
     @StringRes val descriptionRes: Int,
     val isStandard: Boolean = true,
 ) {
+    SystemDefault(R.string.palette_style_system_default, R.string.palette_style_system_default_desc),
     TonalSpot(R.string.palette_style_tonal_spot, R.string.palette_style_tonal_spot_desc),
     Neutral(R.string.palette_style_neutral, R.string.palette_style_neutral_desc),
     Vibrant(R.string.palette_style_vibrant, R.string.palette_style_vibrant_desc),

@@ -281,6 +281,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="accent_color_brown">Hnědá</string>
     <string name="accent_color_grey">Šedá</string>
     <string name="preference_palette_style_title">Styl barev</string>
+    <string name="palette_style_system_default">Výchozí systémový</string>
+    <string name="palette_style_system_default_desc">Použít výchozí systémovou paletu barev</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Klidné a tlumené barvy</string>
     <string name="palette_style_neutral">Neutral</string>

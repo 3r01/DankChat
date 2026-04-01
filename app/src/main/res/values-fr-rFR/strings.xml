@@ -274,6 +274,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="accent_color_brown">Marron</string>
     <string name="accent_color_grey">Gris</string>
     <string name="preference_palette_style_title">Style de couleur</string>
+    <string name="palette_style_system_default">Système par défaut</string>
+    <string name="palette_style_system_default_desc">Utiliser la palette de couleurs système par défaut</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Couleurs calmes et atténuées</string>
     <string name="palette_style_neutral">Neutral</string>

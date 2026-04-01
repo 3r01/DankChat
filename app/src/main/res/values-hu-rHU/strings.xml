@@ -264,6 +264,8 @@
     <string name="accent_color_brown">Barna</string>
     <string name="accent_color_grey">Szürke</string>
     <string name="preference_palette_style_title">Színstílus</string>
+    <string name="palette_style_system_default">Rendszer alapértelmezett</string>
+    <string name="palette_style_system_default_desc">A rendszer alapértelmezett színpalettájának használata</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Nyugodt és visszafogott színek</string>
     <string name="palette_style_neutral">Neutral</string>

@@ -281,6 +281,8 @@
     <string name="accent_color_brown">Коричневий</string>
     <string name="accent_color_grey">Сірий</string>
     <string name="preference_palette_style_title">Стиль кольору</string>
+    <string name="palette_style_system_default">Системний за замовчуванням</string>
+    <string name="palette_style_system_default_desc">Використовувати стандартну кольорову палітру системи</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Спокійні та приглушені кольори</string>
     <string name="palette_style_neutral">Neutral</string>

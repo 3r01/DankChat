@@ -268,6 +268,8 @@
     <string name="accent_color_brown">Marrone</string>
     <string name="accent_color_grey">Grigio</string>
     <string name="preference_palette_style_title">Stile colore</string>
+    <string name="palette_style_system_default">Predefinito di sistema</string>
+    <string name="palette_style_system_default_desc">Usa la tavolozza colori predefinita del sistema</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Colori calmi e tenui</string>
     <string name="palette_style_neutral">Neutral</string>

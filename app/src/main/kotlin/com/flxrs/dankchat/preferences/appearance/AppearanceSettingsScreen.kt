@@ -268,7 +268,7 @@ private fun ThemeCategory(
         )
         PaletteStyleDialog(
             paletteStyle = paletteStyle,
-            isEnabled = hasCustomAccent,
+            showSystemDefault = !hasCustomAccent,
             onChange = { scope.launch { onInteraction(AppearanceSettingsInteraction.SetPaletteStyle(it)) } },
         )
         SwitchPreferenceItem(
@@ -439,17 +439,20 @@ private fun AccentColorCircle(
 @Composable
 private fun PaletteStyleDialog(
     paletteStyle: PaletteStylePreference,
-    isEnabled: Boolean,
+    showSystemDefault: Boolean,
     onChange: (PaletteStylePreference) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     ExpandablePreferenceItem(
         title = stringResource(R.string.preference_palette_style_title),
         summary = stringResource(paletteStyle.labelRes),
-        isEnabled = isEnabled,
     ) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        val standardStyles = remember { PaletteStylePreference.entries.filter { it.isStandard } }
+        val standardStyles = remember(showSystemDefault) {
+            PaletteStylePreference.entries.filter {
+                it.isStandard && (showSystemDefault || it != PaletteStylePreference.SystemDefault)
+            }
+        }
         val extraStyles = remember { PaletteStylePreference.entries.filter { !it.isStandard } }
         var showExtra by remember { mutableStateOf(!paletteStyle.isStandard) }
 

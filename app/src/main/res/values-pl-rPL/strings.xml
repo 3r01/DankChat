@@ -278,6 +278,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="accent_color_brown">Brązowy</string>
     <string name="accent_color_grey">Szary</string>
     <string name="preference_palette_style_title">Styl kolorów</string>
+    <string name="palette_style_system_default">Domyślny systemowy</string>
+    <string name="palette_style_system_default_desc">Użyj domyślnej palety kolorów systemu</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Spokojne i stonowane kolory</string>
     <string name="palette_style_neutral">Neutral</string>

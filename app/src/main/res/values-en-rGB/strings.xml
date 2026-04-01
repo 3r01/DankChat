@@ -237,6 +237,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="accent_color_brown">Brown</string>
     <string name="accent_color_grey">Grey</string>
     <string name="preference_palette_style_title">Colour style</string>
+    <string name="palette_style_system_default">System default</string>
+    <string name="palette_style_system_default_desc">Use the default system colour palette</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Calm and subdued colours</string>
     <string name="palette_style_neutral">Neutral</string>

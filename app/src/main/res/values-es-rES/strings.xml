@@ -275,6 +275,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="accent_color_brown">Marrón</string>
     <string name="accent_color_grey">Gris</string>
     <string name="preference_palette_style_title">Estilo de color</string>
+    <string name="palette_style_system_default">Predeterminado del sistema</string>
+    <string name="palette_style_system_default_desc">Usar la paleta de colores predeterminada del sistema</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Colores tranquilos y tenues</string>
     <string name="palette_style_neutral">Neutral</string>

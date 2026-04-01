@@ -270,6 +270,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="accent_color_brown">Kahverengi</string>
     <string name="accent_color_grey">Gri</string>
     <string name="preference_palette_style_title">Renk stili</string>
+    <string name="palette_style_system_default">Sistem varsayılanı</string>
+    <string name="palette_style_system_default_desc">Varsayılan sistem renk paletini kullan</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">Sakin ve yumuşak renkler</string>
     <string name="palette_style_neutral">Neutral</string>

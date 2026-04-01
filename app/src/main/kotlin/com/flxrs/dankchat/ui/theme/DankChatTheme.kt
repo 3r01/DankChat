@@ -58,9 +58,13 @@ fun DankChatTheme(content: @Composable () -> Unit) {
     val paletteStyle = settings.paletteStyle.toPaletteStyle()
     val dynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
+    val useSystemColors = accentColor == null && settings.paletteStyle == PaletteStylePreference.SystemDefault
+    val seedColor = accentColor?.seedColor
+        ?: if (dynamicColor) dynamicLightColorScheme(LocalContext.current).primary else null
+
     val lightColorScheme = when {
-        accentColor != null -> rememberDynamicColorScheme(
-            seedColor = accentColor.seedColor,
+        seedColor != null && !useSystemColors -> rememberDynamicColorScheme(
+            seedColor = seedColor,
             isDark = false,
             style = paletteStyle,
         )
@@ -71,18 +75,25 @@ fun DankChatTheme(content: @Composable () -> Unit) {
     }
 
     val darkColorScheme = when {
-        accentColor != null -> rememberDynamicColorScheme(
-            seedColor = accentColor.seedColor,
+        seedColor != null && !useSystemColors -> rememberDynamicColorScheme(
+            seedColor = seedColor,
             isDark = true,
             isAmoled = trueDarkTheme,
             style = paletteStyle,
         )
 
-        dynamicColor && trueDarkTheme -> rememberDynamicColorScheme(
-            seedColor = dynamicDarkColorScheme(LocalContext.current).primary,
-            isDark = true,
-            isAmoled = true,
-            style = paletteStyle,
+        dynamicColor && trueDarkTheme -> dynamicDarkColorScheme(LocalContext.current).copy(
+            surface = Color.Black,
+            surfaceDim = Color.Black,
+            surfaceBright = Color(0xFF222222),
+            surfaceContainerLowest = Color.Black,
+            surfaceContainerLow = Color(0xFF0A0A0A),
+            surfaceContainer = Color(0xFF0E0E0E),
+            surfaceContainerHigh = Color(0xFF141414),
+            surfaceContainerHighest = Color(0xFF1C1C1C),
+            background = Color.Black,
+            onSurface = Color.White,
+            onBackground = Color.White,
         )
 
         dynamicColor -> dynamicDarkColorScheme(LocalContext.current)
@@ -108,6 +119,7 @@ fun DankChatTheme(content: @Composable () -> Unit) {
 }
 
 private fun PaletteStylePreference.toPaletteStyle(): PaletteStyle = when (this) {
+    PaletteStylePreference.SystemDefault -> PaletteStyle.TonalSpot
     PaletteStylePreference.TonalSpot -> PaletteStyle.TonalSpot
     PaletteStylePreference.Neutral -> PaletteStyle.Neutral
     PaletteStylePreference.Vibrant -> PaletteStyle.Vibrant

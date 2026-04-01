@@ -410,6 +410,8 @@
     <string name="accent_color_brown">ବାଦାମୀ</string>
     <string name="accent_color_grey">ଧୂସର</string>
     <string name="preference_palette_style_title">ରଙ୍ଗ ଶୈଳୀ</string>
+    <string name="palette_style_system_default">ସିଷ୍ଟମ ଡିଫଲ୍ଟ</string>
+    <string name="palette_style_system_default_desc">ସିଷ୍ଟମର ଡିଫଲ୍ଟ ରଙ୍ଗ ପ୍ୟାଲେଟ ବ୍ୟବହାର କରନ୍ତୁ</string>
     <string name="palette_style_tonal_spot">Tonal Spot</string>
     <string name="palette_style_tonal_spot_desc">ଶାନ୍ତ ଏବଂ ମୃଦୁ ରଙ୍ଗ</string>
     <string name="palette_style_neutral">Neutral</string>
