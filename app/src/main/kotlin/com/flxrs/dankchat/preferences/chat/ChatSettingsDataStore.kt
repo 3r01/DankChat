@@ -242,6 +242,10 @@ class ChatSettingsDataStore(
         settings
             .map { it.suggestionTypes }
             .distinctUntilChanged()
+    val suggestionMode =
+        settings
+            .map { it.suggestionMode }
+            .distinctUntilChanged()
     val showChatModes =
         settings
             .map { it.showChatModes }

@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -90,6 +91,7 @@ fun SuggestionDropdown(
         ) {
             LazyColumn(
                 state = listState,
+                contentPadding = PaddingValues(vertical = 4.dp),
                 modifier =
                     Modifier
                         .fillMaxWidth()

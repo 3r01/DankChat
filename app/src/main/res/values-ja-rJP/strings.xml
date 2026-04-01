@@ -225,6 +225,10 @@
     <string name="preference_notification_header">通知</string>
     <string name="preference_chat_header">チャット</string>
     <string name="preference_general_header">一般</string>
+    <string name="preference_suggestions_header">サジェスト</string>
+    <string name="preference_messages_header">メッセージ</string>
+    <string name="preference_users_header">ユーザー</string>
+    <string name="preference_emotes_badges_header">エモートとバッジ</string>
     <string name="preference_about_header">このアプリについて</string>
     <string name="preference_appearance_header">外観</string>
     <string name="preference_about_summary">DankChat %1$sは@flex3rsと複数のコントリビューターによって作成されました</string>
@@ -282,8 +286,15 @@
     <string name="preference_suggestions_summary">入力中に表示するサジェストを選択</string>
     <string name="preference_suggestions_emotes">エモート</string>
     <string name="preference_suggestions_users">ユーザー</string>
-    <string name="preference_suggestions_commands">コマンド</string>
+    <string name="preference_suggestions_commands">Twitchコマンド</string>
     <string name="preference_suggestions_supibot">Supibotコマンド</string>
+    <string name="preference_suggestions_emotes_desc">: で呼び出す</string>
+    <string name="preference_suggestions_users_desc">@ で呼び出す</string>
+    <string name="preference_suggestions_commands_desc">/ で呼び出す</string>
+    <string name="preference_suggestions_supibot_desc">$ で呼び出す</string>
+    <string name="preference_suggestion_mode_title">サジェストモード</string>
+    <string name="preference_suggestion_mode_automatic">入力中に候補を表示</string>
+    <string name="preference_suggestion_mode_prefix_only">トリガー文字の後にのみ候補を表示</string>
     <string name="preference_load_message_history_title">開始時にメッセージ履歴を読み込む</string>
     <string name="preference_load_messages_on_reconnect_title">再接続後にメッセージ履歴を読み込む</string>
     <string name="preference_load_messages_on_reconnect_summary">接続が切断中に受信されずに失われたメッセージを取得しようとしています</string>

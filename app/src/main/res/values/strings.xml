@@ -415,6 +415,13 @@
     <string name="preference_notification_header">Notifications</string>
     <string name="preference_chat_header">Chat</string>
     <string name="preference_general_header">General</string>
+    <string name="preference_suggestions_header">Suggestions</string>
+    <string name="preference_messages_header">Messages</string>
+    <string name="preference_users_header">Users</string>
+    <string name="preference_emotes_badges_header">Emotes &amp; Badges</string>
+    <string name="preference_suggestion_mode_title">Suggestion mode</string>
+    <string name="preference_suggestion_mode_automatic">Suggest matches as you type</string>
+    <string name="preference_suggestion_mode_prefix_only">Only suggest after a trigger character</string>
     <string name="preference_about_header">About</string>
     <string name="preference_appearance_header">Appearance</string>
     <string name="preference_about_summary">DankChat %1$s made by @flex3rs and contributors</string>
@@ -482,9 +489,13 @@
     <string name="preference_suggestions_title">Suggestions</string>
     <string name="preference_suggestions_summary">Choose which suggestions to show while typing</string>
     <string name="preference_suggestions_emotes">Emotes</string>
+    <string name="preference_suggestions_emotes_desc">Trigger with :</string>
     <string name="preference_suggestions_users">Users</string>
-    <string name="preference_suggestions_commands">Commands</string>
+    <string name="preference_suggestions_users_desc">Trigger with @</string>
+    <string name="preference_suggestions_commands">Twitch commands</string>
+    <string name="preference_suggestions_commands_desc">Trigger with /</string>
     <string name="preference_suggestions_supibot">Supibot commands</string>
+    <string name="preference_suggestions_supibot_desc">Trigger with $</string>
     <string name="preference_load_message_history_title">Load message history on start</string>
     <string name="preference_load_message_history_key" translatable="false">load_message_history_key</string>
     <string name="preference_load_messages_on_reconnect_title">Load message history after a reconnect</string>

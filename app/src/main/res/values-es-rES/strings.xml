@@ -244,6 +244,10 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_general_header">General</string>
     <string name="preference_about_header">Acerca de</string>
     <string name="preference_appearance_header">Apariencia</string>
+    <string name="preference_suggestions_header">Sugerencias</string>
+    <string name="preference_messages_header">Mensajes</string>
+    <string name="preference_users_header">Usuarios</string>
+    <string name="preference_emotes_badges_header">Emotes &amp; Insignias</string>
     <string name="preference_about_summary">DankChat %1$s creado por @flex3rs y contribuidores</string>
     <string name="preference_show_input_title">Mostrar entrada</string>
     <string name="preference_show_input_summary">Muestra el campo de entrada para enviar mensajes</string>
@@ -299,8 +303,15 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_suggestions_summary">Elige qué sugerencias mostrar al escribir</string>
     <string name="preference_suggestions_emotes">Emotes</string>
     <string name="preference_suggestions_users">Usuarios</string>
-    <string name="preference_suggestions_commands">Comandos</string>
+    <string name="preference_suggestions_commands">Comandos de Twitch</string>
     <string name="preference_suggestions_supibot">Comandos de Supibot</string>
+    <string name="preference_suggestions_emotes_desc">Activar con :</string>
+    <string name="preference_suggestions_users_desc">Activar con @</string>
+    <string name="preference_suggestions_commands_desc">Activar con /</string>
+    <string name="preference_suggestions_supibot_desc">Activar con $</string>
+    <string name="preference_suggestion_mode_title">Modo de sugerencia</string>
+    <string name="preference_suggestion_mode_automatic">Sugerir coincidencias mientras escribes</string>
+    <string name="preference_suggestion_mode_prefix_only">Solo sugerir después de un carácter activador</string>
     <string name="preference_load_message_history_title">Cargar historial de mensajes al inicio</string>
     <string name="preference_load_messages_on_reconnect_title">Cargar el historial de mensajes después de una reconexión</string>
     <string name="preference_load_messages_on_reconnect_summary">Intentos de recuperar los mensajes perdidos que no fueron recibidos durante caídas de conexión</string>

@@ -238,6 +238,10 @@
     <string name="preference_general_header">Geral</string>
     <string name="preference_about_header">Sobre</string>
     <string name="preference_appearance_header">Aparência</string>
+    <string name="preference_suggestions_header">Sugestões</string>
+    <string name="preference_messages_header">Mensagens</string>
+    <string name="preference_users_header">Usuários</string>
+    <string name="preference_emotes_badges_header">Emotes &amp; Insígnias</string>
     <string name="preference_about_summary">DankChat %1$s feito por @flex3rs e colaboradores</string>
     <string name="preference_show_input_title">Mostrar caixa de entrada</string>
     <string name="preference_show_input_summary">Exibe o campo de entrada para enviar mensagens</string>
@@ -293,8 +297,15 @@
     <string name="preference_suggestions_summary">Escolha quais sugestões mostrar ao digitar</string>
     <string name="preference_suggestions_emotes">Emotes</string>
     <string name="preference_suggestions_users">Usuários</string>
-    <string name="preference_suggestions_commands">Comandos</string>
+    <string name="preference_suggestions_commands">Comandos do Twitch</string>
     <string name="preference_suggestions_supibot">Comandos do Supibot</string>
+    <string name="preference_suggestions_emotes_desc">Ativar com :</string>
+    <string name="preference_suggestions_users_desc">Ativar com @</string>
+    <string name="preference_suggestions_commands_desc">Ativar com /</string>
+    <string name="preference_suggestions_supibot_desc">Ativar com $</string>
+    <string name="preference_suggestion_mode_title">Modo de sugestao</string>
+    <string name="preference_suggestion_mode_automatic">Sugerir correspondências enquanto digita</string>
+    <string name="preference_suggestion_mode_prefix_only">Sugerir apenas após um caractere de ativação</string>
     <string name="preference_load_message_history_title">Carregar histórico de mensagens no início</string>
     <string name="preference_load_messages_on_reconnect_title">Carregar histórico de mensagens após reconexão</string>
     <string name="preference_load_messages_on_reconnect_summary">Tenta carregar mensagens perdidas que não foram recebidas durante quedas de conexão</string>

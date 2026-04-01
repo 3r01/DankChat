@@ -23,6 +23,8 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommand
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.SuggestionMode
+import com.flxrs.dankchat.preferences.chat.SuggestionType
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
@@ -112,11 +114,11 @@ class ChatInputViewModel(
             debouncedTextAndCursor,
             chatChannelProvider.activeChannel,
             chatSettingsDataStore.suggestionTypes,
-        ) { (text, cursorPos), channel, enabledTypes ->
-            Triple(text, cursorPos, channel) to enabledTypes
-        }.flatMapLatest { (triple, enabledTypes) ->
-            val (text, cursorPos, channel) = triple
-            suggestionProvider.getSuggestions(text, cursorPos, channel, enabledTypes)
+            chatSettingsDataStore.suggestionMode,
+        ) { (text, cursorPos), channel, enabledTypes, suggestionMode ->
+            SuggestionInput(text, cursorPos, channel, enabledTypes, suggestionMode == SuggestionMode.PrefixOnly)
+        }.flatMapLatest { input ->
+            suggestionProvider.getSuggestions(input.text, input.cursorPos, input.channel, input.enabledTypes, input.prefixOnly)
         }.map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
@@ -568,6 +570,14 @@ internal fun computeSuggestionReplacement(
         newCursorPos = start + replacement.length,
     )
 }
+
+private data class SuggestionInput(
+    val text: String,
+    val cursorPos: Int,
+    val channel: UserName?,
+    val enabledTypes: List<SuggestionType>,
+    val prefixOnly: Boolean,
+)
 
 private data class UiDependencies(
     val text: String,

@@ -243,6 +243,10 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_general_header">Général</string>
     <string name="preference_about_header">À propos</string>
     <string name="preference_appearance_header">Apparence</string>
+    <string name="preference_suggestions_header">Suggestions</string>
+    <string name="preference_messages_header">Messages</string>
+    <string name="preference_users_header">Utilisateurs</string>
+    <string name="preference_emotes_badges_header">Emotes &amp; Badges</string>
     <string name="preference_about_summary">DankChat %1$s créé par @flex3rs et d\'autres contributeurs</string>
     <string name="preference_show_input_title">Afficher la boite d\'entrée</string>
     <string name="preference_show_input_summary">Affiche la boite pour envoyer des messages</string>
@@ -298,8 +302,15 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_suggestions_summary">Choisir les suggestions à afficher lors de la saisie</string>
     <string name="preference_suggestions_emotes">Emotes</string>
     <string name="preference_suggestions_users">Utilisateurs</string>
-    <string name="preference_suggestions_commands">Commandes</string>
+    <string name="preference_suggestions_commands">Commandes Twitch</string>
     <string name="preference_suggestions_supibot">Commandes Supibot</string>
+    <string name="preference_suggestions_emotes_desc">Activer avec :</string>
+    <string name="preference_suggestions_users_desc">Activer avec @</string>
+    <string name="preference_suggestions_commands_desc">Activer avec /</string>
+    <string name="preference_suggestions_supibot_desc">Activer avec $</string>
+    <string name="preference_suggestion_mode_title">Mode de suggestion</string>
+    <string name="preference_suggestion_mode_automatic">Suggérer des correspondances en tapant</string>
+    <string name="preference_suggestion_mode_prefix_only">Suggérer uniquement après un caractère déclencheur</string>
     <string name="preference_load_message_history_title">Charger les anciens messages au démarrage</string>
     <string name="preference_load_messages_on_reconnect_title">Charger l\'historique des messages après une reconnexion</string>
     <string name="preference_load_messages_on_reconnect_summary">Tente de récupérer les messages manquants qui n\'ont pas été reçus pendant la connexion</string>

@@ -128,20 +128,33 @@ private fun ChatSettingsScreen(
                     .padding(padding)
                     .verticalScroll(rememberScrollState()),
         ) {
-            GeneralCategory(
+            SuggestionsCategory(
                 suggestionTypes = settings.suggestionTypes,
-                animateGifs = settings.animateGifs,
+                suggestionMode = settings.suggestionMode,
+                onNavToCommands = onNavToCommands,
+                onInteraction = onInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            MessagesCategory(
                 scrollbackLength = settings.scrollbackLength,
-                showUsernames = settings.showUsernames,
-                userLongClickBehavior = settings.userLongClickBehavior,
-                colorizeNicknames = settings.colorizeNicknames,
                 showTimedOutMessages = settings.showTimedOutMessages,
                 showTimestamps = settings.showTimestamps,
                 timestampFormat = settings.timestampFormat,
+                onInteraction = onInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            UsersCategory(
+                showUsernames = settings.showUsernames,
+                userLongClickBehavior = settings.userLongClickBehavior,
+                colorizeNicknames = settings.colorizeNicknames,
+                onNavToUserDisplays = onNavToUserDisplays,
+                onInteraction = onInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            EmotesAndBadgesCategory(
+                animateGifs = settings.animateGifs,
                 visibleBadges = settings.visibleBadges,
                 visibleEmotes = settings.visibleEmotes,
-                onNavToCommands = onNavToCommands,
-                onNavToUserDisplays = onNavToUserDisplays,
                 onInteraction = onInteraction,
             )
             HorizontalDivider(thickness = Dp.Hairline)
@@ -170,28 +183,24 @@ private fun ChatSettingsScreen(
 }
 
 @Composable
-private fun GeneralCategory(
+private fun SuggestionsCategory(
     suggestionTypes: ImmutableList<SuggestionType>,
-    animateGifs: Boolean,
-    scrollbackLength: Int,
-    showUsernames: Boolean,
-    userLongClickBehavior: UserLongClickBehavior,
-    colorizeNicknames: Boolean,
-    showTimedOutMessages: Boolean,
-    showTimestamps: Boolean,
-    timestampFormat: String,
-    visibleBadges: ImmutableList<VisibleBadges>,
-    visibleEmotes: ImmutableList<VisibleThirdPartyEmotes>,
+    suggestionMode: SuggestionMode,
     onNavToCommands: () -> Unit,
-    onNavToUserDisplays: () -> Unit,
     onInteraction: (ChatSettingsInteraction) -> Unit,
 ) {
-    PreferenceCategory(title = stringResource(R.string.preference_general_header)) {
+    PreferenceCategory(title = stringResource(R.string.preference_suggestions_header)) {
         val suggestionEntries = listOf(
             stringResource(R.string.preference_suggestions_emotes),
             stringResource(R.string.preference_suggestions_users),
             stringResource(R.string.preference_suggestions_commands),
             stringResource(R.string.preference_suggestions_supibot),
+        ).toImmutableList()
+        val suggestionDescriptions = listOf(
+            stringResource(R.string.preference_suggestions_emotes_desc),
+            stringResource(R.string.preference_suggestions_users_desc),
+            stringResource(R.string.preference_suggestions_commands_desc),
+            stringResource(R.string.preference_suggestions_supibot_desc),
         ).toImmutableList()
         PreferenceMultiListDialog(
             title = stringResource(R.string.preference_suggestions_title),
@@ -199,20 +208,37 @@ private fun GeneralCategory(
             values = remember { SuggestionType.entries.toImmutableList() },
             initialSelected = suggestionTypes,
             entries = suggestionEntries,
+            descriptions = suggestionDescriptions,
             onChange = { onInteraction(ChatSettingsInteraction.SuggestionTypes(it)) },
+        )
+        val modeAutomatic = stringResource(R.string.preference_suggestion_mode_automatic)
+        val modePrefixOnly = stringResource(R.string.preference_suggestion_mode_prefix_only)
+        val modeEntries = remember { listOf(modeAutomatic, modePrefixOnly).toImmutableList() }
+        PreferenceListDialog(
+            title = stringResource(R.string.preference_suggestion_mode_title),
+            summary = modeEntries[suggestionMode.ordinal],
+            values = SuggestionMode.entries.toImmutableList(),
+            entries = modeEntries,
+            selected = suggestionMode,
+            onChange = { onInteraction(ChatSettingsInteraction.SuggestionModeChange(it)) },
         )
         PreferenceItem(
             title = stringResource(R.string.commands_title),
             onClick = onNavToCommands,
             trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
         )
+    }
+}
 
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_animate_gifs_title),
-            isChecked = animateGifs,
-            onClick = { onInteraction(ChatSettingsInteraction.AnimateGifs(it)) },
-        )
-
+@Composable
+private fun MessagesCategory(
+    scrollbackLength: Int,
+    showTimedOutMessages: Boolean,
+    showTimestamps: Boolean,
+    timestampFormat: String,
+    onInteraction: (ChatSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(title = stringResource(R.string.preference_messages_header)) {
         var sliderValue by remember(scrollbackLength) { mutableFloatStateOf(scrollbackLength.toFloat()) }
         SliderPreferenceItem(
             title = stringResource(R.string.preference_scrollback_length_title),
@@ -224,39 +250,6 @@ private fun GeneralCategory(
             displayValue = false,
             summary = sliderValue.roundToInt().toString(),
         )
-
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_show_username_title),
-            isChecked = showUsernames,
-            onClick = { onInteraction(ChatSettingsInteraction.ShowUsernames(it)) },
-        )
-
-        val longClickSummaryOn = stringResource(R.string.preference_user_long_click_summary_on)
-        val longClickSummaryOff = stringResource(R.string.preference_user_long_click_summary_off)
-        val longClickEntries = remember { listOf(longClickSummaryOn, longClickSummaryOff).toImmutableList() }
-        PreferenceListDialog(
-            title = stringResource(R.string.preference_user_long_click_title),
-            summary = longClickEntries[userLongClickBehavior.ordinal],
-            values = UserLongClickBehavior.entries.toImmutableList(),
-            entries = longClickEntries,
-            selected = userLongClickBehavior,
-            onChange = { onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
-        )
-
-        SwitchPreferenceItem(
-            title = stringResource(R.string.preference_colorize_nicknames_title),
-            summary = stringResource(R.string.preference_colorize_nicknames_summary),
-            isChecked = colorizeNicknames,
-            onClick = { onInteraction(ChatSettingsInteraction.ColorizeNicknames(it)) },
-        )
-
-        PreferenceItem(
-            title = stringResource(R.string.custom_user_display_title),
-            summary = stringResource(R.string.custom_user_display_summary),
-            onClick = onNavToUserDisplays,
-            trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
-        )
-
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_show_timed_out_messages_title),
             isChecked = showTimedOutMessages,
@@ -276,17 +269,71 @@ private fun GeneralCategory(
             selected = timestampFormat,
             onChange = { onInteraction(ChatSettingsInteraction.TimestampFormat(it)) },
         )
+    }
+}
 
-        val entries =
+@Composable
+private fun UsersCategory(
+    showUsernames: Boolean,
+    userLongClickBehavior: UserLongClickBehavior,
+    colorizeNicknames: Boolean,
+    onNavToUserDisplays: () -> Unit,
+    onInteraction: (ChatSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(title = stringResource(R.string.preference_users_header)) {
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_username_title),
+            isChecked = showUsernames,
+            onClick = { onInteraction(ChatSettingsInteraction.ShowUsernames(it)) },
+        )
+        val longClickSummaryOn = stringResource(R.string.preference_user_long_click_summary_on)
+        val longClickSummaryOff = stringResource(R.string.preference_user_long_click_summary_off)
+        val longClickEntries = remember { listOf(longClickSummaryOn, longClickSummaryOff).toImmutableList() }
+        PreferenceListDialog(
+            title = stringResource(R.string.preference_user_long_click_title),
+            summary = longClickEntries[userLongClickBehavior.ordinal],
+            values = UserLongClickBehavior.entries.toImmutableList(),
+            entries = longClickEntries,
+            selected = userLongClickBehavior,
+            onChange = { onInteraction(ChatSettingsInteraction.UserLongClick(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_colorize_nicknames_title),
+            summary = stringResource(R.string.preference_colorize_nicknames_summary),
+            isChecked = colorizeNicknames,
+            onClick = { onInteraction(ChatSettingsInteraction.ColorizeNicknames(it)) },
+        )
+        PreferenceItem(
+            title = stringResource(R.string.custom_user_display_title),
+            summary = stringResource(R.string.custom_user_display_summary),
+            onClick = onNavToUserDisplays,
+            trailingIcon = Icons.AutoMirrored.Filled.ArrowForward,
+        )
+    }
+}
+
+@Composable
+private fun EmotesAndBadgesCategory(
+    animateGifs: Boolean,
+    visibleBadges: ImmutableList<VisibleBadges>,
+    visibleEmotes: ImmutableList<VisibleThirdPartyEmotes>,
+    onInteraction: (ChatSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(title = stringResource(R.string.preference_emotes_badges_header)) {
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_animate_gifs_title),
+            isChecked = animateGifs,
+            onClick = { onInteraction(ChatSettingsInteraction.AnimateGifs(it)) },
+        )
+        val badgeEntries =
             stringArrayResource(R.array.badges_entries)
                 .plus(stringResource(R.string.shared_chat))
                 .toImmutableList()
-
         PreferenceMultiListDialog(
             title = stringResource(R.string.preference_visible_badges_title),
             initialSelected = visibleBadges,
             values = VisibleBadges.entries.toImmutableList(),
-            entries = entries,
+            entries = badgeEntries,
             onChange = { onInteraction(ChatSettingsInteraction.Badges(it)) },
         )
         PreferenceMultiListDialog(

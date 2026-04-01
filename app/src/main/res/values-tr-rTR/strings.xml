@@ -237,6 +237,10 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_notification_header">Bildirimler</string>
     <string name="preference_chat_header">Sohbet</string>
     <string name="preference_general_header">Genel</string>
+    <string name="preference_suggestions_header">Öneriler</string>
+    <string name="preference_messages_header">Mesajlar</string>
+    <string name="preference_users_header">Kullanıcılar</string>
+    <string name="preference_emotes_badges_header">İfadeler ve Rozetler</string>
     <string name="preference_about_header">Hakkında</string>
     <string name="preference_appearance_header">Görünüm</string>
     <string name="preference_about_summary">DankChat %1$s @flex3rs ve katılımcılar tarafından yapıldı</string>
@@ -294,8 +298,15 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_suggestions_summary">Yazarken hangi önerilerin gösterileceğini seçin</string>
     <string name="preference_suggestions_emotes">İfadeler</string>
     <string name="preference_suggestions_users">Kullanıcılar</string>
-    <string name="preference_suggestions_commands">Komutlar</string>
+    <string name="preference_suggestions_commands">Twitch komutları</string>
     <string name="preference_suggestions_supibot">Supibot komutları</string>
+    <string name="preference_suggestions_emotes_desc">: ile tetikle</string>
+    <string name="preference_suggestions_users_desc">@ ile tetikle</string>
+    <string name="preference_suggestions_commands_desc">/ ile tetikle</string>
+    <string name="preference_suggestions_supibot_desc">$ ile tetikle</string>
+    <string name="preference_suggestion_mode_title">Öneri modu</string>
+    <string name="preference_suggestion_mode_automatic">Yazarken eşleşmeleri öner</string>
+    <string name="preference_suggestion_mode_prefix_only">Yalnızca tetikleyici karakterden sonra öner</string>
     <string name="preference_load_message_history_title">Başlangıçta mesaj tarihini yükle</string>
     <string name="preference_load_messages_on_reconnect_title">Yeniden bağlandıktan sonra mesaj tarihini yükle</string>
     <string name="preference_load_messages_on_reconnect_summary">Bağlantı kesintileri sırasında alınmamış yitik mesajları almayı dener</string>

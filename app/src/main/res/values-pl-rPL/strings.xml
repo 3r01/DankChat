@@ -245,6 +245,10 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_notification_header">Powiadomienia</string>
     <string name="preference_chat_header">Czat</string>
     <string name="preference_general_header">Ogólne</string>
+    <string name="preference_suggestions_header">Podpowiedzi</string>
+    <string name="preference_messages_header">Wiadomości</string>
+    <string name="preference_users_header">Użytkownicy</string>
+    <string name="preference_emotes_badges_header">Emotki i odznaki</string>
     <string name="preference_about_header">O aplikacji</string>
     <string name="preference_appearance_header">Wygląd</string>
     <string name="preference_about_summary">DankChat %1$s stworzony przez @flex3rs i kontrybutorów</string>
@@ -302,8 +306,15 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_suggestions_summary">Wybierz, które podpowiedzi wyświetlać podczas pisania</string>
     <string name="preference_suggestions_emotes">Emotki</string>
     <string name="preference_suggestions_users">Użytkownicy</string>
-    <string name="preference_suggestions_commands">Komendy</string>
+    <string name="preference_suggestions_commands">Komendy Twitcha</string>
     <string name="preference_suggestions_supibot">Komendy Supibota</string>
+    <string name="preference_suggestions_emotes_desc">Aktywuj za pomocą :</string>
+    <string name="preference_suggestions_users_desc">Aktywuj za pomocą @</string>
+    <string name="preference_suggestions_commands_desc">Aktywuj za pomocą /</string>
+    <string name="preference_suggestions_supibot_desc">Aktywuj za pomocą $</string>
+    <string name="preference_suggestion_mode_title">Tryb podpowiedzi</string>
+    <string name="preference_suggestion_mode_automatic">Sugeruj dopasowania podczas pisania</string>
+    <string name="preference_suggestion_mode_prefix_only">Sugeruj tylko po znaku wyzwalającym</string>
     <string name="preference_load_message_history_title">Ładuj historię wiadomości podczas startu</string>
     <string name="preference_load_messages_on_reconnect_title">Załaduj historie wiadomości po ponownym połączeniu</string>
     <string name="preference_load_messages_on_reconnect_summary">Próbuje pobrać brakujące wiadomości, które nie zostały odebrane podczas zerwania połączenia</string>

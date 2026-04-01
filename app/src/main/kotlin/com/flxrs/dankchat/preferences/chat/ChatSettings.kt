@@ -9,6 +9,7 @@ import kotlin.uuid.Uuid
 @Serializable
 data class ChatSettings(
     val suggestionTypes: List<SuggestionType> = SuggestionType.DEFAULT,
+    val suggestionMode: SuggestionMode = SuggestionMode.Automatic,
     val suggestionsMigrated: Boolean = false,
     @Deprecated("Migrated to suggestionTypes") val suggestions: Boolean = true,
     @Deprecated("Migrated to suggestionTypes") val supibotSuggestions: Boolean = false,
@@ -81,6 +82,12 @@ enum class VisibleThirdPartyEmotes {
     FFZ,
     BTTV,
     SevenTV,
+}
+
+@Serializable
+enum class SuggestionMode {
+    Automatic,
+    PrefixOnly,
 }
 
 enum class LiveUpdatesBackgroundBehavior {

@@ -37,6 +37,10 @@ class ChatSettingsViewModel(
                     chatSettingsDataStore.update { it.copy(suggestionTypes = interaction.value) }
                 }
 
+                is ChatSettingsInteraction.SuggestionModeChange -> {
+                    chatSettingsDataStore.update { it.copy(suggestionMode = interaction.value) }
+                }
+
                 is ChatSettingsInteraction.CustomCommands -> {
                     chatSettingsDataStore.update { it.copy(customCommands = interaction.value) }
                 }
@@ -117,6 +121,7 @@ class ChatSettingsViewModel(
 
 private fun ChatSettings.toState() = ChatSettingsState(
     suggestionTypes = suggestionTypes.toImmutableList(),
+    suggestionMode = suggestionMode,
     customCommands = customCommands.toImmutableList(),
     animateGifs = animateGifs,
     scrollbackLength = scrollbackLength,

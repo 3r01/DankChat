@@ -83,6 +83,10 @@ class CommandRepository(
         else -> commandTriggers
     }
 
+    fun getCustomCommandTriggers(): Flow<List<String>> = chatSettingsDataStore.commands.map { commands ->
+        commands.map(CustomCommand::trigger)
+    }
+
     fun getSupibotCommands(channel: UserName): StateFlow<List<String>> = supibotCommands.getOrPut(channel) { MutableStateFlow(emptyList()) }
 
     @Suppress("ReturnCount")

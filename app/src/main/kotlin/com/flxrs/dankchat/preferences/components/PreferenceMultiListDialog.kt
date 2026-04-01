@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.preferences.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,6 +37,7 @@ fun <T> PreferenceMultiListDialog(
     isEnabled: Boolean = true,
     summary: String? = null,
     icon: ImageVector? = null,
+    descriptions: ImmutableList<String>? = null,
 ) {
     var selected by remember(initialSelected) { mutableStateOf(values.map(initialSelected::contains).toPersistentList()) }
     ExpandablePreferenceItem(
@@ -73,12 +75,21 @@ fun <T> PreferenceMultiListDialog(
                         onCheckedChange = { selected = selected.set(idx, it) },
                         interactionSource = interactionSource,
                     )
-                    Text(
-                        text = entry,
-                        modifier = Modifier.padding(start = 16.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = 18.sp,
-                    )
+                    Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {
+                        Text(
+                            text = entry,
+                            style = MaterialTheme.typography.bodyLarge,
+                            lineHeight = 18.sp,
+                        )
+                        val description = descriptions?.getOrNull(idx)
+                        if (description != null) {
+                            Text(
+                                text = description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
             Spacer(Modifier.height(32.dp))

@@ -28,6 +28,7 @@ class SuggestionProvider(
         cursorPosition: Int,
         channel: UserName?,
         enabledTypes: List<SuggestionType>,
+        prefixOnly: Boolean = false,
     ): Flow<List<Suggestion>> {
         if (inputText.isBlank() || channel == null || enabledTypes.isEmpty()) {
             return flowOf(emptyList())
@@ -51,10 +52,7 @@ class SuggestionProvider(
                 else -> currentWord
             }
 
-        if (isEmoteTrigger && emoteQuery.isEmpty()) {
-            return flowOf(emptyList())
-        }
-        if (!isEmoteTrigger && currentWord.length < MIN_SUGGESTION_CHARS) {
+        if ((isEmoteTrigger && emoteQuery.isEmpty()) || (!isEmoteTrigger && currentWord.length < MIN_SUGGESTION_CHARS)) {
             return flowOf(emptyList())
         }
 
@@ -72,7 +70,7 @@ class SuggestionProvider(
             }
         }
 
-        // Commands only when prefix matches a command trigger character
+        // Built-in command prefixes (/, $): twitch commands + supibot + custom
         val isCommandTrigger = currentWord.startsWith('/') || currentWord.startsWith('$')
         if (isCommandTrigger && (commandsEnabled || supibotEnabled)) {
             return getCommandSuggestions(channel, currentWord, commandsEnabled, supibotEnabled).map { commands ->
@@ -80,7 +78,15 @@ class SuggestionProvider(
             }
         }
 
-        // General: score enabled types together
+        // Custom commands with arbitrary triggers — always checked since prefixes are dynamic
+        val customCommandFlow = getCustomCommandSuggestions(currentWord)
+
+        // In prefix-only mode, only custom commands can match (no free-type emotes/users)
+        if (prefixOnly) {
+            return customCommandFlow.map { it.take(MAX_SUGGESTIONS) }
+        }
+
+        // General (free type): score emotes + users together, plus custom commands
         val emoteFlow = when {
             emotesEnabled -> getScoredEmoteSuggestions(channel, currentWord)
             else -> flowOf(emptyList())
@@ -89,8 +95,12 @@ class SuggestionProvider(
             usersEnabled -> getScoredUserSuggestions(channel, currentWord)
             else -> flowOf(emptyList())
         }
-        return combine(emoteFlow, userFlow) { emotes, users ->
-            mergeSorted(emotes, users)
+        return combine(emoteFlow, userFlow, customCommandFlow) { emotes, users, customCommands ->
+            val merged = mergeSorted(emotes, users)
+            when {
+                customCommands.isEmpty() -> merged
+                else -> merged + customCommands
+            }
         }
     }
 
@@ -114,6 +124,10 @@ class SuggestionProvider(
         constraint: String,
     ): Flow<List<Suggestion.UserSuggestion>> = usersRepository.getUsersFlow(channel).map { displayNameSet ->
         filterUsers(displayNameSet, constraint)
+    }
+
+    private fun getCustomCommandSuggestions(constraint: String): Flow<List<Suggestion.CommandSuggestion>> = commandRepository.getCustomCommandTriggers().map { triggers ->
+        filterCommands(triggers, constraint)
     }
 
     private fun getCommandSuggestions(

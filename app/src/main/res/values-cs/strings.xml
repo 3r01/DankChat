@@ -248,6 +248,10 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_notification_header">Upozornění</string>
     <string name="preference_chat_header">Chat</string>
     <string name="preference_general_header">Obecné</string>
+    <string name="preference_suggestions_header">Návrhy</string>
+    <string name="preference_messages_header">Zprávy</string>
+    <string name="preference_users_header">Uživatelé</string>
+    <string name="preference_emotes_badges_header">Emotikony a odznaky</string>
     <string name="preference_about_header">O aplikaci</string>
     <string name="preference_appearance_header">Vzhled</string>
     <string name="preference_about_summary">DankChat %1$s je vytvořen uživatelem @flex3rs a přispěvateli</string>
@@ -305,8 +309,15 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_suggestions_summary">Zvolte, které návrhy zobrazovat při psaní</string>
     <string name="preference_suggestions_emotes">Emotikony</string>
     <string name="preference_suggestions_users">Uživatelé</string>
-    <string name="preference_suggestions_commands">Příkazy</string>
+    <string name="preference_suggestions_commands">Příkazy Twitche</string>
     <string name="preference_suggestions_supibot">Příkazy Supibota</string>
+    <string name="preference_suggestions_emotes_desc">Aktivovat pomocí :</string>
+    <string name="preference_suggestions_users_desc">Aktivovat pomocí @</string>
+    <string name="preference_suggestions_commands_desc">Aktivovat pomocí /</string>
+    <string name="preference_suggestions_supibot_desc">Aktivovat pomocí $</string>
+    <string name="preference_suggestion_mode_title">Režim návrhů</string>
+    <string name="preference_suggestion_mode_automatic">Navrhovat shody při psaní</string>
+    <string name="preference_suggestion_mode_prefix_only">Navrhovat pouze po spouštěcím znaku</string>
     <string name="preference_load_message_history_title">Při zapnutí načíst historii zpráv</string>
     <string name="preference_load_messages_on_reconnect_title">Načíst historii zpráv po opětovném připojení</string>
     <string name="preference_load_messages_on_reconnect_summary">Pokusí se o načtení zmeškaných zpráv, které nebyly načteny při výpadcích spojení</string>

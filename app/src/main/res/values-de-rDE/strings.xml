@@ -240,6 +240,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_general_header">Allgemein</string>
     <string name="preference_about_header">Über</string>
     <string name="preference_appearance_header">Aussehen</string>
+    <string name="preference_suggestions_header">Vorschläge</string>
+    <string name="preference_messages_header">Nachrichten</string>
+    <string name="preference_users_header">Benutzer</string>
+    <string name="preference_emotes_badges_header">Emotes &amp; Abzeichen</string>
     <string name="preference_about_summary">DankChat %1$s wurde von @flex3rs und weiteren Mitwirkenden entwickelt</string>
     <string name="preference_show_input_title">Eingabefeld anzeigen</string>
     <string name="preference_show_input_summary">Eingabefeld zum Senden von Nachrichten anzeigen</string>
@@ -295,8 +299,15 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_suggestions_summary">Wähle, welche Vorschläge beim Tippen angezeigt werden</string>
     <string name="preference_suggestions_emotes">Emotes</string>
     <string name="preference_suggestions_users">Benutzer</string>
-    <string name="preference_suggestions_commands">Befehle</string>
+    <string name="preference_suggestions_commands">Twitch-Befehle</string>
     <string name="preference_suggestions_supibot">Supibot-Befehle</string>
+    <string name="preference_suggestions_emotes_desc">Auslöser mit :</string>
+    <string name="preference_suggestions_users_desc">Auslöser mit @</string>
+    <string name="preference_suggestions_commands_desc">Auslöser mit /</string>
+    <string name="preference_suggestions_supibot_desc">Auslöser mit $</string>
+    <string name="preference_suggestion_mode_title">Vorschlagsmodus</string>
+    <string name="preference_suggestion_mode_automatic">Vorschläge beim Tippen anzeigen</string>
+    <string name="preference_suggestion_mode_prefix_only">Nur nach einem Auslösezeichen vorschlagen</string>
     <string name="preference_load_message_history_title">Chatverlauf laden</string>
     <string name="preference_load_messages_on_reconnect_title">Nachrichtenverlauf nach Verbindungsabbrüchen neu laden</string>
     <string name="preference_load_messages_on_reconnect_summary">Versucht, verpasste Nachrichten zu laden, die bei Verbindungsabbrüchen verloren gingen</string>

@@ -12,6 +12,10 @@ sealed interface ChatSettingsInteraction {
         val value: List<SuggestionType>,
     ) : ChatSettingsInteraction
 
+    data class SuggestionModeChange(
+        val value: SuggestionMode,
+    ) : ChatSettingsInteraction
+
     data class CustomCommands(
         val value: List<CustomCommand>,
     ) : ChatSettingsInteraction
@@ -84,6 +88,7 @@ sealed interface ChatSettingsInteraction {
 @Immutable
 data class ChatSettingsState(
     val suggestionTypes: ImmutableList<SuggestionType>,
+    val suggestionMode: SuggestionMode,
     val customCommands: ImmutableList<CustomCommand>,
     val animateGifs: Boolean,
     val scrollbackLength: Int,

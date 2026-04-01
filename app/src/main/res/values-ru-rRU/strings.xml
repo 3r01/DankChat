@@ -246,6 +246,10 @@
     <string name="preference_notification_header">Уведомления</string>
     <string name="preference_chat_header">Чат</string>
     <string name="preference_general_header">Общие</string>
+    <string name="preference_suggestions_header">Подсказки</string>
+    <string name="preference_messages_header">Сообщения</string>
+    <string name="preference_users_header">Пользователи</string>
+    <string name="preference_emotes_badges_header">Эмоции и значки</string>
     <string name="preference_about_header">О программе</string>
     <string name="preference_appearance_header">Внешний вид</string>
     <string name="preference_about_summary">DankChat %1$s создан @flex3rs и другими участниками</string>
@@ -303,8 +307,15 @@
     <string name="preference_suggestions_summary">Выберите, какие подсказки показывать при вводе</string>
     <string name="preference_suggestions_emotes">Эмоции</string>
     <string name="preference_suggestions_users">Пользователи</string>
-    <string name="preference_suggestions_commands">Команды</string>
+    <string name="preference_suggestions_commands">Команды Twitch</string>
     <string name="preference_suggestions_supibot">Команды Supibot</string>
+    <string name="preference_suggestions_emotes_desc">Активировать с помощью :</string>
+    <string name="preference_suggestions_users_desc">Активировать с помощью @</string>
+    <string name="preference_suggestions_commands_desc">Активировать с помощью /</string>
+    <string name="preference_suggestions_supibot_desc">Активировать с помощью $</string>
+    <string name="preference_suggestion_mode_title">Режим подсказок</string>
+    <string name="preference_suggestion_mode_automatic">Предлагать совпадения при вводе</string>
+    <string name="preference_suggestion_mode_prefix_only">Предлагать только после символа-триггера</string>
     <string name="preference_load_message_history_title">Загружать историю сообщений сразу</string>
     <string name="preference_load_messages_on_reconnect_title">Загружать историю сообщений после переподключения</string>
     <string name="preference_load_messages_on_reconnect_summary">Попытаться получить пропущенные сообщения, которые не были получены во время разрыва соединения</string>

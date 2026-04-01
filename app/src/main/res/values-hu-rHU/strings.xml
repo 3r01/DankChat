@@ -231,6 +231,10 @@
     <string name="preference_notification_header">Értesítések</string>
     <string name="preference_chat_header">Chat</string>
     <string name="preference_general_header">Általános</string>
+    <string name="preference_suggestions_header">Javaslatok</string>
+    <string name="preference_messages_header">Üzenetek</string>
+    <string name="preference_users_header">Felhasználók</string>
+    <string name="preference_emotes_badges_header">Emoték és jelvények</string>
     <string name="preference_about_header">Névjegy</string>
     <string name="preference_appearance_header">Kinézet</string>
     <string name="preference_about_summary">DankChat %1$s készítette @flex3rs és a hozzájárulók</string>
@@ -288,8 +292,15 @@
     <string name="preference_suggestions_summary">Válaszd ki, milyen javaslatokat mutasson gépelés közben</string>
     <string name="preference_suggestions_emotes">Emoték</string>
     <string name="preference_suggestions_users">Felhasználók</string>
-    <string name="preference_suggestions_commands">Parancsok</string>
+    <string name="preference_suggestions_commands">Twitch parancsok</string>
     <string name="preference_suggestions_supibot">Supibot parancsok</string>
+    <string name="preference_suggestions_emotes_desc">Aktiválás a : karakterrel</string>
+    <string name="preference_suggestions_users_desc">Aktiválás a @ karakterrel</string>
+    <string name="preference_suggestions_commands_desc">Aktiválás a / karakterrel</string>
+    <string name="preference_suggestions_supibot_desc">Aktiválás a $ karakterrel</string>
+    <string name="preference_suggestion_mode_title">Javaslat mód</string>
+    <string name="preference_suggestion_mode_automatic">Egyezések javaslása gépelés közben</string>
+    <string name="preference_suggestion_mode_prefix_only">Javaslat csak trigger karakter után</string>
     <string name="preference_load_message_history_title">Üzenet előzmények betöltése induláskor</string>
     <string name="preference_load_messages_on_reconnect_title">Üzenet előzmények betöltése újracsatlakozáskor</string>
     <string name="preference_load_messages_on_reconnect_summary">Kihagyott üzenetek elragadásának próbálkozása amiket lehetett elkapni csatlakozás ingadozás közben</string>
