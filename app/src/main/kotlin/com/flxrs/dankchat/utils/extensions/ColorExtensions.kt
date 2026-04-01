@@ -6,9 +6,9 @@ import androidx.core.graphics.ColorUtils
 /**
  * Adjusts this color to ensure readable contrast against [background].
  *
- * Uses WCAG contrast ratio (target 4.5:1 for normal text) and shifts
- * the color's lightness in HSL space until the target is met,
- * preserving hue and saturation as much as possible.
+ * Uses a relaxed contrast ratio of 3.5:1 (below WCAG AA 4.5:1) to
+ * preserve the original color as much as possible while still being readable.
+ * Shifts lightness in HSL space, preserving hue and saturation.
  */
 @ColorInt
 fun Int.normalizeColor(
@@ -53,22 +53,20 @@ fun Int.normalizeColor(
             // Try closer to original (less adjustment)
             if (shouldLighten) high = mid else low = mid
         } else {
+            if (candidateContrast > bestContrast) {
+                bestL = mid
+                bestContrast = candidateContrast
+            }
             // Need more adjustment (further from original)
             if (shouldLighten) low = mid else high = mid
         }
     }
 
-    if (bestContrast >= MIN_CONTRAST_RATIO) {
-        hsl[2] = bestL
-        return ColorUtils.HSLToColor(hsl)
-    }
-
-    // Fallback: push to extreme lightness
-    hsl[2] = if (shouldLighten) 0.9f else 0.1f
+    hsl[2] = bestL
     return ColorUtils.HSLToColor(hsl)
 }
 
-private const val MIN_CONTRAST_RATIO = 4.5
+private const val MIN_CONTRAST_RATIO = 3.5
 private const val MAX_ITERATIONS = 16
 
 /** convert int to RGB with zero pad */
