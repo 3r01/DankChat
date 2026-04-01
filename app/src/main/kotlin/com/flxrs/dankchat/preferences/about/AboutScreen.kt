@@ -1,25 +1,29 @@
 package com.flxrs.dankchat.preferences.about
 
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,7 +36,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.entity.Library
@@ -85,40 +91,58 @@ fun AboutScreen(onBack: () -> Unit) {
             onLibraryClick = { selectedLibrary = it },
         )
         selectedLibrary?.let { library ->
-            val linkStyles = textLinkStyles()
-            val rules = TextRuleDefaults.defaultList()
-            val license =
-                remember(library, rules) {
-                    val mappedRules = rules.map { it.copy(styles = linkStyles) }
-                    library.htmlReadyLicenseContent
-                        .takeIf { it.isNotEmpty() }
-                        ?.let { content ->
-                            val html =
-                                AnnotatedString.fromHtml(
-                                    htmlString = content,
-                                    linkStyles = linkStyles,
-                                )
-                            mappedRules.annotateString(html.text)
-                        }
-                }
-            if (license != null) {
-                AlertDialog(
-                    onDismissRequest = { selectedLibrary = null },
-                    title = { Text(text = library.name) },
-                    confirmButton = {
-                        TextButton(
-                            onClick = { selectedLibrary = null },
-                            content = { Text(stringResource(R.string.dialog_ok)) },
-                        )
-                    },
-                    text = {
-                        Text(
-                            text = license,
-                            modifier = Modifier.verticalScroll(rememberScrollState()),
-                        )
-                    },
-                )
-            }
+            LibraryLicenseSheet(
+                library = library,
+                onDismiss = { selectedLibrary = null },
+            )
         }
+    }
+}
+
+@Composable
+private fun LibraryLicenseSheet(
+    library: Library,
+    onDismiss: () -> Unit,
+) {
+    val linkStyles = textLinkStyles()
+    val rules = TextRuleDefaults.defaultList()
+    val license =
+        remember(library, rules) {
+            val mappedRules = rules.map { it.copy(styles = linkStyles) }
+            library.htmlReadyLicenseContent
+                .takeIf { it.isNotEmpty() }
+                ?.let { content ->
+                    val html =
+                        AnnotatedString.fromHtml(
+                            htmlString = content,
+                            linkStyles = linkStyles,
+                        )
+                    mappedRules.annotateString(html.text)
+                }
+        } ?: return
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Text(
+            text = library.name,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+        Spacer(Modifier.height(12.dp))
+        val scrollState = rememberScrollState()
+        Text(
+            text = license,
+            style = MaterialTheme.typography.bodySmall,
+            modifier =
+                Modifier
+                    .weight(1f, fill = false)
+                    .nestedScroll(BottomSheetNestedScrollConnection)
+                    .verticalScroll(scrollState)
+                    .padding(horizontal = 16.dp),
+        )
+        Spacer(Modifier.navigationBarsPadding())
     }
 }
