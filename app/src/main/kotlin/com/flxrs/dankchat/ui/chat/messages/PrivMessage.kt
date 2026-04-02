@@ -191,8 +191,8 @@ private fun PrivMessageText(
                 if (message.timestamp.isNotEmpty()) {
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                         append(message.timestamp)
-                        append(" ")
                     }
+                    append("\u2009")
                 }
 
                 // Badges (using appendInlineContent for proper rendering)

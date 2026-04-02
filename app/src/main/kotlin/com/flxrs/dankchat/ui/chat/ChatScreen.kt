@@ -196,6 +196,8 @@ fun ChatScreen(
                 state = listState,
                 reverseLayout = true,
                 contentPadding = PaddingValues(
+                    start = 4.dp,
+                    end = 4.dp,
                     top = contentPadding.calculateTopPadding() + MESSAGE_GAP,
                     bottom = contentPadding.calculateBottomPadding() + MESSAGE_GAP,
                 ),

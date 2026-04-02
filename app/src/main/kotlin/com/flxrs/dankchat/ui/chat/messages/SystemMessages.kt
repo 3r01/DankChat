@@ -99,7 +99,7 @@ fun UserNoticeMessageComposable(
                     withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
                         append(message.timestamp)
                     }
-                    append(" ")
+                    append("\u2009")
                 }
 
                 // Message text with colored display name
@@ -270,7 +270,7 @@ fun ModerationMessageComposable(
                     withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
                         append(message.timestamp)
                     }
-                    append(" ")
+                    append("\u2009")
                 }
 
                 // Render message: highlighted ranges at full opacity, template text dimmed

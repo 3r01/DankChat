@@ -127,8 +127,8 @@ private fun WhisperMessageText(
                 if (message.timestamp.isNotEmpty()) {
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                         append(message.timestamp)
-                        append(" ")
                     }
+                    append("\u2009")
                 }
 
                 // Badges (using appendInlineContent for proper rendering)
@@ -268,7 +268,7 @@ fun PointRedemptionMessageComposable(
                             withStyle(timestampSpanStyle(fontSize, timestampColor)) {
                                 append(message.timestamp)
                             }
-                            append(" ")
+                            append("\u2009")
                         }
 
                         when {

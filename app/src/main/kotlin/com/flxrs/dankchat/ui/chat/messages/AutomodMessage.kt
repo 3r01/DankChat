@@ -100,8 +100,8 @@ fun AutomodMessageComposable(
                         ),
                     ) {
                         append(message.timestamp)
-                        append(" ")
                     }
+                    append("\u2009")
                 }
 
                 // Badges
@@ -187,8 +187,8 @@ fun AutomodMessageComposable(
                             ),
                         ) {
                             append(message.timestamp)
-                            append(" ")
                         }
+                        append("\u2009")
                     }
 
                     // Username in bold with user color
