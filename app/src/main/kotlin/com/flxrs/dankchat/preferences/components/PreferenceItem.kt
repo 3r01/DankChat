@@ -126,6 +126,7 @@ fun SliderPreferenceItem(
                     onValueChangeFinished = onDragFinish,
                     valueRange = range,
                     steps = steps,
+                    enabled = isEnabled,
                     modifier =
                         Modifier
                             .weight(1f)
