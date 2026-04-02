@@ -26,23 +26,43 @@ class AppDebugSection : DebugSection {
             val heapMax = runtime.maxMemory()
             val nativeAllocated = Debug.getNativeHeapAllocatedSize()
             val nativeTotal = Debug.getNativeHeapSize()
-            val totalAppMemory = heapUsed + nativeAllocated
+
+            val memInfo = Debug.MemoryInfo()
+            Debug.getMemoryInfo(memInfo)
+            val graphicsKb = memInfo.getMemoryStat("summary.graphics")?.toLongOrNull() ?: 0L
+            val codeKb = memInfo.getMemoryStat("summary.code")?.toLongOrNull() ?: 0L
+            val stackKb = memInfo.getMemoryStat("summary.stack")?.toLongOrNull() ?: 0L
+            val privateOtherKb = memInfo.getMemoryStat("summary.private-other")?.toLongOrNull() ?: 0L
+            val totalPssKb = memInfo.getMemoryStat("summary.total-pss")?.toLongOrNull() ?: 0L
+
+            val graphicsBytes = graphicsKb * 1024L
+            val totalAppMemory = heapUsed + nativeAllocated + graphicsBytes
 
             DebugSectionSnapshot(
                 title = baseTitle,
                 entries =
-                    listOf(
-                        DebugEntry("Total app memory", formatBytes(totalAppMemory)),
-                        DebugEntry("JVM heap", "${formatBytes(heapUsed)} / ${formatBytes(heapMax)}"),
-                        DebugEntry("Native heap", "${formatBytes(nativeAllocated)} / ${formatBytes(nativeTotal)}"),
-                        DebugEntry("Threads", "${Thread.activeCount()}"),
-                    ),
+                    buildList {
+                        add(DebugEntry("Total app memory", formatBytes(totalAppMemory)))
+                        add(DebugEntry("JVM heap", "${formatBytes(heapUsed)} / ${formatBytes(heapMax)}"))
+                        add(DebugEntry("Native heap", "${formatBytes(nativeAllocated)} / ${formatBytes(nativeTotal)}"))
+                        add(DebugEntry("Graphics", formatBytes(graphicsBytes)))
+                        add(DebugEntry("Code", formatKb(codeKb)))
+                        add(DebugEntry("Stack", formatKb(stackKb)))
+                        add(DebugEntry("Other", formatKb(privateOtherKb)))
+                        add(DebugEntry("Total PSS", formatKb(totalPssKb)))
+                        add(DebugEntry("Threads", "${Thread.activeCount()}"))
+                    },
             )
         }
     }
 
     private fun formatBytes(bytes: Long): String {
         val mb = bytes / (1024.0 * 1024.0)
+        return "%.1f MB".format(mb)
+    }
+
+    private fun formatKb(kb: Long): String {
+        val mb = kb / 1024.0
         return "%.1f MB".format(mb)
     }
 }
