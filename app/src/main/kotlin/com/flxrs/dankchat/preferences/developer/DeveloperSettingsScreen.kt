@@ -101,7 +101,7 @@ fun DeveloperSettingsScreen(onBack: () -> Unit) {
                         snackbarHostState.showSnackbar(
                             message = restartRequiredTitle,
                             actionLabel = restartRequiredAction,
-                            duration = SnackbarDuration.Long,
+                            duration = SnackbarDuration.Short,
                         )
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)

@@ -36,11 +36,14 @@ class MainScreenViewModel(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val userStateRepository: UserStateRepository,
 ) : ViewModel() {
-    val globalLoadingState: StateFlow<GlobalLoadingState> =
-        channelDataCoordinator.globalLoadingState
+    private val _loadingFailureState = MutableStateFlow(LoadingFailureState())
+    val loadingFailureState: StateFlow<LoadingFailureState> = _loadingFailureState.asStateFlow()
 
     private val _isFullscreen = MutableStateFlow(false)
     private val _gestureToolbarHidden = MutableStateFlow(false)
+    private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1)
+    private val _keyboardHeightPx = MutableStateFlow(0)
+    val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
 
     val uiState: StateFlow<MainScreenUiState> =
         combine(
@@ -62,6 +65,21 @@ class MainScreenViewModel(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
 
     init {
+        channelDataCoordinator.loadGlobalData()
+
+        viewModelScope.launch {
+            channelDataCoordinator.globalLoadingState.collect { state ->
+                val failure = state as? GlobalLoadingState.Failed
+                _loadingFailureState.update { current ->
+                    when (failure) {
+                        null -> LoadingFailureState()
+                        current.failure if current.acknowledged -> current
+                        else -> LoadingFailureState(failure = failure)
+                    }
+                }
+            }
+        }
+
         viewModelScope.launch {
             developerSettingsDataStore.settings
                 .map { it.debugMode }
@@ -85,28 +103,6 @@ class MainScreenViewModel(
                     }
                 }
         }
-    }
-
-    fun isModeratorInChannel(channel: UserName?): Boolean = userStateRepository.isModeratorInChannel(channel)
-
-    // Keyboard height persistence — debounced to avoid thrashing during animation
-    private val _keyboardHeightUpdates = MutableSharedFlow<KeyboardHeightUpdate>(extraBufferCapacity = 1)
-
-    private val _keyboardHeightPx = MutableStateFlow(0)
-    val keyboardHeightPx: StateFlow<Int> = _keyboardHeightPx.asStateFlow()
-
-    fun setGestureToolbarHidden(hidden: Boolean) {
-        _gestureToolbarHidden.value = hidden
-    }
-
-    fun hideInput() {
-        viewModelScope.launch {
-            appearanceSettingsDataStore.update { it.copy(showInput = false) }
-        }
-    }
-
-    init {
-        channelDataCoordinator.loadGlobalData()
 
         viewModelScope.launch {
             _keyboardHeightUpdates
@@ -119,6 +115,18 @@ class MainScreenViewModel(
                         preferenceStore.keyboardHeightPortrait = heightPx
                     }
                 }
+        }
+    }
+
+    fun isModeratorInChannel(channel: UserName?): Boolean = userStateRepository.isModeratorInChannel(channel)
+
+    fun setGestureToolbarHidden(hidden: Boolean) {
+        _gestureToolbarHidden.value = hidden
+    }
+
+    fun hideInput() {
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update { it.copy(showInput = false) }
         }
     }
 
@@ -161,6 +169,12 @@ class MainScreenViewModel(
         _isFullscreen.update { !it }
     }
 
+    fun acknowledgeFailure(failure: GlobalLoadingState.Failed) {
+        _loadingFailureState.update { current ->
+            if (current.failure == failure) current.copy(acknowledged = true) else current
+        }
+    }
+
     fun retryDataLoading(failedState: GlobalLoadingState.Failed) {
         channelDataCoordinator.retryDataLoading(failedState)
     }
@@ -169,6 +183,11 @@ class MainScreenViewModel(
         private const val MAX_INPUT_ACTIONS = 4
     }
 }
+
+data class LoadingFailureState(
+    val failure: GlobalLoadingState.Failed? = null,
+    val acknowledged: Boolean = false,
+)
 
 private data class KeyboardHeightUpdate(
     val heightPx: Int,

@@ -70,11 +70,10 @@ fun ChatSettingsScreen(
         viewModel.events.collectLatest {
             when (it) {
                 ChatSettingsEvent.RestartRequired -> {
-                    val result =
-                        snackbarHostState.showSnackbar(
+                    val result = snackbarHostState.showSnackbar(
                             message = restartRequiredTitle,
                             actionLabel = restartRequiredAction,
-                            duration = SnackbarDuration.Long,
+                            duration = SnackbarDuration.Short,
                         )
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)

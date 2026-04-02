@@ -35,7 +35,6 @@ import org.koin.ksp.generated.module
 class DankChatApplication :
     Application(),
     SingletonImageLoader.Factory {
-    // Dummy comment to force KSP re-run
 
     private val dispatchersProvider: DispatchersProvider by inject()
     private val scope by lazy { CoroutineScope(SupervisorJob() + dispatchersProvider.main) }

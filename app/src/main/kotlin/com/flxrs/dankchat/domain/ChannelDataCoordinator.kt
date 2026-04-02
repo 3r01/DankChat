@@ -145,16 +145,8 @@ class ChannelDataCoordinator(
                 val chatFailures = chatMessageRepository.chatLoadingFailures.value
                 _globalLoadingState.value =
                     when {
-                        dataFailures.isEmpty() && chatFailures.isEmpty() -> {
-                            GlobalLoadingState.Loaded
-                        }
-
-                        else -> {
-                            GlobalLoadingState.Failed(
-                                failures = dataFailures,
-                                chatFailures = chatFailures,
-                            )
-                        }
+                        dataFailures.isEmpty() && chatFailures.isEmpty() -> GlobalLoadingState.Loaded
+                        else -> GlobalLoadingState.Failed(failures = dataFailures, chatFailures = chatFailures)
                     }
             }
     }
@@ -284,16 +276,8 @@ class ChannelDataCoordinator(
             val remainingChatFailures = chatMessageRepository.chatLoadingFailures.value
             _globalLoadingState.value =
                 when {
-                    remainingDataFailures.isEmpty() && remainingChatFailures.isEmpty() -> {
-                        GlobalLoadingState.Loaded
-                    }
-
-                    else -> {
-                        GlobalLoadingState.Failed(
-                            failures = remainingDataFailures,
-                            chatFailures = remainingChatFailures,
-                        )
-                    }
+                    remainingDataFailures.isEmpty() && remainingChatFailures.isEmpty() -> GlobalLoadingState.Loaded
+                    else -> GlobalLoadingState.Failed(failures = remainingDataFailures, chatFailures = remainingChatFailures)
                 }
         }
     }
