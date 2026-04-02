@@ -484,9 +484,10 @@ class ChatInputViewModel(
     }
 
     fun insertText(text: String) {
+        val selection = textFieldState.selection
         textFieldState.edit {
-            append(text)
-            placeCursorAtEnd()
+            replace(selection.min, selection.max, text)
+            placeCursorBeforeCharAt(selection.min + text.length)
         }
     }
 
