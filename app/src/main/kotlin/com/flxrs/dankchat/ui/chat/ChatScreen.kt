@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -360,6 +361,7 @@ private fun RecoveryFabs(
             },
             containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
         ) {
             Icon(
                 imageVector = Icons.Default.FullscreenExit,
@@ -461,6 +463,7 @@ private fun FabMenuToggle(
                     onClick = { onMenuExpandedChange(true) },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
