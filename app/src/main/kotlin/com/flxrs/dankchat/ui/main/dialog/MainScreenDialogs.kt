@@ -70,6 +70,7 @@ fun MainScreenDialogs(
     isStreamActive: Boolean,
     inputSheetState: InputSheetState,
     snackbarHostState: SnackbarHostState,
+    sheetsReady: Boolean,
     onAddChannel: (UserName) -> Unit,
     onLogout: () -> Unit,
     onLogin: () -> Unit,
@@ -107,7 +108,7 @@ fun MainScreenDialogs(
         )
     }
 
-    if (dialogState.showModActions && modActionsChannel != null) {
+    if (sheetsReady && dialogState.showModActions && modActionsChannel != null) {
         ModActionsDialogContainer(
             channel = modActionsChannel,
             isStreamActive = isStreamActive,
@@ -206,46 +207,52 @@ fun MainScreenDialogs(
         )
     }
 
-    dialogState.messageOptionsParams?.let { params ->
-        MessageOptionsDialogContainer(
-            params = params,
-            snackbarHostState = snackbarHostState,
-            onJumpToMessage = onJumpToMessage,
-            onSetReplying = chatInputViewModel::setReplying,
-            onOpenReplies = sheetNavigationViewModel::openReplies,
-            onDismiss = dialogViewModel::dismissMessageOptions,
-        )
+    if (sheetsReady) {
+        dialogState.messageOptionsParams?.let { params ->
+            MessageOptionsDialogContainer(
+                params = params,
+                snackbarHostState = snackbarHostState,
+                onJumpToMessage = onJumpToMessage,
+                onSetReplying = chatInputViewModel::setReplying,
+                onOpenReplies = sheetNavigationViewModel::openReplies,
+                onDismiss = dialogViewModel::dismissMessageOptions,
+            )
+        }
     }
 
-    dialogState.emoteInfoEmotes?.let { emotes ->
-        EmoteInfoDialogContainer(
-            emotes = emotes,
-            isLoggedIn = isLoggedIn,
-            onInsertText = chatInputViewModel::insertText,
-            onOpenUrl = onOpenUrl,
-            onDismiss = dialogViewModel::dismissEmoteInfo,
-        )
+    if (sheetsReady) {
+        dialogState.emoteInfoEmotes?.let { emotes ->
+            EmoteInfoDialogContainer(
+                emotes = emotes,
+                isLoggedIn = isLoggedIn,
+                onInsertText = chatInputViewModel::insertText,
+                onOpenUrl = onOpenUrl,
+                onDismiss = dialogViewModel::dismissEmoteInfo,
+            )
+        }
     }
 
-    dialogState.userPopupParams?.let { params ->
-        UserPopupDialogContainer(
-            params = params,
-            onMention = chatInputViewModel::mentionUser,
-            onWhisper = { userName ->
-                sheetNavigationViewModel.openWhispers()
-                chatInputViewModel.setWhisperTarget(userName)
-            },
-            onOpenUrl = onOpenUrl,
-            onReportChannel = onReportChannel,
-            onOpenHistory = { channel, filter ->
-                sheetNavigationViewModel.openHistory(channel, filter)
-                dialogViewModel.dismissUserPopup()
-            },
-            onDismiss = dialogViewModel::dismissUserPopup,
-        )
+    if (sheetsReady) {
+        dialogState.userPopupParams?.let { params ->
+            UserPopupDialogContainer(
+                params = params,
+                onMention = chatInputViewModel::mentionUser,
+                onWhisper = { userName ->
+                    sheetNavigationViewModel.openWhispers()
+                    chatInputViewModel.setWhisperTarget(userName)
+                },
+                onOpenUrl = onOpenUrl,
+                onReportChannel = onReportChannel,
+                onOpenHistory = { channel, filter ->
+                    sheetNavigationViewModel.openHistory(channel, filter)
+                    dialogViewModel.dismissUserPopup()
+                },
+                onDismiss = dialogViewModel::dismissUserPopup,
+            )
+        }
     }
 
-    if (inputSheetState is InputSheetState.DebugInfo) {
+    if (sheetsReady && inputSheetState is InputSheetState.DebugInfo) {
         val debugInfoViewModel: DebugInfoViewModel = koinViewModel()
         DebugInfoSheet(
             viewModel = debugInfoViewModel,

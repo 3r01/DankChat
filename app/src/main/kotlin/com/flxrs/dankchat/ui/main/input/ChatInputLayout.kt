@@ -90,6 +90,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -199,6 +200,7 @@ fun ChatInputLayout(
                 }.toImmutableList()
         }
 
+    val keyboardController = LocalSoftwareKeyboardController.current
     var visibleActions by remember { mutableStateOf(effectiveActions) }
     val quickActionsExpanded = overflowExpanded || tourState.forceOverflowOpen
     var showConfigSheet by remember { mutableStateOf(false) }
@@ -423,6 +425,7 @@ fun ChatInputLayout(
                 },
                 onConfigureClick = {
                     onOverflowExpandedChange(false)
+                    keyboardController?.hide()
                     showConfigSheet = true
                 },
             )

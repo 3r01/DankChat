@@ -225,6 +225,24 @@ fun MainScreen(
     val isHistorySheet = fullScreenSheetState is FullScreenSheetState.History
     val inputSheetState = sheetNavState.inputSheet
 
+    // Dismiss keyboard before opening sheets to prevent animation conflicts.
+    // Defers sheet rendering until the keyboard has started closing.
+    val hasBottomSheet = isSheetOpen ||
+        dialogState.messageOptionsParams != null ||
+        dialogState.userPopupParams != null ||
+        dialogState.emoteInfoEmotes != null ||
+        dialogState.showModActions
+    var sheetsReady by remember { mutableStateOf(true) }
+    LaunchedEffect(hasBottomSheet) {
+        if (hasBottomSheet && isImeVisible) {
+            sheetsReady = false
+            keyboardController?.hide()
+            snapshotFlow { imeHeightState.value }
+                .first { it == 0 }
+        }
+        sheetsReady = true
+    }
+
     MainScreenEventHandler(
         snackbarHostState = snackbarHostState,
         mainEventBus = mainEventBus,
@@ -256,6 +274,7 @@ fun MainScreen(
         isStreamActive = currentStream != null,
         inputSheetState = inputSheetState,
         snackbarHostState = snackbarHostState,
+        sheetsReady = sheetsReady,
         onAddChannel = {
             channelManagementViewModel.addChannel(it)
             dialogViewModel.dismissAddChannel()
