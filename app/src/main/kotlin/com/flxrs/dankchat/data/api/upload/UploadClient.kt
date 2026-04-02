@@ -12,13 +12,20 @@ import io.ktor.http.URLBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
-import org.json.JSONObject
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 import java.io.File
@@ -76,7 +83,7 @@ class UploadClient(
                 }
 
                 response
-                    .asJsonObject()
+                    .asJson()
                     .mapCatching { json ->
                         val deleteLink = deletionLinkPattern?.takeIf { it.isNotBlank() }?.let { json.extractLink(it) }
                         val imageLink = json.extractLink(imageLinkPattern)
@@ -97,43 +104,47 @@ class UploadClient(
     }
 
     @Suppress("RegExpRedundantEscape")
-    private suspend fun JSONObject.extractLink(linkPattern: String): String = withContext(Dispatchers.Default) {
-        var imageLink: String = linkPattern
-
-        val regex = "\\{(.+?)\\}".toRegex()
-        regex.findAll(linkPattern).forEach {
-            val jsonValue = getValue(it.groupValues[1])
-            if (jsonValue != null) {
-                imageLink = imageLink.replace(it.groupValues[0], jsonValue)
-            }
-        }
-        imageLink
+    private suspend fun JsonElement.extractLink(linkPattern: String): String = withContext(Dispatchers.Default) {
+        extractJsonLink(linkPattern)
     }
 
-    private fun Response.asJsonObject(): Result<JSONObject> = runCatching {
-        val bodyString = body.string()
-        JSONObject(bodyString)
+    private fun Response.asJson(): Result<JsonElement> = runCatching {
+        Json.parseToJsonElement(body.string())
     }.onFailure {
-        Log.d(TAG, "Error creating JsonObject from response: ", it)
-    }
-
-    private fun JSONObject.getValue(pattern: String): String? {
-        return runCatching {
-            pattern
-                .split(".")
-                .fold(this) { acc, key ->
-                    val value = acc.get(key)
-                    if (value !is JSONObject) {
-                        return value.toString()
-                    }
-
-                    value
-                }
-            null
-        }.getOrNull()
+        Log.d(TAG, "Error parsing JSON from response: ", it)
     }
 
     companion object {
         private val TAG = UploadClient::class.java.simpleName
+        private val LINK_PATTERN_REGEX = "\\{(.+?)\\}".toRegex()
+
+        @Suppress("RegExpRedundantEscape")
+        internal fun JsonElement.extractJsonLink(linkPattern: String): String {
+            var result = linkPattern
+            LINK_PATTERN_REGEX.findAll(linkPattern).forEach {
+                val jsonValue = getJsonValue(it.groupValues[1])
+                if (jsonValue != null) {
+                    result = result.replace(it.groupValues[0], jsonValue)
+                }
+            }
+            return result
+        }
+
+        internal fun JsonElement.getJsonValue(pattern: String): String? {
+            return runCatching {
+                val result = pattern.split(".").fold(this) { acc: JsonElement, key ->
+                    when (acc) {
+                        is JsonObject -> acc.jsonObject[key] ?: return@runCatching null
+                        is JsonArray -> acc.jsonArray[key.toInt()]
+                        is JsonPrimitive -> return@runCatching acc.content
+                        else -> return@runCatching null
+                    }
+                }
+                when (result) {
+                    is JsonPrimitive -> result.content
+                    is JsonObject, is JsonArray -> result.toString()
+                }
+            }.getOrNull()
+        }
     }
 }
