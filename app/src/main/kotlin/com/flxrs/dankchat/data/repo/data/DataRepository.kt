@@ -298,8 +298,9 @@ class DataRepository(
     }
 
     private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): Result<T> = onFailure { throwable ->
-        Log.e(TAG, "Data request failed:", throwable)
-        _dataLoadingFailures.update { it + DataLoadingFailure(step(), throwable) }
+        val loadingStep = step()
+        Log.e(TAG, "Data request failed [$loadingStep]:", throwable)
+        _dataLoadingFailures.update { it + DataLoadingFailure(loadingStep, throwable) }
     }
 
     companion object {

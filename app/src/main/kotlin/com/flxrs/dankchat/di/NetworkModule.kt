@@ -94,9 +94,9 @@ class NetworkModule {
             json(json)
         }
         install(HttpTimeout) {
-            connectTimeoutMillis = 15_000
-            requestTimeoutMillis = 15_000
-            socketTimeoutMillis = 15_000
+            connectTimeoutMillis = 30_000
+            requestTimeoutMillis = 30_000
+            socketTimeoutMillis = 30_000
         }
     }
 
