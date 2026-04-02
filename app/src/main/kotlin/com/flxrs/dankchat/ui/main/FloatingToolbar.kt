@@ -87,6 +87,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -150,9 +151,18 @@ fun FloatingToolbar(
     val tabWidths = remember { mutableStateOf(IntArray(0)) }
     var tabViewportWidth by remember { mutableIntStateOf(0) }
 
-    // Reset menus when toolbar hides
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Reset menus when toolbar hides or keyboard opens
     LaunchedEffect(showAppBar) {
         if (!showAppBar) {
+            showOverflowMenu = false
+            showQuickSwitch = false
+        }
+    }
+    val isKeyboardOpen = keyboardHeightDp > 0.dp
+    LaunchedEffect(isKeyboardOpen) {
+        if (isKeyboardOpen) {
             showOverflowMenu = false
             showQuickSwitch = false
         }
@@ -626,6 +636,7 @@ fun FloatingToolbar(
                                         showQuickSwitch = false
                                         overflowInitialMenu = AppBarMenu.Main
                                         showOverflowMenu = !showOverflowMenu
+                                        keyboardController?.hide()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
