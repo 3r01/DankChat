@@ -62,10 +62,10 @@ fun MainScreenEventHandler(
                         ?.setPrimaryClip(ClipData.newPlainText("dankchat_media_url", event.url))
                     chatInputViewModel.postSystemMessage(resources.getString(R.string.system_message_upload_complete, event.url))
                     val result = snackbarHostState.showSnackbar(
-                            message = resources.getString(R.string.snackbar_image_uploaded, event.url),
-                            actionLabel = resources.getString(R.string.snackbar_paste),
-                            duration = SnackbarDuration.Short,
-                        )
+                        message = resources.getString(R.string.snackbar_image_uploaded, event.url),
+                        actionLabel = resources.getString(R.string.snackbar_paste),
+                        duration = SnackbarDuration.Short,
+                    )
                     if (result == SnackbarResult.ActionPerformed) {
                         chatInputViewModel.insertText(event.url)
                     }
@@ -75,7 +75,7 @@ fun MainScreenEventHandler(
                     dialogViewModel.setUploading(false)
                     val message = event.errorMessage
                         ?.let { resources.getString(R.string.snackbar_upload_failed_cause, it) }
-                            ?: resources.getString(R.string.snackbar_upload_failed)
+                        ?: resources.getString(R.string.snackbar_upload_failed)
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
                 }
 
@@ -90,7 +90,9 @@ fun MainScreenEventHandler(
                     (context as? MainActivity)?.clearNotificationsOfChannel(event.channel)
                 }
 
-                else -> Unit
+                else -> {
+                    Unit
+                }
             }
         }
     }
@@ -140,14 +142,14 @@ fun MainScreenEventHandler(
             val allSteps = dataSteps + chatSteps
             val stepsText = allSteps.joinToString(", ")
             val message = when {
-                    allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
-                    else -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
-                }
+                allSteps.size == 1 -> resources.getString(R.string.snackbar_data_load_failed_cause, stepsText)
+                else -> resources.getString(R.string.snackbar_data_load_failed_multiple_causes, stepsText)
+            }
             val result = snackbarHostState.showSnackbar(
-                    message = message,
-                    actionLabel = resources.getString(R.string.snackbar_retry),
-                    duration = SnackbarDuration.Short,
-                )
+                message = message,
+                actionLabel = resources.getString(R.string.snackbar_retry),
+                duration = SnackbarDuration.Short,
+            )
             if (result == SnackbarResult.ActionPerformed) {
                 mainScreenViewModel.retryDataLoading(state)
             }

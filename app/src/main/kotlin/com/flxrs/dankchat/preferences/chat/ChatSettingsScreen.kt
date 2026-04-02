@@ -71,10 +71,10 @@ fun ChatSettingsScreen(
             when (it) {
                 ChatSettingsEvent.RestartRequired -> {
                     val result = snackbarHostState.showSnackbar(
-                            message = restartRequiredTitle,
-                            actionLabel = restartRequiredAction,
-                            duration = SnackbarDuration.Short,
-                        )
+                        message = restartRequiredTitle,
+                        actionLabel = restartRequiredAction,
+                        duration = SnackbarDuration.Short,
+                    )
                     if (result == SnackbarResult.ActionPerformed) {
                         ProcessPhoenix.triggerRebirth(context)
                     }

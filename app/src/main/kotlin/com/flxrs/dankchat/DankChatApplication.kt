@@ -35,7 +35,6 @@ import org.koin.ksp.generated.module
 class DankChatApplication :
     Application(),
     SingletonImageLoader.Factory {
-
     private val dispatchersProvider: DispatchersProvider by inject()
     private val scope by lazy { CoroutineScope(SupervisorJob() + dispatchersProvider.main) }
 
