@@ -83,10 +83,8 @@
     <string name="highlight_header_first_time_chat">Ensimmäinen viesti</string>
     <string name="highlight_header_elevated_chat">Korostettu viesti</string>
     <string name="highlight_header_gigantified_emote">Jättimäinen emote</string>
-    <string name="highlight_header_gigantified_emote_cost">Jättimäinen emote · %1$d Bits</string>
     <string name="highlight_header_animated_message">Animoitu viesti</string>
-    <string name="highlight_header_animated_message_cost">Animoitu viesti · %1$d Bits</string>
-    <plurals name="duration_seconds">
+    <string name="highlight_header_reward_no_cost">Lunastettu %1$s</string>    <plurals name="duration_seconds">
         <item quantity="one">%1$d sekunti</item>
         <item quantity="other">%1$d sekuntia</item>
     </plurals>

@@ -80,10 +80,8 @@
     <string name="highlight_header_first_time_chat">初めてのチャット</string>
     <string name="highlight_header_elevated_chat">ピン留めチャット</string>
     <string name="highlight_header_gigantified_emote">巨大エモート</string>
-    <string name="highlight_header_gigantified_emote_cost">巨大エモート · %1$d Bits</string>
     <string name="highlight_header_animated_message">アニメーションメッセージ</string>
-    <string name="highlight_header_animated_message_cost">アニメーションメッセージ · %1$d Bits</string>
-    <plurals name="duration_seconds">
+    <string name="highlight_header_reward_no_cost">引き換え済み %1$s</string>    <plurals name="duration_seconds">
         <item quantity="other">%1$d秒</item>
     </plurals>
     <plurals name="duration_minutes">

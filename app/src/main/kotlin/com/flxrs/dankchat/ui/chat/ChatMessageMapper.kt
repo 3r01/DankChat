@@ -539,18 +539,20 @@ class ChatMessageMapper(
         val highlightHeader =
             when {
                 isGigantifiedEmote -> {
-                    rewardCost?.let { TextResource.Res(R.string.highlight_header_gigantified_emote_cost, persistentListOf(it)) }
-                        ?: TextResource.Res(R.string.highlight_header_gigantified_emote)
+                    TextResource.Res(R.string.highlight_header_gigantified_emote)
                 }
 
                 isAnimatedMessage -> {
-                    rewardCost?.let { TextResource.Res(R.string.highlight_header_animated_message_cost, persistentListOf(it)) }
-                        ?: TextResource.Res(R.string.highlight_header_animated_message)
+                    TextResource.Res(R.string.highlight_header_animated_message)
                 }
 
                 isElevatedMessage -> {
                     hypeChatInfo?.let { TextResource.Plain(it) }
                         ?: TextResource.Res(R.string.highlight_header_elevated_chat)
+                }
+
+                rewardTitle != null -> {
+                    TextResource.Res(R.string.highlight_header_reward_no_cost, persistentListOf(rewardTitle))
                 }
 
                 highlights.highestPriorityHighlight()?.type == HighlightType.FirstMessage -> {
@@ -597,6 +599,12 @@ class ChatMessageMapper(
             isAction = isAction,
             thread = threadUi,
             highlightHeader = highlightHeader,
+            highlightHeaderImageUrl = rewardImageUrl,
+            highlightHeaderCost = rewardCost,
+            highlightHeaderCostSuffix = when {
+                isGigantifiedEmote || isAnimatedMessage -> "Bits"
+                else -> null
+            },
             fullMessage = fullMessage,
         )
     }
@@ -615,6 +623,7 @@ class ChatMessageMapper(
             }
 
         val nameText = if (!requiresUserInput) aliasOrFormattedName else null
+        val nameColor = usersRepository.getCachedUserColor(name) ?: Message.DEFAULT_COLOR
 
         return ChatMessageUiState.PointRedemptionMessageUi(
             id = id,
@@ -624,6 +633,7 @@ class ChatMessageMapper(
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             nameText = nameText,
+            rawNameColor = nameColor,
             title = title,
             cost = cost,
             rewardImageUrl = rewardImageUrl,

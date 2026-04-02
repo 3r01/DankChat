@@ -245,7 +245,7 @@ fun PointRedemptionMessageComposable(
     highlightShape: Shape = RectangleShape,
 ) {
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
-    val timestampColor = rememberAdaptiveTextColor(backgroundColor)
+    val textColor = rememberAdaptiveTextColor(backgroundColor)
 
     Box(
         modifier =
@@ -256,16 +256,18 @@ fun PointRedemptionMessageComposable(
                 .background(backgroundColor, highlightShape)
                 .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
+        val nameColor = message.nameText?.let { rememberNormalizedColor(message.rawNameColor, backgroundColor) }
+
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
             val annotatedString =
-                remember(message, timestampColor) {
+                remember(message, textColor, nameColor) {
                     buildAnnotatedString {
                         // Timestamp
                         if (message.timestamp.isNotEmpty()) {
-                            withStyle(timestampSpanStyle(fontSize, timestampColor)) {
+                            withStyle(timestampSpanStyle(fontSize, textColor)) {
                                 append(message.timestamp)
                             }
                             append("\u2009")
@@ -277,7 +279,7 @@ fun PointRedemptionMessageComposable(
                             }
 
                             message.nameText != null -> {
-                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = nameColor ?: textColor)) {
                                     append(message.nameText)
                                 }
                                 append(" redeemed ")
@@ -293,8 +295,7 @@ fun PointRedemptionMessageComposable(
 
             BasicText(
                 text = annotatedString,
-                style = TextStyle(fontSize = fontSize.sp),
-                modifier = Modifier.weight(1f),
+                style = TextStyle(fontSize = fontSize.sp, color = textColor),
             )
 
             AsyncImage(
@@ -305,7 +306,7 @@ fun PointRedemptionMessageComposable(
 
             BasicText(
                 text = " ${message.cost}",
-                style = TextStyle(fontSize = fontSize.sp),
+                style = TextStyle(fontSize = fontSize.sp, color = textColor),
                 modifier = Modifier.padding(start = 4.dp),
             )
         }

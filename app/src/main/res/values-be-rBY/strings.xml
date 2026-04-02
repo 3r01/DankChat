@@ -81,9 +81,8 @@
     <string name="highlight_header_first_time_chat">Першае паведамленне</string>
     <string name="highlight_header_elevated_chat">Павышанае паведамленне</string>
     <string name="highlight_header_gigantified_emote">Гіганцкі эмоут</string>
-    <string name="highlight_header_gigantified_emote_cost">Гіганцкі эмоут · %1$d Bits</string>
     <string name="highlight_header_animated_message">Аніміраванае паведамленне</string>
-    <string name="highlight_header_animated_message_cost">Аніміраванае паведамленне · %1$d Bits</string>
+    <string name="highlight_header_reward_no_cost">Выкарыстана: %1$s</string>
     <plurals name="duration_seconds">
         <item quantity="one">%1$d секунду</item>
         <item quantity="few">%1$d секунды</item>

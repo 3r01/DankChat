@@ -85,10 +85,8 @@
     <string name="highlight_header_first_time_chat">ପ୍ରଥମ ଥର ଚାଟ୍</string>
     <string name="highlight_header_elevated_chat">ଉଚ୍ଚତର ଚାଟ୍</string>
     <string name="highlight_header_gigantified_emote">ବିଶାଳ ଇମୋଟ</string>
-    <string name="highlight_header_gigantified_emote_cost">ବିଶାଳ ଇମୋଟ · %1$d Bits</string>
     <string name="highlight_header_animated_message">ଆନିମେଟେଡ ବାର୍ତ୍ତା</string>
-    <string name="highlight_header_animated_message_cost">ଆନିମେଟେଡ ବାର୍ତ୍ତା · %1$d Bits</string>
-    <plurals name="duration_seconds">
+    <string name="highlight_header_reward_no_cost">ରିଡିମ କରାଯାଇଛି %1$s</string>    <plurals name="duration_seconds">
         <item quantity="one">%1$d ସେକେଣ୍ଡ</item>
         <item quantity="other">%1$d ସେକେଣ୍ଡ</item>
     </plurals>

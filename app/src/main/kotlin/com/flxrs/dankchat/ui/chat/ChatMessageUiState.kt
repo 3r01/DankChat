@@ -46,6 +46,9 @@ sealed interface ChatMessageUiState {
         val isAction: Boolean,
         val thread: ThreadUi?,
         val highlightHeader: TextResource? = null,
+        val highlightHeaderImageUrl: String? = null,
+        val highlightHeaderCost: Int? = null,
+        val highlightHeaderCostSuffix: String? = null,
         val fullMessage: String, // For copying
     ) : ChatMessageUiState
 
@@ -120,6 +123,7 @@ sealed interface ChatMessageUiState {
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = true,
         val nameText: String?,
+        val rawNameColor: Int,
         val title: String,
         val cost: Int,
         val rewardImageUrl: String,

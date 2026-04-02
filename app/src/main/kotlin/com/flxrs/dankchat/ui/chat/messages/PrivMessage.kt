@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
@@ -108,6 +109,29 @@ fun PrivMessageComposable(
                     maxLines = 1,
                     modifier = Modifier.padding(start = 4.dp),
                 )
+                if (message.highlightHeaderImageUrl != null && message.highlightHeaderCost != null) {
+                    AsyncImage(
+                        model = message.highlightHeaderImageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(start = 6.dp)
+                            .size(14.dp),
+                        alpha = 0.6f,
+                    )
+                    val costText = buildString {
+                        append(message.highlightHeaderCost)
+                        if (message.highlightHeaderCostSuffix != null) {
+                            append(" ${message.highlightHeaderCostSuffix}")
+                        }
+                    }
+                    Text(
+                        text = costText,
+                        fontSize = (fontSize * 0.9f).sp,
+                        fontWeight = FontWeight.Medium,
+                        color = headerColor,
+                        modifier = Modifier.padding(start = 2.dp),
+                    )
+                }
             }
         }
 

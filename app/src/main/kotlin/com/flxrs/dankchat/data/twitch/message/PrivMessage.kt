@@ -33,6 +33,8 @@ data class PrivMessage(
     val thread: MessageThreadHeader? = null,
     val replyMentionOffset: Int = 0,
     val rewardCost: Int? = null,
+    val rewardTitle: String? = null,
+    val rewardImageUrl: String? = null,
     override val emoteData: EmoteData =
         EmoteData(
             message = originalMessage,

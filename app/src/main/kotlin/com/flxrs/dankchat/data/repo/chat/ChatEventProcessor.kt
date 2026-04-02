@@ -420,7 +420,8 @@ class ChatEventProcessor(
             return
         }
 
-        val additionalMessages = resolveRewardMessages(ircMessage)
+        val resolvedReward = resolveReward(ircMessage)
+        val additionalMessages = resolvedReward?.toStandaloneMessage().orEmpty()
 
         val message =
             runCatching {
@@ -430,7 +431,8 @@ class ChatEventProcessor(
             }.getOrElse {
                 Log.e(TAG, "Failed to parse message", it)
                 return
-            }?.let { resolveAutomaticRewardCost(it) } ?: return
+            }?.let { resolveAutomaticRewardCost(it) }
+                ?.let { attachRewardInfo(it, resolvedReward) } ?: return
 
         if (message is NoticeMessage && usersRepository.isGlobalChannel(message.channel)) {
             chatMessageRepository.broadcastToAllChannels(ChatItem(message, importance = ChatImportance.SYSTEM))
@@ -483,35 +485,47 @@ class ChatEventProcessor(
         }
     }
 
-    private suspend fun resolveRewardMessages(ircMessage: IrcMessage): List<ChatItem> {
-        val rewardId = ircMessage.tags["custom-reward-id"]?.takeIf { it.isNotEmpty() } ?: return emptyList()
-        val isAutomodApproval = knownAutomodHeldIds.remove(rewardId)
-        if (isAutomodApproval) {
-            return emptyList()
+    private suspend fun resolveReward(ircMessage: IrcMessage): PubSubMessage.PointRedemption? {
+        val rewardId = ircMessage.tags["custom-reward-id"]?.takeIf { it.isNotEmpty() } ?: return null
+        if (knownAutomodHeldIds.remove(rewardId)) {
+            return null
         }
 
-        val reward =
-            rewardMutex.withLock {
-                knownRewards[rewardId]
-                    ?.also {
-                        Log.d(TAG, "Removing known reward $rewardId")
-                        knownRewards.remove(rewardId)
-                    }
-                    ?: run {
-                        Log.d(TAG, "Waiting for pubsub reward message with id $rewardId")
-                        withTimeoutOrNull(PUBSUB_TIMEOUT) {
-                            chatConnector.pubSubEvents
-                                .filterIsInstance<PubSubMessage.PointRedemption>()
-                                .first { it.data.reward.id == rewardId }
-                        }?.also { knownRewards[rewardId] = it }
-                    }
-            }
+        return rewardMutex.withLock {
+            knownRewards[rewardId]
+                ?.also {
+                    Log.d(TAG, "Removing known reward $rewardId")
+                    knownRewards.remove(rewardId)
+                }
+                ?: run {
+                    Log.d(TAG, "Waiting for pubsub reward message with id $rewardId")
+                    withTimeoutOrNull(PUBSUB_TIMEOUT) {
+                        chatConnector.pubSubEvents
+                            .filterIsInstance<PubSubMessage.PointRedemption>()
+                            .first { it.data.reward.id == rewardId }
+                    }?.also { knownRewards[rewardId] = it }
+                }
+        }
+    }
 
-        return reward
-            ?.let {
-                val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(it.timestamp, it.data))
-                listOfNotNull(processed?.let(::ChatItem))
-            }.orEmpty()
+    private suspend fun PubSubMessage.PointRedemption.toStandaloneMessage(): List<ChatItem> {
+        if (data.reward.requiresUserInput) return emptyList()
+        val processed = messageProcessor.processReward(PointRedemptionMessage.parsePointReward(timestamp, data))
+        return listOfNotNull(processed?.let(::ChatItem))
+    }
+
+    private fun attachRewardInfo(
+        message: Message,
+        reward: PubSubMessage.PointRedemption?,
+    ): Message {
+        if (message !is PrivMessage || reward == null) return message
+        if (!reward.data.reward.requiresUserInput) return message
+        val rewardData = reward.data.reward
+        return message.copy(
+            rewardCost = rewardData.effectiveCost,
+            rewardTitle = rewardData.effectiveTitle,
+            rewardImageUrl = rewardData.images?.imageLarge ?: rewardData.defaultImages?.imageLarge,
+        )
     }
 
     private suspend fun resolveAutomaticRewardCost(message: Message): Message {
@@ -527,8 +541,11 @@ class ChatEventProcessor(
                 .first { it.data.reward.effectiveId == msgId }
         }
 
-        val cost = reward?.data?.reward?.effectiveCost ?: return message
-        return message.copy(rewardCost = cost)
+        val rewardData = reward?.data?.reward ?: return message
+        return message.copy(
+            rewardCost = rewardData.effectiveCost,
+            rewardImageUrl = rewardData.images?.imageLarge ?: rewardData.defaultImages?.imageLarge,
+        )
     }
 
     private fun trackUserState(message: Message) {
