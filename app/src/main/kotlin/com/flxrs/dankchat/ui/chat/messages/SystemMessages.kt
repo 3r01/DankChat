@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,9 +22,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
+import com.flxrs.dankchat.ui.chat.messages.common.URL_ANNOTATION_TAG
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
+import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
@@ -83,6 +87,7 @@ fun UserNoticeMessageComposable(
     modifier: Modifier = Modifier,
     highlightShape: Shape = RectangleShape,
 ) {
+    val context = LocalPlatformContext.current
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = MaterialTheme.colorScheme.onSurface
     val linkColor = rememberAdaptiveLinkColor(bgColor)
@@ -152,10 +157,16 @@ fun UserNoticeMessageComposable(
                 .background(bgColor, highlightShape)
                 .padding(horizontal = 2.dp, vertical = 2.dp),
     ) {
-        Text(
+        ClickableText(
             text = annotatedString,
             style = TextStyle(fontSize = textSize),
             modifier = Modifier.fillMaxWidth(),
+            onClick = { offset ->
+                val url = annotatedString.getStringAnnotations(URL_ANNOTATION_TAG, offset, offset).firstOrNull()
+                if (url != null) {
+                    launchCustomTab(context, url.item)
+                }
+            },
         )
     }
 }
