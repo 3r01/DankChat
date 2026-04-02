@@ -340,10 +340,11 @@ fun FloatingToolbar(
                                     ) {
                                         tabState.tabs.forEachIndexed { index, tab ->
                                             val isSelected = index == selectedIndex
+                                            val hasActivity = tab.mentionCount > 0 || tab.hasUnread
                                             val textColor =
                                                 when {
                                                     isSelected -> MaterialTheme.colorScheme.primary
-                                                    tab.mentionCount > 0 || tab.hasUnread -> MaterialTheme.colorScheme.onSurface
+                                                    hasActivity -> MaterialTheme.colorScheme.onSurface
                                                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                                                 }
                                             Row(
@@ -370,7 +371,7 @@ fun FloatingToolbar(
                                                     text = tab.displayName,
                                                     color = textColor,
                                                     style = MaterialTheme.typography.labelLarge,
-                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                    fontWeight = if (isSelected || hasActivity) FontWeight.Bold else FontWeight.Normal,
                                                 )
                                                 if (tab.mentionCount > 0) {
                                                     Spacer(Modifier.width(4.dp))
