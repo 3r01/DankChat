@@ -60,7 +60,10 @@ fun EmoteInfoDialog(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             if (items.size > 1) {
-                PrimaryTabRow(selectedTabIndex = pagerState.currentPage) {
+                PrimaryTabRow(
+                    selectedTabIndex = pagerState.currentPage,
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                ) {
                     items.forEachIndexed { index, item ->
                         Tab(
                             selected = pagerState.currentPage == index,
