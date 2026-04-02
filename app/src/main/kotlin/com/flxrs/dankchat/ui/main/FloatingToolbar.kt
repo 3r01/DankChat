@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -621,7 +622,10 @@ fun FloatingToolbar(
                                     if (isLoggedIn) {
                                         IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
                                             Icon(
-                                                imageVector = Icons.Default.Notifications,
+                                                imageVector = when {
+                                                    totalMentionCount > 0 -> Icons.Default.Notifications
+                                                    else -> Icons.Outlined.Notifications
+                                                },
                                                 contentDescription = stringResource(R.string.mentions_title),
                                                 tint =
                                                     if (totalMentionCount > 0) {
