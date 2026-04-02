@@ -3,7 +3,6 @@ package com.flxrs.dankchat.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialExpressiveTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -107,9 +106,7 @@ fun DankChatTheme(content: @Composable () -> Unit) {
             onSurfaceDark = darkColorScheme.onSurface,
         )
     val colors = if (darkTheme) darkColorScheme else lightColorScheme
-    val motionScheme = remember { MotionScheme.expressive() }
     MaterialExpressiveTheme(
-        motionScheme = motionScheme,
         colorScheme = colors,
     ) {
         CompositionLocalProvider(LocalAdaptiveColors provides adaptiveColors) {
