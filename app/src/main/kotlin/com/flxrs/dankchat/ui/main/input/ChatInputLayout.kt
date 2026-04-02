@@ -858,44 +858,50 @@ internal fun ExpandableHelperText(
     BoxWithConstraints(
         modifier =
             modifier
-                .fillMaxWidth()
-                .clickable { expanded = !expanded }
-                .animateContentSize(),
+                .fillMaxWidth(),
     ) {
         val maxWidthPx = with(density) { maxWidth.roundToPx() }
         val fitsOnOneLine =
             remember(combinedText, style, maxWidthPx) {
                 textMeasurer.measure(combinedText, style).size.width <= maxWidthPx
             }
-        val showTwoLines = expanded && !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
-        when {
-            showTwoLines -> {
-                Column {
+        val canExpand = !fitsOnOneLine && streamInfoText != null && roomStateText.isNotEmpty()
+        val showTwoLines = expanded && canExpand
+        val contentModifier =
+            when {
+                canExpand -> Modifier.clickable { expanded = !expanded }
+                else -> Modifier
+            }
+        Box(modifier = contentModifier.fillMaxWidth().animateContentSize()) {
+            when {
+                showTwoLines -> {
+                    Column {
+                        Text(
+                            text = roomStateText,
+                            style = style,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                        )
+                        Text(
+                            text = streamInfoText,
+                            style = style,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                        )
+                    }
+                }
+
+                else -> {
                     Text(
-                        text = roomStateText,
-                        style = style,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                    )
-                    Text(
-                        text = streamInfoText,
+                        text = combinedText,
                         style = style,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
                     )
                 }
-            }
-
-            else -> {
-                Text(
-                    text = combinedText,
-                    style = style,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
-                )
             }
         }
     }
