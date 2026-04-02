@@ -104,8 +104,8 @@ fun SuggestionDropdown(
                     suggestions,
                     key = { suggestion ->
                         when (suggestion) {
-                            is Suggestion.EmoteSuggestion -> "emote-${suggestion.emote.id}"
-                            is Suggestion.UserSuggestion -> "user-$suggestion"
+                            is Suggestion.EmoteSuggestion -> "emote-${suggestion.emote.emoteType}-${suggestion.emote.id}-${suggestion.emote.code}"
+                            is Suggestion.UserSuggestion -> "user-${suggestion.name.value}"
                             is Suggestion.EmojiSuggestion -> "emoji-${suggestion.emoji.unicode}"
                             is Suggestion.CommandSuggestion -> "cmd-${suggestion.command}"
                             is Suggestion.FilterSuggestion -> "filter-${suggestion.keyword}"
