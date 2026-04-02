@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.Rational
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
@@ -101,6 +103,21 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
         onDispose {
             controller.show(WindowInsetsCompat.Type.systemBars())
         }
+    }
+}
+
+@Composable
+internal fun AnimatedStatusBarScrim(
+    visible: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(),
+        exit = fadeOut(),
+        modifier = modifier,
+    ) {
+        StatusBarScrim()
     }
 }
 

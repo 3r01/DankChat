@@ -927,9 +927,10 @@ private fun BoxScope.WideSplitLayout(
                     showTabsInSplit,
                 )
 
-                if (!isFullscreen && gestureToolbarHidden) {
-                    StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
-                }
+                AnimatedStatusBarScrim(
+                    visible = !isFullscreen && gestureToolbarHidden,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
 
                 fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
 
@@ -1112,9 +1113,10 @@ private fun BoxScope.NormalStackedLayout(
         )
     }
 
-    if (!isInPipMode && !isFullscreen && gestureToolbarHidden) {
-        StatusBarScrim(modifier = Modifier.align(Alignment.TopCenter))
-    }
+    AnimatedStatusBarScrim(
+        visible = !isInPipMode && !isFullscreen && gestureToolbarHidden,
+        modifier = Modifier.align(Alignment.TopCenter),
+    )
 
     if (!isInPipMode) {
         fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
