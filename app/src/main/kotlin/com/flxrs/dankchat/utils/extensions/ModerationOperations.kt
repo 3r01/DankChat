@@ -12,7 +12,7 @@ fun MutableList<ChatItem>.replaceOrAddHistoryModerationMessage(moderationMessage
         return
     }
 
-    if (checkForStackedTimeouts(moderationMessage)) {
+    if (deduplicateOrStack(moderationMessage)) {
         add(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM))
     }
 }
@@ -27,7 +27,7 @@ fun List<ChatItem>.replaceOrAddModerationMessage(
         return this
     }
 
-    val addSystemMessage = checkForStackedTimeouts(moderationMessage)
+    val addSystemMessage = deduplicateOrStack(moderationMessage)
     for (idx in indices) {
         val item = this[idx]
         when (moderationMessage.action) {
@@ -92,36 +92,52 @@ fun List<ChatItem>.replaceWithTimeout(
     addAndTrimInline(ChatItem(moderationMessage, importance = ChatImportance.SYSTEM), scrollBackLength, onMessageRemoved)
 }
 
-private fun MutableList<ChatItem>.checkForStackedTimeouts(moderationMessage: ModerationMessage): Boolean {
-    if (moderationMessage.canStack) {
-        val end = (lastIndex - 20).coerceAtLeast(0)
-        for (idx in lastIndex downTo end) {
-            val item = this[idx]
-            val message = item.message as? ModerationMessage ?: continue
-            if (message.targetUser != moderationMessage.targetUser || message.action != moderationMessage.action) {
-                continue
-            }
+/**
+ * Checks recent messages for an existing moderation message with the same target and action.
+ * Handles three cases:
+ * - **Event source dedup**: EventSub replaces IRC; IRC is ignored if EventSub exists
+ * - **Stacking**: Repeated timeouts on the same user increment a stack counter
+ * - **New message**: If no recent match, or the match is >5s old, the message should be added
+ *
+ * @return `true` if the message should be added as a new system message, `false` if it was merged/replaced
+ */
+private fun MutableList<ChatItem>.deduplicateOrStack(moderationMessage: ModerationMessage): Boolean {
+    if (!moderationMessage.canStack) {
+        return true
+    }
 
-            if ((moderationMessage.timestamp - message.timestamp).milliseconds >= 5.seconds) {
-                return true
-            }
-
-            when {
-                !moderationMessage.fromEventSource && message.fromEventSource -> {
-                    Unit
-                }
-
-                moderationMessage.fromEventSource && !message.fromEventSource -> {
-                    this[idx] = item.copy(tag = item.tag + 1, message = moderationMessage)
-                }
-
-                moderationMessage.action == ModerationMessage.Action.Timeout || moderationMessage.action == ModerationMessage.Action.SharedTimeout -> {
-                    val stackedMessage = moderationMessage.copy(stackCount = message.stackCount + 1)
-                    this[idx] = item.copy(tag = item.tag + 1, message = stackedMessage)
-                }
-            }
-            return false
+    val end = (lastIndex - 20).coerceAtLeast(0)
+    for (idx in lastIndex downTo end) {
+        val item = this[idx]
+        val existing = item.message as? ModerationMessage ?: continue
+        if (existing.targetUser != moderationMessage.targetUser || existing.action != moderationMessage.action) {
+            continue
         }
+
+        // Different moderation action on the same user, treat as new
+        if ((moderationMessage.timestamp - existing.timestamp).milliseconds >= 5.seconds) {
+            return true
+        }
+
+        // Same action within 5 seconds — deduplicate or stack
+        when {
+            // IRC arriving after EventSub → keep EventSub, discard IRC
+            !moderationMessage.fromEventSource && existing.fromEventSource -> {
+                Unit
+            }
+
+            // EventSub arriving after IRC → replace IRC with EventSub (has moderator info)
+            moderationMessage.fromEventSource && !existing.fromEventSource -> {
+                this[idx] = item.copy(tag = item.tag + 1, message = moderationMessage)
+            }
+
+            // Same source, stackable action → increment stack count
+            moderationMessage.action == ModerationMessage.Action.Timeout || moderationMessage.action == ModerationMessage.Action.SharedTimeout -> {
+                val stackedMessage = moderationMessage.copy(stackCount = existing.stackCount + 1)
+                this[idx] = item.copy(tag = item.tag + 1, message = stackedMessage)
+            }
+        }
+        return false
     }
 
     return true

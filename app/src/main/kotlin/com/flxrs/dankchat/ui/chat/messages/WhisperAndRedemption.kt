@@ -279,7 +279,7 @@ fun PointRedemptionMessageComposable(
                             }
 
                             message.nameText != null -> {
-                                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = nameColor ?: textColor)) {
+                                withStyle(SpanStyle(color = nameColor ?: textColor)) {
                                     append(message.nameText)
                                 }
                                 append(" redeemed ")

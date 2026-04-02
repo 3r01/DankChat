@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -121,7 +120,7 @@ fun UserNoticeMessageComposable(
                         }
 
                         // Colored username
-                        withStyle(SpanStyle(color = nameColor, fontWeight = FontWeight.Bold)) {
+                        withStyle(SpanStyle(color = nameColor)) {
                             append(msgText.substring(nameIndex, nameIndex + displayName.length))
                         }
 
@@ -186,7 +185,6 @@ private data class StyledRange(
     val start: Int,
     val length: Int,
     val color: Color,
-    val bold: Boolean,
 )
 
 /**
@@ -245,21 +243,21 @@ fun ModerationMessageComposable(
                     message.creatorName?.let { name ->
                         val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
                         if (idx >= 0) {
-                            add(StyledRange(idx, name.length, creatorColor, bold = true))
+                            add(StyledRange(idx, name.length, creatorColor))
                             searchFrom = idx + name.length
                         }
                     }
                     message.targetName?.let { name ->
                         val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
                         if (idx >= 0) {
-                            add(StyledRange(idx, name.length, targetColor, bold = true))
+                            add(StyledRange(idx, name.length, targetColor))
                         }
                     }
                     for (arg in resolvedArguments) {
                         if (arg.isBlank()) continue
                         val idx = resolvedMessage.indexOf(arg, ignoreCase = true)
                         if (idx >= 0 && none { it.start <= idx && idx < it.start + it.length }) {
-                            add(StyledRange(idx, arg.length, textColor, bold = false))
+                            add(StyledRange(idx, arg.length, textColor))
                         }
                     }
                 }.sortedBy { it.start }
@@ -282,12 +280,7 @@ fun ModerationMessageComposable(
                             append(resolvedMessage.substring(cursor, range.start))
                         }
                     }
-                    val style =
-                        when {
-                            range.bold -> SpanStyle(color = range.color, fontWeight = FontWeight.Bold)
-                            else -> SpanStyle(color = range.color)
-                        }
-                    withStyle(style) {
+                    withStyle(SpanStyle(color = range.color)) {
                         append(resolvedMessage.substring(range.start, range.start + range.length))
                     }
                     cursor = range.start + range.length
