@@ -371,7 +371,11 @@ fun FloatingToolbar(
                                                     text = tab.displayName,
                                                     color = textColor,
                                                     style = MaterialTheme.typography.labelLarge,
-                                                    fontWeight = if (isSelected || hasActivity) FontWeight.Bold else FontWeight.Normal,
+                                                    fontWeight = when {
+                                                        isSelected -> FontWeight.Bold
+                                                        hasActivity -> FontWeight.SemiBold
+                                                        else -> FontWeight.Normal
+                                                    },
                                                 )
                                                 if (tab.mentionCount > 0) {
                                                     Spacer(Modifier.width(4.dp))
