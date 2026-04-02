@@ -78,6 +78,12 @@ class EmoteRepository(
     private val globalEmoteState = MutableStateFlow(GlobalEmoteState())
     private val channelEmoteStates = ConcurrentHashMap<UserName, MutableStateFlow<ChannelEmoteState>>()
 
+    /**
+     * Per-channel cache of the merged 3rd-party emote lookup map (without Twitch emotes).
+     * Invalidated via referential identity checks on the global/channel state snapshots.
+     */
+    private val cachedEmoteMaps = ConcurrentHashMap<UserName, CachedEmoteMap>()
+
     fun getEmotes(channel: UserName): Flow<Emotes> {
         val channelFlow = channelEmoteStates.getOrPut(channel) { MutableStateFlow(ChannelEmoteState()) }
         return combine(globalEmoteState, channelFlow, ::mergeEmotes)
@@ -89,6 +95,7 @@ class EmoteRepository(
 
     fun removeChannel(channel: UserName) {
         channelEmoteStates.remove(channel)
+        cachedEmoteMaps.remove(channel)
     }
 
     fun clearTwitchEmotes() {
@@ -103,25 +110,7 @@ class EmoteRepository(
         channel: UserName,
         withTwitch: Boolean = false,
     ): List<ChatMessageEmote> {
-        val globalState = globalEmoteState.value
-        val channelState = channelEmoteStates[channel]?.value ?: ChannelEmoteState()
-        val isWhisper = channel == WhisperMessage.WHISPER_CHANNEL
-
-        // Build lookup map: lowest priority first, highest last (last write wins)
-        // Priority: Twitch > Channel FFZ > Channel BTTV > Channel 7TV > Global FFZ > Global BTTV > Global 7TV
-        val emoteMap = HashMap<String, GenericEmote>()
-        globalState.sevenTvEmotes.associateByTo(emoteMap) { it.code }
-        globalState.bttvEmotes.associateByTo(emoteMap) { it.code }
-        globalState.ffzEmotes.associateByTo(emoteMap) { it.code }
-        if (!isWhisper) {
-            channelState.sevenTvEmotes.associateByTo(emoteMap) { it.code }
-            channelState.bttvEmotes.associateByTo(emoteMap) { it.code }
-            channelState.ffzEmotes.associateByTo(emoteMap) { it.code }
-        }
-        if (withTwitch) {
-            globalState.twitchEmotes.associateByTo(emoteMap) { it.code }
-            channelState.twitchEmotes.associateByTo(emoteMap) { it.code }
-        }
+        val emoteMap = getOrBuildEmoteMap(channel, withTwitch)
 
         // Single pass through words
         var currentPosition = 0
@@ -142,6 +131,46 @@ class EmoteRepository(
                 currentPosition += word.length + 1
             }
         }
+    }
+
+    private fun getOrBuildEmoteMap(
+        channel: UserName,
+        withTwitch: Boolean,
+    ): Map<String, GenericEmote> {
+        val globalState = globalEmoteState.value
+        val channelState = channelEmoteStates[channel]?.value ?: ChannelEmoteState()
+
+        // Use cached map for the hot path (without Twitch emotes)
+        if (!withTwitch) {
+            val cached = cachedEmoteMaps[channel]
+            if (cached != null && cached.globalState === globalState && cached.channelState === channelState) {
+                return cached.map
+            }
+        }
+
+        val isWhisper = channel == WhisperMessage.WHISPER_CHANNEL
+
+        // Build lookup map: lowest priority first, highest last (last write wins)
+        // Priority: Twitch > Channel FFZ > Channel BTTV > Channel 7TV > Global FFZ > Global BTTV > Global 7TV
+        val map = HashMap<String, GenericEmote>()
+        globalState.sevenTvEmotes.associateByTo(map) { it.code }
+        globalState.bttvEmotes.associateByTo(map) { it.code }
+        globalState.ffzEmotes.associateByTo(map) { it.code }
+        if (!isWhisper) {
+            channelState.sevenTvEmotes.associateByTo(map) { it.code }
+            channelState.bttvEmotes.associateByTo(map) { it.code }
+            channelState.ffzEmotes.associateByTo(map) { it.code }
+        }
+        if (withTwitch) {
+            globalState.twitchEmotes.associateByTo(map) { it.code }
+            channelState.twitchEmotes.associateByTo(map) { it.code }
+        }
+
+        if (!withTwitch) {
+            cachedEmoteMaps[channel] = CachedEmoteMap(globalState, channelState, map)
+        }
+
+        return map
     }
 
     suspend fun parseEmotesAndBadges(message: Message): Message {
@@ -169,15 +198,13 @@ class EmoteRepository(
                 replyMentionOffset = replyMentionOffset,
             )
         val twitchEmoteCodes = twitchEmotes.mapTo(mutableSetOf()) { it.code }
-        val cheermotes =
-            when {
-                message is PrivMessage && message.tags["bits"] != null -> parseCheermotes(appendedSpaceAdjustedMessage, channel)
-                else -> emptyList()
-            }
-        val cheermoteCodes = cheermotes.mapTo(mutableSetOf()) { it.code }
-        val thirdPartyEmotes =
-            parse3rdPartyEmotes(appendedSpaceAdjustedMessage, channel)
-                .filterNot { it.code in twitchEmoteCodes || it.code in cheermoteCodes }
+        val hasBits = message is PrivMessage && message.tags["bits"] != null
+        val (thirdPartyEmotes, cheermotes) = parseNonTwitchEmotes(
+            message = appendedSpaceAdjustedMessage,
+            channel = channel,
+            excludeCodes = twitchEmoteCodes,
+            hasBits = hasBits,
+        )
         val emotes = twitchEmotes + thirdPartyEmotes + cheermotes
 
         val (adjustedMessage, adjustedEmotes) = adjustOverlayEmotes(appendedSpaceAdjustedMessage, emotes)
@@ -304,6 +331,12 @@ class EmoteRepository(
             }
         }
     }
+
+    private data class CachedEmoteMap(
+        val globalState: GlobalEmoteState,
+        val channelState: ChannelEmoteState,
+        val map: Map<String, GenericEmote>,
+    )
 
     data class TagListEntry(
         val key: String,
@@ -664,22 +697,32 @@ class EmoteRepository(
         }
     }
 
-    private fun parseCheermotes(
+    private fun parseNonTwitchEmotes(
         message: String,
         channel: UserName,
-    ): List<ChatMessageEmote> {
-        val cheermoteSets = channelEmoteStates[channel]?.value?.cheermoteSets
-        if (cheermoteSets.isNullOrEmpty()) return emptyList()
+        excludeCodes: Set<String>,
+        hasBits: Boolean,
+    ): Pair<List<ChatMessageEmote>, List<ChatMessageEmote>> {
+        val emoteMap = getOrBuildEmoteMap(channel, withTwitch = false)
+        val cheermoteSets = if (hasBits) {
+            channelEmoteStates[channel]?.value?.cheermoteSets.orEmpty()
+        } else {
+            emptyList()
+        }
 
+        val thirdPartyEmotes = mutableListOf<ChatMessageEmote>()
+        val cheermotes = mutableListOf<ChatMessageEmote>()
         var currentPosition = 0
-        return buildList {
-            message.split(WHITESPACE_REGEX).forEach { word ->
+
+        message.split(WHITESPACE_REGEX).forEach { word ->
+            var matchedCheermote = false
+            if (cheermoteSets.isNotEmpty()) {
                 for (set in cheermoteSets) {
                     val match = set.regex.matchEntire(word)
                     if (match != null) {
                         val bits = match.groupValues[1].toIntOrNull() ?: break
                         val tier = set.tiers.firstOrNull { bits >= it.minBits } ?: break
-                        this +=
+                        cheermotes +=
                             ChatMessageEmote(
                                 position = currentPosition..currentPosition + word.length,
                                 url = tier.animatedUrl,
@@ -690,12 +733,29 @@ class EmoteRepository(
                                 cheerAmount = bits,
                                 cheerColor = tier.color,
                             )
+                        matchedCheermote = true
                         break
                     }
                 }
-                currentPosition += word.length + 1
             }
+            if (!matchedCheermote && word !in excludeCodes) {
+                emoteMap[word]?.let { emote ->
+                    thirdPartyEmotes +=
+                        ChatMessageEmote(
+                            position = currentPosition..currentPosition + word.length,
+                            url = emote.url,
+                            id = emote.id,
+                            code = emote.code,
+                            scale = emote.scale,
+                            type = emote.emoteType.toChatMessageEmoteType() ?: ChatMessageEmoteType.TwitchEmote,
+                            isOverlayEmote = emote.isOverlayEmote,
+                        )
+                }
+            }
+            currentPosition += word.length + 1
         }
+
+        return thirdPartyEmotes to cheermotes
     }
 
     private fun UserEmoteDto.toGenericEmote(type: EmoteType): GenericEmote {

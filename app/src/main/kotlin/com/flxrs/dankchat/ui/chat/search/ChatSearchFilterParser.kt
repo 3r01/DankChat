@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.ui.chat.search
 
 object ChatSearchFilterParser {
+    private val WHITESPACE_REGEX = "\\s+".toRegex()
+
     fun parse(query: String): List<ChatSearchFilter> {
         if (query.isBlank()) return emptyList()
 
-        val tokens = query.trim().split("\\s+".toRegex())
+        val tokens = query.trim().split(WHITESPACE_REGEX)
         val lastTokenIncomplete = !query.endsWith(' ')
 
         return tokens.mapIndexedNotNull { index, token ->
