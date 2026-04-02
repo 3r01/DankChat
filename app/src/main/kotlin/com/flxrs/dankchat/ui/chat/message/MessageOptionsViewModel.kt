@@ -64,6 +64,7 @@ class MessageOptionsViewModel(
                         messageId = message.id,
                         rootThreadId = rootId ?: message.id,
                         rootThreadName = thread?.name,
+                        rootThreadMessage = thread?.message,
                         replyName = name,
                         name = name,
                         originalMessage = originalMessage.orEmpty(),

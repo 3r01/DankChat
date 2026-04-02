@@ -1,7 +1,8 @@
 package com.flxrs.dankchat.ui.chat.messages
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -58,6 +59,7 @@ import com.flxrs.dankchat.utils.resolve
  * - Clickable username and emotes
  * - Long-press to copy message
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Suppress("LambdaParameterEventTrailing")
 @Composable
 fun PrivMessageComposable(
@@ -141,8 +143,10 @@ fun PrivMessageComposable(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clickable { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) }
-                        .padding(top = 4.dp),
+                        .combinedClickable(
+                            onClick = { onReplyClick(message.thread.rootId, message.thread.userName.toUserName()) },
+                            onLongClick = { onMessageLongClick(message.id, message.channel.value, message.fullMessage) },
+                        ).padding(top = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val replyColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)

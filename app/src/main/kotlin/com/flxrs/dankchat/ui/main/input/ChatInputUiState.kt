@@ -37,6 +37,7 @@ sealed interface InputOverlay {
 
     data class Reply(
         val name: UserName,
+        val message: String,
     ) : InputOverlay
 
     data class Whisper(

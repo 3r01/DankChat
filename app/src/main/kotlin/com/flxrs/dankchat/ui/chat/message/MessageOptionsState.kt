@@ -13,6 +13,7 @@ sealed interface MessageOptionsState {
         val messageId: String,
         val rootThreadId: String,
         val rootThreadName: UserName?,
+        val rootThreadMessage: String?,
         val replyName: UserName,
         val name: UserName,
         val originalMessage: String,

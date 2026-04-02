@@ -362,7 +362,7 @@ private fun MessageOptionsDialogContainer(
     params: MessageOptionsParams,
     snackbarHostState: SnackbarHostState,
     onJumpToMessage: (String, UserName) -> Unit,
-    onSetReplying: (Boolean, String, UserName) -> Unit,
+    onSetReplying: (Boolean, String, UserName, String) -> Unit,
     onOpenReplies: (String, UserName) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -390,8 +390,8 @@ private fun MessageOptionsDialogContainer(
                     onJumpToMessage(params.messageId, channel)
                 }
             },
-            onReply = { onSetReplying(true, s.messageId, s.replyName) },
-            onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName) },
+            onReply = { onSetReplying(true, s.messageId, s.replyName, s.originalMessage) },
+            onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName, s.rootThreadMessage.orEmpty()) },
             onViewThread = { onOpenReplies(s.rootThreadId, s.replyName) },
             onCopy = {
                 scope.launch {

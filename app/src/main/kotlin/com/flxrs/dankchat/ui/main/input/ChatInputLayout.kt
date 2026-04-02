@@ -96,6 +96,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
@@ -231,8 +232,10 @@ fun ChatInputLayout(
                             is InputOverlay.Announce -> stringResource(R.string.mod_actions_announce_header)
                             InputOverlay.None -> ""
                         }
+                    val subtitleText = (overlay as? InputOverlay.Reply)?.message
                     InputOverlayHeader(
                         text = headerText,
+                        subtitle = subtitleText,
                         onDismiss = onOverlayDismiss,
                     )
                 }
@@ -572,6 +575,7 @@ private fun InputActionButton(
 private fun InputOverlayHeader(
     text: String,
     onDismiss: () -> Unit,
+    subtitle: String? = null,
 ) {
     Column {
         Row(
@@ -598,6 +602,16 @@ private fun InputOverlayHeader(
                     modifier = Modifier.size(16.dp),
                 )
             }
+        }
+        if (!subtitle.isNullOrBlank()) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(start = 16.dp, end = 8.dp, bottom = 4.dp),
+            )
         }
         HorizontalDivider(
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
