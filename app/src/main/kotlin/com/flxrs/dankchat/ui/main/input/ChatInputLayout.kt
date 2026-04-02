@@ -251,6 +251,7 @@ fun ChatInputLayout(
                                 if (textFieldState.text.isEmpty()) {
                                     singleLineHeight = maxOf(singleLineHeight, size.height)
                                 }
+                                callbacks.onInputMultilineChanged(singleLineHeight > 0 && size.height > singleLineHeight)
                             }.focusRequester(focusRequester),
                     label = { Text(hint) },
                     suffix = {

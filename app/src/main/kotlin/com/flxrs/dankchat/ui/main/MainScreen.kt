@@ -317,6 +317,7 @@ fun MainScreen(
     var inputHeightPx by remember { mutableIntStateOf(0) }
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
+    var isInputMultiline by remember { mutableStateOf(false) }
     if (!showInput) inputHeightPx = 0
     if (showInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
@@ -430,6 +431,7 @@ fun MainScreen(
                                     null
                                 },
                             onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
+                            onInputMultilineChanged = { isInputMultiline = it },
                         ),
                     isUploading = dialogState.isUploading,
                     isLoading = tabState.loading,
@@ -763,6 +765,7 @@ fun MainScreen(
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     isSheetOpen = isSheetOpen,
                     showInput = showInput,
+                    isInputMultiline = isInputMultiline,
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
@@ -776,6 +779,7 @@ fun MainScreen(
                 NormalStackedLayout(
                     currentStream = currentStream,
                     isAudioOnly = isAudioOnly,
+                    isInputMultiline = isInputMultiline,
                     onStreamClose = onStreamClose,
                     onAudioOnly = onAudioOnly,
                     hasWebViewBeenAttached = streamViewModel.hasWebViewBeenAttached,
@@ -831,6 +835,7 @@ private fun BoxScope.WideSplitLayout(
     isEmoteMenuOpen: Boolean,
     isSheetOpen: Boolean,
     showInput: Boolean,
+    isInputMultiline: Boolean,
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
@@ -841,8 +846,6 @@ private fun BoxScope.WideSplitLayout(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
     var splitFraction by remember { mutableFloatStateOf(0.6f) }
     var containerWidthPx by remember { mutableIntStateOf(0) }
 
@@ -924,7 +927,7 @@ private fun BoxScope.WideSplitLayout(
                             .align(Alignment.BottomCenter)
                             .padding(bottom = scaffoldBottomPadding)
                             .swipeDownToHide(
-                                enabled = showInput && !isSheetOpen,
+                                enabled = showInput && !isSheetOpen && !isInputMultiline,
                                 thresholdPx = swipeDownThresholdPx,
                                 onHide = onHideInput,
                             ),
@@ -969,6 +972,7 @@ private fun BoxScope.WideSplitLayout(
 private fun BoxScope.NormalStackedLayout(
     currentStream: UserName?,
     isAudioOnly: Boolean,
+    isInputMultiline: Boolean,
     onStreamClose: () -> Unit,
     onAudioOnly: () -> Unit,
     hasWebViewBeenAttached: Boolean,
@@ -1111,7 +1115,7 @@ private fun BoxScope.NormalStackedLayout(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = scaffoldBottomPadding)
                     .swipeDownToHide(
-                        enabled = showInput && !isSheetOpen,
+                        enabled = showInput && !isSheetOpen && !isInputMultiline,
                         thresholdPx = swipeDownThresholdPx,
                         onHide = onHideInput,
                     ),
