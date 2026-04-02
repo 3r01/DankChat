@@ -660,7 +660,7 @@ fun MainScreen(
                             }
 
                             InputAction.HideInput -> {
-                                mainScreenViewModel.hideInput()
+                                mainScreenViewModel.toggleInput()
                             }
 
                             InputAction.Debug -> {

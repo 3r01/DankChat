@@ -595,7 +595,7 @@ private fun getFabMenuItem(
     }
 
     InputAction.LastMessage -> {
-        FabMenuItem(R.string.input_action_last_message, Icons.Default.History)
+        null
     }
 
     InputAction.Stream -> {
