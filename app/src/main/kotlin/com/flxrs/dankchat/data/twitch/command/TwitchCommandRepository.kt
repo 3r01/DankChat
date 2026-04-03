@@ -17,6 +17,7 @@ import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ShieldModeRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.WhisperRequestDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.data.repo.ShieldModeRepository
 import com.flxrs.dankchat.data.repo.chat.UserState
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.toUserName
@@ -31,6 +32,7 @@ import java.util.UUID
 class TwitchCommandRepository(
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
+    private val shieldModeRepository: ShieldModeRepository,
 ) {
     fun isIrcCommand(trigger: String): Boolean = trigger in ALLOWED_IRC_COMMAND_TRIGGERS
 
@@ -783,6 +785,7 @@ class TwitchCommandRepository(
 
         return helixApiClient.putShieldMode(context.channelId, currentUserId, request).fold(
             onSuccess = {
+                shieldModeRepository.setState(context.channel, it.isActive)
                 val response =
                     when {
                         it.isActive -> TextResource.Res(R.string.cmd_shield_activated)
