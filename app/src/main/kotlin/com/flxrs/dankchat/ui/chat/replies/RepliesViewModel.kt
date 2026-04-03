@@ -26,9 +26,9 @@ class RepliesViewModel(
     @InjectedParam private val rootMessageId: String,
     repliesRepository: RepliesRepository,
     private val chatMessageMapper: ChatMessageMapper,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
-    private val chatSettingsDataStore: ChatSettingsDataStore,
     private val preferenceStore: DankChatPreferenceStore,
+    appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    chatSettingsDataStore: ChatSettingsDataStore,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(

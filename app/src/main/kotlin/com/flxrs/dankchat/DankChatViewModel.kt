@@ -19,10 +19,10 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class DankChatViewModel(
     private val authDataStore: AuthDataStore,
-    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val dataRepository: DataRepository,
     private val chatChannelProvider: ChatChannelProvider,
     private val authStateCoordinator: AuthStateCoordinator,
+    appearanceSettingsDataStore: AppearanceSettingsDataStore,
 ) : ViewModel() {
     val serviceEvents = dataRepository.serviceEvents
     val activeChannel = chatChannelProvider.activeChannel
