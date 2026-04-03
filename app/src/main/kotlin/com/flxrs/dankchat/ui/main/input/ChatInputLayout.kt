@@ -13,6 +13,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,23 +40,24 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DragHandle
-import androidx.compose.material.icons.filled.EmojiEmotions
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.EmojiEmotions
+import androidx.compose.material.icons.outlined.Keyboard
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Videocam
+import androidx.compose.material.icons.outlined.VideocamOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RichTooltip
@@ -108,6 +110,7 @@ import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import com.flxrs.dankchat.utils.resolve
+import com.materialkolor.ktx.blend
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
@@ -516,44 +519,66 @@ private fun InputActionButton(
     modifier: Modifier = Modifier,
     onDebugInfoClick: () -> Unit = {},
 ) {
-    val (icon, contentDescription, onClick) =
-        when (action) {
-            InputAction.Search -> {
-                Triple(Icons.Default.Search, R.string.message_history, onSearchClick)
-            }
+    val primary = MaterialTheme.colorScheme.primary
+    val contextualTint = when {
+        !isSystemInDarkTheme() -> primary
+        else -> primary.blend(to = MaterialTheme.colorScheme.onSurface, amount = 0.2f)
+    }
 
-            InputAction.LastMessage -> {
-                Triple(Icons.Default.History, R.string.resume_scroll, onLastMessageClick)
-            }
-
-            InputAction.Stream -> {
-                Triple(
-                    if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                    R.string.toggle_stream,
-                    onToggleStream,
-                )
-            }
-
-            InputAction.ModActions -> {
-                Triple(Icons.Default.Shield, R.string.menu_mod_actions, onModActions)
-            }
-
-            InputAction.Fullscreen -> {
-                Triple(
-                    if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-                    R.string.toggle_fullscreen,
-                    onToggleFullscreen,
-                )
-            }
-
-            InputAction.HideInput -> {
-                Triple(Icons.Default.VisibilityOff, R.string.menu_hide_input, onToggleInput)
-            }
-
-            InputAction.Debug -> {
-                Triple(Icons.Default.BugReport, R.string.input_action_debug, onDebugInfoClick)
-            }
+    val icon: ImageVector
+    val contentDescription: Int
+    val onClick: () -> Unit
+    val tint: Color?
+    when (action) {
+        InputAction.Search -> {
+            icon = Icons.Default.Search
+            contentDescription = R.string.message_history
+            onClick = onSearchClick
+            tint = null
         }
+
+        InputAction.LastMessage -> {
+            icon = Icons.Default.History
+            contentDescription = R.string.resume_scroll
+            onClick = onLastMessageClick
+            tint = null
+        }
+
+        InputAction.Stream -> {
+            icon = if (isStreamActive) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam
+            contentDescription = R.string.toggle_stream
+            onClick = onToggleStream
+            tint = contextualTint
+        }
+
+        InputAction.ModActions -> {
+            icon = Icons.Outlined.Shield
+            contentDescription = R.string.menu_mod_actions
+            onClick = onModActions
+            tint = contextualTint
+        }
+
+        InputAction.Fullscreen -> {
+            icon = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen
+            contentDescription = R.string.toggle_fullscreen
+            onClick = onToggleFullscreen
+            tint = null
+        }
+
+        InputAction.HideInput -> {
+            icon = Icons.Default.VisibilityOff
+            contentDescription = R.string.menu_hide_input
+            onClick = onToggleInput
+            tint = null
+        }
+
+        InputAction.Debug -> {
+            icon = Icons.Default.BugReport
+            contentDescription = R.string.input_action_debug
+            onClick = onDebugInfoClick
+            tint = null
+        }
+    }
 
     val actionEnabled =
         when (action) {
@@ -570,6 +595,7 @@ private fun InputActionButton(
         Icon(
             imageVector = icon,
             contentDescription = stringResource(contentDescription),
+            tint = tint ?: LocalContentColor.current,
         )
     }
 }
@@ -684,7 +710,7 @@ private fun InputActionsRow(
                 modifier = Modifier.size(iconSize),
             ) {
                 Icon(
-                    imageVector = if (isEmoteMenuOpen) Icons.Default.Keyboard else Icons.Default.EmojiEmotions,
+                    imageVector = if (isEmoteMenuOpen) Icons.Outlined.Keyboard else Icons.Outlined.EmojiEmotions,
                     contentDescription =
                         stringResource(
                             if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,

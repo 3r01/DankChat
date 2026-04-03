@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Headphones
-import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -56,7 +56,7 @@ fun AudioOnlyBar(
             )
             IconButton(onClick = onExpandVideo) {
                 Icon(
-                    imageVector = Icons.Default.Videocam,
+                    imageVector = Icons.Outlined.Videocam,
                     contentDescription = stringResource(R.string.menu_show_stream),
                 )
             }

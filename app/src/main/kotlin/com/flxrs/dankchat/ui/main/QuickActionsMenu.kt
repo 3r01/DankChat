@@ -18,10 +18,10 @@ import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Videocam
-import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Videocam
+import androidx.compose.material.icons.outlined.VideocamOff
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -117,7 +117,7 @@ fun QuickActionsMenu(
                     enabled = enabled,
                     leadingIcon = {
                         Icon(
-                            imageVector = if (isAudioOnly) Icons.Default.Videocam else Icons.Default.Headphones,
+                            imageVector = if (isAudioOnly) Icons.Outlined.Videocam else Icons.Default.Headphones,
                             contentDescription = null,
                         )
                     },
@@ -203,7 +203,7 @@ private fun getOverflowItem(
             hasStreamData || isStreamActive -> {
                 OverflowItem(
                     labelRes = if (isStreamActive) R.string.menu_hide_stream else R.string.menu_show_stream,
-                    icon = if (isStreamActive) Icons.Default.VideocamOff else Icons.Default.Videocam,
+                    icon = if (isStreamActive) Icons.Outlined.VideocamOff else Icons.Outlined.Videocam,
                 )
             }
 
@@ -218,7 +218,7 @@ private fun getOverflowItem(
             isModerator -> {
                 OverflowItem(
                     labelRes = R.string.menu_mod_actions,
-                    icon = Icons.Default.Shield,
+                    icon = Icons.Outlined.Shield,
                 )
             }
 

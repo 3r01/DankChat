@@ -16,9 +16,9 @@ import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -205,8 +205,8 @@ internal val InputAction.icon: ImageVector
         when (this) {
             InputAction.Search -> Icons.Default.Search
             InputAction.LastMessage -> Icons.Default.History
-            InputAction.Stream -> Icons.Default.Videocam
-            InputAction.ModActions -> Icons.Default.Shield
+            InputAction.Stream -> Icons.Outlined.Videocam
+            InputAction.ModActions -> Icons.Outlined.Shield
             InputAction.Fullscreen -> Icons.Default.Fullscreen
             InputAction.HideInput -> Icons.Default.VisibilityOff
             InputAction.Debug -> Icons.Default.BugReport
