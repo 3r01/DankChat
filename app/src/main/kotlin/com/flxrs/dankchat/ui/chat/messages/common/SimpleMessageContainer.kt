@@ -56,7 +56,7 @@ fun SimpleMessageContainer(
                 .wrapContentHeight()
                 .alpha(textAlpha)
                 .background(bgColor)
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         ClickableText(
             text = annotatedString,

@@ -37,13 +37,12 @@ private fun resolveEffectiveBackground(backgroundColor: Color): Color {
 fun rememberAdaptiveTextColor(backgroundColor: Color): Color {
     val adaptiveColors = LocalAdaptiveColors.current
     val effectiveBackground = resolveEffectiveBackground(backgroundColor)
-
     val isLightBackground = effectiveBackground.isLight()
+    val baseColor = if (isLightBackground) adaptiveColors.onSurfaceLight else adaptiveColors.onSurfaceDark
+    val effectiveBgArgb = effectiveBackground.toArgb()
 
-    return if (isLightBackground) {
-        adaptiveColors.onSurfaceLight
-    } else {
-        adaptiveColors.onSurfaceDark
+    return remember(baseColor, effectiveBgArgb) {
+        Color(baseColor.toArgb().normalizeColor(effectiveBgArgb))
     }
 }
 

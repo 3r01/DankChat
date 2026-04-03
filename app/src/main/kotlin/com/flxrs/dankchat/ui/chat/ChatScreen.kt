@@ -197,8 +197,6 @@ fun ChatScreen(
                 state = listState,
                 reverseLayout = true,
                 contentPadding = PaddingValues(
-                    start = 4.dp,
-                    end = 4.dp,
                     top = contentPadding.calculateTopPadding() + MESSAGE_GAP,
                     bottom = contentPadding.calculateBottomPadding() + MESSAGE_GAP,
                 ),
@@ -227,19 +225,24 @@ fun ChatScreen(
                     // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
                     val below = reversedMessages.getOrNull(index - 1)
                     val above = reversedMessages.getOrNull(index + 1)
-                    val highlightShape = message.highlightShape(above, below, showLineSeparator)
-                    ChatMessageItem(
-                        message = message,
-                        highlightShape = highlightShape,
-                        fontSize = fontSize,
-                        showChannelPrefix = showChannelPrefix,
-                        animateGifs = animateGifs,
-                        callbacks = callbacks,
-                    )
+                    val highlightShape = message.highlightShape(above, below)
+                    Box {
+                        ChatMessageItem(
+                            message = message,
+                            highlightShape = highlightShape,
+                            fontSize = fontSize,
+                            showChannelPrefix = showChannelPrefix,
+                            animateGifs = animateGifs,
+                            callbacks = callbacks,
+                        )
 
-                    // Add divider after each message if enabled
-                    if (showLineSeparator) {
-                        HorizontalDivider()
+                        if (showLineSeparator && below != null && !isHighlightBoundary(message, below)) {
+                            val dividerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                            HorizontalDivider(
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                color = dividerColor,
+                            )
+                        }
                     }
                 }
             }
@@ -645,20 +648,29 @@ private fun getFabMenuItem(
 }
 
 private val MESSAGE_GAP = 4.dp
-private val HIGHLIGHT_CORNER_RADIUS = 8.dp
+private val HIGHLIGHT_CORNER_RADIUS = 6.dp
 
 private fun ChatMessageUiState.highlightShape(
     above: ChatMessageUiState?,
     below: ChatMessageUiState?,
-    showLineSeparator: Boolean,
 ): Shape {
     if (!isHighlighted) return RectangleShape
-    if (showLineSeparator) return RectangleShape
-    val sameAbove = above != null && above.lightBackgroundColor == lightBackgroundColor && above.darkBackgroundColor == darkBackgroundColor
-    val sameBelow = below != null && below.lightBackgroundColor == lightBackgroundColor && below.darkBackgroundColor == darkBackgroundColor
-    val top = if (sameAbove) 0.dp else HIGHLIGHT_CORNER_RADIUS
-    val bottom = if (sameBelow) 0.dp else HIGHLIGHT_CORNER_RADIUS
+
+    val top = if (hasSameBackground(above)) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    val bottom = if (hasSameBackground(below)) 0.dp else HIGHLIGHT_CORNER_RADIUS
     return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
+}
+
+private fun ChatMessageUiState.hasSameBackground(other: ChatMessageUiState?): Boolean =
+    other != null && other.lightBackgroundColor == lightBackgroundColor && other.darkBackgroundColor == darkBackgroundColor
+
+private fun isHighlightBoundary(
+    current: ChatMessageUiState,
+    below: ChatMessageUiState?,
+): Boolean {
+    val currentEndsHighlight = current.isHighlighted && !current.hasSameBackground(below)
+    val belowStartsHighlight = below != null && below.isHighlighted && !below.hasSameBackground(current)
+    return currentEndsHighlight || belowStartsHighlight
 }
 
 /**

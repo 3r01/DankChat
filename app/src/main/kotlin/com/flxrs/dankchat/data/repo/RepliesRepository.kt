@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserName
-import com.flxrs.dankchat.data.twitch.message.HighlightType
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.MessageThread
 import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
@@ -26,8 +25,8 @@ class RepliesRepository(
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
     fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
-        val root = ChatItem(thread.rootMessage.clearHighlight(), isInReplies = true)
-        val replies = thread.replies.map { ChatItem(it.clearHighlight(), isInReplies = true) }
+        val root = ChatItem(thread.rootMessage, isInReplies = true)
+        val replies = thread.replies.map { ChatItem(it, isInReplies = true) }
         listOf(root) + replies
     } ?: flowOf(emptyList())
 
@@ -183,8 +182,6 @@ class RepliesRepository(
             tags = emptyMap(),
         )
     }
-
-    private fun PrivMessage.clearHighlight(): PrivMessage = copy(highlights = highlights.filter { it.type != HighlightType.Reply }.toSet())
 
     companion object {
         private const val PARENT_MESSAGE_ID_TAG = "reply-parent-msg-id"

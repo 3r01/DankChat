@@ -204,10 +204,10 @@ internal class LoadingFailureStateTest {
 
     companion object {
         private val FAILURE_1 = GlobalLoadingState.Failed(
-            failures = setOf(DataLoadingFailure(DataLoadingStep.DankChatBadges, RuntimeException("test")))
+            failures = setOf(DataLoadingFailure(DataLoadingStep.DankChatBadges, RuntimeException("test"))),
         )
         private val FAILURE_2 = GlobalLoadingState.Failed(
-            failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBadges, RuntimeException("test")))
+            failures = setOf(DataLoadingFailure(DataLoadingStep.GlobalBadges, RuntimeException("test"))),
         )
     }
 }

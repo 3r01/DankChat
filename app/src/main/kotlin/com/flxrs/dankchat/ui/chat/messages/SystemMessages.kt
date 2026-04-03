@@ -89,9 +89,9 @@ fun UserNoticeMessageComposable(
 ) {
     val context = LocalPlatformContext.current
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
-    val textColor = MaterialTheme.colorScheme.onSurface
+    val textColor = rememberAdaptiveTextColor(bgColor)
     val linkColor = rememberAdaptiveLinkColor(bgColor)
-    val timestampColor = MaterialTheme.colorScheme.onSurface
+    val timestampColor = rememberAdaptiveTextColor(bgColor)
     val nameColor = rememberNormalizedColor(message.rawNameColor, bgColor)
     val textSize = fontSize.sp
 
@@ -155,7 +155,7 @@ fun UserNoticeMessageComposable(
                 .wrapContentHeight()
                 .alpha(message.textAlpha)
                 .background(bgColor, highlightShape)
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         ClickableText(
             text = annotatedString,
@@ -311,7 +311,7 @@ fun ModerationMessageComposable(
                 .wrapContentHeight()
                 .alpha(message.textAlpha)
                 .background(bgColor)
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         Text(
             text = annotatedString,

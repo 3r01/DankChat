@@ -74,7 +74,7 @@ fun WhisperMessageComposable(
                 .alpha(message.textAlpha)
                 .background(backgroundColor)
                 .indication(interactionSource, ripple())
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         Box(modifier = Modifier.weight(1f)) {
             WhisperMessageText(
@@ -254,7 +254,7 @@ fun PointRedemptionMessageComposable(
                 .wrapContentHeight()
                 .alpha(message.textAlpha)
                 .background(backgroundColor, highlightShape)
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         val nameColor = message.nameText?.let { rememberNormalizedColor(message.rawNameColor, backgroundColor) }
 

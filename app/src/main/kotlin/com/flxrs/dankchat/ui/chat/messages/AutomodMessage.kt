@@ -241,7 +241,7 @@ fun AutomodMessageComposable(
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .alpha(resolvedAlpha)
-                .padding(horizontal = 2.dp, vertical = 2.dp),
+                .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         // Header line with badge inline content
         TextWithMeasuredInlineContent(
