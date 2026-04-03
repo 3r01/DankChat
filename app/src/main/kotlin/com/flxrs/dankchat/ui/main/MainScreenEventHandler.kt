@@ -79,6 +79,24 @@ fun MainScreenEventHandler(
                     snackbarHostState.showSnackbar(message, duration = SnackbarDuration.Short)
                 }
 
+                is MainEvent.MessageCopied -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = resources.getString(R.string.snackbar_message_copied),
+                        actionLabel = resources.getString(R.string.snackbar_paste),
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        chatInputViewModel.insertText(event.text)
+                    }
+                }
+
+                is MainEvent.MessageIdCopied -> {
+                    snackbarHostState.showSnackbar(
+                        message = resources.getString(R.string.snackbar_message_id_copied),
+                        duration = SnackbarDuration.Short,
+                    )
+                }
+
                 is MainEvent.OpenChannel -> {
                     if (event.channel == UserName.EMPTY) {
                         sheetNavigationViewModel.openWhispers()

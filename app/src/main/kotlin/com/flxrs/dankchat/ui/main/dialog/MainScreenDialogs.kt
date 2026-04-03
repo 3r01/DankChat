@@ -12,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -44,6 +43,8 @@ import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.user.UserPopupDialog
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
+import com.flxrs.dankchat.ui.main.MainEvent
+import com.flxrs.dankchat.ui.main.MainEventBus
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoSheet
@@ -69,7 +70,6 @@ fun MainScreenDialogs(
     modActionsChannel: UserName?,
     isStreamActive: Boolean,
     inputSheetState: InputSheetState,
-    snackbarHostState: SnackbarHostState,
     sheetsReady: Boolean,
     onAddChannel: (UserName) -> Unit,
     onLogout: () -> Unit,
@@ -79,10 +79,6 @@ fun MainScreenDialogs(
     onJumpToMessage: (messageId: String, channel: UserName) -> Unit = { _, _ -> },
 ) {
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
-    val clipboardManager = LocalClipboard.current
-    val scope = rememberCoroutineScope()
-    val messageCopiedMsg = stringResource(R.string.snackbar_message_copied)
-    val messageIdCopiedMsg = stringResource(R.string.snackbar_message_id_copied)
 
     val channelManagementViewModel: ChannelManagementViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
@@ -211,7 +207,6 @@ fun MainScreenDialogs(
         dialogState.messageOptionsParams?.let { params ->
             MessageOptionsDialogContainer(
                 params = params,
-                snackbarHostState = snackbarHostState,
                 onJumpToMessage = onJumpToMessage,
                 onSetReplying = chatInputViewModel::setReplying,
                 onOpenReplies = sheetNavigationViewModel::openReplies,
@@ -367,7 +362,6 @@ private fun ModActionsDialogContainer(
 @Composable
 private fun MessageOptionsDialogContainer(
     params: MessageOptionsParams,
-    snackbarHostState: SnackbarHostState,
     onJumpToMessage: (String, UserName) -> Unit,
     onSetReplying: (Boolean, String, UserName, String) -> Unit,
     onOpenReplies: (String, UserName) -> Unit,
@@ -380,9 +374,8 @@ private fun MessageOptionsDialogContainer(
         )
     val state by viewModel.state.collectAsStateWithLifecycle()
     val clipboardManager = LocalClipboard.current
+    val mainEventBus: MainEventBus = koinInject()
     val scope = rememberCoroutineScope()
-    val messageCopiedMsg = stringResource(R.string.snackbar_message_copied)
-    val messageIdCopiedMsg = stringResource(R.string.snackbar_message_id_copied)
 
     (state as? MessageOptionsState.Found)?.let { s ->
         MessageOptionsDialog(
@@ -403,19 +396,19 @@ private fun MessageOptionsDialogContainer(
             onCopy = {
                 scope.launch {
                     clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                    snackbarHostState.showSnackbar(messageCopiedMsg)
+                    mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
                 }
             },
             onCopyFullMessage = {
                 scope.launch {
                     clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
-                    snackbarHostState.showSnackbar(messageCopiedMsg)
+                    mainEventBus.emitEvent(MainEvent.MessageCopied(params.fullMessage))
                 }
             },
             onCopyMessageId = {
                 scope.launch {
                     clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
-                    snackbarHostState.showSnackbar(messageIdCopiedMsg)
+                    mainEventBus.emitEvent(MainEvent.MessageIdCopied)
                 }
             },
             onDelete = viewModel::deleteMessage,

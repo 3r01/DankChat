@@ -25,4 +25,10 @@ sealed interface MainEvent {
     data class OpenChannel(
         val channel: UserName,
     ) : MainEvent
+
+    data class MessageCopied(
+        val text: String,
+    ) : MainEvent
+
+    data object MessageIdCopied : MainEvent
 }

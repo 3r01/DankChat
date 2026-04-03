@@ -273,7 +273,6 @@ fun MainScreen(
         modActionsChannel = inputState.activeChannel,
         isStreamActive = currentStream != null,
         inputSheetState = inputSheetState,
-        snackbarHostState = snackbarHostState,
         sheetsReady = sheetsReady,
         onAddChannel = {
             channelManagementViewModel.addChannel(it)
