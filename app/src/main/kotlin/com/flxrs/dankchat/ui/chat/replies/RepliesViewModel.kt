@@ -37,7 +37,6 @@ class RepliesViewModel(
         ) { appearance, chat ->
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
-                showLineSeparator = appearance.lineSeparator,
                 animateGifs = chat.animateGifs,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
@@ -64,17 +63,19 @@ class RepliesViewModel(
                 }
 
                 is RepliesState.Found -> {
-                    val uiMessages =
-                        repliesState.items
-                            .mapIndexed { index, item ->
-                                val altBg = index.isEven && appearanceSettings.checkeredMessages
-                                chatMessageMapper.mapToUiState(
-                                    item = item,
-                                    chatSettings = chatSettings,
-                                    preferenceStore = preferenceStore,
-                                    isAlternateBackground = altBg,
-                                )
-                            }.toImmutableList()
+                    val uiMessages = chatMessageMapper
+                        .run {
+                            repliesState.items
+                                .mapIndexed { index, item ->
+                                    val altBg = index.isEven && appearanceSettings.checkeredMessages
+                                    mapToUiState(
+                                        item = item,
+                                        chatSettings = chatSettings,
+                                        preferenceStore = preferenceStore,
+                                        isAlternateBackground = altBg,
+                                    )
+                                }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
+                        }.toImmutableList()
                     RepliesUiState.Found(uiMessages)
                 }
             }

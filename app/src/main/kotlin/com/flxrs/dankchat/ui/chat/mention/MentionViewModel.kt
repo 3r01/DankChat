@@ -44,7 +44,6 @@ class MentionViewModel(
         ) { appearance, chat ->
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
-                showLineSeparator = appearance.lineSeparator,
                 animateGifs = chat.animateGifs,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
@@ -87,15 +86,18 @@ class MentionViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, appearanceSettings, chatSettings ->
-            messages
-                .mapIndexed { index, item ->
-                    val altBg = index.isEven && appearanceSettings.checkeredMessages
-                    chatMessageMapper.mapToUiState(
-                        item = item,
-                        chatSettings = chatSettings,
-                        preferenceStore = preferenceStore,
-                        isAlternateBackground = altBg,
-                    )
+            chatMessageMapper
+                .run {
+                    messages
+                        .mapIndexed { index, item ->
+                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                            mapToUiState(
+                                item = item,
+                                chatSettings = chatSettings,
+                                preferenceStore = preferenceStore,
+                                isAlternateBackground = altBg,
+                            )
+                        }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 
@@ -105,15 +107,18 @@ class MentionViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, appearanceSettings, chatSettings ->
-            messages
-                .mapIndexed { index, item ->
-                    val altBg = index.isEven && appearanceSettings.checkeredMessages
-                    chatMessageMapper.mapToUiState(
-                        item = item,
-                        chatSettings = chatSettings,
-                        preferenceStore = preferenceStore,
-                        isAlternateBackground = altBg,
-                    )
+            chatMessageMapper
+                .run {
+                    messages
+                        .mapIndexed { index, item ->
+                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                            mapToUiState(
+                                item = item,
+                                chatSettings = chatSettings,
+                                preferenceStore = preferenceStore,
+                                isAlternateBackground = altBg,
+                            )
+                        }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 }

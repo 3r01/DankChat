@@ -23,6 +23,9 @@ sealed interface ChatMessageUiState {
     val textAlpha: Float
     val enableRipple: Boolean
     val isHighlighted: Boolean
+    val roundedTopCorners: Boolean
+    val roundedBottomCorners: Boolean
+    val showDividerBelow: Boolean
 
     @Immutable
     data class PrivMessageUi(
@@ -34,6 +37,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean,
         override val isHighlighted: Boolean,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val channel: UserName,
         val userId: UserId?,
         val userName: UserName,
@@ -62,6 +68,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val message: TextResource,
     ) : ChatMessageUiState
 
@@ -75,6 +84,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val message: String,
     ) : ChatMessageUiState
 
@@ -88,6 +100,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val message: String,
         val displayName: String = "",
         val rawNameColor: Int = Message.DEFAULT_COLOR,
@@ -104,6 +119,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val message: TextResource,
         val creatorName: String? = null,
         val targetName: String? = null,
@@ -122,6 +140,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = true,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val nameText: String?,
         val rawNameColor: Int,
         val title: String,
@@ -140,6 +161,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float = 0.5f,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val dateText: String,
     ) : ChatMessageUiState
 
@@ -153,6 +177,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean = false,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val heldMessageId: String,
         val channel: UserName,
         val badges: ImmutableList<BadgeUi>,
@@ -176,6 +203,9 @@ sealed interface ChatMessageUiState {
         override val textAlpha: Float,
         override val enableRipple: Boolean,
         override val isHighlighted: Boolean = false,
+        override val roundedTopCorners: Boolean = false,
+        override val roundedBottomCorners: Boolean = false,
+        override val showDividerBelow: Boolean = false,
         val userId: UserId,
         val userName: UserName,
         val displayName: DisplayName,

@@ -56,7 +56,6 @@ class ChatViewModel(
         ) { appearance, chat ->
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
-                showLineSeparator = appearance.lineSeparator,
                 animateGifs = chat.animateGifs,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
@@ -138,7 +137,10 @@ class ChatViewModel(
                 }
             }
 
-            result.toImmutableList()
+            chatMessageMapper
+                .run {
+                    result.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
+                }.toImmutableList()
         }.flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
 
@@ -172,6 +174,5 @@ class ChatViewModel(
 @Immutable
 data class ChatDisplaySettings(
     val fontSize: Float = 14f,
-    val showLineSeparator: Boolean = false,
     val animateGifs: Boolean = true,
 )

@@ -52,7 +52,6 @@ fun MentionComposable(
                 onEmoteClick = onEmoteClick,
                 onWhisperReply = if (isWhisperTab) onWhisperReply else null,
             ),
-        showLineSeparator = displaySettings.showLineSeparator,
         animateGifs = displaySettings.animateGifs,
         showChannelPrefix = !isWhisperTab,
         modifier = modifier,

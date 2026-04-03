@@ -156,7 +156,6 @@ fun MessageHistorySheet(
                     onMessageLongClick = onMessageLongClick,
                     onEmoteClick = onEmoteClick,
                 ),
-            showLineSeparator = displaySettings.showLineSeparator,
             animateGifs = displaySettings.animateGifs,
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),

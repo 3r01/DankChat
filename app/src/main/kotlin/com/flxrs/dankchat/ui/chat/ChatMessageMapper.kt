@@ -136,6 +136,22 @@ class ChatMessageMapper(
         }
     }
 
+    fun List<ChatMessageUiState>.withHighlightLayout(showLineSeparator: Boolean): List<ChatMessageUiState> = mapIndexed { index, message ->
+        val above = getOrNull(index - 1)
+        val below = getOrNull(index + 1)
+        val hasSameAbove = message.hasSameHighlightBackground(above)
+        val hasSameBelow = message.hasSameHighlightBackground(below)
+
+        val roundedTop = message.isHighlighted && !hasSameAbove
+        val roundedBottom = message.isHighlighted && !hasSameBelow
+
+        val isHighlightBoundary = (message.isHighlighted && !hasSameBelow) ||
+            (below != null && below.isHighlighted && !below.hasSameHighlightBackground(message))
+        val showDivider = showLineSeparator && below != null && !isHighlightBoundary
+
+        message.withLayout(roundedTop, roundedBottom, showDivider)
+    }
+
     private fun SystemMessage.toSystemMessageUi(
         tag: Int,
         chatSettings: ChatSettings,
@@ -923,4 +939,24 @@ class ChatMessageMapper(
         private val CHECKERED_LIGHT = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 0, 0, 0))
         private val CHECKERED_DARK = Color(android.graphics.Color.argb(CHECKERED_ALPHA, 255, 255, 255))
     }
+}
+
+private fun ChatMessageUiState.hasSameHighlightBackground(other: ChatMessageUiState?): Boolean = other != null &&
+    other.lightBackgroundColor == lightBackgroundColor &&
+    other.darkBackgroundColor == darkBackgroundColor
+
+private fun ChatMessageUiState.withLayout(
+    roundedTopCorners: Boolean,
+    roundedBottomCorners: Boolean,
+    showDividerBelow: Boolean,
+): ChatMessageUiState = when (this) {
+    is ChatMessageUiState.PrivMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.SystemMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.NoticeMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.UserNoticeMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.ModerationMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.PointRedemptionMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.DateSeparatorUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.AutomodMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
+    is ChatMessageUiState.WhisperMessageUi -> copy(roundedTopCorners = roundedTopCorners, roundedBottomCorners = roundedBottomCorners, showDividerBelow = showDividerBelow)
 }

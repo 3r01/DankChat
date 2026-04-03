@@ -63,7 +63,6 @@ class MessageHistoryViewModel(
         ) { appearance, chat ->
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
-                showLineSeparator = appearance.lineSeparator,
                 animateGifs = chat.animateGifs,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
@@ -88,16 +87,19 @@ class MessageHistoryViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, activeFilters, appearanceSettings, chatSettings ->
-            messages
-                .filter { ChatItemFilter.matches(it, activeFilters) }
-                .mapIndexed { index, item ->
-                    val altBg = index.isEven && appearanceSettings.checkeredMessages
-                    chatMessageMapper.mapToUiState(
-                        item = item,
-                        chatSettings = chatSettings,
-                        preferenceStore = preferenceStore,
-                        isAlternateBackground = altBg,
-                    )
+            chatMessageMapper
+                .run {
+                    messages
+                        .filter { ChatItemFilter.matches(it, activeFilters) }
+                        .mapIndexed { index, item ->
+                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                            mapToUiState(
+                                item = item,
+                                chatSettings = chatSettings,
+                                preferenceStore = preferenceStore,
+                                isAlternateBackground = altBg,
+                            )
+                        }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
         }.flowOn(Dispatchers.Default)
 

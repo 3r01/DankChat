@@ -60,7 +60,6 @@ fun ChatComposable(
                 onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
                 onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
             ),
-        showLineSeparator = displaySettings.showLineSeparator,
         animateGifs = displaySettings.animateGifs,
         modifier = modifier.fillMaxSize(),
         showInput = showInput,

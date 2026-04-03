@@ -119,7 +119,6 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
     showChannelPrefix: Boolean = false,
-    showLineSeparator: Boolean = false,
     animateGifs: Boolean = true,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
@@ -221,22 +220,18 @@ fun ChatScreen(
                             is ChatMessageUiState.DateSeparatorUi -> "datesep"
                         }
                     },
-                ) { index, message ->
-                    // reverseLayout=true: index 0 = bottom (newest), index+1 = visually above
-                    val below = reversedMessages.getOrNull(index - 1)
-                    val above = reversedMessages.getOrNull(index + 1)
-                    val highlightShape = message.highlightShape(above, below)
+                ) { _, message ->
                     Box {
                         ChatMessageItem(
                             message = message,
-                            highlightShape = highlightShape,
+                            highlightShape = message.toHighlightShape(),
                             fontSize = fontSize,
                             showChannelPrefix = showChannelPrefix,
                             animateGifs = animateGifs,
                             callbacks = callbacks,
                         )
 
-                        if (showLineSeparator && below != null && !isHighlightBoundary(message, below)) {
+                        if (message.showDividerBelow) {
                             val dividerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                             HorizontalDivider(
                                 modifier = Modifier.align(Alignment.BottomCenter),
@@ -650,27 +645,11 @@ private fun getFabMenuItem(
 private val MESSAGE_GAP = 4.dp
 private val HIGHLIGHT_CORNER_RADIUS = 6.dp
 
-private fun ChatMessageUiState.highlightShape(
-    above: ChatMessageUiState?,
-    below: ChatMessageUiState?,
-): Shape {
+private fun ChatMessageUiState.toHighlightShape(): Shape {
     if (!isHighlighted) return RectangleShape
-
-    val top = if (hasSameBackground(above)) 0.dp else HIGHLIGHT_CORNER_RADIUS
-    val bottom = if (hasSameBackground(below)) 0.dp else HIGHLIGHT_CORNER_RADIUS
+    val top = if (roundedTopCorners) HIGHLIGHT_CORNER_RADIUS else 0.dp
+    val bottom = if (roundedBottomCorners) HIGHLIGHT_CORNER_RADIUS else 0.dp
     return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
-}
-
-private fun ChatMessageUiState.hasSameBackground(other: ChatMessageUiState?): Boolean =
-    other != null && other.lightBackgroundColor == lightBackgroundColor && other.darkBackgroundColor == darkBackgroundColor
-
-private fun isHighlightBoundary(
-    current: ChatMessageUiState,
-    below: ChatMessageUiState?,
-): Boolean {
-    val currentEndsHighlight = current.isHighlighted && !current.hasSameBackground(below)
-    val belowStartsHighlight = below != null && below.isHighlighted && !below.hasSameBackground(current)
-    return currentEndsHighlight || belowStartsHighlight
 }
 
 /**

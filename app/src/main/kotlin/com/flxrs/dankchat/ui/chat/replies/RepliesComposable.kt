@@ -47,7 +47,6 @@ fun RepliesComposable(
                         onUserClick = onUserClick,
                         onMessageLongClick = onMessageLongClick,
                     ),
-                showLineSeparator = displaySettings.showLineSeparator,
                 animateGifs = displaySettings.animateGifs,
                 modifier = modifier,
                 contentPadding = contentPadding,
