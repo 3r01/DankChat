@@ -2,23 +2,24 @@ package com.flxrs.dankchat.utils.extensions
 
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import kotlin.math.sin
 
 /**
  * Adjusts this color to ensure readable contrast against [background].
  *
- * Uses a relaxed contrast ratio of 3.5:1 (below WCAG AA 4.5:1) to
- * preserve the original color as much as possible while still being readable.
- * Shifts lightness in HSL space, preserving hue and saturation.
+ * Two-phase approach matching Chatterino2's color pipeline:
+ * 1. Hue-specific HSL correction (clamp lightness, adjust greens on light / blues on dark)
+ * 2. Contrast-based binary search (3.5:1 target) for any remaining contrast issues
  */
 @ColorInt
 fun Int.normalizeColor(
     @ColorInt background: Int,
 ): Int {
-    // calculateContrast requires opaque colors; force full alpha on both
-    val opaqueColor = this or 0xFF000000.toInt()
+    // Phase 1: hue-specific correction (matches C2 / old DankChat)
+    val opaqueColor = correctColor(this or 0xFF000000.toInt(), background or 0xFF000000.toInt())
     val opaqueBackground = background or 0xFF000000.toInt()
     val contrast = ColorUtils.calculateContrast(opaqueColor, opaqueBackground)
-    if (contrast >= MIN_CONTRAST_RATIO) return this
+    if (contrast >= MIN_CONTRAST_RATIO) return opaqueColor
 
     val hsl = FloatArray(3)
     ColorUtils.colorToHSL(opaqueColor, hsl)
@@ -63,6 +64,44 @@ fun Int.normalizeColor(
     }
 
     hsl[2] = bestL
+    return ColorUtils.HSLToColor(hsl)
+}
+
+/**
+ * Hue-specific HSL lightness correction matching Chatterino2's algorithm.
+ * On light backgrounds: clamps lightness to 0.5, darkens greens (hue 0.1–0.33).
+ * On dark backgrounds: clamps lightness to 0.5, lightens blues (hue 0.54–0.83).
+ */
+@ColorInt
+private fun correctColor(
+    @ColorInt color: Int,
+    @ColorInt background: Int,
+): Int {
+    val isLightBackground = ColorUtils.calculateLuminance(background) > 0.5
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(color, hsl)
+    val hue = hsl[0] / 360f
+
+    when {
+        isLightBackground -> {
+            if (hsl[2] > 0.5f) {
+                hsl[2] = 0.5f
+            }
+            if (hsl[2] > 0.4f && hue > 0.1f && hue < 0.33333f) {
+                hsl[2] -= (sin((hue - 0.1f) / (0.33333f - 0.1f) * Math.PI.toFloat()) * hsl[1] * 0.4f)
+            }
+        }
+
+        else -> {
+            if (hsl[2] < 0.5f) {
+                hsl[2] = 0.5f
+            }
+            if (hsl[2] < 0.6f && hue > 0.54444f && hue < 0.83333f) {
+                hsl[2] += (sin((hue - 0.54444f) / (0.83333f - 0.54444f) * Math.PI.toFloat()) * hsl[1] * 0.4f)
+            }
+        }
+    }
+
     return ColorUtils.HSLToColor(hsl)
 }
 
