@@ -12,18 +12,16 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemGestures
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -32,10 +30,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -49,6 +48,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenu
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
+import kotlin.math.abs
 
 @Composable
 internal fun observePipMode(streamViewModel: StreamViewModel): Boolean {
@@ -155,40 +155,43 @@ internal fun InputDismissScrim(
 }
 
 /**
- * Invisible boxes at the left and right screen edges that consume horizontal drags
+ * Modifier that consumes horizontal drags originating from system gesture edge zones
  * to prevent the HorizontalPager from intercepting system back/edge gestures.
+ * Uses [PointerEventPass.Initial] so the pager never sees these drags,
+ * while taps pass through normally to the content underneath.
  */
 @Composable
-internal fun BoxScope.EdgeGestureGuards() {
+internal fun Modifier.edgeGestureGuard(): Modifier {
     val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val systemGestureInsets = WindowInsets.systemGestures
+    val leftEdgePx = systemGestureInsets.getLeft(density, layoutDirection).toFloat()
+    val rightEdgePx = systemGestureInsets.getRight(density, layoutDirection).toFloat()
 
-    val edgeGuardModifier =
-        Modifier
-            .fillMaxHeight()
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures { change, _ ->
+    return pointerInput(leftEdgePx, rightEdgePx) {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = false)
+            val isInEdge = down.position.x < leftEdgePx || down.position.x > (size.width - rightEdgePx)
+            if (!isInEdge) return@awaitEachGesture
+
+            var totalDx = 0f
+            var claimed = false
+
+            do {
+                val event = awaitPointerEvent(PointerEventPass.Initial)
+                val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                if (!change.pressed) break
+
+                totalDx += change.positionChange().x
+                if (!claimed && abs(totalDx) > viewConfiguration.touchSlop) {
+                    claimed = true
+                }
+                if (claimed) {
                     change.consume()
                 }
-            }
-
-    // Left edge guard
-    Box(
-        modifier =
-            Modifier
-                .align(AbsoluteAlignment.CenterLeft)
-                .width(with(density) { systemGestureInsets.getLeft(density, layoutDirection).toDp() })
-                .then(edgeGuardModifier),
-    )
-    // Right edge guard
-    Box(
-        modifier =
-            Modifier
-                .align(AbsoluteAlignment.CenterRight)
-                .width(with(density) { systemGestureInsets.getRight(density, layoutDirection).toDp() })
-                .then(edgeGuardModifier),
-    )
+            } while (true)
+        }
+    }
 }
 
 /**

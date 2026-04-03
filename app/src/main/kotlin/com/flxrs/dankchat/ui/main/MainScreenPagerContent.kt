@@ -105,7 +105,7 @@ internal fun MainScreenPagerContent(
                 Box(modifier = Modifier.fillMaxSize()) {
                     HorizontalPager(
                         state = composePagerState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().edgeGestureGuard(),
                         userScrollEnabled = swipeNavigation,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
@@ -192,8 +192,6 @@ internal fun MainScreenPagerContent(
                             )
                         }
                     }
-
-                    EdgeGestureGuards()
                 }
             }
         }
