@@ -174,7 +174,7 @@ fun OverviewSettingsScreen(
     }
 }
 
-@Suppress("UnusedPrivateMember")
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewDynamicColors
 @PreviewLightDark

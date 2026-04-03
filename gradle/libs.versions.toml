@@ -47,8 +47,8 @@ reorderable = "2.4.3"
 
 spotless = "8.4.0"
 ktlint = "1.8.0"
-detekt = "1.23.8"
-composeRules = "0.4.23"
+detekt = "main-SNAPSHOT" # TODO switch to stable alpha.3+ when released
+composeRules = "0.5.6"
 
 junit = "6.0.3"
 androidJunit5 = "2.0.1"
@@ -160,5 +160,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 about-libraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "about-libraries" }
 android-junit5 = { id = "de.mannodermaus.android-junit5", version.ref = "androidJunit5" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 androidx-room = { id = "androidx.room", version.ref = "androidxRoom" }  #TODO use me when working

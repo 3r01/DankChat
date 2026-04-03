@@ -264,6 +264,12 @@ detekt {
     parallel = true
 }
 
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    exclude {
+        it.file.absolutePath.contains("/build/generated/")
+    }
+}
+
 fun gradleLocalProperties(
     projectRootDir: File,
     providers: ProviderFactory,

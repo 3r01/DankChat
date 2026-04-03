@@ -4,6 +4,14 @@ pluginManagement {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
+        maven(url = "https://central.sonatype.com/repository/maven-snapshots/")
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "dev.detekt") {
+                useModule("dev.detekt:detekt-gradle-plugin:${requested.version}")
+            }
+        }
     }
 }
 plugins {
@@ -15,6 +23,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven(url = "https://jitpack.io")
+        maven(url = "https://central.sonatype.com/repository/maven-snapshots/")
     }
 }
 

@@ -58,7 +58,7 @@ fun PreferenceCategoryTitle(
     )
 }
 
-@Suppress("UnusedPrivateMember")
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewLightDark
 private fun PreferenceCategoryPreview(
@@ -74,7 +74,7 @@ private fun PreferenceCategoryPreview(
     }
 }
 
-@Suppress("UnusedPrivateMember")
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewLightDark
 private fun PreferenceCategoryWithItemsPreview(

@@ -283,7 +283,7 @@ private fun RowScope.PreferenceItemContent(
     }
 }
 
-@Suppress("UnusedPrivateMember")
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewLightDark
 private fun PreferenceItemPreview() {

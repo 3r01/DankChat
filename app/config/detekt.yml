@@ -16,7 +16,7 @@ complexity:
   LargeClass:
     active: false
   ComplexCondition:
-    threshold: 5
+    allowedConditions: 4
 
 naming:
   FunctionNaming:
