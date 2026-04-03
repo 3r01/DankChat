@@ -41,6 +41,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
+import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
@@ -220,7 +221,7 @@ private fun PrivMessageText(
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                         append(message.timestamp)
                     }
-                    append("\u2009")
+                    appendInlineSpacer(6.dp)
                 }
 
                 // Badges (using appendInlineContent for proper rendering)

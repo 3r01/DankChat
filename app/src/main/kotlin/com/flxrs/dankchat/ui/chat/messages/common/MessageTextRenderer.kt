@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +16,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -138,3 +141,13 @@ fun timestampSpanStyle(
     color = color,
     letterSpacing = (-0.03).em,
 )
+
+private const val SPACER_PREFIX = "spacer_"
+
+fun AnnotatedString.Builder.appendInlineSpacer(width: Dp) {
+    appendInlineContent("$SPACER_PREFIX${width.value}", " ")
+}
+
+fun isSpacerId(id: String): Boolean = id.startsWith(SPACER_PREFIX)
+
+fun spacerWidthDp(id: String): Float = id.removePrefix(SPACER_PREFIX).toFloatOrNull() ?: 0f

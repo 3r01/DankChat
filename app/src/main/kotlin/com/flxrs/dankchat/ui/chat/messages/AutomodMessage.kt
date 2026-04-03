@@ -30,6 +30,7 @@ import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
 import com.flxrs.dankchat.ui.chat.messages.common.BadgeInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.EmoteDimensions
 import com.flxrs.dankchat.ui.chat.messages.common.TextWithMeasuredInlineContent
+import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.persistentMapOf
@@ -101,7 +102,7 @@ fun AutomodMessageComposable(
                     ) {
                         append(message.timestamp)
                     }
-                    append("\u2009")
+                    appendInlineSpacer(6.dp)
                 }
 
                 // Badges
@@ -188,7 +189,7 @@ fun AutomodMessageComposable(
                         ) {
                             append(message.timestamp)
                         }
-                        append("\u2009")
+                        appendInlineSpacer(6.dp)
                     }
 
                     // Username in bold with user color

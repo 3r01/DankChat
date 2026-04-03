@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,9 +15,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import coil3.compose.LocalPlatformContext
 
 @Composable
 fun SimpleMessageContainer(
@@ -29,20 +28,20 @@ fun SimpleMessageContainer(
     darkBackgroundColor: Color,
     textAlpha: Float,
     modifier: Modifier = Modifier,
+    timestampSpacerWidth: Dp = 6.dp,
 ) {
-    val context = LocalPlatformContext.current
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val linkColor = rememberAdaptiveLinkColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface
 
     val annotatedString =
-        remember(message, timestamp, textColor, linkColor, timestampColor, fontSize) {
+        remember(message, timestamp, textColor, linkColor, timestampColor, fontSize, timestampSpacerWidth) {
             buildAnnotatedString {
                 withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
                     append(timestamp)
                 }
-                append(" ")
+                appendInlineSpacer(timestampSpacerWidth)
                 withStyle(SpanStyle(color = textColor)) {
                     appendWithLinks(message, linkColor)
                 }
@@ -58,16 +57,10 @@ fun SimpleMessageContainer(
                 .background(bgColor)
                 .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        ClickableText(
+        LinkableText(
             text = annotatedString,
             style = TextStyle(fontSize = fontSize),
             modifier = Modifier.fillMaxWidth(),
-            onClick = { offset ->
-                val url = annotatedString.getStringAnnotations(URL_ANNOTATION_TAG, offset, offset).firstOrNull()
-                if (url != null) {
-                    launchCustomTab(context, url.item)
-                }
-            },
         )
     }
 }

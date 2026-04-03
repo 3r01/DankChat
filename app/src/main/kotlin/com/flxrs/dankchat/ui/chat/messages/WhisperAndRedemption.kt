@@ -38,7 +38,9 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
+import com.flxrs.dankchat.ui.chat.messages.common.LinkableText
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
+import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
@@ -128,7 +130,7 @@ private fun WhisperMessageText(
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                         append(message.timestamp)
                     }
-                    append("\u2009")
+                    appendInlineSpacer(6.dp)
                 }
 
                 // Badges (using appendInlineContent for proper rendering)
@@ -270,7 +272,7 @@ fun PointRedemptionMessageComposable(
                             withStyle(timestampSpanStyle(fontSize, textColor)) {
                                 append(message.timestamp)
                             }
-                            append("\u2009")
+                            appendInlineSpacer(6.dp)
                         }
 
                         when {
@@ -293,7 +295,7 @@ fun PointRedemptionMessageComposable(
                     }
                 }
 
-            BasicText(
+            LinkableText(
                 text = annotatedString,
                 style = TextStyle(fontSize = fontSize.sp, color = textColor),
             )

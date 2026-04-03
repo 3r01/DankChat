@@ -20,6 +20,7 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
@@ -53,6 +54,16 @@ fun TextWithMeasuredInlineContent(
 
         // Add all pre-known dimensions first
         measuredDimensions.putAll(knownDimensions)
+
+        // Resolve spacer inline content from annotated string annotations
+        text
+            .getStringAnnotations(INLINE_CONTENT_TAG, 0, text.length)
+            .filter { isSpacerId(it.item) && it.item !in measuredDimensions }
+            .distinctBy { it.item }
+            .forEach { annotation ->
+                val widthPx = spacerWidthDp(annotation.item).dp.toPx().toInt()
+                measuredDimensions[annotation.item] = EmoteDimensions(annotation.item, widthPx, 1)
+            }
 
         // Only measure items that don't have known dimensions
         inlineContentProviders.forEach { (id, provider) ->
@@ -161,3 +172,5 @@ fun TextWithMeasuredInlineContent(
         }
     }
 }
+
+private const val INLINE_CONTENT_TAG = "androidx.compose.foundation.text.inlineContent"
