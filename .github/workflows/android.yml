@@ -48,10 +48,10 @@ jobs:
         run: bash ./gradlew :app:spotlessCheck
 
       - name: Detekt
-        run: bash ./gradlew :app:detekt
+        run: bash ./gradlew :app:detektDebug
 
       - name: Android Lint
-        run: bash ./gradlew lintVitalRelease
+        run: bash ./gradlew :app:lintDebug
 
   build:
     name: Generate apk
