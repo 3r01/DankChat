@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
@@ -26,19 +30,30 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoItem
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,9 +91,20 @@ fun EmoteInfoDialog(
                 }
             }
 
+            val density = LocalDensity.current
+            val pageHeights = remember { IntArray(items.size) }
+
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxWidth(),
+                beyondViewportPageCount = items.size,
+                overscrollEffect = null,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clipToBounds()
+                        .then(
+                            pagerState.interpolatedHeightModifier(pageHeights, density),
+                        ),
             ) { page ->
                 val item = items[page]
                 EmoteInfoContent(
@@ -96,12 +122,37 @@ fun EmoteInfoDialog(
                         onOpenLink(item.providerUrl)
                         onDismiss()
                     },
+                    modifier =
+                        Modifier
+                            .wrapContentHeight(unbounded = true)
+                            .onSizeChanged { pageHeights[page] = it.height },
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
+
+private fun PagerState.interpolatedHeightModifier(
+    pageHeights: IntArray,
+    density: Density,
+): Modifier {
+    val currentHeight = pageHeights.getOrNull(currentPage) ?: 0
+    if (currentHeight == 0) return Modifier
+
+    val fraction = currentPageOffsetFraction
+    val targetPage = when {
+        fraction > 0 -> (currentPage + 1).coerceAtMost(pageCount - 1)
+        fraction < 0 -> (currentPage - 1).coerceAtLeast(0)
+        else -> currentPage
+    }
+    val targetHeight = pageHeights.getOrNull(targetPage) ?: currentHeight
+    val interpolatedPx = lerp(currentHeight, targetHeight, fraction.absoluteValue)
+    val heightDp = with(density) { interpolatedPx.toDp() }
+    return Modifier.height(heightDp)
+}
+
+private const val WIDE_EMOTE_THRESHOLD = 1.5f
 
 @Composable
 private fun EmoteInfoContent(
@@ -110,56 +161,19 @@ private fun EmoteInfoContent(
     onUseEmote: () -> Unit,
     onCopyEmote: () -> Unit,
     onOpenLink: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
+    var aspectRatio by remember { mutableFloatStateOf(1f) }
+    val isWide = aspectRatio > WIDE_EMOTE_THRESHOLD
+
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            AsyncImage(
-                model = item.imageUrl,
-                contentDescription = stringResource(R.string.emote_sheet_image_description),
-                modifier = Modifier.size(96.dp),
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                )
-                Text(
-                    text = stringResource(item.emoteType),
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                )
-                item.baseName?.let {
-                    Text(
-                        text = stringResource(R.string.emote_sheet_alias_of, it),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                item.creatorName?.let {
-                    Text(
-                        text = stringResource(R.string.emote_sheet_created_by, it),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                Text(
-                    text = if (item.isZeroWidth) stringResource(R.string.emote_sheet_zero_width_emote) else "",
-                    style = MaterialTheme.typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                )
-            }
+        if (isWide) {
+            WideEmoteHeader(item = item, onAspectRatio = { aspectRatio = it })
+        } else {
+            SquareEmoteHeader(item = item, onAspectRatio = { aspectRatio = it })
         }
 
         if (showUseEmote) {
@@ -181,6 +195,105 @@ private fun EmoteInfoContent(
             leadingContent = { Icon(Icons.Default.OpenInBrowser, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenLink),
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        )
+    }
+}
+
+@Composable
+private fun SquareEmoteHeader(
+    item: EmoteInfoItem,
+    onAspectRatio: (Float) -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        AsyncImage(
+            model = item.imageUrl,
+            contentDescription = stringResource(R.string.emote_sheet_image_description),
+            modifier = Modifier.size(96.dp),
+            onSuccess = { state ->
+                val size = state.result.image
+                if (size.height > 0) {
+                    onAspectRatio(size.width.toFloat() / size.height)
+                }
+            },
+        )
+        Spacer(modifier = Modifier.width(16.dp))
+        EmoteInfoText(item = item, modifier = Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun WideEmoteHeader(
+    item: EmoteInfoItem,
+    onAspectRatio: (Float) -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        EmoteInfoText(item = item)
+        Spacer(modifier = Modifier.height(12.dp))
+        AsyncImage(
+            model = item.imageUrl,
+            contentDescription = stringResource(R.string.emote_sheet_image_description),
+            contentScale = ContentScale.Fit,
+            modifier =
+                Modifier
+                    .heightIn(max = 96.dp)
+                    .fillMaxWidth(0.5f),
+            onSuccess = { state ->
+                val size = state.result.image
+                if (size.height > 0) {
+                    onAspectRatio(size.width.toFloat() / size.height)
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun EmoteInfoText(
+    item: EmoteInfoItem,
+    modifier: Modifier = Modifier,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
+        Text(
+            text = item.name,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = stringResource(item.emoteType),
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+        )
+        item.baseName?.let {
+            Text(
+                text = stringResource(R.string.emote_sheet_alias_of, it),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
+        }
+        item.creatorName?.let {
+            Text(
+                text = stringResource(R.string.emote_sheet_created_by, it),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+            )
+        }
+        Text(
+            text = if (item.isZeroWidth) stringResource(R.string.emote_sheet_zero_width_emote) else "",
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center,
         )
     }
 }
