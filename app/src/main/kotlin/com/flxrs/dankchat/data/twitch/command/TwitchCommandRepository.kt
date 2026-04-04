@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.command
 
-import android.util.Log
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
@@ -24,9 +23,12 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.core.annotation.Single
 import java.util.UUID
+
+private val logger = KotlinLogging.logger("TwitchCommandRepository")
 
 @Single
 class TwitchCommandRepository(
@@ -805,7 +807,7 @@ class TwitchCommandRepository(
         targetUser: DisplayName? = null,
         formatRange: ((IntRange) -> String)? = null,
     ): TextResource {
-        Log.v(TAG, "Command failed: $this")
+        logger.trace { "Command failed: $this" }
         if (this !is HelixApiException) {
             return TextResource.Res(R.string.cmd_error_unknown)
         }
@@ -956,7 +958,6 @@ class TwitchCommandRepository(
 
         val ALL_COMMAND_TRIGGERS = ALLOWED_IRC_COMMAND_TRIGGERS + TwitchCommand.ALL_COMMANDS.flatMap { asCommandTriggers(it.trigger) }
 
-        private val TAG = TwitchCommandRepository::class.java.simpleName
         private val VALID_HELIX_COLORS =
             listOf(
                 "blue",

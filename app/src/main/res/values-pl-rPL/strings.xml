@@ -883,4 +883,12 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="cmd_error_message_too_large">Twoja wiadomość była zbyt długa.</string>
     <string name="cmd_error_chat_rate_limited">Twitch ogranicza Twoją częstotliwość. Spróbuj ponownie za chwilę.</string>
     <string name="cmd_error_target_default">Docelowy użytkownik</string>
+    <string name="preference_log_viewer_title">Przeglądarka logów</string>
+    <string name="preference_log_viewer_summary">Wyświetl logi aplikacji</string>
+    <string name="log_viewer_title">Logi</string>
+    <string name="log_viewer_share">Udostępnij logi</string>
+    <string name="log_viewer_open">Wyświetl logi</string>
+    <string name="preference_log_viewer_empty">Brak dostępnych plików logów</string>
+    <string name="log_viewer_search_hint">Szukaj w logach</string>
+    <string name="scroll_to_bottom">Przewiń na dół</string>
 </resources>

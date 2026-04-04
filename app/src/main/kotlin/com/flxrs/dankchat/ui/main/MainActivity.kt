@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.MediaStore
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,6 +64,7 @@ import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
 import com.flxrs.dankchat.preferences.tools.upload.ImageUploaderScreen
 import com.flxrs.dankchat.ui.changelog.ChangelogScreen
+import com.flxrs.dankchat.ui.log.LogViewerSheet
 import com.flxrs.dankchat.ui.login.LoginScreen
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingScreen
@@ -76,6 +76,7 @@ import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
 import com.flxrs.dankchat.utils.extensions.keepScreenOn
 import com.flxrs.dankchat.utils.extensions.parcelable
 import com.flxrs.dankchat.utils.removeExifAttributes
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -83,6 +84,8 @@ import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.IOException
+
+private val logger = KotlinLogging.logger("MainActivity")
 
 class MainActivity : ComponentActivity() {
     private val viewModel: DankChatViewModel by viewModel()
@@ -153,7 +156,7 @@ class MainActivity : ComponentActivity() {
         viewModel.serviceEvents
             .flowWithLifecycle(lifecycle, minActiveState = Lifecycle.State.CREATED)
             .onEach {
-                Log.i(TAG, "Received service event: $it")
+                logger.info { "Received service event: $it" }
                 when (it) {
                     ServiceEvent.Shutdown -> handleShutDown()
                 }
@@ -162,7 +165,7 @@ class MainActivity : ComponentActivity() {
         viewModel.keepScreenOn
             .flowWithLifecycle(lifecycle, minActiveState = Lifecycle.State.CREATED)
             .onEach {
-                Log.i(TAG, "Setting FLAG_KEEP_SCREEN_ON to $it")
+                logger.info { "Setting FLAG_KEEP_SCREEN_ON to $it" }
                 keepScreenOn(it)
             }.launchIn(lifecycleScope)
     }
@@ -246,6 +249,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onChooseMedia = {
                                 requestGalleryMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageAndVideo))
+                            },
+                            onOpenLogViewer = {
+                                navController.navigate(LogViewer())
                             },
                         )
                     }
@@ -428,6 +434,17 @@ class MainActivity : ComponentActivity() {
                     ) {
                         DeveloperSettingsScreen(
                             onBack = { navController.popBackStack() },
+                            onOpenLogViewer = { fileName -> navController.navigate(LogViewer(fileName)) },
+                        )
+                    }
+                    composable<LogViewer>(
+                        enterTransition = subEnter,
+                        exitTransition = subExit,
+                        popEnterTransition = subPopEnter,
+                        popExitTransition = subPopExit,
+                    ) {
+                        LogViewerSheet(
+                            onDismiss = { navController.popBackStack() },
                         )
                     }
                     composable<ChangelogSettings>(
@@ -481,7 +498,7 @@ class MainActivity : ComponentActivity() {
                     ContextCompat.startForegroundService(this, it)
                     bindService(it, twitchServiceConnection, BIND_AUTO_CREATE)
                 } catch (t: Throwable) {
-                    Log.e(TAG, Log.getStackTraceString(t))
+                    logger.error(t) { "Failed to start foreground service" }
                 }
             }
         }
@@ -494,7 +511,7 @@ class MainActivity : ComponentActivity() {
             try {
                 unbindService(twitchServiceConnection)
             } catch (t: Throwable) {
-                Log.e(TAG, Log.getStackTraceString(t))
+                logger.error(t) { "Failed to unbind service" }
             }
         }
     }
@@ -600,7 +617,6 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        private val TAG = MainActivity::class.java.simpleName
         const val OPEN_CHANNEL_KEY = "open_channel"
     }
 }

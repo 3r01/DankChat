@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.data
 
-import android.util.Log
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -25,6 +24,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.utils.extensions.measureTimeAndLog
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -41,6 +41,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.io.File
+
+private val logger = KotlinLogging.logger("DataRepository")
 
 @Single
 class DataRepository(
@@ -133,7 +135,7 @@ class DataRepository(
     }
 
     suspend fun loadGlobalBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
-        measureTimeAndLog(TAG, "global badges") {
+        measureTimeAndLog(logger, "global badges") {
             val result =
                 when {
                     authDataStore.isLoggedIn -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
@@ -145,7 +147,7 @@ class DataRepository(
     }
 
     suspend fun loadDankChatBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
-        measureTimeAndLog(TAG, "DankChat badges") {
+        measureTimeAndLog(logger, "DankChat badges") {
             dankChatApiClient
                 .getDankChatBadges()
                 .getOrEmitFailure { DataLoadingStep.DankChatBadges }
@@ -169,7 +171,7 @@ class DataRepository(
         channel: UserName,
         id: UserId,
     ): Result<Unit> = withContext(dispatchersProvider.io) {
-        measureTimeAndLog(TAG, "channel badges for #$id") {
+        measureTimeAndLog(logger, "channel badges for #$id") {
             val result =
                 when {
                     authDataStore.isLoggedIn -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
@@ -188,7 +190,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "FFZ emotes for #$channel") {
+        measureTimeAndLog(logger, "FFZ emotes for #$channel") {
             ffzApiClient
                 .getFFZChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
@@ -206,7 +208,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "BTTV emotes for #$channel") {
+        measureTimeAndLog(logger, "BTTV emotes for #$channel") {
             bttvApiClient
                 .getBTTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
@@ -223,7 +225,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "7TV emotes for #$channel") {
+        measureTimeAndLog(logger, "7TV emotes for #$channel") {
             sevenTVApiClient
                 .getSevenTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) }
@@ -246,7 +248,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "cheermotes for #$channel") {
+        measureTimeAndLog(logger, "cheermotes for #$channel") {
             helixApiClient
                 .getCheermotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelCheermotes(channel, channelId) }
@@ -260,7 +262,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "global FFZ emotes") {
+        measureTimeAndLog(logger, "global FFZ emotes") {
             ffzApiClient
                 .getFFZGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes }
@@ -274,7 +276,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "global BTTV emotes") {
+        measureTimeAndLog(logger, "global BTTV emotes") {
             bttvApiClient
                 .getBTTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes }
@@ -288,7 +290,7 @@ class DataRepository(
             return@withContext Result.success(Unit)
         }
 
-        measureTimeAndLog(TAG, "global 7TV emotes") {
+        measureTimeAndLog(logger, "global 7TV emotes") {
             sevenTVApiClient
                 .getSevenTVGlobalEmotes()
                 .getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes }
@@ -299,12 +301,11 @@ class DataRepository(
 
     private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): Result<T> = onFailure { throwable ->
         val loadingStep = step()
-        Log.e(TAG, "Data request failed [$loadingStep]:", throwable)
+        logger.error(throwable) { "Data request failed [$loadingStep]" }
         _dataLoadingFailures.update { it + DataLoadingFailure(loadingStep, throwable) }
     }
 
     companion object {
-        private val TAG = DataRepository::class.java.simpleName
         private const val BADGES_SUNSET_MILLIS = 1685637000000L // 2023-06-01 16:30:00
     }
 }

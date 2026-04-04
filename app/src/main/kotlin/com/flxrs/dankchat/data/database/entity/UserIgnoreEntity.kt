@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.database.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger("UserIgnoreEntity")
 
 @Entity(tableName = "blacklisted_user")
 data class UserIgnoreEntity(
@@ -27,12 +29,8 @@ data class UserIgnoreEntity(
                 }
             username.toRegex(options)
         }.getOrElse {
-            Log.e(TAG, "Failed to create regex for username $username", it)
+            logger.error(it) { "Failed to create regex for username $username" }
             null
         }
-    }
-
-    companion object {
-        private val TAG = UserIgnoreEntity::class.java.simpleName
     }
 }

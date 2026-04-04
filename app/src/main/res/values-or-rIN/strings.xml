@@ -846,4 +846,12 @@
     <string name="cmd_error_message_too_large">ଆପଣଙ୍କ ମେସେଜ୍ ବହୁତ ଲମ୍ବା ଥିଲା।</string>
     <string name="cmd_error_chat_rate_limited">ଆପଣଙ୍କ ହାର ସୀମିତ ହୋଇଛି। କିଛି ସମୟ ପରେ ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।</string>
     <string name="cmd_error_target_default">ଲକ୍ଷ୍ୟ ୟୁଜର</string>
+    <string name="preference_log_viewer_title">ଲଗ୍ ଦର୍ଶକ</string>
+    <string name="preference_log_viewer_summary">ଆପ୍ଲିକେସନ୍ ଲଗ୍ ଦେଖନ୍ତୁ</string>
+    <string name="log_viewer_title">ଲଗ୍</string>
+    <string name="log_viewer_share">ଲଗ୍ ସେୟାର କରନ୍ତୁ</string>
+    <string name="log_viewer_open">ଲଗ୍ ଦେଖନ୍ତୁ</string>
+    <string name="preference_log_viewer_empty">କୌଣସି ଲଗ୍ ଫାଇଲ୍ ଉପಲବ୍ଧ ନାହିଁ</string>
+    <string name="log_viewer_search_hint">ଲଗ୍ ଖୋଜନ୍ତୁ</string>
+    <string name="scroll_to_bottom">ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ</string>
 </resources>

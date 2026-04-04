@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.ui.chat
 
-import android.util.Log
 import android.util.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
@@ -20,6 +19,7 @@ import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.extensions.isEven
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -37,6 +37,8 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
+
+private val logger = KotlinLogging.logger("ChatViewModel")
 
 @KoinViewModel
 class ChatViewModel(
@@ -157,7 +159,7 @@ class ChatViewModel(
             helixApiClient
                 .manageAutomodMessage(userId, heldMessageId, action)
                 .onFailure { error ->
-                    Log.e(TAG, "Failed to $action automod message $heldMessageId", error)
+                    logger.error(error) { "Failed to $action automod message $heldMessageId" }
                     val statusCode = (error as? HelixApiException)?.status?.value
                     chatMessageRepository.addSystemMessage(
                         channel,
@@ -165,10 +167,6 @@ class ChatViewModel(
                     )
                 }
         }
-    }
-
-    companion object {
-        private val TAG = ChatViewModel::class.java.simpleName
     }
 }
 

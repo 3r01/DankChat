@@ -870,4 +870,12 @@
     <string name="cmd_error_message_too_large">Ваше сообщение было слишком длинным.</string>
     <string name="cmd_error_chat_rate_limited">Частота ваших запросов ограничена. Попробуйте через мгновение.</string>
     <string name="cmd_error_target_default">Целевой пользователь</string>
+    <string name="preference_log_viewer_title">Просмотр журналов</string>
+    <string name="preference_log_viewer_summary">Просмотр журналов приложения</string>
+    <string name="log_viewer_title">Журналы</string>
+    <string name="log_viewer_share">Поделиться журналами</string>
+    <string name="log_viewer_open">Просмотреть журналы</string>
+    <string name="preference_log_viewer_empty">Файлы журналов отсутствуют</string>
+    <string name="log_viewer_search_hint">Поиск по журналам</string>
+    <string name="scroll_to_bottom">Прокрутить вниз</string>
 </resources>

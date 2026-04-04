@@ -1,12 +1,12 @@
 package com.flxrs.dankchat.data.twitch.chat
 
-import android.util.Log
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.timer
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
@@ -37,6 +37,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.times
+
+private val logger = KotlinLogging.logger("ChatConnection")
 
 enum class ChatConnectionType {
     Read,
@@ -208,14 +210,14 @@ class ChatConnection(
                                     text.removeSuffix("\r\n").split("\r\n").forEach { line ->
                                         val ircMessage = IrcMessage.parse(line)
                                         if (ircMessage.isLoginFailed()) {
-                                            Log.e(TAG, "[$chatConnectionType] authentication failed with expired token, closing connection..")
+                                            logger.error { "[$chatConnectionType] authentication failed with expired token, closing connection.." }
                                             receiveChannel.send(ChatEvent.LoginFailed)
                                             return@webSocket
                                         }
 
                                         when (ircMessage.command) {
                                             "376" -> {
-                                                Log.i(TAG, "[$chatConnectionType] connected to irc")
+                                                logger.info { "[$chatConnectionType] connected to irc" }
                                                 pingJob = setupPingInterval()
                                                 channelsToJoin.send(channels)
                                             }
@@ -227,7 +229,7 @@ class ChatConnection(
                                                         ?.substring(1)
                                                         ?.toUserName() ?: return@forEach
                                                 if (channelsAttemptedToJoin.remove(channel)) {
-                                                    Log.i(TAG, "[$chatConnectionType] Joined #$channel")
+                                                    logger.info { "[$chatConnectionType] Joined #$channel" }
                                                 }
                                             }
 
@@ -244,7 +246,7 @@ class ChatConnection(
                                             }
 
                                             "RECONNECT" -> {
-                                                Log.i(TAG, "[$chatConnectionType] server requested reconnect")
+                                                logger.info { "[$chatConnectionType] server requested reconnect" }
                                                 serverRequestedReconnect = true
                                                 return@webSocket
                                             }
@@ -269,15 +271,15 @@ class ChatConnection(
                         receiveChannel.send(ChatEvent.Closed)
 
                         if (!serverRequestedReconnect) {
-                            Log.i(TAG, "[$chatConnectionType] connection closed")
+                            logger.info { "[$chatConnectionType] connection closed" }
                             return@launch
                         }
-                        Log.i(TAG, "[$chatConnectionType] reconnecting after server request")
+                        logger.info { "[$chatConnectionType] reconnecting after server request" }
                     } catch (t: CancellationException) {
                         throw t
                     } catch (t: Throwable) {
-                        Log.e(TAG, "[$chatConnectionType] connection failed: $t")
-                        Log.e(TAG, "[$chatConnectionType] attempting to reconnect #$retryCount..")
+                        logger.error { "[$chatConnectionType] connection failed: $t" }
+                        logger.error { "[$chatConnectionType] attempting to reconnect #$retryCount.." }
                         _connected.value = false
                         session = null
                         channelsAttemptedToJoin.clear()
@@ -290,7 +292,7 @@ class ChatConnection(
                     }
                 }
 
-                Log.e(TAG, "[$chatConnectionType] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
+                logger.error { "[$chatConnectionType] connection failed after $RECONNECT_MAX_ATTEMPTS retries" }
                 _connected.value = false
                 session = null
             }
@@ -338,7 +340,7 @@ class ChatConnection(
     }
 
     private fun setupJoinCheckInterval(channelsToCheck: List<UserName>) = scope.launch {
-        Log.d(TAG, "[$chatConnectionType] setting up join check for $channelsToCheck")
+        logger.debug { "[$chatConnectionType] setting up join check for $channelsToCheck" }
         if (session?.isActive != true || !_connected.value || channelsAttemptedToJoin.isEmpty()) {
             return@launch
         }
@@ -376,6 +378,5 @@ class ChatConnection(
         private val JOIN_CHECK_DELAY = 10.seconds
         private val JOIN_DELAY = 600.milliseconds
         private const val JOIN_CHUNK_SIZE = 5
-        private val TAG = ChatConnection::class.java.simpleName
     }
 }

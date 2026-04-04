@@ -846,4 +846,12 @@
     <string name="cmd_error_message_too_large">Хабарламаңыз тым ұзын.</string>
     <string name="cmd_error_chat_rate_limited">Жылдамдығыңыз шектелді. Біраз уақыттан кейін қайталаңыз.</string>
     <string name="cmd_error_target_default">Мақсатты пайдаланушы</string>
+    <string name="preference_log_viewer_title">Журнал көрсеткіш</string>
+    <string name="preference_log_viewer_summary">Қолданба журналдарын көру</string>
+    <string name="log_viewer_title">Журналдар</string>
+    <string name="log_viewer_share">Журналдарды бөлісу</string>
+    <string name="log_viewer_open">Журналдарды көру</string>
+    <string name="preference_log_viewer_empty">Журнал файлдары жоқ</string>
+    <string name="log_viewer_search_hint">Журналдарды іздеу</string>
+    <string name="scroll_to_bottom">Төменге айналдыру</string>
 </resources>

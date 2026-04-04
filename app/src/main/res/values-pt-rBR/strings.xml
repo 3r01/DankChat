@@ -853,4 +853,12 @@
     <string name="cmd_error_message_too_large">Sua mensagem era muito longa.</string>
     <string name="cmd_error_chat_rate_limited">Você está sendo limitado. Tente novamente em instantes.</string>
     <string name="cmd_error_target_default">O usuário alvo</string>
+    <string name="preference_log_viewer_title">Visualizador de logs</string>
+    <string name="preference_log_viewer_summary">Ver logs da aplicação</string>
+    <string name="log_viewer_title">Logs</string>
+    <string name="log_viewer_share">Compartilhar logs</string>
+    <string name="log_viewer_open">Ver logs</string>
+    <string name="preference_log_viewer_empty">Nenhum arquivo de log disponível</string>
+    <string name="log_viewer_search_hint">Pesquisar nos logs</string>
+    <string name="scroll_to_bottom">Rolar para baixo</string>
 </resources>

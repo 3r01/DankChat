@@ -1,15 +1,17 @@
 package com.flxrs.dankchat.ui.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
+
+private val logger = KotlinLogging.logger("LoginViewModel")
 
 @KoinViewModel
 class LoginViewModel(
@@ -40,7 +42,7 @@ class LoginViewModel(
             authApiClient.validateUser(token).fold(
                 onSuccess = { saveLoginDetails(token, it) },
                 onFailure = {
-                    Log.e(TAG, "Failed to validate token: ${it.message}")
+                    logger.error { "Failed to validate token: ${it.message}" }
                     TokenParseEvent(successful = false)
                 },
             )
@@ -58,9 +60,5 @@ class LoginViewModel(
             clientId = validateDto.clientId,
         )
         return TokenParseEvent(successful = true)
-    }
-
-    companion object {
-        private val TAG = LoginViewModel::class.java.simpleName
     }
 }

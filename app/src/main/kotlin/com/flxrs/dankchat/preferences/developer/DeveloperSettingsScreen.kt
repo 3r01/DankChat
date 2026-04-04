@@ -2,6 +2,7 @@ package com.flxrs.dankchat.preferences.developer
 
 import android.content.ClipData
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -66,6 +67,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.repo.log.LogRepository
 import com.flxrs.dankchat.preferences.components.ExpandablePreferenceItem
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
@@ -84,7 +86,10 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DeveloperSettingsScreen(onBack: () -> Unit) {
+fun DeveloperSettingsScreen(
+    onBack: () -> Unit,
+    onOpenLogViewer: (fileName: String) -> Unit = {},
+) {
     val viewModel = koinViewModel<DeveloperSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
 
@@ -120,6 +125,7 @@ fun DeveloperSettingsScreen(onBack: () -> Unit) {
         snackbarHostState = snackbarHostState,
         onInteraction = { viewModel.onInteraction(it) },
         onBack = onBack,
+        onOpenLogViewer = onOpenLogViewer,
     )
 }
 
@@ -130,6 +136,7 @@ private fun DeveloperSettingsContent(
     snackbarHostState: SnackbarHostState,
     onInteraction: (DeveloperSettingsInteraction) -> Unit,
     onBack: () -> Unit,
+    onOpenLogViewer: (fileName: String) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -157,6 +164,48 @@ private fun DeveloperSettingsContent(
                     .verticalScroll(rememberScrollState()),
         ) {
             PreferenceCategory(title = stringResource(R.string.preference_developer_category_general)) {
+                run {
+                    val logRepository: LogRepository = koinInject()
+                    val logFiles = remember { logRepository.getLogFiles() }
+                    ExpandablePreferenceItem(
+                        title = stringResource(R.string.preference_log_viewer_title),
+                        summary = stringResource(R.string.preference_log_viewer_summary),
+                    ) {
+                        val scope = rememberCoroutineScope()
+                        val sheetState = rememberModalBottomSheetState()
+                        ModalBottomSheet(
+                            onDismissRequest = ::dismiss,
+                            sheetState = sheetState,
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        ) {
+                            if (logFiles.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.preference_log_viewer_empty),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(16.dp),
+                                )
+                            } else {
+                                logFiles.forEach { file ->
+                                    Text(
+                                        text = file.name,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    scope.launch {
+                                                        sheetState.hide()
+                                                        dismiss()
+                                                    }
+                                                    onOpenLogViewer(file.name)
+                                                }.padding(horizontal = 16.dp, vertical = 14.dp),
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(32.dp))
+                        }
+                    }
+                }
                 SwitchPreferenceItem(
                     title = stringResource(R.string.preference_debug_mode_title),
                     summary = stringResource(R.string.preference_debug_mode_summary),

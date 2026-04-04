@@ -42,7 +42,7 @@ style:
   ForbiddenComment:
     active: false
   DestructuringDeclarationWithTooManyEntries:
-    maxDestructuringEntries: 4
+    maxDestructuringEntries: 5
   LoopWithTooManyJumpStatements:
     maxJumpCount: 3
 

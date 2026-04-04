@@ -26,10 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.debug.DebugEntry
 import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import kotlinx.coroutines.launch
@@ -40,6 +43,7 @@ fun DebugInfoSheet(
     viewModel: DebugInfoViewModel,
     sheetState: SheetState,
     onDismiss: () -> Unit,
+    onOpenLogViewer: () -> Unit,
 ) {
     val sections by viewModel.sections.collectAsStateWithLifecycle()
 
@@ -77,6 +81,25 @@ fun DebugInfoSheet(
 
                 items(section.entries, key = { "${section.title}_${it.label}" }) { entry ->
                     DebugEntryRow(entry)
+                }
+
+                if (section.title == "Session") {
+                    item(key = "view_logs") {
+                        Text(
+                            text = stringResource(R.string.log_viewer_open),
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.End,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        onOpenLogViewer()
+                                        onDismiss()
+                                    }.padding(vertical = 4.dp),
+                        )
+                    }
                 }
             }
         }

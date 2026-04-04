@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.auth
 
-import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.WebStorage
 import com.flxrs.dankchat.data.UserName
@@ -15,6 +14,7 @@ import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.domain.ChannelDataCoordinator
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +38,8 @@ sealed interface AuthEvent {
 
     data object ValidationFailed : AuthEvent
 }
+
+private val logger = KotlinLogging.logger("AuthStateCoordinator")
 
 @Single
 class AuthStateCoordinator(
@@ -111,7 +113,7 @@ class AuthStateCoordinator(
                         }
 
                         else -> {
-                            Log.e(TAG, "Failed to validate token: ${throwable.message}")
+                            logger.error { "Failed to validate token: ${throwable.message}" }
                             AuthEvent.ValidationFailed
                         }
                     }
@@ -155,9 +157,5 @@ class AuthStateCoordinator(
             // clearing twitch emotes and reconnecting anonymously.
             authDataStore.clearLogin()
         }
-    }
-
-    companion object {
-        private val TAG = AuthStateCoordinator::class.java.simpleName
     }
 }

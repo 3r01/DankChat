@@ -862,4 +862,12 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="cmd_error_message_too_large">Mesajınız çok uzundu.</string>
     <string name="cmd_error_chat_rate_limited">Hız sınırlamasına uğruyorsunuz. Biraz sonra tekrar deneyin.</string>
     <string name="cmd_error_target_default">Hedef kullanıcı</string>
+    <string name="preference_log_viewer_title">Günlük görüntüleyici</string>
+    <string name="preference_log_viewer_summary">Uygulama günlüklerini görüntüle</string>
+    <string name="log_viewer_title">Günlükler</string>
+    <string name="log_viewer_share">Günlükleri paylaş</string>
+    <string name="log_viewer_open">Günlükleri görüntüle</string>
+    <string name="preference_log_viewer_empty">Kullanılabilir günlük dosyası yok</string>
+    <string name="log_viewer_search_hint">Günlüklerde ara</string>
+    <string name="scroll_to_bottom">En alta kaydır</string>
 </resources>

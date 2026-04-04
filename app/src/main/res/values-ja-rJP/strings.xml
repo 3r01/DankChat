@@ -821,4 +821,12 @@
     <string name="cmd_error_message_too_large">メッセージが長すぎます。</string>
     <string name="cmd_error_chat_rate_limited">レート制限されています。しばらくしてからもう一度お試しください。</string>
     <string name="cmd_error_target_default">対象ユーザー</string>
+    <string name="preference_log_viewer_title">ログビューア</string>
+    <string name="preference_log_viewer_summary">アプリケーションログを表示</string>
+    <string name="log_viewer_title">ログ</string>
+    <string name="log_viewer_share">ログを共有</string>
+    <string name="log_viewer_open">ログを表示</string>
+    <string name="preference_log_viewer_empty">ログファイルがありません</string>
+    <string name="log_viewer_search_hint">ログを検索</string>
+    <string name="scroll_to_bottom">一番下にスクロール</string>
 </resources>

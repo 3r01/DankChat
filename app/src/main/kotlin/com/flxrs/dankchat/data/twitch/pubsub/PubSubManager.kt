@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
-import android.util.Log
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
@@ -11,6 +10,7 @@ import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.CoroutineScope
@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 import kotlinx.coroutines.channels.Channel as CoroutineChannel
+
+private val logger = KotlinLogging.logger("PubSubManager")
 
 @Single
 class PubSubManager(
@@ -64,12 +66,12 @@ class PubSubManager(
             }.collect { (userId, channels, shouldUsePubSub) ->
                 closeAll()
                 if (userId == null) {
-                    Log.d(TAG, "[PubSub] skipping connection, not logged in")
+                    logger.debug { "[PubSub] skipping connection, not logged in" }
                     return@collect
                 }
                 val resolved = channelRepository.getChannels(channels)
                 val topics = buildTopics(userId, resolved, shouldUsePubSub)
-                Log.i(TAG, "[PubSub] rebuilding connections for ${resolved.size} channels, ${topics.size} topics (pubsub=$shouldUsePubSub)")
+                logger.info { "[PubSub] rebuilding connections for ${resolved.size} channels, ${topics.size} topics (pubsub=$shouldUsePubSub)" }
                 listen(topics)
             }
         }
@@ -167,9 +169,5 @@ class PubSubManager(
                 else -> Unit
             }
         }
-    }
-
-    companion object {
-        private val TAG = PubSubManager::class.java.simpleName
     }
 }

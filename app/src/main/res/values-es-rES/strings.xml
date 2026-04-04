@@ -874,4 +874,12 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="cmd_error_message_too_large">Tu mensaje era demasiado largo.</string>
     <string name="cmd_error_chat_rate_limited">Se te ha limitado la frecuencia. Inténtalo de nuevo en un momento.</string>
     <string name="cmd_error_target_default">El usuario objetivo</string>
+    <string name="preference_log_viewer_title">Visor de registros</string>
+    <string name="preference_log_viewer_summary">Ver los registros de la aplicación</string>
+    <string name="log_viewer_title">Registros</string>
+    <string name="log_viewer_share">Compartir registros</string>
+    <string name="log_viewer_open">Ver registros</string>
+    <string name="preference_log_viewer_empty">No hay archivos de registro disponibles</string>
+    <string name="log_viewer_search_hint">Buscar en los registros</string>
+    <string name="scroll_to_bottom">Desplazar hacia abajo</string>
 </resources>

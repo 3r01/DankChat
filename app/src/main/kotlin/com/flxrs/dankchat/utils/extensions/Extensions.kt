@@ -3,11 +3,11 @@ package com.flxrs.dankchat.utils.extensions
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteItem
+import io.github.oshai.kotlinlogging.KLogger
 import kotlinx.serialization.json.Json
 
 fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> = this
@@ -47,14 +47,14 @@ inline fun <V> measureTimeValue(block: () -> V): Pair<V, Long> {
 }
 
 inline fun <V> measureTimeAndLog(
-    tag: String,
+    logger: KLogger,
     toLoad: String,
     block: () -> V,
 ): V {
     val (result, time) = measureTimeValue(block)
     when {
-        result != null -> Log.i(tag, "Loaded $toLoad in $time ms")
-        else -> Log.i(tag, "Failed to load $toLoad ($time ms)")
+        result != null -> logger.info { "Loaded $toLoad in $time ms" }
+        else -> logger.info { "Failed to load $toLoad ($time ms)" }
     }
 
     return result

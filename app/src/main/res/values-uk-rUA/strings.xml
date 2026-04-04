@@ -867,4 +867,12 @@
     <string name="cmd_error_message_too_large">Ваше повідомлення було занадто довгим.</string>
     <string name="cmd_error_chat_rate_limited">Частоту ваших запитів обмежено. Спробуйте через мить.</string>
     <string name="cmd_error_target_default">Цільовий користувач</string>
+    <string name="preference_log_viewer_title">Перегляд журналів</string>
+    <string name="preference_log_viewer_summary">Переглянути журнали застосунку</string>
+    <string name="log_viewer_title">Журнали</string>
+    <string name="log_viewer_share">Поділитися журналами</string>
+    <string name="log_viewer_open">Переглянути журнали</string>
+    <string name="preference_log_viewer_empty">Файли журналів відсутні</string>
+    <string name="log_viewer_search_hint">Пошук у журналах</string>
+    <string name="scroll_to_bottom">Прокрутити донизу</string>
 </resources>

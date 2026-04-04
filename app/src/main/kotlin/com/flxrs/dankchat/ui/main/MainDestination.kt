@@ -58,3 +58,8 @@ object Login
 
 @Serializable
 object Onboarding
+
+@Serializable
+data class LogViewer(
+    val fileName: String = "",
+)

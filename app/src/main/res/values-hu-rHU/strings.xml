@@ -841,4 +841,12 @@
     <string name="cmd_error_message_too_large">Az üzeneted túl hosszú volt.</string>
     <string name="cmd_error_chat_rate_limited">Sebességkorlát alatt állsz. Próbáld újra egy pillanat múlva.</string>
     <string name="cmd_error_target_default">A célfelhasználó</string>
+    <string name="preference_log_viewer_title">Naplómegjelenítő</string>
+    <string name="preference_log_viewer_summary">Alkalmazásnaplók megtekintése</string>
+    <string name="log_viewer_title">Naplók</string>
+    <string name="log_viewer_share">Naplók megosztása</string>
+    <string name="log_viewer_open">Naplók megtekintése</string>
+    <string name="preference_log_viewer_empty">Nincsenek elérhető naplófájlok</string>
+    <string name="log_viewer_search_hint">Keresés a naplókban</string>
+    <string name="scroll_to_bottom">Görgetés az aljára</string>
 </resources>

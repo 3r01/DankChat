@@ -858,4 +858,12 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="cmd_error_message_too_large">Votre message était trop long.</string>
     <string name="cmd_error_chat_rate_limited">Vous êtes limité en débit. Réessayez dans un instant.</string>
     <string name="cmd_error_target_default">L\'utilisateur ciblé</string>
+    <string name="preference_log_viewer_title">Visionneuse de journaux</string>
+    <string name="preference_log_viewer_summary">Afficher les journaux de l\'application</string>
+    <string name="log_viewer_title">Journaux</string>
+    <string name="log_viewer_share">Partager les journaux</string>
+    <string name="log_viewer_open">Voir les journaux</string>
+    <string name="preference_log_viewer_empty">Aucun fichier journal disponible</string>
+    <string name="log_viewer_search_hint">Rechercher dans les journaux</string>
+    <string name="scroll_to_bottom">Défiler vers le bas</string>
 </resources>

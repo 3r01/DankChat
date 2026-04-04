@@ -865,4 +865,12 @@
     <string name="cmd_error_message_too_large">Ваша паведамленне занадта доўгае.</string>
     <string name="cmd_error_chat_rate_limited">Вашы запыты абмежаваныя. Паспрабуйце зноў праз хвіліну.</string>
     <string name="cmd_error_target_default">Мэтавы карыстальнік</string>
+    <string name="preference_log_viewer_title">Прагляд логаў</string>
+    <string name="preference_log_viewer_summary">Прагляд логаў праграмы</string>
+    <string name="log_viewer_title">Логі</string>
+    <string name="log_viewer_share">Падзяліцца логамі</string>
+    <string name="log_viewer_open">Праглядзець логі</string>
+    <string name="preference_log_viewer_empty">Няма даступных файлаў логаў</string>
+    <string name="log_viewer_search_hint">Пошук у логах</string>
+    <string name="scroll_to_bottom">Пракруціць уніз</string>
 </resources>

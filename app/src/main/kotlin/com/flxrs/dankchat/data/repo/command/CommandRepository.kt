@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.command
 
-import android.util.Log
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
@@ -21,6 +20,7 @@ import com.flxrs.dankchat.preferences.chat.SuggestionType
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils.calculateUptime
 import com.flxrs.dankchat.utils.TextResource
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +40,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import kotlin.system.measureTimeMillis
+
+private val logger = KotlinLogging.logger("CommandRepository")
 
 @Single
 class CommandRepository(
@@ -193,7 +195,7 @@ class CommandRepository(
                     .getOrPut(it) { MutableStateFlow(emptyList()) }
                     .update { commands + aliases }
             }
-        }.let { Log.i(TAG, "Loaded Supibot commands in $it ms") }
+        }.let { logger.info { "Loaded Supibot commands in $it ms" } }
     }
 
     private fun triggerAndArgsOrNull(message: String): Pair<String, List<String>>? {
@@ -315,9 +317,5 @@ class CommandRepository(
         val foundCommand = commands.find { it.trigger == trigger } ?: return CommandResult.NotFound
 
         return CommandResult.Message(foundCommand.command)
-    }
-
-    companion object {
-        private val TAG = CommandRepository::class.java.simpleName
     }
 }

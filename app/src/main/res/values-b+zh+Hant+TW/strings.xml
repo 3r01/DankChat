@@ -847,4 +847,12 @@
     <string name="cmd_error_message_too_large">您的訊息太長了。</string>
     <string name="cmd_error_chat_rate_limited">您被限速了。請稍後再試。</string>
     <string name="cmd_error_target_default">目標使用者</string>
+    <string name="preference_log_viewer_title">日誌檢視器</string>
+    <string name="preference_log_viewer_summary">檢視應用程式日誌</string>
+    <string name="log_viewer_title">日誌</string>
+    <string name="log_viewer_share">分享日誌</string>
+    <string name="log_viewer_open">檢視日誌</string>
+    <string name="preference_log_viewer_empty">沒有可用的日誌檔案</string>
+    <string name="log_viewer_search_hint">搜尋日誌</string>
+    <string name="scroll_to_bottom">捲動至底部</string>
 </resources>

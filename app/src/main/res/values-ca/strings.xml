@@ -890,4 +890,12 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="cmd_error_message_too_large">El vostre missatge era massa llarg.</string>
     <string name="cmd_error_chat_rate_limited">Se us està limitant la velocitat. Torneu-ho a provar d\'aquí a un moment.</string>
     <string name="cmd_error_target_default">L\'usuari objectiu</string>
+    <string name="preference_log_viewer_title">Visor de registres</string>
+    <string name="preference_log_viewer_summary">Mostra els registres de l\'aplicació</string>
+    <string name="log_viewer_title">Registres</string>
+    <string name="log_viewer_share">Comparteix els registres</string>
+    <string name="log_viewer_open">Mostra els registres</string>
+    <string name="preference_log_viewer_empty">No hi ha fitxers de registre disponibles</string>
+    <string name="log_viewer_search_hint">Cerca als registres</string>
+    <string name="scroll_to_bottom">Desplaça cap avall</string>
 </resources>

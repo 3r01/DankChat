@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import android.util.Log
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.AutomodHeld
@@ -41,6 +40,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -52,6 +52,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
+
+private val logger = KotlinLogging.logger("ChatEventProcessor")
 
 @Single
 class ChatEventProcessor(
@@ -161,12 +163,12 @@ class ChatEventProcessor(
             rewardMutex.withLock {
                 when {
                     knownRewards.containsKey(id) -> {
-                        Log.d(TAG, "Removing known reward $id")
+                        logger.debug { "Removing known reward $id" }
                         knownRewards.remove(id)
                     }
 
                     else -> {
-                        Log.d(TAG, "Received pubsub reward message with id $id")
+                        logger.debug { "Received pubsub reward message with id $id" }
                         knownRewards[id] = pubSubMessage
                     }
                 }
@@ -200,7 +202,7 @@ class ChatEventProcessor(
             runCatching {
                 ModerationMessage.parseModerationAction(id, timestamp, channelName, data)
             }.getOrElse {
-                Log.d(TAG, "Failed to parse event sub moderation message: $it")
+                logger.debug { "Failed to parse event sub moderation message: $it" }
                 return
             }
 
@@ -429,7 +431,7 @@ class ChatEventProcessor(
                     chatMessageRepository.findMessage(id, channel, chatNotificationRepository.whispers)
                 }
             }.getOrElse {
-                Log.e(TAG, "Failed to parse message", it)
+                logger.error(it) { "Failed to parse message" }
                 return
             }?.let { resolveAutomaticRewardCost(it) }
                 ?.let { attachRewardInfo(it, resolvedReward) } ?: return
@@ -494,11 +496,11 @@ class ChatEventProcessor(
         return rewardMutex.withLock {
             knownRewards[rewardId]
                 ?.also {
-                    Log.d(TAG, "Removing known reward $rewardId")
+                    logger.debug { "Removing known reward $rewardId" }
                     knownRewards.remove(rewardId)
                 }
                 ?: run {
-                    Log.d(TAG, "Waiting for pubsub reward message with id $rewardId")
+                    logger.debug { "Waiting for pubsub reward message with id $rewardId" }
                     withTimeoutOrNull(PUBSUB_TIMEOUT) {
                         chatConnector.pubSubEvents
                             .filterIsInstance<PubSubMessage.PointRedemption>()
@@ -636,7 +638,6 @@ class ChatEventProcessor(
     }
 
     companion object {
-        private val TAG = ChatEventProcessor::class.java.simpleName
         private const val PUBSUB_TIMEOUT = 5000L
         private val AUTOMOD_NOTICE_MSG_IDS = setOf("msg_rejected", "msg_rejected_mandatory")
     }

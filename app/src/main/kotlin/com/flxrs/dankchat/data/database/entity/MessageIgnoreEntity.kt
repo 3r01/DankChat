@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.database.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger("MessageIgnoreEntity")
 
 @Entity(tableName = "message_ignore")
 data class MessageIgnoreEntity(
@@ -34,7 +36,7 @@ data class MessageIgnoreEntity(
                 else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
             }
         }.getOrElse {
-            Log.e(TAG, "Failed to create regex for pattern $pattern", it)
+            logger.error(it) { "Failed to create regex for pattern $pattern" }
             null
         }
     }
@@ -44,10 +46,6 @@ data class MessageIgnoreEntity(
         replacement?.let {
             Regex.escapeReplacement(it)
         }
-    }
-
-    companion object {
-        private val TAG = MessageIgnoreEntity::class.java.simpleName
     }
 }
 

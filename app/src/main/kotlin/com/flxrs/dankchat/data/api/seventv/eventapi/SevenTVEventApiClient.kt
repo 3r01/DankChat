@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.api.seventv.eventapi
 
-import android.util.Log
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.AckMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.DataMessage
@@ -21,6 +20,7 @@ import com.flxrs.dankchat.preferences.chat.LiveUpdatesBackgroundBehavior
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle.Background
 import com.flxrs.dankchat.utils.extensions.timer
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpHeaders
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +48,8 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
+
+private val logger = KotlinLogging.logger("SevenTVEventApiClient")
 
 @Single
 class SevenTVEventApiClient(
@@ -113,7 +115,7 @@ class SevenTVEventApiClient(
                                             LiveUpdatesBackgroundBehavior.ThirtyMinutes -> 30.minutes
                                         }
 
-                                    Log.d(TAG, "[7TV Event-Api] Sleeping for $timeout until connection is closed")
+                                    logger.debug { "[7TV Event-Api] Sleeping for $timeout until connection is closed" }
                                     delay(timeout)
                                     close()
                                 }
@@ -231,7 +233,7 @@ class SevenTVEventApiClient(
             code: Int,
             reason: String,
         ) {
-            Log.d(TAG, "[7TV Event-Api] connection closed")
+            logger.debug { "[7TV Event-Api] connection closed" }
             connected = false
             heartBeatJob?.cancel()
         }
@@ -241,8 +243,8 @@ class SevenTVEventApiClient(
             t: Throwable,
             response: Response?,
         ) {
-            Log.e(TAG, "[7TV Event-Api] connection failed: $t")
-            Log.e(TAG, "[7TV Event-Api] attempting to reconnect #$reconnectAttempts..")
+            logger.error { "[7TV Event-Api] connection failed: $t" }
+            logger.error { "[7TV Event-Api] attempting to reconnect #$reconnectAttempts.." }
             connected = false
             connecting = false
             heartBeatJob?.cancel()
@@ -257,7 +259,7 @@ class SevenTVEventApiClient(
             connected = true
             connecting = false
             reconnectAttempts = 1
-            Log.i(TAG, "[7TV Event-Api] connected")
+            logger.info { "[7TV Event-Api] connected" }
         }
 
         override fun onMessage(
@@ -266,7 +268,7 @@ class SevenTVEventApiClient(
         ) {
             val message =
                 runCatching { json.decodeFromString<DataMessage>(text) }.getOrElse {
-                    Log.d(TAG, "Failed to parse incoming message: ", it)
+                    logger.debug(it) { "Failed to parse incoming message" }
                     return
                 }
 
@@ -376,6 +378,5 @@ class SevenTVEventApiClient(
         private const val RECONNECT_MAX_ATTEMPTS = 6
         private val DEFAULT_HEARTBEAT_INTERVAL = 25.seconds
         private val FLOW_DEBOUNCE = 2.seconds
-        private val TAG = SevenTVEventApiClient::class.java.simpleName
     }
 }

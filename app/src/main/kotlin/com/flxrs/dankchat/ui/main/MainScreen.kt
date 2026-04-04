@@ -122,6 +122,7 @@ fun MainScreen(
     onCaptureImage: () -> Unit,
     onCaptureVideo: () -> Unit,
     onChooseMedia: () -> Unit,
+    onOpenLogViewer: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -282,6 +283,7 @@ fun MainScreen(
         onLogin = onLogin,
         onReportChannel = onReportChannel,
         onOpenUrl = onOpenUrl,
+        onOpenLogViewer = onOpenLogViewer,
         onJumpToMessage = { messageId, channel ->
             val target = channelPagerViewModel.resolveJumpTarget(channel, messageId)
             if (target != null) {

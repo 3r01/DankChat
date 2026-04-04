@@ -3,7 +3,6 @@ package com.flxrs.dankchat.data.repo.emote
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.util.Log
 import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.toColorInt
@@ -51,6 +50,7 @@ import com.flxrs.dankchat.utils.extensions.appendSpacesBetweenEmojiGroup
 import com.flxrs.dankchat.utils.extensions.chunkedBy
 import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.utils.extensions.concurrentMap
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -61,6 +61,8 @@ import org.koin.core.annotation.Single
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+
+private val logger = KotlinLogging.logger("EmoteRepository")
 
 @Single
 class EmoteRepository(
@@ -515,7 +517,7 @@ class EmoteRepository(
             }
         }
 
-        Log.d(TAG, "Helix getUserEmotes: $totalCount total, ${seenIds.size} unique, ${allEmotes.size} resolved")
+        logger.debug { "Helix getUserEmotes: $totalCount total, ${seenIds.size} unique, ${allEmotes.size} resolved" }
     }
 
     suspend fun setFFZEmotes(
@@ -987,8 +989,6 @@ class EmoteRepository(
             }
 
     companion object {
-        private val TAG = EmoteRepository::class.java.simpleName
-
         private val ESCAPE_TAG = 0x000E0002.codePointAsString
         val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
         const val ZERO_WIDTH_JOINER = 0x200D.toChar().toString()

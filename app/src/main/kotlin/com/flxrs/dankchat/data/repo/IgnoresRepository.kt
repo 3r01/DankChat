@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo
 
-import android.util.Log
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
@@ -23,6 +22,7 @@ import com.flxrs.dankchat.data.twitch.message.isSub
 import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,6 +35,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
+
+private val logger = KotlinLogging.logger("IgnoresRepository")
 
 @Single
 class IgnoresRepository(
@@ -84,13 +86,13 @@ class IgnoresRepository(
                 return@launch
             }
 
-            Log.d(TAG, "Running ignores migration...")
+            logger.debug { "Running ignores migration..." }
             messageIgnoreDao.addIgnores(DEFAULT_IGNORES)
 
             val totalIgnores = DEFAULT_IGNORES.size
-            Log.d(TAG, "Ignores migration completed, added $totalIgnores entries.")
+            logger.debug { "Ignores migration completed, added $totalIgnores entries." }
         }.getOrElse {
-            Log.e(TAG, "Failed to run ignores migration", it)
+            logger.error(it) { "Failed to run ignores migration" }
             runCatching {
                 messageIgnoreDao.deleteAllIgnores()
                 userIgnoreDao.deleteAllIgnores()
@@ -109,7 +111,7 @@ class IgnoresRepository(
         val userId = preferences.userIdString ?: return@withContext
         val blocks =
             helixApiClient.getUserBlocks(userId).getOrElse {
-                Log.d(TAG, "Failed to load user blocks for $userId", it)
+                logger.debug(it) { "Failed to load user blocks for $userId" }
                 return@withContext
             }
         if (blocks.isEmpty()) {
@@ -119,7 +121,7 @@ class IgnoresRepository(
         val userIds = blocks.map { it.id }
         val users =
             helixApiClient.getUsersByIds(userIds).getOrElse {
-                Log.d(TAG, "Failed to load user ids $userIds", it)
+                logger.debug(it) { "Failed to load user ids $userIds" }
                 return@withContext
             }
         val twitchBlocks =
@@ -374,7 +376,6 @@ class IgnoresRepository(
     private operator fun IntRange.contains(other: IntRange): Boolean = other.first >= first && other.last <= last
 
     companion object {
-        private val TAG = IgnoresRepository::class.java.simpleName
         private val DEFAULT_IGNORES =
             listOf(
                 MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.Subscription, pattern = ""),

@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.api.eventapi
 
-import android.util.Log
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.EventSubMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.KeepAliveMessageDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.NotificationMessageDto
@@ -14,6 +13,7 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelCha
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.di.DispatchersProvider
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
@@ -51,6 +51,8 @@ import kotlin.random.Random
 import kotlin.random.nextLong
 import kotlin.time.Duration.Companion.seconds
 
+private val logger = KotlinLogging.logger("EventSubClient")
+
 @OptIn(DelicateCoroutinesApi::class)
 @Single
 class EventSubClient(
@@ -83,7 +85,7 @@ class EventSubClient(
         url: String = DEFAULT_URL,
         twitchReconnect: Boolean = false,
     ) {
-        Log.i(TAG, "[EventSub] starting connection, twitchReconnect=$twitchReconnect")
+        logger.info { "[EventSub] starting connection, twitchReconnect=$twitchReconnect" }
         emitSystemMessage(message = "[EventSub] connecting, twitchReconnect=$twitchReconnect")
 
         if (!twitchReconnect) {
@@ -115,7 +117,7 @@ class EventSubClient(
                                     }
                                 }
 
-                            // Log.v(TAG, "[EventSub] Received raw message: $raw")
+                            // logger.trace { "[EventSub] Received raw message: $raw" }
 
                             val jsonObject =
                                 json
@@ -125,8 +127,8 @@ class EventSubClient(
                             val message =
                                 runCatching { json.decodeFromJsonElement<EventSubMessageDto>(jsonObject) }
                                     .getOrElse {
-                                        Log.e(TAG, "[EventSub] failed to parse message: $it")
-                                        Log.e(TAG, "[EventSub] raw JSON: $jsonObject")
+                                        logger.error { "[EventSub] failed to parse message: $it" }
+                                        logger.error { "[EventSub] raw JSON: $jsonObject" }
                                         emitSystemMessage(message = "[EventSub] failed to parse message: $it")
                                         continue
                                     }
@@ -135,7 +137,7 @@ class EventSubClient(
                                 is WelcomeMessageDto -> {
                                     retryCount = 0
                                     sessionId = message.payload.session.id
-                                    Log.i(TAG, "[EventSub]($sessionId) received welcome message, status=${message.payload.session.status}")
+                                    logger.info { "[EventSub]($sessionId) received welcome message, status=${message.payload.session.status}" }
                                     emitSystemMessage(message = "[EventSub]($sessionId) received welcome message, status=${message.payload.session.status}")
                                     _state.update { EventSubClientState.Connected(message.payload.session.id) }
 
@@ -174,13 +176,13 @@ class EventSubClient(
                         }
                     }
 
-                    Log.i(TAG, "[EventSub]($sessionId) connection closed")
+                    logger.info { "[EventSub]($sessionId) connection closed" }
                     emitSystemMessage(message = "[EventSub]($sessionId) connection closed")
 
                     shouldDiscardSession(sessionId)
                     return@launch
                 } catch (t: Throwable) {
-                    Log.e(TAG, "[EventSub]($sessionId) connection failed: $t")
+                    logger.error { "[EventSub]($sessionId) connection failed: $t" }
                     emitSystemMessage(message = "[EventSub]($sessionId) connection failed: $t")
                     if (shouldDiscardSession(sessionId)) {
                         return@launch
@@ -190,12 +192,12 @@ class EventSubClient(
                     val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
                     delay(reconnectDelay + jitter)
                     retryCount = (retryCount + 1).coerceAtMost(RECONNECT_MAX_ATTEMPTS)
-                    Log.i(TAG, "[EventSub] attempting to reconnect #$retryCount..")
+                    logger.info { "[EventSub] attempting to reconnect #$retryCount.." }
                     emitSystemMessage(message = "[EventSub] attempting to reconnect #$retryCount..")
                 }
             }
 
-            Log.e(TAG, "[EventSub] connection failed after $retryCount retries, cleaning up..")
+            logger.error { "[EventSub] connection failed after $retryCount retries, cleaning up.." }
             emitSystemMessage(message = "[EventSub] connection failed after $retryCount retries, cleaning up..")
             _state.update { EventSubClientState.Failed }
             subscriptions.update { emptySet() }
@@ -213,7 +215,7 @@ class EventSubClient(
         // check state, if we are not connected, we need to start a connection
         val current = state.value
         if (current is EventSubClientState.Disconnected || current is EventSubClientState.Failed) {
-            Log.d(TAG, "[EventSub] is not connected, connecting")
+            logger.debug { "[EventSub] is not connected, connecting" }
             connect()
         }
 
@@ -228,18 +230,18 @@ class EventSubClient(
                 .postEventSubSubscription(request)
                 .getOrElse {
                     // TODO: handle errors, maybe retry?
-                    Log.e(TAG, "[EventSub] failed to subscribe: $it")
+                    logger.error { "[EventSub] failed to subscribe: $it" }
                     emitSystemMessage(message = "[EventSub] failed to subscribe: $it")
                     return@withLock
                 }
 
         val subscription = response.data.firstOrNull()?.id
         if (subscription == null) {
-            Log.e(TAG, "[EventSub] subscription response did not include subscription id: $response")
+            logger.error { "[EventSub] subscription response did not include subscription id: $response" }
             return@withLock
         }
 
-        Log.d(TAG, "[EventSub] subscribed to $topic")
+        logger.debug { "[EventSub] subscribed to $topic" }
         emitSystemMessage(message = "[EventSub] subscribed to ${topic.shortFormatted()}")
         subscriptions.update { it + SubscribedTopic(subscription, topic) }
     }
@@ -250,12 +252,12 @@ class EventSubClient(
             .deleteEventSubSubscription(topic.id)
             .getOrElse {
                 // TODO: handle errors, maybe retry?
-                Log.e(TAG, "[EventSub] failed to unsubscribe: $it")
+                logger.error { "[EventSub] failed to unsubscribe: $it" }
                 emitSystemMessage(message = "[EventSub] failed to unsubscribe: $it")
                 return@getOrElse
             }
 
-        Log.d(TAG, "[EventSub] unsubscribed from $topic")
+        logger.debug { "[EventSub] unsubscribed from $topic" }
         emitSystemMessage(message = "[EventSub] unsubscribed from ${topic.topic.shortFormatted()}")
         subscriptions.update { it - topic }
     }
@@ -282,7 +284,7 @@ class EventSubClient(
     }
 
     private fun handleNotification(message: NotificationMessageDto) {
-        Log.d(TAG, "[EventSub] received notification message: $message")
+        logger.debug { "[EventSub] received notification message: $message" }
         val eventSubMessage =
             when (val event = message.payload.event) {
                 is ChannelModerateDto -> {
@@ -334,13 +336,13 @@ class EventSubClient(
     }
 
     private fun handleRevocation(message: RevocationMessageDto) {
-        Log.i(TAG, "[EventSub] received revocation message for subscription: ${message.payload.subscription}")
+        logger.info { "[EventSub] received revocation message for subscription: ${message.payload.subscription}" }
         emitSystemMessage(message = "[EventSub] received revocation message for subscription: ${message.payload.subscription}")
         subscriptions.update { it.filterTo(mutableSetOf()) { sub -> sub.id == message.payload.subscription.id } }
     }
 
     private fun DefaultClientWebSocketSession.handleReconnect(message: ReconnectMessageDto) {
-        Log.i(TAG, "[EventSub] received request to reconnect: ${message.payload.session.reconnectUrl}")
+        logger.info { "[EventSub] received request to reconnect: ${message.payload.session.reconnectUrl}" }
         emitSystemMessage(message = "[EventSub] received request to reconnect")
         when (
             val url =
@@ -373,7 +375,7 @@ class EventSubClient(
             when (current) {
                 // this session got closed but we are already connected to a new one, don't update the state
                 is EventSubClientState.Connected if sessionId != current.sessionId -> {
-                    Log.d(TAG, "[EventSub]($sessionId) Discarding session as we are already connected to a new one (${current.sessionId})")
+                    logger.debug { "[EventSub]($sessionId) Discarding session as we are already connected to a new one (${current.sessionId})" }
                     emitSystemMessage(message = "[EventSub]($sessionId) Discarding session as we are already connected to a new one (${current.sessionId})")
                     return true
                 }
@@ -427,6 +429,5 @@ class EventSubClient(
         const val RECONNECT_BASE_DELAY = 1_000L
         const val RECONNECT_MAX_ATTEMPTS = 6
         val SUBSCRIPTION_TIMEOUT = 5.seconds
-        val TAG = EventSubClient::class.simpleName
     }
 }

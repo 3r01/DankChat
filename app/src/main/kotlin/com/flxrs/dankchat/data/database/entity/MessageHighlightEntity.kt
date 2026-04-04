@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.database.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger("MessageHighlightEntity")
 
 @Entity(tableName = "message_highlight")
 data class MessageHighlightEntity(
@@ -35,13 +37,9 @@ data class MessageHighlightEntity(
                 else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
             }
         }.getOrElse {
-            Log.e(TAG, "Failed to create regex for pattern $pattern", it)
+            logger.error(it) { "Failed to create regex for pattern $pattern" }
             null
         }
-    }
-
-    companion object {
-        private val TAG = MessageHighlightEntity::class.java.simpleName
     }
 }
 

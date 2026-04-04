@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo
 
-import android.util.Log
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.database.dao.BadgeHighlightDao
@@ -28,6 +27,7 @@ import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
+
+private val logger = KotlinLogging.logger("HighlightsRepository")
 
 @Single
 class HighlightsRepository(
@@ -95,19 +97,17 @@ class HighlightsRepository(
     fun runMigrationsIfNeeded() = coroutineScope.launch {
         runCatching {
             if (messageHighlightDao.getMessageHighlights().isEmpty()) {
-                Log.d(TAG, "Running message highlights migration...")
+                logger.debug { "Running message highlights migration" }
                 messageHighlightDao.addHighlights(DEFAULT_MESSAGE_HIGHLIGHTS)
-                val totalMessageHighlights = DEFAULT_MESSAGE_HIGHLIGHTS.size
-                Log.d(TAG, "Message highlights migration completed, added $totalMessageHighlights entries.")
+                logger.debug { "Message highlights migration completed" }
             }
             if (badgeHighlightDao.getBadgeHighlights().isEmpty()) {
-                Log.d(TAG, "Running badge highlights migration...")
+                logger.debug { "Running badge highlights migration" }
                 badgeHighlightDao.addHighlights(DEFAULT_BADGE_HIGHLIGHTS)
-                val totalBadgeHighlights = DEFAULT_BADGE_HIGHLIGHTS.size
-                Log.d(TAG, "Badge highlights migration completed, added $totalBadgeHighlights entries.")
+                logger.debug { "Badge highlights migration completed" }
             }
         }.getOrElse {
-            Log.e(TAG, "Failed to run highlights migration", it)
+            logger.error(it) { "Failed to run highlights migration" }
             runCatching {
                 messageHighlightDao.deleteAllHighlights()
                 userHighlightDao.deleteAllHighlights()
@@ -410,7 +410,6 @@ class HighlightsRepository(
         }.sortedBy { it.type.ordinal }
 
     companion object {
-        private val TAG = HighlightsRepository::class.java.simpleName
         private val DEFAULT_MESSAGE_HIGHLIGHTS =
             listOf(
                 MessageHighlightEntity(id = 0, enabled = true, type = MessageHighlightEntityType.Username, pattern = ""),

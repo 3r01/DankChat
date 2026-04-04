@@ -843,4 +843,12 @@
     <string name="cmd_error_message_too_large">A tua mensagem era demasiado longa.</string>
     <string name="cmd_error_chat_rate_limited">Estás a ser limitado. Tenta novamente dentro de momentos.</string>
     <string name="cmd_error_target_default">O utilizador alvo</string>
+    <string name="preference_log_viewer_title">Visualizador de registos</string>
+    <string name="preference_log_viewer_summary">Ver registos da aplicação</string>
+    <string name="log_viewer_title">Registos</string>
+    <string name="log_viewer_share">Partilhar registos</string>
+    <string name="log_viewer_open">Ver registos</string>
+    <string name="preference_log_viewer_empty">Nenhum ficheiro de registo disponível</string>
+    <string name="log_viewer_search_hint">Pesquisar nos registos</string>
+    <string name="scroll_to_bottom">Deslocar para baixo</string>
 </resources>

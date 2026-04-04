@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import android.util.Log
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiException
@@ -12,7 +11,10 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.preferences.developer.ChatSendProtocol
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.INVISIBLE_CHAR
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
+
+private val logger = KotlinLogging.logger("ChatMessageSender")
 
 @Single
 class ChatMessageSender(
@@ -105,7 +107,7 @@ class ChatMessageSender(
                 }
             },
             onFailure = { throwable ->
-                Log.e(TAG, "Helix send failed", throwable)
+                logger.error(throwable) { "Helix send failed" }
                 postError(channel, throwable.toSendErrorType())
             },
         )
@@ -148,9 +150,5 @@ class ChatMessageSender(
         else -> {
             SystemMessageType.SendFailed(message)
         }
-    }
-
-    companion object {
-        private val TAG = ChatMessageSender::class.java.simpleName
     }
 }

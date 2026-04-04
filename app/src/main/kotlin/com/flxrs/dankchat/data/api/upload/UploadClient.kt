@@ -1,12 +1,12 @@
 package com.flxrs.dankchat.data.api.upload
 
-import android.util.Log
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.upload.dto.UploadDto
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.UploadOkHttpClient
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
@@ -31,6 +31,8 @@ import org.koin.core.annotation.Single
 import java.io.File
 import java.net.URLConnection
 import java.time.Instant
+
+private val logger = KotlinLogging.logger("UploadClient")
 
 @Single
 class UploadClient(
@@ -97,7 +99,7 @@ class UploadClient(
             }
 
             else -> {
-                Log.e(TAG, "Upload failed with ${response.code} ${response.message}")
+                logger.error { "Upload failed with ${response.code} ${response.message}" }
                 val url = URLBuilder(response.request.url.toString()).build()
                 Result.failure(ApiException(HttpStatusCode.fromValue(response.code), url, response.message))
             }
@@ -112,11 +114,10 @@ class UploadClient(
     private fun Response.asJson(): Result<JsonElement> = runCatching {
         Json.parseToJsonElement(body.string())
     }.onFailure {
-        Log.d(TAG, "Error parsing JSON from response: ", it)
+        logger.debug(it) { "Error parsing JSON from response" }
     }
 
     companion object {
-        private val TAG = UploadClient::class.java.simpleName
         private val LINK_PATTERN_REGEX = "\\{(.+?)\\}".toRegex()
 
         @Suppress("RegExpRedundantEscape")

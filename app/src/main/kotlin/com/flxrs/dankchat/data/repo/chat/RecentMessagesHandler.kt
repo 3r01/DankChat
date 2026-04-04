@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import android.util.Log
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.recentmessages.RecentMessagesApiClient
@@ -23,11 +22,14 @@ import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.addAndLimit
 import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import kotlin.system.measureTimeMillis
+
+private val logger = KotlinLogging.logger("RecentMessagesHandler")
 
 @Single
 class RecentMessagesHandler(
@@ -124,7 +126,7 @@ class RecentMessagesHandler(
                     }
                 }
             }
-        }.let { Log.i(TAG, "Parsing message history for #$channel took $it ms") }
+        }.let { logger.info { "Parsing message history for #$channel took $it ms" } }
 
         val messagesFlow = chatMessageRepository.getMessagesFlow(channel)
         messagesFlow?.update { current ->
@@ -178,7 +180,6 @@ class RecentMessagesHandler(
     }
 
     companion object {
-        private val TAG = RecentMessagesHandler::class.java.simpleName
         private const val RECENT_MESSAGES_LIMIT_AFTER_RECONNECT = 100
     }
 }

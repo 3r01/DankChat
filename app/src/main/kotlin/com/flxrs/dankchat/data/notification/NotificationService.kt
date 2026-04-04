@@ -7,7 +7,6 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.media.app.NotificationCompat.MediaStyle
@@ -21,6 +20,7 @@ import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataSto
 import com.flxrs.dankchat.ui.main.MainActivity
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -33,6 +33,8 @@ import org.koin.android.ext.android.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
+
+private val logger = KotlinLogging.logger("NotificationService")
 
 class NotificationService :
     Service(),
@@ -142,7 +144,7 @@ class NotificationService :
         startId: Int,
         fgsType: Int,
     ) {
-        Log.w(TAG, "Stopping foreground service due to 6h timeout restriction..")
+        logger.warn { "Stopping foreground service due to 6h timeout restriction.." }
         stopSelf()
     }
 
@@ -230,8 +232,6 @@ class NotificationService :
     }
 
     companion object {
-        private val TAG = NotificationService::class.simpleName
-
         private const val CHANNEL_ID_LOW = "com.flxrs.dankchat.dank_id"
         private const val CHANNEL_ID_DEFAULT = "com.flxrs.dankchat.very_dank_id"
         private const val NOTIFICATION_ID = 77777

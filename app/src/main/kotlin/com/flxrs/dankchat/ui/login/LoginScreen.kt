@@ -2,7 +2,6 @@ package com.flxrs.dankchat.ui.login
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.ViewGroup
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -34,7 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.flxrs.dankchat.R
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.compose.viewmodel.koinViewModel
+
+private val logger = KotlinLogging.logger("LoginScreen")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -135,7 +137,7 @@ fun LoginScreen(
                                     request: WebResourceRequest?,
                                     error: WebResourceError?,
                                 ) {
-                                    Log.e("LoginScreen", "Error: ${error?.description}")
+                                    logger.error { "Error: ${error?.description}" }
                                     isLoading = false
                                 }
                             }

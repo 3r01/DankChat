@@ -841,4 +841,12 @@
     <string name="cmd_error_message_too_large">Il tuo messaggio era troppo lungo.</string>
     <string name="cmd_error_chat_rate_limited">La tua frequenza di invio è stata limitata. Riprova tra un momento.</string>
     <string name="cmd_error_target_default">L\'utente di destinazione</string>
+    <string name="preference_log_viewer_title">Visualizzatore log</string>
+    <string name="preference_log_viewer_summary">Visualizza i log dell\'applicazione</string>
+    <string name="log_viewer_title">Log</string>
+    <string name="log_viewer_share">Condividi log</string>
+    <string name="log_viewer_open">Visualizza log</string>
+    <string name="preference_log_viewer_empty">Nessun file di log disponibile</string>
+    <string name="log_viewer_search_hint">Cerca nei log</string>
+    <string name="scroll_to_bottom">Scorri verso il basso</string>
 </resources>

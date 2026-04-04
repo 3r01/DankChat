@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.di
 
-import android.util.Log
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.auth.AuthApi
 import com.flxrs.dankchat.data.api.badges.BadgesApi
@@ -15,6 +14,7 @@ import com.flxrs.dankchat.data.api.supibot.SupibotApi
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
@@ -76,27 +76,30 @@ class NetworkModule {
     }
 
     @Single
-    fun provideKtorClient(json: Json): HttpClient = HttpClient(OkHttp) {
-        install(Logging) {
-            level = LogLevel.INFO
-            logger =
-                object : Logger {
-                    override fun log(message: String) {
-                        Log.v("HttpClient", message)
+    fun provideKtorClient(json: Json): HttpClient {
+        val httpLogger = KotlinLogging.logger("HttpClient")
+        return HttpClient(OkHttp) {
+            install(Logging) {
+                level = LogLevel.INFO
+                logger =
+                    object : Logger {
+                        override fun log(message: String) {
+                            httpLogger.trace { message }
+                        }
                     }
-                }
-        }
-        install(HttpCache)
-        install(UserAgent) {
-            agent = "dankchat/${BuildConfig.VERSION_NAME}"
-        }
-        install(ContentNegotiation) {
-            json(json)
-        }
-        install(HttpTimeout) {
-            connectTimeoutMillis = 30_000
-            requestTimeoutMillis = 30_000
-            socketTimeoutMillis = 30_000
+            }
+            install(HttpCache)
+            install(UserAgent) {
+                agent = "dankchat/${BuildConfig.VERSION_NAME}"
+            }
+            install(ContentNegotiation) {
+                json(json)
+            }
+            install(HttpTimeout) {
+                connectTimeoutMillis = 30_000
+                requestTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
         }
     }
 

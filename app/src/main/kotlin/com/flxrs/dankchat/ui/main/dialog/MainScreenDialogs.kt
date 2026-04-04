@@ -77,6 +77,7 @@ fun MainScreenDialogs(
     onReportChannel: () -> Unit,
     onOpenUrl: (String) -> Unit,
     onJumpToMessage: (messageId: String, channel: UserName) -> Unit = { _, _ -> },
+    onOpenLogViewer: () -> Unit = {},
 ) {
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
 
@@ -253,6 +254,7 @@ fun MainScreenDialogs(
             viewModel = debugInfoViewModel,
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             onDismiss = sheetNavigationViewModel::closeInputSheet,
+            onOpenLogViewer = onOpenLogViewer,
         )
     }
 }

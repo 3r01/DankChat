@@ -865,4 +865,12 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="cmd_error_message_too_large">Viestisi oli liian pitkä.</string>
     <string name="cmd_error_chat_rate_limited">Nopeuttasi rajoitetaan. Yritä uudelleen hetken kuluttua.</string>
     <string name="cmd_error_target_default">Kohdekäyttäjä</string>
+    <string name="preference_log_viewer_title">Lokien katselin</string>
+    <string name="preference_log_viewer_summary">Näytä sovelluksen lokit</string>
+    <string name="log_viewer_title">Lokit</string>
+    <string name="log_viewer_share">Jaa lokit</string>
+    <string name="log_viewer_open">Näytä lokit</string>
+    <string name="preference_log_viewer_empty">Lokitiedostoja ei ole saatavilla</string>
+    <string name="log_viewer_search_hint">Hae lokeista</string>
+    <string name="scroll_to_bottom">Vieritä alas</string>
 </resources>

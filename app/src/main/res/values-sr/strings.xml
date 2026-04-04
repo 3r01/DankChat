@@ -894,4 +894,12 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="cmd_error_message_too_large">Ваша порука је била предуга.</string>
     <string name="cmd_error_chat_rate_limited">Ограничена вам је брзина. Покушајте поново за тренутак.</string>
     <string name="cmd_error_target_default">Циљни корисник</string>
+    <string name="preference_log_viewer_title">Прегледач логова</string>
+    <string name="preference_log_viewer_summary">Прегледајте логове апликације</string>
+    <string name="log_viewer_title">Логови</string>
+    <string name="log_viewer_share">Подели логове</string>
+    <string name="log_viewer_open">Прегледај логове</string>
+    <string name="preference_log_viewer_empty">Нема доступних лог фајлова</string>
+    <string name="log_viewer_search_hint">Претражи логове</string>
+    <string name="scroll_to_bottom">Помери на дно</string>
 </resources>

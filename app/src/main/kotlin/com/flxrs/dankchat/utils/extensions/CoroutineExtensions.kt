@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.utils.extensions
 
-import android.util.Log
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -10,6 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlin.time.Duration
+
+private val logger = KotlinLogging.logger("CoroutineExtensions")
 
 suspend fun <T, R> Collection<T>.concurrentMap(block: suspend (T) -> R): List<R> = coroutineScope {
     map { async { block(it) } }.awaitAll()
@@ -25,7 +27,7 @@ fun CoroutineScope.timer(
         try {
             action(scope)
         } catch (ex: Exception) {
-            Log.e("TimerScope", Log.getStackTraceString(ex))
+            logger.error(ex) { "TimerScope error" }
         }
 
         if (scope.isCancelled) {

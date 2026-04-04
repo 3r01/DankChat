@@ -864,4 +864,12 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="cmd_error_message_too_large">Deine Nachricht war zu lang.</string>
     <string name="cmd_error_chat_rate_limited">Du wirst ratenbegrenzt. Versuche es gleich nochmal.</string>
     <string name="cmd_error_target_default">Der Zielbenutzer</string>
+    <string name="preference_log_viewer_title">Log-Betrachter</string>
+    <string name="preference_log_viewer_summary">Anwendungsprotokolle anzeigen</string>
+    <string name="log_viewer_title">Protokolle</string>
+    <string name="log_viewer_share">Protokolle teilen</string>
+    <string name="log_viewer_open">Protokolle anzeigen</string>
+    <string name="preference_log_viewer_empty">Keine Protokolldateien verfügbar</string>
+    <string name="log_viewer_search_hint">Protokolle durchsuchen</string>
+    <string name="scroll_to_bottom">Nach unten scrollen</string>
 </resources>

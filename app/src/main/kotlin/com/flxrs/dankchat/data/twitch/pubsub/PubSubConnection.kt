@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
-import android.util.Log
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.ifBlank
@@ -12,6 +11,7 @@ import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModeratorAddedData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.redemption.PointRedemption
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
 import com.flxrs.dankchat.utils.extensions.timer
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
@@ -44,6 +44,8 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+
+private val logger = KotlinLogging.logger("PubSubConnection")
 
 @OptIn(DelicateCoroutinesApi::class)
 class PubSubConnection(
@@ -88,7 +90,7 @@ class PubSubConnection(
         topics.clear()
         topics.addAll(possibleTopics)
 
-        Log.i(TAG, "[PubSub $tag] connecting with ${possibleTopics.size} topics")
+        logger.info { "[PubSub $tag] connecting with ${possibleTopics.size} topics" }
         connectionJob =
             scope.launch {
                 var retryCount = 1
@@ -99,12 +101,12 @@ class PubSubConnection(
                             session = this
                             retryCount = 1
                             receiveChannel.trySend(PubSubEvent.Connected)
-                            Log.i(TAG, "[PubSub $tag] connected")
+                            logger.info { "[PubSub $tag] connected" }
 
                             possibleTopics
                                 .toRequestMessages()
                                 .forEach { send(Frame.Text(it)) }
-                            Log.d(TAG, "[PubSub $tag] sent LISTEN for ${possibleTopics.size} topics")
+                            logger.debug { "[PubSub $tag] sent LISTEN for ${possibleTopics.size} topics" }
 
                             var pingJob: Job? = null
                             try {
@@ -136,15 +138,15 @@ class PubSubConnection(
                         receiveChannel.trySend(PubSubEvent.Closed)
 
                         if (!serverRequestedReconnect) {
-                            Log.i(TAG, "[PubSub $tag] connection closed")
+                            logger.info { "[PubSub $tag] connection closed" }
                             return@launch
                         }
-                        Log.i(TAG, "[PubSub $tag] reconnecting after server request")
+                        logger.info { "[PubSub $tag] reconnecting after server request" }
                     } catch (t: CancellationException) {
                         throw t
                     } catch (t: Throwable) {
-                        Log.e(TAG, "[PubSub $tag] connection failed: $t")
-                        Log.e(TAG, "[PubSub $tag] attempting to reconnect #$retryCount..")
+                        logger.error { "[PubSub $tag] connection failed: $t" }
+                        logger.error { "[PubSub $tag] attempting to reconnect #$retryCount.." }
                         session = null
                         receiveChannel.trySend(PubSubEvent.Closed)
 
@@ -155,7 +157,7 @@ class PubSubConnection(
                     }
                 }
 
-                Log.e(TAG, "[PubSub $tag] connection failed after $RECONNECT_MAX_ATTEMPTS retries")
+                logger.error { "[PubSub $tag] connection failed after $RECONNECT_MAX_ATTEMPTS retries" }
                 session = null
             }
 
@@ -172,7 +174,7 @@ class PubSubConnection(
         topics.addAll(needsListen)
 
         if (needsListen.isNotEmpty()) {
-            Log.d(TAG, "[PubSub $tag] listening to ${needsListen.size} new topics")
+            logger.debug { "[PubSub $tag] listening to ${needsListen.size} new topics" }
         }
         val currentSession = session
         needsListen
@@ -205,14 +207,14 @@ class PubSubConnection(
     }
 
     fun reconnect() {
-        Log.i(TAG, "[PubSub $tag] reconnecting")
+        logger.info { "[PubSub $tag] reconnecting" }
         close()
         connect(topics)
     }
 
     fun reconnectIfNecessary() {
         if (connected || connectionJob?.isActive == true) return
-        Log.i(TAG, "[PubSub $tag] connection lost, reconnecting")
+        logger.info { "[PubSub $tag] connection lost, reconnecting" }
         reconnect()
     }
 
@@ -221,7 +223,7 @@ class PubSubConnection(
         topics.removeAll(foundTopics)
 
         if (foundTopics.isNotEmpty()) {
-            Log.d(TAG, "[PubSub $tag] unlistening from ${foundTopics.size} topics")
+            logger.debug { "[PubSub $tag] unlistening from ${foundTopics.size} topics" }
         }
         val currentSession = session
         foundTopics
@@ -260,14 +262,14 @@ class PubSubConnection(
             }
 
             "RECONNECT" -> {
-                Log.i(TAG, "[PubSub $tag] server requested reconnect")
+                logger.info { "[PubSub $tag] server requested reconnect" }
                 return true
             }
 
             "RESPONSE" -> {
                 val error = json.optString("error")
                 if (error.isNotBlank()) {
-                    Log.w(TAG, "[PubSub $tag] RESPONSE error: $error")
+                    logger.warn { "[PubSub $tag] RESPONSE error: $error" }
                 }
             }
 
@@ -393,7 +395,6 @@ class PubSubConnection(
         private val PING_INTERVAL = 5.minutes
         private const val PING_PAYLOAD = "{\"type\":\"PING\"}"
         private const val PUBSUB_URL = "wss://pubsub-edge.twitch.tv"
-        private val TAG = PubSubConnection::class.java.simpleName
         private val POINT_REDEMPTION_TOPICS = setOf("reward-redeemed", "automatic-reward-redeemed")
     }
 }

@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.ui.chat.messages.common
 
 import android.content.Context
-import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,9 +26,12 @@ import com.flxrs.dankchat.ui.chat.EmoteUi
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.StackedEmote
 import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
+
+private val logger = KotlinLogging.logger("MessageTextRenderer")
 
 @Composable
 fun MessageTextWithInlineContent(
@@ -127,7 +129,7 @@ fun launchCustomTab(
             .build()
             .launchUrl(context, url.toUri())
     } catch (e: Exception) {
-        Log.e("MessageUrl", "Error launching URL", e)
+        logger.error(e) { "Error launching URL" }
     }
 }
 
