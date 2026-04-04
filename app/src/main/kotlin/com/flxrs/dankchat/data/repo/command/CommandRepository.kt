@@ -50,7 +50,7 @@ class CommandRepository(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val authDataStore: AuthDataStore,
-    dispatchersProvider: DispatchersProvider,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val customCommands = chatSettingsDataStore.commands.stateIn(scope, SharingStarted.Eagerly, emptyList())
@@ -174,7 +174,7 @@ class CommandRepository(
         }
     }
 
-    suspend fun loadSupibotCommands() = withContext(Dispatchers.Default) {
+    suspend fun loadSupibotCommands() = withContext(dispatchersProvider.default) {
         if (!authDataStore.isLoggedIn || SuggestionType.SupibotCommands !in chatSettingsDataStore.settings.first().suggestionTypes) {
             return@withContext
         }

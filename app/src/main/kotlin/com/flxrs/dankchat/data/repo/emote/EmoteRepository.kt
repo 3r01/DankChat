@@ -44,13 +44,13 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.analyzeCodePoints
 import com.flxrs.dankchat.utils.extensions.appendSpacesBetweenEmojiGroup
 import com.flxrs.dankchat.utils.extensions.chunkedBy
 import com.flxrs.dankchat.utils.extensions.codePointAsString
 import com.flxrs.dankchat.utils.extensions.concurrentMap
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -58,6 +58,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
+import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -66,6 +67,7 @@ class EmoteRepository(
     private val helixApiClient: HelixApiClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val channelRepository: ChannelRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val ffzModBadges = ConcurrentHashMap<UserName, String>()
     private val ffzVipBadges = ConcurrentHashMap<UserName, String>()
@@ -440,7 +442,7 @@ class EmoteRepository(
     private suspend fun loadUserEmotesViaHelix(
         userId: UserId,
         onFirstPageLoaded: (() -> Unit)? = null,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val seenIds = mutableSetOf<String>()
         val allEmotes = mutableListOf<GenericEmote>()
         var totalCount = 0
@@ -519,7 +521,7 @@ class EmoteRepository(
     suspend fun setFFZEmotes(
         channel: UserName,
         ffzResult: FFZChannelDto,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val ffzEmotes =
             ffzResult.sets
                 .flatMap { set ->
@@ -540,7 +542,7 @@ class EmoteRepository(
         }
     }
 
-    suspend fun setFFZGlobalEmotes(ffzResult: FFZGlobalDto) = withContext(Dispatchers.Default) {
+    suspend fun setFFZGlobalEmotes(ffzResult: FFZGlobalDto) = withContext(dispatchersProvider.default) {
         val ffzGlobalEmotes =
             ffzResult.sets
                 .filter { it.key in ffzResult.defaultSets }
@@ -556,14 +558,14 @@ class EmoteRepository(
         channel: UserName,
         channelDisplayName: DisplayName,
         bttvResult: BTTVChannelDto,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val bttvEmotes = (bttvResult.emotes + bttvResult.sharedEmotes).map { parseBTTVEmote(it, channelDisplayName) }
         channelEmoteStates[channel]?.update {
             it.copy(bttvEmotes = bttvEmotes)
         }
     }
 
-    suspend fun setBTTVGlobalEmotes(globalEmotes: List<BTTVGlobalEmoteDto>) = withContext(Dispatchers.Default) {
+    suspend fun setBTTVGlobalEmotes(globalEmotes: List<BTTVGlobalEmoteDto>) = withContext(dispatchersProvider.default) {
         val bttvGlobalEmotes = globalEmotes.map { parseBTTVGlobalEmote(it) }
         globalEmoteState.update { it.copy(bttvEmotes = bttvGlobalEmotes) }
     }
@@ -571,7 +573,7 @@ class EmoteRepository(
     suspend fun setSevenTVEmotes(
         channel: UserName,
         userDto: SevenTVUserDto,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val emoteSetId = userDto.emoteSet?.id ?: return@withContext
         val emoteList = userDto.emoteSet.emotes.orEmpty()
 
@@ -596,7 +598,7 @@ class EmoteRepository(
     suspend fun setSevenTVEmoteSet(
         channel: UserName,
         emoteSet: SevenTVEmoteSetDto,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         sevenTvChannelDetails[channel]?.let { details ->
             sevenTvChannelDetails[channel] = details.copy(activeEmoteSetId = emoteSet.id)
         }
@@ -617,7 +619,7 @@ class EmoteRepository(
     suspend fun updateSevenTVEmotes(
         channel: UserName,
         event: SevenTVEventMessage.EmoteSetUpdated,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val addedEmotes =
             event.added
                 .filterUnlistedIfEnabled()
@@ -648,7 +650,7 @@ class EmoteRepository(
         }
     }
 
-    suspend fun setSevenTVGlobalEmotes(sevenTvResult: List<SevenTVEmoteDto>) = withContext(Dispatchers.Default) {
+    suspend fun setSevenTVGlobalEmotes(sevenTvResult: List<SevenTVEmoteDto>) = withContext(dispatchersProvider.default) {
         if (sevenTvResult.isEmpty()) return@withContext
 
         val sevenTvGlobalEmotes =
@@ -664,7 +666,7 @@ class EmoteRepository(
     suspend fun setCheermotes(
         channel: UserName,
         cheermoteDtos: List<CheermoteSetDto>,
-    ) = withContext(Dispatchers.Default) {
+    ) = withContext(dispatchersProvider.default) {
         val cheermoteSets =
             cheermoteDtos.map { dto ->
                 CheermoteSet(
@@ -766,8 +768,8 @@ class EmoteRepository(
             }
         return GenericEmote(
             code = code,
-            url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
-            lowResUrl = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_LOW_RES_EMOTE_SIZE),
+            url = TWITCH_EMOTE_TEMPLATE.format(Locale.ROOT, id, TWITCH_EMOTE_SIZE),
+            lowResUrl = TWITCH_EMOTE_TEMPLATE.format(Locale.ROOT, id, TWITCH_LOW_RES_EMOTE_SIZE),
             id = id,
             scale = 1,
             emoteType = type,
@@ -872,7 +874,7 @@ class EmoteRepository(
             val code = message.substring(fixedPos.first, fixedPos.last)
             ChatMessageEmote(
                 position = fixedPos,
-                url = TWITCH_EMOTE_TEMPLATE.format(id, TWITCH_EMOTE_SIZE),
+                url = TWITCH_EMOTE_TEMPLATE.format(Locale.ROOT, id, TWITCH_EMOTE_SIZE),
                 id = id,
                 code = code,
                 scale = 1,
@@ -888,8 +890,8 @@ class EmoteRepository(
     ): GenericEmote {
         val name = emote.code
         val id = emote.id
-        val url = BTTV_EMOTE_TEMPLATE.format(id, BTTV_EMOTE_SIZE)
-        val lowResUrl = BTTV_EMOTE_TEMPLATE.format(id, BTTV_LOW_RES_EMOTE_SIZE)
+        val url = BTTV_EMOTE_TEMPLATE.format(Locale.ROOT, id, BTTV_EMOTE_SIZE)
+        val lowResUrl = BTTV_EMOTE_TEMPLATE.format(Locale.ROOT, id, BTTV_LOW_RES_EMOTE_SIZE)
         return GenericEmote(
             code = name,
             url = url,
@@ -904,8 +906,8 @@ class EmoteRepository(
     private fun parseBTTVGlobalEmote(emote: BTTVGlobalEmoteDto): GenericEmote {
         val name = emote.code
         val id = emote.id
-        val url = BTTV_EMOTE_TEMPLATE.format(id, BTTV_EMOTE_SIZE)
-        val lowResUrl = BTTV_EMOTE_TEMPLATE.format(id, BTTV_LOW_RES_EMOTE_SIZE)
+        val url = BTTV_EMOTE_TEMPLATE.format(Locale.ROOT, id, BTTV_EMOTE_SIZE)
+        val lowResUrl = BTTV_EMOTE_TEMPLATE.format(Locale.ROOT, id, BTTV_LOW_RES_EMOTE_SIZE)
         return GenericEmote(
             code = name,
             url = url,

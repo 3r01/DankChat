@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntityType
 import com.flxrs.dankchat.data.repo.HighlightsRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.replaceAll
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +23,7 @@ class HighlightsViewModel(
     private val highlightsRepository: HighlightsRepository,
     private val preferenceStore: DankChatPreferenceStore,
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
+    private val dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     private val _currentTab = MutableStateFlow(HighlightsTab.Messages)
     private val eventChannel = Channel<HighlightEvent>(Channel.BUFFERED)
@@ -191,7 +192,7 @@ class HighlightsViewModel(
         .map { it.toEntity() }
         .partition { it.username.isBlank() }
 
-    private suspend fun sendEvent(event: HighlightEvent) = withContext(Dispatchers.Main.immediate) {
+    private suspend fun sendEvent(event: HighlightEvent) = withContext(dispatchersProvider.immediate) {
         eventChannel.send(event)
     }
 

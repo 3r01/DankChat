@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.chat.replies
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.repo.RepliesRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -11,7 +12,6 @@ import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -29,6 +29,7 @@ class RepliesViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
+    dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -79,6 +80,6 @@ class RepliesViewModel(
                     RepliesUiState.Found(uiMessages)
                 }
             }
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(dispatchersProvider.default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), RepliesUiState.Found(persistentListOf()))
 }

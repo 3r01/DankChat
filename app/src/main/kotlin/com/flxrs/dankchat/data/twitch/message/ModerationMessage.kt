@@ -35,7 +35,7 @@ data class ModerationMessage(
     val reason: String? = null,
     val fromEventSource: Boolean = false,
     val stackCount: Int = 0,
-) : Message() {
+) : Message {
     enum class Action {
         Timeout,
         Untimeout,
@@ -94,12 +94,12 @@ data class ModerationMessage(
     ): TextResource {
         val creator = creatorUserDisplay.toString()
         val target = targetUserDisplay.toString()
-        val dur: Any = duration ?: ""
         val source = sourceBroadcasterDisplay.toString()
 
         val message =
             when (action) {
                 Action.Timeout -> {
+                    val dur = duration ?: TextResource.Plain("")
                     when (targetUser) {
                         currentUser -> {
                             when (creatorUserDisplay) {
@@ -279,6 +279,7 @@ data class ModerationMessage(
                 }
 
                 Action.SharedTimeout -> {
+                    val dur = duration ?: TextResource.Plain("")
                     when {
                         hasReason -> TextResource.Res(R.string.mod_shared_timeout_reason, persistentListOf(creator, target, dur, source, reason.orEmpty()))
                         else -> TextResource.Res(R.string.mod_shared_timeout, persistentListOf(creator, target, dur, source))
@@ -400,7 +401,7 @@ data class ModerationMessage(
             val targetMsgId = tags["target-msg-id"]
             val reason = params.getOrNull(1)
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
-            val id = tags["id"] ?: "clearmsg-$ts-$channel-${target ?: ""}"
+            val id = tags["id"] ?: "clearmsg-$ts-$channel-${target.orEmpty()}"
 
             return ModerationMessage(
                 timestamp = ts,

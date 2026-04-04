@@ -1023,8 +1023,6 @@ private fun BoxScope.NormalStackedLayout(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val focusManager = LocalFocusManager.current
 
     if (!isInPipMode) {
         Scaffold(

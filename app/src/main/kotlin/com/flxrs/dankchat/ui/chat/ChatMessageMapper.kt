@@ -249,7 +249,7 @@ class ChatMessageMapper(
                 }
 
                 is SystemMessageType.SendFailed -> {
-                    TextResource.Res(R.string.system_message_send_failed, persistentListOf(type.message ?: ""))
+                    TextResource.Res(R.string.system_message_send_failed, persistentListOf(type.message.orEmpty()))
                 }
 
                 is SystemMessageType.MessageHistoryUnavailable -> {

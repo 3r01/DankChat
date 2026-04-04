@@ -35,8 +35,8 @@ import kotlin.concurrent.atomics.plusAssign
 class ChatMessageRepository(
     private val messageProcessor: MessageProcessor,
     private val chatNotificationRepository: ChatNotificationRepository,
+    private val dispatchersProvider: DispatchersProvider,
     chatSettingsDataStore: ChatSettingsDataStore,
-    dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
@@ -140,7 +140,7 @@ class ChatMessageRepository(
         }
     }
 
-    suspend fun reparseAllEmotesAndBadges() = withContext(Dispatchers.Default) {
+    suspend fun reparseAllEmotesAndBadges() = withContext(dispatchersProvider.default) {
         messages.values
             .map { flow ->
                 async {

@@ -29,6 +29,7 @@ inline fun <T> Collection<T>.replaceIf(
     predicate: (T) -> Boolean,
 ): List<T> = map { if (predicate(it)) replacement else it }
 
+@Suppress("DoubleMutabilityForCollection")
 inline fun <T> List<T>.chunkedBy(
     maxSize: Int,
     selector: (T) -> Int,

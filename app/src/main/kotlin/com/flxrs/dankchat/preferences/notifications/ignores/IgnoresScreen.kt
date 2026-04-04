@@ -71,15 +71,16 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.components.CheckboxWithText
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceTabRow
 import com.flxrs.dankchat.preferences.notifications.highlights.HighlightsViewModel
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -121,6 +122,7 @@ private fun IgnoresScreen(
     onPageChange: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
+    val dispatchersProvider = koinInject<DispatchersProvider>()
     val resources = LocalResources.current
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
@@ -140,7 +142,7 @@ private fun IgnoresScreen(
 
     LaunchedEffect(eventsWrapper) {
         eventsWrapper.events
-            .flowOn(Dispatchers.Main.immediate)
+            .flowOn(dispatchersProvider.immediate)
             .collectLatest { event ->
                 focusManager.clearFocus()
                 when (event) {
@@ -256,7 +258,7 @@ private fun IgnoresScreen(
                     textAlign = TextAlign.Center,
                 )
                 PreferenceTabRow(
-                    appBarContainerColor = appbarContainerColor,
+                    appBarContainerColor = appbarContainerColor.value,
                     pagerState = pagerState,
                     tabCount = IgnoresTab.entries.size,
                     tabText = {

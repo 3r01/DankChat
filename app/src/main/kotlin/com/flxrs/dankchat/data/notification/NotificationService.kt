@@ -16,13 +16,13 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.ui.main.MainActivity
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.combine
@@ -48,11 +48,13 @@ class NotificationService :
     private val dataRepository: DataRepository by inject()
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore by inject()
     private val appLifecycleListener: AppLifecycleListener by inject()
+    private val dispatchersProvider: DispatchersProvider by inject()
 
     private val pendingIntentFlag: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + job
+    override val coroutineContext: CoroutineContext
+        get() = dispatchersProvider.io + job
 
     inner class LocalBinder(
         val service: NotificationService = this@NotificationService,

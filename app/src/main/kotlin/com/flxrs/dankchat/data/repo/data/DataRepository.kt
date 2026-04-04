@@ -56,7 +56,7 @@ class DataRepository(
     private val recentUploadsRepository: RecentUploadsRepository,
     private val authDataStore: AuthDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
-    dispatchersProvider: DispatchersProvider,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val _dataLoadingFailures = MutableStateFlow(emptySet<DataLoadingFailure>())
@@ -132,7 +132,7 @@ class DataRepository(
         it.imageLink
     }
 
-    suspend fun loadGlobalBadges(): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
         measureTimeAndLog(TAG, "global badges") {
             val result =
                 when {
@@ -144,7 +144,7 @@ class DataRepository(
         }
     }
 
-    suspend fun loadDankChatBadges(): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun loadDankChatBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
         measureTimeAndLog(TAG, "DankChat badges") {
             dankChatApiClient
                 .getDankChatBadges()
@@ -168,7 +168,7 @@ class DataRepository(
     suspend fun loadChannelBadges(
         channel: UserName,
         id: UserId,
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         measureTimeAndLog(TAG, "channel badges for #$id") {
             val result =
                 when {
@@ -183,7 +183,7 @@ class DataRepository(
     suspend fun loadChannelFFZEmotes(
         channel: UserName,
         channelId: UserId,
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -192,7 +192,7 @@ class DataRepository(
             ffzApiClient
                 .getFFZChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
-                .onSuccess { it?.let { emoteRepository.setFFZEmotes(channel, it) } }
+                .onSuccess { emotes -> emotes?.let { emoteRepository.setFFZEmotes(channel, it) } }
                 .map { }
         }
     }
@@ -201,7 +201,7 @@ class DataRepository(
         channel: UserName,
         channelDisplayName: DisplayName,
         channelId: UserId,
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -210,7 +210,7 @@ class DataRepository(
             bttvApiClient
                 .getBTTVChannelEmotes(channelId)
                 .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
-                .onSuccess { it?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) } }
+                .onSuccess { emotes -> emotes?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) } }
                 .map { }
         }
     }
@@ -218,7 +218,7 @@ class DataRepository(
     suspend fun loadChannelSevenTVEmotes(
         channel: UserName,
         channelId: UserId,
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -241,7 +241,7 @@ class DataRepository(
     suspend fun loadChannelCheermotes(
         channel: UserName,
         channelId: UserId,
-    ): Result<Unit> = withContext(Dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
         if (!authDataStore.isLoggedIn) {
             return@withContext Result.success(Unit)
         }
@@ -255,7 +255,7 @@ class DataRepository(
         }
     }
 
-    suspend fun loadGlobalFFZEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalFFZEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -269,7 +269,7 @@ class DataRepository(
         }
     }
 
-    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
@@ -283,7 +283,7 @@ class DataRepository(
         }
     }
 
-    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }

@@ -54,7 +54,7 @@ fun MessageIgnoreEntity.toItem() = MessageIgnoreItem(
     isRegex = isRegex,
     isCaseSensitive = isCaseSensitive,
     isBlockMessage = isBlockMessage,
-    replacement = replacement ?: "",
+    replacement = replacement.orEmpty(),
 )
 
 fun MessageIgnoreItem.toEntity() = MessageIgnoreEntity(

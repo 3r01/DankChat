@@ -336,7 +336,7 @@ class EventSubClient(
     private fun handleRevocation(message: RevocationMessageDto) {
         Log.i(TAG, "[EventSub] received revocation message for subscription: ${message.payload.subscription}")
         emitSystemMessage(message = "[EventSub] received revocation message for subscription: ${message.payload.subscription}")
-        subscriptions.update { it.filterTo(mutableSetOf()) { it.id == message.payload.subscription.id } }
+        subscriptions.update { it.filterTo(mutableSetOf()) { sub -> sub.id == message.payload.subscription.id } }
     }
 
     private fun DefaultClientWebSocketSession.handleReconnect(message: ReconnectMessageDto) {

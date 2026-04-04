@@ -74,7 +74,7 @@ private fun PreferenceCategoryPreview(
     }
 }
 
-@Suppress("UnusedPrivateFunction")
+@Suppress("UnusedPrivateFunction", "UnusedParameter")
 @Composable
 @PreviewLightDark
 private fun PreferenceCategoryWithItemsPreview(

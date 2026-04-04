@@ -297,7 +297,7 @@ private fun InlineRenameField(
     channelWithRename: ChannelWithRename,
     onRename: (String?) -> Unit,
 ) {
-    val initialText = channelWithRename.rename?.value ?: ""
+    val initialText = channelWithRename.rename?.value.orEmpty()
     var renameText by remember(channelWithRename.channel) {
         mutableStateOf(
             TextFieldValue(

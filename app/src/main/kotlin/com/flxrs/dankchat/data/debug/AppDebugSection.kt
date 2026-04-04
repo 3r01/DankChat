@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import org.koin.core.annotation.Single
+import java.util.Locale
 
 @Single
 class AppDebugSection : DebugSection {
@@ -58,11 +59,11 @@ class AppDebugSection : DebugSection {
 
     private fun formatBytes(bytes: Long): String {
         val mb = bytes / (1024.0 * 1024.0)
-        return "%.1f MB".format(mb)
+        return "%.1f MB".format(Locale.ROOT, mb)
     }
 
     private fun formatKb(kb: Long): String {
         val mb = kb / 1024.0
-        return "%.1f MB".format(mb)
+        return "%.1f MB".format(Locale.ROOT, mb)
     }
 }

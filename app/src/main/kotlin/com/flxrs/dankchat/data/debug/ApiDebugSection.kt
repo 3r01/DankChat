@@ -26,7 +26,7 @@ class ApiDebugSection(
             val statusCounts =
                 helixApiStats.statusCounts
                     .entries
-                    .sortedBy { it.key }
+                    .sortedBy { entry -> entry.key }
                     .map { (code, count) -> DebugEntry("HTTP $code", "$count") }
 
             DebugSectionSnapshot(

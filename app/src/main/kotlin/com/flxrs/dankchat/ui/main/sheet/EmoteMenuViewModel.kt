@@ -7,6 +7,7 @@ import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
 import com.flxrs.dankchat.data.twitch.emote.EmoteType
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenuTab
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenuTabItem
 import com.flxrs.dankchat.utils.extensions.flatMapLatestOrDefault
@@ -14,7 +15,6 @@ import com.flxrs.dankchat.utils.extensions.toEmoteItems
 import com.flxrs.dankchat.utils.extensions.toEmoteItemsWithFront
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +32,7 @@ class EmoteMenuViewModel(
     private val dataRepository: DataRepository,
     chatChannelProvider: ChatChannelProvider,
     emoteUsageRepository: EmoteUsageRepository,
+    dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     private val _selectedTabIndex = MutableStateFlow(0)
     val selectedTabIndex: StateFlow<Int> = _selectedTabIndex.asStateFlow()
@@ -53,7 +54,7 @@ class EmoteMenuViewModel(
 
     val emoteTabItems: StateFlow<ImmutableList<EmoteMenuTabItem>> =
         combine(emotes, recentEmotes, activeChannel) { emotes, recentEmotes, channel ->
-            withContext(Dispatchers.Default) {
+            withContext(dispatchersProvider.default) {
                 val sortedEmotes = emotes.sorted
                 val availableRecents =
                     recentEmotes.mapNotNull { usage ->
@@ -81,8 +82,8 @@ class EmoteMenuViewModel(
                 listOf(
                     async { EmoteMenuTabItem(EmoteMenuTab.RECENT, availableRecents.toEmoteItems()) },
                     async { EmoteMenuTabItem(EmoteMenuTab.SUBS, groupedByType[EmoteMenuTab.SUBS].toEmoteItemsWithFront(channel)) },
-                    async { EmoteMenuTabItem(EmoteMenuTab.CHANNEL, (groupedByType[EmoteMenuTab.CHANNEL] ?: emptyList()).toEmoteItems()) },
-                    async { EmoteMenuTabItem(EmoteMenuTab.GLOBAL, (groupedByType[EmoteMenuTab.GLOBAL] ?: emptyList()).toEmoteItems()) },
+                    async { EmoteMenuTabItem(EmoteMenuTab.CHANNEL, groupedByType[EmoteMenuTab.CHANNEL].orEmpty().toEmoteItems()) },
+                    async { EmoteMenuTabItem(EmoteMenuTab.GLOBAL, groupedByType[EmoteMenuTab.GLOBAL].orEmpty().toEmoteItems()) },
                 ).awaitAll().toImmutableList()
             }
         }.stateIn(

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import com.mikepenz.aboutlibraries.Libs
@@ -46,13 +47,14 @@ import com.mikepenz.aboutlibraries.entity.Library
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.util.htmlReadyLicenseContent
 import com.mikepenz.aboutlibraries.util.withContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.compose.koinInject
 import sh.calvin.autolinktext.TextRuleDefaults
 import sh.calvin.autolinktext.annotateString
 
 @Composable
 fun AboutScreen(onBack: () -> Unit) {
+    val dispatchersProvider: DispatchersProvider = koinInject()
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
@@ -77,7 +79,7 @@ fun AboutScreen(onBack: () -> Unit) {
         val libraries =
             produceState<Libs?>(null) {
                 value =
-                    withContext(Dispatchers.IO) {
+                    withContext(dispatchersProvider.io) {
                         Libs.Builder().withContext(context).build()
                     }
             }

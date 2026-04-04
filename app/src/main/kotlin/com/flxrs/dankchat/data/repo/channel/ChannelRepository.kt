@@ -10,9 +10,9 @@ import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.RoomState
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.firstValueOrNull
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,6 +25,7 @@ class ChannelRepository(
     private val usersRepository: UsersRepository,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val channelCache = ConcurrentHashMap<UserName, Channel>()
     private val roomStates = ConcurrentHashMap<UserName, RoomState>()
@@ -108,7 +109,7 @@ class ChannelRepository(
         flow.tryEmit(state)
     }
 
-    suspend fun getChannelsByIds(ids: Collection<UserId>): List<Channel> = withContext(Dispatchers.IO) {
+    suspend fun getChannelsByIds(ids: Collection<UserId>): List<Channel> = withContext(dispatchersProvider.io) {
         val cached = ids.mapNotNull { getCachedChannelByIdOrNull(it) }
         val cachedIds = cached.mapTo(mutableSetOf(), Channel::id)
         val remaining = ids.filterNot { it in cachedIds }
@@ -127,7 +128,7 @@ class ChannelRepository(
         return@withContext cached + channels
     }
 
-    suspend fun getChannels(names: Collection<UserName>): List<Channel> = withContext(Dispatchers.IO) {
+    suspend fun getChannels(names: Collection<UserName>): List<Channel> = withContext(dispatchersProvider.io) {
         val cached = names.mapNotNull { channelCache[it] }
         val cachedNames = cached.mapTo(mutableSetOf(), Channel::name)
         val remaining = names - cachedNames

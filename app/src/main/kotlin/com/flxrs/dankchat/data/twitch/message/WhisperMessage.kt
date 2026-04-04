@@ -10,6 +10,7 @@ import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.data.twitch.message.Message.Companion.parseEmoteTag
 import java.util.UUID
 
 data class WhisperMessage(
@@ -33,9 +34,9 @@ data class WhisperMessage(
     val badges: List<Badge> = emptyList(),
     val userDisplay: UserDisplay? = null,
     val recipientDisplay: UserDisplay? = null,
-    override val emoteData: EmoteData = EmoteData(originalMessage, WHISPER_CHANNEL, parseEmoteTag(originalMessage, rawEmotes)),
-    override val badgeData: BadgeData = BadgeData(userId, channel = null, badgeTag = rawBadges, badgeInfoTag = rawBadgeInfo),
-) : Message() {
+    override val emoteData: Message.EmoteData = Message.EmoteData(originalMessage, WHISPER_CHANNEL, parseEmoteTag(originalMessage, rawEmotes)),
+    override val badgeData: Message.BadgeData = Message.BadgeData(userId, channel = null, badgeTag = rawBadges, badgeInfoTag = rawBadgeInfo),
+) : Message {
     companion object {
         val WHISPER_CHANNEL = "w".toUserName()
 
@@ -48,7 +49,7 @@ data class WhisperMessage(
             val displayName = tags["display-name"] ?: name
             val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor)
             val recipientColor = recipientColorTag?.let(Color::parseColor)
-            val emoteTag = tags["emotes"] ?: ""
+            val emoteTag = tags["emotes"].orEmpty()
             val message = params.getOrElse(1) { "" }
 
             return WhisperMessage(

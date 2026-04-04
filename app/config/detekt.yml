@@ -46,6 +46,10 @@ style:
   LoopWithTooManyJumpStatements:
     maxJumpCount: 3
 
+potential-bugs:
+  IgnoredReturnValue:
+    active: false
+
 exceptions:
   TooGenericExceptionCaught:
     active: false

@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.database.entity.MessageIgnoreEntityType
 import com.flxrs.dankchat.data.repo.IgnoresRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.replaceAll
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +18,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class IgnoresViewModel(
     private val ignoresRepository: IgnoresRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     private val _currentTab = MutableStateFlow(IgnoresTab.Messages)
     private val eventChannel = Channel<IgnoreEvent>(Channel.BUFFERED)
@@ -149,7 +150,7 @@ class IgnoresViewModel(
         .map { it.toEntity() }
         .partition { it.username.isBlank() }
 
-    private suspend fun sendEvent(event: IgnoreEvent) = withContext(Dispatchers.Main.immediate) {
+    private suspend fun sendEvent(event: IgnoreEvent) = withContext(dispatchersProvider.immediate) {
         eventChannel.send(event)
     }
 

@@ -19,6 +19,6 @@ data class AutomodMessage(
     val color: Int? = null,
     val status: Status = Status.Pending,
     val isUserSide: Boolean = false,
-) : Message() {
+) : Message {
     enum class Status { Pending, Approved, Denied, Expired }
 }

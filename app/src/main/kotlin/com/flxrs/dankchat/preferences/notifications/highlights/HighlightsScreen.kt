@@ -79,6 +79,7 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.message.HighlightType
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.components.CheckboxWithText
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
@@ -86,9 +87,9 @@ import com.flxrs.dankchat.preferences.components.PreferenceTabRow
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
 import com.rarepebble.colorpicker.ColorPickerView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -132,6 +133,7 @@ private fun HighlightsScreen(
     onPageChange: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
+    val dispatchersProvider = koinInject<DispatchersProvider>()
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val pagerState = rememberPagerState { HighlightsTab.entries.size }
@@ -150,7 +152,7 @@ private fun HighlightsScreen(
 
     LaunchedEffect(eventsWrapper) {
         eventsWrapper.events
-            .flowOn(Dispatchers.Main.immediate)
+            .flowOn(dispatchersProvider.immediate)
             .collectLatest { event ->
                 focusManager.clearFocus()
                 when (event) {
@@ -245,7 +247,7 @@ private fun HighlightsScreen(
                     textAlign = TextAlign.Center,
                 )
                 PreferenceTabRow(
-                    appBarContainerColor = appBarContainerColor,
+                    appBarContainerColor = appBarContainerColor.value,
                     pagerState = pagerState,
                     tabCount = HighlightsTab.entries.size,
                     tabText = {

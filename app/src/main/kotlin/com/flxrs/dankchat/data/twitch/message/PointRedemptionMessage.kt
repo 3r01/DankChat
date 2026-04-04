@@ -20,7 +20,7 @@ data class PointRedemptionMessage(
     val cost: Int,
     val requiresUserInput: Boolean,
     val userDisplay: UserDisplay? = null,
-) : Message() {
+) : Message {
     companion object {
         fun parsePointReward(
             timestamp: Instant,
@@ -35,8 +35,9 @@ data class PointRedemptionMessage(
                 title = data.reward.effectiveTitle,
                 rewardImageUrl =
                     data.reward.images?.imageLarge
-                        ?: data.reward.defaultImages?.imageLarge
-                        ?: "",
+                        ?: data.reward.defaultImages
+                            ?.imageLarge
+                            .orEmpty(),
                 cost = data.reward.effectiveCost,
                 requiresUserInput = data.reward.requiresUserInput,
             )

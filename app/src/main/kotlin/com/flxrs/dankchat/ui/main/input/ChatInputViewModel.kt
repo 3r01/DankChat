@@ -166,7 +166,7 @@ class ChatInputViewModel(
     init {
         viewModelScope.launch {
             chatChannelProvider.activeChannel.collect {
-                repeatedSend.update { it.copy(enabled = false) }
+                repeatedSend.update { data -> data.copy(enabled = false) }
                 setReplying(false)
                 _isAnnouncing.value = false
             }

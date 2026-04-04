@@ -12,6 +12,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -30,7 +31,6 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -55,6 +55,7 @@ class MessageHistoryViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
+    dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -101,7 +102,7 @@ class MessageHistoryViewModel(
                             )
                         }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(dispatchersProvider.default)
 
     private val users: StateFlow<ImmutableSet<DisplayName>> =
         usersRepository
@@ -120,7 +121,7 @@ class MessageHistoryViewModel(
                     .flatMap { it.badges }
                     .mapNotNull { it.badgeTag?.substringBefore('/') }
                     .toImmutableSet()
-            }.flowOn(Dispatchers.Default)
+            }.flowOn(dispatchersProvider.default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
     val filterSuggestions: StateFlow<ImmutableList<Suggestion>> =

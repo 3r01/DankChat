@@ -240,7 +240,7 @@ private fun PrivMessageText(
                     ) {
                         pushStringAnnotation(
                             tag = "USER",
-                            annotation = "${message.userId?.value ?: ""}|${message.userName.value}|${message.displayName.value}|${message.channel.value}",
+                            annotation = "${message.userId?.value.orEmpty()}|${message.userName.value}|${message.displayName.value}|${message.channel.value}",
                         )
                         append(message.nameText)
                         pop()

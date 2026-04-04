@@ -124,7 +124,7 @@ class PubSubManager(
                 .chunked(PubSubConnection.MAX_TOPICS)
                 .withIndex()
                 .takeWhile { (idx, _) -> connections.size + idx + 1 <= PubSubConnection.MAX_CONNECTIONS }
-                .forEach { (_, topics) ->
+                .forEach { (_, chunk) ->
                     val connection =
                         PubSubConnection(
                             tag = "#${connections.size}",
@@ -133,7 +133,7 @@ class PubSubManager(
                             oAuth = oAuth,
                             jsonFormat = json,
                         )
-                    connection.connect(initialTopics = topics.toSet())
+                    connection.connect(initialTopics = chunk.toSet())
                     connections += connection
                     collectJobs += launch { connection.collectEvents() }
                 }

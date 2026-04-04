@@ -47,6 +47,7 @@ import com.flxrs.dankchat.data.notification.ChatTTSPlayer
 import com.flxrs.dankchat.data.notification.NotificationService
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.about.AboutScreen
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsScreen
@@ -75,7 +76,6 @@ import com.flxrs.dankchat.utils.extensions.isInSupportedPictureInPictureMode
 import com.flxrs.dankchat.utils.extensions.keepScreenOn
 import com.flxrs.dankchat.utils.extensions.parcelable
 import com.flxrs.dankchat.utils.removeExifAttributes
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -91,6 +91,7 @@ class MainActivity : ComponentActivity() {
     private val onboardingDataStore: OnboardingDataStore by inject()
     private val dataRepository: DataRepository by inject()
     private val chatTTSPlayer: ChatTTSPlayer by inject()
+    private val dispatchersProvider: DispatchersProvider by inject()
     private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher =
@@ -526,8 +527,8 @@ class MainActivity : ComponentActivity() {
                     createMediaFile(this, extension).apply { currentMediaUri = toUri() }
                 } catch (_: IOException) {
                     null
-                }?.also {
-                    val uri = FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.fileprovider", it)
+                }?.also { file ->
+                    val uri = FileProvider.getUriForFile(this, "${BuildConfig.APPLICATION_ID}.fileprovider", file)
                     captureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
                     when {
                         captureVideo -> requestVideoCapture.launch(captureIntent)
@@ -559,12 +560,12 @@ class MainActivity : ComponentActivity() {
     ) {
         lifecycleScope.launch {
             mainEventBus.emitEvent(MainEvent.UploadLoading)
-            withContext(Dispatchers.IO) {
+            withContext(dispatchersProvider.io) {
                 if (imageCapture) {
                     runCatching { file.removeExifAttributes() }
                 }
             }
-            val result = withContext(Dispatchers.IO) { dataRepository.uploadMedia(file) }
+            val result = withContext(dispatchersProvider.io) { dataRepository.uploadMedia(file) }
             result.fold(
                 onSuccess = { url ->
                     file.delete()

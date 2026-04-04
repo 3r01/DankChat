@@ -12,7 +12,7 @@ data class DankChatVersion(
     fun formattedString(): String = "$major.$minor.$patch"
 
     companion object {
-        private val CURRENT = fromString(BuildConfig.VERSION_NAME)!!
+        private val CURRENT = checkNotNull(fromString(BuildConfig.VERSION_NAME)) { "Invalid VERSION_NAME: ${BuildConfig.VERSION_NAME}" }
         private val COMPARATOR =
             Comparator
                 .comparingInt(DankChatVersion::major)

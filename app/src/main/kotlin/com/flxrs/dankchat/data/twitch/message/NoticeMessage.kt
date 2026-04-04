@@ -12,7 +12,7 @@ data class NoticeMessage(
     override val highlights: Set<Highlight> = emptySet(),
     val channel: UserName,
     val message: String,
-) : Message() {
+) : Message {
     companion object {
         fun parseNotice(message: IrcMessage): NoticeMessage = with(message) {
             val channel = params[0].substring(1)

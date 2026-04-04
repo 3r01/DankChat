@@ -42,7 +42,7 @@ class IgnoresRepository(
     private val messageIgnoreDao: MessageIgnoreDao,
     private val userIgnoreDao: UserIgnoreDao,
     private val preferences: DankChatPreferenceStore,
-    dispatchersProvider: DispatchersProvider,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val coroutineScope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
@@ -101,7 +101,7 @@ class IgnoresRepository(
 
     fun isUserBlocked(userId: UserId?): Boolean = _twitchBlocks.value.any { it.id == userId }
 
-    suspend fun loadUserBlocks() = withContext(Dispatchers.Default) {
+    suspend fun loadUserBlocks() = withContext(dispatchersProvider.default) {
         if (!preferences.isLoggedIn) {
             return@withContext
         }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -15,7 +16,6 @@ import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,6 +36,7 @@ class MentionViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
+    dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
@@ -99,7 +100,7 @@ class MentionViewModel(
                             )
                         }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(dispatchersProvider.default)
 
     val whispersUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
@@ -120,5 +121,5 @@ class MentionViewModel(
                             )
                         }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
                 }.toImmutableList()
-        }.flowOn(Dispatchers.Default)
+        }.flowOn(dispatchersProvider.default)
 }

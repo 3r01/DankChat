@@ -46,11 +46,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.ui.theme.DankChatTheme
 import com.flxrs.dankchat.utils.createMediaFile
 import com.flxrs.dankchat.utils.extensions.parcelable
 import com.flxrs.dankchat.utils.removeExifAttributes
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -58,6 +58,7 @@ import java.io.File
 
 class ShareUploadActivity : ComponentActivity() {
     private val dataRepository: DataRepository by inject()
+    private val dispatchersProvider: DispatchersProvider by inject()
     private var uploadState by mutableStateOf<ShareUploadState>(ShareUploadState.Loading)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,7 +92,7 @@ class ShareUploadActivity : ComponentActivity() {
         lifecycleScope.launch {
             uploadState = ShareUploadState.Loading
             val file =
-                withContext(Dispatchers.IO) {
+                withContext(dispatchersProvider.io) {
                     try {
                         val copy = createMediaFile(this@ShareUploadActivity, extension)
                         contentResolver.openInputStream(uri)?.use { input ->
@@ -120,7 +121,7 @@ class ShareUploadActivity : ComponentActivity() {
     }
 
     private suspend fun performUpload(file: File) {
-        val result = withContext(Dispatchers.IO) { dataRepository.uploadMedia(file) }
+        val result = withContext(dispatchersProvider.io) { dataRepository.uploadMedia(file) }
         result.fold(
             onSuccess = { url -> uploadState = ShareUploadState.Success(url) },
             onFailure = { error ->

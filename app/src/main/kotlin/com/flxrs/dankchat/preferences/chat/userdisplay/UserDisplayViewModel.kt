@@ -4,8 +4,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.repo.UserDisplayRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.replaceAll
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -15,6 +15,7 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class UserDisplayViewModel(
     private val userDisplayRepository: UserDisplayRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     private val eventChannel = Channel<UserDisplayEvent>(Channel.BUFFERED)
 
@@ -59,7 +60,7 @@ class UserDisplayViewModel(
         userDisplayRepository.updateUserDisplays(entries)
     }
 
-    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(Dispatchers.Main.immediate) {
+    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(dispatchersProvider.immediate) {
         eventChannel.send(event)
     }
 }

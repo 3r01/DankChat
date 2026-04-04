@@ -27,7 +27,7 @@ class TTSUserIgnoreListViewModel(
             )
 
     fun save(ignores: List<UserIgnore>) = viewModelScope.launch {
-        val filtered = ignores.mapNotNullTo(mutableSetOf()) { it.user.takeIf { it.isNotBlank() } }
+        val filtered = ignores.mapNotNullTo(mutableSetOf()) { ignore -> ignore.user.takeIf { it.isNotBlank() } }
         toolsSettingsDataStore.update { it.copy(ttsUserIgnoreList = filtered) }
     }
 

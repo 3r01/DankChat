@@ -4,12 +4,12 @@ import android.util.Log
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.upload.dto.UploadDto
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.di.UploadOkHttpClient
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -36,8 +36,9 @@ import java.time.Instant
 class UploadClient(
     @Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
-    suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(Dispatchers.IO) {
+    suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(dispatchersProvider.io) {
         val uploader = toolsSettingsDataStore.settings.first().uploaderConfig
         val mimetype = URLConnection.guessContentTypeFromName(file.name)
 
@@ -104,7 +105,7 @@ class UploadClient(
     }
 
     @Suppress("RegExpRedundantEscape")
-    private suspend fun JsonElement.extractLink(linkPattern: String): String = withContext(Dispatchers.Default) {
+    private suspend fun JsonElement.extractLink(linkPattern: String): String = withContext(dispatchersProvider.default) {
         extractJsonLink(linkPattern)
     }
 

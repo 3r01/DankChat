@@ -10,6 +10,8 @@ import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.data.twitch.message.Message.Companion.parseEmoteTag
+import java.util.Locale
 import java.util.UUID
 
 data class PrivMessage(
@@ -35,14 +37,14 @@ data class PrivMessage(
     val rewardCost: Int? = null,
     val rewardTitle: String? = null,
     val rewardImageUrl: String? = null,
-    override val emoteData: EmoteData =
-        EmoteData(
+    override val emoteData: Message.EmoteData =
+        Message.EmoteData(
             message = originalMessage,
             channel = sourceChannel ?: channel,
             emotesWithPositions = parseEmoteTag(originalMessage, tags["emotes"].orEmpty()),
         ),
-    override val badgeData: BadgeData = BadgeData(userId, channel, badgeTag = tags["badges"], badgeInfoTag = tags["badge-info"]),
-) : Message() {
+    override val badgeData: Message.BadgeData = Message.BadgeData(userId, channel, badgeTag = tags["badges"], badgeInfoTag = tags["badge-info"]),
+) : Message {
     companion object {
         fun parsePrivMessage(
             ircMessage: IrcMessage,
@@ -134,7 +136,7 @@ val PrivMessage.hypeChatInfo: String?
         val currency = tags["pinned-chat-paid-currency"] ?: return null
         val level = tags["pinned-chat-paid-level"]?.let { HYPE_CHAT_LEVELS[it] } ?: return null
         val divisor = Math.pow(10.0, exponent.toDouble())
-        val formatted = "%.2f".format(amount / divisor)
+        val formatted = "%.2f".format(Locale.getDefault(), amount / divisor)
         return "Hype Chat Level $level — $formatted $currency"
     }
 

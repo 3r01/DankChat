@@ -20,10 +20,10 @@ import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.hasMention
 import com.flxrs.dankchat.data.twitch.message.toChatItem
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.addAndLimit
 import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
 import io.ktor.util.collections.ConcurrentSet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
@@ -35,6 +35,7 @@ class RecentMessagesHandler(
     private val messageProcessor: MessageProcessor,
     private val chatMessageRepository: ChatMessageRepository,
     private val usersRepository: UsersRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
     private val loadedChannels = ConcurrentSet<UserName>()
 
@@ -47,7 +48,7 @@ class RecentMessagesHandler(
     suspend fun load(
         channel: UserName,
         isReconnect: Boolean = false,
-    ): Result = withContext(Dispatchers.IO) {
+    ): Result = withContext(dispatchersProvider.io) {
         if (!isReconnect && channel in loadedChannels) {
             return@withContext Result(emptyList(), emptyList())
         }

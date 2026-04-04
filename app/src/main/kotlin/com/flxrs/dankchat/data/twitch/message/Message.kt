@@ -5,10 +5,10 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.irc.IrcMessage
 
-sealed class Message {
-    abstract val id: String
-    abstract val timestamp: Long
-    abstract val highlights: Set<Highlight>
+sealed interface Message {
+    val id: String
+    val timestamp: Long
+    val highlights: Set<Highlight>
 
     data class EmoteData(
         val message: String,
@@ -23,8 +23,8 @@ sealed class Message {
         val badgeInfoTag: String?,
     )
 
-    open val emoteData: EmoteData? = null
-    open val badgeData: BadgeData? = null
+    val emoteData: EmoteData? get() = null
+    val badgeData: BadgeData? get() = null
 
     companion object {
         private const val DEFAULT_COLOR_TAG = "#717171"

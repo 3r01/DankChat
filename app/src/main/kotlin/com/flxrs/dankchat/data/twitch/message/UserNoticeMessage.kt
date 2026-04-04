@@ -14,9 +14,9 @@ data class UserNoticeMessage(
     val message: String,
     val childMessage: PrivMessage?,
     val tags: Map<String, String>,
-) : Message() {
-    override val emoteData: EmoteData? = childMessage?.emoteData
-    override val badgeData: BadgeData? = childMessage?.badgeData
+) : Message {
+    override val emoteData: Message.EmoteData? = childMessage?.emoteData
+    override val badgeData: Message.BadgeData? = childMessage?.badgeData
 
     companion object {
         val USER_NOTICE_MSG_IDS_WITH_MESSAGE =
@@ -53,7 +53,7 @@ data class UserNoticeMessage(
 
             val id = tags["id"] ?: UUID.randomUUID().toString()
             val channel = params[0].substring(1)
-            val defaultMessage = tags["system-msg"] ?: ""
+            val defaultMessage = tags["system-msg"].orEmpty()
             val systemMsg =
                 when {
                     msgId == "announcement" -> {

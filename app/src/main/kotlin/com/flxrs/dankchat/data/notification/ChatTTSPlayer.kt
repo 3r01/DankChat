@@ -15,6 +15,7 @@ import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.tools.TTSMessageFormat
 import com.flxrs.dankchat.preferences.tools.TTSPlayMode
 import com.flxrs.dankchat.preferences.tools.ToolsSettings
@@ -22,7 +23,6 @@ import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
@@ -38,8 +38,9 @@ class ChatTTSPlayer(
     private val chatChannelProvider: ChatChannelProvider,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
     private val appLifecycleListener: AppLifecycleListener,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
 
     private var tts: TextToSpeech? = null
     private var audioManager: AudioManager? = null
