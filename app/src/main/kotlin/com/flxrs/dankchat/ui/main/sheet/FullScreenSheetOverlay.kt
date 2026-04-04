@@ -87,6 +87,7 @@ fun FullScreenSheetOverlay(
                         onDismiss = onDismissReplies,
                         onUserClick = mentionableClickHandler(onUserClick, onUserMention, userLongClickBehavior),
                         onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
+                        onEmoteClick = onEmoteClick,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
