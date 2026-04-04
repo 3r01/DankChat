@@ -30,45 +30,90 @@ data class ModerationMessage(
     val targetUserDisplay: DisplayName? = null,
     val sourceBroadcasterDisplay: DisplayName? = null,
     val targetMsgId: String? = null,
-    val durationInt: Int? = null,
-    val duration: TextResource? = null,
     val reason: String? = null,
     val fromEventSource: Boolean = false,
     val stackCount: Int = 0,
 ) : Message {
-    enum class Action {
-        Timeout,
-        Untimeout,
-        Ban,
-        Unban,
-        Mod,
-        Unmod,
-        Clear,
-        Delete,
-        Vip,
-        Unvip,
-        Warn,
-        Raid,
-        Unraid,
-        EmoteOnly,
-        EmoteOnlyOff,
-        Followers,
-        FollowersOff,
-        UniqueChat,
-        UniqueChatOff,
-        Slow,
-        SlowOff,
-        Subscribers,
-        SubscribersOff,
-        SharedBan,
-        SharedUnban,
-        SharedTimeout,
-        SharedUntimeout,
-        SharedDelete,
-        AddBlockedTerm,
-        AddPermittedTerm,
-        RemoveBlockedTerm,
-        RemovePermittedTerm,
+    sealed interface Action {
+        fun isSameType(other: Action): Boolean = when (this) {
+            is Timeout -> other is Timeout
+            is SharedTimeout -> other is SharedTimeout
+            is Followers -> other is Followers
+            is Slow -> other is Slow
+            else -> this == other
+        }
+
+        data class Timeout(
+            val duration: TextResource,
+        ) : Action
+
+        data object Untimeout : Action
+
+        data object Ban : Action
+
+        data object Unban : Action
+
+        data object Mod : Action
+
+        data object Unmod : Action
+
+        data object Clear : Action
+
+        data object Delete : Action
+
+        data object Vip : Action
+
+        data object Unvip : Action
+
+        data object Warn : Action
+
+        data object Raid : Action
+
+        data object Unraid : Action
+
+        data object EmoteOnly : Action
+
+        data object EmoteOnlyOff : Action
+
+        data class Followers(
+            val durationMinutes: Int? = null,
+        ) : Action
+
+        data object FollowersOff : Action
+
+        data object UniqueChat : Action
+
+        data object UniqueChatOff : Action
+
+        data class Slow(
+            val durationSeconds: Int? = null,
+        ) : Action
+
+        data object SlowOff : Action
+
+        data object Subscribers : Action
+
+        data object SubscribersOff : Action
+
+        data object SharedBan : Action
+
+        data object SharedUnban : Action
+
+        data class SharedTimeout(
+            val duration: TextResource,
+        ) : Action
+
+        data object SharedUntimeout : Action
+
+        data object SharedDelete : Action
+
+        data object AddBlockedTerm : Action
+
+        data object AddPermittedTerm : Action
+
+        data object RemoveBlockedTerm : Action
+
+        data object RemovePermittedTerm : Action
     }
 
     private val hasReason get() = !reason.isNullOrBlank()
@@ -98,8 +143,8 @@ data class ModerationMessage(
 
         val message =
             when (action) {
-                Action.Timeout -> {
-                    val dur = duration ?: TextResource.Plain("")
+                is Action.Timeout -> {
+                    val dur = action.duration
                     when (targetUser) {
                         currentUser -> {
                             when (creatorUserDisplay) {
@@ -240,8 +285,8 @@ data class ModerationMessage(
                     TextResource.Res(R.string.mod_emote_only_off, persistentListOf(creator))
                 }
 
-                Action.Followers -> {
-                    when (val mins = durationInt?.takeIf { it > 0 }) {
+                is Action.Followers -> {
+                    when (val mins = action.durationMinutes?.takeIf { it > 0 }) {
                         null -> TextResource.Res(R.string.mod_followers_on, persistentListOf(creator))
                         else -> TextResource.Res(R.string.mod_followers_on_duration, persistentListOf(creator, formatMinutesDuration(mins)))
                     }
@@ -259,8 +304,8 @@ data class ModerationMessage(
                     TextResource.Res(R.string.mod_unique_chat_off, persistentListOf(creator))
                 }
 
-                Action.Slow -> {
-                    when (val secs = durationInt) {
+                is Action.Slow -> {
+                    when (val secs = action.durationSeconds) {
                         null -> TextResource.Res(R.string.mod_slow_on, persistentListOf(creator))
                         else -> TextResource.Res(R.string.mod_slow_on_duration, persistentListOf(creator, formatSecondsDuration(secs)))
                     }
@@ -278,8 +323,8 @@ data class ModerationMessage(
                     TextResource.Res(R.string.mod_subscribers_off, persistentListOf(creator))
                 }
 
-                Action.SharedTimeout -> {
-                    val dur = duration ?: TextResource.Plain("")
+                is Action.SharedTimeout -> {
+                    val dur = action.duration
                     when {
                         hasReason -> TextResource.Res(R.string.mod_shared_timeout_reason, persistentListOf(creator, target, dur, source, reason.orEmpty()))
                         else -> TextResource.Res(R.string.mod_shared_timeout, persistentListOf(creator, target, dur, source))
@@ -331,8 +376,8 @@ data class ModerationMessage(
         }
     }
 
-    val canClearMessages: Boolean = action in listOf(Action.Clear, Action.Ban, Action.Timeout, Action.SharedTimeout, Action.SharedBan)
-    val canStack: Boolean = canClearMessages && action != Action.Clear
+    val canClearMessages: Boolean = action is Action.Clear || action is Action.Ban || action is Action.Timeout || action is Action.SharedTimeout || action == Action.SharedBan
+    val canStack: Boolean = canClearMessages && action !is Action.Clear
 
     companion object {
         fun formatMinutesDuration(minutes: Int): TextResource {
@@ -371,14 +416,13 @@ data class ModerationMessage(
             val channel = params[0].substring(1)
             val target = params.getOrNull(1)
             val durationSeconds = tags["ban-duration"]?.toIntOrNull()
-            val duration = durationSeconds?.let(::formatSecondsDuration)
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
             val id = tags["id"] ?: "clearchat-$ts-$channel-${target ?: "all"}"
             val action =
                 when {
                     target == null -> Action.Clear
                     durationSeconds == null -> Action.Ban
-                    else -> Action.Timeout
+                    else -> Action.Timeout(duration = formatSecondsDuration(durationSeconds))
                 }
 
             return ModerationMessage(
@@ -388,9 +432,7 @@ data class ModerationMessage(
                 action = action,
                 targetUserDisplay = target?.toDisplayName(),
                 targetUser = target?.toUserName(),
-                durationInt = durationSeconds,
-                duration = duration,
-                stackCount = if (target != null && duration != null) 1 else 0,
+                stackCount = if (target != null && action is Action.Timeout) 1 else 0,
                 fromEventSource = false,
             )
         }
@@ -422,25 +464,23 @@ data class ModerationMessage(
             data: ModerationActionData,
         ): ModerationMessage {
             val seconds = data.args?.getOrNull(1)?.toIntOrNull()
-            val duration = parseDuration(seconds, data)
             val targetUser = parseTargetUser(data)
             val targetMsgId = parseTargetMsgId(data)
             val reason = parseReason(data)
             val timeZone = TimeZone.currentSystemDefault()
+            val action = data.moderationAction.toAction(seconds)
 
             return ModerationMessage(
                 timestamp = timestamp.toLocalDateTime(timeZone).toInstant(timeZone).toEpochMilliseconds(),
                 id = data.msgId ?: UUID.randomUUID().toString(),
                 channel = channel,
-                action = data.moderationAction.toAction(),
+                action = action,
                 creatorUserDisplay = data.creator?.toDisplayName(),
                 targetUser = targetUser,
                 targetUserDisplay = targetUser?.toDisplayName(),
                 targetMsgId = targetMsgId,
-                durationInt = seconds,
-                duration = duration,
                 reason = reason,
-                stackCount = if (data.targetUserName != null && duration != null) 1 else 0,
+                stackCount = if (data.targetUserName != null && action is Action.Timeout) 1 else 0,
                 fromEventSource = true,
             )
         }
@@ -453,45 +493,32 @@ data class ModerationMessage(
         ): ModerationMessage {
             val timeZone = TimeZone.currentSystemDefault()
             val timestampMillis = timestamp.toLocalDateTime(timeZone).toInstant(timeZone).toEpochMilliseconds()
-            val duration = parseDuration(timestamp, data)
-            val formattedDuration = duration?.let(::formatSecondsDuration)
             val userPair = parseTargetUser(data)
             val targetMsgId = parseTargetMsgId(data)
             val reason = parseReason(data)
+            val action = data.action.toAction(timestamp, data)
 
             return ModerationMessage(
                 timestamp = timestampMillis,
                 id = id,
                 channel = channel,
-                action = data.action.toAction(),
+                action = action,
                 creatorUserDisplay = data.moderatorUserName,
                 sourceBroadcasterDisplay = data.sourceBroadcasterUserName,
                 targetUser = userPair?.first,
                 targetUserDisplay = userPair?.second,
                 targetMsgId = targetMsgId,
-                durationInt = duration,
-                duration = formattedDuration,
                 reason = reason,
                 fromEventSource = true,
             )
         }
 
-        private fun parseDuration(
-            seconds: Int?,
-            data: ModerationActionData,
-        ): TextResource? = when (data.moderationAction) {
-            ModerationActionType.Timeout -> seconds?.let(::formatSecondsDuration)
-            else -> null
-        }
-
-        private fun parseDuration(
+        private fun parseDurationSeconds(
             timestamp: Instant,
             data: ChannelModerateDto,
         ): Int? = when (data.action) {
             ChannelModerateAction.Timeout -> data.timeout?.let { it.expiresAt.epochSeconds - timestamp.epochSeconds }?.toInt()
             ChannelModerateAction.SharedChatTimeout -> data.sharedChatTimeout?.let { it.expiresAt.epochSeconds - timestamp.epochSeconds }?.toInt()
-            ChannelModerateAction.Followers -> data.followers?.followDurationMinutes
-            ChannelModerateAction.Slow -> data.slow?.waitTimeSeconds
             else -> null
         }
 
@@ -566,8 +593,8 @@ data class ModerationMessage(
             else -> null
         }
 
-        private fun ModerationActionType.toAction() = when (this) {
-            ModerationActionType.Timeout -> Action.Timeout
+        private fun ModerationActionType.toAction(seconds: Int?) = when (this) {
+            ModerationActionType.Timeout -> Action.Timeout(duration = seconds?.let(::formatSecondsDuration) ?: TextResource.Plain(""))
             ModerationActionType.Untimeout -> Action.Untimeout
             ModerationActionType.Ban -> Action.Ban
             ModerationActionType.Unban -> Action.Unban
@@ -577,40 +604,143 @@ data class ModerationMessage(
             ModerationActionType.Delete -> Action.Delete
         }
 
-        private fun ChannelModerateAction.toAction() = when (this) {
-            ChannelModerateAction.Timeout -> Action.Timeout
-            ChannelModerateAction.Untimeout -> Action.Untimeout
-            ChannelModerateAction.Ban -> Action.Ban
-            ChannelModerateAction.Unban -> Action.Unban
-            ChannelModerateAction.Mod -> Action.Mod
-            ChannelModerateAction.Unmod -> Action.Unmod
-            ChannelModerateAction.Clear -> Action.Clear
-            ChannelModerateAction.Delete -> Action.Delete
-            ChannelModerateAction.Vip -> Action.Vip
-            ChannelModerateAction.Unvip -> Action.Unvip
-            ChannelModerateAction.Warn -> Action.Warn
-            ChannelModerateAction.Raid -> Action.Raid
-            ChannelModerateAction.Unraid -> Action.Unraid
-            ChannelModerateAction.EmoteOnly -> Action.EmoteOnly
-            ChannelModerateAction.EmoteOnlyOff -> Action.EmoteOnlyOff
-            ChannelModerateAction.Followers -> Action.Followers
-            ChannelModerateAction.FollowersOff -> Action.FollowersOff
-            ChannelModerateAction.UniqueChat -> Action.UniqueChat
-            ChannelModerateAction.UniqueChatOff -> Action.UniqueChatOff
-            ChannelModerateAction.Slow -> Action.Slow
-            ChannelModerateAction.SlowOff -> Action.SlowOff
-            ChannelModerateAction.Subscribers -> Action.Subscribers
-            ChannelModerateAction.SubscribersOff -> Action.SubscribersOff
-            ChannelModerateAction.SharedChatTimeout -> Action.SharedTimeout
-            ChannelModerateAction.SharedChatUntimeout -> Action.SharedUntimeout
-            ChannelModerateAction.SharedChatBan -> Action.SharedBan
-            ChannelModerateAction.SharedChatUnban -> Action.SharedUnban
-            ChannelModerateAction.SharedChatDelete -> Action.SharedDelete
-            ChannelModerateAction.AddBlockedTerm -> Action.AddBlockedTerm
-            ChannelModerateAction.AddPermittedTerm -> Action.AddPermittedTerm
-            ChannelModerateAction.RemoveBlockedTerm -> Action.RemoveBlockedTerm
-            ChannelModerateAction.RemovePermittedTerm -> Action.RemovePermittedTerm
-            else -> error("Unexpected moderation action $this")
+        private fun ChannelModerateAction.toAction(
+            timestamp: Instant,
+            data: ChannelModerateDto,
+        ): Action = when (this) {
+            ChannelModerateAction.Timeout -> {
+                val seconds = parseDurationSeconds(timestamp, data)
+                Action.Timeout(duration = seconds?.let(::formatSecondsDuration) ?: TextResource.Plain(""))
+            }
+
+            ChannelModerateAction.Untimeout -> {
+                Action.Untimeout
+            }
+
+            ChannelModerateAction.Ban -> {
+                Action.Ban
+            }
+
+            ChannelModerateAction.Unban -> {
+                Action.Unban
+            }
+
+            ChannelModerateAction.Mod -> {
+                Action.Mod
+            }
+
+            ChannelModerateAction.Unmod -> {
+                Action.Unmod
+            }
+
+            ChannelModerateAction.Clear -> {
+                Action.Clear
+            }
+
+            ChannelModerateAction.Delete -> {
+                Action.Delete
+            }
+
+            ChannelModerateAction.Vip -> {
+                Action.Vip
+            }
+
+            ChannelModerateAction.Unvip -> {
+                Action.Unvip
+            }
+
+            ChannelModerateAction.Warn -> {
+                Action.Warn
+            }
+
+            ChannelModerateAction.Raid -> {
+                Action.Raid
+            }
+
+            ChannelModerateAction.Unraid -> {
+                Action.Unraid
+            }
+
+            ChannelModerateAction.EmoteOnly -> {
+                Action.EmoteOnly
+            }
+
+            ChannelModerateAction.EmoteOnlyOff -> {
+                Action.EmoteOnlyOff
+            }
+
+            ChannelModerateAction.Followers -> {
+                Action.Followers(durationMinutes = data.followers?.followDurationMinutes)
+            }
+
+            ChannelModerateAction.FollowersOff -> {
+                Action.FollowersOff
+            }
+
+            ChannelModerateAction.UniqueChat -> {
+                Action.UniqueChat
+            }
+
+            ChannelModerateAction.UniqueChatOff -> {
+                Action.UniqueChatOff
+            }
+
+            ChannelModerateAction.Slow -> {
+                Action.Slow(durationSeconds = data.slow?.waitTimeSeconds)
+            }
+
+            ChannelModerateAction.SlowOff -> {
+                Action.SlowOff
+            }
+
+            ChannelModerateAction.Subscribers -> {
+                Action.Subscribers
+            }
+
+            ChannelModerateAction.SubscribersOff -> {
+                Action.SubscribersOff
+            }
+
+            ChannelModerateAction.SharedChatTimeout -> {
+                val seconds = parseDurationSeconds(timestamp, data)
+                Action.SharedTimeout(duration = seconds?.let(::formatSecondsDuration) ?: TextResource.Plain(""))
+            }
+
+            ChannelModerateAction.SharedChatUntimeout -> {
+                Action.SharedUntimeout
+            }
+
+            ChannelModerateAction.SharedChatBan -> {
+                Action.SharedBan
+            }
+
+            ChannelModerateAction.SharedChatUnban -> {
+                Action.SharedUnban
+            }
+
+            ChannelModerateAction.SharedChatDelete -> {
+                Action.SharedDelete
+            }
+
+            ChannelModerateAction.AddBlockedTerm -> {
+                Action.AddBlockedTerm
+            }
+
+            ChannelModerateAction.AddPermittedTerm -> {
+                Action.AddPermittedTerm
+            }
+
+            ChannelModerateAction.RemoveBlockedTerm -> {
+                Action.RemoveBlockedTerm
+            }
+
+            ChannelModerateAction.RemovePermittedTerm -> {
+                Action.RemovePermittedTerm
+            }
+
+            else -> {
+                error("Unexpected moderation action $this")
+            }
         }
     }
 }

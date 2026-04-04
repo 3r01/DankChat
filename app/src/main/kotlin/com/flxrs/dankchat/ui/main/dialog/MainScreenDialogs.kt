@@ -348,8 +348,9 @@ private fun ModActionsDialogContainer(
             parameters = { parametersOf(channel) },
         )
     val shieldModeActive by viewModel.shieldModeActive.collectAsStateWithLifecycle()
+    val roomState by viewModel.roomState.collectAsStateWithLifecycle()
     ModActionsDialog(
-        roomState = viewModel.roomState,
+        roomState = roomState,
         isBroadcaster = viewModel.isBroadcaster,
         isStreamActive = isStreamActive,
         shieldModeActive = shieldModeActive,

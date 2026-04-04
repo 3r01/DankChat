@@ -15,6 +15,7 @@ import com.flxrs.dankchat.data.twitch.message.Highlight
 import com.flxrs.dankchat.data.twitch.message.HighlightType
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.ModerationMessage
+import com.flxrs.dankchat.data.twitch.message.ModerationMessage.Action
 import com.flxrs.dankchat.data.twitch.message.NoticeMessage
 import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
@@ -391,7 +392,11 @@ class ChatMessageMapper(
 
         val arguments =
             buildList {
-                duration?.let(::add)
+                when (action) {
+                    is Action.Timeout -> add(action.duration)
+                    is Action.SharedTimeout -> add(action.duration)
+                    else -> Unit
+                }
                 reason?.takeIf { it.isNotBlank() }?.let(::add)
                 sourceBroadcasterDisplay?.toString()?.let(::add)
             }.toImmutableList()
