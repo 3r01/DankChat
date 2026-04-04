@@ -65,6 +65,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -75,6 +76,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -487,6 +489,7 @@ private fun FabActionsMenu(
         }
     val menuMaxHeight = windowHeight * 0.35f
     val scrollState = rememberScrollState()
+    var itemHeightPx by remember { mutableIntStateOf(0) }
 
     Surface(
         shape = RoundedCornerShape(12.dp),
@@ -501,6 +504,7 @@ private fun FabActionsMenu(
                         .width(IntrinsicSize.Max)
                         .verticalScroll(scrollState),
             ) {
+                var measured = false
                 for (action in InputAction.entries) {
                     val item =
                         getFabMenuItem(
@@ -519,6 +523,13 @@ private fun FabActionsMenu(
                             InputAction.Stream, InputAction.ModActions -> callbacks.enabled
                         }
 
+                    val measureModifier = if (!measured) {
+                        measured = true
+                        Modifier.onSizeChanged { itemHeightPx = it.height }
+                    } else {
+                        Modifier
+                    }
+
                     DropdownMenuItem(
                         text = { Text(stringResource(item.labelRes)) },
                         onClick = {
@@ -526,6 +537,7 @@ private fun FabActionsMenu(
                             onDismiss()
                         },
                         enabled = actionEnabled,
+                        modifier = measureModifier,
                         leadingIcon = {
                             Icon(
                                 imageVector = item.icon,
@@ -558,7 +570,7 @@ private fun FabActionsMenu(
                     )
                 }
             }
-            if (scrollState.maxValue > 0) {
+            if (scrollState.maxValue > itemHeightPx) {
                 VerticalScrollbar(
                     modifier =
                         Modifier

@@ -52,6 +52,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -122,6 +124,8 @@ fun InlineOverflowMenu(
     val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
     val scrollState = rememberScrollState()
     val scrollAreaState = rememberScrollAreaState(scrollState)
+    var itemHeightPx by remember { mutableIntStateOf(0) }
+    val measureModifier = Modifier.onSizeChanged { if (itemHeightPx == 0) itemHeightPx = it.height }
 
     LaunchedEffect(currentMenu) {
         scrollState.scrollTo(0)
@@ -164,12 +168,14 @@ fun InlineOverflowMenu(
                             onDismiss = onDismiss,
                             onNavigateToUpload = { currentMenu = AppBarMenu.Upload },
                             onNavigateToChannel = { currentMenu = AppBarMenu.Channel },
+                            firstItemModifier = measureModifier,
                         )
 
                         AppBarMenu.Upload -> UploadMenuContent(
                             onAction = onAction,
                             onDismiss = onDismiss,
                             onBack = { currentMenu = AppBarMenu.Main },
+                            firstItemModifier = measureModifier,
                         )
 
                         AppBarMenu.Channel -> ChannelMenuContent(
@@ -177,11 +183,12 @@ fun InlineOverflowMenu(
                             onAction = onAction,
                             onDismiss = onDismiss,
                             onBack = { currentMenu = AppBarMenu.Main },
+                            firstItemModifier = measureModifier,
                         )
                     }
                 }
             }
-            if (scrollState.maxValue > 0) {
+            if (scrollState.maxValue > itemHeightPx) {
                 VerticalScrollbar(
                     modifier =
                         Modifier
@@ -207,11 +214,12 @@ private fun InlineMenuItem(
     text: String,
     icon: ImageVector,
     hasSubMenu: Boolean = false,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
     Row(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -277,14 +285,15 @@ private fun ColumnScope.MainMenuContent(
     onDismiss: () -> Unit,
     onNavigateToUpload: () -> Unit,
     onNavigateToChannel: () -> Unit,
+    firstItemModifier: Modifier = Modifier,
 ) {
     if (!isLoggedIn) {
-        InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login) {
+        InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login, modifier = firstItemModifier) {
             onAction(ToolbarAction.Login)
             onDismiss()
         }
     } else {
-        InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh) {
+        InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh, modifier = firstItemModifier) {
             onAction(ToolbarAction.Relogin)
             onDismiss()
         }
@@ -331,9 +340,10 @@ private fun ColumnScope.UploadMenuContent(
     onAction: (ToolbarAction) -> Unit,
     onDismiss: () -> Unit,
     onBack: () -> Unit,
+    firstItemModifier: Modifier = Modifier,
 ) {
     InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = onBack)
-    InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt) {
+    InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt, modifier = firstItemModifier) {
         onAction(ToolbarAction.CaptureImage)
         onDismiss()
     }
@@ -353,9 +363,10 @@ private fun ColumnScope.ChannelMenuContent(
     onAction: (ToolbarAction) -> Unit,
     onDismiss: () -> Unit,
     onBack: () -> Unit,
+    firstItemModifier: Modifier = Modifier,
 ) {
     InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = onBack)
-    InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser) {
+    InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser, modifier = firstItemModifier) {
         onAction(ToolbarAction.OpenChannel)
         onDismiss()
     }

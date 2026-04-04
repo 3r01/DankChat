@@ -470,6 +470,7 @@ fun FloatingToolbar(
                                     val maxMenuHeight = screenHeight * 0.3f
                                     val quickSwitchScrollState = rememberScrollState()
                                     val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
+                                    var itemHeightPx by remember { mutableIntStateOf(0) }
                                     ScrollArea(
                                         state = quickSwitchScrollAreaState,
                                         modifier =
@@ -494,7 +495,8 @@ fun FloatingToolbar(
                                                             .clickable {
                                                                 onAction(ToolbarAction.SelectTab(index))
                                                                 showQuickSwitch = false
-                                                            }.padding(horizontal = 16.dp, vertical = 10.dp),
+                                                            }.padding(horizontal = 16.dp, vertical = 10.dp)
+                                                            .then(if (index == 0) Modifier.onSizeChanged { itemHeightPx = it.height } else Modifier),
                                                     verticalAlignment = Alignment.CenterVertically,
                                                     horizontalArrangement = Arrangement.Center,
                                                 ) {
@@ -517,7 +519,7 @@ fun FloatingToolbar(
                                                 }
                                             }
                                         }
-                                        if (quickSwitchScrollState.maxValue > 0) {
+                                        if (quickSwitchScrollState.maxValue > itemHeightPx) {
                                             VerticalScrollbar(
                                                 modifier =
                                                     Modifier
