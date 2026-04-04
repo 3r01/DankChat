@@ -612,6 +612,8 @@ fun MainScreen(
                     onAddChannelTooltipDismiss = featureTourViewModel::onToolbarHintDismissed,
                     onSkipTour = featureTourViewModel::skipTour,
                     keyboardHeightDp = with(density) { currentImeHeight.toDp() },
+                    isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                    onCloseEmoteMenu = { chatInputViewModel.setEmoteMenuOpen(false) },
                     streamToolbarAlpha = streamState.effectiveAlpha,
                     modifier = toolbarModifier,
                 )

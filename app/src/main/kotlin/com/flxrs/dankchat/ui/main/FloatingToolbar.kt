@@ -133,6 +133,8 @@ fun FloatingToolbar(
     onAddChannelTooltipDismiss: () -> Unit = {},
     onSkipTour: () -> Unit = {},
     keyboardHeightDp: Dp = 0.dp,
+    isEmoteMenuOpen: Boolean = false,
+    onCloseEmoteMenu: () -> Unit = {},
     streamToolbarAlpha: Float = 1f,
 ) {
     val density = LocalDensity.current
@@ -164,6 +166,12 @@ fun FloatingToolbar(
     val isKeyboardOpen = keyboardHeightDp > 0.dp
     LaunchedEffect(isKeyboardOpen) {
         if (isKeyboardOpen) {
+            showOverflowMenu = false
+            showQuickSwitch = false
+        }
+    }
+    LaunchedEffect(isEmoteMenuOpen) {
+        if (isEmoteMenuOpen) {
             showOverflowMenu = false
             showQuickSwitch = false
         }
@@ -408,6 +416,8 @@ fun FloatingToolbar(
                                                     .clickable {
                                                         showOverflowMenu = false
                                                         showQuickSwitch = !showQuickSwitch
+                                                        keyboardController?.hide()
+                                                        onCloseEmoteMenu()
                                                     }.defaultMinSize(minHeight = 48.dp)
                                                     .padding(start = 4.dp, end = 8.dp)
                                                     .drawBehind {
@@ -643,6 +653,7 @@ fun FloatingToolbar(
                                         overflowInitialMenu = AppBarMenu.Main
                                         showOverflowMenu = !showOverflowMenu
                                         keyboardController?.hide()
+                                        onCloseEmoteMenu()
                                     }) {
                                         Icon(
                                             imageVector = Icons.Default.MoreVert,
