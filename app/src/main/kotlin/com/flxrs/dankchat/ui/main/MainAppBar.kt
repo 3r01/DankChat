@@ -168,14 +168,14 @@ fun InlineOverflowMenu(
                             onDismiss = onDismiss,
                             onNavigateToUpload = { currentMenu = AppBarMenu.Upload },
                             onNavigateToChannel = { currentMenu = AppBarMenu.Channel },
-                            firstItemModifier = measureModifier,
+                            modifier = measureModifier,
                         )
 
                         AppBarMenu.Upload -> UploadMenuContent(
                             onAction = onAction,
                             onDismiss = onDismiss,
                             onBack = { currentMenu = AppBarMenu.Main },
-                            firstItemModifier = measureModifier,
+                            modifier = measureModifier,
                         )
 
                         AppBarMenu.Channel -> ChannelMenuContent(
@@ -183,7 +183,7 @@ fun InlineOverflowMenu(
                             onAction = onAction,
                             onDismiss = onDismiss,
                             onBack = { currentMenu = AppBarMenu.Main },
-                            firstItemModifier = measureModifier,
+                            modifier = measureModifier,
                         )
                     }
                 }
@@ -213,9 +213,9 @@ fun InlineOverflowMenu(
 private fun InlineMenuItem(
     text: String,
     icon: ImageVector,
-    hasSubMenu: Boolean = false,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    hasSubMenu: Boolean = false,
 ) {
     Row(
         modifier =
@@ -285,54 +285,98 @@ private fun ColumnScope.MainMenuContent(
     onDismiss: () -> Unit,
     onNavigateToUpload: () -> Unit,
     onNavigateToChannel: () -> Unit,
-    firstItemModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
 ) {
     if (!isLoggedIn) {
-        InlineMenuItem(text = stringResource(R.string.login), icon = Icons.AutoMirrored.Filled.Login, modifier = firstItemModifier) {
-            onAction(ToolbarAction.Login)
-            onDismiss()
-        }
+        InlineMenuItem(
+            text = stringResource(R.string.login),
+            icon = Icons.AutoMirrored.Filled.Login,
+            onClick = {
+                onAction(ToolbarAction.Login)
+                onDismiss()
+            },
+            modifier = modifier,
+        )
     } else {
-        InlineMenuItem(text = stringResource(R.string.relogin), icon = Icons.Default.Refresh, modifier = firstItemModifier) {
-            onAction(ToolbarAction.Relogin)
+        InlineMenuItem(
+            text = stringResource(R.string.relogin),
+            icon = Icons.Default.Refresh,
+            onClick = {
+                onAction(ToolbarAction.Relogin)
+                onDismiss()
+            },
+            modifier = modifier,
+        )
+        InlineMenuItem(
+            text = stringResource(R.string.logout),
+            icon = Icons.AutoMirrored.Filled.Logout,
+            onClick = {
+                onAction(ToolbarAction.Logout)
+                onDismiss()
+            },
+        )
+    }
+
+    HorizontalDivider()
+
+    InlineMenuItem(
+        text = stringResource(R.string.manage_channels),
+        icon = Icons.Default.EditNote,
+        onClick = {
+            onAction(ToolbarAction.ManageChannels)
             onDismiss()
-        }
-        InlineMenuItem(text = stringResource(R.string.logout), icon = Icons.AutoMirrored.Filled.Logout) {
-            onAction(ToolbarAction.Logout)
+        },
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.remove_channel),
+        icon = Icons.Default.RemoveCircleOutline,
+        onClick = {
+            onAction(ToolbarAction.RemoveChannel)
             onDismiss()
-        }
-    }
+        },
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.reload_emotes),
+        icon = Icons.Default.EmojiEmotions,
+        onClick = {
+            onAction(ToolbarAction.ReloadEmotes)
+            onDismiss()
+        },
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.reconnect),
+        icon = Icons.Default.Autorenew,
+        onClick = {
+            onAction(ToolbarAction.Reconnect)
+            onDismiss()
+        },
+    )
 
     HorizontalDivider()
 
-    InlineMenuItem(text = stringResource(R.string.manage_channels), icon = Icons.Default.EditNote) {
-        onAction(ToolbarAction.ManageChannels)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.remove_channel), icon = Icons.Default.RemoveCircleOutline) {
-        onAction(ToolbarAction.RemoveChannel)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.reload_emotes), icon = Icons.Default.EmojiEmotions) {
-        onAction(ToolbarAction.ReloadEmotes)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.reconnect), icon = Icons.Default.Autorenew) {
-        onAction(ToolbarAction.Reconnect)
-        onDismiss()
-    }
+    InlineMenuItem(
+        text = stringResource(R.string.upload_media),
+        icon = Icons.Default.CloudUpload,
+        onClick = onNavigateToUpload,
+        hasSubMenu = true,
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.channel),
+        icon = Icons.Default.Info,
+        onClick = onNavigateToChannel,
+        hasSubMenu = true,
+    )
 
     HorizontalDivider()
 
-    InlineMenuItem(text = stringResource(R.string.upload_media), icon = Icons.Default.CloudUpload, hasSubMenu = true, onClick = onNavigateToUpload)
-    InlineMenuItem(text = stringResource(R.string.channel), icon = Icons.Default.Info, hasSubMenu = true, onClick = onNavigateToChannel)
-
-    HorizontalDivider()
-
-    InlineMenuItem(text = stringResource(R.string.settings), icon = Icons.Default.Settings) {
-        onAction(ToolbarAction.OpenSettings)
-        onDismiss()
-    }
+    InlineMenuItem(
+        text = stringResource(R.string.settings),
+        icon = Icons.Default.Settings,
+        onClick = {
+            onAction(ToolbarAction.OpenSettings)
+            onDismiss()
+        },
+    )
 }
 
 @Composable
@@ -340,21 +384,34 @@ private fun ColumnScope.UploadMenuContent(
     onAction: (ToolbarAction) -> Unit,
     onDismiss: () -> Unit,
     onBack: () -> Unit,
-    firstItemModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
 ) {
     InlineSubMenuHeader(title = stringResource(R.string.upload_media), onBack = onBack)
-    InlineMenuItem(text = stringResource(R.string.take_picture), icon = Icons.Default.CameraAlt, modifier = firstItemModifier) {
-        onAction(ToolbarAction.CaptureImage)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.record_video), icon = Icons.Default.Videocam) {
-        onAction(ToolbarAction.CaptureVideo)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.choose_media), icon = Icons.Default.Image) {
-        onAction(ToolbarAction.ChooseMedia)
-        onDismiss()
-    }
+    InlineMenuItem(
+        text = stringResource(R.string.take_picture),
+        icon = Icons.Default.CameraAlt,
+        onClick = {
+            onAction(ToolbarAction.CaptureImage)
+            onDismiss()
+        },
+        modifier = modifier,
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.record_video),
+        icon = Icons.Default.Videocam,
+        onClick = {
+            onAction(ToolbarAction.CaptureVideo)
+            onDismiss()
+        },
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.choose_media),
+        icon = Icons.Default.Image,
+        onClick = {
+            onAction(ToolbarAction.ChooseMedia)
+            onDismiss()
+        },
+    )
 }
 
 @Composable
@@ -363,21 +420,34 @@ private fun ColumnScope.ChannelMenuContent(
     onAction: (ToolbarAction) -> Unit,
     onDismiss: () -> Unit,
     onBack: () -> Unit,
-    firstItemModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
 ) {
     InlineSubMenuHeader(title = stringResource(R.string.channel), onBack = onBack)
-    InlineMenuItem(text = stringResource(R.string.open_channel), icon = Icons.Default.OpenInBrowser, modifier = firstItemModifier) {
-        onAction(ToolbarAction.OpenChannel)
-        onDismiss()
-    }
-    InlineMenuItem(text = stringResource(R.string.report_channel), icon = Icons.Default.Flag) {
-        onAction(ToolbarAction.ReportChannel)
-        onDismiss()
-    }
-    if (isLoggedIn) {
-        InlineMenuItem(text = stringResource(R.string.block_channel), icon = Icons.Default.Block) {
-            onAction(ToolbarAction.BlockChannel)
+    InlineMenuItem(
+        text = stringResource(R.string.open_channel),
+        icon = Icons.Default.OpenInBrowser,
+        onClick = {
+            onAction(ToolbarAction.OpenChannel)
             onDismiss()
-        }
+        },
+        modifier = modifier,
+    )
+    InlineMenuItem(
+        text = stringResource(R.string.report_channel),
+        icon = Icons.Default.Flag,
+        onClick = {
+            onAction(ToolbarAction.ReportChannel)
+            onDismiss()
+        },
+    )
+    if (isLoggedIn) {
+        InlineMenuItem(
+            text = stringResource(R.string.block_channel),
+            icon = Icons.Default.Block,
+            onClick = {
+                onAction(ToolbarAction.BlockChannel)
+                onDismiss()
+            },
+        )
     }
 }
