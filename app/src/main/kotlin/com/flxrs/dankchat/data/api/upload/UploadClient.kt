@@ -138,7 +138,6 @@ class UploadClient(
                         is JsonObject -> acc.jsonObject[key] ?: return@runCatching null
                         is JsonArray -> acc.jsonArray[key.toInt()]
                         is JsonPrimitive -> return@runCatching acc.content
-                        else -> return@runCatching null
                     }
                 }
                 when (result) {
