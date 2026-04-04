@@ -430,7 +430,10 @@ fun MainScreen(
                                 }
                             },
                             onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                            onToggleInput = mainScreenViewModel::toggleInput,
+                            onToggleInput = {
+                                mainScreenViewModel.toggleInput()
+                                chatInputViewModel.setEmoteMenuOpen(false)
+                            },
                             onToggleStream = {
                                 when {
                                     currentStream != null -> streamViewModel.closeStream()
@@ -681,6 +684,7 @@ fun MainScreen(
 
                             InputAction.HideInput -> {
                                 mainScreenViewModel.toggleInput()
+                                chatInputViewModel.setEmoteMenuOpen(false)
                             }
 
                             InputAction.Debug -> {
@@ -946,7 +950,7 @@ private fun BoxScope.WideSplitLayout(
                             .align(Alignment.BottomCenter)
                             .padding(bottom = scaffoldBottomPadding)
                             .swipeDownToHide(
-                                enabled = showInput && !isSheetOpen && !isInputMultiline,
+                                enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
                                 thresholdPx = swipeDownThresholdPx,
                                 onHide = onHideInput,
                             ),
@@ -1133,7 +1137,7 @@ private fun BoxScope.NormalStackedLayout(
                     .align(Alignment.BottomCenter)
                     .padding(bottom = scaffoldBottomPadding)
                     .swipeDownToHide(
-                        enabled = showInput && !isSheetOpen && !isInputMultiline,
+                        enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
                         thresholdPx = swipeDownThresholdPx,
                         onHide = onHideInput,
                     ),
