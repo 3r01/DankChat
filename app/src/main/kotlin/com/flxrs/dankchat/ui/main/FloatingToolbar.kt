@@ -498,6 +498,7 @@ fun FloatingToolbar(
                                         ) {
                                             tabState.tabs.forEachIndexed { index, tab ->
                                                 val isSelected = index == selectedIndex
+                                                val hasActivity = tab.mentionCount > 0 || tab.hasUnread
                                                 Row(
                                                     modifier =
                                                         Modifier
@@ -516,9 +517,15 @@ fun FloatingToolbar(
                                                         color =
                                                             when {
                                                                 isSelected -> MaterialTheme.colorScheme.primary
-                                                                else -> MaterialTheme.colorScheme.onSurface
+                                                                hasActivity -> MaterialTheme.colorScheme.onSurface
+                                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
                                                             },
-                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                                        fontWeight =
+                                                            when {
+                                                                isSelected -> FontWeight.Bold
+                                                                hasActivity -> FontWeight.SemiBold
+                                                                else -> FontWeight.Normal
+                                                            },
                                                         maxLines = 1,
                                                         overflow = TextOverflow.Ellipsis,
                                                     )
