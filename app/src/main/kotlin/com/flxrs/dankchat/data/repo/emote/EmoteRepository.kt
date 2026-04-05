@@ -137,6 +137,18 @@ class EmoteRepository(
         }
     }
 
+    fun findEmoteIdsInMessage(
+        message: String,
+        channel: UserName,
+    ): Set<String> {
+        val emoteMap = getOrBuildEmoteMap(channel, withTwitch = true)
+        return buildSet {
+            message.split(WHITESPACE_REGEX).forEach { word ->
+                emoteMap[word]?.let { add(it.id) }
+            }
+        }
+    }
+
     private fun getOrBuildEmoteMap(
         channel: UserName,
         withTwitch: Boolean,

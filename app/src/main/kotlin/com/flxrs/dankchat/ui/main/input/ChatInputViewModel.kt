@@ -16,6 +16,7 @@ import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.data.repo.command.CommandResult
+import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
@@ -72,6 +73,7 @@ class ChatInputViewModel(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
+    private val emoteRepository: EmoteRepository,
     private val emoteUsageRepository: EmoteUsageRepository,
     private val mainEventBus: MainEventBus,
     streamsSettingsDataStore: StreamsSettingsDataStore,
@@ -357,8 +359,17 @@ class ChatInputViewModel(
             if (isAnnouncing) {
                 _isAnnouncing.value = false
             }
+            trackEmoteUsagesInMessage(text)
             trySendMessageOrCommand(messageToSend)
             textFieldState.clearText()
+        }
+    }
+
+    private fun trackEmoteUsagesInMessage(message: String) {
+        val channel = chatChannelProvider.activeChannel.value ?: return
+        val emoteIds = emoteRepository.findEmoteIdsInMessage(message, channel)
+        for (id in emoteIds) {
+            addEmoteUsage(id)
         }
     }
 
