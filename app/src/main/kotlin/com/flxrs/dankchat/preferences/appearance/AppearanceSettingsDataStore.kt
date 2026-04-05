@@ -134,6 +134,10 @@ class AppearanceSettingsDataStore(
         settings
             .map { it.showClearInputButton }
             .distinctUntilChanged()
+    val showSendButton =
+        settings
+            .map { it.showSendButton }
+            .distinctUntilChanged()
 
     fun current() = currentSettings.value
 

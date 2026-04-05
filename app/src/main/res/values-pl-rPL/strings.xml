@@ -370,6 +370,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_show_character_counter_title">Pokaż licznik znaków</string>
     <string name="preference_show_character_counter_summary">Wyświetla liczbę punktów kodowych w polu wprowadzania</string>
     <string name="preference_show_clear_input_button_title">Pokaż przycisk czyszczenia pola</string>
+    <string name="preference_show_send_button_title">Pokaż przycisk wysyłania</string>
+    <string name="preference_input_group_title">Pole tekstowe</string>
     <string name="preference_uploader_header">Przesyłacz media</string>
     <string name="preference_uploader_configure_title">Przesyłacz konfiguracji</string>
     <string name="preference_uploader_recent_uploads_title">Ostatnio udostępnione</string>

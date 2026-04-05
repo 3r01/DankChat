@@ -43,6 +43,10 @@ sealed interface AppearanceSettingsInteraction {
         val value: Boolean,
     ) : AppearanceSettingsInteraction
 
+    data class ShowSendButton(
+        val value: Boolean,
+    ) : AppearanceSettingsInteraction
+
     data class SwipeNavigation(
         val value: Boolean,
     ) : AppearanceSettingsInteraction

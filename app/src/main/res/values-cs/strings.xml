@@ -373,6 +373,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_show_character_counter_title">Zobrazit počítadlo znaků</string>
     <string name="preference_show_character_counter_summary">Zobrazuje počet kódových bodů ve vstupním poli</string>
     <string name="preference_show_clear_input_button_title">Zobrazit tlačítko vymazání vstupu</string>
+    <string name="preference_show_send_button_title">Zobrazit tlačítko odeslání</string>
+    <string name="preference_input_group_title">Vstup</string>
     <string name="preference_uploader_header">Nahrávač médií</string>
     <string name="preference_uploader_configure_title">Konfigurace nahrávače</string>
     <string name="preference_uploader_recent_uploads_title">Nedávná nahrání</string>

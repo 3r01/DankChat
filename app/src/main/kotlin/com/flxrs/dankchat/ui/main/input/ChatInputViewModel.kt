@@ -227,10 +227,10 @@ class ChatInputViewModel(
                         chatConnector.getConnectionState(channel)
                     }
                 },
-                appearanceSettingsDataStore.settings.map { Triple(it.autoDisableInput, it.showCharacterCounter, it.showClearInputButton) },
+                appearanceSettingsDataStore.settings.map { InputSettings(it.autoDisableInput, it.showCharacterCounter, it.showClearInputButton, it.showSendButton) },
                 preferenceStore.isLoggedInFlow,
-            ) { text, suggestions, activeChannel, connectionState, (autoDisableInput, showCharacterCounter, showClearInputButton), isLoggedIn ->
-                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput, showCharacterCounter, showClearInputButton)
+            ) { text, suggestions, activeChannel, connectionState, inputSettings, isLoggedIn ->
+                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, inputSettings)
             }
 
         val replyStateFlow =
@@ -266,7 +266,7 @@ class ChatInputViewModel(
             val isWhisperTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 1
             val isInReplyThread = overlayState.sheetState is FullScreenSheetState.Replies
             val effectiveIsReplying = overlayState.isReplying || isInReplyThread
-            val canTypeInConnectionState = deps.connectionState == ConnectionState.CONNECTED || !deps.autoDisableInput
+            val canTypeInConnectionState = deps.connectionState == ConnectionState.CONNECTED || !deps.inputSettings.autoDisableInput
 
             val inputState =
                 when (deps.connectionState) {
@@ -328,14 +328,15 @@ class ChatInputViewModel(
                 isWhisperTabActive = isWhisperTabActive,
                 characterCounter =
                     when {
-                        deps.showCharacterCounter -> CharacterCounterState.Visible(
+                        deps.inputSettings.showCharacterCounter -> CharacterCounterState.Visible(
                             text = "$codePoints/$MESSAGE_CODE_POINT_LIMIT",
                             isOverLimit = codePoints > MESSAGE_CODE_POINT_LIMIT,
                         )
 
                         else -> CharacterCounterState.Hidden
                     },
-                showClearInputButton = deps.showClearInputButton,
+                showClearInputButton = deps.inputSettings.showClearInputButton,
+                showSendButton = deps.inputSettings.showSendButton,
                 userLongClickBehavior = userLongClickBehavior,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState()).also { _uiState = it }
@@ -585,15 +586,20 @@ private data class SuggestionInput(
     val prefixOnly: Boolean,
 )
 
+private data class InputSettings(
+    val autoDisableInput: Boolean,
+    val showCharacterCounter: Boolean,
+    val showClearInputButton: Boolean,
+    val showSendButton: Boolean,
+)
+
 private data class UiDependencies(
     val text: String,
     val suggestions: List<Suggestion>,
     val activeChannel: UserName?,
     val connectionState: ConnectionState,
     val isLoggedIn: Boolean,
-    val autoDisableInput: Boolean,
-    val showCharacterCounter: Boolean,
-    val showClearInputButton: Boolean,
+    val inputSettings: InputSettings,
 )
 
 private data class ReplyState(

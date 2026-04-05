@@ -74,6 +74,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.K
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowClearInputButton
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowSendButton
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.SwipeNavigation
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.TrueDarkTheme
@@ -149,10 +150,15 @@ private fun AppearanceSettingsContent(
                 onInteraction = onInteraction,
             )
             HorizontalDivider(thickness = Dp.Hairline)
-            ComponentsCategory(
+            InputCategory(
                 autoDisableInput = settings.autoDisableInput,
                 showCharacterCounter = settings.showCharacterCounter,
                 showClearInputButton = settings.showClearInputButton,
+                showSendButton = settings.showSendButton,
+                onInteraction = onInteraction,
+            )
+            HorizontalDivider(thickness = Dp.Hairline)
+            ComponentsCategory(
                 swipeNavigation = settings.swipeNavigation,
                 onInteraction = onInteraction,
             )
@@ -162,15 +168,15 @@ private fun AppearanceSettingsContent(
 }
 
 @Composable
-private fun ComponentsCategory(
+private fun InputCategory(
     autoDisableInput: Boolean,
     showCharacterCounter: Boolean,
     showClearInputButton: Boolean,
-    swipeNavigation: Boolean,
+    showSendButton: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(
-        title = stringResource(R.string.preference_components_group_title),
+        title = stringResource(R.string.preference_input_group_title),
     ) {
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_auto_disable_input_title),
@@ -188,6 +194,22 @@ private fun ComponentsCategory(
             isChecked = showClearInputButton,
             onClick = { onInteraction(ShowClearInputButton(it)) },
         )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_send_button_title),
+            isChecked = showSendButton,
+            onClick = { onInteraction(ShowSendButton(it)) },
+        )
+    }
+}
+
+@Composable
+private fun ComponentsCategory(
+    swipeNavigation: Boolean,
+    onInteraction: (AppearanceSettingsInteraction) -> Unit,
+) {
+    PreferenceCategory(
+        title = stringResource(R.string.preference_components_group_title),
+    ) {
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_swipe_navigation_title),
             summary = stringResource(R.string.preference_swipe_navigation_summary),

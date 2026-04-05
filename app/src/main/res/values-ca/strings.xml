@@ -371,6 +371,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_show_character_counter_title">Mostra el comptador de caràcters</string>
     <string name="preference_show_character_counter_summary">Mostra el recompte de punts de codi al camp d\'entrada</string>
     <string name="preference_show_clear_input_button_title">Mostra el botó d\'esborrar l\'entrada</string>
+    <string name="preference_show_send_button_title">Mostra el botó d\'enviar</string>
+    <string name="preference_input_group_title">Entrada</string>
     <string name="preference_uploader_header">Pujador de media</string>
     <string name="preference_uploader_configure_title">Configurar pujador</string>
     <string name="preference_uploader_recent_uploads_title">Pujades recents</string>

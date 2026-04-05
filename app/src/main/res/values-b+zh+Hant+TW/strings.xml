@@ -501,6 +501,8 @@
     <string name="preference_show_character_counter_title">顯示字元計數器</string>
     <string name="preference_show_character_counter_summary">在輸入框中顯示字碼數</string>
     <string name="preference_show_clear_input_button_title">顯示清除輸入按鈕</string>
+    <string name="preference_show_send_button_title">顯示傳送按鈕</string>
+    <string name="preference_input_group_title">輸入</string>
     <string name="preference_uploader_header">媒體上傳者</string>
     <string name="preference_uploader_configure_title">設定上傳者</string>
     <string name="preference_uploader_recent_uploads_title">近期上傳</string>

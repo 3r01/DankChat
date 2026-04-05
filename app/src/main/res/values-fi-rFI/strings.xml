@@ -363,6 +363,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_show_character_counter_title">Näytä merkkimäärälaskuri</string>
     <string name="preference_show_character_counter_summary">Näyttää koodipisteiden määrän syöttökentässä</string>
     <string name="preference_show_clear_input_button_title">Näytä syötteen tyhjennys -painike</string>
+    <string name="preference_show_send_button_title">Näytä lähetyspainike</string>
+    <string name="preference_input_group_title">Syöte</string>
     <string name="preference_uploader_header">Median lähettäjä</string>
     <string name="preference_uploader_configure_title">Määritä lähettäjä</string>
     <string name="preference_uploader_recent_uploads_title">Viimeaikaiset lataukset</string>

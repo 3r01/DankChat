@@ -33,6 +33,7 @@ data class AppearanceSettings(
     val showChangelogs: Boolean = true,
     val showCharacterCounter: Boolean = false,
     val showClearInputButton: Boolean = true,
+    val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
     val inputActions: List<InputAction> =
         listOf(

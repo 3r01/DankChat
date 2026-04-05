@@ -336,6 +336,7 @@ fun ChatInputLayout(
                     isEmoteMenuOpen = isEmoteMenuOpen,
                     enabled = enabled,
                     showQuickActions = showQuickActions,
+                    showSendButton = uiState.showSendButton,
                     tourState = tourState,
                     quickActionsExpanded = quickActionsExpanded,
                     canSend = canSend,
@@ -657,6 +658,7 @@ private fun InputActionsRow(
     isEmoteMenuOpen: Boolean,
     enabled: Boolean,
     showQuickActions: Boolean,
+    showSendButton: Boolean,
     tourState: TourOverlayState,
     quickActionsExpanded: Boolean,
     canSend: Boolean,
@@ -686,8 +688,8 @@ private fun InputActionsRow(
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     ) {
         val iconSize = 40.dp
-        // Fixed slots: emote + overflow + send (+ whisper if present)
-        val fixedSlots = 1 + (if (showQuickActions) 1 else 0) + (if (onNewWhisper != null) 1 else 0) + 1
+        // Fixed slots: emote button + conditionally overflow, whisper, send
+        val fixedSlots = 1 + listOf(showQuickActions, onNewWhisper != null, showSendButton).count { it }
         val availableForActions = maxWidth - iconSize * fixedSlots
         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
         val allActions = inputActions.take(maxVisibleActions).toImmutableList()
@@ -734,6 +736,7 @@ private fun InputActionsRow(
                         visibleActions = visibleActions,
                         iconSize = iconSize,
                         showQuickActions = showQuickActions,
+                        showSendButton = showSendButton,
                         tourState = tourState,
                         quickActionsExpanded = quickActionsExpanded,
                         canSend = canSend,
@@ -768,6 +771,7 @@ private fun EndAlignedActionGroup(
     visibleActions: ImmutableList<InputAction>,
     iconSize: Dp,
     showQuickActions: Boolean,
+    showSendButton: Boolean,
     tourState: TourOverlayState,
     quickActionsExpanded: Boolean,
     canSend: Boolean,
@@ -857,14 +861,16 @@ private fun EndAlignedActionGroup(
     }
 
     // Send Button (Right)
-    Spacer(modifier = Modifier.width(4.dp))
-    SendButton(
-        enabled = canSend,
-        isRepeatedSendEnabled = isRepeatedSendEnabled,
-        onSend = onSend,
-        onRepeatedSendChange = onRepeatedSendChange,
-        modifier = Modifier.size(44.dp),
-    )
+    if (showSendButton) {
+        Spacer(modifier = Modifier.width(4.dp))
+        SendButton(
+            enabled = canSend,
+            isRepeatedSendEnabled = isRepeatedSendEnabled,
+            onSend = onSend,
+            onRepeatedSendChange = onRepeatedSendChange,
+            modifier = Modifier.size(44.dp),
+        )
+    }
 }
 
 @Composable

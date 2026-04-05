@@ -374,6 +374,8 @@
     <string name="preference_show_character_counter_title">Показувати лічильник символів</string>
     <string name="preference_show_character_counter_summary">Відображає кількість кодових точок у полі введення</string>
     <string name="preference_show_clear_input_button_title">Показувати кнопку очищення введення</string>
+    <string name="preference_show_send_button_title">Показувати кнопку надсилання</string>
+    <string name="preference_input_group_title">Введення</string>
     <string name="preference_uploader_header">Сервіс завантаження медіа</string>
     <string name="preference_uploader_configure_title">Налаштувати сервіс завантаження медіа</string>
     <string name="preference_uploader_recent_uploads_title">Останні завантаження</string>
