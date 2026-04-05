@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -186,9 +188,9 @@ private fun DeveloperSettingsContent(
                                 )
                             } else {
                                 logFiles.forEach { file ->
-                                    Text(
-                                        text = file.name,
-                                        style = MaterialTheme.typography.bodyLarge,
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                                         modifier =
                                             Modifier
                                                 .fillMaxWidth()
@@ -199,7 +201,18 @@ private fun DeveloperSettingsContent(
                                                     }
                                                     onOpenLogViewer(file.name)
                                                 }.padding(horizontal = 16.dp, vertical = 14.dp),
-                                    )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.size(20.dp),
+                                        )
+                                        Text(
+                                            text = file.name,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
+                                    }
                                 }
                             }
                             Spacer(Modifier.height(32.dp))
