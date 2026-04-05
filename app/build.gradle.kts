@@ -97,6 +97,7 @@ android {
         disable += "RestrictedApi"
         disable += "UnusedResources"
         disable += "ObsoleteSdkInt"
+        disable += "PictureInPictureIssue"
     }
 }
 
