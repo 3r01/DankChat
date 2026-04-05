@@ -882,5 +882,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="log_viewer_open">Ver registros</string>
     <string name="preference_log_viewer_empty">No hay archivos de registro disponibles</string>
     <string name="log_viewer_search_hint">Buscar en los registros</string>
+    <string name="log_viewer_selected_count">%1$d seleccionados</string>
+    <string name="log_viewer_copy_selection">Copiar registros seleccionados</string>
+    <string name="log_viewer_clear_selection">Borrar selección</string>
     <string name="scroll_to_bottom">Desplazar hacia abajo</string>
 </resources>

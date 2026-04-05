@@ -855,5 +855,8 @@
     <string name="log_viewer_open">檢視日誌</string>
     <string name="preference_log_viewer_empty">沒有可用的日誌檔案</string>
     <string name="log_viewer_search_hint">搜尋日誌</string>
+    <string name="log_viewer_selected_count">已選取 %1$d 項</string>
+    <string name="log_viewer_copy_selection">複製選取的日誌</string>
+    <string name="log_viewer_clear_selection">清除選取</string>
     <string name="scroll_to_bottom">捲動至底部</string>
 </resources>

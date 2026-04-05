@@ -854,5 +854,8 @@
     <string name="log_viewer_open">ଲଗ୍ ଦେଖନ୍ତୁ</string>
     <string name="preference_log_viewer_empty">କୌଣସି ଲଗ୍ ଫାଇଲ୍ ଉପಲବ୍ଧ ନାହିଁ</string>
     <string name="log_viewer_search_hint">ଲଗ୍ ଖୋଜନ୍ତୁ</string>
+    <string name="log_viewer_selected_count">%1$d ଚୟନ ହୋଇଛି</string>
+    <string name="log_viewer_copy_selection">ଚୟନିତ ଲଗ୍ କପି କରନ୍ତୁ</string>
+    <string name="log_viewer_clear_selection">ଚୟନ ସଫା କରନ୍ତୁ</string>
     <string name="scroll_to_bottom">ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ</string>
 </resources>

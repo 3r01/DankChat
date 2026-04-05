@@ -872,5 +872,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="log_viewer_open">Protokolle anzeigen</string>
     <string name="preference_log_viewer_empty">Keine Protokolldateien verfügbar</string>
     <string name="log_viewer_search_hint">Protokolle durchsuchen</string>
+    <string name="log_viewer_selected_count">%1$d ausgewählt</string>
+    <string name="log_viewer_copy_selection">Ausgewählte Protokolle kopieren</string>
+    <string name="log_viewer_clear_selection">Auswahl aufheben</string>
     <string name="scroll_to_bottom">Nach unten scrollen</string>
 </resources>

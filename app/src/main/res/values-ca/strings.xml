@@ -898,5 +898,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="log_viewer_open">Mostra els registres</string>
     <string name="preference_log_viewer_empty">No hi ha fitxers de registre disponibles</string>
     <string name="log_viewer_search_hint">Cerca als registres</string>
+    <string name="log_viewer_selected_count">%1$d seleccionats</string>
+    <string name="log_viewer_copy_selection">Copia els registres seleccionats</string>
+    <string name="log_viewer_clear_selection">Esborra la selecció</string>
     <string name="scroll_to_bottom">Desplaça cap avall</string>
 </resources>

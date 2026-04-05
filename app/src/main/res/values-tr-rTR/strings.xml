@@ -870,5 +870,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="log_viewer_open">Günlükleri görüntüle</string>
     <string name="preference_log_viewer_empty">Kullanılabilir günlük dosyası yok</string>
     <string name="log_viewer_search_hint">Günlüklerde ara</string>
+    <string name="log_viewer_selected_count">%1$d seçili</string>
+    <string name="log_viewer_copy_selection">Seçili günlükleri kopyala</string>
+    <string name="log_viewer_clear_selection">Seçimi temizle</string>
     <string name="scroll_to_bottom">En alta kaydır</string>
 </resources>

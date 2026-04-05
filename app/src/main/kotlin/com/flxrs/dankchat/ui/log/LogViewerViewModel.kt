@@ -16,9 +16,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 import java.io.File
 
@@ -31,6 +33,8 @@ class LogViewerViewModel(
 
     private val _levelFilter = MutableStateFlow<LogLevel?>(null)
     private val _selectedFileName = MutableStateFlow("")
+    private val _selectedIndices = MutableStateFlow<Set<Int>>(emptySet())
+    val selectedIndices: StateFlow<Set<Int>> = _selectedIndices.asStateFlow()
 
     init {
         val route = savedStateHandle.toRoute<LogViewer>()
@@ -40,6 +44,12 @@ class LogViewerViewModel(
             .firstOrNull()
             ?.name
             .orEmpty()
+
+        viewModelScope.launch {
+            combine(_levelFilter, snapshotFlow { searchFieldState.text.toString() }) { _, _ -> }.collect {
+                _selectedIndices.value = emptySet()
+            }
+        }
     }
 
     val state: StateFlow<LogViewerState> = combine(
@@ -70,6 +80,27 @@ class LogViewerViewModel(
         _levelFilter.update { current ->
             if (current == level) null else level
         }
+    }
+
+    fun toggleSelection(index: Int) {
+        _selectedIndices.update { current ->
+            when (index) {
+                in current -> current - index
+                else -> current + index
+            }
+        }
+    }
+
+    fun clearSelection() {
+        _selectedIndices.value = emptySet()
+    }
+
+    fun getSelectedLinesText(): String {
+        val lines = state.value.lines
+        return _selectedIndices.value
+            .sorted()
+            .mapNotNull { lines.getOrNull(it) }
+            .joinToString("\n") { it.raw }
     }
 
     fun getShareableLogFile(): File? {

@@ -728,6 +728,9 @@
     <string name="log_viewer_open">View logs</string>
     <string name="preference_log_viewer_empty">No log files available</string>
     <string name="log_viewer_search_hint">Search logs</string>
+    <string name="log_viewer_selected_count">%1$d selected</string>
+    <string name="log_viewer_copy_selection">Copy selected logs</string>
+    <string name="log_viewer_clear_selection">Clear selection</string>
     <string name="scroll_to_bottom">Scroll to bottom</string>
     <string name="search_filter_by_username">Filter by username</string>
     <string name="search_filter_has_link">Messages containing links</string>

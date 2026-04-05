@@ -902,5 +902,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="log_viewer_open">Прегледај логове</string>
     <string name="preference_log_viewer_empty">Нема доступних лог фајлова</string>
     <string name="log_viewer_search_hint">Претражи логове</string>
+    <string name="log_viewer_selected_count">%1$d изабрано</string>
+    <string name="log_viewer_copy_selection">Копирај изабране логове</string>
+    <string name="log_viewer_clear_selection">Обриши избор</string>
     <string name="scroll_to_bottom">Помери на дно</string>
 </resources>

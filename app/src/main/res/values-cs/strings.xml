@@ -873,5 +873,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="log_viewer_open">Zobrazit logy</string>
     <string name="preference_log_viewer_empty">Žádné soubory logů nejsou dostupné</string>
     <string name="log_viewer_search_hint">Hledat v logách</string>
+    <string name="log_viewer_selected_count">%1$d vybráno</string>
+    <string name="log_viewer_copy_selection">Kopírovat vybrané logy</string>
+    <string name="log_viewer_clear_selection">Zrušit výběr</string>
     <string name="scroll_to_bottom">Posunout dolů</string>
 </resources>

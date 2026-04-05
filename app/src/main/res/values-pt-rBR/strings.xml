@@ -861,5 +861,8 @@
     <string name="log_viewer_open">Ver logs</string>
     <string name="preference_log_viewer_empty">Nenhum arquivo de log disponível</string>
     <string name="log_viewer_search_hint">Pesquisar nos logs</string>
+    <string name="log_viewer_selected_count">%1$d selecionados</string>
+    <string name="log_viewer_copy_selection">Copiar logs selecionados</string>
+    <string name="log_viewer_clear_selection">Limpar seleção</string>
     <string name="scroll_to_bottom">Rolar para baixo</string>
 </resources>

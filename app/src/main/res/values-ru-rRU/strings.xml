@@ -878,5 +878,8 @@
     <string name="log_viewer_open">Просмотреть журналы</string>
     <string name="preference_log_viewer_empty">Файлы журналов отсутствуют</string>
     <string name="log_viewer_search_hint">Поиск по журналам</string>
+    <string name="log_viewer_selected_count">Выбрано: %1$d</string>
+    <string name="log_viewer_copy_selection">Копировать выбранные журналы</string>
+    <string name="log_viewer_clear_selection">Снять выделение</string>
     <string name="scroll_to_bottom">Прокрутить вниз</string>
 </resources>

@@ -866,5 +866,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="log_viewer_open">Voir les journaux</string>
     <string name="preference_log_viewer_empty">Aucun fichier journal disponible</string>
     <string name="log_viewer_search_hint">Rechercher dans les journaux</string>
+    <string name="log_viewer_selected_count">%1$d sélectionnés</string>
+    <string name="log_viewer_copy_selection">Copier les journaux sélectionnés</string>
+    <string name="log_viewer_clear_selection">Effacer la sélection</string>
     <string name="scroll_to_bottom">Défiler vers le bas</string>
 </resources>

@@ -873,5 +873,8 @@
     <string name="log_viewer_open">Праглядзець логі</string>
     <string name="preference_log_viewer_empty">Няма даступных файлаў логаў</string>
     <string name="log_viewer_search_hint">Пошук у логах</string>
+    <string name="log_viewer_selected_count">Выбрана: %1$d</string>
+    <string name="log_viewer_copy_selection">Капіраваць выбраныя логі</string>
+    <string name="log_viewer_clear_selection">Ачысціць выбар</string>
     <string name="scroll_to_bottom">Пракруціць уніз</string>
 </resources>

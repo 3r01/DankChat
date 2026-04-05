@@ -1,6 +1,8 @@
 package com.flxrs.dankchat.ui.log
 
+import android.content.ClipData
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,8 +10,11 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +40,8 @@ import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
@@ -57,6 +64,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +75,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -88,13 +98,18 @@ import com.flxrs.dankchat.data.repo.log.LogLevel
 import com.flxrs.dankchat.data.repo.log.LogLine
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LogViewerSheet(onDismiss: () -> Unit) {
     val viewModel: LogViewerViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val selectedIndices by viewModel.selectedIndices.collectAsStateWithLifecycle()
+    val isSelectionActive by remember { derivedStateOf { selectedIndices.isNotEmpty() } }
     val context = LocalContext.current
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
 
     val sheetBackgroundColor =
         lerp(
@@ -123,7 +138,10 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
             progress.collect { event ->
                 backProgress = event.progress
             }
-            onDismiss()
+            when {
+                isSelectionActive -> viewModel.clearSelection()
+                else -> onDismiss()
+            }
         } catch (_: CancellationException) {
             backProgress = 0f
         }
@@ -191,8 +209,12 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
             itemsIndexed(
                 items = state.lines,
                 key = { index, _ -> index },
-            ) { _, line ->
-                LogLineItem(line = line)
+            ) { index, line ->
+                LogLineItem(
+                    line = line,
+                    isSelected = index in selectedIndices,
+                    onClick = { viewModel.toggleSelection(index) },
+                )
             }
         }
 
@@ -224,6 +246,8 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
             statusBarHeight = statusBarHeight,
             sheetBackgroundColor = sheetBackgroundColor,
             levelFilter = state.levelFilter,
+            isSelectionActive = isSelectionActive,
+            selectedCount = selectedIndices.size,
             onBack = onDismiss,
             onLevelFilter = viewModel::setLevelFilter,
             onShare = {
@@ -235,6 +259,14 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
                     addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
                 context.startActivity(android.content.Intent.createChooser(intent, null))
+            },
+            onClearSelection = viewModel::clearSelection,
+            onCopySelection = {
+                val text = viewModel.getSelectedLinesText()
+                scope.launch {
+                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("log_lines", text)))
+                }
+                viewModel.clearSelection()
             },
             modifier = Modifier.align(Alignment.TopCenter),
         )
@@ -263,7 +295,10 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
                     .padding(bottom = 8.dp)
                     .padding(horizontal = 8.dp),
         ) {
-            LogSearchToolbar(state = viewModel.searchFieldState)
+            LogSearchToolbar(
+                state = viewModel.searchFieldState,
+                enabled = !isSelectionActive,
+            )
         }
     }
 }
@@ -274,9 +309,13 @@ private fun LogViewerToolbar(
     statusBarHeight: Dp,
     sheetBackgroundColor: Color,
     levelFilter: LogLevel?,
+    isSelectionActive: Boolean,
+    selectedCount: Int,
     onBack: () -> Unit,
     onLevelFilter: (LogLevel) -> Unit,
     onShare: () -> Unit,
+    onClearSelection: () -> Unit,
+    onCopySelection: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     AnimatedVisibility(
@@ -301,62 +340,115 @@ private fun LogViewerToolbar(
                     .padding(horizontal = 8.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                AnimatedContent(
+                    targetState = isSelectionActive,
+                    transitionSpec = {
+                        (fadeIn() + slideInVertically { -it / 4 })
+                            .togetherWith(fadeOut() + slideOutVertically { -it / 4 })
+                    },
+                    label = "ToolbarModeTransition",
+                ) { selectionMode ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                            )
-                        }
-                    }
+                        when {
+                            selectionMode -> {
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    IconButton(onClick = onClearSelection) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = stringResource(R.string.log_viewer_clear_selection),
+                                        )
+                                    }
+                                }
 
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.log_viewer_title),
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        )
-                    }
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.log_viewer_selected_count, selectedCount),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    )
+                                }
 
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        IconButton(onClick = onShare) {
-                            Icon(
-                                imageVector = Icons.Default.Share,
-                                contentDescription = stringResource(R.string.log_viewer_share),
-                            )
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    IconButton(onClick = onCopySelection) {
+                                        Icon(
+                                            imageVector = Icons.Default.ContentCopy,
+                                            contentDescription = stringResource(R.string.log_viewer_copy_selection),
+                                        )
+                                    }
+                                }
+                            }
+
+                            else -> {
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    IconButton(onClick = onBack) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = stringResource(R.string.back),
+                                        )
+                                    }
+                                }
+
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.log_viewer_title),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                    )
+                                }
+
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ) {
+                                    IconButton(onClick = onShare) {
+                                        Icon(
+                                            imageVector = Icons.Default.Share,
+                                            contentDescription = stringResource(R.string.log_viewer_share),
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
                 // Level filter chips
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    LogLevel.entries.forEach { level ->
-                        FilterChip(
-                            selected = levelFilter == level,
-                            onClick = { onLevelFilter(level) },
-                            label = { Text(level.name) },
-                            colors = FilterChipDefaults.filterChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-                            ),
-                        )
+                AnimatedVisibility(visible = !isSelectionActive) {
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        LogLevel.entries.forEach { level ->
+                            FilterChip(
+                                selected = levelFilter == level,
+                                onClick = { onLevelFilter(level) },
+                                label = { Text(level.name) },
+                                colors = FilterChipDefaults.filterChipColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                                ),
+                            )
+                        }
                     }
                 }
             }
@@ -365,13 +457,29 @@ private fun LogViewerToolbar(
 }
 
 @Composable
-private fun LogLineItem(line: LogLine) {
+private fun LogLineItem(
+    line: LogLine,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = when {
+        isSelected -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f)
+        else -> Color.Transparent
+    }
     Text(
         text = formatLogLine(line),
         fontFamily = FontFamily.Monospace,
         fontSize = 11.sp,
         lineHeight = 14.sp,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 1.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(backgroundColor)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClick,
+                ).padding(horizontal = 8.dp, vertical = 1.dp),
     )
 }
 
@@ -419,7 +527,10 @@ private fun formatLogLine(line: LogLine): AnnotatedString {
 }
 
 @Composable
-private fun LogSearchToolbar(state: TextFieldState) {
+private fun LogSearchToolbar(
+    state: TextFieldState,
+    enabled: Boolean = true,
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val textFieldColors =
         TextFieldDefaults.colors(
@@ -427,10 +538,12 @@ private fun LogSearchToolbar(state: TextFieldState) {
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
         )
 
     TextField(
         state = state,
+        enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
         placeholder = { Text(stringResource(R.string.log_viewer_search_hint)) },
         leadingIcon = {

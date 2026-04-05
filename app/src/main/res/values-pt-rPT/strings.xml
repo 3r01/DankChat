@@ -851,5 +851,8 @@
     <string name="log_viewer_open">Ver registos</string>
     <string name="preference_log_viewer_empty">Nenhum ficheiro de registo disponível</string>
     <string name="log_viewer_search_hint">Pesquisar nos registos</string>
+    <string name="log_viewer_selected_count">%1$d selecionados</string>
+    <string name="log_viewer_copy_selection">Copiar registos selecionados</string>
+    <string name="log_viewer_clear_selection">Limpar seleção</string>
     <string name="scroll_to_bottom">Deslocar para baixo</string>
 </resources>

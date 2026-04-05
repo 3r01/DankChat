@@ -891,5 +891,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="log_viewer_open">Wyświetl logi</string>
     <string name="preference_log_viewer_empty">Brak dostępnych plików logów</string>
     <string name="log_viewer_search_hint">Szukaj w logach</string>
+    <string name="log_viewer_selected_count">Wybrano %1$d</string>
+    <string name="log_viewer_copy_selection">Kopiuj wybrane logi</string>
+    <string name="log_viewer_clear_selection">Wyczyść zaznaczenie</string>
     <string name="scroll_to_bottom">Przewiń na dół</string>
 </resources>

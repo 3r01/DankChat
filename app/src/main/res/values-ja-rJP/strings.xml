@@ -829,5 +829,8 @@
     <string name="log_viewer_open">ログを表示</string>
     <string name="preference_log_viewer_empty">ログファイルがありません</string>
     <string name="log_viewer_search_hint">ログを検索</string>
+    <string name="log_viewer_selected_count">%1$d 件選択中</string>
+    <string name="log_viewer_copy_selection">選択したログをコピー</string>
+    <string name="log_viewer_clear_selection">選択を解除</string>
     <string name="scroll_to_bottom">一番下にスクロール</string>
 </resources>

@@ -873,5 +873,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="log_viewer_open">Näytä lokit</string>
     <string name="preference_log_viewer_empty">Lokitiedostoja ei ole saatavilla</string>
     <string name="log_viewer_search_hint">Hae lokeista</string>
+    <string name="log_viewer_selected_count">%1$d valittu</string>
+    <string name="log_viewer_copy_selection">Kopioi valitut lokit</string>
+    <string name="log_viewer_clear_selection">Tyhjennä valinta</string>
     <string name="scroll_to_bottom">Vieritä alas</string>
 </resources>

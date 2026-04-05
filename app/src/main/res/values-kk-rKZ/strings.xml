@@ -854,5 +854,8 @@
     <string name="log_viewer_open">Журналдарды көру</string>
     <string name="preference_log_viewer_empty">Журнал файлдары жоқ</string>
     <string name="log_viewer_search_hint">Журналдарды іздеу</string>
+    <string name="log_viewer_selected_count">%1$d таңдалды</string>
+    <string name="log_viewer_copy_selection">Таңдалған журналдарды көшіру</string>
+    <string name="log_viewer_clear_selection">Таңдауды тазалау</string>
     <string name="scroll_to_bottom">Төменге айналдыру</string>
 </resources>

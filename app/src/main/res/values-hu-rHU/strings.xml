@@ -849,5 +849,8 @@
     <string name="log_viewer_open">Naplók megtekintése</string>
     <string name="preference_log_viewer_empty">Nincsenek elérhető naplófájlok</string>
     <string name="log_viewer_search_hint">Keresés a naplókban</string>
+    <string name="log_viewer_selected_count">%1$d kiválasztva</string>
+    <string name="log_viewer_copy_selection">Kiválasztott naplók másolása</string>
+    <string name="log_viewer_clear_selection">Kijelölés törlése</string>
     <string name="scroll_to_bottom">Görgetés az aljára</string>
 </resources>

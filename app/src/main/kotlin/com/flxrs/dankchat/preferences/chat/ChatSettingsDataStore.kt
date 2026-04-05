@@ -69,6 +69,7 @@ class ChatSettingsDataStore(
                 @Suppress("DEPRECATION")
                 ChatPreferenceKeys.SupibotSuggestions,
                 -> {
+                    @Suppress("DEPRECATION")
                     acc.copy(supibotSuggestions = value.booleanOrDefault(acc.supibotSuggestions))
                 }
 

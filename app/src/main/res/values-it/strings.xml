@@ -849,5 +849,8 @@
     <string name="log_viewer_open">Visualizza log</string>
     <string name="preference_log_viewer_empty">Nessun file di log disponibile</string>
     <string name="log_viewer_search_hint">Cerca nei log</string>
+    <string name="log_viewer_selected_count">%1$d selezionati</string>
+    <string name="log_viewer_copy_selection">Copia log selezionati</string>
+    <string name="log_viewer_clear_selection">Cancella selezione</string>
     <string name="scroll_to_bottom">Scorri verso il basso</string>
 </resources>
