@@ -285,7 +285,7 @@ fun ChatInputLayout(
                                 }
                             }
                             AnimatedVisibility(
-                                visible = enabled && textFieldState.text.isNotEmpty(),
+                                visible = enabled && uiState.showClearInputButton && textFieldState.text.isNotEmpty(),
                                 enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
                                 exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
                             ) {

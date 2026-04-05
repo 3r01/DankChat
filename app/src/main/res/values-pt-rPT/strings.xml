@@ -361,6 +361,7 @@
     <string name="preference_show_chip_actions_summary">Exibe um botão para alternar em tela cheia, transmissões e ajustar os modos do chat</string>
     <string name="preference_show_character_counter_title">Mostrar contador de caracteres</string>
     <string name="preference_show_character_counter_summary">Exibe a contagem de pontos de código no campo de introdução</string>
+    <string name="preference_show_clear_input_button_title">Mostrar botão de limpar introdução</string>
     <string name="preference_uploader_header">Carregador de mídia</string>
     <string name="preference_uploader_configure_title">Configurar carregador</string>
     <string name="preference_uploader_recent_uploads_title">Carregamentos recentes</string>

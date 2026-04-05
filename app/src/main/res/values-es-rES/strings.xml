@@ -367,6 +367,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_show_chip_actions_summary">Mostrar chips para acceder a pantalla completa, streams y ajustar modos de chat</string>
     <string name="preference_show_character_counter_title">Mostrar contador de caracteres</string>
     <string name="preference_show_character_counter_summary">Muestra el recuento de puntos de código en el campo de entrada</string>
+    <string name="preference_show_clear_input_button_title">Mostrar botón de borrar entrada</string>
     <string name="preference_uploader_header">Subidor de multimedia</string>
     <string name="preference_uploader_configure_title">Configurar subidor</string>
     <string name="preference_uploader_recent_uploads_title">Subidas recientes</string>

@@ -73,6 +73,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.F
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowClearInputButton
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.SwipeNavigation
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.Theme
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.TrueDarkTheme
@@ -151,6 +152,7 @@ private fun AppearanceSettingsContent(
             ComponentsCategory(
                 autoDisableInput = settings.autoDisableInput,
                 showCharacterCounter = settings.showCharacterCounter,
+                showClearInputButton = settings.showClearInputButton,
                 swipeNavigation = settings.swipeNavigation,
                 onInteraction = onInteraction,
             )
@@ -163,6 +165,7 @@ private fun AppearanceSettingsContent(
 private fun ComponentsCategory(
     autoDisableInput: Boolean,
     showCharacterCounter: Boolean,
+    showClearInputButton: Boolean,
     swipeNavigation: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
@@ -179,6 +182,11 @@ private fun ComponentsCategory(
             summary = stringResource(R.string.preference_show_character_counter_summary),
             isChecked = showCharacterCounter,
             onClick = { onInteraction(ShowCharacterCounter(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_clear_input_button_title),
+            isChecked = showClearInputButton,
+            onClick = { onInteraction(ShowClearInputButton(it)) },
         )
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_swipe_navigation_title),

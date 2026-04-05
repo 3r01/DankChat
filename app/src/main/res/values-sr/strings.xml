@@ -462,6 +462,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_show_chip_actions_summary">Приказује чипове за пребацивање целог екрана, стримова и подешавање режима чата</string>
     <string name="preference_show_character_counter_title">Prikaži brojač karaktera</string>
     <string name="preference_show_character_counter_summary">Prikazuje broj kodnih tačaka u polju za unos</string>
+    <string name="preference_show_clear_input_button_title">Prikaži dugme za brisanje unosa</string>
     <string name="preference_uploader_header">Отпремање медија</string>
     <string name="preference_uploader_configure_title">Подеси отпремање</string>
     <string name="preference_uploader_recent_uploads_title">Недавна отпремања</string>

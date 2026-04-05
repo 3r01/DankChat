@@ -35,6 +35,7 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.AutoDisableInput -> dataStore.update { it.copy(autoDisableInput = interaction.value) }
                 is AppearanceSettingsInteraction.ShowChangelogs -> dataStore.update { it.copy(showChangelogs = interaction.value) }
                 is AppearanceSettingsInteraction.ShowCharacterCounter -> dataStore.update { it.copy(showCharacterCounter = interaction.value) }
+                is AppearanceSettingsInteraction.ShowClearInputButton -> dataStore.update { it.copy(showClearInputButton = interaction.value) }
                 is AppearanceSettingsInteraction.SwipeNavigation -> dataStore.update { it.copy(swipeNavigation = interaction.value) }
                 is AppearanceSettingsInteraction.SetAccentColor -> dataStore.update { it.copy(accentColor = interaction.color) }
                 is AppearanceSettingsInteraction.SetPaletteStyle -> dataStore.update { it.copy(paletteStyle = interaction.style) }

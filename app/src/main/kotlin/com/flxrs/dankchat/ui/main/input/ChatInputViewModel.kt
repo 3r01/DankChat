@@ -227,10 +227,10 @@ class ChatInputViewModel(
                         chatConnector.getConnectionState(channel)
                     }
                 },
-                appearanceSettingsDataStore.settings.map { it.autoDisableInput to it.showCharacterCounter },
+                appearanceSettingsDataStore.settings.map { Triple(it.autoDisableInput, it.showCharacterCounter, it.showClearInputButton) },
                 preferenceStore.isLoggedInFlow,
-            ) { text, suggestions, activeChannel, connectionState, (autoDisableInput, showCharacterCounter), isLoggedIn ->
-                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput, showCharacterCounter)
+            ) { text, suggestions, activeChannel, connectionState, (autoDisableInput, showCharacterCounter, showClearInputButton), isLoggedIn ->
+                UiDependencies(text, suggestions, activeChannel, connectionState, isLoggedIn, autoDisableInput, showCharacterCounter, showClearInputButton)
             }
 
         val replyStateFlow =
@@ -335,6 +335,7 @@ class ChatInputViewModel(
 
                         else -> CharacterCounterState.Hidden
                     },
+                showClearInputButton = deps.showClearInputButton,
                 userLongClickBehavior = userLongClickBehavior,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatInputUiState()).also { _uiState = it }
@@ -592,6 +593,7 @@ private data class UiDependencies(
     val isLoggedIn: Boolean,
     val autoDisableInput: Boolean,
     val showCharacterCounter: Boolean,
+    val showClearInputButton: Boolean,
 )
 
 private data class ReplyState(
