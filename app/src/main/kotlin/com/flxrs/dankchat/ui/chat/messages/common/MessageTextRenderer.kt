@@ -86,21 +86,18 @@ fun MessageTextWithInlineContent(
                 val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
                 emotes.forEach { emote ->
                     val id = "EMOTE_${emote.code}"
-                    when {
+                    val dims = when {
                         emote.urls.size == 1 -> {
-                            val dims = emoteCoordinator.dimensionCache.get(emote.urls.first())
-                            if (dims != null) {
-                                put(id, EmoteDimensions(id, dims.first, dims.second))
-                            }
+                            emoteCoordinator.dimensionCache.get(emote.urls.first())
                         }
 
                         else -> {
                             val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
-                            val dims = emoteCoordinator.dimensionCache.get(cacheKey)
-                            if (dims != null) {
-                                put(id, EmoteDimensions(id, dims.first, dims.second))
-                            }
+                            emoteCoordinator.dimensionCache.get(cacheKey)
                         }
+                    }
+                    if (dims != null) {
+                        put(id, EmoteDimensions(id, dims.first, dims.second))
                     }
                 }
             }.toImmutableMap()
