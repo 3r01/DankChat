@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -67,9 +68,7 @@ class DankChatApplication :
 
         connectionCoordinator.initialize()
 
-        scope.launch(dispatchersProvider.immediate) {
-            setupThemeMode()
-        }
+        setupThemeMode()
 
         highlightsRepository.runMigrationsIfNeeded()
         ignoresRepository.runMigrationsIfNeeded()
@@ -78,15 +77,13 @@ class DankChatApplication :
         }
     }
 
-    private suspend fun setupThemeMode() {
-        val theme = appearanceSettingsDataStore.settings.first().theme
-
-        val nightMode =
-            when {
-                theme == Dark -> AppCompatDelegate.MODE_NIGHT_YES
-                theme == System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                else -> AppCompatDelegate.MODE_NIGHT_NO
-            }
+    private fun setupThemeMode() {
+        val theme = runBlocking { appearanceSettingsDataStore.settings.first().theme }
+        val nightMode = when (theme) {
+            Dark -> AppCompatDelegate.MODE_NIGHT_YES
+            System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            else -> AppCompatDelegate.MODE_NIGHT_NO
+        }
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 

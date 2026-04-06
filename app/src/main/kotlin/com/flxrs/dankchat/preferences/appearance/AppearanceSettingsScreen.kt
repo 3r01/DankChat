@@ -1,6 +1,11 @@
 package com.flxrs.dankchat.preferences.appearance
 
 import android.content.Context
+import android.content.res.Configuration
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.compose.LocalActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -270,6 +275,7 @@ private fun ThemeCategory(
     paletteStyle: PaletteStylePreference,
     onInteraction: suspend (AppearanceSettingsInteraction) -> Unit,
 ) {
+    val activity = LocalActivity.current as? ComponentActivity
     val scope = rememberCoroutineScope()
     val themeState = rememberThemeState(theme, trueDarkTheme, isSystemInDarkTheme())
     val hasCustomAccent = accentColor != null
@@ -283,10 +289,10 @@ private fun ThemeCategory(
             values = themeState.values,
             entries = themeState.entries,
             selected = themeState.preference,
-            onChange = {
+            onChange = { preference ->
                 scope.launch {
-                    onInteraction(Theme(it))
-                    setDarkMode(it)
+                    onInteraction(Theme(preference))
+                    setDarkMode(activity, preference)
                 }
             },
         )
@@ -587,7 +593,10 @@ private fun PaletteStyleRow(
     }
 }
 
-private fun setDarkMode(themePreference: ThemePreference) {
+private fun setDarkMode(
+    activity: ComponentActivity?,
+    themePreference: ThemePreference,
+) {
     AppCompatDelegate.setDefaultNightMode(
         when (themePreference) {
             ThemePreference.System -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -595,4 +604,17 @@ private fun setDarkMode(themePreference: ThemePreference) {
             ThemePreference.Light -> AppCompatDelegate.MODE_NIGHT_NO
         },
     )
+
+    activity ?: return
+    val systemDark = (activity.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+    val isDark = when (themePreference) {
+        ThemePreference.Dark -> true
+        ThemePreference.Light -> false
+        ThemePreference.System -> systemDark
+    }
+    val barStyle = when {
+        isDark -> SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        else -> SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+    }
+    activity.enableEdgeToEdge(statusBarStyle = barStyle, navigationBarStyle = barStyle)
 }

@@ -35,7 +35,8 @@ compose-icons = "1.7.8"
 compose-materia3 = "1.5.0-alpha16"
 compose-material3-adaptive = "1.2.0"
 compose-unstyled = "1.49.6"
-material = "1.13.0"
+appcompat = "1.7.0"
+splashscreen = "1.0.1"
 flexBox = "3.0.0"
 autoLinkText = "2.0.2"
 
@@ -60,7 +61,8 @@ turbine = "1.2.0"
 
 [libraries]
 android-desugar-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "androidDesugarLibs" }
-android-material = { module = "com.google.android.material:material", version.ref = "material" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splashscreen" }
 android-flexbox = { module = "com.google.android.flexbox:flexbox", version.ref = "flexBox" }
 
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }

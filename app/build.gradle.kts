@@ -178,8 +178,9 @@ dependencies {
     implementation(libs.compose.unstyled)
     implementation(libs.compose.material3.adaptive)
 
-    // Material
-    implementation(libs.android.material)
+    // Theme & splash
+    implementation(libs.appcompat)
+    implementation(libs.splashscreen)
     implementation(libs.android.flexbox)
 
     // Dependency injection
