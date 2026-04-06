@@ -90,15 +90,9 @@ class ChatViewModel(
 
             val zone = ZoneId.systemDefault()
             val result = ArrayList<ChatMessageUiState>(messages.size + 8)
-            var messageCount = 0
-
             for (index in messages.indices) {
                 val item = messages[index]
-                val isAlternateBackground =
-                    when (index) {
-                        messages.lastIndex -> messageCount++.isEven
-                        else -> (index - messages.size - 1).isEven
-                    }
+                val isAlternateBackground = index.isEven
                 val altBg = isAlternateBackground && appearanceSettings.checkeredMessages
                 val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
