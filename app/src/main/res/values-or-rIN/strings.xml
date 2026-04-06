@@ -459,7 +459,7 @@
     <string name="preference_channel_data_header">ଚ୍ୟାନେଲ ତଥ୍ୟ |</string>
     <string name="preference_developer_header">ଡେଵେଲପର୍ ଵିକଳ୍ପ</string>
     <string name="preference_debug_mode_title">କିବଗ୍ ମୋଡ୍ |</string>
-    <string name="preference_debug_mode_summary">ଇନପୁଟ ବାରରେ ଡିବଗ ଆନାଲିଟିକ୍ସ କାର୍ଯ୍ୟ ଦେଖାନ୍ତୁ</string>
+    <string name="preference_debug_mode_summary">ଇନପୁଟ ବାରରେ ଡିବଗ ଆନାଲିଟିକ୍ସ କାର୍ଯ୍ୟ ଦେଖାନ୍ତୁ ଏବଂ ସ୍ଥାନୀୟ ଭାବରେ କ୍ର୍ୟାସ ରିପୋର୍ଟ ସଂଗ୍ରହ କରନ୍ତୁ</string>
     <string name="preference_timestamp_format_title">ଟାଇମଷ୍ଟ୍ୟାମ୍ପ ଫର୍ମାଟ୍ |</string>
     <string name="preference_tts_title">TTS ସକ୍ଷମ କରନ୍ତୁ |</string>
     <string name="preference_tts_summary">ସକ୍ରିୟ ଚ୍ୟାନେଲର ବାର୍ତ୍ତା ପ Read ଼େ |</string>
@@ -859,5 +859,26 @@
     <string name="log_viewer_selected_count">%1$d ଚୟନ ହୋଇଛି</string>
     <string name="log_viewer_copy_selection">ଚୟନିତ ଲଗ୍ କପି କରନ୍ତୁ</string>
     <string name="log_viewer_clear_selection">ଚୟନ ସଫା କରନ୍ତୁ</string>
+    <string name="crash_report_title">କ୍ର୍ୟାସ ଚିହ୍ନଟ ହୋଇଛି</string>
+    <string name="crash_report_message">ଆପଣଙ୍କ ଶେଷ ସେସନ୍ ସମୟରେ ଆପ୍ କ୍ର୍ୟାସ ହୋଇଥିଲା।</string>
+    <string name="crash_report_thread">ଥ୍ରେଡ୍: %1$s</string>
+    <string name="crash_report_copy">କପି</string>
+    <string name="crash_report_send">ଚ୍ୟାଟ୍ ରିପୋର୍ଟ</string>
+    <string name="crash_report_send_description">#flex3rs ରେ ଯୋଗ ଦେଇ ପଠାଇବା ପାଇଁ ଏକ କ୍ର୍ୟାସ ସାରାଂଶ ପ୍ରସ୍ତୁତ କରେ</string>
+    <string name="crash_report_email">ଇମେଲ୍ ରିପୋର୍ଟ</string>
+    <string name="crash_report_email_description">ଇମେଲ୍ ମାଧ୍ୟମରେ ଏକ ବିସ୍ତୃତ କ୍ର୍ୟାସ ରିପୋର୍ଟ ପଠାନ୍ତୁ</string>
+    <string name="crash_email_confirm_title">ଇମେଲ୍ ମାଧ୍ୟମରେ କ୍ର୍ୟାସ ରିପୋର୍ଟ ପଠାନ୍ତୁ</string>
+    <string name="crash_email_confirm_message">ନିମ୍ନଲିଖିତ ତଥ୍ୟ ରିପୋର୍ଟରେ ଅନ୍ତର୍ଭୁକ୍ତ ହେବ:</string>
+    <string name="crash_email_confirm_stacktrace">ଷ୍ଟାକ୍ ଟ୍ରେସ୍</string>
+    <string name="crash_email_confirm_include_logs">ବର୍ତ୍ତମାନର ଲଗ୍ ଫାଇଲ୍ ଅନ୍ତର୍ଭୁକ୍ତ କରନ୍ତୁ</string>
+    <string name="preference_crash_viewer_title">କ୍ର୍ୟାସ ରିପୋର୍ଟ</string>
+    <string name="preference_crash_viewer_summary">ସାମ୍ପ୍ରତିକ କ୍ର୍ୟାସ ରିପୋର୍ଟ ଦେଖନ୍ତୁ</string>
+    <string name="preference_crash_viewer_empty">କୌଣସି କ୍ର୍ୟାସ ରିପୋର୍ଟ ମିଳିଲା ନାହିଁ</string>
+    <string name="crash_viewer_title">କ୍ର୍ୟାସ ରିପୋର୍ଟ</string>
+    <string name="crash_viewer_share">କ୍ର୍ୟାସ ରିପୋର୍ଟ ସେୟାର କରନ୍ତୁ</string>
+    <string name="crash_viewer_delete">ଡିଲିଟ୍</string>
+    <string name="crash_viewer_delete_confirm">ଏହି କ୍ର୍ୟାସ ରିପୋର୍ଟ ଡିଲିଟ୍ କରିବେ?</string>
+    <string name="crash_viewer_clear_all">ସବୁ ସଫା କରନ୍ତୁ</string>
+    <string name="crash_viewer_clear_all_confirm">ସବୁ କ୍ର୍ୟାସ ରିପୋର୍ଟ ଡିଲିଟ୍ କରିବେ?</string>
     <string name="scroll_to_bottom">ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ</string>
 </resources>

@@ -328,7 +328,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_channel_data_header">Datos del canal</string>
     <string name="preference_developer_header">Opciones de desarrollador</string>
     <string name="preference_debug_mode_title">Modo depuración</string>
-    <string name="preference_debug_mode_summary">Mostrar acción de análisis de depuración en la barra de entrada</string>
+    <string name="preference_debug_mode_summary">Mostrar acción de análisis de depuración en la barra de entrada y recopilar informes de crash localmente</string>
     <string name="preference_timestamp_format_title">Formato del tiempo</string>
     <string name="preference_tts_title">Activar TTS</string>
     <string name="preference_tts_summary">Lee en voz alta mensajes del canal activo</string>
@@ -887,5 +887,26 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="log_viewer_selected_count">%1$d seleccionados</string>
     <string name="log_viewer_copy_selection">Copiar registros seleccionados</string>
     <string name="log_viewer_clear_selection">Borrar selección</string>
+    <string name="crash_report_title">Crash detectado</string>
+    <string name="crash_report_message">La aplicación se bloqueó durante tu última sesión.</string>
+    <string name="crash_report_thread">Hilo: %1$s</string>
+    <string name="crash_report_copy">Copiar</string>
+    <string name="crash_report_send">Informe por chat</string>
+    <string name="crash_report_send_description">Se une a #flex3rs y prepara un resumen del crash para enviar</string>
+    <string name="crash_report_email">Informe por correo</string>
+    <string name="crash_report_email_description">Enviar un informe de crash detallado por correo electrónico</string>
+    <string name="crash_email_confirm_title">Enviar informe de crash por correo electrónico</string>
+    <string name="crash_email_confirm_message">Los siguientes datos se incluirán en el informe:</string>
+    <string name="crash_email_confirm_stacktrace">Traza de pila</string>
+    <string name="crash_email_confirm_include_logs">Incluir archivo de registro actual</string>
+    <string name="preference_crash_viewer_title">Informes de crash</string>
+    <string name="preference_crash_viewer_summary">Ver informes de crash recientes</string>
+    <string name="preference_crash_viewer_empty">No se encontraron informes de crash</string>
+    <string name="crash_viewer_title">Informe de crash</string>
+    <string name="crash_viewer_share">Compartir informe de crash</string>
+    <string name="crash_viewer_delete">Eliminar</string>
+    <string name="crash_viewer_delete_confirm">¿Eliminar este informe de crash?</string>
+    <string name="crash_viewer_clear_all">Borrar todo</string>
+    <string name="crash_viewer_clear_all_confirm">¿Eliminar todos los informes de crash?</string>
     <string name="scroll_to_bottom">Desplazar hacia abajo</string>
 </resources>

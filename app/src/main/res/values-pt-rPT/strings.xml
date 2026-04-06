@@ -322,7 +322,7 @@
     <string name="preference_channel_data_header">Dados do canal</string>
     <string name="preference_developer_header">Opções de programador</string>
     <string name="preference_debug_mode_title">Modo de depuração</string>
-    <string name="preference_debug_mode_summary">Mostrar ação de análise de depuração na barra de introdução</string>
+    <string name="preference_debug_mode_summary">Mostrar ação de análise de depuração na barra de introdução e recolher relatórios de crash localmente</string>
     <string name="preference_timestamp_format_title">Formato do carimbo da hora</string>
     <string name="preference_tts_title">Habilitar TTS</string>
     <string name="preference_tts_summary">Lê as mensagens do canal ativo</string>
@@ -856,5 +856,26 @@
     <string name="log_viewer_selected_count">%1$d selecionados</string>
     <string name="log_viewer_copy_selection">Copiar registos selecionados</string>
     <string name="log_viewer_clear_selection">Limpar seleção</string>
+    <string name="crash_report_title">Crash detetado</string>
+    <string name="crash_report_message">A aplicação bloqueou durante a sua última sessão.</string>
+    <string name="crash_report_thread">Thread: %1$s</string>
+    <string name="crash_report_copy">Copiar</string>
+    <string name="crash_report_send">Relatório por chat</string>
+    <string name="crash_report_send_description">Entra em #flex3rs e prepara um resumo do crash para enviar</string>
+    <string name="crash_report_email">Relatório por e-mail</string>
+    <string name="crash_report_email_description">Enviar um relatório detalhado do crash por e-mail</string>
+    <string name="crash_email_confirm_title">Enviar relatório do crash por e-mail</string>
+    <string name="crash_email_confirm_message">Os seguintes dados serão incluídos no relatório:</string>
+    <string name="crash_email_confirm_stacktrace">Rastreamento de pilha</string>
+    <string name="crash_email_confirm_include_logs">Incluir ficheiro de registo atual</string>
+    <string name="preference_crash_viewer_title">Relatórios de crash</string>
+    <string name="preference_crash_viewer_summary">Ver relatórios de crash recentes</string>
+    <string name="preference_crash_viewer_empty">Nenhum relatório de crash encontrado</string>
+    <string name="crash_viewer_title">Relatório de crash</string>
+    <string name="crash_viewer_share">Partilhar relatório de crash</string>
+    <string name="crash_viewer_delete">Eliminar</string>
+    <string name="crash_viewer_delete_confirm">Eliminar este relatório de crash?</string>
+    <string name="crash_viewer_clear_all">Limpar tudo</string>
+    <string name="crash_viewer_clear_all_confirm">Eliminar todos os relatórios de crash?</string>
     <string name="scroll_to_bottom">Deslocar para baixo</string>
 </resources>

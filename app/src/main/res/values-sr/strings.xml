@@ -421,7 +421,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_channel_data_header">Podaci o kanalu</string>
     <string name="preference_developer_header">Programerska podešavanja</string>
     <string name="preference_debug_mode_title">Debug mod</string>
-    <string name="preference_debug_mode_summary">Прикажи акцију аналитике за отклањање грешака у траци за унос</string>
+    <string name="preference_debug_mode_summary">Прикажи акцију аналитике за отклањање грешака у траци за унос и локално прикупљај извештаје о падовима</string>
     <string name="preference_timestamp_format_title">Format vremenskih markica</string>
     <string name="preference_tts_title">Omogući čitanje (tekst u govor)</string>
     <string name="preference_tts_summary">Čita poruke aktivnog kanala</string>
@@ -907,5 +907,26 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="log_viewer_selected_count">%1$d изабрано</string>
     <string name="log_viewer_copy_selection">Копирај изабране логове</string>
     <string name="log_viewer_clear_selection">Обриши избор</string>
+    <string name="crash_report_title">Откривен пад</string>
+    <string name="crash_report_message">Апликација се срушила током последње сесије.</string>
+    <string name="crash_report_thread">Нит: %1$s</string>
+    <string name="crash_report_copy">Копирај</string>
+    <string name="crash_report_send">Извештај у чату</string>
+    <string name="crash_report_send_description">Придружује се каналу #flex3rs и припрема сажетак пада за слање</string>
+    <string name="crash_report_email">Извештај путем е-поште</string>
+    <string name="crash_report_email_description">Пошаљи детаљан извештај о паду путем е-поште</string>
+    <string name="crash_email_confirm_title">Пошаљи извештај о паду путем е-поште</string>
+    <string name="crash_email_confirm_message">Следећи подаци ће бити укључени у извештај:</string>
+    <string name="crash_email_confirm_stacktrace">Трага стека</string>
+    <string name="crash_email_confirm_include_logs">Укључи тренутни лог фајл</string>
+    <string name="preference_crash_viewer_title">Извештаји о падовима</string>
+    <string name="preference_crash_viewer_summary">Прегледај недавне извештаје о падовима</string>
+    <string name="preference_crash_viewer_empty">Нису пронађени извештаји о падовима</string>
+    <string name="crash_viewer_title">Извештај о паду</string>
+    <string name="crash_viewer_share">Подели извештај о паду</string>
+    <string name="crash_viewer_delete">Обриши</string>
+    <string name="crash_viewer_delete_confirm">Обрисати овај извештај о паду?</string>
+    <string name="crash_viewer_clear_all">Обриши све</string>
+    <string name="crash_viewer_clear_all_confirm">Обрисати све извештаје о падовима?</string>
     <string name="scroll_to_bottom">Помери на дно</string>
 </resources>

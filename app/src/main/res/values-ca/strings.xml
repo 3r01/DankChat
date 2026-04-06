@@ -331,7 +331,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_channel_data_header">Dades del canal</string>
     <string name="preference_developer_header">Opcions de desenvolupador</string>
     <string name="preference_debug_mode_title">Mode de depuració</string>
-    <string name="preference_debug_mode_summary">Mostra l\'acció d\'analítiques de depuració a la barra d\'entrada</string>
+    <string name="preference_debug_mode_summary">Mostra l\'acció d\'analítiques de depuració a la barra d\'entrada i recull informes d\'error localment</string>
     <string name="preference_timestamp_format_title">Format del temps</string>
     <string name="preference_tts_title">Activar TTS</string>
     <string name="preference_tts_summary">Llegeix en veu alta missatges del canal actiu</string>
@@ -903,5 +903,26 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="log_viewer_selected_count">%1$d seleccionats</string>
     <string name="log_viewer_copy_selection">Copia els registres seleccionats</string>
     <string name="log_viewer_clear_selection">Esborra la selecció</string>
+    <string name="crash_report_title">Error detectat</string>
+    <string name="crash_report_message">L\'aplicació s\'ha tancat inesperadament durant la darrera sessió.</string>
+    <string name="crash_report_thread">Fil: %1$s</string>
+    <string name="crash_report_copy">Copia</string>
+    <string name="crash_report_send">Informe per xat</string>
+    <string name="crash_report_send_description">S\'uneix a #flex3rs i prepara un resum de l\'error per enviar</string>
+    <string name="crash_report_email">Informe per correu</string>
+    <string name="crash_report_email_description">Envia un informe detallat de l\'error per correu electrònic</string>
+    <string name="crash_email_confirm_title">Enviar informe d\'error per correu electrònic</string>
+    <string name="crash_email_confirm_message">Les dades següents s\'inclouran a l\'informe:</string>
+    <string name="crash_email_confirm_stacktrace">Traça de la pila</string>
+    <string name="crash_email_confirm_include_logs">Inclou el fitxer de registre actual</string>
+    <string name="preference_crash_viewer_title">Informes d\'error</string>
+    <string name="preference_crash_viewer_summary">Veure els informes d\'error recents</string>
+    <string name="preference_crash_viewer_empty">No s\'han trobat informes d\'error</string>
+    <string name="crash_viewer_title">Informe d\'error</string>
+    <string name="crash_viewer_share">Comparteix l\'informe d\'error</string>
+    <string name="crash_viewer_delete">Elimina</string>
+    <string name="crash_viewer_delete_confirm">Eliminar aquest informe d\'error?</string>
+    <string name="crash_viewer_clear_all">Esborra-ho tot</string>
+    <string name="crash_viewer_clear_all_confirm">Eliminar tots els informes d\'error?</string>
     <string name="scroll_to_bottom">Desplaça cap avall</string>
 </resources>

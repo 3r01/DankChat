@@ -333,7 +333,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_channel_data_header">Data kanálu</string>
     <string name="preference_developer_header">Nastavení vývojáře</string>
     <string name="preference_debug_mode_title">Režim ladění</string>
-    <string name="preference_debug_mode_summary">Zobrazit akci ladící analytiky ve vstupním panelu</string>
+    <string name="preference_debug_mode_summary">Zobrazit akci ladící analytiky ve vstupním panelu a sbírat hlášení o pádech lokálně</string>
     <string name="preference_timestamp_format_title">Formát časových razítek</string>
     <string name="preference_tts_title">Povolit TTS</string>
     <string name="preference_tts_summary">Čte zprávy aktivního kanálu</string>
@@ -878,5 +878,26 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="log_viewer_selected_count">%1$d vybráno</string>
     <string name="log_viewer_copy_selection">Kopírovat vybrané logy</string>
     <string name="log_viewer_clear_selection">Zrušit výběr</string>
+    <string name="crash_report_title">Zjištěn pád</string>
+    <string name="crash_report_message">Aplikace spadla během poslední relace.</string>
+    <string name="crash_report_thread">Vlákno: %1$s</string>
+    <string name="crash_report_copy">Kopírovat</string>
+    <string name="crash_report_send">Hlášení přes chat</string>
+    <string name="crash_report_send_description">Připojí se k #flex3rs a připraví shrnutí pádu k odeslání</string>
+    <string name="crash_report_email">Hlášení e-mailem</string>
+    <string name="crash_report_email_description">Odeslat podrobné hlášení o pádu e-mailem</string>
+    <string name="crash_email_confirm_title">Odeslat hlášení o pádu e-mailem</string>
+    <string name="crash_email_confirm_message">Následující data budou zahrnuta v hlášení:</string>
+    <string name="crash_email_confirm_stacktrace">Stopa zásobníku</string>
+    <string name="crash_email_confirm_include_logs">Zahrnout aktuální soubor logů</string>
+    <string name="preference_crash_viewer_title">Hlášení o pádech</string>
+    <string name="preference_crash_viewer_summary">Zobrazit nedávná hlášení o pádech</string>
+    <string name="preference_crash_viewer_empty">Žádná hlášení o pádech nenalezena</string>
+    <string name="crash_viewer_title">Hlášení o pádu</string>
+    <string name="crash_viewer_share">Sdílet hlášení o pádu</string>
+    <string name="crash_viewer_delete">Smazat</string>
+    <string name="crash_viewer_delete_confirm">Smazat toto hlášení o pádu?</string>
+    <string name="crash_viewer_clear_all">Vymazat vše</string>
+    <string name="crash_viewer_clear_all_confirm">Smazat všechna hlášení o pádech?</string>
     <string name="scroll_to_bottom">Posunout dolů</string>
 </resources>

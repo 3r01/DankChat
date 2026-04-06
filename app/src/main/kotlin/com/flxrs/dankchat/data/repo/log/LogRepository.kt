@@ -30,6 +30,8 @@ class LogRepository(
         return file.takeIf { it.exists() }
     }
 
+    fun getLatestLogFile(): File? = getLogFiles().firstOrNull()
+
     fun deleteAllLogs() {
         if (logDir.exists()) {
             logDir.listFiles()?.forEach { it.delete() }

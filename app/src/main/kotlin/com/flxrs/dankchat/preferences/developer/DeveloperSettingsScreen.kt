@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.preferences.developer
 
 import android.content.ClipData
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,11 +26,13 @@ import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
@@ -66,9 +70,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.data.repo.log.LogRepository
 import com.flxrs.dankchat.preferences.components.ExpandablePreferenceItem
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
@@ -91,6 +97,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun DeveloperSettingsScreen(
     onBack: () -> Unit,
     onOpenLogViewer: (fileName: String) -> Unit = {},
+    onOpenCrashViewer: (crashId: Long) -> Unit = {},
 ) {
     val viewModel = koinViewModel<DeveloperSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
@@ -128,6 +135,7 @@ fun DeveloperSettingsScreen(
         onInteraction = { viewModel.onInteraction(it) },
         onBack = onBack,
         onOpenLogViewer = onOpenLogViewer,
+        onOpenCrashViewer = onOpenCrashViewer,
     )
 }
 
@@ -139,6 +147,7 @@ private fun DeveloperSettingsContent(
     onInteraction: (DeveloperSettingsInteraction) -> Unit,
     onBack: () -> Unit,
     onOpenLogViewer: (fileName: String) -> Unit,
+    onOpenCrashViewer: (crashId: Long) -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
@@ -225,6 +234,123 @@ private fun DeveloperSettingsContent(
                     isChecked = settings.debugMode,
                     onClick = { onInteraction(DeveloperSettingsInteraction.DebugMode(it)) },
                 )
+                val crashRepository: CrashRepository = koinInject()
+                var crashes by remember { mutableStateOf(crashRepository.getRecentCrashes()) }
+                ExpandablePreferenceItem(
+                    title = stringResource(R.string.preference_crash_viewer_title),
+                    summary = stringResource(R.string.preference_crash_viewer_summary),
+                    isEnabled = settings.debugMode,
+                ) {
+                    val scope = rememberCoroutineScope()
+                    val sheetState = rememberModalBottomSheetState()
+                    var confirmationState by remember { mutableStateOf<CrashDeleteConfirmation>(CrashDeleteConfirmation.None) }
+                    ModalBottomSheet(
+                        onDismissRequest = ::dismiss,
+                        sheetState = sheetState,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    ) {
+                        AnimatedContent(
+                            targetState = confirmationState,
+                            label = "CrashDeleteConfirmation",
+                        ) { state ->
+                            when (state) {
+                                is CrashDeleteConfirmation.None -> {
+                                    if (crashes.isEmpty()) {
+                                        Text(
+                                            text = stringResource(R.string.preference_crash_viewer_empty),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            modifier = Modifier.padding(16.dp),
+                                        )
+                                    } else {
+                                        Column {
+                                            TextButton(
+                                                onClick = { confirmationState = CrashDeleteConfirmation.All },
+                                                modifier = Modifier
+                                                    .align(Alignment.End)
+                                                    .padding(end = 8.dp),
+                                            ) {
+                                                Text(
+                                                    text = stringResource(R.string.crash_viewer_clear_all),
+                                                    color = MaterialTheme.colorScheme.error,
+                                                )
+                                            }
+                                            crashes.forEach { crash ->
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                    modifier =
+                                                        Modifier
+                                                            .fillMaxWidth()
+                                                            .clickable {
+                                                                scope.launch {
+                                                                    sheetState.hide()
+                                                                    dismiss()
+                                                                }
+                                                                onOpenCrashViewer(crash.id)
+                                                            }.padding(horizontal = 16.dp, vertical = 14.dp),
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.BugReport,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.error,
+                                                        modifier = Modifier.size(20.dp),
+                                                    )
+                                                    Column {
+                                                        Text(
+                                                            text = crash.exceptionHeader,
+                                                            style = MaterialTheme.typography.bodyMedium,
+                                                            maxLines = 1,
+                                                            overflow = TextOverflow.Ellipsis,
+                                                        )
+                                                        Text(
+                                                            text = crash.timestamp,
+                                                            style = MaterialTheme.typography.labelSmall,
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                is CrashDeleteConfirmation.All -> {
+                                    Column(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.crash_viewer_clear_all_confirm),
+                                            style = MaterialTheme.typography.bodyLarge,
+                                        )
+                                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            OutlinedButton(
+                                                onClick = { confirmationState = CrashDeleteConfirmation.None },
+                                                modifier = Modifier.weight(1f),
+                                            ) {
+                                                Text(stringResource(R.string.dialog_cancel))
+                                            }
+                                            Button(
+                                                onClick = {
+                                                    crashRepository.deleteAllCrashes()
+                                                    crashes = emptyList()
+                                                    confirmationState = CrashDeleteConfirmation.None
+                                                },
+                                                modifier = Modifier.weight(1f),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.error,
+                                                ),
+                                            ) {
+                                                Text(stringResource(R.string.crash_viewer_clear_all))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(32.dp))
+                    }
+                }
                 SwitchPreferenceItem(
                     title = stringResource(R.string.preference_repeated_sending_title),
                     summary = stringResource(R.string.preference_repeated_sending_summary),
@@ -560,4 +686,10 @@ private fun MissingScopesDialog(
         onConfirm = onContinue,
         onDismiss = onDismissRequest,
     )
+}
+
+private sealed interface CrashDeleteConfirmation {
+    data object None : CrashDeleteConfirmation
+
+    data object All : CrashDeleteConfirmation
 }

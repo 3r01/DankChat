@@ -1,8 +1,10 @@
 package com.flxrs.dankchat.ui.main.dialog
 
 import androidx.lifecycle.ViewModel
+import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
@@ -11,14 +13,28 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class DialogStateViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
+    @Provided private val crashRepository: CrashRepository,
+    developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DialogState())
     val state: StateFlow<DialogState> = _state.asStateFlow()
+
+    init {
+        val debugMode = developerSettingsDataStore.current().debugMode
+        if (debugMode && crashRepository.hasUnshownCrash()) {
+            val crash = crashRepository.getMostRecentCrash()
+            if (crash != null) {
+                update { copy(crashEntry = crash) }
+            }
+            crashRepository.markCrashShown()
+        }
+    }
 
     // Channel dialogs
     fun showAddChannel() {
@@ -122,6 +138,16 @@ class DialogStateViewModel(
 
     fun dismissEmoteInfo() {
         update { copy(emoteInfoEmotes = null) }
+    }
+
+    // Crash report
+    fun dismissCrashReport() {
+        update { copy(crashEntry = null) }
+    }
+
+    fun getCrashReportMessage(): String? {
+        val entry = _state.value.crashEntry ?: return null
+        return crashRepository.buildCrashReportMessage(entry)
     }
 
     private inline fun update(crossinline transform: DialogState.() -> DialogState) {

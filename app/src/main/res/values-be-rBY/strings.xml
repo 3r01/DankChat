@@ -327,7 +327,7 @@
     <string name="preference_channel_data_header">Дадзеныя канала</string>
     <string name="preference_developer_header">Налады для распрацоўшчыкаў</string>
     <string name="preference_debug_mode_title">Рэжым адладкі</string>
-    <string name="preference_debug_mode_summary">Паказваць дзеянне адладкавай аналітыкі ў панэлі ўводу</string>
+    <string name="preference_debug_mode_summary">Паказваць дзеянне адладкавай аналітыкі ў панэлі ўводу і збіраць справаздачы пра збоі лакальна</string>
     <string name="preference_timestamp_format_title">Фармат часавых пазнак</string>
     <string name="preference_tts_title">Уключыць сінтэзатар гаворкі</string>
     <string name="preference_tts_summary">Зачытвае паведамленні актыўнага канала</string>
@@ -878,5 +878,26 @@
     <string name="log_viewer_selected_count">Выбрана: %1$d</string>
     <string name="log_viewer_copy_selection">Капіраваць выбраныя логі</string>
     <string name="log_viewer_clear_selection">Ачысціць выбар</string>
+    <string name="crash_report_title">Выяўлены збой</string>
+    <string name="crash_report_message">Праграма аварыйна завяршылася падчас апошняга сеансу.</string>
+    <string name="crash_report_thread">Паток: %1$s</string>
+    <string name="crash_report_copy">Капіраваць</string>
+    <string name="crash_report_send">Справаздача ў чат</string>
+    <string name="crash_report_send_description">Далучаецца да #flex3rs і рыхтуе зводку збою для адпраўкі</string>
+    <string name="crash_report_email">Справаздача па эл. пошце</string>
+    <string name="crash_report_email_description">Адправіць падрабязную справаздачу пра збой па электроннай пошце</string>
+    <string name="crash_email_confirm_title">Адправіць справаздачу пра збой па электроннай пошце</string>
+    <string name="crash_email_confirm_message">Наступныя дадзеныя будуць уключаны ў справаздачу:</string>
+    <string name="crash_email_confirm_stacktrace">Стэк выклікаў</string>
+    <string name="crash_email_confirm_include_logs">Уключыць бягучы файл журнала</string>
+    <string name="preference_crash_viewer_title">Справаздачы пра збоі</string>
+    <string name="preference_crash_viewer_summary">Прагляд апошніх справаздач пра збоі</string>
+    <string name="preference_crash_viewer_empty">Справаздачы пра збоі не знойдзены</string>
+    <string name="crash_viewer_title">Справаздача пра збой</string>
+    <string name="crash_viewer_share">Падзяліцца справаздачай пра збой</string>
+    <string name="crash_viewer_delete">Выдаліць</string>
+    <string name="crash_viewer_delete_confirm">Выдаліць гэту справаздачу пра збой?</string>
+    <string name="crash_viewer_clear_all">Ачысціць усё</string>
+    <string name="crash_viewer_clear_all_confirm">Выдаліць усе справаздачы пра збоі?</string>
     <string name="scroll_to_bottom">Пракруціць уніз</string>
 </resources>

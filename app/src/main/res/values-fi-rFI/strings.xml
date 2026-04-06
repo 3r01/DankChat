@@ -323,7 +323,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_channel_data_header">Kanavatiedot</string>
     <string name="preference_developer_header">Kehittäjävaihtoehdot</string>
     <string name="preference_debug_mode_title">Virheenkorjaustila</string>
-    <string name="preference_debug_mode_summary">Näytä virheenkorjausanalytiikkatoiminto syöttöpalkissa</string>
+    <string name="preference_debug_mode_summary">Näytä virheenkorjausanalytiikkatoiminto syöttöpalkissa ja kerää kaatumisraportit paikallisesti</string>
     <string name="preference_timestamp_format_title">Aikaleiman muoto</string>
     <string name="preference_tts_title">Ota TTS käyttöön</string>
     <string name="preference_tts_summary">Lukee ääneen aktiivisen kanavan viestit</string>
@@ -878,5 +878,26 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="log_viewer_selected_count">%1$d valittu</string>
     <string name="log_viewer_copy_selection">Kopioi valitut lokit</string>
     <string name="log_viewer_clear_selection">Tyhjennä valinta</string>
+    <string name="crash_report_title">Kaatuminen havaittu</string>
+    <string name="crash_report_message">Sovellus kaatui viimeisen istunnon aikana.</string>
+    <string name="crash_report_thread">Säie: %1$s</string>
+    <string name="crash_report_copy">Kopioi</string>
+    <string name="crash_report_send">Raportti chatissa</string>
+    <string name="crash_report_send_description">Liittyy kanavalle #flex3rs ja valmistelee kaatumisyhteenvedon lähetettäväksi</string>
+    <string name="crash_report_email">Sähköpostiraportti</string>
+    <string name="crash_report_email_description">Lähetä yksityiskohtainen kaatumisraportti sähköpostilla</string>
+    <string name="crash_email_confirm_title">Lähetä kaatumisraportti sähköpostilla</string>
+    <string name="crash_email_confirm_message">Seuraavat tiedot sisällytetään raporttiin:</string>
+    <string name="crash_email_confirm_stacktrace">Pinojälki</string>
+    <string name="crash_email_confirm_include_logs">Sisällytä nykyinen lokitiedosto</string>
+    <string name="preference_crash_viewer_title">Kaatumisraportit</string>
+    <string name="preference_crash_viewer_summary">Näytä viimeisimmät kaatumisraportit</string>
+    <string name="preference_crash_viewer_empty">Kaatumisraportteja ei löytynyt</string>
+    <string name="crash_viewer_title">Kaatumisraportti</string>
+    <string name="crash_viewer_share">Jaa kaatumisraportti</string>
+    <string name="crash_viewer_delete">Poista</string>
+    <string name="crash_viewer_delete_confirm">Poistetaanko tämä kaatumisraportti?</string>
+    <string name="crash_viewer_clear_all">Tyhjennä kaikki</string>
+    <string name="crash_viewer_clear_all_confirm">Poistetaanko kaikki kaatumisraportit?</string>
     <string name="scroll_to_bottom">Vieritä alas</string>
 </resources>

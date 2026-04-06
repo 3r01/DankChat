@@ -13,12 +13,15 @@ import coil3.network.cachecontrol.CacheControlCacheStrategy
 import coil3.network.ktor3.KtorNetworkFetcherFactory
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository
+import com.flxrs.dankchat.data.repo.crash.CrashHandler
+import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.di.DankChatModule
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.domain.ConnectionCoordinator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.System
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.tryClearEmptyFiles
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -30,6 +33,7 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.dsl.module
 import org.koin.ksp.generated.module
 
 class DankChatApplication :
@@ -42,12 +46,23 @@ class DankChatApplication :
     private val ignoresRepository: IgnoresRepository by inject()
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore by inject()
     private val connectionCoordinator: ConnectionCoordinator by inject()
+    private val developerSettingsDataStore: DeveloperSettingsDataStore by inject()
 
     override fun onCreate() {
         super.onCreate()
+        val crashHandler = CrashHandler(
+            context = this,
+            isCrashReportingEnabled = { developerSettingsDataStore.current().debugMode },
+        )
+        crashHandler.install()
         startKoin {
             androidContext(this@DankChatApplication)
-            modules(DankChatModule().module)
+            modules(
+                DankChatModule().module,
+                module {
+                    single { CrashRepository(crashHandler.dataStore) }
+                },
+            )
         }
 
         connectionCoordinator.initialize()

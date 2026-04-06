@@ -330,7 +330,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_channel_data_header">Dane kanału</string>
     <string name="preference_developer_header">Opcje deweloperskie</string>
     <string name="preference_debug_mode_title">Tryb debugowania</string>
-    <string name="preference_debug_mode_summary">Pokaż akcję analityki debugowania na pasku wprowadzania</string>
+    <string name="preference_debug_mode_summary">Pokaż akcję analityki debugowania na pasku wprowadzania i zbieraj raporty o awariach lokalnie</string>
     <string name="preference_timestamp_format_title">Format znacznika czasu</string>
     <string name="preference_tts_title">Włącz TTS</string>
     <string name="preference_tts_summary">Odczytuje na głos wiadomości aktywnego kanału</string>
@@ -896,5 +896,26 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="log_viewer_selected_count">Wybrano %1$d</string>
     <string name="log_viewer_copy_selection">Kopiuj wybrane logi</string>
     <string name="log_viewer_clear_selection">Wyczyść zaznaczenie</string>
+    <string name="crash_report_title">Wykryto awarię</string>
+    <string name="crash_report_message">Aplikacja uległa awarii podczas ostatniej sesji.</string>
+    <string name="crash_report_thread">Wątek: %1$s</string>
+    <string name="crash_report_copy">Kopiuj</string>
+    <string name="crash_report_send">Raport na czacie</string>
+    <string name="crash_report_send_description">Dołącza do #flex3rs i przygotowuje podsumowanie awarii do wysłania</string>
+    <string name="crash_report_email">Raport e-mail</string>
+    <string name="crash_report_email_description">Wyślij szczegółowy raport o awarii e-mailem</string>
+    <string name="crash_email_confirm_title">Wyślij raport o awarii e-mailem</string>
+    <string name="crash_email_confirm_message">Następujące dane zostaną zawarte w raporcie:</string>
+    <string name="crash_email_confirm_stacktrace">Ślad stosu</string>
+    <string name="crash_email_confirm_include_logs">Dołącz bieżący plik logów</string>
+    <string name="preference_crash_viewer_title">Raporty o awariach</string>
+    <string name="preference_crash_viewer_summary">Przeglądaj ostatnie raporty o awariach</string>
+    <string name="preference_crash_viewer_empty">Nie znaleziono raportów o awariach</string>
+    <string name="crash_viewer_title">Raport o awarii</string>
+    <string name="crash_viewer_share">Udostępnij raport o awarii</string>
+    <string name="crash_viewer_delete">Usuń</string>
+    <string name="crash_viewer_delete_confirm">Usunąć ten raport o awarii?</string>
+    <string name="crash_viewer_clear_all">Wyczyść wszystko</string>
+    <string name="crash_viewer_clear_all_confirm">Usunąć wszystkie raporty o awariach?</string>
     <string name="scroll_to_bottom">Przewiń na dół</string>
 </resources>

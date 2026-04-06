@@ -287,7 +287,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_channel_data_header">Channel data</string>
     <string name="preference_developer_header">Developer options</string>
     <string name="preference_debug_mode_title">Debug mode</string>
-    <string name="preference_debug_mode_summary">Show debug analytics action in input bar</string>
+    <string name="preference_debug_mode_summary">Show debug analytics action in input bar and collect crash reports locally</string>
     <string name="preference_timestamp_format_title">Timestamp format</string>
     <string name="preference_tts_title">Enable TTS</string>
     <string name="preference_tts_summary">Reads out messages of the active channel</string>
@@ -856,5 +856,26 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="log_viewer_selected_count">%1$d selected</string>
     <string name="log_viewer_copy_selection">Copy selected logs</string>
     <string name="log_viewer_clear_selection">Clear selection</string>
+    <string name="crash_report_title">Crash detected</string>
+    <string name="crash_report_message">The app crashed during your last session.</string>
+    <string name="crash_report_thread">Thread: %1$s</string>
+    <string name="crash_report_copy">Copy</string>
+    <string name="crash_report_send">Chat report</string>
+    <string name="crash_report_send_description">Joins #flex3rs and prepares a crash summary to send</string>
+    <string name="crash_report_email">Email report</string>
+    <string name="crash_report_email_description">Send a detailed crash report via email</string>
+    <string name="crash_email_confirm_title">Send crash report via email</string>
+    <string name="crash_email_confirm_message">The following data will be included in the report:</string>
+    <string name="crash_email_confirm_stacktrace">Stack trace</string>
+    <string name="crash_email_confirm_include_logs">Include current log file</string>
+    <string name="preference_crash_viewer_title">Crash reports</string>
+    <string name="preference_crash_viewer_summary">View recent crash reports</string>
+    <string name="preference_crash_viewer_empty">No crash reports found</string>
+    <string name="crash_viewer_title">Crash Report</string>
+    <string name="crash_viewer_share">Share crash report</string>
+    <string name="crash_viewer_delete">Delete</string>
+    <string name="crash_viewer_delete_confirm">Delete this crash report?</string>
+    <string name="crash_viewer_clear_all">Clear all</string>
+    <string name="crash_viewer_clear_all_confirm">Delete all crash reports?</string>
     <string name="scroll_to_bottom">Scroll to bottom</string>
 </resources>

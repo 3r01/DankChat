@@ -461,7 +461,7 @@
     <string name="preference_channel_data_header">頻道資訊</string>
     <string name="preference_developer_header">開發者選項</string>
     <string name="preference_debug_mode_title">除錯模式</string>
-    <string name="preference_debug_mode_summary">在輸入欄中顯示除錯分析操作</string>
+    <string name="preference_debug_mode_summary">在輸入欄中顯示除錯分析操作並在本機收集當機報告</string>
     <string name="preference_timestamp_format_title">時間戳記格式</string>
     <string name="preference_tts_title">啟用文字朗讀</string>
     <string name="preference_tts_summary">朗讀目前選取頻道的訊息</string>
@@ -860,5 +860,26 @@
     <string name="log_viewer_selected_count">已選取 %1$d 項</string>
     <string name="log_viewer_copy_selection">複製選取的日誌</string>
     <string name="log_viewer_clear_selection">清除選取</string>
+    <string name="crash_report_title">偵測到當機</string>
+    <string name="crash_report_message">應用程式在您上次使用期間當機。</string>
+    <string name="crash_report_thread">執行緒：%1$s</string>
+    <string name="crash_report_copy">複製</string>
+    <string name="crash_report_send">聊天報告</string>
+    <string name="crash_report_send_description">加入 #flex3rs 並準備當機摘要以傳送</string>
+    <string name="crash_report_email">電郵報告</string>
+    <string name="crash_report_email_description">透過電子郵件傳送詳細的當機報告</string>
+    <string name="crash_email_confirm_title">透過電子郵件傳送當機報告</string>
+    <string name="crash_email_confirm_message">以下資料將包含在報告中：</string>
+    <string name="crash_email_confirm_stacktrace">堆疊追蹤</string>
+    <string name="crash_email_confirm_include_logs">包含目前的記錄檔</string>
+    <string name="preference_crash_viewer_title">當機報告</string>
+    <string name="preference_crash_viewer_summary">檢視最近的當機報告</string>
+    <string name="preference_crash_viewer_empty">找不到當機報告</string>
+    <string name="crash_viewer_title">當機報告</string>
+    <string name="crash_viewer_share">分享當機報告</string>
+    <string name="crash_viewer_delete">刪除</string>
+    <string name="crash_viewer_delete_confirm">刪除此當機報告？</string>
+    <string name="crash_viewer_clear_all">全部清除</string>
+    <string name="crash_viewer_clear_all_confirm">刪除所有當機報告？</string>
     <string name="scroll_to_bottom">捲動至底部</string>
 </resources>

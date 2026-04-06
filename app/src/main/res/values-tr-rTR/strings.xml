@@ -322,7 +322,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_channel_data_header">Kanal verisi</string>
     <string name="preference_developer_header">Geliştirici seçenekleri</string>
     <string name="preference_debug_mode_title">Hata ayıklama modu</string>
-    <string name="preference_debug_mode_summary">Giriş çubuğunda hata ayıklama analitik eylemini göster</string>
+    <string name="preference_debug_mode_summary">Giriş çubuğunda hata ayıklama analitik eylemini göster ve çökme raporlarını yerel olarak topla</string>
     <string name="preference_timestamp_format_title">Zaman damgası biçimi</string>
     <string name="preference_tts_title">TTS\'i etkinleştir</string>
     <string name="preference_tts_summary">Etkin kanalın mesajlarını okur</string>
@@ -875,5 +875,26 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="log_viewer_selected_count">%1$d seçili</string>
     <string name="log_viewer_copy_selection">Seçili günlükleri kopyala</string>
     <string name="log_viewer_clear_selection">Seçimi temizle</string>
+    <string name="crash_report_title">Çökme algılandı</string>
+    <string name="crash_report_message">Uygulama son oturumunuz sırasında çöktü.</string>
+    <string name="crash_report_thread">İş parçacığı: %1$s</string>
+    <string name="crash_report_copy">Kopyala</string>
+    <string name="crash_report_send">Sohbet raporu</string>
+    <string name="crash_report_send_description">#flex3rs kanalına katılır ve göndermek için bir çökme özeti hazırlar</string>
+    <string name="crash_report_email">E-posta raporu</string>
+    <string name="crash_report_email_description">Ayrıntılı bir çökme raporunu e-posta ile gönder</string>
+    <string name="crash_email_confirm_title">Çökme raporunu e-posta ile gönder</string>
+    <string name="crash_email_confirm_message">Aşağıdaki veriler rapora dahil edilecektir:</string>
+    <string name="crash_email_confirm_stacktrace">Yığın izleme</string>
+    <string name="crash_email_confirm_include_logs">Mevcut günlük dosyasını dahil et</string>
+    <string name="preference_crash_viewer_title">Çökme raporları</string>
+    <string name="preference_crash_viewer_summary">Son çökme raporlarını görüntüle</string>
+    <string name="preference_crash_viewer_empty">Çökme raporu bulunamadı</string>
+    <string name="crash_viewer_title">Çökme Raporu</string>
+    <string name="crash_viewer_share">Çökme raporunu paylaş</string>
+    <string name="crash_viewer_delete">Sil</string>
+    <string name="crash_viewer_delete_confirm">Bu çökme raporu silinsin mi?</string>
+    <string name="crash_viewer_clear_all">Tümünü temizle</string>
+    <string name="crash_viewer_clear_all_confirm">Tüm çökme raporları silinsin mi?</string>
     <string name="scroll_to_bottom">En alta kaydır</string>
 </resources>

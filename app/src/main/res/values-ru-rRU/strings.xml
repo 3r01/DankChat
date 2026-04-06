@@ -332,7 +332,7 @@
     <string name="preference_channel_data_header">Данные канала</string>
     <string name="preference_developer_header">Настройки разработчика</string>
     <string name="preference_debug_mode_title">Режим отладки</string>
-    <string name="preference_debug_mode_summary">Показывать действие отладочной аналитики в панели ввода</string>
+    <string name="preference_debug_mode_summary">Показывать действие отладочной аналитики в панели ввода и собирать отчёты о сбоях локально</string>
     <string name="preference_timestamp_format_title">Формат временных меток</string>
     <string name="preference_tts_title">Включить синтезатор речи</string>
     <string name="preference_tts_summary">Зачитывает сообщения активного канала</string>
@@ -883,5 +883,26 @@
     <string name="log_viewer_selected_count">Выбрано: %1$d</string>
     <string name="log_viewer_copy_selection">Копировать выбранные журналы</string>
     <string name="log_viewer_clear_selection">Снять выделение</string>
+    <string name="crash_report_title">Обнаружен сбой</string>
+    <string name="crash_report_message">Приложение аварийно завершилось во время последнего сеанса.</string>
+    <string name="crash_report_thread">Поток: %1$s</string>
+    <string name="crash_report_copy">Копировать</string>
+    <string name="crash_report_send">Отчёт в чат</string>
+    <string name="crash_report_send_description">Присоединяется к #flex3rs и готовит сводку сбоя для отправки</string>
+    <string name="crash_report_email">Отчёт по эл. почте</string>
+    <string name="crash_report_email_description">Отправить подробный отчёт о сбое по электронной почте</string>
+    <string name="crash_email_confirm_title">Отправить отчёт о сбое по электронной почте</string>
+    <string name="crash_email_confirm_message">Следующие данные будут включены в отчёт:</string>
+    <string name="crash_email_confirm_stacktrace">Стек вызовов</string>
+    <string name="crash_email_confirm_include_logs">Включить текущий файл журнала</string>
+    <string name="preference_crash_viewer_title">Отчёты о сбоях</string>
+    <string name="preference_crash_viewer_summary">Просмотр последних отчётов о сбоях</string>
+    <string name="preference_crash_viewer_empty">Отчёты о сбоях не найдены</string>
+    <string name="crash_viewer_title">Отчёт о сбое</string>
+    <string name="crash_viewer_share">Поделиться отчётом о сбое</string>
+    <string name="crash_viewer_delete">Удалить</string>
+    <string name="crash_viewer_delete_confirm">Удалить этот отчёт о сбое?</string>
+    <string name="crash_viewer_clear_all">Очистить всё</string>
+    <string name="crash_viewer_clear_all_confirm">Удалить все отчёты о сбоях?</string>
     <string name="scroll_to_bottom">Прокрутить вниз</string>
 </resources>

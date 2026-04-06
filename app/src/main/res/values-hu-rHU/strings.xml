@@ -316,7 +316,7 @@
     <string name="preference_channel_data_header">Csatorna adatok</string>
     <string name="preference_developer_header">Fejlesztői beállítások</string>
     <string name="preference_debug_mode_title">Hibakeresési mód</string>
-    <string name="preference_debug_mode_summary">Hibakeresési elemzési művelet megjelenítése a beviteli sávban</string>
+    <string name="preference_debug_mode_summary">Hibakeresési elemzési művelet megjelenítése a beviteli sávban és összeomlási jelentések helyi gyűjtése</string>
     <string name="preference_timestamp_format_title">Időformátum</string>
     <string name="preference_tts_title">TTS engedélyezése</string>
     <string name="preference_tts_summary">Üzeneteket olvas fel az aktív csatornáról</string>
@@ -854,5 +854,26 @@
     <string name="log_viewer_selected_count">%1$d kiválasztva</string>
     <string name="log_viewer_copy_selection">Kiválasztott naplók másolása</string>
     <string name="log_viewer_clear_selection">Kijelölés törlése</string>
+    <string name="crash_report_title">Összeomlás észlelve</string>
+    <string name="crash_report_message">Az alkalmazás összeomlott az utolsó munkamenet során.</string>
+    <string name="crash_report_thread">Szál: %1$s</string>
+    <string name="crash_report_copy">Másolás</string>
+    <string name="crash_report_send">Jelentés chaten</string>
+    <string name="crash_report_send_description">Csatlakozik a #flex3rs csatornához és előkészíti az összeomlás összefoglalóját küldésre</string>
+    <string name="crash_report_email">Jelentés e-mailben</string>
+    <string name="crash_report_email_description">Részletes összeomlási jelentés küldése e-mailben</string>
+    <string name="crash_email_confirm_title">Összeomlási jelentés küldése e-mailben</string>
+    <string name="crash_email_confirm_message">A következő adatok lesznek a jelentésben:</string>
+    <string name="crash_email_confirm_stacktrace">Veremnyom</string>
+    <string name="crash_email_confirm_include_logs">Aktuális naplófájl csatolása</string>
+    <string name="preference_crash_viewer_title">Összeomlási jelentések</string>
+    <string name="preference_crash_viewer_summary">Legutóbbi összeomlási jelentések megtekintése</string>
+    <string name="preference_crash_viewer_empty">Nem található összeomlási jelentés</string>
+    <string name="crash_viewer_title">Összeomlási jelentés</string>
+    <string name="crash_viewer_share">Összeomlási jelentés megosztása</string>
+    <string name="crash_viewer_delete">Törlés</string>
+    <string name="crash_viewer_delete_confirm">Törli ezt az összeomlási jelentést?</string>
+    <string name="crash_viewer_clear_all">Összes törlése</string>
+    <string name="crash_viewer_clear_all_confirm">Törli az összes összeomlási jelentést?</string>
     <string name="scroll_to_bottom">Görgetés az aljára</string>
 </resources>

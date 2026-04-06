@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -28,6 +30,7 @@ fun ConfirmationBottomSheet(
     onDismiss: () -> Unit,
     message: String? = null,
     confirmText: String = stringResource(R.string.dialog_ok),
+    confirmColors: ButtonColors? = null,
     dismissText: String = stringResource(R.string.dialog_cancel),
 ) {
     ModalBottomSheet(
@@ -78,6 +81,7 @@ fun ConfirmationBottomSheet(
                 Button(
                     onClick = onConfirm,
                     modifier = Modifier.weight(1f),
+                    colors = confirmColors ?: ButtonDefaults.buttonColors(),
                 ) {
                     Text(confirmText)
                 }

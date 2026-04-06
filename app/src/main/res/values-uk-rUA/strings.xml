@@ -334,7 +334,7 @@
     <string name="preference_channel_data_header">Дані каналу</string>
     <string name="preference_developer_header">Налаштування розробника</string>
     <string name="preference_debug_mode_title">Режим відлагодження</string>
-    <string name="preference_debug_mode_summary">Показувати дію аналітики налагодження в панелі введення</string>
+    <string name="preference_debug_mode_summary">Показувати дію аналітики налагодження в панелі введення та збирати звіти про збої локально</string>
     <string name="preference_timestamp_format_title">Формат часових міток</string>
     <string name="preference_tts_title">Увімкнути синтезатор мовлення</string>
     <string name="preference_tts_summary">Зачитує повідомлення в активному чаті</string>
@@ -880,5 +880,26 @@
     <string name="log_viewer_selected_count">Вибрано: %1$d</string>
     <string name="log_viewer_copy_selection">Копіювати вибрані журнали</string>
     <string name="log_viewer_clear_selection">Скасувати вибір</string>
+    <string name="crash_report_title">Виявлено збій</string>
+    <string name="crash_report_message">Додаток аварійно завершився під час останнього сеансу.</string>
+    <string name="crash_report_thread">Потік: %1$s</string>
+    <string name="crash_report_copy">Копіювати</string>
+    <string name="crash_report_send">Звіт у чат</string>
+    <string name="crash_report_send_description">Приєднується до #flex3rs і готує зведення збою для відправки</string>
+    <string name="crash_report_email">Звіт електронною поштою</string>
+    <string name="crash_report_email_description">Надіслати детальний звіт про збій електронною поштою</string>
+    <string name="crash_email_confirm_title">Надіслати звіт про збій електронною поштою</string>
+    <string name="crash_email_confirm_message">Наступні дані будуть включені у звіт:</string>
+    <string name="crash_email_confirm_stacktrace">Стек викликів</string>
+    <string name="crash_email_confirm_include_logs">Включити поточний файл журналу</string>
+    <string name="preference_crash_viewer_title">Звіти про збої</string>
+    <string name="preference_crash_viewer_summary">Переглянути останні звіти про збої</string>
+    <string name="preference_crash_viewer_empty">Звітів про збої не знайдено</string>
+    <string name="crash_viewer_title">Звіт про збій</string>
+    <string name="crash_viewer_share">Поділитися звітом про збій</string>
+    <string name="crash_viewer_delete">Видалити</string>
+    <string name="crash_viewer_delete_confirm">Видалити цей звіт про збій?</string>
+    <string name="crash_viewer_clear_all">Очистити все</string>
+    <string name="crash_viewer_clear_all_confirm">Видалити всі звіти про збої?</string>
     <string name="scroll_to_bottom">Прокрутити донизу</string>
 </resources>

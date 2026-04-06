@@ -327,7 +327,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_channel_data_header">Données de la chaîne</string>
     <string name="preference_developer_header">Options pour les développeurs</string>
     <string name="preference_debug_mode_title">Mode débug</string>
-    <string name="preference_debug_mode_summary">Afficher l\'action d\'analyse de débogage dans la barre de saisie</string>
+    <string name="preference_debug_mode_summary">Afficher l\'action d\'analyse de débogage dans la barre de saisie et collecter les rapports de crash localement</string>
     <string name="preference_timestamp_format_title">Format de l\'horodatage</string>
     <string name="preference_tts_title">Activer le TTS</string>
     <string name="preference_tts_summary">Lis les messages à voix haute pour la chaîne actuelle</string>
@@ -871,5 +871,26 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="log_viewer_selected_count">%1$d sélectionnés</string>
     <string name="log_viewer_copy_selection">Copier les journaux sélectionnés</string>
     <string name="log_viewer_clear_selection">Effacer la sélection</string>
+    <string name="crash_report_title">Crash détecté</string>
+    <string name="crash_report_message">L\'application a planté lors de votre dernière session.</string>
+    <string name="crash_report_thread">Thread : %1$s</string>
+    <string name="crash_report_copy">Copier</string>
+    <string name="crash_report_send">Rapport par chat</string>
+    <string name="crash_report_send_description">Rejoint #flex3rs et prépare un résumé du crash à envoyer</string>
+    <string name="crash_report_email">Rapport par e-mail</string>
+    <string name="crash_report_email_description">Envoyer un rapport de crash détaillé par e-mail</string>
+    <string name="crash_email_confirm_title">Envoyer le rapport de crash par e-mail</string>
+    <string name="crash_email_confirm_message">Les données suivantes seront incluses dans le rapport :</string>
+    <string name="crash_email_confirm_stacktrace">Trace de la pile</string>
+    <string name="crash_email_confirm_include_logs">Inclure le fichier journal actuel</string>
+    <string name="preference_crash_viewer_title">Rapports de crash</string>
+    <string name="preference_crash_viewer_summary">Voir les rapports de crash récents</string>
+    <string name="preference_crash_viewer_empty">Aucun rapport de crash trouvé</string>
+    <string name="crash_viewer_title">Rapport de crash</string>
+    <string name="crash_viewer_share">Partager le rapport de crash</string>
+    <string name="crash_viewer_delete">Supprimer</string>
+    <string name="crash_viewer_delete_confirm">Supprimer ce rapport de crash ?</string>
+    <string name="crash_viewer_clear_all">Tout effacer</string>
+    <string name="crash_viewer_clear_all_confirm">Supprimer tous les rapports de crash ?</string>
     <string name="scroll_to_bottom">Défiler vers le bas</string>
 </resources>

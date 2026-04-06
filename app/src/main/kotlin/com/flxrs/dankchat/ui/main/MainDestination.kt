@@ -63,3 +63,8 @@ object Onboarding
 data class LogViewer(
     val fileName: String = "",
 )
+
+@Serializable
+data class CrashViewer(
+    val crashId: Long = 0L,
+)

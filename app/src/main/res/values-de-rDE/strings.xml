@@ -324,7 +324,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_channel_data_header">Kanalinformationen</string>
     <string name="preference_developer_header">Entwickleroptionen</string>
     <string name="preference_debug_mode_title">Debug-Modus</string>
-    <string name="preference_debug_mode_summary">Debug-Analyse-Aktion in der Eingabeleiste anzeigen</string>
+    <string name="preference_debug_mode_summary">Debug-Analyse-Aktion in der Eingabeleiste anzeigen und Absturzberichte lokal sammeln</string>
     <string name="preference_timestamp_format_title">Formatierung des Zeitstempels</string>
     <string name="preference_tts_title">TTS aktivieren</string>
     <string name="preference_tts_summary">Liest Nachrichten des aktiven Kanals vor</string>
@@ -877,5 +877,26 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="log_viewer_selected_count">%1$d ausgewählt</string>
     <string name="log_viewer_copy_selection">Ausgewählte Protokolle kopieren</string>
     <string name="log_viewer_clear_selection">Auswahl aufheben</string>
+    <string name="crash_report_title">Absturz erkannt</string>
+    <string name="crash_report_message">Die App ist während deiner letzten Sitzung abgestürzt.</string>
+    <string name="crash_report_thread">Thread: %1$s</string>
+    <string name="crash_report_copy">Kopieren</string>
+    <string name="crash_report_send">Chat-Bericht</string>
+    <string name="crash_report_send_description">Tritt #flex3rs bei und bereitet eine Absturzzusammenfassung zum Senden vor</string>
+    <string name="crash_report_email">E-Mail-Bericht</string>
+    <string name="crash_report_email_description">Detaillierten Absturzbericht per E-Mail senden</string>
+    <string name="crash_email_confirm_title">Absturzbericht per E-Mail senden</string>
+    <string name="crash_email_confirm_message">Folgende Daten werden im Bericht enthalten sein:</string>
+    <string name="crash_email_confirm_stacktrace">Stack-Trace</string>
+    <string name="crash_email_confirm_include_logs">Aktuelle Logdatei einschließen</string>
+    <string name="preference_crash_viewer_title">Absturzberichte</string>
+    <string name="preference_crash_viewer_summary">Letzte Absturzberichte anzeigen</string>
+    <string name="preference_crash_viewer_empty">Keine Absturzberichte gefunden</string>
+    <string name="crash_viewer_title">Absturzbericht</string>
+    <string name="crash_viewer_share">Absturzbericht teilen</string>
+    <string name="crash_viewer_delete">Löschen</string>
+    <string name="crash_viewer_delete_confirm">Diesen Absturzbericht löschen?</string>
+    <string name="crash_viewer_clear_all">Alle löschen</string>
+    <string name="crash_viewer_clear_all_confirm">Alle Absturzberichte löschen?</string>
     <string name="scroll_to_bottom">Nach unten scrollen</string>
 </resources>

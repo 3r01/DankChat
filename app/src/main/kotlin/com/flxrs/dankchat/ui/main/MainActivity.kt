@@ -64,6 +64,7 @@ import com.flxrs.dankchat.preferences.tools.ToolsSettingsScreen
 import com.flxrs.dankchat.preferences.tools.tts.TTSUserIgnoreListScreen
 import com.flxrs.dankchat.preferences.tools.upload.ImageUploaderScreen
 import com.flxrs.dankchat.ui.changelog.ChangelogScreen
+import com.flxrs.dankchat.ui.crash.CrashViewerSheet
 import com.flxrs.dankchat.ui.log.LogViewerSheet
 import com.flxrs.dankchat.ui.login.LoginScreen
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
@@ -435,6 +436,17 @@ class MainActivity : ComponentActivity() {
                         DeveloperSettingsScreen(
                             onBack = { navController.popBackStack() },
                             onOpenLogViewer = { fileName -> navController.navigate(LogViewer(fileName)) },
+                            onOpenCrashViewer = { crashId -> navController.navigate(CrashViewer(crashId)) },
+                        )
+                    }
+                    composable<CrashViewer>(
+                        enterTransition = subEnter,
+                        exitTransition = subExit,
+                        popEnterTransition = subPopEnter,
+                        popExitTransition = subPopExit,
+                    ) {
+                        CrashViewerSheet(
+                            onDismiss = { navController.popBackStack() },
                         )
                     }
                     composable<LogViewer>(
