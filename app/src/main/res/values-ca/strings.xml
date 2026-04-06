@@ -114,6 +114,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Enganxa</string>
     <string name="add_channel_hint">Nom del canal</string>
+    <string name="add_channel_already_added">El canal ja està afegit</string>
     <string name="emote_menu_tab_recent">Recent</string>
     <string name="emote_menu_tab_subs">Subscriptors</string>
     <string name="emote_menu_tab_channel">Canal</string>
@@ -586,8 +587,10 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="room_state_emote_only">Només emotes</string>
     <string name="room_state_subscriber_only">Només subscriptors</string>
     <string name="room_state_slow_mode">Mode lent</string>
+    <string name="room_state_slow_mode_duration">Mode lent (%1$s)</string>
     <string name="room_state_unique_chat">Xat únic (R9K)</string>
     <string name="room_state_follower_only">Només seguidors</string>
+    <string name="room_state_follower_only_duration">Només seguidors (%1$s)</string>
     <string name="room_state_preset_custom">Personalitzat</string>
     <string name="room_state_follower_any">Qualsevol</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -639,6 +642,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="input_action_fullscreen">Pantalla completa</string>
     <string name="input_action_hide_input">Amaga l\'entrada</string>
     <string name="input_action_configure">Configura accions</string>
+    <string name="input_action_debug">Depuració</string>
     <plurals name="input_actions_max">
         <item quantity="one">Màxim %1$d acció</item>
         <item quantity="many">Màxim %1$d accions</item>

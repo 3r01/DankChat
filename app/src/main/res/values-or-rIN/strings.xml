@@ -110,6 +110,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">ଲେପନ କରନ୍ତୁ |</string>
     <string name="add_channel_hint">ଚ୍ୟାନେଲ ନାମ |</string>
+    <string name="add_channel_already_added">ଚ୍ୟାନେଲ ପୂର୍ବରୁ ଯୋଡ଼ା ହୋଇସାରିଛି</string>
     <string name="emote_menu_tab_recent">ସମ୍ପ୍ରତି</string>
     <string name="backspace">ବ୍ୟାକସ୍ପେସ୍</string>
     <string name="emote_menu_tab_subs">ଗ୍ରାହକଗଣ |</string>
@@ -278,11 +279,14 @@
     <string name="input_action_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>
     <string name="input_action_hide_input">ଇନପୁଟ୍ ଲୁଚାନ୍ତୁ</string>
     <string name="input_action_configure">କ୍ରିୟାଗୁଡିକ ବିନ୍ୟାସ କରନ୍ତୁ</string>
+    <string name="input_action_debug">ଡିବଗ୍</string>
     <string name="room_state_emote_only">କେବଳ ଇମୋଟ୍</string>
     <string name="room_state_subscriber_only">କେବଳ ଗ୍ରାହକ</string>
     <string name="room_state_slow_mode">ସ୍ଲୋ ମୋଡ୍</string>
+    <string name="room_state_slow_mode_duration">ମନ୍ଥର ମୋଡ୍ (%1$s)</string>
     <string name="room_state_unique_chat">ୟୁନିକ୍ ଚାଟ୍ (R9K)</string>
     <string name="room_state_follower_only">କେବଳ ଅନୁଗାମୀ</string>
+    <string name="room_state_follower_only_duration">କେବଳ ଅନୁସରଣକାରୀ (%1$s)</string>
     <string name="room_state_preset_custom">କଷ୍ଟମ</string>
     <string name="room_state_follower_any">ଯେକୌଣସି</string>
     <string name="room_state_duration_seconds">%1$ds</string>

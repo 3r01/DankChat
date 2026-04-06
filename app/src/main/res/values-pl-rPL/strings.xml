@@ -115,6 +115,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Wklej</string>
     <string name="add_channel_hint">Nazwa kanału</string>
+    <string name="add_channel_already_added">Kanał jest już dodany</string>
     <string name="emote_menu_tab_recent">Ostatnie</string>
     <string name="emote_menu_tab_subs">Subskrybcje</string>
     <string name="emote_menu_tab_channel">Kanał</string>
@@ -670,8 +671,10 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="room_state_emote_only">Tylko emotki</string>
     <string name="room_state_subscriber_only">Tylko subskrybenci</string>
     <string name="room_state_slow_mode">Tryb powolny</string>
+    <string name="room_state_slow_mode_duration">Tryb powolny (%1$s)</string>
     <string name="room_state_unique_chat">Unikalny czat (R9K)</string>
     <string name="room_state_follower_only">Tylko obserwujący</string>
+    <string name="room_state_follower_only_duration">Tylko obserwujący (%1$s)</string>
     <string name="room_state_preset_custom">Własne</string>
     <string name="room_state_follower_any">Dowolny</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -724,6 +727,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="input_action_fullscreen">Pełny ekran</string>
     <string name="input_action_hide_input">Ukryj pole wpisywania</string>
     <string name="input_action_configure">Konfiguruj akcje</string>
+    <string name="input_action_debug">Debugowanie</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maksymalnie %1$d akcja</item>
         <item quantity="few">Maksymalnie %1$d akcje</item>
@@ -918,4 +922,5 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="crash_viewer_clear_all">Wyczyść wszystko</string>
     <string name="crash_viewer_clear_all_confirm">Usunąć wszystkie raporty o awariach?</string>
     <string name="scroll_to_bottom">Przewiń na dół</string>
+    <string name="system_message_upload_complete">Przesyłanie zakończone: %1$s</string>
 </resources>

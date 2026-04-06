@@ -116,6 +116,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Vložit</string>
     <string name="add_channel_hint">Název kanálu</string>
+    <string name="add_channel_already_added">Kanál je již přidán</string>
     <string name="emote_menu_tab_recent">Nedávné</string>
     <string name="emote_menu_tab_subs">Předplatitelské</string>
     <string name="emote_menu_tab_channel">Kanál</string>
@@ -652,8 +653,10 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="room_state_emote_only">Pouze emotikony</string>
     <string name="room_state_subscriber_only">Pouze odběratelé</string>
     <string name="room_state_slow_mode">Pomalý režim</string>
+    <string name="room_state_slow_mode_duration">Pomalý režim (%1$s)</string>
     <string name="room_state_unique_chat">Unikátní chat (R9K)</string>
     <string name="room_state_follower_only">Pouze sledující</string>
+    <string name="room_state_follower_only_duration">Pouze sledující (%1$s)</string>
     <string name="room_state_preset_custom">Vlastní</string>
     <string name="room_state_follower_any">Jakýkoliv</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -706,6 +709,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="input_action_fullscreen">Celá obrazovka</string>
     <string name="input_action_hide_input">Skrýt vstup</string>
     <string name="input_action_configure">Konfigurovat akce</string>
+    <string name="input_action_debug">Ladění</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maximálně %1$d akce</item>
         <item quantity="few">Maximálně %1$d akce</item>
@@ -900,4 +904,25 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="crash_viewer_clear_all">Vymazat vše</string>
     <string name="crash_viewer_clear_all_confirm">Smazat všechna hlášení o pádech?</string>
     <string name="scroll_to_bottom">Posunout dolů</string>
+    <string name="badge">Odznak</string>
+    <string name="badge_admin">Admin</string>
+    <string name="badge_broadcaster">Vysílající</string>
+    <string name="badge_founder">Zakladatel</string>
+    <string name="badge_lead_moderator">Hlavní moderátor</string>
+    <string name="badge_moderator">Moderátor</string>
+    <string name="badge_staff">Staff</string>
+    <string name="badge_subscriber">Odběratel</string>
+    <string name="badge_verified">Ověřený</string>
+    <string name="badge_vip">VIP</string>
+    <string name="tab_badges">Odznaky</string>
+    <string name="highlights_badges_title">Vytvářejte upozornění a zvýrazňujte zprávy uživatelů na základě odznáčků.</string>
+    <string name="choose_highlight_color">Vybrat barvu</string>
+    <string name="pick_highlight_color_title">Vybrat vlastní barvu zvýraznění</string>
+    <string name="reset_default_highlight_color">Výchozí</string>
+    <plurals name="viewers_and_uptime_with_cateogry">
+        <item quantity="one">Živě s %1$d divákem v %2$s po dobu %3$s</item>
+        <item quantity="few">Živě s %1$d diváky v %2$s po dobu %3$s</item>
+        <item quantity="many">Živě s %1$d diváků v %2$s po dobu %3$s</item>
+        <item quantity="other">Živě s %1$d diváků v %2$s po dobu %3$s</item>
+    </plurals>
 </resources>

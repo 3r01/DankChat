@@ -105,6 +105,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Yapıştır</string>
     <string name="add_channel_hint">Kanal adı</string>
+    <string name="add_channel_already_added">Kanal zaten eklenmiş</string>
     <string name="emote_menu_tab_recent">Son kullanılanlar</string>
     <string name="emote_menu_tab_subs">Abonelikler</string>
     <string name="emote_menu_tab_channel">Kanal</string>
@@ -651,8 +652,10 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="room_state_emote_only">Yalnızca emote</string>
     <string name="room_state_subscriber_only">Yalnızca aboneler</string>
     <string name="room_state_slow_mode">Yavaş mod</string>
+    <string name="room_state_slow_mode_duration">Yavaş mod (%1$s)</string>
     <string name="room_state_unique_chat">Benzersiz sohbet (R9K)</string>
     <string name="room_state_follower_only">Yalnızca takipçiler</string>
+    <string name="room_state_follower_only_duration">Yalnızca takipçiler (%1$s)</string>
     <string name="room_state_preset_custom">Özel</string>
     <string name="room_state_follower_any">Herhangi</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -705,6 +708,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="input_action_fullscreen">Tam ekran</string>
     <string name="input_action_hide_input">Girişi gizle</string>
     <string name="input_action_configure">Eylemleri yapılandır</string>
+    <string name="input_action_debug">Hata ayıklama</string>
     <plurals name="input_actions_max">
         <item quantity="one">En fazla %1$d eylem</item>
         <item quantity="other">En fazla %1$d eylem</item>
@@ -897,4 +901,5 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="crash_viewer_clear_all">Tümünü temizle</string>
     <string name="crash_viewer_clear_all_confirm">Tüm çökme raporları silinsin mi?</string>
     <string name="scroll_to_bottom">En alta kaydır</string>
+    <string name="system_message_upload_complete">Yükleme tamamlandı: %1$s</string>
 </resources>

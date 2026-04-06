@@ -107,6 +107,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Einfügen</string>
     <string name="add_channel_hint">Kanalname</string>
+    <string name="add_channel_already_added">Kanal ist bereits hinzugefügt</string>
     <string name="emote_menu_tab_recent">Zuletzt</string>
     <string name="emote_menu_tab_subs">Abos</string>
     <string name="emote_menu_tab_channel">Kanal</string>
@@ -653,8 +654,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="room_state_emote_only">Nur Emotes</string>
     <string name="room_state_subscriber_only">Nur Abonnenten</string>
     <string name="room_state_slow_mode">Langsamer Modus</string>
+    <string name="room_state_slow_mode_duration">Langsamer Modus (%1$s)</string>
     <string name="room_state_unique_chat">Einzigartiger Chat (R9K)</string>
     <string name="room_state_follower_only">Nur Follower</string>
+    <string name="room_state_follower_only_duration">Nur Follower (%1$s)</string>
     <string name="room_state_preset_custom">Benutzerdefiniert</string>
     <string name="room_state_follower_any">Alle</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -707,6 +710,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="input_action_fullscreen">Vollbild</string>
     <string name="input_action_hide_input">Eingabe ausblenden</string>
     <string name="input_action_configure">Aktionen konfigurieren</string>
+    <string name="input_action_debug">Debug</string>
     <plurals name="input_actions_max">
         <item quantity="one">Maximal %1$d Aktion</item>
         <item quantity="other">Maximal %1$d Aktionen</item>

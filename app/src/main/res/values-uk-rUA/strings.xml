@@ -117,6 +117,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Вставити</string>
     <string name="add_channel_hint">Ім\'я каналу</string>
+    <string name="add_channel_already_added">Канал вже додано</string>
     <string name="emote_menu_tab_recent">Останні</string>
     <string name="emote_menu_tab_subs">Підписки</string>
     <string name="emote_menu_tab_channel">Смайли каналу</string>
@@ -654,8 +655,10 @@
     <string name="room_state_emote_only">Лише емоути</string>
     <string name="room_state_subscriber_only">Лише підписники</string>
     <string name="room_state_slow_mode">Повільний режим</string>
+    <string name="room_state_slow_mode_duration">Повільний режим (%1$s)</string>
     <string name="room_state_unique_chat">Унікальний чат (R9K)</string>
     <string name="room_state_follower_only">Лише фоловери</string>
+    <string name="room_state_follower_only_duration">Лише фоловери (%1$s)</string>
     <string name="room_state_preset_custom">Інше</string>
     <string name="room_state_follower_any">Будь-який</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -708,6 +711,7 @@
     <string name="input_action_fullscreen">На весь екран</string>
     <string name="input_action_hide_input">Сховати введення</string>
     <string name="input_action_configure">Налаштувати дії</string>
+    <string name="input_action_debug">Налагодження</string>
     <plurals name="input_actions_max">
         <item quantity="one">Максимум %1$d дія</item>
         <item quantity="few">Максимум %1$d дії</item>
@@ -902,4 +906,29 @@
     <string name="crash_viewer_clear_all">Очистити все</string>
     <string name="crash_viewer_clear_all_confirm">Видалити всі звіти про збої?</string>
     <string name="scroll_to_bottom">Прокрутити донизу</string>
+    <string name="badge">Значок</string>
+    <string name="badge_admin">Адміністратор</string>
+    <string name="badge_broadcaster">Стрімер</string>
+    <string name="badge_founder">Засновник</string>
+    <string name="badge_lead_moderator">Головний модератор</string>
+    <string name="badge_moderator">Модератор</string>
+    <string name="badge_staff">Співробітник</string>
+    <string name="badge_subscriber">Підписник</string>
+    <string name="badge_verified">Підтверджений</string>
+    <string name="badge_vip">VIP</string>
+    <string name="tab_badges">Значки</string>
+    <string name="highlights_badges_title">Створюйте сповіщення та виділяйте повідомлення користувачів на основі значків.</string>
+    <string name="choose_highlight_color">Обрати колір</string>
+    <string name="pick_highlight_color_title">Обрати власний колір виділення</string>
+    <string name="reset_default_highlight_color">За замовчуванням</string>
+    <string name="open_source_licenses">Ліцензії відкритого коду</string>
+    <string name="preference_streaminfo_category_title">Показувати категорію трансляції</string>
+    <string name="preference_streaminfo_category_summary">Також відображати категорію трансляції</string>
+    <string name="shared_chat">Спільний чат</string>
+    <plurals name="viewers_and_uptime_with_cateogry">
+        <item quantity="one">Наживо з %1$d глядачем у %2$s протягом %3$s</item>
+        <item quantity="few">Наживо з %1$d глядачами у %2$s протягом %3$s</item>
+        <item quantity="many">Наживо з %1$d глядачами у %2$s протягом %3$s</item>
+        <item quantity="other">Наживо з %1$d глядачами у %2$s протягом %3$s</item>
+    </plurals>
 </resources>

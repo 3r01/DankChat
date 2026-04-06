@@ -117,6 +117,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Вставить</string>
     <string name="add_channel_hint">Имя канала</string>
+    <string name="add_channel_already_added">Канал уже добавлен</string>
     <string name="emote_menu_tab_recent">Недавние</string>
     <string name="emote_menu_tab_subs">Смайлы подписки</string>
     <string name="emote_menu_tab_channel">Смайлы канала</string>
@@ -657,8 +658,10 @@
     <string name="room_state_emote_only">Только эмоуты</string>
     <string name="room_state_subscriber_only">Только подписчики</string>
     <string name="room_state_slow_mode">Медленный режим</string>
+    <string name="room_state_slow_mode_duration">Медленный режим (%1$s)</string>
     <string name="room_state_unique_chat">Уникальный чат (R9K)</string>
     <string name="room_state_follower_only">Только фолловеры</string>
+    <string name="room_state_follower_only_duration">Только фолловеры (%1$s)</string>
     <string name="room_state_preset_custom">Другое</string>
     <string name="room_state_follower_any">Любой</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -711,6 +714,7 @@
     <string name="input_action_fullscreen">На весь экран</string>
     <string name="input_action_hide_input">Скрыть ввод</string>
     <string name="input_action_configure">Настроить действия</string>
+    <string name="input_action_debug">Отладка</string>
     <plurals name="input_actions_max">
         <item quantity="one">Максимум %1$d действие</item>
         <item quantity="few">Максимум %1$d действия</item>
@@ -905,4 +909,19 @@
     <string name="crash_viewer_clear_all">Очистить всё</string>
     <string name="crash_viewer_clear_all_confirm">Удалить все отчёты о сбоях?</string>
     <string name="scroll_to_bottom">Прокрутить вниз</string>
+    <string name="badge">Значок</string>
+    <string name="badge_admin">Администратор</string>
+    <string name="badge_broadcaster">Стример</string>
+    <string name="badge_founder">Основатель</string>
+    <string name="badge_lead_moderator">Главный модератор</string>
+    <string name="badge_moderator">Модератор</string>
+    <string name="badge_staff">Сотрудник</string>
+    <string name="badge_subscriber">Подписчик</string>
+    <string name="badge_verified">Подтверждённый</string>
+    <string name="badge_vip">VIP</string>
+    <string name="tab_badges">Значки</string>
+    <string name="highlights_badges_title">Создавайте уведомления и выделяйте сообщения пользователей на основе значков.</string>
+    <string name="choose_highlight_color">Выбрать цвет</string>
+    <string name="pick_highlight_color_title">Выбрать пользовательский цвет выделения</string>
+    <string name="reset_default_highlight_color">По умолчанию</string>
 </resources>

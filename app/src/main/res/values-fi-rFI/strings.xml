@@ -108,6 +108,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Liitä</string>
     <string name="add_channel_hint">Kanavan nimi</string>
+    <string name="add_channel_already_added">Kanava on jo lisätty</string>
     <string name="emote_menu_tab_recent">Viimeisimmät</string>
     <string name="emote_menu_tab_subs">Tilaukset</string>
     <string name="emote_menu_tab_channel">Kanava</string>
@@ -643,8 +644,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="room_state_emote_only">Vain hymiöt</string>
     <string name="room_state_subscriber_only">Vain tilaajat</string>
     <string name="room_state_slow_mode">Hidas tila</string>
+    <string name="room_state_slow_mode_duration">Hidas tila (%1$s)</string>
     <string name="room_state_unique_chat">Ainutlaatuinen chat (R9K)</string>
     <string name="room_state_follower_only">Vain seuraajat</string>
+    <string name="room_state_follower_only_duration">Vain seuraajat (%1$s)</string>
     <string name="room_state_preset_custom">Mukautettu</string>
     <string name="room_state_follower_any">Mikä tahansa</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -697,6 +700,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="input_action_fullscreen">Koko näyttö</string>
     <string name="input_action_hide_input">Piilota syöttö</string>
     <string name="input_action_configure">Muokkaa toimintoja</string>
+    <string name="input_action_debug">Virheenkorjaus</string>
     <plurals name="input_actions_max">
         <item quantity="one">Enintään %1$d toiminto</item>
         <item quantity="other">Enintään %1$d toimintoa</item>

@@ -100,6 +100,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">貼り付け</string>
     <string name="add_channel_hint">チャンネル名</string>
+    <string name="add_channel_already_added">チャンネルは既に追加されています</string>
     <string name="emote_menu_tab_recent">新着</string>
     <string name="emote_menu_tab_subs">サブスク</string>
     <string name="emote_menu_tab_channel">チャンネル</string>
@@ -611,8 +612,10 @@
     <string name="room_state_emote_only">エモートのみ</string>
     <string name="room_state_subscriber_only">サブスクライバーのみ</string>
     <string name="room_state_slow_mode">スローモード</string>
+    <string name="room_state_slow_mode_duration">スローモード (%1$s)</string>
     <string name="room_state_unique_chat">ユニークチャット (R9K)</string>
     <string name="room_state_follower_only">フォロワーのみ</string>
+    <string name="room_state_follower_only_duration">フォロワーのみ (%1$s)</string>
     <string name="room_state_preset_custom">カスタム</string>
     <string name="room_state_follower_any">すべて</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -665,6 +668,7 @@
     <string name="input_action_fullscreen">全画面</string>
     <string name="input_action_hide_input">入力欄を非表示</string>
     <string name="input_action_configure">アクションを設定</string>
+    <string name="input_action_debug">デバッグ</string>
     <plurals name="input_actions_max">
         <item quantity="other">最大%1$d個のアクション</item>
     </plurals>
@@ -856,4 +860,28 @@
     <string name="crash_viewer_clear_all">すべて消去</string>
     <string name="crash_viewer_clear_all_confirm">すべてのクラッシュレポートを削除しますか?</string>
     <string name="scroll_to_bottom">一番下にスクロール</string>
+    <string name="back">戻る</string>
+    <string name="save">保存</string>
+    <string name="badge">バッジ</string>
+    <string name="badge_admin">管理者</string>
+    <string name="badge_broadcaster">配信者</string>
+    <string name="badge_founder">ファウンダー</string>
+    <string name="badge_lead_moderator">リードモデレーター</string>
+    <string name="badge_moderator">モデレーター</string>
+    <string name="badge_staff">スタッフ</string>
+    <string name="badge_subscriber">サブスクライバー</string>
+    <string name="badge_verified">認証済み</string>
+    <string name="badge_vip">VIP</string>
+    <string name="tab_badges">バッジ</string>
+    <string name="highlights_badges_title">バッジに基づいてユーザーのメッセージの通知とハイライトを作成します。</string>
+    <string name="choose_highlight_color">色を選択</string>
+    <string name="pick_highlight_color_title">カスタムハイライト色を選択</string>
+    <string name="reset_default_highlight_color">デフォルト</string>
+    <string name="open_source_licenses">オープンソースライセンス</string>
+    <string name="preference_streaminfo_category_title">配信カテゴリを表示</string>
+    <string name="preference_streaminfo_category_summary">配信カテゴリも表示する</string>
+    <string name="shared_chat">共有チャット</string>
+    <plurals name="viewers_and_uptime_with_cateogry">
+        <item quantity="other">%2$sで%1$d人の視聴者と%3$s配信中</item>
+    </plurals>
 </resources>

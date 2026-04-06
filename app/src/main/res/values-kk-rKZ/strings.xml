@@ -110,6 +110,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Қою</string>
     <string name="add_channel_hint">Арна аты</string>
+    <string name="add_channel_already_added">Арна әлдеқашан қосылған</string>
     <string name="emote_menu_tab_recent">Соңғы</string>
     <string name="backspace">Кері қарай</string>
     <string name="emote_menu_tab_subs">Қосалқылар</string>
@@ -278,11 +279,14 @@
     <string name="input_action_fullscreen">Толық экран</string>
     <string name="input_action_hide_input">Енгізуді жасыру</string>
     <string name="input_action_configure">Әрекеттерді баптау</string>
+    <string name="input_action_debug">Жөндеу</string>
     <string name="room_state_emote_only">Тек эмоция</string>
     <string name="room_state_subscriber_only">Тек жазылушы</string>
     <string name="room_state_slow_mode">Баяу режим</string>
+    <string name="room_state_slow_mode_duration">Баяу режим (%1$s)</string>
     <string name="room_state_unique_chat">Бірегей чат (R9K)</string>
     <string name="room_state_follower_only">Тек ізбасар</string>
+    <string name="room_state_follower_only_duration">Тек жазылушылар (%1$s)</string>
     <string name="room_state_preset_custom">Реттелмелі</string>
     <string name="room_state_follower_any">Кез келген</string>
     <string name="room_state_duration_seconds">%1$dс</string>

@@ -112,6 +112,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Colar</string>
     <string name="add_channel_hint">Nome do canal</string>
+    <string name="add_channel_already_added">O canal já foi adicionado</string>
     <string name="emote_menu_tab_recent">Recente</string>
     <string name="emote_menu_tab_subs">Subscritores</string>
     <string name="emote_menu_tab_channel">Canal</string>
@@ -631,8 +632,10 @@
     <string name="room_state_emote_only">Apenas emotes</string>
     <string name="room_state_subscriber_only">Apenas subscritores</string>
     <string name="room_state_slow_mode">Modo lento</string>
+    <string name="room_state_slow_mode_duration">Modo lento (%1$s)</string>
     <string name="room_state_unique_chat">Chat único (R9K)</string>
     <string name="room_state_follower_only">Apenas seguidores</string>
+    <string name="room_state_follower_only_duration">Apenas seguidores (%1$s)</string>
     <string name="room_state_preset_custom">Personalizado</string>
     <string name="room_state_follower_any">Qualquer</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -685,6 +688,7 @@
     <string name="input_action_fullscreen">Ecrã inteiro</string>
     <string name="input_action_hide_input">Ocultar entrada</string>
     <string name="input_action_configure">Configurar ações</string>
+    <string name="input_action_debug">Depuração</string>
     <plurals name="input_actions_max">
         <item quantity="one">Máximo de %1$d ação</item>
         <item quantity="many">Máximo de %1$d ações</item>
@@ -878,4 +882,27 @@
     <string name="crash_viewer_clear_all">Limpar tudo</string>
     <string name="crash_viewer_clear_all_confirm">Eliminar todos os relatórios de crash?</string>
     <string name="scroll_to_bottom">Deslocar para baixo</string>
+    <string name="badge">Distintivo</string>
+    <string name="badge_admin">Admin</string>
+    <string name="badge_broadcaster">Transmissor</string>
+    <string name="badge_founder">Fundador</string>
+    <string name="badge_lead_moderator">Moderador-chefe</string>
+    <string name="badge_moderator">Moderador</string>
+    <string name="badge_staff">Staff</string>
+    <string name="badge_subscriber">Subscritor</string>
+    <string name="badge_verified">Verificado</string>
+    <string name="badge_vip">VIP</string>
+    <string name="tab_badges">Distintivos</string>
+    <string name="highlights_badges_title">Crie notificações e destaque mensagens de utilizadores com base em distintivos.</string>
+    <string name="choose_highlight_color">Escolher cor</string>
+    <string name="pick_highlight_color_title">Escolher cor de destaque personalizada</string>
+    <string name="reset_default_highlight_color">Predefinição</string>
+    <string name="open_source_licenses">Licenças de código aberto</string>
+    <string name="preference_streaminfo_category_title">Mostrar categoria da transmissão</string>
+    <string name="preference_streaminfo_category_summary">Mostrar também a categoria da transmissão</string>
+    <string name="shared_chat">Chat partilhado</string>
+    <plurals name="viewers_and_uptime_with_cateogry">
+        <item quantity="one">Em direto com %1$d espectador em %2$s durante %3$s</item>
+        <item quantity="other">Em direto com %1$d espectadores em %2$s durante %3$s</item>
+    </plurals>
 </resources>

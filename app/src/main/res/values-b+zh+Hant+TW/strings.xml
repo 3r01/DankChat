@@ -108,6 +108,7 @@
 
     <string name="snackbar_paste">貼上</string>
     <string name="add_channel_hint">頻道名稱</string>
+    <string name="add_channel_already_added">頻道已經加入</string>
     <string name="backspace">退格鍵</string>
     <string name="emote_menu_tab_recent">常用</string>
     <string name="emote_menu_tab_subs">訂閱</string>
@@ -279,11 +280,14 @@
     <string name="input_action_fullscreen">全螢幕</string>
     <string name="input_action_hide_input">隱藏輸入框</string>
     <string name="input_action_configure">設定動作</string>
+    <string name="input_action_debug">偵錯</string>
     <string name="room_state_emote_only">僅限表情符號</string>
     <string name="room_state_subscriber_only">僅限訂閱者</string>
     <string name="room_state_slow_mode">低速模式</string>
+    <string name="room_state_slow_mode_duration">慢速模式 (%1$s)</string>
     <string name="room_state_unique_chat">獨特聊天 (R9K)</string>
     <string name="room_state_follower_only">僅限追隨者</string>
+    <string name="room_state_follower_only_duration">僅限追隨者 (%1$s)</string>
     <string name="room_state_preset_custom">自訂</string>
     <string name="room_state_follower_any">任何人</string>
     <string name="room_state_duration_seconds">%1$d秒</string>

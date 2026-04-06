@@ -115,6 +115,7 @@
     <string name="duration_join_3">%1$s %2$s %3$s</string>
     <string name="snackbar_paste">Paste</string>
     <string name="add_channel_hint">Naziv kanala</string>
+    <string name="add_channel_already_added">Канал је већ додат</string>
     <string name="emote_menu_tab_recent">Недавно</string>
     <string name="emote_menu_tab_subs">Pretplatnici</string>
     <string name="emote_menu_tab_channel">Kanal</string>
@@ -651,8 +652,10 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="room_state_emote_only">Само емотикони</string>
     <string name="room_state_subscriber_only">Само претплатници</string>
     <string name="room_state_slow_mode">Спори режим</string>
+    <string name="room_state_slow_mode_duration">Спори режим (%1$s)</string>
     <string name="room_state_unique_chat">Јединствени чат (R9K)</string>
     <string name="room_state_follower_only">Само пратиоци</string>
+    <string name="room_state_follower_only_duration">Само пратиоци (%1$s)</string>
     <string name="room_state_preset_custom">Прилагођено</string>
     <string name="room_state_follower_any">Било који</string>
     <string name="room_state_duration_seconds">%1$ds</string>
@@ -704,6 +707,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="input_action_fullscreen">Цео екран</string>
     <string name="input_action_hide_input">Сакриј унос</string>
     <string name="input_action_configure">Подеси акције</string>
+    <string name="input_action_debug">Отклањање грешака</string>
     <plurals name="input_actions_max">
         <item quantity="one">Максимално %1$d акција</item>
         <item quantity="few">Максимално %1$d акције</item>
