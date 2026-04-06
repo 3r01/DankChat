@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.ui.main.dialog
 
+import androidx.compose.material3.ButtonColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.flxrs.dankchat.R
@@ -11,11 +12,13 @@ fun ConfirmationDialog(
     confirmText: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    confirmColors: ButtonColors? = null,
     dismissText: String = stringResource(R.string.dialog_cancel),
 ) {
     ConfirmationBottomSheet(
         title = title,
         confirmText = confirmText,
+        confirmColors = confirmColors,
         dismissText = dismissText,
         onConfirm = onConfirm,
         onDismiss = onDismiss,

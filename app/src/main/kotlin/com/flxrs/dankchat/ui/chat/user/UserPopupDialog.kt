@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -86,12 +87,6 @@ fun UserPopupDialog(
     ) {
         AnimatedContent(
             targetState = showBlockConfirmation,
-            transitionSpec = {
-                when {
-                    targetState -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                }
-            },
             label = "UserPopupContent",
         ) { isBlockConfirmation ->
             when {
@@ -124,10 +119,14 @@ fun UserPopupDialog(
                                 Text(stringResource(R.string.dialog_cancel))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            Button(onClick = {
-                                onBlockUser()
-                                showBlockConfirmation = false
-                            }, modifier = Modifier.weight(1f)) {
+                            Button(
+                                onClick = {
+                                    onBlockUser()
+                                    showBlockConfirmation = false
+                                },
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            ) {
                                 Text(stringResource(R.string.confirm_user_block_positive_button))
                             }
                         }

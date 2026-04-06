@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -115,12 +116,6 @@ fun ManageChannelsDialog(
     ) {
         AnimatedContent(
             targetState = channelToDelete,
-            transitionSpec = {
-                when {
-                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                }
-            },
             label = "ManageChannelsContent",
         ) { deleteTarget ->
             when (deleteTarget) {
@@ -401,7 +396,11 @@ private fun DeleteChannelConfirmation(
                 Text(stringResource(R.string.dialog_cancel))
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+            ) {
                 Text(stringResource(R.string.confirm_channel_removal_positive_button))
             }
         }

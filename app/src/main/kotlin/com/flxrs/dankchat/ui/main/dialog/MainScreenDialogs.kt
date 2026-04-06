@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -148,6 +149,7 @@ fun MainScreenDialogs(
         ConfirmationDialog(
             title = stringResource(R.string.confirm_channel_removal_message_named, activeChannel),
             confirmText = stringResource(R.string.confirm_channel_removal_positive_button),
+            confirmColors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             onConfirm = {
                 channelManagementViewModel.removeChannel(activeChannel)
                 dialogViewModel.dismissRemoveChannel()
@@ -160,6 +162,7 @@ fun MainScreenDialogs(
         ConfirmationDialog(
             title = stringResource(R.string.confirm_channel_block_message_named, activeChannel),
             confirmText = stringResource(R.string.confirm_user_block_positive_button),
+            confirmColors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             onConfirm = {
                 channelManagementViewModel.blockChannel(activeChannel)
                 dialogViewModel.dismissBlockChannel()
@@ -172,6 +175,7 @@ fun MainScreenDialogs(
         ConfirmationBottomSheet(
             title = stringResource(R.string.confirm_logout_message),
             confirmText = stringResource(R.string.confirm_logout_positive_button),
+            confirmColors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             onConfirm = {
                 onLogout()
                 dialogViewModel.dismissLogout()

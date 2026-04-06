@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -129,12 +130,6 @@ fun ModActionsDialog(
     ) {
         AnimatedContent(
             targetState = subView,
-            transitionSpec = {
-                when {
-                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                }
-            },
             label = "ModActionsContent",
         ) { currentView ->
             when (currentView) {
@@ -702,8 +697,12 @@ private fun ClearChatConfirmSubView(
                 Text(stringResource(R.string.dialog_cancel))
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.dialog_ok))
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+            ) {
+                Text(stringResource(R.string.clear_chat))
             }
         }
     }

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -91,12 +92,6 @@ fun MessageOptionsDialog(
     ) {
         AnimatedContent(
             targetState = subView,
-            transitionSpec = {
-                when {
-                    targetState != null -> slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else -> slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
-                }
-            },
             label = "MessageOptionsContent",
         ) { currentView ->
             when (currentView) {
@@ -368,7 +363,11 @@ private fun ConfirmationSubView(
                 Text(stringResource(R.string.dialog_cancel))
             }
             Spacer(modifier = Modifier.width(12.dp))
-            Button(onClick = onConfirm, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+            ) {
                 Text(confirmText)
             }
         }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -231,6 +232,7 @@ private fun ImageUploaderScreen(
         ConfirmationBottomSheet(
             title = stringResource(R.string.reset_media_uploader_dialog_message),
             confirmText = stringResource(R.string.reset_media_uploader_dialog_positive),
+            confirmColors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             onConfirm = {
                 resetDialog = false
                 onReset()
