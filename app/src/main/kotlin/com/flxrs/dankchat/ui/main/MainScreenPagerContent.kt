@@ -107,6 +107,7 @@ internal fun MainScreenPagerContent(
                         state = composePagerState,
                         modifier = Modifier.fillMaxSize().edgeGestureGuard(),
                         userScrollEnabled = swipeNavigation,
+                        beyondViewportPageCount = 1,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
                         if (page in pagerState.channels.indices) {
