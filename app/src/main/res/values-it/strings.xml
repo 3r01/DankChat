@@ -903,6 +903,11 @@
     <string name="shared_chat">Chat condivisa</string>
     <plurals name="viewers_and_uptime_with_cateogry">
         <item quantity="one">In diretta con %1$d spettatore in %2$s da %3$s</item>
+        <item quantity="many">In diretta con %1$d spettatori in %2$s da %3$s</item>
         <item quantity="other">In diretta con %1$d spettatori in %2$s da %3$s</item>
     </plurals>
+    <string name="preference_beyond_viewport_page_count_title">Precaricamento pagine canale</string>
+    <string name="preference_beyond_viewport_page_count_summary">Numero di pagine canale adiacenti da precomporre per uno scorrimento più fluido</string>
+    <string name="none">Nessuno</string>
+    <string name="all">Tutto</string>
 </resources>

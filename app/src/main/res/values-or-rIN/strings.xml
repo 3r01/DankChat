@@ -885,4 +885,8 @@
     <string name="crash_viewer_clear_all">ସବୁ ସଫା କରନ୍ତୁ</string>
     <string name="crash_viewer_clear_all_confirm">ସବୁ କ୍ର୍ୟାସ ରିପୋର୍ଟ ଡିଲିଟ୍ କରିବେ?</string>
     <string name="scroll_to_bottom">ତଳକୁ ସ୍କ୍ରୋଲ୍ କରନ୍ତୁ</string>
+    <string name="preference_beyond_viewport_page_count_title">ଚ୍ୟାନେଲ ପୃଷ୍ଠା ପ୍ରିଲୋଡ ସଂଖ୍ୟା</string>
+    <string name="preference_beyond_viewport_page_count_summary">ସୁଗମ ସ୍ୱାଇପ ପାଇଁ ପୂର୍ବ-ରଚନା କରିବାକୁ ନିକଟବର୍ତ୍ତୀ ଚ୍ୟାନେଲ ପୃଷ୍ଠାଗୁଡ଼ିକର ସଂଖ୍ୟା</string>
+    <string name="none">କିଛି ନାହିଁ</string>
+    <string name="all">ସମସ୍ତ</string>
 </resources>

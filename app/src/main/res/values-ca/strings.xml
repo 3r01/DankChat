@@ -929,4 +929,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="crash_viewer_clear_all">Esborra-ho tot</string>
     <string name="crash_viewer_clear_all_confirm">Eliminar tots els informes d\'error?</string>
     <string name="scroll_to_bottom">Desplaça cap avall</string>
+    <string name="preference_beyond_viewport_page_count_title">Precàrrega de pàgines de canal</string>
+    <string name="preference_beyond_viewport_page_count_summary">Nombre de pàgines de canal adjacents a precompondre per a un desplaçament més fluid</string>
+    <string name="none">Cap</string>
+    <string name="all">Tot</string>
 </resources>

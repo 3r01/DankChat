@@ -907,4 +907,8 @@
     <string name="choose_highlight_color">Escolher cor</string>
     <string name="pick_highlight_color_title">Escolher cor de destaque personalizada</string>
     <string name="reset_default_highlight_color">Padrão</string>
+    <string name="preference_beyond_viewport_page_count_title">Pré-carregamento de páginas de canal</string>
+    <string name="preference_beyond_viewport_page_count_summary">Número de páginas de canal adjacentes a pré-compor para uma navegação mais fluida</string>
+    <string name="none">Nenhum</string>
+    <string name="all">Tudo</string>
 </resources>

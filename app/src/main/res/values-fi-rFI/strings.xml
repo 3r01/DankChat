@@ -904,4 +904,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="crash_viewer_clear_all">Tyhjennä kaikki</string>
     <string name="crash_viewer_clear_all_confirm">Poistetaanko kaikki kaatumisraportit?</string>
     <string name="scroll_to_bottom">Vieritä alas</string>
+    <string name="preference_beyond_viewport_page_count_title">Kanavansivujen esilatausmäärä</string>
+    <string name="preference_beyond_viewport_page_count_summary">Viereisten kanavansivujen esikoostekappalemäärä sujuvampaa pyyhkäisyä varten</string>
+    <string name="none">Ei mitään</string>
+    <string name="all">Kaikki</string>
 </resources>

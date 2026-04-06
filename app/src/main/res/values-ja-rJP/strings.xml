@@ -884,4 +884,8 @@
     <plurals name="viewers_and_uptime_with_cateogry">
         <item quantity="other">%2$sで%1$d人の視聴者と%3$s配信中</item>
     </plurals>
+    <string name="preference_beyond_viewport_page_count_title">チャンネルページのプリロード数</string>
+    <string name="preference_beyond_viewport_page_count_summary">スムーズなスワイプのために事前に構成する隣接チャンネルページの数</string>
+    <string name="none">なし</string>
+    <string name="all">すべて</string>
 </resources>

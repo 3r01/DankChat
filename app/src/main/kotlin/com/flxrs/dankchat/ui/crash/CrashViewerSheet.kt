@@ -2,7 +2,6 @@ package com.flxrs.dankchat.ui.crash
 
 import android.content.ClipData
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import kotlinx.coroutines.CancellationException
@@ -269,7 +269,7 @@ fun CrashViewerSheet(onDismiss: () -> Unit) {
                             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         }
                     }
-                    selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+                    selector = Intent(Intent.ACTION_SENDTO, "mailto:".toUri())
                 }
                 context.startActivity(Intent.createChooser(emailIntent, null))
                 showEmailConfirmation = false

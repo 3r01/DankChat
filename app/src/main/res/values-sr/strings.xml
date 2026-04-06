@@ -933,4 +933,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="crash_viewer_clear_all">Обриши све</string>
     <string name="crash_viewer_clear_all_confirm">Обрисати све извештаје о падовима?</string>
     <string name="scroll_to_bottom">Помери на дно</string>
+    <string name="preference_beyond_viewport_page_count_title">Претходно учитавање страница канала</string>
+    <string name="preference_beyond_viewport_page_count_summary">Број суседних страница канала за претходну композицију ради глаткијег превлачења</string>
+    <string name="none">Ниједна</string>
+    <string name="all">Све</string>
 </resources>

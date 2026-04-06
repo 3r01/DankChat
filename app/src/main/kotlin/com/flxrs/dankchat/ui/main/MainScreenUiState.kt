@@ -15,6 +15,7 @@ data class MainScreenUiState(
     val debugMode: Boolean = false,
     val swipeNavigation: Boolean = true,
     val gestureToolbarHidden: Boolean = false,
+    val beyondViewportPageCount: Int = 0,
 ) {
     val effectiveShowAppBar: Boolean get() = !gestureToolbarHidden
 }

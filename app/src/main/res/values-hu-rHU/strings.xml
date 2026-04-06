@@ -895,4 +895,8 @@
     <string name="choose_highlight_color">Szín kiválasztása</string>
     <string name="pick_highlight_color_title">Egyéni kiemelési szín kiválasztása</string>
     <string name="reset_default_highlight_color">Alapértelmezett</string>
+    <string name="preference_beyond_viewport_page_count_title">Csatornaoldalak előtöltési száma</string>
+    <string name="preference_beyond_viewport_page_count_summary">A simább lapozás érdekében előre összeállítandó szomszédos csatornaoldalak száma</string>
+    <string name="none">Nincs</string>
+    <string name="all">Mind</string>
 </resources>

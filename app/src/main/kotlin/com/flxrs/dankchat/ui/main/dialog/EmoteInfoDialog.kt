@@ -102,9 +102,7 @@ fun EmoteInfoDialog(
                     Modifier
                         .fillMaxWidth()
                         .clipToBounds()
-                        .then(
-                            pagerState.interpolatedHeightModifier(pageHeights, density),
-                        ),
+                        .interpolatedHeight(pagerState, pageHeights, density),
             ) { page ->
                 val item = items[page]
                 EmoteInfoContent(
@@ -133,23 +131,24 @@ fun EmoteInfoDialog(
     }
 }
 
-private fun PagerState.interpolatedHeightModifier(
+private fun Modifier.interpolatedHeight(
+    pagerState: PagerState,
     pageHeights: IntArray,
     density: Density,
 ): Modifier {
-    val currentHeight = pageHeights.getOrNull(currentPage) ?: 0
-    if (currentHeight == 0) return Modifier
+    val currentHeight = pageHeights.getOrNull(pagerState.currentPage) ?: 0
+    if (currentHeight == 0) return this
 
-    val fraction = currentPageOffsetFraction
+    val fraction = pagerState.currentPageOffsetFraction
     val targetPage = when {
-        fraction > 0 -> (currentPage + 1).coerceAtMost(pageCount - 1)
-        fraction < 0 -> (currentPage - 1).coerceAtLeast(0)
-        else -> currentPage
+        fraction > 0 -> (pagerState.currentPage + 1).coerceAtMost(pagerState.pageCount - 1)
+        fraction < 0 -> (pagerState.currentPage - 1).coerceAtLeast(0)
+        else -> pagerState.currentPage
     }
     val targetHeight = pageHeights.getOrNull(targetPage) ?: currentHeight
     val interpolatedPx = lerp(currentHeight, targetHeight, fraction.absoluteValue)
     val heightDp = with(density) { interpolatedPx.toDp() }
-    return Modifier.height(heightDp)
+    return then(Modifier.height(heightDp))
 }
 
 private const val WIDE_EMOTE_THRESHOLD = 1.5f

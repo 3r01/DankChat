@@ -924,4 +924,8 @@
     <string name="choose_highlight_color">Выбрать цвет</string>
     <string name="pick_highlight_color_title">Выбрать пользовательский цвет выделения</string>
     <string name="reset_default_highlight_color">По умолчанию</string>
+    <string name="preference_beyond_viewport_page_count_title">Предзагрузка страниц каналов</string>
+    <string name="preference_beyond_viewport_page_count_summary">Количество соседних страниц каналов для предварительной композиции для более плавного свайпа</string>
+    <string name="none">Нет</string>
+    <string name="all">Все</string>
 </resources>

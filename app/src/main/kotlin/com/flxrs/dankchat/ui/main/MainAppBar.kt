@@ -61,7 +61,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
@@ -468,27 +467,27 @@ private val MIN_MENU_WIDTH = 200.dp
 
 @Composable
 private fun rememberMainMenuWidth(isLoggedIn: Boolean): Dp {
-    val context = LocalContext.current
     val density = LocalDensity.current
     val textMeasurer = rememberTextMeasurer()
     val textStyle = MaterialTheme.typography.bodyLarge
 
-    return remember(isLoggedIn, density, textStyle) {
-        val mainItemTexts = buildList {
-            if (isLoggedIn) {
-                add(context.getString(R.string.relogin))
-                add(context.getString(R.string.logout))
-            } else {
-                add(context.getString(R.string.login))
-            }
-            add(context.getString(R.string.manage_channels))
-            add(context.getString(R.string.remove_channel))
-            add(context.getString(R.string.reload_emotes))
-            add(context.getString(R.string.reconnect))
-            add(context.getString(R.string.upload_media))
-            add(context.getString(R.string.channel))
-            add(context.getString(R.string.settings))
+    val mainItemTexts = buildList {
+        if (isLoggedIn) {
+            add(stringResource(R.string.relogin))
+            add(stringResource(R.string.logout))
+        } else {
+            add(stringResource(R.string.login))
         }
+        add(stringResource(R.string.manage_channels))
+        add(stringResource(R.string.remove_channel))
+        add(stringResource(R.string.reload_emotes))
+        add(stringResource(R.string.reconnect))
+        add(stringResource(R.string.upload_media))
+        add(stringResource(R.string.channel))
+        add(stringResource(R.string.settings))
+    }
+
+    return remember(mainItemTexts, density, textStyle) {
         val maxTextWidthPx = mainItemTexts.maxOf { textMeasurer.measure(it, textStyle).size.width }
         val totalWidthPx = with(density) { MENU_ITEM_CHROME_WIDTH.roundToPx() } + maxTextWidthPx
         maxOf(with(density) { totalWidthPx.toDp() }, MIN_MENU_WIDTH)

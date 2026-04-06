@@ -122,8 +122,8 @@ fun MainScreen(
     onCaptureImage: () -> Unit,
     onCaptureVideo: () -> Unit,
     onChooseMedia: () -> Unit,
-    onOpenLogViewer: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onOpenLogViewer: () -> Unit = {},
 ) {
     val density = LocalDensity.current
     val messageNotInHistoryMsg = stringResource(R.string.message_not_in_history)
@@ -302,6 +302,7 @@ fun MainScreen(
     val isFullscreen = mainState.isFullscreen
     val showInput = mainState.showInput
     val swipeNavigation = mainState.swipeNavigation
+    val beyondViewportPageCount = mainState.beyondViewportPageCount
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
     val toolbarTracker =
@@ -722,6 +723,7 @@ fun MainScreen(
                     showInput = showInput,
                     isFullscreen = isFullscreen,
                     swipeNavigation = swipeNavigation,
+                    beyondViewportPageCount = beyondViewportPageCount,
                     isSheetOpen = isSheetOpen,
                     inputHeightDp = inputHeightDp,
                     helperTextHeightDp = helperTextHeightDp,

@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.content.getSystemService
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
@@ -832,7 +832,7 @@ private fun sendCrashEmail(
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
         }
-        selector = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:"))
+        selector = Intent(Intent.ACTION_SENDTO, "mailto:".toUri())
     }
     context.startActivity(Intent.createChooser(emailIntent, null))
 }

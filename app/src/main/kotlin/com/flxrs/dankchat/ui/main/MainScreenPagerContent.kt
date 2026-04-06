@@ -61,6 +61,7 @@ internal fun MainScreenPagerContent(
     showInput: Boolean,
     isFullscreen: Boolean,
     swipeNavigation: Boolean,
+    beyondViewportPageCount: Int,
     isSheetOpen: Boolean,
     inputHeightDp: Dp,
     helperTextHeightDp: Dp,
@@ -107,7 +108,7 @@ internal fun MainScreenPagerContent(
                         state = composePagerState,
                         modifier = Modifier.fillMaxSize().edgeGestureGuard(),
                         userScrollEnabled = swipeNavigation,
-                        beyondViewportPageCount = 1,
+                        beyondViewportPageCount = beyondViewportPageCount,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
                         if (page in pagerState.channels.indices) {

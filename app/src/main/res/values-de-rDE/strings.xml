@@ -903,4 +903,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="crash_viewer_clear_all">Alle löschen</string>
     <string name="crash_viewer_clear_all_confirm">Alle Absturzberichte löschen?</string>
     <string name="scroll_to_bottom">Nach unten scrollen</string>
+    <string name="preference_beyond_viewport_page_count_title">Kanalseiten-Vorladeanzahl</string>
+    <string name="preference_beyond_viewport_page_count_summary">Anzahl benachbarter Kanalseiten, die für flüssigeres Wischen vorkomponiert werden</string>
+    <string name="none">Keine</string>
+    <string name="all">Alle</string>
 </resources>

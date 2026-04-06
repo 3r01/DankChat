@@ -923,4 +923,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="crash_viewer_clear_all_confirm">Usunąć wszystkie raporty o awariach?</string>
     <string name="scroll_to_bottom">Przewiń na dół</string>
     <string name="system_message_upload_complete">Przesyłanie zakończone: %1$s</string>
+    <string name="preference_beyond_viewport_page_count_title">Wstępne ładowanie stron kanałów</string>
+    <string name="preference_beyond_viewport_page_count_summary">Liczba sąsiednich stron kanałów do wstępnej kompozycji dla płynniejszego przesuwania</string>
+    <string name="none">Brak</string>
+    <string name="all">Wszystko</string>
 </resources>

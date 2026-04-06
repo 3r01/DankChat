@@ -925,4 +925,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
         <item quantity="many">Živě s %1$d diváků v %2$s po dobu %3$s</item>
         <item quantity="other">Živě s %1$d diváků v %2$s po dobu %3$s</item>
     </plurals>
+    <string name="preference_beyond_viewport_page_count_title">Počet přednahraných stránek kanálů</string>
+    <string name="preference_beyond_viewport_page_count_summary">Počet sousedních stránek kanálů k předkompozici pro plynulejší přesouvání</string>
+    <string name="none">Žádný</string>
+    <string name="all">Vše</string>
 </resources>

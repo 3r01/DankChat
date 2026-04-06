@@ -919,4 +919,8 @@
     <string name="choose_highlight_color">Абраць колер</string>
     <string name="pick_highlight_color_title">Абраць карыстальніцкі колер вылучэння</string>
     <string name="reset_default_highlight_color">Па змаўчанні</string>
+    <string name="preference_beyond_viewport_page_count_title">Колькасць прадзагружаных старонак каналаў</string>
+    <string name="preference_beyond_viewport_page_count_summary">Колькасць суседніх старонак каналаў для папярэдняй кампазіцыі для больш плаўнага гартання</string>
+    <string name="none">Няма</string>
+    <string name="all">Усе</string>
 </resources>

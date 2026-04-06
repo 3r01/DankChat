@@ -75,6 +75,10 @@ class DeveloperSettingsViewModel(
                     developerSettingsDataStore.update { it.copy(chatSendProtocol = interaction.protocol) }
                 }
 
+                is DeveloperSettingsInteraction.BeyondViewportPageCount -> {
+                    developerSettingsDataStore.update { it.copy(beyondViewportPageCount = interaction.value) }
+                }
+
                 is DeveloperSettingsInteraction.RestartRequired -> {
                     _events.emit(DeveloperSettingsEvent.RestartRequired)
                 }
