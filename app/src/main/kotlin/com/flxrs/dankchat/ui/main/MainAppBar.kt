@@ -61,9 +61,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -116,6 +118,8 @@ fun InlineOverflowMenu(
     }
 
     val density = LocalDensity.current
+    val menuWidth = rememberMainMenuWidth(isLoggedIn)
+
     val screenHeight =
         with(density) {
             LocalWindowInfo.current.containerSize.height
@@ -140,7 +144,7 @@ fun InlineOverflowMenu(
             state = scrollAreaState,
             modifier =
                 Modifier
-                    .width(200.dp)
+                    .width(menuWidth)
                     .heightIn(max = maxHeight),
         ) {
             AnimatedContent(
@@ -215,6 +219,7 @@ private fun InlineMenuItem(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    maxLines: Int = 1,
     hasSubMenu: Boolean = false,
 ) {
     Row(
@@ -236,7 +241,7 @@ private fun InlineMenuItem(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
@@ -395,6 +400,7 @@ private fun ColumnScope.UploadMenuContent(
             onDismiss()
         },
         modifier = modifier,
+        maxLines = 2,
     )
     InlineMenuItem(
         text = stringResource(R.string.record_video),
@@ -403,6 +409,7 @@ private fun ColumnScope.UploadMenuContent(
             onAction(ToolbarAction.CaptureVideo)
             onDismiss()
         },
+        maxLines = 2,
     )
     InlineMenuItem(
         text = stringResource(R.string.choose_media),
@@ -411,6 +418,7 @@ private fun ColumnScope.UploadMenuContent(
             onAction(ToolbarAction.ChooseMedia)
             onDismiss()
         },
+        maxLines = 2,
     )
 }
 
@@ -431,6 +439,7 @@ private fun ColumnScope.ChannelMenuContent(
             onDismiss()
         },
         modifier = modifier,
+        maxLines = 2,
     )
     InlineMenuItem(
         text = stringResource(R.string.report_channel),
@@ -439,6 +448,7 @@ private fun ColumnScope.ChannelMenuContent(
             onAction(ToolbarAction.ReportChannel)
             onDismiss()
         },
+        maxLines = 2,
     )
     if (isLoggedIn) {
         InlineMenuItem(
@@ -448,6 +458,39 @@ private fun ColumnScope.ChannelMenuContent(
                 onAction(ToolbarAction.BlockChannel)
                 onDismiss()
             },
+            maxLines = 2,
         )
+    }
+}
+
+private val MENU_ITEM_CHROME_WIDTH = (16 + 20 + 12 + 20 + 16).dp // padding + icon + gap + submenu arrow + padding
+private val MIN_MENU_WIDTH = 200.dp
+
+@Composable
+private fun rememberMainMenuWidth(isLoggedIn: Boolean): Dp {
+    val context = LocalContext.current
+    val density = LocalDensity.current
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = MaterialTheme.typography.bodyLarge
+
+    return remember(isLoggedIn, density, textStyle) {
+        val mainItemTexts = buildList {
+            if (isLoggedIn) {
+                add(context.getString(R.string.relogin))
+                add(context.getString(R.string.logout))
+            } else {
+                add(context.getString(R.string.login))
+            }
+            add(context.getString(R.string.manage_channels))
+            add(context.getString(R.string.remove_channel))
+            add(context.getString(R.string.reload_emotes))
+            add(context.getString(R.string.reconnect))
+            add(context.getString(R.string.upload_media))
+            add(context.getString(R.string.channel))
+            add(context.getString(R.string.settings))
+        }
+        val maxTextWidthPx = mainItemTexts.maxOf { textMeasurer.measure(it, textStyle).size.width }
+        val totalWidthPx = with(density) { MENU_ITEM_CHROME_WIDTH.roundToPx() } + maxTextWidthPx
+        maxOf(with(density) { totalWidthPx.toDp() }, MIN_MENU_WIDTH)
     }
 }
