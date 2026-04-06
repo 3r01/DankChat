@@ -98,6 +98,9 @@ android {
         disable += "UnusedResources"
         disable += "ObsoleteSdkInt"
         disable += "PictureInPictureIssue"
+        disable += "OldTargetApi"
+        disable += "GradleDependency"
+        disable += "NewerVersionAvailable"
     }
 }
 
