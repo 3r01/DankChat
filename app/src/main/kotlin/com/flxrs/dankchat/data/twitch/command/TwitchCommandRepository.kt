@@ -544,7 +544,7 @@ class TwitchCommandRepository(
         val request = CommercialRequestDto(context.channelId, length)
         return helixApiClient.postCommercial(request).fold(
             onSuccess = { result ->
-                val response = TextResource.Res(R.string.cmd_success_commercial, persistentListOf(result.length, result.retryAfter))
+                val response = TextResource.PluralRes(R.plurals.cmd_success_commercial, result.length, persistentListOf(result.length, result.retryAfter))
                 CommandResult.AcceptedTwitchCommand(command, response)
             },
             onFailure = {

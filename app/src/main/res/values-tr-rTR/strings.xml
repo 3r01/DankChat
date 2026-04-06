@@ -815,7 +815,10 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="cmd_success_marker">%1$s%2$s konumunda yayın işareti başarıyla eklendi.</string>
     <string name="cmd_fail_marker">Yayın işareti oluşturulamadı - %1$s</string>
     <string name="cmd_usage_commercial">Kullanım: /commercial &lt;uzunluk&gt; - Mevcut kanal için belirtilen sürede reklam başlatır. Geçerli uzunluk seçenekleri 30, 60, 90, 120, 150 ve 180 saniyedir.</string>
-    <string name="cmd_success_commercial">%1$d saniyelik reklam arası başlatılıyor. Hâlâ yayında olduğunuzu ve tüm izleyicilerin reklam almayacağını unutmayın. %2$d saniye sonra başka bir reklam çalıştırabilirsiniz.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">%1$d saniyelik reklam arası başlatılıyor. Hâlâ yayında olduğunuzu ve tüm izleyicilerin reklam almayacağını unutmayın. %2$d saniye sonra başka bir reklam çalıştırabilirsiniz.</item>
+        <item quantity="other">%1$d saniyelik reklam arası başlatılıyor. Hâlâ yayında olduğunuzu ve tüm izleyicilerin reklam almayacağını unutmayın. %2$d saniye sonra başka bir reklam çalıştırabilirsiniz.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Reklam başlatılamadı - %1$s</string>
     <string name="cmd_usage_raid">Kullanım: /raid &lt;kullanıcı adı&gt; - Bir kullanıcıyı baskınla. Yalnızca yayıncı baskın başlatabilir.</string>
     <string name="cmd_raid_invalid_username">Geçersiz kullanıcı adı: %1$s</string>
@@ -876,7 +879,10 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="log_viewer_open">Günlükleri görüntüle</string>
     <string name="preference_log_viewer_empty">Kullanılabilir günlük dosyası yok</string>
     <string name="log_viewer_search_hint">Günlüklerde ara</string>
-    <string name="log_viewer_selected_count">%1$d seçili</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d seçili</item>
+        <item quantity="other">%1$d seçili</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Seçili günlükleri kopyala</string>
     <string name="log_viewer_clear_selection">Seçimi temizle</string>
     <string name="crash_report_title">Çökme algılandı</string>

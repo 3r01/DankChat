@@ -796,7 +796,10 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="cmd_success_marker">Successfully added a stream marker at %1$s%2$s.</string>
     <string name="cmd_fail_marker">Failed to create stream marker - %1$s</string>
     <string name="cmd_usage_commercial">Usage: /commercial &lt;length&gt; - Starts a commercial with the specified duration for the current channel. Valid length options are 30, 60, 90, 120, 150, and 180 seconds.</string>
-    <string name="cmd_success_commercial">Starting %1$d second long commercial break. Keep in mind you are still live and not all viewers will receive a commercial. You may run another commercial in %2$d seconds.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Starting %1$d second long commercial break. Keep in mind you are still live and not all viewers will receive a commercial. You may run another commercial in %2$d seconds.</item>
+        <item quantity="other">Starting %1$d second long commercial break. Keep in mind you are still live and not all viewers will receive a commercial. You may run another commercial in %2$d seconds.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Failed to start commercial - %1$s</string>
     <string name="cmd_usage_raid">Usage: /raid &lt;username&gt; - Raid a user. Only the broadcaster can start a raid.</string>
     <string name="cmd_raid_invalid_username">Invalid username: %1$s</string>
@@ -857,7 +860,10 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="log_viewer_open">View logs</string>
     <string name="preference_log_viewer_empty">No log files available</string>
     <string name="log_viewer_search_hint">Search logs</string>
-    <string name="log_viewer_selected_count">%1$d selected</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copy selected logs</string>
     <string name="log_viewer_clear_selection">Clear selection</string>
     <string name="crash_report_title">Crash detected</string>

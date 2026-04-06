@@ -794,7 +794,11 @@
     <string name="cmd_success_marker">Marcatore dello stream aggiunto con successo a %1$s%2$s.</string>
     <string name="cmd_fail_marker">Impossibile creare il marcatore dello stream - %1$s</string>
     <string name="cmd_usage_commercial">Uso: /commercial &lt;durata&gt; - Avvia una pubblicità con la durata specificata per il canale attuale. Le durate valide sono 30, 60, 90, 120, 150 e 180 secondi.</string>
-    <string name="cmd_success_commercial">Avvio di una pausa pubblicitaria di %1$d secondi. Ricorda che sei ancora in diretta e non tutti gli spettatori riceveranno la pubblicità. Puoi avviare un\'altra pubblicità tra %2$d secondi.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Avvio di una pausa pubblicitaria di %1$d secondi. Ricorda che sei ancora in diretta e non tutti gli spettatori riceveranno la pubblicità. Puoi avviare un\'altra pubblicità tra %2$d secondi.</item>
+        <item quantity="many">Avvio di una pausa pubblicitaria di %1$d secondi. Ricorda che sei ancora in diretta e non tutti gli spettatori riceveranno la pubblicità. Puoi avviare un\'altra pubblicità tra %2$d secondi.</item>
+        <item quantity="other">Avvio di una pausa pubblicitaria di %1$d secondi. Ricorda che sei ancora in diretta e non tutti gli spettatori riceveranno la pubblicità. Puoi avviare un\'altra pubblicità tra %2$d secondi.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Impossibile avviare la pubblicità - %1$s</string>
     <string name="cmd_usage_raid">Uso: /raid &lt;nome utente&gt; - Effettua un raid su un utente. Solo il broadcaster può avviare un raid.</string>
     <string name="cmd_raid_invalid_username">Nome utente non valido: %1$s</string>
@@ -855,7 +859,11 @@
     <string name="log_viewer_open">Visualizza log</string>
     <string name="preference_log_viewer_empty">Nessun file di log disponibile</string>
     <string name="log_viewer_search_hint">Cerca nei log</string>
-    <string name="log_viewer_selected_count">%1$d selezionati</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d selezionati</item>
+        <item quantity="many">%1$d selezionati</item>
+        <item quantity="other">%1$d selezionati</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copia log selezionati</string>
     <string name="log_viewer_clear_selection">Cancella selezione</string>
     <string name="crash_report_title">Crash rilevato</string>

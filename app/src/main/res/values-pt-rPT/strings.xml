@@ -796,7 +796,11 @@
     <string name="cmd_success_marker">Marcador de stream adicionado com sucesso em %1$s%2$s.</string>
     <string name="cmd_fail_marker">Falha ao criar marcador de stream - %1$s</string>
     <string name="cmd_usage_commercial">Utilização: /commercial &lt;duração&gt; - Inicia um anúncio com a duração especificada para o canal atual. As durações válidas são 30, 60, 90, 120, 150 e 180 segundos.</string>
-    <string name="cmd_success_commercial">A iniciar intervalo publicitário de %1$d segundos. Lembra-te que ainda estás em direto e nem todos os espetadores receberão o anúncio. Podes iniciar outro anúncio dentro de %2$d segundos.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">A iniciar intervalo publicitário de %1$d segundos. Lembra-te que ainda estás em direto e nem todos os espetadores receberão o anúncio. Podes iniciar outro anúncio dentro de %2$d segundos.</item>
+        <item quantity="many">A iniciar intervalo publicitário de %1$d segundos. Lembra-te que ainda estás em direto e nem todos os espetadores receberão o anúncio. Podes iniciar outro anúncio dentro de %2$d segundos.</item>
+        <item quantity="other">A iniciar intervalo publicitário de %1$d segundos. Lembra-te que ainda estás em direto e nem todos os espetadores receberão o anúncio. Podes iniciar outro anúncio dentro de %2$d segundos.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Falha ao iniciar o anúncio - %1$s</string>
     <string name="cmd_usage_raid">Utilização: /raid &lt;nome de utilizador&gt; - Faz um raid a um utilizador. Apenas o broadcaster pode iniciar um raid.</string>
     <string name="cmd_raid_invalid_username">Nome de utilizador inválido: %1$s</string>
@@ -857,7 +861,11 @@
     <string name="log_viewer_open">Ver registos</string>
     <string name="preference_log_viewer_empty">Nenhum ficheiro de registo disponível</string>
     <string name="log_viewer_search_hint">Pesquisar nos registos</string>
-    <string name="log_viewer_selected_count">%1$d selecionados</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d selecionados</item>
+        <item quantity="many">%1$d selecionados</item>
+        <item quantity="other">%1$d selecionados</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copiar registos selecionados</string>
     <string name="log_viewer_clear_selection">Limpar seleção</string>
     <string name="crash_report_title">Crash detetado</string>

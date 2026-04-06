@@ -818,7 +818,12 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="cmd_success_marker">Úspěšně přidána značka streamu v %1$s%2$s.</string>
     <string name="cmd_fail_marker">Nepodařilo se vytvořit značku streamu - %1$s</string>
     <string name="cmd_usage_commercial">Použití: /commercial &lt;délka&gt; - Spustí reklamu se zadanou dobou trvání pro aktuální kanál. Platné délky jsou 30, 60, 90, 120, 150 a 180 sekund.</string>
-    <string name="cmd_success_commercial">Spouštění %1$d sekundové reklamní přestávky. Mějte na paměti, že stále vysíláte a ne všichni diváci uvidí reklamu. Další reklamu můžete spustit za %2$d sekund.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Spouštění %1$d sekundové reklamní přestávky. Mějte na paměti, že stále vysíláte a ne všichni diváci uvidí reklamu. Další reklamu můžete spustit za %2$d sekund.</item>
+        <item quantity="few">Spouštění %1$d sekundové reklamní přestávky. Mějte na paměti, že stále vysíláte a ne všichni diváci uvidí reklamu. Další reklamu můžete spustit za %2$d sekund.</item>
+        <item quantity="many">Spouštění %1$d sekundové reklamní přestávky. Mějte na paměti, že stále vysíláte a ne všichni diváci uvidí reklamu. Další reklamu můžete spustit za %2$d sekund.</item>
+        <item quantity="other">Spouštění %1$d sekundové reklamní přestávky. Mějte na paměti, že stále vysíláte a ne všichni diváci uvidí reklamu. Další reklamu můžete spustit za %2$d sekund.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Nepodařilo se spustit reklamu - %1$s</string>
     <string name="cmd_usage_raid">Použití: /raid &lt;uživatelské jméno&gt; - Provede raid na uživatele. Pouze vysílatel může zahájit raid.</string>
     <string name="cmd_raid_invalid_username">Neplatné uživatelské jméno: %1$s</string>
@@ -879,7 +884,12 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="log_viewer_open">Zobrazit logy</string>
     <string name="preference_log_viewer_empty">Žádné soubory logů nejsou dostupné</string>
     <string name="log_viewer_search_hint">Hledat v logách</string>
-    <string name="log_viewer_selected_count">%1$d vybráno</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d vybráno</item>
+        <item quantity="few">%1$d vybráno</item>
+        <item quantity="many">%1$d vybráno</item>
+        <item quantity="other">%1$d vybráno</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Kopírovat vybrané logy</string>
     <string name="log_viewer_clear_selection">Zrušit výběr</string>
     <string name="crash_report_title">Zjištěn pád</string>

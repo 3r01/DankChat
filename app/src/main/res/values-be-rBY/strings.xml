@@ -818,7 +818,12 @@
     <string name="cmd_success_marker">Паспяхова дададзены маркер стрыму ў %1$s%2$s.</string>
     <string name="cmd_fail_marker">Не ўдалося стварыць маркер стрыму - %1$s</string>
     <string name="cmd_usage_commercial">Выкарыстанне: /commercial &lt;length&gt; - Запускае рэкламу зададзенай працягласці для бягучага канала. Дапушчальныя варыянты: 30, 60, 90, 120, 150 і 180 секунд.</string>
-    <string name="cmd_success_commercial">Пачынаецца рэкламная паўза працягласцю %1$d секунд. Памятайце, што вы ўсё яшчэ ў эфіры, і не ўсе гледачы атрымаюць рэкламу. Вы можаце запусціць наступную рэкламу праз %2$d секунд.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Пачынаецца рэкламная паўза працягласцю %1$d секунд. Памятайце, што вы ўсё яшчэ ў эфіры, і не ўсе гледачы атрымаюць рэкламу. Вы можаце запусціць наступную рэкламу праз %2$d секунд.</item>
+        <item quantity="few">Пачынаецца рэкламная паўза працягласцю %1$d секунд. Памятайце, што вы ўсё яшчэ ў эфіры, і не ўсе гледачы атрымаюць рэкламу. Вы можаце запусціць наступную рэкламу праз %2$d секунд.</item>
+        <item quantity="many">Пачынаецца рэкламная паўза працягласцю %1$d секунд. Памятайце, што вы ўсё яшчэ ў эфіры, і не ўсе гледачы атрымаюць рэкламу. Вы можаце запусціць наступную рэкламу праз %2$d секунд.</item>
+        <item quantity="other">Пачынаецца рэкламная паўза працягласцю %1$d секунд. Памятайце, што вы ўсё яшчэ ў эфіры, і не ўсе гледачы атрымаюць рэкламу. Вы можаце запусціць наступную рэкламу праз %2$d секунд.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Не ўдалося запусціць рэкламу - %1$s</string>
     <string name="cmd_usage_raid">Выкарыстанне: /raid &lt;username&gt; - Зрабіць рэйд на карыстальніка. Толькі стрымер можа пачаць рэйд.</string>
     <string name="cmd_raid_invalid_username">Няправільнае імя карыстальніка: %1$s</string>
@@ -879,7 +884,12 @@
     <string name="log_viewer_open">Праглядзець логі</string>
     <string name="preference_log_viewer_empty">Няма даступных файлаў логаў</string>
     <string name="log_viewer_search_hint">Пошук у логах</string>
-    <string name="log_viewer_selected_count">Выбрана: %1$d</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">Выбрана: %1$d</item>
+        <item quantity="few">Выбрана: %1$d</item>
+        <item quantity="many">Выбрана: %1$d</item>
+        <item quantity="other">Выбрана: %1$d</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Капіраваць выбраныя логі</string>
     <string name="log_viewer_clear_selection">Ачысціць выбар</string>
     <string name="crash_report_title">Выяўлены збой</string>

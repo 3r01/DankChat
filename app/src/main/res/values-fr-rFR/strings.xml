@@ -811,7 +811,11 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="cmd_success_marker">Marqueur de stream ajouté avec succès à %1$s%2$s.</string>
     <string name="cmd_fail_marker">Échec de la création du marqueur de stream - %1$s</string>
     <string name="cmd_usage_commercial">Utilisation : /commercial &lt;durée&gt; - Lance une publicité avec la durée spécifiée pour la chaîne actuelle. Les durées valides sont 30, 60, 90, 120, 150 et 180 secondes.</string>
-    <string name="cmd_success_commercial">Lancement d\'une coupure publicitaire de %1$d secondes. N\'oubliez pas que vous êtes toujours en direct et que tous les spectateurs ne recevront pas la publicité. Vous pourrez lancer une autre publicité dans %2$d secondes.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Lancement d\'une coupure publicitaire de %1$d secondes. N\'oubliez pas que vous êtes toujours en direct et que tous les spectateurs ne recevront pas la publicité. Vous pourrez lancer une autre publicité dans %2$d secondes.</item>
+        <item quantity="many">Lancement d\'une coupure publicitaire de %1$d secondes. N\'oubliez pas que vous êtes toujours en direct et que tous les spectateurs ne recevront pas la publicité. Vous pourrez lancer une autre publicité dans %2$d secondes.</item>
+        <item quantity="other">Lancement d\'une coupure publicitaire de %1$d secondes. N\'oubliez pas que vous êtes toujours en direct et que tous les spectateurs ne recevront pas la publicité. Vous pourrez lancer une autre publicité dans %2$d secondes.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Échec du lancement de la publicité - %1$s</string>
     <string name="cmd_usage_raid">Utilisation : /raid &lt;nom d\'utilisateur&gt; - Raide un utilisateur. Seul le broadcaster peut lancer un raid.</string>
     <string name="cmd_raid_invalid_username">Nom d\'utilisateur invalide : %1$s</string>
@@ -872,7 +876,11 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="log_viewer_open">Voir les journaux</string>
     <string name="preference_log_viewer_empty">Aucun fichier journal disponible</string>
     <string name="log_viewer_search_hint">Rechercher dans les journaux</string>
-    <string name="log_viewer_selected_count">%1$d sélectionnés</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d sélectionnés</item>
+        <item quantity="many">%1$d sélectionnés</item>
+        <item quantity="other">%1$d sélectionnés</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copier les journaux sélectionnés</string>
     <string name="log_viewer_clear_selection">Effacer la sélection</string>
     <string name="crash_report_title">Crash détecté</string>

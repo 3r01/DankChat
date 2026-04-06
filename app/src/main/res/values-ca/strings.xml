@@ -843,7 +843,11 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="cmd_success_marker">S\'ha afegit correctament un marcador de directe a %1$s%2$s.</string>
     <string name="cmd_fail_marker">No s\'ha pogut crear el marcador de directe - %1$s</string>
     <string name="cmd_usage_commercial">Ús: /commercial &lt;durada&gt; - Inicia un anunci amb la durada especificada per al canal actual. Les durades vàlides són 30, 60, 90, 120, 150 i 180 segons.</string>
-    <string name="cmd_success_commercial">S\'inicia una pausa publicitària de %1$d segons. Tingueu en compte que encara esteu en directe i no tots els espectadors rebran un anunci. Podeu executar un altre anunci en %2$d segons.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">S\'inicia una pausa publicitària de %1$d segons. Tingueu en compte que encara esteu en directe i no tots els espectadors rebran un anunci. Podeu executar un altre anunci en %2$d segons.</item>
+        <item quantity="many">S\'inicia una pausa publicitària de %1$d segons. Tingueu en compte que encara esteu en directe i no tots els espectadors rebran un anunci. Podeu executar un altre anunci en %2$d segons.</item>
+        <item quantity="other">S\'inicia una pausa publicitària de %1$d segons. Tingueu en compte que encara esteu en directe i no tots els espectadors rebran un anunci. Podeu executar un altre anunci en %2$d segons.</item>
+    </plurals>
     <string name="cmd_fail_commercial">No s\'ha pogut iniciar l\'anunci - %1$s</string>
     <string name="cmd_usage_raid">Ús: /raid &lt;nom d\'usuari&gt; - Feu una raid a un usuari. Només l\'emissor pot iniciar una raid.</string>
     <string name="cmd_raid_invalid_username">Nom d\'usuari no vàlid: %1$s</string>
@@ -904,7 +908,11 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="log_viewer_open">Mostra els registres</string>
     <string name="preference_log_viewer_empty">No hi ha fitxers de registre disponibles</string>
     <string name="log_viewer_search_hint">Cerca als registres</string>
-    <string name="log_viewer_selected_count">%1$d seleccionats</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d seleccionats</item>
+        <item quantity="many">%1$d seleccionats</item>
+        <item quantity="other">%1$d seleccionats</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copia els registres seleccionats</string>
     <string name="log_viewer_clear_selection">Esborra la selecció</string>
     <string name="crash_report_title">Error detectat</string>

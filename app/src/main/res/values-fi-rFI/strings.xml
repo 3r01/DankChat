@@ -818,7 +818,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="cmd_success_marker">Lähetysmerkki lisätty onnistuneesti kohtaan %1$s%2$s.</string>
     <string name="cmd_fail_marker">Lähetysmerkin luonti epäonnistui - %1$s</string>
     <string name="cmd_usage_commercial">Käyttö: /commercial &lt;pituus&gt; - Aloittaa mainoksen määritetyllä kestolla nykyisellä kanavalla. Kelvolliset pituudet ovat 30, 60, 90, 120, 150 ja 180 sekuntia.</string>
-    <string name="cmd_success_commercial">Aloitetaan %1$d sekunnin mainostauko. Muista, että olet edelleen live-tilassa eivätkä kaikki katsojat näe mainosta. Voit ajaa seuraavan mainoksen %2$d sekunnin kuluttua.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Aloitetaan %1$d sekunnin mainostauko. Muista, että olet edelleen live-tilassa eivätkä kaikki katsojat näe mainosta. Voit ajaa seuraavan mainoksen %2$d sekunnin kuluttua.</item>
+        <item quantity="other">Aloitetaan %1$d sekunnin mainostauko. Muista, että olet edelleen live-tilassa eivätkä kaikki katsojat näe mainosta. Voit ajaa seuraavan mainoksen %2$d sekunnin kuluttua.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Mainoksen aloitus epäonnistui - %1$s</string>
     <string name="cmd_usage_raid">Käyttö: /raid &lt;käyttäjänimi&gt; - Tee raid käyttäjälle. Vain lähettäjä voi aloittaa raidin.</string>
     <string name="cmd_raid_invalid_username">Virheellinen käyttäjänimi: %1$s</string>
@@ -879,7 +882,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="log_viewer_open">Näytä lokit</string>
     <string name="preference_log_viewer_empty">Lokitiedostoja ei ole saatavilla</string>
     <string name="log_viewer_search_hint">Hae lokeista</string>
-    <string name="log_viewer_selected_count">%1$d valittu</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d valittu</item>
+        <item quantity="other">%1$d valittu</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Kopioi valitut lokit</string>
     <string name="log_viewer_clear_selection">Tyhjennä valinta</string>
     <string name="crash_report_title">Kaatuminen havaittu</string>

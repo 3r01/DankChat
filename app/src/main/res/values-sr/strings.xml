@@ -847,7 +847,11 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="cmd_success_marker">Успешно додат маркер стрима у %1$s%2$s.</string>
     <string name="cmd_fail_marker">Креирање маркера стрима није успело - %1$s</string>
     <string name="cmd_usage_commercial">Употреба: /commercial &lt;дужина&gt; - Покреће рекламу са наведеним трајањем за тренутни канал. Важеће дужине су 30, 60, 90, 120, 150 и 180 секунди.</string>
-    <string name="cmd_success_commercial">Покреће се рекламна пауза од %1$d секунди. Имајте на уму да сте и даље уживо и да неће сви гледаоци видети рекламу. Можете покренути још једну рекламу за %2$d секунди.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Покреће се рекламна пауза од %1$d секунди. Имајте на уму да сте и даље уживо и да неће сви гледаоци видети рекламу. Можете покренути још једну рекламу за %2$d секунди.</item>
+        <item quantity="few">Покреће се рекламна пауза од %1$d секунди. Имајте на уму да сте и даље уживо и да неће сви гледаоци видети рекламу. Можете покренути још једну рекламу за %2$d секунди.</item>
+        <item quantity="other">Покреће се рекламна пауза од %1$d секунди. Имајте на уму да сте и даље уживо и да неће сви гледаоци видети рекламу. Можете покренути још једну рекламу за %2$d секунди.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Покретање рекламе није успело - %1$s</string>
     <string name="cmd_usage_raid">Употреба: /raid &lt;корисничко име&gt; - Рејдујте корисника. Само емитер може покренути рејд.</string>
     <string name="cmd_raid_invalid_username">Неважеће корисничко име: %1$s</string>
@@ -908,7 +912,11 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="log_viewer_open">Прегледај логове</string>
     <string name="preference_log_viewer_empty">Нема доступних лог фајлова</string>
     <string name="log_viewer_search_hint">Претражи логове</string>
-    <string name="log_viewer_selected_count">%1$d изабрано</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d изабрано</item>
+        <item quantity="few">%1$d изабрано</item>
+        <item quantity="other">%1$d изабрано</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Копирај изабране логове</string>
     <string name="log_viewer_clear_selection">Обриши избор</string>
     <string name="crash_report_title">Откривен пад</string>

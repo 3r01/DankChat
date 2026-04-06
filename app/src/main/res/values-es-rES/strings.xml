@@ -827,7 +827,11 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="cmd_success_marker">Marcador de stream añadido correctamente en %1$s%2$s.</string>
     <string name="cmd_fail_marker">Error al crear el marcador de stream - %1$s</string>
     <string name="cmd_usage_commercial">Uso: /commercial &lt;duración&gt; - Inicia un anuncio comercial con la duración especificada para el canal actual. Las duraciones válidas son 30, 60, 90, 120, 150 y 180 segundos.</string>
-    <string name="cmd_success_commercial">Iniciando pausa comercial de %1$d segundos. Recuerda que sigues en directo y no todos los espectadores recibirán el anuncio. Puedes iniciar otro anuncio en %2$d segundos.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Iniciando pausa comercial de %1$d segundos. Recuerda que sigues en directo y no todos los espectadores recibirán el anuncio. Puedes iniciar otro anuncio en %2$d segundos.</item>
+        <item quantity="many">Iniciando pausa comercial de %1$d segundos. Recuerda que sigues en directo y no todos los espectadores recibirán el anuncio. Puedes iniciar otro anuncio en %2$d segundos.</item>
+        <item quantity="other">Iniciando pausa comercial de %1$d segundos. Recuerda que sigues en directo y no todos los espectadores recibirán el anuncio. Puedes iniciar otro anuncio en %2$d segundos.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Error al iniciar el anuncio comercial - %1$s</string>
     <string name="cmd_usage_raid">Uso: /raid &lt;nombre de usuario&gt; - Raidea a un usuario. Solo el broadcaster puede iniciar un raid.</string>
     <string name="cmd_raid_invalid_username">Nombre de usuario no válido: %1$s</string>
@@ -888,7 +892,11 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="log_viewer_open">Ver registros</string>
     <string name="preference_log_viewer_empty">No hay archivos de registro disponibles</string>
     <string name="log_viewer_search_hint">Buscar en los registros</string>
-    <string name="log_viewer_selected_count">%1$d seleccionados</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d seleccionados</item>
+        <item quantity="many">%1$d seleccionados</item>
+        <item quantity="other">%1$d seleccionados</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Copiar registros seleccionados</string>
     <string name="log_viewer_clear_selection">Borrar selección</string>
     <string name="crash_report_title">Crash detectado</string>

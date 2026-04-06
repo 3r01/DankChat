@@ -817,7 +817,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="cmd_success_marker">Stream-Markierung bei %1$s%2$s erfolgreich gesetzt.</string>
     <string name="cmd_fail_marker">Stream-Markierung konnte nicht erstellt werden - %1$s</string>
     <string name="cmd_usage_commercial">Verwendung: /commercial &lt;Länge&gt; - Startet eine Werbung mit der angegebenen Dauer für den aktuellen Kanal. Gültige Längen sind 30, 60, 90, 120, 150 und 180 Sekunden.</string>
-    <string name="cmd_success_commercial">Starte %1$d Sekunden lange Werbepause. Bedenke, dass du weiterhin live bist und nicht alle Zuschauer eine Werbung erhalten. Du kannst in %2$d Sekunden eine weitere Werbung starten.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Starte %1$d Sekunden lange Werbepause. Bedenke, dass du weiterhin live bist und nicht alle Zuschauer eine Werbung erhalten. Du kannst in %2$d Sekunden eine weitere Werbung starten.</item>
+        <item quantity="other">Starte %1$d Sekunden lange Werbepause. Bedenke, dass du weiterhin live bist und nicht alle Zuschauer eine Werbung erhalten. Du kannst in %2$d Sekunden eine weitere Werbung starten.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Werbung konnte nicht gestartet werden - %1$s</string>
     <string name="cmd_usage_raid">Verwendung: /raid &lt;Benutzername&gt; - Raide einen Benutzer. Nur der Broadcaster kann einen Raid starten.</string>
     <string name="cmd_raid_invalid_username">Ungültiger Benutzername: %1$s</string>
@@ -878,7 +881,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="log_viewer_open">Protokolle anzeigen</string>
     <string name="preference_log_viewer_empty">Keine Protokolldateien verfügbar</string>
     <string name="log_viewer_search_hint">Protokolle durchsuchen</string>
-    <string name="log_viewer_selected_count">%1$d ausgewählt</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d ausgewählt</item>
+        <item quantity="other">%1$d ausgewählt</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Ausgewählte Protokolle kopieren</string>
     <string name="log_viewer_clear_selection">Auswahl aufheben</string>
     <string name="crash_report_title">Absturz erkannt</string>

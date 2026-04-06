@@ -799,7 +799,10 @@
     <string name="cmd_success_marker">%1$s%2$s уақытында стрим маркері сәтті қосылды.</string>
     <string name="cmd_fail_marker">Стрим маркерін жасау сәтсіз - %1$s</string>
     <string name="cmd_usage_commercial">Қолданысы: /commercial &lt;length&gt; - Ағымдағы арна үшін көрсетілген ұзақтықтағы жарнаманы бастайды. Жарамды ұзақтық нұсқалары: 30, 60, 90, 120, 150 және 180 секунд.</string>
-    <string name="cmd_success_commercial">%1$d секундтық жарнама үзілісі басталды. Сіз әлі тікелей эфирде екеніңізді және барлық көрермендер жарнама алмайтынын есте сақтаңыз. Келесі жарнаманы %2$d секундтан кейін іске қоса аласыз.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">%1$d секундтық жарнама үзілісі басталды. Сіз әлі тікелей эфирде екеніңізді және барлық көрермендер жарнама алмайтынын есте сақтаңыз. Келесі жарнаманы %2$d секундтан кейін іске қоса аласыз.</item>
+        <item quantity="other">%1$d секундтық жарнама үзілісі басталды. Сіз әлі тікелей эфирде екеніңізді және барлық көрермендер жарнама алмайтынын есте сақтаңыз. Келесі жарнаманы %2$d секундтан кейін іске қоса аласыз.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Жарнаманы бастау сәтсіз - %1$s</string>
     <string name="cmd_usage_raid">Қолданысы: /raid &lt;username&gt; - Пайдаланушыға рейд жасау. Тек стример рейд бастай алады.</string>
     <string name="cmd_raid_invalid_username">Жарамсыз пайдаланушы аты: %1$s</string>
@@ -860,7 +863,10 @@
     <string name="log_viewer_open">Журналдарды көру</string>
     <string name="preference_log_viewer_empty">Журнал файлдары жоқ</string>
     <string name="log_viewer_search_hint">Журналдарды іздеу</string>
-    <string name="log_viewer_selected_count">%1$d таңдалды</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d таңдалды</item>
+        <item quantity="other">%1$d таңдалды</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Таңдалған журналдарды көшіру</string>
     <string name="log_viewer_clear_selection">Таңдауды тазалау</string>
     <string name="crash_report_title">Апат анықталды</string>

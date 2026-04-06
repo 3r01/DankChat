@@ -820,7 +820,12 @@
     <string name="cmd_success_marker">Маркер стріму успішно додано на %1$s%2$s.</string>
     <string name="cmd_fail_marker">Не вдалося створити маркер стріму - %1$s</string>
     <string name="cmd_usage_commercial">Використання: /commercial &lt;тривалість&gt; - Запускає рекламу вказаної тривалості для поточного каналу. Допустимі значення: 30, 60, 90, 120, 150 та 180 секунд.</string>
-    <string name="cmd_success_commercial">Запуск рекламної паузи тривалістю %1$d секунд. Пам\'ятайте, що ви все ще в ефірі і не всі глядачі отримають рекламу. Ви зможете запустити наступну рекламу через %2$d секунд.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Запуск рекламної паузи тривалістю %1$d секунд. Пам\'ятайте, що ви все ще в ефірі і не всі глядачі отримають рекламу. Ви зможете запустити наступну рекламу через %2$d секунд.</item>
+        <item quantity="few">Запуск рекламної паузи тривалістю %1$d секунд. Пам\'ятайте, що ви все ще в ефірі і не всі глядачі отримають рекламу. Ви зможете запустити наступну рекламу через %2$d секунд.</item>
+        <item quantity="many">Запуск рекламної паузи тривалістю %1$d секунд. Пам\'ятайте, що ви все ще в ефірі і не всі глядачі отримають рекламу. Ви зможете запустити наступну рекламу через %2$d секунд.</item>
+        <item quantity="other">Запуск рекламної паузи тривалістю %1$d секунд. Пам\'ятайте, що ви все ще в ефірі і не всі глядачі отримають рекламу. Ви зможете запустити наступну рекламу через %2$d секунд.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Не вдалося запустити рекламу - %1$s</string>
     <string name="cmd_usage_raid">Використання: /raid &lt;ім\'я користувача&gt; - Зробити рейд на користувача. Тільки стрімер може розпочати рейд.</string>
     <string name="cmd_raid_invalid_username">Недійсне ім\'я користувача: %1$s</string>
@@ -881,7 +886,12 @@
     <string name="log_viewer_open">Переглянути журнали</string>
     <string name="preference_log_viewer_empty">Файли журналів відсутні</string>
     <string name="log_viewer_search_hint">Пошук у журналах</string>
-    <string name="log_viewer_selected_count">Вибрано: %1$d</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">Вибрано: %1$d</item>
+        <item quantity="few">Вибрано: %1$d</item>
+        <item quantity="many">Вибрано: %1$d</item>
+        <item quantity="other">Вибрано: %1$d</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Копіювати вибрані журнали</string>
     <string name="log_viewer_clear_selection">Скасувати вибір</string>
     <string name="crash_report_title">Виявлено збій</string>

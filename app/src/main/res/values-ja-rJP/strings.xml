@@ -774,7 +774,9 @@
     <string name="cmd_success_marker">%1$s%2$s にストリームマーカーを正常に追加しました。</string>
     <string name="cmd_fail_marker">ストリームマーカーの作成に失敗しました - %1$s</string>
     <string name="cmd_usage_commercial">使い方: /commercial &lt;長さ&gt; - 現在のチャンネルで指定した長さのCMを開始します。有効な長さは30、60、90、120、150、180秒です。</string>
-    <string name="cmd_success_commercial">%1$d 秒のCM休憩を開始します。まだ配信中であり、すべての視聴者にCMが表示されるわけではないことにご注意ください。次のCMは %2$d 秒後に実行できます。</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="other">%1$d 秒のCM休憩を開始します。まだ配信中であり、すべての視聴者にCMが表示されるわけではないことにご注意ください。次のCMは %2$d 秒後に実行できます。</item>
+    </plurals>
     <string name="cmd_fail_commercial">CMの開始に失敗しました - %1$s</string>
     <string name="cmd_usage_raid">使い方: /raid &lt;ユーザー名&gt; - ユーザーをレイドします。配信者のみがレイドを開始できます。</string>
     <string name="cmd_raid_invalid_username">無効なユーザー名: %1$s</string>
@@ -835,7 +837,9 @@
     <string name="log_viewer_open">ログを表示</string>
     <string name="preference_log_viewer_empty">ログファイルがありません</string>
     <string name="log_viewer_search_hint">ログを検索</string>
-    <string name="log_viewer_selected_count">%1$d 件選択中</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="other">%1$d 件選択中</item>
+    </plurals>
     <string name="log_viewer_copy_selection">選択したログをコピー</string>
     <string name="log_viewer_clear_selection">選択を解除</string>
     <string name="crash_report_title">クラッシュを検出</string>

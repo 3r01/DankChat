@@ -799,7 +799,10 @@
     <string name="cmd_success_marker">%1$s%2$s ରେ ସଫଳତାର ସହ ଷ୍ଟ୍ରିମ୍ ମାର୍କର ଯୋଗ ହୋଇଛି।</string>
     <string name="cmd_fail_marker">ଷ୍ଟ୍ରିମ୍ ମାର୍କର ତିଆରି କରିବା ବିଫଳ - %1$s</string>
     <string name="cmd_usage_commercial">ବ୍ୟବହାର: /commercial &lt;length&gt; - ବର୍ତ୍ତମାନ ଚ୍ୟାନେଲ ପାଇଁ ନିର୍ଦ୍ଦିଷ୍ଟ ସମୟସୀମାର ବିଜ୍ଞାପନ ଆରମ୍ଭ କରେ। ବୈଧ ସମୟ ବିକଳ୍ପଗୁଡ଼ିକ ହେଲା 30, 60, 90, 120, 150, ଏବଂ 180 ସେକେଣ୍ଡ।</string>
-    <string name="cmd_success_commercial">%1$d ସେକେଣ୍ଡର ବିଜ୍ଞାପନ ବ୍ରେକ୍ ଆରମ୍ଭ ହେଉଛି। ମନେ ରଖନ୍ତୁ ଆପଣ ଏବେ ବି ଲାଇଭ ଅଛନ୍ତି ଏବଂ ସବୁ ଦର୍ଶକ ବିଜ୍ଞାପନ ପାଇବେ ନାହିଁ। ଆପଣ %2$d ସେକେଣ୍ଡ ପରେ ଆଉ ଏକ ବିଜ୍ଞାପନ ଚଲାଇ ପାରିବେ।</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">%1$d ସେକେଣ୍ଡର ବିଜ୍ଞାପନ ବ୍ରେକ୍ ଆରମ୍ଭ ହେଉଛି। ମନେ ରଖନ୍ତୁ ଆପଣ ଏବେ ବି ଲାଇଭ ଅଛନ୍ତି ଏବଂ ସବୁ ଦର୍ଶକ ବିଜ୍ଞାପନ ପାଇବେ ନାହିଁ। ଆପଣ %2$d ସେକେଣ୍ଡ ପରେ ଆଉ ଏକ ବିଜ୍ଞାପନ ଚଲାଇ ପାରିବେ।</item>
+        <item quantity="other">%1$d ସେକେଣ୍ଡର ବିଜ୍ଞାପନ ବ୍ରେକ୍ ଆରମ୍ଭ ହେଉଛି। ମନେ ରଖନ୍ତୁ ଆପଣ ଏବେ ବି ଲାଇଭ ଅଛନ୍ତି ଏବଂ ସବୁ ଦର୍ଶକ ବିଜ୍ଞାପନ ପାଇବେ ନାହିଁ। ଆପଣ %2$d ସେକେଣ୍ଡ ପରେ ଆଉ ଏକ ବିଜ୍ଞାପନ ଚଲାଇ ପାରିବେ।</item>
+    </plurals>
     <string name="cmd_fail_commercial">ବିଜ୍ଞାପନ ଆରମ୍ଭ କରିବା ବିଫଳ - %1$s</string>
     <string name="cmd_usage_raid">ବ୍ୟବହାର: /raid &lt;username&gt; - ଏକ ୟୁଜରଙ୍କୁ ରେଡ୍ କରନ୍ତୁ। କେବଳ ବ୍ରଡ୍‌କାଷ୍ଟର ରେଡ୍ ଆରମ୍ଭ କରିପାରିବେ।</string>
     <string name="cmd_raid_invalid_username">ଅବୈଧ ୟୁଜରନେମ୍: %1$s</string>
@@ -860,7 +863,10 @@
     <string name="log_viewer_open">ଲଗ୍ ଦେଖନ୍ତୁ</string>
     <string name="preference_log_viewer_empty">କୌଣସି ଲଗ୍ ଫାଇଲ୍ ଉପಲବ୍ଧ ନାହିଁ</string>
     <string name="log_viewer_search_hint">ଲଗ୍ ଖୋଜନ୍ତୁ</string>
-    <string name="log_viewer_selected_count">%1$d ଚୟନ ହୋଇଛି</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d ଚୟନ ହୋଇଛି</item>
+        <item quantity="other">%1$d ଚୟନ ହୋଇଛି</item>
+    </plurals>
     <string name="log_viewer_copy_selection">ଚୟନିତ ଲଗ୍ କପି କରନ୍ତୁ</string>
     <string name="log_viewer_clear_selection">ଚୟନ ସଫା କରନ୍ତୁ</string>
     <string name="crash_report_title">କ୍ର୍ୟାସ ଚିହ୍ନଟ ହୋଇଛି</string>

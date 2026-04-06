@@ -794,7 +794,10 @@
     <string name="cmd_success_marker">Sikeresen hozzáadva egy adásjelölő itt: %1$s%2$s.</string>
     <string name="cmd_fail_marker">Nem sikerült létrehozni az adásjelölőt - %1$s</string>
     <string name="cmd_usage_commercial">Használat: /commercial &lt;hossz&gt; - Reklámot indít a megadott időtartammal az aktuális csatornán. Érvényes hosszok: 30, 60, 90, 120, 150 és 180 másodperc.</string>
-    <string name="cmd_success_commercial">%1$d másodperces reklámszünet indul. Ne feledd, hogy még mindig élőben vagy, és nem minden néző kap reklámot. Újabb reklámot %2$d másodperc múlva indíthatsz.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">%1$d másodperces reklámszünet indul. Ne feledd, hogy még mindig élőben vagy, és nem minden néző kap reklámot. Újabb reklámot %2$d másodperc múlva indíthatsz.</item>
+        <item quantity="other">%1$d másodperces reklámszünet indul. Ne feledd, hogy még mindig élőben vagy, és nem minden néző kap reklámot. Újabb reklámot %2$d másodperc múlva indíthatsz.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Nem sikerült elindítani a reklámot - %1$s</string>
     <string name="cmd_usage_raid">Használat: /raid &lt;felhasználónév&gt; - Raid egy felhasználóra. Csak a műsorvezető indíthat raidet.</string>
     <string name="cmd_raid_invalid_username">Érvénytelen felhasználónév: %1$s</string>
@@ -855,7 +858,10 @@
     <string name="log_viewer_open">Naplók megtekintése</string>
     <string name="preference_log_viewer_empty">Nincsenek elérhető naplófájlok</string>
     <string name="log_viewer_search_hint">Keresés a naplókban</string>
-    <string name="log_viewer_selected_count">%1$d kiválasztva</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">%1$d kiválasztva</item>
+        <item quantity="other">%1$d kiválasztva</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Kiválasztott naplók másolása</string>
     <string name="log_viewer_clear_selection">Kijelölés törlése</string>
     <string name="crash_report_title">Összeomlás észlelve</string>

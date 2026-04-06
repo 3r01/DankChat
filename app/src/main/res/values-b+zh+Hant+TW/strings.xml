@@ -800,7 +800,9 @@
     <string name="cmd_success_marker">已成功在 %1$s%2$s 新增直播標記。</string>
     <string name="cmd_fail_marker">建立直播標記失敗 - %1$s</string>
     <string name="cmd_usage_commercial">用法：/commercial &lt;length&gt; - 為目前頻道開始指定時長的廣告。有效的時長選項為 30、60、90、120、150 及 180 秒。</string>
-    <string name="cmd_success_commercial">開始 %1$d 秒的廣告時段。請注意您仍在直播中，並非所有觀眾都會收到廣告。您可以在 %2$d 秒後再次播放廣告。</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="other">開始 %1$d 秒的廣告時段。請注意您仍在直播中，並非所有觀眾都會收到廣告。您可以在 %2$d 秒後再次播放廣告。</item>
+    </plurals>
     <string name="cmd_fail_commercial">開始廣告失敗 - %1$s</string>
     <string name="cmd_usage_raid">用法：/raid &lt;username&gt; - 突襲一位使用者。只有實況主可以發起突襲。</string>
     <string name="cmd_raid_invalid_username">無效的使用者名稱：%1$s</string>
@@ -861,7 +863,9 @@
     <string name="log_viewer_open">檢視日誌</string>
     <string name="preference_log_viewer_empty">沒有可用的日誌檔案</string>
     <string name="log_viewer_search_hint">搜尋日誌</string>
-    <string name="log_viewer_selected_count">已選取 %1$d 項</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="other">已選取 %1$d 項</item>
+    </plurals>
     <string name="log_viewer_copy_selection">複製選取的日誌</string>
     <string name="log_viewer_clear_selection">清除選取</string>
     <string name="crash_report_title">偵測到當機</string>

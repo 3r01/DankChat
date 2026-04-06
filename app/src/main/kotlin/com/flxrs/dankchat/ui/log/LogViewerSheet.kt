@@ -80,6 +80,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -372,7 +373,7 @@ private fun LogViewerToolbar(
                                     color = MaterialTheme.colorScheme.surfaceContainerLow,
                                 ) {
                                     Text(
-                                        text = stringResource(R.string.log_viewer_selected_count, selectedCount),
+                                        text = pluralStringResource(R.plurals.log_viewer_selected_count, selectedCount, selectedCount),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),

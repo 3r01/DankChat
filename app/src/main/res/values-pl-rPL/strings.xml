@@ -836,7 +836,12 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="cmd_success_marker">Pomyślnie dodano znacznik streamu o %1$s%2$s.</string>
     <string name="cmd_fail_marker">Nie udało się utworzyć znacznika streamu - %1$s</string>
     <string name="cmd_usage_commercial">Użycie: /commercial &lt;długość&gt; - Uruchamia reklamę o podanym czasie trwania dla bieżącego kanału. Prawidłowe opcje to 30, 60, 90, 120, 150 i 180 sekund.</string>
-    <string name="cmd_success_commercial">Rozpoczynanie %1$d-sekundowej przerwy reklamowej. Pamiętaj, że nadal jesteś na żywo i nie wszyscy widzowie zobaczą reklamę. Możesz uruchomić kolejną reklamę za %2$d sekund.</string>
+    <plurals name="cmd_success_commercial">
+        <item quantity="one">Rozpoczynanie %1$d-sekundowej przerwy reklamowej. Pamiętaj, że nadal jesteś na żywo i nie wszyscy widzowie zobaczą reklamę. Możesz uruchomić kolejną reklamę za %2$d sekund.</item>
+        <item quantity="few">Rozpoczynanie %1$d-sekundowej przerwy reklamowej. Pamiętaj, że nadal jesteś na żywo i nie wszyscy widzowie zobaczą reklamę. Możesz uruchomić kolejną reklamę za %2$d sekund.</item>
+        <item quantity="many">Rozpoczynanie %1$d-sekundowej przerwy reklamowej. Pamiętaj, że nadal jesteś na żywo i nie wszyscy widzowie zobaczą reklamę. Możesz uruchomić kolejną reklamę za %2$d sekund.</item>
+        <item quantity="other">Rozpoczynanie %1$d-sekundowej przerwy reklamowej. Pamiętaj, że nadal jesteś na żywo i nie wszyscy widzowie zobaczą reklamę. Możesz uruchomić kolejną reklamę za %2$d sekund.</item>
+    </plurals>
     <string name="cmd_fail_commercial">Nie udało się rozpocząć reklamy - %1$s</string>
     <string name="cmd_usage_raid">Użycie: /raid &lt;nazwa użytkownika&gt; - Raiduj użytkownika. Tylko nadawca może rozpocząć raid.</string>
     <string name="cmd_raid_invalid_username">Nieprawidłowa nazwa użytkownika: %1$s</string>
@@ -897,7 +902,12 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="log_viewer_open">Wyświetl logi</string>
     <string name="preference_log_viewer_empty">Brak dostępnych plików logów</string>
     <string name="log_viewer_search_hint">Szukaj w logach</string>
-    <string name="log_viewer_selected_count">Wybrano %1$d</string>
+    <plurals name="log_viewer_selected_count">
+        <item quantity="one">Wybrano %1$d</item>
+        <item quantity="few">Wybrano %1$d</item>
+        <item quantity="many">Wybrano %1$d</item>
+        <item quantity="other">Wybrano %1$d</item>
+    </plurals>
     <string name="log_viewer_copy_selection">Kopiuj wybrane logi</string>
     <string name="log_viewer_clear_selection">Wyczyść zaznaczenie</string>
     <string name="crash_report_title">Wykryto awarię</string>
