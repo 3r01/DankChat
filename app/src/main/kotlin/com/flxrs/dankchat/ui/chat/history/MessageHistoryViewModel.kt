@@ -21,12 +21,12 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
+import com.flxrs.dankchat.ui.chat.CheckeredMessageTracker
 import com.flxrs.dankchat.ui.chat.search.ChatItemFilter
 import com.flxrs.dankchat.ui.chat.search.ChatSearchFilter
 import com.flxrs.dankchat.ui.chat.search.ChatSearchFilterParser
 import com.flxrs.dankchat.ui.chat.search.SearchFilterSuggestions
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
-import com.flxrs.dankchat.utils.extensions.isEven
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
@@ -75,6 +75,7 @@ class MessageHistoryViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
+    private val checkeredTracker = CheckeredMessageTracker()
     private val _selectedChannel = MutableStateFlow(initialChannel)
     val selectedChannel: StateFlow<HistoryChannel> = _selectedChannel
 
@@ -129,8 +130,8 @@ class MessageHistoryViewModel(
                     messages
                         .filter { it.message !is SystemMessage }
                         .filter { ChatItemFilter.matches(it, activeFilters) }
-                        .mapIndexed { index, item ->
-                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                        .map { item ->
+                            val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
                             mapToUiState(
                                 item = item,
                                 chatSettings = chatSettings,

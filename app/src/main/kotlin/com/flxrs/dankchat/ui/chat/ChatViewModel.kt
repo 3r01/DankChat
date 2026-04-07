@@ -18,7 +18,6 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
-import com.flxrs.dankchat.utils.extensions.isEven
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -70,6 +69,7 @@ class ChatViewModel(
 
     // Mapping cache: keyed on "${message.id}-${tag}-${altBg}" to avoid re-mapping unchanged messages
     private val mappingCache = LruCache<String, ChatMessageUiState>(512)
+    private val checkeredTracker = CheckeredMessageTracker()
     private var lastAppearanceSettings: AppearanceSettings? = null
     private var lastChatSettings: ChatSettings? = null
 
@@ -92,8 +92,7 @@ class ChatViewModel(
             val result = ArrayList<ChatMessageUiState>(messages.size + 8)
             for (index in messages.indices) {
                 val item = messages[index]
-                val isAlternateBackground = index.isEven
-                val altBg = isAlternateBackground && appearanceSettings.checkeredMessages
+                val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
                 val cacheKey = "${item.message.id}-${item.tag}-$altBg"
 
                 val mapped =

@@ -12,7 +12,7 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
-import com.flxrs.dankchat.utils.extensions.isEven
+import com.flxrs.dankchat.ui.chat.CheckeredMessageTracker
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -74,6 +74,9 @@ class MentionViewModel(
             .map { it.toImmutableList() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000), persistentListOf())
 
+    private val mentionCheckered = CheckeredMessageTracker()
+    private val whisperCheckered = CheckeredMessageTracker()
+
     init {
         combine(whispers, currentTab) { _, tab -> tab }
             .filter { it == 1 }
@@ -90,8 +93,8 @@ class MentionViewModel(
             chatMessageMapper
                 .run {
                     messages
-                        .mapIndexed { index, item ->
-                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                        .map { item ->
+                            val altBg = mentionCheckered.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
                             mapToUiState(
                                 item = item,
                                 chatSettings = chatSettings,
@@ -111,8 +114,8 @@ class MentionViewModel(
             chatMessageMapper
                 .run {
                     messages
-                        .mapIndexed { index, item ->
-                            val altBg = index.isEven && appearanceSettings.checkeredMessages
+                        .map { item ->
+                            val altBg = whisperCheckered.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
                             mapToUiState(
                                 item = item,
                                 chatSettings = chatSettings,

@@ -9,7 +9,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
-import com.flxrs.dankchat.utils.extensions.isEven
+import com.flxrs.dankchat.ui.chat.CheckeredMessageTracker
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
@@ -42,6 +42,8 @@ class RepliesViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
+    private val checkeredTracker = CheckeredMessageTracker()
+
     val state =
         repliesRepository
             .getThreadItemsFlow(rootMessageId)
@@ -67,8 +69,8 @@ class RepliesViewModel(
                     val uiMessages = chatMessageMapper
                         .run {
                             repliesState.items
-                                .mapIndexed { index, item ->
-                                    val altBg = index.isEven && appearanceSettings.checkeredMessages
+                                .map { item ->
+                                    val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
                                     mapToUiState(
                                         item = item,
                                         chatSettings = chatSettings,

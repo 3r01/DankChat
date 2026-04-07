@@ -104,8 +104,6 @@ fun MessageHistorySheet(
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
     val availableChannels by viewModel.availableChannels.collectAsStateWithLifecycle()
     val selectedChannel by viewModel.selectedChannel.collectAsStateWithLifecycle()
-    val isGlobal by viewModel.isGlobal.collectAsStateWithLifecycle()
-
     val sheetBackgroundColor =
         lerp(
             MaterialTheme.colorScheme.surfaceContainer,
