@@ -477,8 +477,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="message_more_actions">Mehr…</string>
     <string name="message_jump_to">Zur Nachricht springen</string>
     <string name="message_not_in_history">Nachricht nicht mehr im Chatverlauf</string>
-    <string name="channel_history">Nachrichtenhistorie</string>
-    <string name="global_user_history">Globaler Verlauf</string>
+    <string name="channel_history">Kanal-Nachrichtenverlauf</string>
+    <string name="global_user_history">Globaler Nachrichtenverlauf</string>
     <string name="global_history_title">Globaler Verlauf</string>
     <string name="message_history_title">Verlauf: %1$s</string>
     <string name="search_messages_hint">Nachrichten suchen…</string>

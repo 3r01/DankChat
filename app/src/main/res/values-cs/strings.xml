@@ -483,8 +483,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="message_more_actions">Více…</string>
     <string name="message_jump_to">Přejít na zprávu</string>
     <string name="message_not_in_history">Zpráva již není v historii chatu</string>
-    <string name="channel_history">Historie zpráv</string>
-    <string name="global_user_history">Globální historie</string>
+    <string name="channel_history">Historie zpráv kanálu</string>
+    <string name="global_user_history">Globální historie zpráv</string>
     <string name="global_history_title">Globální historie</string>
     <string name="message_history_title">Historie: %1$s</string>
     <string name="search_messages_hint">Hledat zprávy…</string>

@@ -471,8 +471,8 @@
     <string name="message_more_actions">Altro…</string>
     <string name="message_jump_to">Vai al messaggio</string>
     <string name="message_not_in_history">Il messaggio non è più nella cronologia della chat</string>
-    <string name="channel_history">Cronologia messaggi</string>
-    <string name="global_user_history">Cronologia globale</string>
+    <string name="channel_history">Cronologia messaggi del canale</string>
+    <string name="global_user_history">Cronologia globale messaggi</string>
     <string name="global_history_title">Cronologia globale</string>
     <string name="message_history_title">Cronologia: %1$s</string>
     <string name="search_messages_hint">Cerca messaggi…</string>

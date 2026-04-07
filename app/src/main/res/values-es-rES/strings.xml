@@ -481,8 +481,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="message_more_actions">Ver más…</string>
     <string name="message_jump_to">Ir al mensaje</string>
     <string name="message_not_in_history">El mensaje ya no está en el historial del chat</string>
-    <string name="channel_history">Historial de mensajes</string>
-    <string name="global_user_history">Historial global</string>
+    <string name="channel_history">Historial de mensajes del canal</string>
+    <string name="global_user_history">Historial global de mensajes</string>
     <string name="global_history_title">Historial global</string>
     <string name="message_history_title">Historial: %1$s</string>
     <string name="search_messages_hint">Buscar mensajes…</string>

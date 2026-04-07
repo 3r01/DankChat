@@ -725,8 +725,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="message_jump_to">Иди на поруку</string>
     <string name="message_not_found">Порука није пронађена</string>
     <string name="message_not_in_history">Порука више није у историји ћаскања</string>
-    <string name="channel_history">Историја порука</string>
-    <string name="global_user_history">Глобална историја</string>
+    <string name="channel_history">Историја порука канала</string>
+    <string name="global_user_history">Глобална историја порука</string>
     <string name="global_history_title">Глобална историја</string>
     <string name="message_history_title">Историја: %1$s</string>
     <string name="search_messages_hint">Претражи поруке…</string>

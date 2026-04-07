@@ -477,8 +477,8 @@
     <string name="message_more_actions">Больш…</string>
     <string name="message_jump_to">Перайсці да паведамлення</string>
     <string name="message_not_in_history">Паведамленне больш не ў гісторыі чата</string>
-    <string name="channel_history">Гісторыя паведамленняў</string>
-    <string name="global_user_history">Глабальная гісторыя</string>
+    <string name="channel_history">Гісторыя паведамленняў канала</string>
+    <string name="global_user_history">Глабальная гісторыя паведамленняў</string>
     <string name="global_history_title">Глабальная гісторыя</string>
     <string name="message_history_title">Гісторыя: %1$s</string>
     <string name="search_messages_hint">Пошук паведамленняў…</string>
