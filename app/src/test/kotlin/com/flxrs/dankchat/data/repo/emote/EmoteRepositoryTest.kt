@@ -1,10 +1,10 @@
 package com.flxrs.dankchat.data.repo.emote
 
-import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -16,9 +16,6 @@ import kotlin.test.assertEquals
 @ExtendWith(MockKExtension::class)
 internal class EmoteRepositoryTest {
     @MockK
-    lateinit var dankchatApiClient: DankChatApiClient
-
-    @MockK
     lateinit var helixApiClient: HelixApiClient
 
     @MockK
@@ -26,6 +23,9 @@ internal class EmoteRepositoryTest {
 
     @MockK
     lateinit var channelRepository: ChannelRepository
+
+    @MockK
+    lateinit var dispatchersProvider: DispatchersProvider
 
     @InjectMockKs
     lateinit var emoteRepository: EmoteRepository
