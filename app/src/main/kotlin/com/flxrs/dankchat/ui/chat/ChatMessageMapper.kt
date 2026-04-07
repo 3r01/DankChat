@@ -553,7 +553,12 @@ class ChatMessageMapper(
 
         val threadUi =
             if (thread != null && !isInReplies) {
-                thread.toThreadUi()
+                ThreadUi(
+                    rootId = thread.rootId,
+                    userName = thread.name.value,
+                    message = thread.message,
+                    rawNameColor = usersRepository.getCachedUserColor(thread.name) ?: Message.DEFAULT_COLOR,
+                )
             } else {
                 null
             }

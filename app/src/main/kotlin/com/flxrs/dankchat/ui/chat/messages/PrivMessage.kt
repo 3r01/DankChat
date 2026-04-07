@@ -154,6 +154,7 @@ fun PrivMessageComposable(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val replyColor = rememberAdaptiveTextColor(backgroundColor).copy(alpha = 0.6f)
+                val replyNameColor = rememberNormalizedColor(message.thread.rawNameColor, backgroundColor)
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Reply,
                     contentDescription = null,
@@ -161,9 +162,18 @@ fun PrivMessageComposable(
                     tint = replyColor,
                 )
                 Text(
-                    text = "Reply to @${message.thread.userName}: ${message.thread.message}",
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(color = replyColor)) {
+                            append("Reply to ")
+                        }
+                        withStyle(SpanStyle(color = replyNameColor)) {
+                            append("@${message.thread.userName}: ")
+                        }
+                        withStyle(SpanStyle(color = replyColor)) {
+                            append(message.thread.message)
+                        }
+                    },
                     fontSize = (fontSize * 0.9f).sp,
-                    color = replyColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),

@@ -8,7 +8,6 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
-import com.flxrs.dankchat.data.twitch.message.MessageThreadHeader
 import com.flxrs.dankchat.utils.TextResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -248,10 +247,5 @@ data class ThreadUi(
     val rootId: String,
     val userName: String,
     val message: String,
-)
-
-fun MessageThreadHeader.toThreadUi(): ThreadUi = ThreadUi(
-    rootId = rootId,
-    userName = name.value,
-    message = message,
+    val rawNameColor: Int = Message.DEFAULT_COLOR,
 )
