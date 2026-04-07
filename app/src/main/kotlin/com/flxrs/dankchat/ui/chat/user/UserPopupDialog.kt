@@ -25,7 +25,6 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -78,7 +77,6 @@ fun UserPopupDialog(
     onReport: (String) -> Unit,
     isOwnUser: Boolean = false,
     onMessageHistory: ((String) -> Unit)? = null,
-    onGlobalHistory: ((String) -> Unit)? = null,
     onViewHistory: ((String) -> Unit)? = null,
 ) {
     var showBlockConfirmation by remember { mutableStateOf(false) }
@@ -190,42 +188,22 @@ fun UserPopupDialog(
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
-                                if (onViewHistory != null) {
+                                val historyCallback = onViewHistory ?: onMessageHistory
+                                if (historyCallback != null) {
+                                    val label = when (onViewHistory) {
+                                        null -> R.string.message_history
+                                        else -> R.string.view_history
+                                    }
                                     ListItem(
-                                        headlineContent = { Text(stringResource(R.string.view_history)) },
+                                        headlineContent = { Text(stringResource(label)) },
                                         leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
-                                                onViewHistory(userName.value)
+                                                historyCallback(userName.value)
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
-                                } else {
-                                    if (onMessageHistory != null) {
-                                        ListItem(
-                                            headlineContent = { Text(stringResource(R.string.channel_history)) },
-                                            leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
-                                            modifier =
-                                                Modifier.clickable {
-                                                    onMessageHistory(userName.value)
-                                                    onDismiss()
-                                                },
-                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                        )
-                                    }
-                                    if (onGlobalHistory != null) {
-                                        ListItem(
-                                            headlineContent = { Text(stringResource(R.string.global_user_history)) },
-                                            leadingContent = { Icon(Icons.Default.Public, contentDescription = null) },
-                                            modifier =
-                                                Modifier.clickable {
-                                                    onGlobalHistory(userName.value)
-                                                    onDismiss()
-                                                },
-                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                        )
-                                    }
                                 }
                                 if (isSuccess && !isOwnUser) {
                                     ListItem(

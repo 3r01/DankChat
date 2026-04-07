@@ -726,8 +726,7 @@
     <string name="message_more_actions">More…</string>
     <string name="message_jump_to">Jump to message</string>
     <string name="message_not_in_history">Message no longer in chat history</string>
-    <string name="channel_history">Channel message history</string>
-    <string name="global_user_history">Global message history</string>
+    <string name="message_history">Message history</string>
     <string name="global_history_title">Global History</string>
     <string name="message_history_title">History: %1$s</string>
     <string name="view_history">View history</string>

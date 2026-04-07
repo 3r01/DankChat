@@ -483,8 +483,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="message_more_actions">Więcej…</string>
     <string name="message_jump_to">Przejdź do wiadomości</string>
     <string name="message_not_in_history">Wiadomość nie jest już w historii czatu</string>
-    <string name="channel_history">Historia wiadomości kanału</string>
-    <string name="global_user_history">Globalna historia wiadomości</string>
+    <string name="message_history">Historia wiadomości</string>
     <string name="global_history_title">Globalna historia</string>
     <string name="message_history_title">Historia: %1$s</string>
     <string name="search_messages_hint">Szukaj wiadomości…</string>

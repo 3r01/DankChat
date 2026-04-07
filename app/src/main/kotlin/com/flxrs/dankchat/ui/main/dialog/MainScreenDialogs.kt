@@ -601,13 +601,6 @@ private fun UserPopupDialogContainer(
 
             else -> null
         },
-        onGlobalHistory = when (onViewHistory) {
-            null -> { userName: String ->
-                onOpenHistory(HistoryChannel.Global, "from:$userName")
-            }
-
-            else -> null
-        },
         onViewHistory = onViewHistory,
     )
 }

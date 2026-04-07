@@ -475,8 +475,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="message_more_actions">Daha fazlası…</string>
     <string name="message_jump_to">Mesaja git</string>
     <string name="message_not_in_history">Mesaj artık sohbet geçmişinde değil</string>
-    <string name="channel_history">Kanal mesaj geçmişi</string>
-    <string name="global_user_history">Genel mesaj geçmişi</string>
+    <string name="message_history">Mesaj geçmişi</string>
     <string name="global_history_title">Genel geçmiş</string>
     <string name="message_history_title">Geçmiş: %1$s</string>
     <string name="search_messages_hint">Mesaj ara…</string>

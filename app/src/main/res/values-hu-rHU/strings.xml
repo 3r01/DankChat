@@ -466,8 +466,7 @@
     <string name="message_more_actions">Több…</string>
     <string name="message_jump_to">Ugrás az üzenethez</string>
     <string name="message_not_in_history">Az üzenet már nincs a csevegési előzményekben</string>
-    <string name="channel_history">Csatorna üzenetelőzményei</string>
-    <string name="global_user_history">Globális üzenetelőzmények</string>
+    <string name="message_history">Üzenetelőzmények</string>
     <string name="global_history_title">Globális előzmények</string>
     <string name="message_history_title">Előzmények: %1$s</string>
     <string name="search_messages_hint">Üzenetek keresése…</string>

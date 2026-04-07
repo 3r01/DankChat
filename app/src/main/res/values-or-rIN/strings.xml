@@ -615,8 +615,7 @@
     <string name="message_more_actions">ଅଧିକ…</string>
     <string name="message_jump_to">ବାର୍ତ୍ତାକୁ ଯାଆନ୍ତୁ</string>
     <string name="message_not_in_history">ବାର୍ତ୍ତା ଆଉ ଚାଟ୍ ଇତିହାସରେ ନାହିଁ</string>
-    <string name="channel_history">ଚ୍ୟାନେଲ ବାର୍ତ୍ତା ଇତିହାସ</string>
-    <string name="global_user_history">ଗ୍ଲୋବାଲ ବାର୍ତ୍ତା ଇତିହାସ</string>
+    <string name="message_history">ବାର୍ତ୍ତା ଇତିହାସ</string>
     <string name="global_history_title">ଗ୍ଲୋବାଲ ଇତିହାସ</string>
     <string name="message_history_title">ଇତିହାସ: %1$s</string>
     <string name="search_messages_hint">ବାର୍ତ୍ତା ଖୋଜନ୍ତୁ…</string>

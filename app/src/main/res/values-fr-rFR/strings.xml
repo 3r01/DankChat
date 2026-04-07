@@ -477,8 +477,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_more_actions">Plus…</string>
     <string name="message_jump_to">Aller au message</string>
     <string name="message_not_in_history">Le message n\'est plus dans l\'historique du chat</string>
-    <string name="channel_history">Historique des messages du salon</string>
-    <string name="global_user_history">Historique global des messages</string>
+    <string name="message_history">Historique des messages</string>
     <string name="global_history_title">Historique global</string>
     <string name="message_history_title">Historique : %1$s</string>
     <string name="search_messages_hint">Rechercher des messages…</string>

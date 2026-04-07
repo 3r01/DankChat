@@ -533,7 +533,7 @@ private fun InputActionButton(
     when (action) {
         InputAction.Search -> {
             icon = Icons.Default.Search
-            contentDescription = R.string.channel_history
+            contentDescription = R.string.message_history
             onClick = onSearchClick
             tint = null
         }

@@ -494,8 +494,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="message_jump_to">Anar al missatge</string>
     <string name="message_not_found">No s\'ha trobat el missatge</string>
     <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>
-    <string name="channel_history">Historial de missatges del canal</string>
-    <string name="global_user_history">Historial global de missatges</string>
+    <string name="message_history">Historial de missatges</string>
     <string name="global_history_title">Historial global</string>
     <string name="message_history_title">Historial: %1$s</string>
     <string name="search_messages_hint">Cerca missatges…</string>

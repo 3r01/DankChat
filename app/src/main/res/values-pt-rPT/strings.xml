@@ -472,8 +472,7 @@
     <string name="message_more_actions">Mais…</string>
     <string name="message_jump_to">Ir para a mensagem</string>
     <string name="message_not_in_history">Mensagem já não está no histórico do chat</string>
-    <string name="channel_history">Histórico de mensagens do canal</string>
-    <string name="global_user_history">Histórico global de mensagens</string>
+    <string name="message_history">Histórico de mensagens</string>
     <string name="global_history_title">Histórico global</string>
     <string name="message_history_title">Histórico: %1$s</string>
     <string name="search_messages_hint">Pesquisar mensagens…</string>

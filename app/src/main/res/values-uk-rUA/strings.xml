@@ -484,8 +484,7 @@
     <string name="message_more_actions">Більше…</string>
     <string name="message_jump_to">Перейти до повідомлення</string>
     <string name="message_not_in_history">Повідомлення більше немає в історії чату</string>
-    <string name="channel_history">Історія повідомлень каналу</string>
-    <string name="global_user_history">Глобальна історія повідомлень</string>
+    <string name="message_history">Історія повідомлень</string>
     <string name="global_history_title">Глобальна історія</string>
     <string name="message_history_title">Історія: %1$s</string>
     <string name="search_messages_hint">Пошук повідомлень…</string>
