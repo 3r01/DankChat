@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Reply
@@ -25,10 +26,14 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,12 +47,14 @@ import com.flxrs.dankchat.ui.chat.messages.common.LinkableText
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
+import com.flxrs.dankchat.ui.chat.messages.common.isSpacerId
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
+import com.flxrs.dankchat.ui.chat.messages.common.spacerWidthDp
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
 
 /**
@@ -249,6 +256,9 @@ fun PointRedemptionMessageComposable(
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(backgroundColor)
 
+    val density = LocalDensity.current
+    val textMeasurer = rememberTextMeasurer()
+
     Box(
         modifier =
             modifier
@@ -259,58 +269,93 @@ fun PointRedemptionMessageComposable(
                 .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         val nameColor = message.nameText?.let { rememberNormalizedColor(message.rawNameColor, backgroundColor) }
+        val rewardImageSize = (fontSize * 1.5f)
+        val costTextStyle = TextStyle(fontSize = fontSize.sp, color = textColor)
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            val annotatedString =
-                remember(message, textColor, nameColor) {
-                    buildAnnotatedString {
-                        // Timestamp
-                        if (message.timestamp.isNotEmpty()) {
-                            withStyle(timestampSpanStyle(fontSize, textColor)) {
-                                append(message.timestamp)
-                            }
-                            appendInlineSpacer(6.dp)
+        val annotatedString =
+            remember(message, textColor, nameColor) {
+                buildAnnotatedString {
+                    // Timestamp
+                    if (message.timestamp.isNotEmpty()) {
+                        withStyle(timestampSpanStyle(fontSize, textColor)) {
+                            append(message.timestamp)
                         }
-
-                        when {
-                            message.requiresUserInput -> {
-                                append("Redeemed ")
-                            }
-
-                            message.nameText != null -> {
-                                withStyle(SpanStyle(color = nameColor ?: textColor)) {
-                                    append(message.nameText)
-                                }
-                                append(" redeemed ")
-                            }
-                        }
-
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append(message.title)
-                        }
-                        append("  ")
+                        appendInlineSpacer(6.dp)
                     }
+
+                    when {
+                        message.requiresUserInput -> {
+                            append("Redeemed ")
+                        }
+
+                        message.nameText != null -> {
+                            withStyle(SpanStyle(color = nameColor ?: textColor)) {
+                                append(message.nameText)
+                            }
+                            append(" redeemed ")
+                        }
+                    }
+
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(message.title)
+                    }
+                    append(" ")
+                    appendInlineContent(REWARD_COST_ID, "[reward ${message.cost}]")
+                }
+            }
+
+        val inlineContent = remember(annotatedString, rewardImageSize, density, costTextStyle) {
+            val costText = " ${message.cost}"
+            val costWidthPx = textMeasurer.measure(costText, costTextStyle).size.width
+
+            buildMap {
+                val spacerIds = annotatedString
+                    .getStringAnnotations(INLINE_CONTENT_TAG, 0, annotatedString.length)
+                    .filter { isSpacerId(it.item) }
+                    .map { it.item }
+                    .distinct()
+
+                for (id in spacerIds) {
+                    val widthSp = with(density) { spacerWidthDp(id).dp.toSp() }
+                    put(
+                        id,
+                        InlineTextContent(
+                            Placeholder(width = widthSp, height = 0.01.sp, PlaceholderVerticalAlign.TextCenter),
+                        ) { },
+                    )
                 }
 
-            LinkableText(
-                text = annotatedString,
-                style = TextStyle(fontSize = fontSize.sp, color = textColor),
-            )
-
-            AsyncImage(
-                model = message.rewardImageUrl,
-                contentDescription = message.title,
-                modifier = Modifier.size((fontSize * 1.5f).dp),
-            )
-
-            BasicText(
-                text = " ${message.cost}",
-                style = TextStyle(fontSize = fontSize.sp, color = textColor),
-                modifier = Modifier.padding(start = 4.dp),
-            )
+                val imageSizeSp = with(density) { rewardImageSize.dp.toSp() }
+                val costWidthSp = with(density) { costWidthPx.toDp().toSp() }
+                val totalWidth = (imageSizeSp.value + costWidthSp.value).sp
+                put(
+                    REWARD_COST_ID,
+                    InlineTextContent(
+                        Placeholder(width = totalWidth, height = imageSizeSp, PlaceholderVerticalAlign.TextCenter),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            AsyncImage(
+                                model = message.rewardImageUrl,
+                                contentDescription = message.title,
+                                modifier = Modifier.size(rewardImageSize.dp),
+                            )
+                            BasicText(
+                                text = costText,
+                                style = costTextStyle,
+                            )
+                        }
+                    },
+                )
+            }
         }
+
+        BasicText(
+            text = annotatedString,
+            style = costTextStyle,
+            inlineContent = inlineContent,
+        )
     }
 }
+
+private const val INLINE_CONTENT_TAG = "androidx.compose.foundation.text.inlineContent"
+private const val REWARD_COST_ID = "REWARD_COST"

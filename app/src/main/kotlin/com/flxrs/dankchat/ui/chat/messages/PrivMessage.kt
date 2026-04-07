@@ -110,7 +110,10 @@ fun PrivMessageComposable(
                     fontWeight = FontWeight.Medium,
                     color = headerColor,
                     maxLines = 1,
-                    modifier = Modifier.padding(start = 4.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .padding(start = 4.dp)
+                        .weight(1f, fill = false),
                 )
                 if (message.highlightHeaderImageUrl != null && message.highlightHeaderCost != null) {
                     AsyncImage(
