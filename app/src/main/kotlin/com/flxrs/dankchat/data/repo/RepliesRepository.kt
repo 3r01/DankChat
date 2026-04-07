@@ -79,7 +79,9 @@ class RepliesRepository(
                 else -> {
                     // Message already exists in thread
                     if (existing.replies.any { it.id == strippedMessage.id }) {
-                        return strippedMessage
+                        val parentName = message.tags[PARENT_MESSAGE_LOGIN_TAG]?.toUserName() ?: existing.rootMessage.name
+                        val parentBody = message.tags[PARENT_MESSAGE_BODY_TAG] ?: existing.rootMessage.originalMessage
+                        return strippedMessage.copy(thread = MessageThreadHeader(rootId, parentName, parentBody, existing.participated))
                     }
 
                     existing.copy(replies = existing.replies + strippedMessage, participated = existing.updateParticipated(strippedMessage))

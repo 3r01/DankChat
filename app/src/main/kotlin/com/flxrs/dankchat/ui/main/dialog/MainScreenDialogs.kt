@@ -444,7 +444,7 @@ private fun MessageOptionsDialogContainer(
 ) {
     val viewModel: MessageOptionsViewModel =
         koinViewModel(
-            key = params.messageId,
+            key = "${params.messageId}-${params.canReply}-${params.canModerate}",
             parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
         )
     val state by viewModel.state.collectAsStateWithLifecycle()
