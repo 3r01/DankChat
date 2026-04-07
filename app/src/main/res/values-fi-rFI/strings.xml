@@ -487,7 +487,9 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="message_jump_to">Siirry viestiin</string>
     <string name="message_not_found">Viestiä ei löytynyt</string>
     <string name="message_not_in_history">Viesti ei ole enää chat-historiassa</string>
-    <string name="message_history">Viestihistoria</string>
+    <string name="channel_history">Viestihistoria</string>
+    <string name="global_user_history">Yleinen historia</string>
+    <string name="global_history_title">Yleinen historia</string>
     <string name="message_history_title">Historia: %1$s</string>
     <string name="search_messages_hint">Hae viestejä…</string>
     <string name="search_filter_by_username">Suodata käyttäjänimen mukaan</string>
@@ -914,4 +916,6 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_beyond_viewport_page_count_summary">Viereisten kanavansivujen esikoostekappalemäärä sujuvampaa pyyhkäisyä varten</string>
     <string name="none">Ei mitään</string>
     <string name="all">Kaikki</string>
+    <string name="view_history">Näytä historia</string>
+    <string name="history_empty">Ei viestejä nykyisillä suodattimilla</string>
 </resources>

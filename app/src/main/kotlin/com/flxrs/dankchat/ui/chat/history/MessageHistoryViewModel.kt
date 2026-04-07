@@ -9,9 +9,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
+import com.flxrs.dankchat.data.twitch.message.SystemMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
@@ -31,13 +33,17 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -46,10 +52,11 @@ import kotlinx.coroutines.flow.take
 import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class MessageHistoryViewModel(
-    @InjectedParam private val channel: UserName,
-    chatMessageRepository: ChatMessageRepository,
+    @InjectedParam private val initialChannel: HistoryChannel,
+    private val chatMessageRepository: ChatMessageRepository,
     usersRepository: UsersRepository,
     private val chatMessageMapper: ChatMessageMapper,
     private val preferenceStore: DankChatPreferenceStore,
@@ -68,6 +75,27 @@ class MessageHistoryViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
+    private val _selectedChannel = MutableStateFlow(initialChannel)
+    val selectedChannel: StateFlow<HistoryChannel> = _selectedChannel
+
+    val availableChannels: StateFlow<ImmutableList<HistoryChannel>> =
+        chatMessageRepository.channels
+            .map { channels ->
+                buildList {
+                    add(HistoryChannel.Global)
+                    channels.forEach { add(HistoryChannel.Channel(it)) }
+                }.toImmutableList()
+            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf(HistoryChannel.Global))
+
+    val isGlobal: StateFlow<Boolean> =
+        _selectedChannel
+            .map { it is HistoryChannel.Global }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialChannel is HistoryChannel.Global)
+
+    fun selectChannel(channel: HistoryChannel) {
+        _selectedChannel.value = channel
+    }
+
     val searchFieldState = TextFieldState()
 
     private val searchQuery =
@@ -81,9 +109,17 @@ class MessageHistoryViewModel(
         ).map { ChatSearchFilterParser.parse(it) }
             .distinctUntilChanged()
 
+    private val messagesFlow: Flow<List<ChatItem>> =
+        _selectedChannel.flatMapLatest { channel ->
+            when (channel) {
+                is HistoryChannel.Global -> chatMessageRepository.getAllChat()
+                is HistoryChannel.Channel -> chatMessageRepository.getChat(channel.name)
+            }
+        }
+
     val historyUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
-            chatMessageRepository.getChat(channel),
+            messagesFlow,
             filters,
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
@@ -91,6 +127,7 @@ class MessageHistoryViewModel(
             chatMessageMapper
                 .run {
                     messages
+                        .filter { it.message !is SystemMessage }
                         .filter { ChatItemFilter.matches(it, activeFilters) }
                         .mapIndexed { index, item ->
                             val altBg = index.isEven && appearanceSettings.checkeredMessages
@@ -105,14 +142,26 @@ class MessageHistoryViewModel(
         }.flowOn(dispatchersProvider.default)
 
     private val users: StateFlow<ImmutableSet<DisplayName>> =
-        usersRepository
-            .getUsersFlow(channel)
-            .map { it.toImmutableSet() }
+        _selectedChannel
+            .flatMapLatest { channel ->
+                when (channel) {
+                    is HistoryChannel.Channel -> usersRepository.getUsersFlow(channel.name).map { it.toSet() }
+
+                    is HistoryChannel.Global -> chatMessageRepository.channels.flatMapLatest { channels ->
+                        when {
+                            channels.isEmpty() -> flowOf(emptySet())
+
+                            else -> combine(channels.map { usersRepository.getUsersFlow(it) }) { arrays ->
+                                arrays.flatMap { it }.toSet()
+                            }
+                        }
+                    }
+                }
+            }.map { it.toImmutableSet() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
     private val badgeNames: StateFlow<ImmutableSet<String>> =
-        chatMessageRepository
-            .getChat(channel)
+        messagesFlow
             .map { items ->
                 items
                     .asSequence()

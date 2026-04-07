@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.ui.chat.search
 
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 
@@ -41,6 +42,11 @@ object ChatItemFilter {
         is PrivMessage -> {
             message.name.value.equals(name, ignoreCase = true) ||
                 message.displayName.value.equals(name, ignoreCase = true)
+        }
+
+        is ModerationMessage -> {
+            message.targetUser?.value?.equals(name, ignoreCase = true) == true ||
+                message.targetUserDisplay?.value?.equals(name, ignoreCase = true) == true
         }
 
         else -> {

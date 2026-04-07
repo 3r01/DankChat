@@ -477,7 +477,9 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_more_actions">Plus…</string>
     <string name="message_jump_to">Aller au message</string>
     <string name="message_not_in_history">Le message n\'est plus dans l\'historique du chat</string>
-    <string name="message_history">Historique des messages</string>
+    <string name="channel_history">Historique des messages</string>
+    <string name="global_user_history">Historique global</string>
+    <string name="global_history_title">Historique global</string>
     <string name="message_history_title">Historique : %1$s</string>
     <string name="search_messages_hint">Rechercher des messages…</string>
     <string name="search_filter_by_username">Filtrer par nom d\'utilisateur</string>
@@ -924,4 +926,6 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_beyond_viewport_page_count_summary">Nombre de pages de chaîne adjacentes à pré-composer pour un balayage plus fluide</string>
     <string name="none">Aucun</string>
     <string name="all">Tout</string>
+    <string name="view_history">Voir l\'historique</string>
+    <string name="history_empty">Aucun message ne correspond aux filtres actuels</string>
 </resources>

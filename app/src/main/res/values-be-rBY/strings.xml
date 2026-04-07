@@ -477,7 +477,9 @@
     <string name="message_more_actions">Больш…</string>
     <string name="message_jump_to">Перайсці да паведамлення</string>
     <string name="message_not_in_history">Паведамленне больш не ў гісторыі чата</string>
-    <string name="message_history">Гісторыя паведамленняў</string>
+    <string name="channel_history">Гісторыя паведамленняў</string>
+    <string name="global_user_history">Глабальная гісторыя</string>
+    <string name="global_history_title">Глабальная гісторыя</string>
     <string name="message_history_title">Гісторыя: %1$s</string>
     <string name="search_messages_hint">Пошук паведамленняў…</string>
     <string name="search_filter_by_username">Фільтр па імені карыстальніка</string>
@@ -933,4 +935,6 @@
     <string name="preference_beyond_viewport_page_count_summary">Колькасць суседніх старонак каналаў для папярэдняй кампазіцыі для больш плаўнага гартання</string>
     <string name="none">Няма</string>
     <string name="all">Усе</string>
+    <string name="view_history">Паглядзець гісторыю</string>
+    <string name="history_empty">Няма паведамленняў, якія адпавядаюць бягучым фільтрам</string>
 </resources>

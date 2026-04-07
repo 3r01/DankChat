@@ -122,6 +122,7 @@ sealed interface ChatMessageUiState {
         override val roundedTopCorners: Boolean = false,
         override val roundedBottomCorners: Boolean = false,
         override val showDividerBelow: Boolean = false,
+        val channel: UserName,
         val message: TextResource,
         val creatorName: String? = null,
         val targetName: String? = null,

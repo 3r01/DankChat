@@ -704,6 +704,7 @@ private fun ChatMessageItem(
             ModerationMessageComposable(
                 message = message,
                 fontSize = fontSize,
+                showChannelPrefix = showChannelPrefix,
             )
         }
 

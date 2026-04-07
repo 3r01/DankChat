@@ -726,8 +726,12 @@
     <string name="message_more_actions">More…</string>
     <string name="message_jump_to">Jump to message</string>
     <string name="message_not_in_history">Message no longer in chat history</string>
-    <string name="message_history">Message history</string>
+    <string name="channel_history">Channel history</string>
+    <string name="global_user_history">Global history</string>
+    <string name="global_history_title">Global History</string>
     <string name="message_history_title">History: %1$s</string>
+    <string name="view_history">View history</string>
+    <string name="history_empty">No messages match the current filters</string>
     <string name="search_messages_hint">Search messages…</string>
 
     <string name="log_viewer_title">Logs</string>

@@ -615,7 +615,9 @@
     <string name="message_more_actions">Қосымша…</string>
     <string name="message_jump_to">Хабарламаға өту</string>
     <string name="message_not_in_history">Хабарлама чат тарихында жоқ</string>
-    <string name="message_history">Хабар тарихы</string>
+    <string name="channel_history">Хабар тарихы</string>
+    <string name="global_user_history">Жаһандық тарих</string>
+    <string name="global_history_title">Жаһандық тарих</string>
     <string name="message_history_title">Тарих: %1$s</string>
     <string name="search_messages_hint">Хабарларды іздеу…</string>
     <string name="search_filter_by_username">Пайдаланушы аты бойынша сүзу</string>
@@ -895,4 +897,6 @@
     <string name="preference_beyond_viewport_page_count_summary">Тегіс сырғыту үшін алдын ала құрастырылатын көрші арна беттерінің саны</string>
     <string name="none">Жоқ</string>
     <string name="all">Барлығы</string>
+    <string name="view_history">Тарихты көру</string>
+    <string name="history_empty">Ағымдағы сүзгілерге сәйкес хабарлар жоқ</string>
 </resources>

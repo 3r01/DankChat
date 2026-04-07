@@ -1,15 +1,22 @@
 package com.flxrs.dankchat.ui.main.sheet
 
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,16 +25,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -47,7 +58,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
@@ -56,16 +66,20 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
+import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
 import kotlinx.collections.immutable.persistentListOf
@@ -75,7 +89,6 @@ import kotlinx.coroutines.CancellationException
 @Composable
 fun MessageHistorySheet(
     viewModel: MessageHistoryViewModel,
-    channel: UserName,
     initialFilter: String,
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
@@ -89,6 +102,9 @@ fun MessageHistorySheet(
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by viewModel.historyUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
     val filterSuggestions by viewModel.filterSuggestions.collectAsStateWithLifecycle()
+    val availableChannels by viewModel.availableChannels.collectAsStateWithLifecycle()
+    val selectedChannel by viewModel.selectedChannel.collectAsStateWithLifecycle()
+    val isGlobal by viewModel.isGlobal.collectAsStateWithLifecycle()
 
     val sheetBackgroundColor =
         lerp(
@@ -132,6 +148,7 @@ fun MessageHistorySheet(
                 onShow = { toolbarVisible = true },
             )
         }
+
     val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
     Box(
@@ -140,83 +157,152 @@ fun MessageHistorySheet(
                 .fillMaxSize()
                 .background(sheetBackgroundColor)
                 .graphicsLayer {
-                    val scale = 1f - (backProgress * 0.1f)
-                    scaleX = scale
-                    scaleY = scale
-                    alpha = 1f - backProgress
-                    translationY = backProgress * 100f
+                    scaleX = 1f - (backProgress * 0.1f)
+                    scaleY = 1f - (backProgress * 0.1f)
+                    alpha = 1f - (backProgress * 0.5f)
                 },
     ) {
-        ChatScreen(
-            messages = messages,
-            fontSize = displaySettings.fontSize,
-            callbacks =
-                ChatScreenCallbacks(
-                    onUserClick = onUserClick,
-                    onMessageLongClick = onMessageLongClick,
-                    onEmoteClick = onEmoteClick,
-                ),
-            animateGifs = displaySettings.animateGifs,
+        AnimatedContent(
+            targetState = selectedChannel,
+            transitionSpec = {
+                (fadeIn(tween(300, delayMillis = 100)) + scaleIn(tween(300, delayMillis = 100), initialScale = 0.92f))
+                    .togetherWith(fadeOut(tween(200)) + scaleOut(tween(200), targetScale = 0.92f))
+            },
+            label = "HistoryChannelSwitch",
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
-            scrollModifier = scrollModifier,
-            containerColor = sheetBackgroundColor,
-            onScrollToBottom = { toolbarVisible = true },
-        )
+        ) { channel ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                ChatScreen(
+                    messages = messages,
+                    fontSize = displaySettings.fontSize,
+                    callbacks =
+                        ChatScreenCallbacks(
+                            onUserClick = onUserClick,
+                            onMessageLongClick = onMessageLongClick,
+                            onEmoteClick = onEmoteClick,
+                        ),
+                    animateGifs = displaySettings.animateGifs,
+                    showChannelPrefix = channel is HistoryChannel.Global,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
+                    scrollModifier = scrollModifier,
+                    containerColor = sheetBackgroundColor,
+                    onScrollToBottom = { toolbarVisible = true },
+                )
 
-        AnimatedVisibility(
+                if (messages.isEmpty()) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .imePadding()
+                            .navigationBarsPadding()
+                            .padding(bottom = searchBarHeightDp),
+                    ) {
+                        DankBackground(visible = true)
+                        Text(
+                            text = stringResource(R.string.history_empty),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 16.dp, start = 32.dp, end = 32.dp),
+                        )
+                    }
+                }
+            }
+        }
+
+        var showChannelDropdown by remember { mutableStateOf(false) }
+
+        SheetToolbar(
             visible = toolbarVisible,
-            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter),
+            statusBarHeight = statusBarHeight,
+            sheetBackgroundColor = sheetBackgroundColor,
+            onBack = onDismiss,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .background(
-                            brush =
-                                Brush.verticalGradient(
-                                    0f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    0.75f to sheetBackgroundColor.copy(alpha = 0.7f),
-                                    1f to sheetBackgroundColor.copy(alpha = 0f),
-                                ),
-                        ).padding(top = statusBarHeight + 8.dp)
-                        .padding(bottom = 16.dp)
-                        .padding(horizontal = 8.dp),
+            Surface(
+                shape = MaterialTheme.shapes.extraLarge,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Top,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        Modifier
+                            .clickable { showChannelDropdown = !showChannelDropdown }
+                            .defaultMinSize(minHeight = 48.dp)
+                            .padding(start = 16.dp, end = 8.dp),
                 ) {
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.back),
-                            )
-                        }
-                    }
+                    Text(
+                        text = when (selectedChannel) {
+                            is HistoryChannel.Global -> stringResource(R.string.global_history_title)
+                            is HistoryChannel.Channel -> stringResource(R.string.message_history_title, (selectedChannel as HistoryChannel.Channel).name.value)
+                        },
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
 
-                    Surface(
-                        shape = MaterialTheme.shapes.extraLarge,
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
+        // Channel quick switcher dropdown — positioned below toolbar, outside SheetToolbar to avoid growing its gradient
+        AnimatedVisibility(
+            visible = showChannelDropdown && toolbarVisible,
+            enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(top = statusBarHeight + 8.dp + 48.dp + 4.dp)
+                    .padding(start = 8.dp + 48.dp + 8.dp, end = 8.dp),
+        ) {
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                Column(
+                    modifier =
+                        Modifier
+                            .width(IntrinsicSize.Max)
+                            .verticalScroll(rememberScrollState())
+                            .padding(vertical = 8.dp),
+                ) {
+                    availableChannels.forEach { channel ->
+                        val isSelected = channel == selectedChannel
                         Row(
-                            verticalAlignment = Alignment.CenterVertically,
                             modifier =
                                 Modifier
-                                    .defaultMinSize(minHeight = 48.dp)
-                                    .padding(horizontal = 16.dp),
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.selectChannel(channel)
+                                        showChannelDropdown = false
+                                    }.padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
                         ) {
                             Text(
-                                text = stringResource(R.string.message_history_title, channel.value),
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.primary,
+                                text = when (channel) {
+                                    is HistoryChannel.Global -> stringResource(R.string.global_history_title)
+                                    is HistoryChannel.Channel -> channel.name.value
+                                },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = when {
+                                    isSelected -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                                fontWeight = when {
+                                    isSelected -> FontWeight.Bold
+                                    else -> FontWeight.Normal
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }
@@ -224,7 +310,7 @@ fun MessageHistorySheet(
             }
         }
 
-        // Filter suggestions above search bar
+        // Status bar fill when toolbar is hidden
         if (!toolbarVisible) {
             Box(
                 modifier =

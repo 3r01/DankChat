@@ -2,6 +2,7 @@ package com.flxrs.dankchat.ui.main.sheet
 
 import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 
 @Immutable
 sealed interface FullScreenSheetState {
@@ -17,7 +18,7 @@ sealed interface FullScreenSheetState {
     data object Whisper : FullScreenSheetState
 
     data class History(
-        val channel: UserName,
+        val channel: HistoryChannel = HistoryChannel.Global,
         val initialFilter: String = "",
     ) : FullScreenSheetState
 }

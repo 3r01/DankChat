@@ -408,6 +408,7 @@ class ChatMessageMapper(
             lightBackgroundColor = backgroundColors.light,
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
+            channel = channel,
             message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages),
             creatorName = creatorUserDisplay?.toString(),
             targetName = targetUserDisplay?.toString(),

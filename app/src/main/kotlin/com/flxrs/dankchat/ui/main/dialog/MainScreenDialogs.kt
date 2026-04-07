@@ -66,6 +66,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
@@ -263,6 +264,8 @@ fun MainScreenDialogs(
 
     if (sheetsReady) {
         dialogState.userPopupParams?.let { params ->
+            val currentSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
+            val isHistoryOpen = currentSheetState is FullScreenSheetState.History
             UserPopupDialogContainer(
                 params = params,
                 onMention = chatInputViewModel::mentionUser,
@@ -275,6 +278,15 @@ fun MainScreenDialogs(
                 onOpenHistory = { channel, filter ->
                     sheetNavigationViewModel.openHistory(channel, filter)
                     dialogViewModel.dismissUserPopup()
+                },
+                onViewHistory = when {
+                    isHistoryOpen -> { userName ->
+                        val historyState = currentSheetState as FullScreenSheetState.History
+                        sheetNavigationViewModel.openHistory(historyState.channel, "from:$userName")
+                        dialogViewModel.dismissUserPopup()
+                    }
+
+                    else -> null
                 },
                 onDismiss = dialogViewModel::dismissUserPopup,
             )
@@ -549,7 +561,8 @@ private fun UserPopupDialogContainer(
     onWhisper: (UserName) -> Unit,
     onOpenUrl: (String) -> Unit,
     onReportChannel: () -> Unit,
-    onOpenHistory: (UserName, String) -> Unit,
+    onOpenHistory: (HistoryChannel, String) -> Unit,
+    onViewHistory: ((String) -> Unit)? = null,
     onDismiss: () -> Unit,
 ) {
     val viewModel: UserPopupViewModel =
@@ -565,17 +578,37 @@ private fun UserPopupDialogContainer(
         onBlockUser = viewModel::blockUser,
         onUnblockUser = viewModel::unblockUser,
         onDismiss = onDismiss,
-        onMention = { name, displayName ->
-            onMention(UserName(name), DisplayName(displayName))
+        onMention = when (onViewHistory) {
+            null -> { name: String, displayName: String ->
+                onMention(UserName(name), DisplayName(displayName))
+            }
+
+            else -> null
         },
-        onWhisper = { name -> onWhisper(UserName(name)) },
+        onWhisper = when (onViewHistory) {
+            null -> { name: String -> onWhisper(UserName(name)) }
+            else -> null
+        },
         onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
         onReport = { _ -> onReportChannel() },
-        onMessageHistory = { userName ->
-            params.channel?.let { channel ->
-                onOpenHistory(channel, "from:$userName")
+        onMessageHistory = when (onViewHistory) {
+            null -> { userName: String ->
+                params.channel?.let { channel ->
+                    onOpenHistory(HistoryChannel.Channel(channel), "from:$userName")
+                }
+                Unit
             }
+
+            else -> null
         },
+        onGlobalHistory = when (onViewHistory) {
+            null -> { userName: String ->
+                onOpenHistory(HistoryChannel.Global, "from:$userName")
+            }
+
+            else -> null
+        },
+        onViewHistory = onViewHistory,
     )
 }
 

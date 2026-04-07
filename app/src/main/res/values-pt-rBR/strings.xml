@@ -472,7 +472,9 @@
     <string name="message_more_actions">Mais…</string>
     <string name="message_jump_to">Ir para a mensagem</string>
     <string name="message_not_in_history">Mensagem não está mais no histórico do chat</string>
-    <string name="message_history">Histórico de mensagens</string>
+    <string name="channel_history">Histórico de mensagens</string>
+    <string name="global_user_history">Histórico global</string>
+    <string name="global_history_title">Histórico global</string>
     <string name="message_history_title">Histórico: %1$s</string>
     <string name="search_messages_hint">Pesquisar mensagens…</string>
     <string name="search_filter_by_username">Filtrar por nome de usuário</string>
@@ -919,4 +921,6 @@
     <string name="preference_beyond_viewport_page_count_summary">Número de páginas de canal adjacentes a pré-compor para uma navegação mais fluida</string>
     <string name="none">Nenhum</string>
     <string name="all">Tudo</string>
+    <string name="view_history">Ver histórico</string>
+    <string name="history_empty">Nenhuma mensagem corresponde aos filtros atuais</string>
 </resources>

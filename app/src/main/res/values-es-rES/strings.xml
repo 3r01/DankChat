@@ -481,7 +481,9 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="message_more_actions">Ver más…</string>
     <string name="message_jump_to">Ir al mensaje</string>
     <string name="message_not_in_history">El mensaje ya no está en el historial del chat</string>
-    <string name="message_history">Historial de mensajes</string>
+    <string name="channel_history">Historial de mensajes</string>
+    <string name="global_user_history">Historial global</string>
+    <string name="global_history_title">Historial global</string>
     <string name="message_history_title">Historial: %1$s</string>
     <string name="search_messages_hint">Buscar mensajes…</string>
     <string name="search_filter_by_username">Filtrar por nombre de usuario</string>
@@ -926,4 +928,6 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_beyond_viewport_page_count_summary">Número de páginas de canal adyacentes a precomponer para un deslizamiento más fluido</string>
     <string name="none">Ninguno</string>
     <string name="all">Todo</string>
+    <string name="view_history">Ver historial</string>
+    <string name="history_empty">No hay mensajes que coincidan con los filtros actuales</string>
 </resources>

@@ -460,7 +460,9 @@
     <string name="message_more_actions">もっとみる…</string>
     <string name="message_jump_to">メッセージに移動</string>
     <string name="message_not_in_history">メッセージはチャット履歴にありません</string>
-    <string name="message_history">メッセージ履歴</string>
+    <string name="channel_history">メッセージ履歴</string>
+    <string name="global_user_history">グローバル履歴</string>
+    <string name="global_history_title">グローバル履歴</string>
     <string name="message_history_title">履歴：%1$s</string>
     <string name="search_messages_hint">メッセージを検索…</string>
     <string name="search_filter_by_username">ユーザー名でフィルター</string>
@@ -892,4 +894,6 @@
     <string name="preference_beyond_viewport_page_count_summary">スムーズなスワイプのために事前に構成する隣接チャンネルページの数</string>
     <string name="none">なし</string>
     <string name="all">すべて</string>
+    <string name="view_history">履歴を表示</string>
+    <string name="history_empty">現在のフィルターに一致するメッセージはありません</string>
 </resources>

@@ -615,7 +615,9 @@
     <string name="message_more_actions">ଅଧିକ…</string>
     <string name="message_jump_to">ବାର୍ତ୍ତାକୁ ଯାଆନ୍ତୁ</string>
     <string name="message_not_in_history">ବାର୍ତ୍ତା ଆଉ ଚାଟ୍ ଇତିହାସରେ ନାହିଁ</string>
-    <string name="message_history">ବାର୍ତ୍ତା ଇତିହାସ</string>
+    <string name="channel_history">ବାର୍ତ୍ତା ଇତିହାସ</string>
+    <string name="global_user_history">ଗ୍ଲୋବାଲ ଇତିହାସ</string>
+    <string name="global_history_title">ଗ୍ଲୋବାଲ ଇତିହାସ</string>
     <string name="message_history_title">ଇତିହାସ: %1$s</string>
     <string name="search_messages_hint">ବାର୍ତ୍ତା ଖୋଜନ୍ତୁ…</string>
     <string name="search_filter_by_username">ଉପଯୋଗକର୍ତ୍ତା ନାମ ଦ୍ୱାରା ଫିଲ୍ଟର କରନ୍ତୁ</string>
@@ -895,4 +897,6 @@
     <string name="preference_beyond_viewport_page_count_summary">ସୁଗମ ସ୍ୱାଇପ ପାଇଁ ପୂର୍ବ-ରଚନା କରିବାକୁ ନିକଟବର୍ତ୍ତୀ ଚ୍ୟାନେଲ ପୃଷ୍ଠାଗୁଡ଼ିକର ସଂଖ୍ୟା</string>
     <string name="none">କିଛି ନାହିଁ</string>
     <string name="all">ସମସ୍ତ</string>
+    <string name="view_history">ଇତିହାସ ଦେଖନ୍ତୁ</string>
+    <string name="history_empty">ବର୍ତ୍ତମାନର ଫିଲ୍ଟରଗୁଡ଼ିକ ସହ କୌଣସି ସନ୍ଦେଶ ମେଳ ଖାଉନାହିଁ</string>
 </resources>

@@ -484,7 +484,9 @@
     <string name="message_more_actions">Більше…</string>
     <string name="message_jump_to">Перейти до повідомлення</string>
     <string name="message_not_in_history">Повідомлення більше немає в історії чату</string>
-    <string name="message_history">Історія повідомлень</string>
+    <string name="channel_history">Історія повідомлень</string>
+    <string name="global_user_history">Глобальна історія</string>
+    <string name="global_history_title">Глобальна історія</string>
     <string name="message_history_title">Історія: %1$s</string>
     <string name="search_messages_hint">Пошук повідомлень…</string>
     <string name="search_filter_by_username">Фільтр за іменем користувача</string>
@@ -945,4 +947,6 @@
     <string name="preference_beyond_viewport_page_count_summary">Кількість сусідніх сторінок каналів для попередньої композиції для більш плавного гортання</string>
     <string name="none">Жодної</string>
     <string name="all">Усі</string>
+    <string name="view_history">Переглянути історію</string>
+    <string name="history_empty">Немає повідомлень, що відповідають поточним фільтрам</string>
 </resources>

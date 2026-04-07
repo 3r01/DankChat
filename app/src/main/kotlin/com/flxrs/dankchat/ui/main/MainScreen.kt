@@ -68,6 +68,7 @@ import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.rememberEmoteAnimationCoordinator
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
@@ -446,7 +447,7 @@ fun MainScreen(
                             onAudioOnly = { streamViewModel.toggleAudioOnly() },
                             onModActions = dialogViewModel::showModActions,
                             onInputActionsChange = mainScreenViewModel::updateInputActions,
-                            onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(it) } },
+                            onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) } },
                             onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
                             onNewWhisper =
                                 if (inputState.isWhisperTabActive) {
@@ -664,7 +665,7 @@ fun MainScreen(
                             }
                         when (action) {
                             InputAction.Search -> {
-                                channel?.let { sheetNavigationViewModel.openHistory(it) }
+                                channel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) }
                             }
 
                             InputAction.LastMessage -> {

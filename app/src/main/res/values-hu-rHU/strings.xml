@@ -466,7 +466,9 @@
     <string name="message_more_actions">Több…</string>
     <string name="message_jump_to">Ugrás az üzenethez</string>
     <string name="message_not_in_history">Az üzenet már nincs a csevegési előzményekben</string>
-    <string name="message_history">Üzenetelőzmények</string>
+    <string name="channel_history">Üzenetelőzmények</string>
+    <string name="global_user_history">Globális előzmények</string>
+    <string name="global_history_title">Globális előzmények</string>
     <string name="message_history_title">Előzmények: %1$s</string>
     <string name="search_messages_hint">Üzenetek keresése…</string>
     <string name="search_filter_by_username">Szűrés felhasználónév szerint</string>
@@ -905,4 +907,6 @@
     <string name="preference_beyond_viewport_page_count_summary">A simább lapozás érdekében előre összeállítandó szomszédos csatornaoldalak száma</string>
     <string name="none">Nincs</string>
     <string name="all">Mind</string>
+    <string name="view_history">Előzmények megtekintése</string>
+    <string name="history_empty">Nincs a jelenlegi szűrőknek megfelelő üzenet</string>
 </resources>

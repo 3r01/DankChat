@@ -471,7 +471,9 @@
     <string name="message_more_actions">Altro…</string>
     <string name="message_jump_to">Vai al messaggio</string>
     <string name="message_not_in_history">Il messaggio non è più nella cronologia della chat</string>
-    <string name="message_history">Cronologia messaggi</string>
+    <string name="channel_history">Cronologia messaggi</string>
+    <string name="global_user_history">Cronologia globale</string>
+    <string name="global_history_title">Cronologia globale</string>
     <string name="message_history_title">Cronologia: %1$s</string>
     <string name="search_messages_hint">Cerca messaggi…</string>
     <string name="search_filter_by_username">Filtra per nome utente</string>
@@ -918,4 +920,6 @@
     <string name="preference_beyond_viewport_page_count_summary">Numero di pagine canale adiacenti da precomporre per uno scorrimento più fluido</string>
     <string name="none">Nessuno</string>
     <string name="all">Tutto</string>
+    <string name="view_history">Visualizza cronologia</string>
+    <string name="history_empty">Nessun messaggio corrisponde ai filtri attuali</string>
 </resources>

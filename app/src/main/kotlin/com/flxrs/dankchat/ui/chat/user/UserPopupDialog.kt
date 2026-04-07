@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -71,12 +72,14 @@ fun UserPopupDialog(
     onBlockUser: () -> Unit,
     onUnblockUser: () -> Unit,
     onDismiss: () -> Unit,
-    onMention: (String, String) -> Unit,
-    onWhisper: (String) -> Unit,
+    onMention: ((String, String) -> Unit)? = null,
+    onWhisper: ((String) -> Unit)? = null,
     onOpenChannel: (String) -> Unit,
     onReport: (String) -> Unit,
     isOwnUser: Boolean = false,
     onMessageHistory: ((String) -> Unit)? = null,
+    onGlobalHistory: ((String) -> Unit)? = null,
+    onViewHistory: ((String) -> Unit)? = null,
 ) {
     var showBlockConfirmation by remember { mutableStateOf(false) }
 
@@ -163,17 +166,19 @@ fun UserPopupDialog(
                                     onOpenChannel = onOpenChannel,
                                 )
 
-                                ListItem(
-                                    headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
-                                    leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
-                                    modifier =
-                                        Modifier.clickable {
-                                            onMention(userName.value, displayName.value)
-                                            onDismiss()
-                                        },
-                                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                )
-                                if (!isOwnUser) {
+                                if (onMention != null) {
+                                    ListItem(
+                                        headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
+                                        leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
+                                        modifier =
+                                            Modifier.clickable {
+                                                onMention(userName.value, displayName.value)
+                                                onDismiss()
+                                            },
+                                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                    )
+                                }
+                                if (onWhisper != null && !isOwnUser) {
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
                                         leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
@@ -185,17 +190,42 @@ fun UserPopupDialog(
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
-                                if (onMessageHistory != null) {
+                                if (onViewHistory != null) {
                                     ListItem(
-                                        headlineContent = { Text(stringResource(R.string.message_history)) },
+                                        headlineContent = { Text(stringResource(R.string.view_history)) },
                                         leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
-                                                onMessageHistory(userName.value)
+                                                onViewHistory(userName.value)
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
+                                } else {
+                                    if (onMessageHistory != null) {
+                                        ListItem(
+                                            headlineContent = { Text(stringResource(R.string.channel_history)) },
+                                            leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
+                                            modifier =
+                                                Modifier.clickable {
+                                                    onMessageHistory(userName.value)
+                                                    onDismiss()
+                                                },
+                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                        )
+                                    }
+                                    if (onGlobalHistory != null) {
+                                        ListItem(
+                                            headlineContent = { Text(stringResource(R.string.global_user_history)) },
+                                            leadingContent = { Icon(Icons.Default.Public, contentDescription = null) },
+                                            modifier =
+                                                Modifier.clickable {
+                                                    onGlobalHistory(userName.value)
+                                                    onDismiss()
+                                                },
+                                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                                        )
+                                    }
                                 }
                                 if (isSuccess && !isOwnUser) {
                                     ListItem(

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -196,6 +197,7 @@ fun ModerationMessageComposable(
     message: ChatMessageUiState.ModerationMessageUi,
     fontSize: Float,
     modifier: Modifier = Modifier,
+    showChannelPrefix: Boolean = false,
 ) {
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
@@ -264,6 +266,13 @@ fun ModerationMessageComposable(
                 }.sortedBy { it.start }
 
             buildAnnotatedString {
+                // Channel prefix
+                if (showChannelPrefix) {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = textColor)) {
+                        append("#${message.channel.value} ")
+                    }
+                }
+
                 // Timestamp
                 if (message.timestamp.isNotEmpty()) {
                     withStyle(timestampSpanStyle(textSize.value, timestampColor)) {

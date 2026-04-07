@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
@@ -18,6 +19,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
@@ -94,13 +96,12 @@ fun FullScreenSheetOverlay(
 
                 is FullScreenSheetState.History -> {
                     HistorySheetContent(
-                        channel = sheetState.channel,
+                        historyChannel = sheetState.channel,
                         initialFilter = sheetState.initialFilter,
                         onDismiss = onDismiss,
                         onUserClick = onUserClick,
                         onMessageLongClick = onMessageLongClick,
                         onEmoteClick = onEmoteClick,
-                        userLongClickBehavior = userLongClickBehavior,
                     )
                 }
             }
@@ -110,34 +111,23 @@ fun FullScreenSheetOverlay(
 
 @Composable
 private fun HistorySheetContent(
-    channel: UserName,
+    historyChannel: HistoryChannel,
     initialFilter: String,
     onDismiss: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
     onEmoteClick: (List<ChatMessageEmote>) -> Unit,
-    userLongClickBehavior: UserLongClickBehavior,
 ) {
     val viewModel: MessageHistoryViewModel =
         koinViewModel(
-            key = "history-${channel.value}",
-            parameters = { parametersOf(channel) },
+            parameters = { parametersOf(historyChannel) },
         )
-    val clickHandler: (String?, String, String, String?, List<BadgeUi>, Boolean) -> Unit = { userId, userName, displayName, clickChannel, badges, isLongPress ->
-        val shouldOpenPopup =
-            when (userLongClickBehavior) {
-                UserLongClickBehavior.MentionsUser -> !isLongPress
-                UserLongClickBehavior.OpensPopup -> isLongPress
-            }
-        if (shouldOpenPopup) {
-            onUserClick(buildUserPopupParams(userId, userName, displayName, clickChannel, badges))
-        } else {
-            viewModel.insertText("${UserName(userName).valueOrDisplayName(DisplayName(displayName))} ")
-        }
+    LaunchedEffect(historyChannel) {
+        viewModel.selectChannel(historyChannel)
     }
+    val clickHandler = popupOnlyClickHandler(onUserClick)
     MessageHistorySheet(
         viewModel = viewModel,
-        channel = channel,
         initialFilter = initialFilter,
         onDismiss = onDismiss,
         onUserClick = clickHandler,

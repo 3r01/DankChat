@@ -18,10 +18,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -75,9 +80,30 @@ class ChatMessageRepository(
 
     val chatLoadingFailures = _chatLoadingFailures.asStateFlow()
 
-    fun getChat(channel: UserName): StateFlow<List<ChatItem>> = messages.getOrPut(channel) { MutableStateFlow(emptyList()) }
+    fun getChat(channel: UserName): StateFlow<List<ChatItem>> = messages.getOrPut(channel) { MutableStateFlow(emptyList()) }.also {
+        updateChannelKeys()
+    }
 
     fun getMessagesFlow(channel: UserName): MutableStateFlow<List<ChatItem>>? = messages[channel]
+
+    val channels: Flow<List<UserName>>
+        get() = _channelKeys.map { it.toList() }
+
+    private val _channelKeys = MutableStateFlow<Set<UserName>>(emptySet())
+
+    private fun updateChannelKeys() {
+        _channelKeys.value = messages.keys.toSet()
+    }
+
+    fun getAllChat(): Flow<List<ChatItem>> = _channelKeys.flatMapLatest { keys ->
+        when {
+            keys.isEmpty() -> flowOf(emptyList())
+
+            else -> combine(keys.map { getChat(it) }) { arrays ->
+                arrays.flatMap { it.toList() }.sortedBy { it.message.timestamp }
+            }
+        }
+    }
 
     fun findMessage(
         messageId: String,

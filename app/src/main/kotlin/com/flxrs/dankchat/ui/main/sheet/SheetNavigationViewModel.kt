@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.main.sheet
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +43,7 @@ class SheetNavigationViewModel : ViewModel() {
     }
 
     fun openHistory(
-        channel: UserName,
+        channel: HistoryChannel,
         initialFilter: String = "",
     ) {
         _fullScreenSheetState.value = FullScreenSheetState.History(channel, initialFilter)
