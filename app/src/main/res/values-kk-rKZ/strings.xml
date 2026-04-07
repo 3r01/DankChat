@@ -892,10 +892,6 @@
     <string name="crash_viewer_clear_all">Барлығын тазалау</string>
     <string name="crash_viewer_clear_all_confirm">Барлық апат есептерін жою керек пе?</string>
     <string name="scroll_to_bottom">Төменге айналдыру</string>
-    <string name="preference_beyond_viewport_page_count_title">Арна бетін алдын ала жүктеу саны</string>
-    <string name="preference_beyond_viewport_page_count_summary">Тегіс сырғыту үшін алдын ала құрастырылатын көрші арна беттерінің саны</string>
-    <string name="none">Жоқ</string>
-    <string name="all">Барлығы</string>
     <string name="view_history">Тарихты көру</string>
     <string name="history_empty">Ағымдағы сүзгілерге сәйкес хабарлар жоқ</string>
 </resources>

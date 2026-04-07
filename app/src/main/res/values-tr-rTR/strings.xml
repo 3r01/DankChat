@@ -909,10 +909,6 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="crash_viewer_clear_all_confirm">Tüm çökme raporları silinsin mi?</string>
     <string name="scroll_to_bottom">En alta kaydır</string>
     <string name="system_message_upload_complete">Yükleme tamamlandı: %1$s</string>
-    <string name="preference_beyond_viewport_page_count_title">Kanal sayfası ön yükleme sayısı</string>
-    <string name="preference_beyond_viewport_page_count_summary">Daha akıcı kaydırma için önceden oluşturulacak bitişik kanal sayfası sayısı</string>
-    <string name="none">Hiçbiri</string>
-    <string name="all">Tümü</string>
     <string name="view_history">Geçmişi görüntüle</string>
     <string name="history_empty">Mevcut filtrelerle eşleşen mesaj yok</string>
 </resources>

@@ -915,10 +915,6 @@
         <item quantity="many">Em direto com %1$d espectadores em %2$s durante %3$s</item>
         <item quantity="other">Em direto com %1$d espectadores em %2$s durante %3$s</item>
     </plurals>
-    <string name="preference_beyond_viewport_page_count_title">Pré-carregamento de páginas de canal</string>
-    <string name="preference_beyond_viewport_page_count_summary">Número de páginas de canal adjacentes a pré-compor para uma navegação mais fluida</string>
-    <string name="none">Nenhum</string>
-    <string name="all">Tudo</string>
     <string name="view_history">Ver histórico</string>
     <string name="history_empty">Nenhuma mensagem corresponde aos filtros atuais</string>
 </resources>

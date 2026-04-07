@@ -891,10 +891,6 @@
     <string name="crash_viewer_clear_all">全部清除</string>
     <string name="crash_viewer_clear_all_confirm">刪除所有當機報告？</string>
     <string name="scroll_to_bottom">捲動至底部</string>
-    <string name="preference_beyond_viewport_page_count_title">頻道頁面預載數量</string>
-    <string name="preference_beyond_viewport_page_count_summary">為了更流暢的滑動而預先組合的相鄰頻道頁面數量</string>
-    <string name="none">無</string>
-    <string name="all">全部</string>
     <string name="view_history">查看歷史</string>
     <string name="history_empty">沒有符合目前篩選條件的訊息</string>
 </resources>

@@ -923,10 +923,6 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="crash_viewer_clear_all_confirm">¿Eliminar todos los informes de crash?</string>
     <string name="scroll_to_bottom">Desplazar hacia abajo</string>
     <string name="system_message_upload_complete">Carga completada: %1$s</string>
-    <string name="preference_beyond_viewport_page_count_title">Precarga de páginas de canal</string>
-    <string name="preference_beyond_viewport_page_count_summary">Número de páginas de canal adyacentes a precomponer para un deslizamiento más fluido</string>
-    <string name="none">Ninguno</string>
-    <string name="all">Todo</string>
     <string name="view_history">Ver historial</string>
     <string name="history_empty">No hay mensajes que coincidan con los filtros actuales</string>
 </resources>

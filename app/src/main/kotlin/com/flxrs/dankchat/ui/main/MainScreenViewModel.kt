@@ -61,7 +61,6 @@ class MainScreenViewModel(
                 debugMode = developerSettings.debugMode,
                 swipeNavigation = appearance.swipeNavigation,
                 gestureToolbarHidden = gestureToolbarHidden,
-                beyondViewportPageCount = developerSettings.beyondViewportPageCount,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState())
 

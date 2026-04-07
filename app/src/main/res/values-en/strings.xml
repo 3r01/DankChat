@@ -904,10 +904,6 @@
     <string name="crash_viewer_clear_all">Clear all</string>
     <string name="crash_viewer_clear_all_confirm">Delete all crash reports?</string>
     <string name="scroll_to_bottom">Scroll to bottom</string>
-    <string name="preference_beyond_viewport_page_count_title">Channel page preload count</string>
-    <string name="preference_beyond_viewport_page_count_summary">Number of adjacent channel pages to pre-compose for smoother swiping</string>
-    <string name="none">None</string>
-    <string name="all">All</string>
     <string name="view_history">View history</string>
     <string name="history_empty">No messages match the current filters</string>
 </resources>

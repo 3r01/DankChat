@@ -56,7 +56,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -81,7 +80,6 @@ import com.flxrs.dankchat.preferences.components.ExpandablePreferenceItem
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceItem
-import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubDebugOutput
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubEnabled
@@ -94,7 +92,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.math.roundToInt
 
 @Composable
 fun DeveloperSettingsScreen(
@@ -360,35 +357,6 @@ private fun DeveloperSettingsContent(
                     isChecked = settings.repeatedSending,
                     onClick = { onInteraction(DeveloperSettingsInteraction.RepeatedSending(it)) },
                 )
-                run {
-                    val allPosition = 6f
-                    val initialSliderValue = when (settings.beyondViewportPageCount) {
-                        Int.MAX_VALUE -> allPosition
-                        else -> settings.beyondViewportPageCount.toFloat()
-                    }
-                    var sliderValue by remember(initialSliderValue) { mutableFloatStateOf(initialSliderValue) }
-                    val summary = when (sliderValue) {
-                        0f -> stringResource(R.string.none)
-                        allPosition -> stringResource(R.string.all)
-                        else -> sliderValue.roundToInt().toString()
-                    }
-                    SliderPreferenceItem(
-                        title = stringResource(R.string.preference_beyond_viewport_page_count_title),
-                        summary = summary,
-                        value = sliderValue,
-                        range = 0f..allPosition,
-                        steps = 5,
-                        onDrag = { sliderValue = it },
-                        onDragFinish = {
-                            val value = when (sliderValue) {
-                                allPosition -> Int.MAX_VALUE
-                                else -> sliderValue.roundToInt()
-                            }
-                            onInteraction(DeveloperSettingsInteraction.BeyondViewportPageCount(value))
-                        },
-                        displayValue = false,
-                    )
-                }
                 ExpandablePreferenceItem(title = stringResource(R.string.preference_rm_host_title)) {
                     CustomRecentMessagesHostBottomSheet(
                         initialHost = settings.customRecentMessagesHost,

@@ -303,7 +303,6 @@ fun MainScreen(
     val isFullscreen = mainState.isFullscreen
     val showInput = mainState.showInput
     val swipeNavigation = mainState.swipeNavigation
-    val beyondViewportPageCount = mainState.beyondViewportPageCount
     val effectiveShowAppBar = mainState.effectiveShowAppBar
 
     val toolbarTracker =
@@ -724,7 +723,6 @@ fun MainScreen(
                     showInput = showInput,
                     isFullscreen = isFullscreen,
                     swipeNavigation = swipeNavigation,
-                    beyondViewportPageCount = beyondViewportPageCount,
                     isSheetOpen = isSheetOpen,
                     inputHeightDp = inputHeightDp,
                     helperTextHeightDp = helperTextHeightDp,

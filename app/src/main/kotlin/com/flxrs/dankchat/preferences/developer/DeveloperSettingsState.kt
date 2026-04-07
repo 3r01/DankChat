@@ -35,10 +35,6 @@ sealed interface DeveloperSettingsInteraction {
         val protocol: ChatSendProtocol,
     ) : DeveloperSettingsInteraction
 
-    data class BeyondViewportPageCount(
-        val value: Int,
-    ) : DeveloperSettingsInteraction
-
     data object RestartRequired : DeveloperSettingsInteraction
 
     data object ResetOnboarding : DeveloperSettingsInteraction

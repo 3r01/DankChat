@@ -614,11 +614,6 @@
     <string name="preference_repeated_sending_key" translatable="false">repeated_sending_key</string>
     <string name="preference_repeated_sending_title">Enable repeated sending</string>
     <string name="preference_repeated_sending_summary">Enables continuous message sending while send button is held</string>
-    <string name="preference_beyond_viewport_page_count_key" translatable="false">beyond_viewport_page_count_key</string>
-    <string name="preference_beyond_viewport_page_count_title">Channel page preload count</string>
-    <string name="preference_beyond_viewport_page_count_summary">Number of adjacent channel pages to pre-compose for smoother swiping</string>
-    <string name="none">None</string>
-    <string name="all">All</string>
     <string name="oauth_expired_title">Login Expired!</string>
     <string name="oauth_expired_message">Your login token has expired! Please login again.</string>
     <string name="oauth_expired_login_again">Login Again</string>

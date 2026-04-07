@@ -921,10 +921,6 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="choose_highlight_color">Choisir une couleur</string>
     <string name="pick_highlight_color_title">Choisir une couleur de surbrillance personnalisée</string>
     <string name="reset_default_highlight_color">Par défaut</string>
-    <string name="preference_beyond_viewport_page_count_title">Préchargement des pages de chaîne</string>
-    <string name="preference_beyond_viewport_page_count_summary">Nombre de pages de chaîne adjacentes à pré-composer pour un balayage plus fluide</string>
-    <string name="none">Aucun</string>
-    <string name="all">Tout</string>
     <string name="view_history">Voir l\'historique</string>
     <string name="history_empty">Aucun message ne correspond aux filtres actuels</string>
 </resources>
