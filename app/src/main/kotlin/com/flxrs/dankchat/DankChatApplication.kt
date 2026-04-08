@@ -33,9 +33,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
+import org.koin.core.annotation.KoinApplication
 import org.koin.dsl.module
-import org.koin.ksp.generated.module
+import org.koin.plugin.module.dsl.startKoin
+
+@KoinApplication(modules = [DankChatModule::class])
+object DankChatKoinApp
 
 class DankChatApplication :
     Application(),
@@ -56,10 +59,9 @@ class DankChatApplication :
             isCrashReportingEnabled = { developerSettingsDataStore.current().debugMode },
         )
         crashHandler.install()
-        startKoin {
+        startKoin<DankChatKoinApp> {
             androidContext(this@DankChatApplication)
             modules(
-                DankChatModule().module,
                 module {
                     single { CrashRepository(crashHandler.dataStore) }
                 },

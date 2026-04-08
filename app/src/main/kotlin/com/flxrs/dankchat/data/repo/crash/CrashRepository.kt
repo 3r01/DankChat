@@ -4,7 +4,9 @@ import androidx.datastore.core.DataStore
 import com.flxrs.dankchat.BuildConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import org.koin.core.annotation.Provided
 
+@Provided
 class CrashRepository(
     private val dataStore: DataStore<CrashData>,
 ) {

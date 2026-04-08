@@ -6,8 +6,8 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import kotlinx.collections.immutable.toImmutableList
-import org.koin.android.annotation.KoinViewModel
 import org.koin.core.annotation.InjectedParam
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class EmoteInfoViewModel(

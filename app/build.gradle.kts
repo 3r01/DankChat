@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.koin.compiler)
     alias(libs.plugins.about.libraries.android)
     alias(libs.plugins.android.junit5)
     alias(libs.plugins.spotless)
@@ -106,9 +107,10 @@ android {
 
 ksp {
     arg("room.schemaLocation", "${layout.projectDirectory}/schemas")
-    arg("KOIN_CONFIG_CHECK", "true")
-    arg("KOIN_DEFAULT_MODULE", "false")
-    arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
+}
+
+koinCompiler {
+    compileSafety = true
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
@@ -193,8 +195,6 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.annotations)
-    implementation(libs.koin.ksp.compiler)
-    ksp(libs.koin.ksp.compiler)
 
     // Image loading
     implementation(libs.coil)
