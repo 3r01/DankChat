@@ -6,8 +6,8 @@ import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.pubsub.PubSubManager
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.di.ReadConnection
-import com.flxrs.dankchat.di.WriteConnection
+import com.flxrs.dankchat.di.READ_CONNECTION
+import com.flxrs.dankchat.di.WRITE_CONNECTION
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap
 
 @Single
 class ChatConnector(
-    @Named(type = ReadConnection::class) private val readConnection: ChatConnection,
-    @Named(type = WriteConnection::class) private val writeConnection: ChatConnection,
+    @Named(READ_CONNECTION) private val readConnection: ChatConnection,
+    @Named(WRITE_CONNECTION) private val writeConnection: ChatConnection,
     private val pubSubManager: PubSubManager,
     private val eventSubManager: EventSubManager,
     dispatchersProvider: DispatchersProvider,

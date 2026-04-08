@@ -4,7 +4,7 @@ import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.upload.dto.UploadDto
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.di.UploadOkHttpClient
+import com.flxrs.dankchat.di.UPLOAD_OKHTTP_CLIENT
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpHeaders
@@ -36,7 +36,7 @@ private val logger = KotlinLogging.logger("UploadClient")
 
 @Single
 class UploadClient(
-    @Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient,
+    @Named(UPLOAD_OKHTTP_CLIENT) private val httpClient: OkHttpClient,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
     private val dispatchersProvider: DispatchersProvider,
 ) {

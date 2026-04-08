@@ -14,7 +14,7 @@ import com.flxrs.dankchat.data.api.seventv.eventapi.dto.SubscribeRequest
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UnsubscribeRequest
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UserDispatchData
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.di.WebSocketOkHttpClient
+import com.flxrs.dankchat.di.WEBSOCKET_OKHTTP_CLIENT
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.LiveUpdatesBackgroundBehavior
 import com.flxrs.dankchat.utils.AppLifecycleListener
@@ -53,8 +53,7 @@ private val logger = KotlinLogging.logger("SevenTVEventApiClient")
 
 @Single
 class SevenTVEventApiClient(
-    @Named(type = WebSocketOkHttpClient::class)
-    private val client: OkHttpClient,
+    @Named(WEBSOCKET_OKHTTP_CLIENT) private val client: OkHttpClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val appLifecycleListener: AppLifecycleListener,
     defaultJson: Json,

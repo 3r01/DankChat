@@ -36,9 +36,8 @@ import org.koin.core.annotation.Single
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-data object WebSocketOkHttpClient
-
-data object UploadOkHttpClient
+const val WEBSOCKET_OKHTTP_CLIENT = "WebSocketOkHttpClient"
+const val UPLOAD_OKHTTP_CLIENT = "UploadOkHttpClient"
 
 @Module
 class NetworkModule {
@@ -54,14 +53,14 @@ class NetworkModule {
     }
 
     @Single
-    @Named(type = WebSocketOkHttpClient::class)
+    @Named(WEBSOCKET_OKHTTP_CLIENT)
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient
         .Builder()
         .callTimeout(20.seconds.toJavaDuration())
         .build()
 
     @Single
-    @Named(type = UploadOkHttpClient::class)
+    @Named(UPLOAD_OKHTTP_CLIENT)
     fun provideUploadOkHttpClient(): OkHttpClient = OkHttpClient
         .Builder()
         .callTimeout(60.seconds.toJavaDuration())

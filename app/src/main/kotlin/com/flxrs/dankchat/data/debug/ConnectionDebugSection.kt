@@ -5,8 +5,8 @@ import com.flxrs.dankchat.data.api.eventapi.EventSubClientState
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.pubsub.PubSubManager
-import com.flxrs.dankchat.di.ReadConnection
-import com.flxrs.dankchat.di.WriteConnection
+import com.flxrs.dankchat.di.READ_CONNECTION
+import com.flxrs.dankchat.di.WRITE_CONNECTION
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -16,8 +16,8 @@ import org.koin.core.annotation.Single
 
 @Single
 class ConnectionDebugSection(
-    @Named(type = ReadConnection::class) private val readConnection: ChatConnection,
-    @Named(type = WriteConnection::class) private val writeConnection: ChatConnection,
+    @Named(READ_CONNECTION) private val readConnection: ChatConnection,
+    @Named(WRITE_CONNECTION) private val writeConnection: ChatConnection,
     private val eventSubClient: EventSubClient,
     private val pubSubManager: PubSubManager,
     private val sevenTVEventApiClient: SevenTVEventApiClient,

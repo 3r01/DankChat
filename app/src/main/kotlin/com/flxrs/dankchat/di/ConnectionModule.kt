@@ -8,14 +8,13 @@ import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
-data object ReadConnection
-
-data object WriteConnection
+const val READ_CONNECTION = "ReadConnection"
+const val WRITE_CONNECTION = "WriteConnection"
 
 @Module
 class ConnectionModule {
     @Single
-    @Named(type = ReadConnection::class)
+    @Named(READ_CONNECTION)
     fun provideReadConnection(
         httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
@@ -23,7 +22,7 @@ class ConnectionModule {
     ): ChatConnection = ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchersProvider)
 
     @Single
-    @Named(type = WriteConnection::class)
+    @Named(WRITE_CONNECTION)
     fun provideWriteConnection(
         httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
