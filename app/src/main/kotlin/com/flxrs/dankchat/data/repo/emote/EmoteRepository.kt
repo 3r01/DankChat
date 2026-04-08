@@ -855,7 +855,8 @@ class EmoteRepository(
     /**
      * Counts elements in a sorted list that are strictly less than [value] using binary search.
      */
-    private fun countLessThan(
+    @VisibleForTesting
+    internal fun countLessThan(
         sortedList: List<Int>,
         value: Int,
     ): Int {
@@ -868,7 +869,8 @@ class EmoteRepository(
         return low
     }
 
-    private fun parseTwitchEmotes(
+    @VisibleForTesting
+    internal fun parseTwitchEmotes(
         emotesWithPositions: List<EmoteWithPositions>,
         message: String,
         supplementaryCodePointPositions: List<Int>,
@@ -877,11 +879,15 @@ class EmoteRepository(
         replyMentionOffset: Int,
     ): List<ChatMessageEmote> = emotesWithPositions.flatMap { (id, positions) ->
         positions.map { range ->
-            val removedSpaceExtra = countLessThan(removedSpaces, range.first)
-            val unicodeExtra = countLessThan(supplementaryCodePointPositions, range.first - removedSpaceExtra)
-            val spaceExtra = countLessThan(appendedSpaces, range.first + unicodeExtra)
-            val fixedStart = range.first + unicodeExtra + spaceExtra - removedSpaceExtra - replyMentionOffset
-            val fixedEnd = range.last + unicodeExtra + spaceExtra - removedSpaceExtra - replyMentionOffset
+            // Twitch positions include the reply mention prefix, but our message/positions are stripped.
+            // Subtract replyMentionOffset first so lookups align with the stripped message.
+            val adjustedFirst = range.first - replyMentionOffset
+            val adjustedLast = range.last - replyMentionOffset
+            val removedSpaceExtra = countLessThan(removedSpaces, adjustedFirst)
+            val unicodeExtra = countLessThan(supplementaryCodePointPositions, adjustedFirst - removedSpaceExtra)
+            val spaceExtra = countLessThan(appendedSpaces, adjustedFirst + unicodeExtra)
+            val fixedStart = adjustedFirst + unicodeExtra + spaceExtra - removedSpaceExtra
+            val fixedEnd = adjustedLast + unicodeExtra + spaceExtra - removedSpaceExtra
 
             // be extra safe in case twitch sends invalid emote ranges :)
             val fixedPos = fixedStart.coerceAtLeast(minimumValue = 0)..(fixedEnd + 1).coerceAtMost(message.length)
