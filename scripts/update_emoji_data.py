@@ -13,7 +13,9 @@ import json
 import os
 import urllib.request
 
-EMOJI_DATA_URL = "https://raw.githubusercontent.com/iamcal/emoji-data/master/emoji.json"
+# Using Nerixyz fork until upstream PR is merged: https://github.com/iamcal/emoji-data/pull/255
+# Switch back to iamcal/emoji-data/master once merged.
+EMOJI_DATA_URL = "https://raw.githubusercontent.com/Nerixyz/emoji-data/feat/17-0/emoji.json"
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "app", "src", "main", "res", "raw", "emoji_data.json")
 
 
