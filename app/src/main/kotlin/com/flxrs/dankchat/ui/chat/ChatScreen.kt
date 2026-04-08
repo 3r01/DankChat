@@ -12,6 +12,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -351,6 +352,8 @@ private fun RecoveryFabs(
     onTourSkip: (() -> Unit)? = null,
 ) {
     val visible = isFullscreen || !showInput
+    val isTourHighlighted = recoveryFabTooltipState != null
+    val fabShape = FloatingActionButtonDefaults.smallShape
 
     val escapeFab: @Composable () -> Unit = {
         SmallFloatingActionButton(
@@ -359,9 +362,16 @@ private fun RecoveryFabs(
                 onTourAdvance?.invoke()
                 onRecover()
             },
-            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+            containerColor = when {
+                isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
+                else -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f)
+            },
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
+            modifier = when {
+                isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
+                else -> Modifier
+            },
         ) {
             Icon(
                 imageVector = Icons.Default.FullscreenExit,
@@ -370,8 +380,6 @@ private fun RecoveryFabs(
         }
     }
 
-    // TooltipBox must be outside AnimatedVisibility — the scaleIn animation
-    // transforms anchor bounds, causing M3 to miscalculate the caret position.
     if (recoveryFabTooltipState != null) {
         TooltipBox(
             positionProvider =
@@ -385,6 +393,7 @@ private fun RecoveryFabs(
                     onAction = { onTourAdvance?.invoke() },
                     onSkip = { onTourSkip?.invoke() },
                     isLast = true,
+                    showCaret = false,
                 )
             },
             state = recoveryFabTooltipState,
@@ -392,7 +401,6 @@ private fun RecoveryFabs(
             hasAction = true,
             modifier = modifier,
         ) {
-            // During tour, only show escape FAB (menu toggle hidden so tooltip points at it)
             AnimatedVisibility(
                 visible = visible,
                 enter = scaleIn() + fadeIn(),

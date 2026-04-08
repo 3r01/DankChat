@@ -72,6 +72,7 @@ internal fun TooltipScope.TourTooltip(
     onAction: () -> Unit,
     onSkip: () -> Unit,
     isLast: Boolean = false,
+    showCaret: Boolean = true,
 ) {
     val tourColors =
         TooltipDefaults.richTooltipColors(
@@ -82,7 +83,7 @@ internal fun TooltipScope.TourTooltip(
         )
     RichTooltip(
         colors = tourColors,
-        caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
+        caretShape = if (showCaret) TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)) else null,
         action = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextButton(onClick = onSkip) {

@@ -723,41 +723,33 @@ private fun InputActionsRow(
             Spacer(modifier = Modifier.weight(1f))
 
             // End-aligned group: overflow + actions + whisper + send
-            OptionalTourTooltip(
-                tooltipState = tourState.inputActionsTooltipState,
-                text = stringResource(R.string.tour_input_actions),
-                onAdvance = tourState.onAdvance,
-                onSkip = tourState.onSkip,
-                focusable = true,
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    EndAlignedActionGroup(
-                        allActions = allActions,
-                        visibleActions = visibleActions,
-                        iconSize = iconSize,
-                        showQuickActions = showQuickActions,
-                        showSendButton = showSendButton,
-                        tourState = tourState,
-                        quickActionsExpanded = quickActionsExpanded,
-                        canSend = canSend,
-                        enabled = enabled,
-                        hasLastMessage = hasLastMessage,
-                        isStreamActive = isStreamActive,
-                        isFullscreen = isFullscreen,
-                        onOverflowExpandedChange = onOverflowExpandedChange,
-                        onNewWhisper = onNewWhisper,
-                        onSearchClick = onSearchClick,
-                        onLastMessageClick = onLastMessageClick,
-                        onToggleStream = onToggleStream,
-                        onModActions = onModActions,
-                        onToggleFullscreen = onToggleFullscreen,
-                        onToggleInput = onToggleInput,
-                        onDebugInfoClick = onDebugInfoClick,
-                        onSend = onSend,
-                        isRepeatedSendEnabled = isRepeatedSendEnabled,
-                        onRepeatedSendChange = onRepeatedSendChange,
-                    )
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                EndAlignedActionGroup(
+                    allActions = allActions,
+                    visibleActions = visibleActions,
+                    iconSize = iconSize,
+                    showQuickActions = showQuickActions,
+                    showSendButton = showSendButton,
+                    tourState = tourState,
+                    quickActionsExpanded = quickActionsExpanded,
+                    canSend = canSend,
+                    enabled = enabled,
+                    hasLastMessage = hasLastMessage,
+                    isStreamActive = isStreamActive,
+                    isFullscreen = isFullscreen,
+                    onOverflowExpandedChange = onOverflowExpandedChange,
+                    onNewWhisper = onNewWhisper,
+                    onSearchClick = onSearchClick,
+                    onLastMessageClick = onLastMessageClick,
+                    onToggleStream = onToggleStream,
+                    onModActions = onModActions,
+                    onToggleFullscreen = onToggleFullscreen,
+                    onToggleInput = onToggleInput,
+                    onDebugInfoClick = onDebugInfoClick,
+                    onSend = onSend,
+                    isRepeatedSendEnabled = isRepeatedSendEnabled,
+                    onRepeatedSendChange = onRepeatedSendChange,
+                )
             }
         }
     }
@@ -836,27 +828,37 @@ private fun EndAlignedActionGroup(
     }
 
     // Configurable action icons with animated visibility
-    for (action in allActions) {
-        AnimatedVisibility(
-            visible = action in visibleActions,
-            enter = expandHorizontally() + fadeIn(),
-            exit = shrinkHorizontally() + fadeOut(),
-        ) {
-            InputActionButton(
-                action = action,
-                enabled = enabled,
-                hasLastMessage = hasLastMessage,
-                isStreamActive = isStreamActive,
-                isFullscreen = isFullscreen,
-                onSearchClick = onSearchClick,
-                onLastMessageClick = onLastMessageClick,
-                onToggleStream = onToggleStream,
-                onModActions = onModActions,
-                onToggleFullscreen = onToggleFullscreen,
-                onToggleInput = onToggleInput,
-                onDebugInfoClick = onDebugInfoClick,
-                modifier = Modifier.size(iconSize),
-            )
+    OptionalTourTooltip(
+        tooltipState = tourState.inputActionsTooltipState,
+        text = stringResource(R.string.tour_input_actions),
+        onAdvance = tourState.onAdvance,
+        onSkip = tourState.onSkip,
+        focusable = true,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            for (action in allActions) {
+                AnimatedVisibility(
+                    visible = action in visibleActions,
+                    enter = expandHorizontally() + fadeIn(),
+                    exit = shrinkHorizontally() + fadeOut(),
+                ) {
+                    InputActionButton(
+                        action = action,
+                        enabled = enabled,
+                        hasLastMessage = hasLastMessage,
+                        isStreamActive = isStreamActive,
+                        isFullscreen = isFullscreen,
+                        onSearchClick = onSearchClick,
+                        onLastMessageClick = onLastMessageClick,
+                        onToggleStream = onToggleStream,
+                        onModActions = onModActions,
+                        onToggleFullscreen = onToggleFullscreen,
+                        onToggleInput = onToggleInput,
+                        onDebugInfoClick = onDebugInfoClick,
+                        modifier = Modifier.size(iconSize),
+                    )
+                }
+            }
         }
     }
 
