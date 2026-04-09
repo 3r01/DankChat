@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -265,7 +266,9 @@ fun ChatInputLayout(
                     suffix = {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.height(IntrinsicSize.Min),
+                            modifier = Modifier
+                                .height(IntrinsicSize.Min)
+                                .offset(y = (-8).dp),
                         ) {
                             when (characterCounter) {
                                 is CharacterCounterState.Hidden -> {
