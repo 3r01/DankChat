@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.chat.ChannelSelectionDataStore
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
@@ -33,6 +34,7 @@ class ChannelManagementViewModel(
     private val chatNotificationRepository: ChatNotificationRepository,
     private val ignoresRepository: IgnoresRepository,
     private val channelRepository: ChannelRepository,
+    channelSelectionDataStore: ChannelSelectionDataStore,
 ) : ViewModel() {
     val channels: StateFlow<ImmutableList<ChannelWithRename>> =
         preferenceStore
@@ -41,12 +43,14 @@ class ChannelManagementViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     init {
-        // Set initial active channel if not already set
+        // Restore persisted channel selection, falling back to first channel
         viewModelScope.launch {
             if (chatChannelProvider.activeChannel.value == null) {
-                val firstChannel = preferenceStore.channels.firstOrNull()
-                if (firstChannel != null) {
-                    chatChannelProvider.setActiveChannel(firstChannel)
+                val channels = preferenceStore.channels
+                val persisted = channelSelectionDataStore.current().activeChannel
+                val restoredChannel = channels.firstOrNull { it.value == persisted } ?: channels.firstOrNull()
+                if (restoredChannel != null) {
+                    chatChannelProvider.setActiveChannel(restoredChannel)
                 }
             }
         }
