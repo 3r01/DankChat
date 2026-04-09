@@ -1,9 +1,13 @@
 package com.flxrs.dankchat.ui.main.stream
 
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,7 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,7 +42,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnAttach
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
+
+private const val OVERLAY_AUTO_HIDE_MS = 3_000L
 
 @Suppress("LambdaParameterEventTrailing")
 @Composable
@@ -54,6 +63,16 @@ fun StreamView(
     // Subsequent opens: attach immediately, load URL while attached (video surface already initialized).
     var hasBeenAttached by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
     var isPageLoaded by remember { mutableStateOf(hasBeenAttached) }
+    var overlayTapTrigger by remember { mutableIntStateOf(0) }
+    var showOverlayButtons by remember { mutableStateOf(false) }
+
+    LaunchedEffect(overlayTapTrigger) {
+        if (overlayTapTrigger > 0) {
+            showOverlayButtons = true
+            delay(OVERLAY_AUTO_HIDE_MS)
+            showOverlayButtons = false
+        }
+    }
     val webView =
         remember {
             streamViewModel.getOrCreateWebView().also { wv ->
@@ -62,6 +81,26 @@ fun StreamView(
                     StreamComposeWebViewClient(
                         onPageFinished = { isPageLoaded = true },
                     )
+                var blockingGesture = false
+                @Suppress("ClickableViewAccessibility")
+                wv.setOnTouchListener { _, event ->
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            overlayTapTrigger++
+                            if (!showOverlayButtons) {
+                                blockingGesture = true
+                                true
+                            } else {
+                                blockingGesture = false
+                                false
+                            }
+                        }
+
+                        else -> {
+                            blockingGesture
+                        }
+                    }
+                }
             }
         }
 
@@ -139,11 +178,15 @@ fun StreamView(
             Box(modifier = webViewModifier)
         }
 
-        if (!isInPipMode) {
+        AnimatedVisibility(
+            visible = !isInPipMode && showOverlayButtons,
+            enter = fadeIn(),
+            exit = fadeOut(),
+            modifier = Modifier.align(Alignment.TopEnd),
+        ) {
             Row(
                 modifier =
                     Modifier
-                        .align(Alignment.TopEnd)
                         .statusBarsPadding()
                         .padding(8.dp),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement
