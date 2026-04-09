@@ -58,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.R
@@ -107,6 +108,7 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
+private const val MIN_VISIBLE_MESSAGE_LINES = 9
 
 @Suppress("ModifierNotUsedAtRoot")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -374,11 +376,16 @@ fun MainScreen(
         LocalEmoteAnimationCoordinator provides emoteCoordinator,
         LocalUriHandler provides customTabUriHandler,
     ) {
+        var containerWidthPx by remember { mutableIntStateOf(0) }
+        var containerHeightPx by remember { mutableIntStateOf(0) }
         Box(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
+                    .onSizeChanged { size ->
+                        containerWidthPx = size.width
+                        containerHeightPx = size.height
+                    }.then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
         ) {
             // Menu content height matches keyboard content area (above nav bar)
             val targetMenuHeight =
@@ -825,8 +832,9 @@ fun MainScreen(
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     isSheetOpen = isSheetOpen,
                     isInPipMode = isInPipMode,
-                    isWideWindow = isWideWindow,
-                    isLandscape = isLandscape,
+                    containerWidthPx = containerWidthPx,
+                    containerHeightPx = containerHeightPx,
+                    fontSize = mainState.fontSize,
                     showInput = showInput,
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
@@ -1019,8 +1027,9 @@ private fun BoxScope.NormalStackedLayout(
     isEmoteMenuOpen: Boolean,
     isSheetOpen: Boolean,
     isInPipMode: Boolean,
-    isWideWindow: Boolean,
-    isLandscape: Boolean,
+    containerWidthPx: Int,
+    containerHeightPx: Int,
+    fontSize: Int,
     showInput: Boolean,
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
@@ -1032,6 +1041,21 @@ private fun BoxScope.NormalStackedLayout(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
+
+    // Determine whether the stream should remain visible when keyboard/emote menu is open.
+    // Hide the stream only as a fallback when there isn't enough space for ~3 messages.
+    val isInputActive = isKeyboardVisible || isEmoteMenuOpen
+    val hasStream = currentStream != null && !isAudioOnly
+    val shouldHideStream = if (isInputActive && !isInPipMode && hasStream && containerHeightPx > 0) {
+        val containerHeightDp = with(density) { containerHeightPx.toDp() }
+        val streamNaturalHeight = with(density) { containerWidthPx.toDp() } * 9 / 16
+        val minMessageArea = with(density) { (fontSize * MIN_VISIBLE_MESSAGE_LINES).sp.toDp() }
+        val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - inputHeightDp
+        available < minMessageArea
+    } else {
+        false
+    }
+    val showStream = hasStream && (isInPipMode || !shouldHideStream)
 
     if (!isInPipMode) {
         Scaffold(
@@ -1055,7 +1079,6 @@ private fun BoxScope.NormalStackedLayout(
     // Stream View layer — kept in composition when hidden so the WebView
     // stays attached and audio/video continues playing without re-buffering.
     currentStream?.let { channel ->
-        val showStream = !isAudioOnly && (isInPipMode || (!isKeyboardVisible && !isEmoteMenuOpen) || isLandscape)
         var streamComposed by remember { mutableStateOf(hasWebViewBeenAttached) }
         LaunchedEffect(showStream) {
             if (showStream) {
@@ -1099,8 +1122,8 @@ private fun BoxScope.NormalStackedLayout(
         }
     }
 
-    // Status bar scrim when stream video is active (not audio-only)
-    if (currentStream != null && !isAudioOnly && !isFullscreen && !isInPipMode) {
+    // Status bar scrim when stream video is visible (not audio-only, not hidden by fallback)
+    if (showStream && !isFullscreen && !isInPipMode) {
         StatusBarScrim(
             colorAlpha = 1f,
             modifier =
@@ -1113,7 +1136,7 @@ private fun BoxScope.NormalStackedLayout(
     if (!isInPipMode) {
         floatingToolbar(
             Modifier.align(Alignment.TopCenter),
-            (!isWideWindow || (!isKeyboardVisible && !isEmoteMenuOpen)) && !isSheetOpen,
+            (!isKeyboardVisible && !isEmoteMenuOpen) && !isSheetOpen,
             true,
             true,
         )

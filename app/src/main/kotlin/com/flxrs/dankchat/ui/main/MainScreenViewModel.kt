@@ -59,6 +59,7 @@ class MainScreenViewModel(
                 showCharacterCounter = appearance.showCharacterCounter,
                 isRepeatedSendEnabled = developerSettings.repeatedSending,
                 debugMode = developerSettings.debugMode,
+                fontSize = appearance.fontSize,
                 swipeNavigation = appearance.swipeNavigation,
                 gestureToolbarHidden = gestureToolbarHidden,
             )
