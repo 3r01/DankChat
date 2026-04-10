@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -1042,21 +1043,20 @@ private fun BoxScope.NormalStackedLayout(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-
-    // Determine whether the stream should remain visible when keyboard/emote menu is open.
-    // Hide the stream only as a fallback when there isn't enough space for ~3 messages.
-    val isInputActive = isKeyboardVisible || isEmoteMenuOpen
-    val hasStream = currentStream != null && !isAudioOnly
-    val shouldHideStream = if (isInputActive && !isInPipMode && hasStream && containerHeightPx > 0) {
-        val containerHeightDp = with(density) { containerHeightPx.toDp() }
-        val streamNaturalHeight = with(density) { containerWidthPx.toDp() } * 9 / 16
-        val minMessageArea = with(density) { (fontSize * MIN_VISIBLE_MESSAGE_LINES).sp.toDp() }
-        val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - inputHeightDp
-        available < minMessageArea
-    } else {
-        false
-    }
-    val showStream = hasStream && (isInPipMode || !shouldHideStream)
+    val showStream = shouldShowStream(
+        currentStream = currentStream,
+        isAudioOnly = isAudioOnly,
+        isInPipMode = isInPipMode,
+        isKeyboardVisible = isKeyboardVisible,
+        isEmoteMenuOpen = isEmoteMenuOpen,
+        containerWidthPx = containerWidthPx,
+        containerHeightPx = containerHeightPx,
+        scaffoldBottomPadding = scaffoldBottomPadding,
+        inputHeightDp = inputHeightDp,
+        fontSize = fontSize,
+        density = density,
+    )
+    val toolbarVisible = shouldShowToolbar(showStream, isKeyboardVisible, isEmoteMenuOpen, isSheetOpen)
 
     if (!isInPipMode) {
         Scaffold(
@@ -1137,7 +1137,7 @@ private fun BoxScope.NormalStackedLayout(
     if (!isInPipMode) {
         floatingToolbar(
             Modifier.align(Alignment.TopCenter),
-            (!isKeyboardVisible && !isEmoteMenuOpen) && !isSheetOpen,
+            toolbarVisible,
             true,
             true,
         )
@@ -1319,4 +1319,44 @@ private fun MainScreenFocusEffects(
             focusManager.clearFocus()
         }
     }
+}
+
+/** Stream stays visible with keyboard/emote open unless there isn't enough space for chat messages. */
+private fun shouldShowStream(
+    currentStream: UserName?,
+    isAudioOnly: Boolean,
+    isInPipMode: Boolean,
+    isKeyboardVisible: Boolean,
+    isEmoteMenuOpen: Boolean,
+    containerWidthPx: Int,
+    containerHeightPx: Int,
+    scaffoldBottomPadding: Dp,
+    inputHeightDp: Dp,
+    fontSize: Int,
+    density: Density,
+): Boolean {
+    val hasStream = currentStream != null && !isAudioOnly
+    if (!hasStream) return false
+    if (isInPipMode) return true
+
+    val isInputActive = isKeyboardVisible || isEmoteMenuOpen
+    if (!isInputActive || containerHeightPx <= 0) return true
+
+    val containerHeightDp = with(density) { containerHeightPx.toDp() }
+    val streamNaturalHeight = with(density) { containerWidthPx.toDp() } * 9 / 16
+    val minMessageArea = with(density) { (fontSize * MIN_VISIBLE_MESSAGE_LINES).sp.toDp() }
+    val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - inputHeightDp
+    return available >= minMessageArea
+}
+
+/** Toolbar hides for keyboard/emote only when stream is visible. Always hidden when a sheet is open. */
+private fun shouldShowToolbar(
+    showStream: Boolean,
+    isKeyboardVisible: Boolean,
+    isEmoteMenuOpen: Boolean,
+    isSheetOpen: Boolean,
+): Boolean {
+    if (isSheetOpen) return false
+    if (!showStream) return true
+    return !isKeyboardVisible && !isEmoteMenuOpen
 }
