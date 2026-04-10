@@ -27,10 +27,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -218,15 +222,21 @@ private fun EmoteGridPage(
                     }
 
                     is EmoteItem.Emote -> {
-                        AsyncImage(
-                            model = item.emote.url,
-                            contentDescription = item.emote.code,
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                                    .clickable { onEmoteClick(item.emote.code, item.emote.id) },
-                        )
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(item.emote.code) } },
+                            state = rememberTooltipState(),
+                        ) {
+                            AsyncImage(
+                                model = item.emote.url,
+                                contentDescription = item.emote.code,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .aspectRatio(1f)
+                                        .clickable { onEmoteClick(item.emote.code, item.emote.id) },
+                            )
+                        }
                     }
                 }
             }
