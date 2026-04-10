@@ -9,16 +9,28 @@ sealed interface MessageOptionsState {
 
     data object NotFound : MessageOptionsState
 
-    data class Found(
-        val messageId: String,
-        val rootThreadId: String,
-        val rootThreadName: UserName?,
-        val rootThreadMessage: String?,
-        val replyName: UserName,
-        val name: UserName,
-        val originalMessage: String,
-        val canModerate: Boolean,
-        val hasReplyThread: Boolean,
-        val canReply: Boolean,
-    ) : MessageOptionsState
+    sealed interface Found : MessageOptionsState {
+        val name: UserName
+        val originalMessage: String
+        val canModerate: Boolean
+
+        data class RegularMessage(
+            override val name: UserName,
+            override val originalMessage: String,
+            override val canModerate: Boolean,
+            val messageId: String,
+            val rootThreadId: String,
+            val rootThreadName: UserName?,
+            val rootThreadMessage: String?,
+            val replyName: UserName,
+            val hasReplyThread: Boolean,
+            val canReply: Boolean,
+        ) : Found
+
+        data class AutomodMessage(
+            override val name: UserName,
+            override val originalMessage: String,
+            override val canModerate: Boolean,
+        ) : Found
+    }
 }

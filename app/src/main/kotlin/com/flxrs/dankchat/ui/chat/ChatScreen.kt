@@ -111,6 +111,7 @@ data class ChatScreenCallbacks(
     val onWhisperReply: ((userName: UserName) -> Unit)? = null,
     val onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     val onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
+    val onAutomodBanUser: (messageId: String, channel: String?, fullMessage: String) -> Unit = { _, _, _ -> },
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -722,6 +723,12 @@ private fun ChatMessageItem(
                 fontSize = fontSize,
                 onAllow = callbacks.onAutomodAllow,
                 onDeny = callbacks.onAutomodDeny,
+                onMessageLongClick = {
+                    callbacks.onMessageLongClick(message.id, message.channel.value, message.messageText.orEmpty())
+                },
+                onBanUser = {
+                    callbacks.onAutomodBanUser(message.id, message.channel.value, message.messageText.orEmpty())
+                },
             )
         }
 

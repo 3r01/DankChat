@@ -465,45 +465,65 @@ private fun MessageOptionsDialogContainer(
     val scope = rememberCoroutineScope()
 
     (state as? MessageOptionsState.Found)?.let { s ->
-        MessageOptionsDialog(
-            channel = params.channel?.value,
-            canModerate = s.canModerate,
-            canReply = s.canReply,
-            canCopy = params.canCopy,
-            canJump = params.canJump,
-            hasReplyThread = s.hasReplyThread,
-            onJumpToMessage = {
-                params.channel?.let { channel ->
-                    onJumpToMessage(params.messageId, channel)
-                }
-            },
-            onReply = { onSetReplying(true, s.messageId, s.replyName, s.originalMessage) },
-            onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName, s.rootThreadMessage.orEmpty()) },
-            onViewThread = { onOpenReplies(s.rootThreadId, s.replyName) },
-            onCopy = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                    mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
-                }
-            },
-            onCopyFullMessage = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
-                    mainEventBus.emitEvent(MainEvent.MessageCopied(params.fullMessage))
-                }
-            },
-            onCopyMessageId = {
-                scope.launch {
-                    clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
-                    mainEventBus.emitEvent(MainEvent.MessageIdCopied)
-                }
-            },
-            onDelete = viewModel::deleteMessage,
-            onTimeout = viewModel::timeoutUser,
-            onBan = viewModel::banUser,
-            onUnban = viewModel::unbanUser,
-            onDismiss = onDismiss,
-        )
+        when (s) {
+            is MessageOptionsState.Found.RegularMessage -> {
+                MessageOptionsDialog(
+                    channel = params.channel?.value,
+                    canModerate = s.canModerate,
+                    canReply = s.canReply,
+                    canCopy = params.canCopy,
+                    canJump = params.canJump,
+                    hasReplyThread = s.hasReplyThread,
+                    onJumpToMessage = {
+                        params.channel?.let { channel ->
+                            onJumpToMessage(params.messageId, channel)
+                        }
+                    },
+                    onReply = { onSetReplying(true, s.messageId, s.replyName, s.originalMessage) },
+                    onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName, s.rootThreadMessage.orEmpty()) },
+                    onViewThread = { onOpenReplies(s.rootThreadId, s.replyName) },
+                    onCopy = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
+                            mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
+                        }
+                    },
+                    onCopyFullMessage = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
+                            mainEventBus.emitEvent(MainEvent.MessageCopied(params.fullMessage))
+                        }
+                    },
+                    onCopyMessageId = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
+                            mainEventBus.emitEvent(MainEvent.MessageIdCopied)
+                        }
+                    },
+                    onDelete = viewModel::deleteMessage,
+                    onTimeout = viewModel::timeoutUser,
+                    onBan = viewModel::banUser,
+                    onUnban = viewModel::unbanUser,
+                    onDismiss = onDismiss,
+                )
+            }
+
+            is MessageOptionsState.Found.AutomodMessage -> {
+                AutomodMessageOptionsDialog(
+                    canModerate = s.canModerate,
+                    startWithBan = params.startWithBan,
+                    onCopy = {
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
+                            mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
+                        }
+                    },
+                    onBan = viewModel::banUser,
+                    onUnban = viewModel::unbanUser,
+                    onDismiss = onDismiss,
+                )
+            }
+        }
     }
 }
 

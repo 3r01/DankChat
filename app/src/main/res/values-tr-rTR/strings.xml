@@ -569,6 +569,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="automod_deny">Reddet</string>
     <string name="automod_status_approved">Onaylandı</string>
     <string name="automod_status_denied">Reddedildi</string>
+    <string name="automod_ban_user">Kullanıcıyı yasakla</string>
     <string name="automod_status_expired">Süresi Doldu</string>
     <string name="automod_user_held">Hey! Mesajın modlar tarafından kontrol ediliyor ve henüz gönderilmedi.</string>
     <string name="automod_user_accepted">Modlar mesajını kabul etti.</string>

@@ -40,6 +40,7 @@ private val AutoModBlue = Color(0xFF448AFF)
 
 private const val ALLOW_TAG = "ALLOW"
 private const val DENY_TAG = "DENY"
+private const val BAN_TAG = "BAN"
 
 @Composable
 fun AutomodMessageComposable(
@@ -47,6 +48,8 @@ fun AutomodMessageComposable(
     fontSize: Float,
     onAllow: (heldMessageId: String, channel: UserName) -> Unit,
     onDeny: (heldMessageId: String, channel: UserName) -> Unit,
+    onMessageLongClick: () -> Unit,
+    onBanUser: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textColor = MaterialTheme.colorScheme.onSurface
@@ -55,8 +58,13 @@ fun AutomodMessageComposable(
     val denyColor = MaterialTheme.colorScheme.error
     val textSize = fontSize.sp
     val isPending = message.status == AutomodMessageStatus.Pending
+    val isCompleted = !message.isUserSide && message.status != AutomodMessageStatus.Pending
     val backgroundColor = MaterialTheme.colorScheme.background
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
+
+    // Faded colors for completed (approved/denied/expired) header — "Ban user" stays at full opacity
+    val headerTextColor = if (isCompleted) textColor.copy(alpha = 0.5f) else textColor
+    val headerTimestampColor = if (isCompleted) timestampColor.copy(alpha = 0.5f) else timestampColor
 
     // Resolve strings
     val headerText = stringResource(R.string.automod_header, message.reason.resolve())
@@ -64,6 +72,7 @@ fun AutomodMessageComposable(
     val denyText = stringResource(R.string.automod_deny)
     val approvedText = stringResource(R.string.automod_status_approved)
     val deniedText = stringResource(R.string.automod_status_denied)
+    val banUserText = stringResource(R.string.automod_ban_user)
     val expiredText = stringResource(R.string.automod_status_expired)
     val userHeldText = stringResource(R.string.automod_user_held)
     val userAcceptedText = stringResource(R.string.automod_user_accepted)
@@ -73,8 +82,8 @@ fun AutomodMessageComposable(
     val headerString =
         remember(
             message,
-            textColor,
-            timestampColor,
+            headerTextColor,
+            headerTimestampColor,
             allowColor,
             denyColor,
             textSize,
@@ -87,6 +96,7 @@ fun AutomodMessageComposable(
             userHeldText,
             userAcceptedText,
             userDeniedText,
+            banUserText,
         ) {
             buildAnnotatedString {
                 // Timestamp
@@ -96,7 +106,7 @@ fun AutomodMessageComposable(
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
                             fontSize = textSize * 0.95f,
-                            color = timestampColor,
+                            color = headerTimestampColor,
                             letterSpacing = (-0.03).em,
                         ),
                     ) {
@@ -112,7 +122,8 @@ fun AutomodMessageComposable(
                 }
 
                 // "AutoMod: " in blue bold
-                withStyle(SpanStyle(color = AutoModBlue, fontWeight = FontWeight.Bold)) {
+                val autoModBlue = if (isCompleted) AutoModBlue.copy(alpha = 0.5f) else AutoModBlue
+                withStyle(SpanStyle(color = autoModBlue, fontWeight = FontWeight.Bold)) {
                     append("AutoMod: ")
                 }
 
@@ -120,16 +131,16 @@ fun AutomodMessageComposable(
                     // User-side: simple status messages, no Allow/Deny
                     message.isUserSide -> {
                         when (message.status) {
-                            AutomodMessageStatus.Pending -> withStyle(SpanStyle(color = textColor)) { append(userHeldText) }
-                            AutomodMessageStatus.Approved -> withStyle(SpanStyle(color = textColor)) { append(userAcceptedText) }
-                            AutomodMessageStatus.Denied -> withStyle(SpanStyle(color = textColor)) { append(userDeniedText) }
+                            AutomodMessageStatus.Pending -> withStyle(SpanStyle(color = headerTextColor)) { append(userHeldText) }
+                            AutomodMessageStatus.Approved -> withStyle(SpanStyle(color = headerTextColor)) { append(userAcceptedText) }
+                            AutomodMessageStatus.Denied -> withStyle(SpanStyle(color = headerTextColor)) { append(userDeniedText) }
                             AutomodMessageStatus.Expired -> withStyle(SpanStyle(color = textColor.copy(alpha = 0.5f))) { append(expiredText) }
                         }
                     }
 
                     // Mod-side: reason text + Allow/Deny buttons or status
                     else -> {
-                        withStyle(SpanStyle(color = textColor)) {
+                        withStyle(SpanStyle(color = headerTextColor)) {
                             append("$headerText ")
                         }
 
@@ -158,6 +169,12 @@ fun AutomodMessageComposable(
                                 withStyle(SpanStyle(color = denyColor.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)) {
                                     append(deniedText)
                                 }
+
+                                pushStringAnnotation(tag = BAN_TAG, annotation = "ban")
+                                withStyle(SpanStyle(color = denyColor, fontWeight = FontWeight.Bold)) {
+                                    append("  $banUserText")
+                                }
+                                pop()
                             }
 
                             AutomodMessageStatus.Expired -> {
@@ -241,10 +258,9 @@ fun AutomodMessageComposable(
             modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .alpha(resolvedAlpha)
                 .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        // Header line with badge inline content
+        // Header line with badge inline content (alpha handled via span colors, not modifier)
         TextWithMeasuredInlineContent(
             text = headerString,
             inlineContentProviders = inlineContentProviders,
@@ -266,7 +282,14 @@ fun AutomodMessageComposable(
                             onDeny(message.heldMessageId, message.channel)
                         }
                 }
+                headerString
+                    .getStringAnnotations(BAN_TAG, offset, offset)
+                    .firstOrNull()
+                    ?.let {
+                        onBanUser()
+                    }
             },
+            onTextLongClick = { onMessageLongClick() },
         )
 
         // Body line with held message text
@@ -275,7 +298,8 @@ fun AutomodMessageComposable(
                 text = it,
                 inlineContentProviders = persistentMapOf(),
                 style = TextStyle(fontSize = textSize),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().alpha(resolvedAlpha),
+                onTextLongClick = { onMessageLongClick() },
             )
         }
     }

@@ -659,6 +659,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="automod_deny">Denegar</string>
     <string name="automod_status_approved">Aprovat</string>
     <string name="automod_status_denied">Denegat</string>
+    <string name="automod_ban_user">Prohibir l\'usuari</string>
     <string name="automod_status_expired">Caducat</string>
     <string name="automod_user_held">Ei! El teu missatge està sent revisat pels moderadors i no s\'ha enviat.</string>
     <string name="automod_user_accepted">Els moderadors han acceptat el teu missatge.</string>

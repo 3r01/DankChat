@@ -565,6 +565,7 @@
     <string name="automod_deny">Адхіліць</string>
     <string name="automod_status_approved">Ухвалена</string>
     <string name="automod_status_denied">Адхілена</string>
+    <string name="automod_ban_user">Заблакаваць карыстальніка</string>
     <string name="automod_status_expired">Тэрмін скончыўся</string>
     <string name="automod_user_held">Гэй! Тваё паведамленне правяраецца мадэратарамі і яшчэ не адпраўлена.</string>
     <string name="automod_user_accepted">Мадэратары прынялі тваё паведамленне.</string>

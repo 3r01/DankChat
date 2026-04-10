@@ -145,6 +145,19 @@ internal fun MainScreenPagerContent(
                                         ),
                                     )
                                 },
+                                onAutomodBanUser = { messageId, channel, fullMessage ->
+                                    callbacks.onShowMessageOptions(
+                                        MessageOptionsParams(
+                                            messageId = messageId,
+                                            channel = channel?.let { UserName(it) },
+                                            fullMessage = fullMessage,
+                                            canModerate = isLoggedIn,
+                                            canReply = false,
+                                            canCopy = true,
+                                            startWithBan = true,
+                                        ),
+                                    )
+                                },
                                 onEmoteClick = { emotes ->
                                     callbacks.onShowEmoteInfo(emotes)
                                 },

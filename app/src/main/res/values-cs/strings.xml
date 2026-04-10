@@ -565,6 +565,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="automod_deny">Zamítnout</string>
     <string name="automod_status_approved">Schváleno</string>
     <string name="automod_status_denied">Zamítnuto</string>
+    <string name="automod_ban_user">Zabanovat uživatele</string>
     <string name="automod_status_expired">Vypršelo</string>
     <string name="automod_user_held">Hej! Tvoje zpráva je kontrolována moderátory a zatím nebyla odeslána.</string>
     <string name="automod_user_accepted">Moderátoři přijali tvoji zprávu.</string>

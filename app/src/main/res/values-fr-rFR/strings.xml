@@ -562,6 +562,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="automod_deny">Refuser</string>
     <string name="automod_status_approved">Approuvé</string>
     <string name="automod_status_denied">Refusé</string>
+    <string name="automod_ban_user">Bannir l\'utilisateur</string>
     <string name="automod_status_expired">Expiré</string>
     <string name="automod_user_held">Hey ! Ton message est en cours de vérification par les mods et n\'a pas encore été envoyé.</string>
     <string name="automod_user_accepted">Les mods ont accepté ton message.</string>

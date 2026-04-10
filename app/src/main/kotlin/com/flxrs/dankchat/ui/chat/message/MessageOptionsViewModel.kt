@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.repo.chat.UserStateRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
+import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import kotlinx.coroutines.flow.SharingStarted
@@ -53,6 +54,14 @@ class MessageOptionsViewModel(
                     MessageOptionsState.NotFound
                 }
 
+                is AutomodMessage -> {
+                    MessageOptionsState.Found.AutomodMessage(
+                        name = message.userName,
+                        originalMessage = message.messageText.orEmpty(),
+                        canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
+                    )
+                }
+
                 else -> {
                     val asPrivMessage = message as? PrivMessage
                     val asWhisperMessage = message as? WhisperMessage
@@ -60,7 +69,7 @@ class MessageOptionsViewModel(
                     val rootId = thread?.rootId
                     val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
                     val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
-                    MessageOptionsState.Found(
+                    MessageOptionsState.Found.RegularMessage(
                         messageId = message.id,
                         rootThreadId = rootId ?: message.id,
                         rootThreadName = thread?.name,

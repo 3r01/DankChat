@@ -141,6 +141,7 @@
     <string name="automod_deny">ପ୍ରତ୍ୟାଖ୍ୟାନ କରନ୍ତୁ</string>
     <string name="automod_status_approved">ଅନୁମୋଦିତ</string>
     <string name="automod_status_denied">ପ୍ରତ୍ୟାଖ୍ୟାତ</string>
+    <string name="automod_ban_user">ଉପଯୋଗକାରୀଙ୍କୁ ପ୍ରତିବନ୍ଧିତ କରନ୍ତୁ</string>
     <string name="automod_status_expired">ମିଆଦ ସମାପ୍ତ</string>
     <string name="automod_user_held">ହେ! ଆପଣଙ୍କ ବାର୍ତ୍ତା ମଡ୍‌ମାନଙ୍କ ଦ୍ୱାରା ଯାଞ୍ଚ ହେଉଛି ଏବଂ ଏପର୍ଯ୍ୟନ୍ତ ପଠାଯାଇ ନାହିଁ।</string>
     <string name="automod_user_accepted">ମଡ୍‌ମାନେ ଆପଣଙ୍କ ବାର୍ତ୍ତା ଗ୍ରହଣ କରିଛନ୍ତି।</string>

@@ -567,6 +567,7 @@
     <string name="automod_deny">Відхилити</string>
     <string name="automod_status_approved">Схвалено</string>
     <string name="automod_status_denied">Відхилено</string>
+    <string name="automod_ban_user">Заблокувати користувача</string>
     <string name="automod_status_expired">Термін минув</string>
     <string name="automod_user_held">Гей! Твоє повідомлення перевіряється модераторами і ще не надіслане.</string>
     <string name="automod_user_accepted">Модератори прийняли твоє повідомлення.</string>

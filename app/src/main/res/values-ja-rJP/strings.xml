@@ -530,6 +530,7 @@
     <string name="automod_deny">拒否</string>
     <string name="automod_status_approved">承認済み</string>
     <string name="automod_status_denied">拒否済み</string>
+    <string name="automod_ban_user">ユーザーをBANする</string>
     <string name="automod_status_expired">期限切れ</string>
     <string name="automod_user_held">おっと！あなたのメッセージはモデレーターが確認中で、まだ送信されていません。</string>
     <string name="automod_user_accepted">モデレーターがあなたのメッセージを承認しました。</string>

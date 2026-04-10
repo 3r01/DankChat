@@ -583,6 +583,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="automod_deny">Odrzuć</string>
     <string name="automod_status_approved">Zatwierdzono</string>
     <string name="automod_status_denied">Odrzucono</string>
+    <string name="automod_ban_user">Zbanuj użytkownika</string>
     <string name="automod_status_expired">Wygasło</string>
     <string name="automod_user_held">Hej! Twoja wiadomość jest sprawdzana przez moderatorów i nie została jeszcze wysłana.</string>
     <string name="automod_user_accepted">Moderatorzy zaakceptowali Twoją wiadomość.</string>

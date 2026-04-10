@@ -10,4 +10,5 @@ data class MessageOptionsParams(
     val canReply: Boolean,
     val canCopy: Boolean = true,
     val canJump: Boolean = false,
+    val startWithBan: Boolean = false,
 )

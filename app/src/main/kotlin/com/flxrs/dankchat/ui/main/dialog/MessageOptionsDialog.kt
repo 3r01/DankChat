@@ -257,6 +257,69 @@ private fun MessageOptionsMainView(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AutomodMessageOptionsDialog(
+    canModerate: Boolean,
+    onCopy: () -> Unit,
+    onBan: () -> Unit,
+    onUnban: () -> Unit,
+    onDismiss: () -> Unit,
+    startWithBan: Boolean = false,
+) {
+    var subView by remember { mutableStateOf(if (startWithBan) MessageOptionsSubView.Ban else null) }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        AnimatedContent(
+            targetState = subView,
+            label = "AutomodMessageOptionsContent",
+        ) { currentView ->
+            when (currentView) {
+                null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                    ) {
+                        MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy), onClick = {
+                            onCopy()
+                            onDismiss()
+                        })
+                        if (canModerate) {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            MessageOptionItem(Icons.Default.Gavel, stringResource(R.string.user_popup_ban), onClick = { subView = MessageOptionsSubView.Ban })
+                            MessageOptionItem(Icons.Default.Gavel, stringResource(R.string.user_popup_unban), onClick = {
+                                onUnban()
+                                onDismiss()
+                            })
+                        }
+                    }
+                }
+
+                MessageOptionsSubView.Ban -> {
+                    ConfirmationSubView(
+                        title = stringResource(R.string.confirm_user_ban_message),
+                        confirmText = stringResource(R.string.confirm_user_ban_positive_button),
+                        onConfirm = {
+                            onBan()
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
+
+                else -> {
+                    Unit
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun MessageOptionItem(
     icon: ImageVector,

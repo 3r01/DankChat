@@ -545,6 +545,7 @@
     <string name="automod_deny">Nega</string>
     <string name="automod_status_approved">Approvato</string>
     <string name="automod_status_denied">Negato</string>
+    <string name="automod_ban_user">Banna utente</string>
     <string name="automod_status_expired">Scaduto</string>
     <string name="automod_user_held">Ehi! Il tuo messaggio è in fase di verifica dai mod e non è stato ancora inviato.</string>
     <string name="automod_user_accepted">I mod hanno accettato il tuo messaggio.</string>

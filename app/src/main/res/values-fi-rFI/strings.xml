@@ -561,6 +561,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="automod_deny">Hylkää</string>
     <string name="automod_status_approved">Hyväksytty</string>
     <string name="automod_status_denied">Hylätty</string>
+    <string name="automod_ban_user">Estä käyttäjä</string>
     <string name="automod_status_expired">Vanhentunut</string>
     <string name="automod_user_held">Hei! Viestisi on modien tarkistettavana eikä sitä ole vielä lähetetty.</string>
     <string name="automod_user_accepted">Modit ovat hyväksyneet viestisi.</string>

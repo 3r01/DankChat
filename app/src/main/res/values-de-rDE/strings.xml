@@ -571,6 +571,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="automod_deny">Ablehnen</string>
     <string name="automod_status_approved">Genehmigt</string>
     <string name="automod_status_denied">Abgelehnt</string>
+    <string name="automod_ban_user">Benutzer bannen</string>
     <string name="automod_status_expired">Abgelaufen</string>
     <string name="automod_user_held">Hey! Deine Nachricht wird von Mods überprüft und wurde noch nicht gesendet.</string>
     <string name="automod_user_accepted">Mods haben deine Nachricht akzeptiert.</string>

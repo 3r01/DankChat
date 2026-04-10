@@ -570,6 +570,7 @@
     <string name="automod_deny">Отклонить</string>
     <string name="automod_status_approved">Одобрено</string>
     <string name="automod_status_denied">Отклонено</string>
+    <string name="automod_ban_user">Заблокировать пользователя</string>
     <string name="automod_status_expired">Истекло</string>
     <string name="automod_user_held">Эй! Твоё сообщение проверяется модераторами и ещё не отправлено.</string>
     <string name="automod_user_accepted">Модераторы приняли твоё сообщение.</string>

@@ -141,6 +141,7 @@
     <string name="automod_deny">Бас тарту</string>
     <string name="automod_status_approved">Мақұлданды</string>
     <string name="automod_status_denied">Қабылданбады</string>
+    <string name="automod_ban_user">Пайдаланушыны бандау</string>
     <string name="automod_status_expired">Мерзімі өтті</string>
     <string name="automod_user_held">Эй! Сіздің хабарламаңызды модераторлар тексеріп жатыр, ол әлі жіберілген жоқ.</string>
     <string name="automod_user_accepted">Модераторлар сіздің хабарламаңызды қабылдады.</string>

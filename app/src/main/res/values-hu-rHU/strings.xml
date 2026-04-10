@@ -548,6 +548,7 @@
     <string name="automod_deny">Elutasítás</string>
     <string name="automod_status_approved">Jóváhagyva</string>
     <string name="automod_status_denied">Elutasítva</string>
+    <string name="automod_ban_user">Felhasználó kitiltása</string>
     <string name="automod_status_expired">Lejárt</string>
     <string name="automod_user_held">Hé! Az üzenetedet a modok ellenőrzik, és még nem lett elküldve.</string>
     <string name="automod_user_accepted">A modok elfogadták az üzenetedet.</string>

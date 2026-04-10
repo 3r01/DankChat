@@ -146,6 +146,7 @@
     <string name="automod_deny">Одбиј</string>
     <string name="automod_status_approved">Одобрено</string>
     <string name="automod_status_denied">Одбијено</string>
+    <string name="automod_ban_user">Бануј корисника</string>
     <string name="automod_status_expired">Истекло</string>
     <string name="automod_user_held">Еј! Твоја порука се проверава од стране модератора и још није послата.</string>
     <string name="automod_user_accepted">Модератори су прихватили твоју поруку.</string>
