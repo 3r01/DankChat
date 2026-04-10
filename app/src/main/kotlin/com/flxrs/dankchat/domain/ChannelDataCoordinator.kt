@@ -87,20 +87,26 @@ class ChannelDataCoordinator(
         MutableStateFlow(ChannelLoadingState.Idle)
     }
 
-    fun loadChannelData(channel: UserName) {
+    fun loadChannelData(
+        channel: UserName,
+        forceNetwork: Boolean = false,
+    ) {
         scope.launch {
-            loadChannelDataSuspend(channel)
+            loadChannelDataSuspend(channel, forceNetwork)
         }
     }
 
-    private suspend fun loadChannelDataSuspend(channel: UserName) {
+    private suspend fun loadChannelDataSuspend(
+        channel: UserName,
+        forceNetwork: Boolean = false,
+    ) {
         startupValidationHolder.awaitResolved()
         val stateFlow =
             channelStates.getOrPut(channel) {
                 MutableStateFlow(ChannelLoadingState.Idle)
             }
         stateFlow.value = ChannelLoadingState.Loading
-        stateFlow.value = channelDataLoader.loadChannelData(channel)
+        stateFlow.value = channelDataLoader.loadChannelData(channel, forceNetwork)
         chatMessageRepository.reparseAllEmotesAndBadges()
     }
 

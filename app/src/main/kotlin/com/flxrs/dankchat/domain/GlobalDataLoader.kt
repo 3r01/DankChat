@@ -44,11 +44,11 @@ class GlobalDataLoader(
 
     suspend fun loadGlobalBadges(): Result<Unit> = dataRepository.loadGlobalBadges()
 
-    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = dataRepository.loadGlobalBTTVEmotes()
+    suspend fun loadGlobalBTTVEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalBTTVEmotes(forceNetwork)
 
-    suspend fun loadGlobalFFZEmotes(): Result<Unit> = dataRepository.loadGlobalFFZEmotes()
+    suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalFFZEmotes(forceNetwork)
 
-    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = dataRepository.loadGlobalSevenTVEmotes()
+    suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalSevenTVEmotes(forceNetwork)
 
     suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
 

@@ -110,7 +110,7 @@ class ChannelManagementViewModel(
     }
 
     fun reloadEmotes(channel: UserName) {
-        channelDataCoordinator.loadChannelData(channel)
+        channelDataCoordinator.loadChannelData(channel, forceNetwork = true)
         channelDataCoordinator.reloadUserEmotes()
     }
 

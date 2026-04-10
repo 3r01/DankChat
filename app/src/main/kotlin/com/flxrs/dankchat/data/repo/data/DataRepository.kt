@@ -4,9 +4,9 @@ import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.badges.BadgesApiClient
-import com.flxrs.dankchat.data.api.bttv.BTTVApiClient
+import com.flxrs.dankchat.data.api.cache.CachedEmoteProvider
+import com.flxrs.dankchat.data.api.cache.CachedResult
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
-import com.flxrs.dankchat.data.api.ffz.FFZApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
 import com.flxrs.dankchat.data.api.helix.dto.UserDto
@@ -49,8 +49,7 @@ class DataRepository(
     private val helixApiClient: HelixApiClient,
     private val dankChatApiClient: DankChatApiClient,
     private val badgesApiClient: BadgesApiClient,
-    private val ffzApiClient: FFZApiClient,
-    private val bttvApiClient: BTTVApiClient,
+    private val cachedEmoteProvider: CachedEmoteProvider,
     private val sevenTVApiClient: SevenTVApiClient,
     private val sevenTVEventApiClient: SevenTVEventApiClient,
     private val uploadClient: UploadClient,
@@ -185,17 +184,18 @@ class DataRepository(
     suspend fun loadChannelFFZEmotes(
         channel: UserName,
         channelId: UserId,
-    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext Result.success(Unit)
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
         measureTimeAndLog(logger, "FFZ emotes for #$channel") {
-            ffzApiClient
-                .getFFZChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
-                .onSuccess { emotes -> emotes?.let { emoteRepository.setFFZEmotes(channel, it) } }
-                .map { }
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getFFZChannelEmotes(channelId, forceNetwork),
+                onData = { emoteRepository.setFFZEmotes(channel, it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) } },
+            )
         }
     }
 
@@ -203,40 +203,42 @@ class DataRepository(
         channel: UserName,
         channelDisplayName: DisplayName,
         channelId: UserId,
-    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext Result.success(Unit)
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
         measureTimeAndLog(logger, "BTTV emotes for #$channel") {
-            bttvApiClient
-                .getBTTVChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
-                .onSuccess { emotes -> emotes?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) } }
-                .map { }
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getBTTVChannelEmotes(channelId, forceNetwork),
+                onData = { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) } },
+            )
         }
     }
 
     suspend fun loadChannelSevenTVEmotes(
         channel: UserName,
         channelId: UserId,
-    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext Result.success(Unit)
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
         measureTimeAndLog(logger, "7TV emotes for #$channel") {
-            sevenTVApiClient
-                .getSevenTVChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) }
-                .onSuccess { result ->
-                    result ?: return@onSuccess
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getSevenTVChannelEmotes(channelId, forceNetwork),
+                onData = { result ->
                     if (result.emoteSet?.id != null) {
                         sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
                     }
                     sevenTVEventApiClient.subscribeUser(result.user.id)
                     emoteRepository.setSevenTVEmotes(channel, result)
-                }.map { }
+                },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) } },
+            )
         }
     }
 
@@ -257,46 +259,72 @@ class DataRepository(
         }
     }
 
-    suspend fun loadGlobalFFZEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
 
         measureTimeAndLog(logger, "global FFZ emotes") {
-            ffzApiClient
-                .getFFZGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes }
-                .onSuccess { emoteRepository.setFFZGlobalEmotes(it) }
-                .map { }
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getFFZGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setFFZGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes } },
+            ).map { }
         }
     }
 
-    suspend fun loadGlobalBTTVEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalBTTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
 
         measureTimeAndLog(logger, "global BTTV emotes") {
-            bttvApiClient
-                .getBTTVGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes }
-                .onSuccess { emoteRepository.setBTTVGlobalEmotes(it) }
-                .map { }
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getBTTVGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setBTTVGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes } },
+            ).map { }
         }
     }
 
-    suspend fun loadGlobalSevenTVEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
+    suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)
         }
 
         measureTimeAndLog(logger, "global 7TV emotes") {
-            sevenTVApiClient
-                .getSevenTVGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes }
-                .onSuccess { emoteRepository.setSevenTVGlobalEmotes(it) }
-                .map { }
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getSevenTVGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setSevenTVGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes } },
+            ).map { }
         }
+    }
+
+    private suspend fun <T : Any> collectCachedEmotes(
+        flow: Flow<CachedResult<T?>>,
+        onData: suspend (T) -> Unit,
+        onFailure: Result<EmoteLoadResult>.() -> Unit,
+    ): Result<EmoteLoadResult> {
+        var loadResult: Result<EmoteLoadResult> = Result.success(EmoteLoadResult.Loaded)
+        flow.collect { result ->
+            when (result) {
+                is CachedResult.Success -> {
+                    result.data?.let { onData(it) }
+                }
+
+                is CachedResult.CachedFallback -> {
+                    logger.warn(result.error) { "Using cached emotes as fallback" }
+                    loadResult = Result.success(EmoteLoadResult.CachedFallback)
+                }
+
+                is CachedResult.Failure -> {
+                    loadResult = Result.failure(result.error)
+                    loadResult.onFailure()
+                }
+            }
+        }
+        return loadResult
     }
 
     private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): Result<T> = onFailure { throwable ->

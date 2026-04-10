@@ -134,6 +134,9 @@
     <string name="system_message_ffz_emotes_failed">Не ўдалося загрузіць смайлы FFZ (памылка %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Не ўдалося загрузіць смайлы BTTV (памылка %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Не ўдалося загрузіць смайлы 7TV (памылка %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Выкарыстоўваюцца кэшаваныя FFZ emotes як запасны варыянт</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Выкарыстоўваюцца кэшаваныя BTTV emotes як запасны варыянт</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Выкарыстоўваюцца кэшаваныя 7TV emotes як запасны варыянт</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s Змяніў актыўны набор смайлаў 7TV на \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s Дадаў у 7TV смайл %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s Змяніў назву смайла 7TV %2$s на %3$s.</string>

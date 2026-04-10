@@ -128,6 +128,9 @@
     <string name="system_message_ffz_emotes_failed">FFZ эмоджилердi енгізу сәтті болды емес (%1$s қате)</string>
     <string name="system_message_bttv_emotes_failed">BTTV эмоджилердi енгізу сәтті болды емес (%1$s қате)</string>
     <string name="system_message_7tv_emotes_failed">7TV эмоджилердi енгізу сәтті болды емес (%1$s қате)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Кэштелген FFZ emotes қор ретінде пайдаланылуда</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Кэштелген BTTV emotes қор ретінде пайдаланылуда</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Кэштелген 7TV emotes қор ретінде пайдаланылуда</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s белсенді 7TV эмоционалды жиынын \"%2$s\" күйіне ауыстырды.</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s 7TV эмотиясы %2$s қосты.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s 7TV Emote %2$s атауын %3$s деп өзгертті.</string>

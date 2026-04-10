@@ -117,6 +117,9 @@
     <string name="system_message_ffz_emotes_failed">FFZエモートの読み込みに失敗しました(エラー %1$s)</string>
     <string name="system_message_bttv_emotes_failed">BTTVエモートの読み込みに失敗しました(エラー %1$s)</string>
     <string name="system_message_7tv_emotes_failed">7TVエモートの読み込みに失敗しました(エラー %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">キャッシュされたFFZのemotesをフォールバックとして使用中</string>
+    <string name="system_message_bttv_emotes_cached_fallback">キャッシュされたBTTVのemotesをフォールバックとして使用中</string>
+    <string name="system_message_7tv_emotes_cached_fallback">キャッシュされた7TVのemotesをフォールバックとして使用中</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$sはアクティブな7TVエモートを\"%2$s\"に切り替えました。</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$sは7TVエモート%2$sを追加しました。</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$sは7TVエモート%2$sを%3$sに変更しました。</string>

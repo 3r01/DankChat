@@ -133,6 +133,9 @@
     <string name="system_message_ffz_emotes_failed">Nepodařilo se načíst FFZ emotikony (chyba %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Nepodařilo se načíst BTTV emotikony (chyba %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Nepodařilo se načíst 7TV emotikony (chyba %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Použití uložených FFZ emotes jako zálohy</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Použití uložených BTTV emotes jako zálohy</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Použití uložených 7TV emotes jako zálohy</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s přepnul aktivní sadu 7TV emotikonů na \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s přidal 7TV emotikon %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s přejmenoval 7TV emotikon %2$s na %3$s.</string>

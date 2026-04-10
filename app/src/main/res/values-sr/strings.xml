@@ -132,6 +132,9 @@
     <string name="system_message_ffz_emotes_failed">Учитавање FFZ емотикона није успело (Грешка %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Учитавање BTTV емотикона није успело (Грешка %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Учитавање 7TV емотикона није успело (Грешка %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Коришћење кешираних FFZ emotes као резервних</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Коришћење кешираних BTTV emotes као резервних</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Коришћење кешираних 7TV emotes као резервних</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s је променио активни 7TV сет емотикона на \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s је додао 7TV емотикон %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s је преименовао 7TV емотикон %2$s у %3$s.</string>

@@ -128,6 +128,9 @@
     <string name="system_message_ffz_emotes_failed">FFZ ଇମୋଟସ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ (ଇ %1$s)</string>
     <string name="system_message_bttv_emotes_failed">BTTV ରେଟ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ | (ଇ %1$s)</string>
     <string name="system_message_7tv_emotes_failed">7TV ଇମୋଟସ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ | (ଇ %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">କ୍ୟାଶ୍ ହୋଇଥିବା FFZ emotes ଫଲବ୍ୟାକ ଭାବରେ ବ୍ୟବହାର କରାଯାଉଛି</string>
+    <string name="system_message_bttv_emotes_cached_fallback">କ୍ୟାଶ୍ ହୋଇଥିବା BTTV emotes ଫଲବ୍ୟାକ ଭାବରେ ବ୍ୟବହାର କରାଯାଉଛି</string>
+    <string name="system_message_7tv_emotes_cached_fallback">କ୍ୟାଶ୍ ହୋଇଥିବା 7TV emotes ଫଲବ୍ୟାକ ଭାବରେ ବ୍ୟବହାର କରାଯାଉଛି</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s ସକ୍ରିୟ 7TV ଇମୋଟ୍ ସେଟ୍ କୁ ସୁଇଚ୍ କଲା | \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s 7TV ଇମୋଟ ଯୋଡିଛି | %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s 7TV ଇମୋଟ ନାମ ପରିବର୍ତ୍ତନ କରନ୍ତୁ | %2$s କୁ %3$s.</string>

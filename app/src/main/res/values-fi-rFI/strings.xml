@@ -125,6 +125,9 @@
     <string name="system_message_ffz_emotes_failed">FFZ-emoteiden lataaminen epäonnistui (Virhe %1$s)</string>
     <string name="system_message_bttv_emotes_failed">BTTV-emoteiden lataaminen epäonnistui (Virhe %1$s)</string>
     <string name="system_message_7tv_emotes_failed">7TV-emoteiden lataaminen epäonnistui (Virhe %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Käytetään välimuistissa olevia FFZ emotes varavaihtoehtona</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Käytetään välimuistissa olevia BTTV emotes varavaihtoehtona</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Käytetään välimuistissa olevia 7TV emotes varavaihtoehtona</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s vaihtoi aktiivisen 7TV-emotesarjan sarjaan \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s lisäsi 7TV-emotin %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s nimesi 7TV-emotin %2$s uudelleen nimellä %3$s.</string>

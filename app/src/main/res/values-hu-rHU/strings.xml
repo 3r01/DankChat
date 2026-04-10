@@ -123,6 +123,9 @@
     <string name="system_message_ffz_emotes_failed">Nem sikerült betölteni a FFZ hangulatjeleket (hiba %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Nem sikerült betölteni a BTTV hangulatjeleket (hiba %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Nem sikerült betölteni a 7TV hangulatjeleket (hiba %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Gyorsítótárazott FFZ emotes használata tartalékként</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Gyorsítótárazott BTTV emotes használata tartalékként</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Gyorsítótárazott 7TV emotes használata tartalékként</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s átváltotta az aktív hangulatjel készletet a \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s hozzáadta a 7TV hangulatjelet %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s átnevezte a 7TV hangulatjelet %2$s erre %3$s.</string>

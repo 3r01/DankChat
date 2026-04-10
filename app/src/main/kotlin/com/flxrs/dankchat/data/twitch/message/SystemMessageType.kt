@@ -39,6 +39,12 @@ sealed interface SystemMessageType {
         val status: String,
     ) : SystemMessageType
 
+    data object ChannelFFZEmotesCachedFallback : SystemMessageType
+
+    data object ChannelBTTVEmotesCachedFallback : SystemMessageType
+
+    data object ChannelSevenTVEmotesCachedFallback : SystemMessageType
+
     data class ChannelSevenTVEmoteSetChanged(
         val actorName: DisplayName,
         val newEmoteSetName: String,

@@ -209,6 +209,18 @@ class ChatMessageMapper(
                     TextResource.Res(R.string.system_message_7tv_emotes_failed, persistentListOf(type.status))
                 }
 
+                SystemMessageType.ChannelFFZEmotesCachedFallback -> {
+                    TextResource.Res(R.string.system_message_ffz_emotes_cached_fallback)
+                }
+
+                SystemMessageType.ChannelBTTVEmotesCachedFallback -> {
+                    TextResource.Res(R.string.system_message_bttv_emotes_cached_fallback)
+                }
+
+                SystemMessageType.ChannelSevenTVEmotesCachedFallback -> {
+                    TextResource.Res(R.string.system_message_7tv_emotes_cached_fallback)
+                }
+
                 is SystemMessageType.Custom -> {
                     type.message
                 }

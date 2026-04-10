@@ -131,6 +131,9 @@
     <string name="system_message_ffz_emotes_failed">No han pogut carregar els emotes de FFZ (Error %1$s)</string>
     <string name="system_message_bttv_emotes_failed">No han pogut carregar els emotes de BTTV (Error %1$s)</string>
     <string name="system_message_7tv_emotes_failed">No han pogut carregar els emotes de 7TV (Error %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Fent servir emotes FFZ de la memòria cau com a alternativa</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Fent servir emotes BTTV de la memòria cau com a alternativa</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Fent servir emotes 7TV de la memòria cau com a alternativa</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s ha canviat el conjunt d\'emotes 7TV actiu a \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s ha afegit l\'emote 7TV %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s ha reanomenat l\'emote 7TV %2$s a %3$s.</string>

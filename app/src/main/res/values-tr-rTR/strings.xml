@@ -122,6 +122,9 @@
     <string name="system_message_ffz_emotes_failed">FFZ ifadeleri yüklenemedi (Hata %1$s)</string>
     <string name="system_message_bttv_emotes_failed">BTTV ifadeleri yüklenemedi (Hata %1$s)</string>
     <string name="system_message_7tv_emotes_failed">7TV ifadeleri yüklenemedi (Hata %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Önbelleğe alınmış FFZ emotes yedek olarak kullanılıyor</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Önbelleğe alınmış BTTV emotes yedek olarak kullanılıyor</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Önbelleğe alınmış 7TV emotes yedek olarak kullanılıyor</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s, etkin 7TV İfade Öbeğini \"%2$s\" olarak değiştirdi.</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s, %2$s 7TV İfadesini ekledi.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s, %2$s 7TV İfadesinin adını %3$s olarak değiştirdi.</string>

@@ -129,6 +129,9 @@
     <string name="system_message_ffz_emotes_failed">Falha ao carregar emotes FFZ (Erro %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Falha ao carregar emotes BTTV (Erro %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Falha ao carregar Emotes 7TV (Erro %1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Usando emotes FFZ em cache como fallback</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Usando emotes BTTV em cache como fallback</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Usando emotes 7TV em cache como fallback</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s alterou o grupo ativo de emotes 7TV para \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s adicionou o emote %2$s na 7TV.  </string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s renomeou o emote do 7tv de %2$s para %3$s.</string>

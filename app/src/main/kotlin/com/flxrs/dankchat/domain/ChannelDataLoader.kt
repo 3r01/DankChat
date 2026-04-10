@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.data.repo.data.EmoteLoadResult
 import com.flxrs.dankchat.data.state.ChannelLoadingFailure
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
@@ -25,7 +26,10 @@ class ChannelDataLoader(
     private val getChannelsUseCase: GetChannelsUseCase,
     private val dispatchersProvider: DispatchersProvider,
 ) {
-    suspend fun loadChannelData(channel: UserName): ChannelLoadingState {
+    suspend fun loadChannelData(
+        channel: UserName,
+        forceNetwork: Boolean = false,
+    ): ChannelLoadingState {
         return try {
             // Phase 1: No auth needed — create flows and load message history
             dataRepository.createFlowsIfNecessary(listOf(channel))
@@ -40,15 +44,14 @@ class ChannelDataLoader(
                 return ChannelLoadingState.Failed(emptyList())
             }
 
-            val failures =
+            val (failures, fallbacks) =
                 withContext(dispatchersProvider.io) {
                     val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
-                    val emotesResults = async { loadChannelEmotes(channel, channelInfo) }
+                    val emotesResults = async { loadChannelEmotes(channel, channelInfo, forceNetwork) }
 
-                    listOfNotNull(
-                        badgesResult.await(),
-                        *emotesResults.await().toTypedArray(),
-                    )
+                    val (emoteFailures, emoteFallbacks) = emotesResults.await()
+                    val allFailures = listOfNotNull(badgesResult.await()) + emoteFailures
+                    allFailures to emoteFallbacks
                 }
 
             failures.forEach { failure ->
@@ -64,6 +67,8 @@ class ChannelDataLoader(
                     chatMessageRepository.addSystemMessage(channel, it)
                 }
             }
+
+            fallbacks.forEach { chatMessageRepository.addSystemMessage(channel, it) }
 
             when {
                 failures.isEmpty() -> ChannelLoadingState.Loaded
@@ -85,28 +90,14 @@ class ChannelDataLoader(
     suspend fun loadChannelEmotes(
         channel: UserName,
         channelInfo: Channel,
-    ): List<ChannelLoadingFailure> = withContext(dispatchersProvider.io) {
+        forceNetwork: Boolean = false,
+    ): Pair<List<ChannelLoadingFailure>, List<SystemMessageType>> = withContext(dispatchersProvider.io) {
         val bttvResult =
-            async {
-                dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.BTTVEmotes(channel, it) },
-                )
-            }
+            async { dataRepository.loadChannelBTTVEmotes(channel, channelInfo.displayName, channelInfo.id, forceNetwork) }
         val ffzResult =
-            async {
-                dataRepository.loadChannelFFZEmotes(channel, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.FFZEmotes(channel, it) },
-                )
-            }
+            async { dataRepository.loadChannelFFZEmotes(channel, channelInfo.id, forceNetwork) }
         val sevenTvResult =
-            async {
-                dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id).fold(
-                    onSuccess = { null },
-                    onFailure = { ChannelLoadingFailure.SevenTVEmotes(channel, it) },
-                )
-            }
+            async { dataRepository.loadChannelSevenTVEmotes(channel, channelInfo.id, forceNetwork) }
         val cheermotesResult =
             async {
                 dataRepository.loadChannelCheermotes(channel, channelInfo.id).fold(
@@ -114,11 +105,24 @@ class ChannelDataLoader(
                     onFailure = { ChannelLoadingFailure.Cheermotes(channel, it) },
                 )
             }
-        listOfNotNull(
-            bttvResult.await(),
-            ffzResult.await(),
-            sevenTvResult.await(),
-            cheermotesResult.await(),
+
+        val failures = mutableListOf<ChannelLoadingFailure>()
+        val fallbackMessages = mutableListOf<SystemMessageType>()
+
+        bttvResult.await().fold(
+            onSuccess = { if (it == EmoteLoadResult.CachedFallback) fallbackMessages += SystemMessageType.ChannelBTTVEmotesCachedFallback },
+            onFailure = { failures += ChannelLoadingFailure.BTTVEmotes(channel, it) },
         )
+        ffzResult.await().fold(
+            onSuccess = { if (it == EmoteLoadResult.CachedFallback) fallbackMessages += SystemMessageType.ChannelFFZEmotesCachedFallback },
+            onFailure = { failures += ChannelLoadingFailure.FFZEmotes(channel, it) },
+        )
+        sevenTvResult.await().fold(
+            onSuccess = { if (it == EmoteLoadResult.CachedFallback) fallbackMessages += SystemMessageType.ChannelSevenTVEmotesCachedFallback },
+            onFailure = { failures += ChannelLoadingFailure.SevenTVEmotes(channel, it) },
+        )
+        cheermotesResult.await()?.let { failures += it }
+
+        failures to fallbackMessages
     }
 }

@@ -126,6 +126,9 @@
     <string name="system_message_ffz_emotes_failed">載入FFZ表情失敗(錯誤%1$s)</string>
     <string name="system_message_bttv_emotes_failed">載入BTTV表情失敗(錯誤%1$s)</string>
     <string name="system_message_7tv_emotes_failed">載入7TV表情失敗(錯誤%1$s)</string>
+    <string name="system_message_ffz_emotes_cached_fallback">使用快取的 FFZ emotes 作為備用</string>
+    <string name="system_message_bttv_emotes_cached_fallback">使用快取的 BTTV emotes 作為備用</string>
+    <string name="system_message_7tv_emotes_cached_fallback">使用快取的 7TV emotes 作為備用</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s切換了使用中的7TV表情套組至\"%2$s\"。</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s新增了7TV表情%2$s。</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s重新命名了7TV表情%2$s成%3$s。</string>
