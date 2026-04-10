@@ -588,10 +588,11 @@ private fun FabActionsMenu(
                             .padding(vertical = 2.dp),
                 ) {
                     Thumb(
-                        Modifier.background(
+                        modifier = Modifier.background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                             RoundedCornerShape(100),
                         ),
+                        enabled = false,
                     )
                 }
             }

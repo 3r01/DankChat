@@ -35,6 +35,7 @@ compose-icons = "1.7.8"
 compose-materia3 = "1.5.0-alpha16"
 compose-material3-adaptive = "1.2.0"
 compose-unstyled = "1.49.6"
+lazyColumnScrollbar = "2.2.0"
 appcompat = "1.7.0"
 splashscreen = "1.0.1"
 flexBox = "3.0.0"
@@ -111,6 +112,7 @@ compose-icons-extended = { module = "androidx.compose.material:material-icons-ex
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-unstyled = { module = "com.composables:core", version.ref = "compose-unstyled" }
+lazycolumn-scrollbar = { module = "com.github.nanihadesuka:LazyColumnScrollbar", version.ref = "lazyColumnScrollbar" }
 compose-material3-adaptive = { module = "androidx.compose.material3.adaptive:adaptive", version.ref = "compose-material3-adaptive" }
 
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }

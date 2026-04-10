@@ -181,6 +181,7 @@ dependencies {
     implementation(libs.compose.icons.core)
     implementation(libs.compose.icons.extended)
     implementation(libs.compose.unstyled)
+    implementation(libs.lazycolumn.scrollbar)
     implementation(libs.compose.material3.adaptive)
 
     // Theme & splash

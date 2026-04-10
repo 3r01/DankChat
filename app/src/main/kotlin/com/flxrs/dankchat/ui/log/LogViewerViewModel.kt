@@ -63,7 +63,7 @@ class LogViewerViewModel(
         } else {
             emptyList<LogLine>().toImmutableList()
         }
-        val filtered = filterLines(lines, levelFilter, searchQuery)
+        val filtered = filterLines(lines, levelFilter, searchQuery).asReversed().toImmutableList()
         LogViewerState(
             lines = filtered,
             levelFilter = levelFilter,

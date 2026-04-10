@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -100,6 +101,8 @@ import com.flxrs.dankchat.data.repo.log.LogLine
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import my.nanihadesuka.compose.LazyColumnScrollbar
+import my.nanihadesuka.compose.ScrollbarSettings
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -195,27 +198,38 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
                     translationY = backProgress * 100f
                 },
     ) {
-        LazyColumn(
+        LazyColumnScrollbar(
             state = listState,
-            reverseLayout = true,
-            contentPadding = PaddingValues(
-                top = toolbarTopPadding,
-                bottom = searchBarHeightDp + navBarHeightDp + currentImeDp,
+            settings = ScrollbarSettings(
+                thumbUnselectedColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                thumbSelectedColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                thumbThickness = 8.dp,
+                thumbMinLength = 0.1f,
+                thumbShape = RoundedCornerShape(100),
             ),
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .nestedScroll(scrollTracker),
         ) {
-            itemsIndexed(
-                items = state.lines,
-                key = { index, _ -> index },
-            ) { index, line ->
-                LogLineItem(
-                    line = line,
-                    isSelected = index in selectedIndices,
-                    onClick = { viewModel.toggleSelection(index) },
-                )
+            LazyColumn(
+                state = listState,
+                reverseLayout = true,
+                contentPadding = PaddingValues(
+                    top = toolbarTopPadding,
+                    bottom = searchBarHeightDp + navBarHeightDp + currentImeDp,
+                ),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .nestedScroll(scrollTracker),
+            ) {
+                itemsIndexed(
+                    items = state.lines,
+                    key = { index, _ -> index },
+                ) { index, line ->
+                    LogLineItem(
+                        line = line,
+                        isSelected = index in selectedIndices,
+                        onClick = { viewModel.toggleSelection(index) },
+                    )
+                }
             }
         }
 
