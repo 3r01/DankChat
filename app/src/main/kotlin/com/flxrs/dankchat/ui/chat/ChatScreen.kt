@@ -88,7 +88,6 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.messages.AutomodMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.DateSeparatorComposable
@@ -106,7 +105,7 @@ import kotlinx.collections.immutable.ImmutableList
 data class ChatScreenCallbacks(
     val onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     val onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    val onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit = {},
+    val onEmoteClick: (emoteIds: List<String>) -> Unit = {},
     val onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
     val onWhisperReply: ((userName: UserName) -> Unit)? = null,
     val onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },

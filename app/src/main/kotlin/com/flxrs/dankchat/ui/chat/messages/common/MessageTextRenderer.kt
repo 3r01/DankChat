@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.EmoteUi
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
@@ -41,7 +40,7 @@ fun MessageTextWithInlineContent(
     fontSize: Float,
     animateGifs: Boolean,
     onTextClick: (Int) -> Unit,
-    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -67,7 +66,7 @@ fun MessageTextWithInlineContent(
                             emoteCoordinator = emoteCoordinator,
                             animateGifs = animateGifs,
                             modifier = Modifier,
-                            onClick = { onEmoteClick(emote.emotes) },
+                            onClick = { onEmoteClick(emote.emotes.map { it.id }) },
                         )
                     }
                 }

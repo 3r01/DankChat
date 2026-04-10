@@ -62,7 +62,6 @@ import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.crash.CrashEntry
 import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.data.repo.log.LogRepository
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
@@ -251,9 +250,9 @@ fun MainScreenDialogs(
     }
 
     if (sheetsReady) {
-        dialogState.emoteInfoEmotes?.let { emotes ->
+        dialogState.emoteInfoEmoteIds?.let { emoteIds ->
             EmoteInfoDialogContainer(
-                emotes = emotes,
+                emoteIds = emoteIds,
                 isLoggedIn = isLoggedIn,
                 onInsertText = chatInputViewModel::insertText,
                 onOpenUrl = onOpenUrl,
@@ -529,7 +528,7 @@ private fun MessageOptionsDialogContainer(
 
 @Composable
 private fun EmoteInfoDialogContainer(
-    emotes: List<ChatMessageEmote>,
+    emoteIds: List<String>,
     isLoggedIn: Boolean,
     onInsertText: (String) -> Unit,
     onOpenUrl: (String) -> Unit,
@@ -537,8 +536,8 @@ private fun EmoteInfoDialogContainer(
 ) {
     val viewModel: EmoteInfoViewModel =
         koinViewModel(
-            key = emotes.joinToString { it.id },
-            parameters = { parametersOf(emotes) },
+            key = emoteIds.joinToString(),
+            parameters = { parametersOf(emoteIds) },
         )
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()

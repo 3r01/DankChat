@@ -234,7 +234,7 @@ fun MainScreen(
     val hasBottomSheet = isSheetOpen ||
         dialogState.messageOptionsParams != null ||
         dialogState.userPopupParams != null ||
-        dialogState.emoteInfoEmotes != null ||
+        dialogState.emoteInfoEmoteIds != null ||
         dialogState.showModActions
     var sheetsReady by remember { mutableStateOf(true) }
     LaunchedEffect(hasBottomSheet) {
@@ -637,6 +637,7 @@ fun MainScreen(
                         chatInputViewModel.insertText("$code ")
                         chatInputViewModel.addEmoteUsage(id)
                     },
+                    onEmoteLongClick = dialogViewModel::showEmoteInfo,
                     onBackspace = chatInputViewModel::deleteLastWord,
                     modifier = menuModifier,
                 )

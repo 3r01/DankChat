@@ -37,7 +37,6 @@ import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
@@ -68,7 +67,7 @@ fun PrivMessageComposable(
     fontSize: Float,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (emotes: List<String>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
     modifier: Modifier = Modifier,
     highlightShape: Shape = RectangleShape,
@@ -206,7 +205,7 @@ private fun PrivMessageText(
     backgroundColor: Color,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (emotes: List<String>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)

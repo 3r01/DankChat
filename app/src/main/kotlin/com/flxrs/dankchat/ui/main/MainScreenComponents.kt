@@ -204,6 +204,7 @@ internal fun EmoteMenuOverlay(
     totalMenuHeight: Dp,
     backProgress: Float,
     onEmoteClick: (code: String, id: String) -> Unit,
+    onEmoteLongClick: (emoteId: String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -228,6 +229,7 @@ internal fun EmoteMenuOverlay(
         ) {
             EmoteMenu(
                 onEmoteClick = onEmoteClick,
+                onEmoteLongClick = onEmoteLongClick,
                 onBackspace = onBackspace,
                 modifier = Modifier.fillMaxSize(),
             )

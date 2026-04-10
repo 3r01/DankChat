@@ -2,7 +2,6 @@ package com.flxrs.dankchat.ui.main.dialog
 
 import androidx.lifecycle.ViewModel
 import com.flxrs.dankchat.data.repo.crash.CrashRepository
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
@@ -132,12 +131,16 @@ class DialogStateViewModel(
         update { copy(messageOptionsParams = null) }
     }
 
-    fun showEmoteInfo(emotes: List<ChatMessageEmote>) {
-        update { copy(emoteInfoEmotes = emotes.toImmutableList()) }
+    fun showEmoteInfo(emoteIds: List<String>) {
+        update { copy(emoteInfoEmoteIds = emoteIds.toImmutableList()) }
+    }
+
+    fun showEmoteInfo(emoteId: String) {
+        showEmoteInfo(listOf(emoteId))
     }
 
     fun dismissEmoteInfo() {
-        update { copy(emoteInfoEmotes = null) }
+        update { copy(emoteInfoEmoteIds = null) }
     }
 
     // Crash report

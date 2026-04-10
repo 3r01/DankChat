@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
@@ -28,7 +27,7 @@ fun RepliesComposable(
     repliesViewModel: RepliesViewModel,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (List<String>) -> Unit,
     onMissing: () -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier,

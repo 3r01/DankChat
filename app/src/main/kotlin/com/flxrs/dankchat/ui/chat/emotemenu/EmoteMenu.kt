@@ -1,6 +1,6 @@
 package com.flxrs.dankchat.ui.chat.emotemenu
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,20 +27,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -57,6 +54,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun EmoteMenu(
     onEmoteClick: (String, String) -> Unit,
+    onEmoteLongClick: (emoteId: String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EmoteMenuViewModel = koinViewModel(),
@@ -128,6 +126,7 @@ fun EmoteMenu(
                         subsGridState = subsGridState,
                         navBarBottomDp = navBarBottomDp,
                         onEmoteClick = onEmoteClick,
+                        onEmoteLongClick = onEmoteLongClick,
                     )
                 }
 
@@ -161,6 +160,7 @@ private fun EmoteGridPage(
     subsGridState: LazyGridState,
     navBarBottomDp: Dp,
     onEmoteClick: (code: String, id: String) -> Unit,
+    onEmoteLongClick: (emoteId: String) -> Unit,
 ) {
     val items = tab.items
 
@@ -222,21 +222,20 @@ private fun EmoteGridPage(
                     }
 
                     is EmoteItem.Emote -> {
-                        TooltipBox(
-                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                            tooltip = { PlainTooltip { Text(item.emote.code) } },
-                            state = rememberTooltipState(),
-                        ) {
-                            AsyncImage(
-                                model = item.emote.url,
-                                contentDescription = item.emote.code,
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .aspectRatio(1f)
-                                        .clickable { onEmoteClick(item.emote.code, item.emote.id) },
-                            )
-                        }
+                        AsyncImage(
+                            model = item.emote.url,
+                            contentDescription = item.emote.code,
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                                    .pointerInput(item.emote) {
+                                        detectTapGestures(
+                                            onTap = { onEmoteClick(item.emote.code, item.emote.id) },
+                                            onLongPress = { onEmoteLongClick(item.emote.id) },
+                                        )
+                                    },
+                        )
                     }
                 }
             }

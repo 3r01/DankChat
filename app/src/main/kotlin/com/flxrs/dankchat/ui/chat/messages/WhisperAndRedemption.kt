@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.LinkableText
@@ -66,7 +65,7 @@ fun WhisperMessageComposable(
     fontSize: Float,
     onUserClick: (userId: String?, userName: String, displayName: String, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (emotes: List<String>) -> Unit,
     modifier: Modifier = Modifier,
     animateGifs: Boolean = true,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
@@ -120,7 +119,7 @@ private fun WhisperMessageText(
     backgroundColor: Color,
     onUserClick: (userId: String?, userName: String, displayName: String, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (emotes: List<String>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)

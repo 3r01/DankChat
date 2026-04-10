@@ -73,7 +73,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
@@ -93,7 +92,7 @@ fun MessageHistorySheet(
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (List<String>) -> Unit,
 ) {
     LaunchedEffect(viewModel, initialFilter) {
         viewModel.setInitialQuery(initialFilter)

@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
@@ -36,7 +35,7 @@ fun FullScreenSheetOverlay(
     onDismissReplies: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
-    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
     onWhisperReply: (UserName) -> Unit = {},
@@ -116,7 +115,7 @@ private fun HistorySheetContent(
     onDismiss: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
-    onEmoteClick: (List<ChatMessageEmote>) -> Unit,
+    onEmoteClick: (List<String>) -> Unit,
 ) {
     val viewModel: MessageHistoryViewModel =
         koinViewModel(

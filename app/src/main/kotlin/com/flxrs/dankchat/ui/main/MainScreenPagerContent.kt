@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.max
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatComposable
@@ -40,7 +39,7 @@ internal class ChatPagerCallbacks(
     val onShowUserPopup: (UserPopupStateParams) -> Unit,
     val onMentionUser: (UserName, DisplayName) -> Unit,
     val onShowMessageOptions: (MessageOptionsParams) -> Unit,
-    val onShowEmoteInfo: (List<ChatMessageEmote>) -> Unit,
+    val onShowEmoteInfo: (List<String>) -> Unit,
     val onOpenReplies: (String, UserName) -> Unit,
     val onRecover: () -> Unit,
     val onScrollToBottom: () -> Unit,
@@ -158,8 +157,8 @@ internal fun MainScreenPagerContent(
                                         ),
                                     )
                                 },
-                                onEmoteClick = { emotes ->
-                                    callbacks.onShowEmoteInfo(emotes)
+                                onEmoteClick = { emoteIds ->
+                                    callbacks.onShowEmoteInfo(emoteIds)
                                 },
                                 onReplyClick = { replyMessageId, replyName ->
                                     callbacks.onOpenReplies(replyMessageId, replyName)

@@ -43,12 +43,23 @@ sealed interface ChatMessageEmoteType : Parcelable {
     data object Cheermote : ChatMessageEmoteType
 }
 
-fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType? = when (this) {
+fun EmoteType.toChatMessageEmoteType(): ChatMessageEmoteType = when (this) {
     is EmoteType.ChannelBTTVEmote -> ChatMessageEmoteType.ChannelBTTVEmote(creator, isShared)
+
     is EmoteType.ChannelFFZEmote -> ChatMessageEmoteType.ChannelFFZEmote(creator)
+
     is EmoteType.ChannelSevenTVEmote -> ChatMessageEmoteType.ChannelSevenTVEmote(creator, baseName)
+
     EmoteType.GlobalBTTVEmote -> ChatMessageEmoteType.GlobalBTTVEmote
+
     is EmoteType.GlobalFFZEmote -> ChatMessageEmoteType.GlobalFFZEmote(creator)
+
     is EmoteType.GlobalSevenTVEmote -> ChatMessageEmoteType.GlobalSevenTVEmote(creator, baseName)
-    else -> null
+
+    is EmoteType.ChannelTwitchEmote,
+    is EmoteType.ChannelTwitchBitEmote,
+    is EmoteType.ChannelTwitchFollowerEmote,
+    EmoteType.GlobalTwitchEmote,
+    EmoteType.RecentUsageEmote,
+    -> ChatMessageEmoteType.TwitchEmote
 }
