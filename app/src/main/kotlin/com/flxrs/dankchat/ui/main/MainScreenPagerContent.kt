@@ -110,8 +110,10 @@ internal fun MainScreenPagerContent(
                     ) { page ->
                         if (page in pagerState.channels.indices) {
                             val channel = pagerState.channels[page]
+                            val isNearCurrentPage = (page - composePagerState.currentPage).let { it in -1..1 }
                             ChatComposable(
                                 channel = channel,
+                                isCollectionActive = isNearCurrentPage,
                                 onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
                                     val shouldOpenPopup =
                                         when (userLongClickBehavior) {

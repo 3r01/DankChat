@@ -968,6 +968,27 @@ private fun ChatMessageUiState.hasSameHighlightBackground(other: ChatMessageUiSt
     other.lightBackgroundColor == lightBackgroundColor &&
     other.darkBackgroundColor == darkBackgroundColor
 
+fun MutableList<ChatMessageUiState>.applyHighlightLayout(showLineSeparator: Boolean) {
+    for (index in indices) {
+        val message = this[index]
+        val above = getOrNull(index - 1)
+        val below = getOrNull(index + 1)
+        val hasSameAbove = message.hasSameHighlightBackground(above)
+        val hasSameBelow = message.hasSameHighlightBackground(below)
+
+        val roundedTop = message.isHighlighted && !hasSameAbove
+        val roundedBottom = message.isHighlighted && !hasSameBelow
+
+        val isHighlightBoundary = (message.isHighlighted && !hasSameBelow) ||
+            (below != null && below.isHighlighted && !below.hasSameHighlightBackground(message))
+        val showDivider = showLineSeparator && below != null && !isHighlightBoundary
+
+        if (roundedTop || roundedBottom || showDivider) {
+            this[index] = message.withLayout(roundedTop, roundedBottom, showDivider)
+        }
+    }
+}
+
 private fun ChatMessageUiState.withLayout(
     roundedTopCorners: Boolean,
     roundedBottomCorners: Boolean,

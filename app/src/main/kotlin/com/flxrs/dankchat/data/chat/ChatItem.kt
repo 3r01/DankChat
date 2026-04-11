@@ -8,6 +8,8 @@ data class ChatItem(
     val isMentionTab: Boolean = false,
     val importance: ChatImportance = ChatImportance.REGULAR,
     val isInReplies: Boolean = false,
-)
+) {
+    val mappingCacheKey: String = "${message.id}-$tag"
+}
 
 fun List<ChatItem>.toMentionTabItems(): List<ChatItem> = map { it.copy(isMentionTab = true) }

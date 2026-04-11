@@ -23,6 +23,7 @@ fun ChatComposable(
     onReplyClick: (String, UserName) -> Unit,
     modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
+    isCollectionActive: Boolean = true,
     onAutomodBanUser: (messageId: String, channel: String?, fullMessage: String) -> Unit = { _, _, _ -> },
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
@@ -44,6 +45,8 @@ fun ChatComposable(
             key = channel.value,
             parameters = { parametersOf(channel) },
         )
+
+    if (!isCollectionActive) return
 
     val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()

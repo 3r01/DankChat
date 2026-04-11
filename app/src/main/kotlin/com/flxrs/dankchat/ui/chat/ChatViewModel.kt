@@ -22,6 +22,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -31,6 +32,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -61,14 +63,13 @@ class ChatViewModel(
                 animateGifs = chat.animateGifs,
                 fullscreenButtonOpacity = appearance.fullscreenButtonOpacity,
             )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), ChatDisplaySettings())
 
     private val chat: StateFlow<List<ChatItem>> =
         chatMessageRepository
             .getChat(channel)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), emptyList())
 
-    // Mapping cache: keyed on "${message.id}-${tag}-${altBg}" to avoid re-mapping unchanged messages
     private val mappingCache = LruCache<String, ChatMessageUiState>(512)
     private val checkeredTracker = CheckeredMessageTracker()
     private var lastAppearanceSettings: AppearanceSettings? = null
@@ -91,10 +92,13 @@ class ChatViewModel(
 
             val zone = ZoneId.systemDefault()
             val result = ArrayList<ChatMessageUiState>(messages.size + 8)
+            var cachedDayStartMillis = 0L
+            var cachedDayEndMillis = 0L
+            var previousEpochDay = Long.MIN_VALUE
             for (index in messages.indices) {
                 val item = messages[index]
                 val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
-                val cacheKey = "${item.message.id}-${item.tag}-$altBg"
+                val cacheKey = if (altBg) "${item.mappingCacheKey}-true" else item.mappingCacheKey
 
                 val mapped =
                     mappingCache[cacheKey] ?: chatMessageMapper
@@ -104,42 +108,50 @@ class ChatViewModel(
                             preferenceStore = preferenceStore,
                             isAlternateBackground = altBg,
                         ).also { mappingCache.put(cacheKey, it) }
-                result += mapped
 
-                // Insert date separator between messages on different days
-                if (index < messages.lastIndex) {
-                    val currentDay = Instant.ofEpochMilli(item.message.timestamp).atZone(zone).toLocalDate()
-                    val nextDay = Instant.ofEpochMilli(messages[index + 1].message.timestamp).atZone(zone).toLocalDate()
-                    if (currentDay != nextDay) {
-                        val timestamp =
-                            if (chatSettings.showTimestamps) {
-                                DateTimeUtils.timestampToLocalTime(
-                                    nextDay
-                                        .atTime(LocalTime.MIDNIGHT)
-                                        .atZone(zone)
-                                        .toInstant()
-                                        .toEpochMilli(),
-                                    chatSettings.formatter,
-                                )
-                            } else {
-                                ""
-                            }
-                        result +=
-                            ChatMessageUiState.DateSeparatorUi(
-                                id = "date-sep-$nextDay",
-                                timestamp = timestamp,
-                                dateText = nextDay.format(dateFormatter),
-                            )
+                val ts = item.message.timestamp
+
+                @Suppress("EmptyRange")
+                val currentEpochDay = when {
+                    ts in cachedDayStartMillis..<cachedDayEndMillis -> {
+                        previousEpochDay
+                    }
+
+                    else -> {
+                        val day = Instant.ofEpochMilli(ts).atZone(zone).toLocalDate()
+                        cachedDayStartMillis = day.atStartOfDay(zone).toInstant().toEpochMilli()
+                        cachedDayEndMillis = day
+                            .plusDays(1)
+                            .atStartOfDay(zone)
+                            .toInstant()
+                            .toEpochMilli()
+                        day.toEpochDay()
                     }
                 }
+                if (previousEpochDay != Long.MIN_VALUE && currentEpochDay != previousEpochDay) {
+                    val day = LocalDate.ofEpochDay(currentEpochDay)
+                    val timestamp =
+                        if (chatSettings.showTimestamps) {
+                            DateTimeUtils.timestampToLocalTime(cachedDayStartMillis, chatSettings.formatter)
+                        } else {
+                            ""
+                        }
+                    result +=
+                        ChatMessageUiState.DateSeparatorUi(
+                            id = "date-sep-$day",
+                            timestamp = timestamp,
+                            dateText = day.format(dateFormatter),
+                        )
+                }
+                previousEpochDay = currentEpochDay
+
+                result += mapped
             }
 
-            chatMessageMapper
-                .run {
-                    result.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
-                }.toImmutableList()
-        }.flowOn(dispatchersProvider.default)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 5000L), persistentListOf())
+            result.applyHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
+            result.toImmutableList()
+        }.flowOn(dispatchersProvider.default + CoroutineName("ChatViewModel[$channel]"))
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), persistentListOf())
 
     fun manageAutomodMessage(
         heldMessageId: String,
