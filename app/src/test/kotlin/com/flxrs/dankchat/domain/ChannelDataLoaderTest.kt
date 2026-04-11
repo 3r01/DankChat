@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.ChatRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.data.repo.data.EmoteLoadResult
 import com.flxrs.dankchat.data.state.ChannelLoadingFailure
 import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
@@ -74,9 +75,9 @@ internal class ChannelDataLoaderTest {
 
     private fun stubAllEmotesAndBadgesSuccess() {
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
     }
 
@@ -118,8 +119,8 @@ internal class ChannelDataLoaderTest {
         coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
         val result = loader.loadChannelData(testChannel)
@@ -135,7 +136,7 @@ internal class ChannelDataLoaderTest {
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.failure(RuntimeException("badges down"))
         coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv down"))
         coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("ffz down"))
-        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
         val result = loader.loadChannelData(testChannel)
@@ -152,7 +153,7 @@ internal class ChannelDataLoaderTest {
         coEvery { channelRepository.getChannel(testChannel) } returns testChannelInfo
         coEvery { dataRepository.loadChannelBadges(testChannel, testChannelId) } returns Result.success(Unit)
         coEvery { dataRepository.loadChannelBTTVEmotes(testChannel, any(), testChannelId) } returns Result.failure(RuntimeException("bttv"))
-        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(Unit)
+        coEvery { dataRepository.loadChannelFFZEmotes(testChannel, testChannelId) } returns Result.success(EmoteLoadResult.Loaded)
         coEvery { dataRepository.loadChannelSevenTVEmotes(testChannel, testChannelId) } returns Result.failure(RuntimeException("7tv"))
         coEvery { dataRepository.loadChannelCheermotes(testChannel, testChannelId) } returns Result.success(Unit)
 
