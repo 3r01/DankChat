@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.ui.main.input
 
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -94,10 +95,12 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -203,6 +206,8 @@ fun ChatInputLayout(
                 }.toImmutableList()
         }
 
+    val view = LocalView.current
+    val inputMethodManager = remember(view) { view.context.getSystemService(InputMethodManager::class.java) }
     val keyboardController = LocalSoftwareKeyboardController.current
     var visibleActions by remember { mutableStateOf(effectiveActions) }
     val quickActionsExpanded = overflowExpanded || tourState.forceOverflowOpen
@@ -311,8 +316,16 @@ fun ChatInputLayout(
                             minHeightInLines = 1,
                             maxHeightInLines = 5,
                         ),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    onKeyboardAction = { if (canSend) onSend() },
+                    keyboardOptions = KeyboardOptions(
+                        capitalization = KeyboardCapitalization.Sentences,
+                        imeAction = ImeAction.Send,
+                    ),
+                    onKeyboardAction = {
+                        if (canSend) {
+                            onSend()
+                            inputMethodManager?.restartInput(view)
+                        }
+                    },
                 )
 
                 HelperTextRow(helperText = helperText)
@@ -356,7 +369,10 @@ fun ChatInputLayout(
                     onToggleFullscreen = onToggleFullscreen,
                     onToggleInput = onToggleInput,
                     onDebugInfoClick = onDebugInfoClick,
-                    onSend = onSend,
+                    onSend = {
+                        onSend()
+                        inputMethodManager?.restartInput(view)
+                    },
                     isRepeatedSendEnabled = isRepeatedSendEnabled,
                     onRepeatedSendChange = onRepeatedSendChange,
                     onVisibleActionsChange = { visibleActions = it },
