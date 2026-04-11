@@ -115,7 +115,6 @@ import com.materialkolor.ktx.blend
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
-import sh.calvin.reorderable.ReorderableColumn
 
 @Composable
 fun ChatInputLayout(

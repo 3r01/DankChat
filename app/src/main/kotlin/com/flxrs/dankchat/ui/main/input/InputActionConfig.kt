@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +45,7 @@ import com.flxrs.dankchat.preferences.appearance.InputAction
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableColumn
+import sh.calvin.reorderable.ReorderableItem
 
 private const val MAX_INPUT_ACTIONS = 4
 
@@ -91,41 +93,45 @@ internal fun InputActionConfigSheet(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { _, action, isDragging ->
-                val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+                key(action) {
+                    ReorderableItem {
+                        val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
 
-                Surface(
-                    shadowElevation = elevation,
-                    color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent,
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .longPressDraggableHandle()
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .height(40.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.DragHandle,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        Icon(
-                            imageVector = action.icon,
-                            contentDescription = null,
-                            modifier = Modifier.size(24.dp),
-                        )
-                        Spacer(Modifier.width(16.dp))
-                        Text(
-                            text = stringResource(action.labelRes),
-                            modifier = Modifier.weight(1f),
-                        )
-                        Checkbox(
-                            checked = true,
-                            onCheckedChange = { localEnabled.remove(action) },
-                        )
+                        Surface(
+                            shadowElevation = elevation,
+                            color = if (isDragging) MaterialTheme.colorScheme.surfaceContainerHighest else Color.Transparent,
+                        ) {
+                            Row(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .longPressDraggableHandle()
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                        .height(40.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DragHandle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Icon(
+                                    imageVector = action.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                                Spacer(Modifier.width(16.dp))
+                                Text(
+                                    text = stringResource(action.labelRes),
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Checkbox(
+                                    checked = true,
+                                    onCheckedChange = { localEnabled.remove(action) },
+                                )
+                            }
+                        }
                     }
                 }
             }
