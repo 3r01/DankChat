@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat on käynnissä taustalla</string>
     <string name="emote_menu_hint">Avaa hymiö-valikko</string>
-    <string name="close_emote_menu">Sulje hymiö-valikko</string>
     <string name="no_recent_emotes">Ei viimeaikaisia hymiöitä</string>
-    <string name="emote_menu_title">Hymiöt</string>
     <string name="login_title">Kirjaudu sisään Twitch.tv:hen</string>
     <string name="hint_connected">Aloita chattailu</string>
     <string name="hint_disconnected">Yhteys katkaistu</string>

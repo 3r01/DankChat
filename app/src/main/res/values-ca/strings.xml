@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat obert en segon pla</string>
     <string name="emote_menu_hint">Obrir el menú d\'emotes</string>
-    <string name="close_emote_menu">Tanca el menú d\'emotes</string>
     <string name="no_recent_emotes">Cap emote recent</string>
-    <string name="emote_menu_title">Emotes</string>
     <string name="login_title">Iniciar sessió a Twitch.tv</string>
     <string name="hint_connected">Comença a xatejar</string>
     <string name="hint_disconnected">Desconnectat</string>

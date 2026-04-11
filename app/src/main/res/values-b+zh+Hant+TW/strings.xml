@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat 背景執行中</string>
     <string name="emote_menu_hint">開啟表情符號選單</string>
-    <string name="close_emote_menu">關閉表情符號選單</string>
     <string name="no_recent_emotes">沒有最近使用的表情符號</string>
-    <string name="emote_menu_title">表情符號</string>
     <string name="login_title">登入至 Twitch.tv</string>
     <string name="hint_connected">開始聊天</string>
     <string name="hint_disconnected">已斷線</string>

@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat фондық тәртібіде істейді</string>
     <string name="emote_menu_hint">Эмодзилерді мәзір ашу</string>
-    <string name="close_emote_menu">Эмоция мәзірін жабу</string>
     <string name="no_recent_emotes">Соңғы эмоциялар жоқ</string>
-    <string name="emote_menu_title">Эмоциялар</string>
     <string name="login_title">Twitch.tv кіру</string>
     <string name="hint_connected">Әңгімеге кірісу</string>
     <string name="hint_disconnected">Ажыратты</string>

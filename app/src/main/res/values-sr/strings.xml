@@ -41,9 +41,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat radi u pozadini</string>
     <string name="emote_menu_hint">Otvori meni sa emotovima</string>
-    <string name="close_emote_menu">Затвори мени емотикона</string>
     <string name="no_recent_emotes">Нема недавних емотикона</string>
-    <string name="emote_menu_title">Емотикони</string>
     <string name="login_title">Uloguj se na Twitch.tv</string>
     <string name="hint_connected">Počni ćaskanje</string>
     <string name="hint_disconnected">Veza nije uspostavljena</string>

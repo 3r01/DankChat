@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">DankChat running in the background</string>
     <string name="emote_menu_hint">Open the emote menu</string>
-    <string name="close_emote_menu">Close the emote menu</string>
     <string name="no_recent_emotes">No recent emotes</string>
-    <string name="emote_menu_title">Emotes</string>
     <string name="login_title">Login to Twitch.tv</string>
     <string name="hint_connected">Start chatting</string>
     <string name="hint_disconnected">Disconnected</string>

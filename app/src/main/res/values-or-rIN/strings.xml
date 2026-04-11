@@ -46,9 +46,7 @@
     <string name="notification_title">FeelsDankMan</string>
     <string name="notification_message">ପୃଷ୍ଠଭୂମିରେ ଚାଲୁଥିବା DankChat |</string>
     <string name="emote_menu_hint">ଇମୋଟ୍ ମେନୁ ଖୋଲ |</string>
-    <string name="close_emote_menu">ଇମୋଟ୍ ମେନୁ ବନ୍ଦ କରନ୍ତୁ</string>
     <string name="no_recent_emotes">କୌଣସି ସାମ୍ପ୍ରତିକ ଇମୋଟ୍ ନାହିଁ</string>
-    <string name="emote_menu_title">ଇମୋଟ୍</string>
     <string name="login_title">Twitch.tv କୁ ଲଗ୍ଇନ୍ କରନ୍ତୁ |</string>
     <string name="hint_connected">ଚାଟିଂ ଆରମ୍ଭ କରନ୍ତୁ |</string>
     <string name="hint_disconnected">ବିଚ୍ଛିନ୍ନ ହୋଇଛି |</string>
