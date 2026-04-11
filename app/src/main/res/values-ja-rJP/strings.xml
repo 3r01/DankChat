@@ -285,6 +285,11 @@
     <string name="menu_exit_fullscreen">全画面を終了</string>
     <string name="menu_hide_input">入力欄を非表示</string>
     <string name="menu_show_input">入力欄を表示</string>
+    <string name="preference_fullscreen_button_opacity_title">フルスクリーンボタンの不透明度</string>
+    <string name="preference_fullscreen_button_opacity_summary">フルスクリーンまたは入力非表示時に表示されるボタン：%d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">不透明度 (1-100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">1から100の間で指定してください</string>
+    <string name="preference_fullscreen_button_opacity_custom">カスタム</string>
     <string name="preference_swipe_navigation_title">チャンネルスワイプナビゲーション</string>
     <string name="preference_swipe_navigation_summary">チャットをスワイプしてチャンネルを切り替え</string>
     <string name="menu_mod_actions">チャンネルモデレーション</string>

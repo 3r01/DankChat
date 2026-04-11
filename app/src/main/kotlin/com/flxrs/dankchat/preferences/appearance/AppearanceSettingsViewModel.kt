@@ -40,6 +40,7 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.SwipeNavigation -> dataStore.update { it.copy(swipeNavigation = interaction.value) }
                 is AppearanceSettingsInteraction.SetAccentColor -> dataStore.update { it.copy(accentColor = interaction.color) }
                 is AppearanceSettingsInteraction.SetPaletteStyle -> dataStore.update { it.copy(paletteStyle = interaction.style) }
+                is AppearanceSettingsInteraction.FullscreenButtonOpacity -> dataStore.update { it.copy(fullscreenButtonOpacity = interaction.value) }
             }
         }
     }

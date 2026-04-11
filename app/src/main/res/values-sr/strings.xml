@@ -293,6 +293,11 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="menu_exit_fullscreen">Изађи из целог екрана</string>
     <string name="menu_hide_input">Сакриј унос</string>
     <string name="menu_show_input">Прикажи унос</string>
+    <string name="preference_fullscreen_button_opacity_title">Провидност дугмади у режиму целог екрана</string>
+    <string name="preference_fullscreen_button_opacity_summary">Дугмад приказана у режиму целог екрана или када је унос сакривен: %d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">Провидност (1-100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">Мора бити између 1 и 100</string>
+    <string name="preference_fullscreen_button_opacity_custom">Прилагођено</string>
     <string name="preference_swipe_navigation_title">Навигација канала превлачењем</string>
     <string name="preference_swipe_navigation_summary">Мењајте канале превлачењем по чату</string>
     <string name="menu_mod_actions">Модерација канала</string>

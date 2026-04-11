@@ -58,6 +58,10 @@ sealed interface AppearanceSettingsInteraction {
     data class SetPaletteStyle(
         val style: PaletteStylePreference,
     ) : AppearanceSettingsInteraction
+
+    data class FullscreenButtonOpacity(
+        val value: Float,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable

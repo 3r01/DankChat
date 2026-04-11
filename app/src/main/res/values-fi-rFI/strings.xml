@@ -299,6 +299,11 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="menu_exit_fullscreen">Poistu koko näytöstä</string>
     <string name="menu_hide_input">Piilota syöttö</string>
     <string name="menu_show_input">Näytä syöttö</string>
+    <string name="preference_fullscreen_button_opacity_title">Koko näytön painikkeiden läpinäkyvyys</string>
+    <string name="preference_fullscreen_button_opacity_summary">Painikkeet koko näytön tilassa tai kun syöttö on piilotettu: %d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">Läpinäkyvyys (1-100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">Arvon on oltava välillä 1-100</string>
+    <string name="preference_fullscreen_button_opacity_custom">Mukautettu</string>
     <string name="preference_swipe_navigation_title">Kanavien pyyhkäisynavigaatio</string>
     <string name="preference_swipe_navigation_summary">Vaihda kanavaa pyyhkäisemällä chatissa</string>
     <string name="menu_mod_actions">Kanavan moderointi</string>

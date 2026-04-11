@@ -59,6 +59,7 @@ class ChatViewModel(
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
                 animateGifs = chat.animateGifs,
+                fullscreenButtonOpacity = appearance.fullscreenButtonOpacity,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
@@ -167,4 +168,5 @@ class ChatViewModel(
 data class ChatDisplaySettings(
     val fontSize: Float = 14f,
     val animateGifs: Boolean = true,
+    val fullscreenButtonOpacity: Float = 0.75f,
 )

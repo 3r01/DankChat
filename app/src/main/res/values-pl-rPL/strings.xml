@@ -311,6 +311,11 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="menu_exit_fullscreen">Wyjdź z pełnego ekranu</string>
     <string name="menu_hide_input">Ukryj pole wpisywania</string>
     <string name="menu_show_input">Pokaż pole wpisywania</string>
+    <string name="preference_fullscreen_button_opacity_title">Krycie przycisków w trybie pełnoekranowym</string>
+    <string name="preference_fullscreen_button_opacity_summary">Przyciski wyświetlane w trybie pełnoekranowym lub gdy pole wprowadzania jest ukryte: %d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">Krycie (1-100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">Wartość musi być między 1 a 100</string>
+    <string name="preference_fullscreen_button_opacity_custom">Niestandardowe</string>
     <string name="preference_swipe_navigation_title">Nawigacja kanałów przesunięciem</string>
     <string name="preference_swipe_navigation_summary">Przełączaj kanały przesuwając na czacie</string>
     <string name="menu_mod_actions">Moderacja kanału</string>

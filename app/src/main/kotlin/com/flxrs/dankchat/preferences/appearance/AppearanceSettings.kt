@@ -35,6 +35,7 @@ data class AppearanceSettings(
     val showClearInputButton: Boolean = true,
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
+    val fullscreenButtonOpacity: Float = 0.75f,
     val inputActions: List<InputAction> =
         listOf(
             InputAction.Stream,

@@ -68,6 +68,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -75,6 +76,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.AutoDisableInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.CheckeredMessages
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FontSize
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FullscreenButtonOpacity
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
@@ -89,11 +91,14 @@ import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceListDialog
 import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
+import com.flxrs.dankchat.utils.compose.InputBottomSheet
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
+
+private const val CUSTOM_SENTINEL = -1f
 
 @Composable
 fun AppearanceSettingsScreen(onBack: () -> Unit) {
@@ -165,6 +170,7 @@ private fun AppearanceSettingsContent(
             HorizontalDivider(thickness = Dp.Hairline)
             ComponentsCategory(
                 swipeNavigation = settings.swipeNavigation,
+                fullscreenButtonOpacity = settings.fullscreenButtonOpacity,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -210,8 +216,17 @@ private fun InputCategory(
 @Composable
 private fun ComponentsCategory(
     swipeNavigation: Boolean,
+    fullscreenButtonOpacity: Float,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
+    val opacityPresets = remember { listOf(0.25f, 0.50f, 0.75f, 1.0f) }
+    val opacityLabels = remember { listOf("25%", "50%", "75%", "100%") }
+    val currentPercentage = (fullscreenButtonOpacity * 100).roundToInt()
+    val isCustom = fullscreenButtonOpacity !in opacityPresets
+    val summary = stringResource(R.string.preference_fullscreen_button_opacity_summary, currentPercentage)
+
+    var showCustomInput by remember { mutableStateOf(false) }
+
     PreferenceCategory(
         title = stringResource(R.string.preference_components_group_title),
     ) {
@@ -220,6 +235,48 @@ private fun ComponentsCategory(
             summary = stringResource(R.string.preference_swipe_navigation_summary),
             isChecked = swipeNavigation,
             onClick = { onInteraction(SwipeNavigation(it)) },
+        )
+
+        val customLabel = stringResource(R.string.preference_fullscreen_button_opacity_custom)
+        val allValues = remember { (opacityPresets + CUSTOM_SENTINEL).toImmutableList() }
+        val allLabels = remember(customLabel) { (opacityLabels + customLabel).toImmutableList() }
+        val selected = if (isCustom) CUSTOM_SENTINEL else fullscreenButtonOpacity
+
+        PreferenceListDialog(
+            title = stringResource(R.string.preference_fullscreen_button_opacity_title),
+            summary = summary,
+            values = allValues,
+            entries = allLabels,
+            selected = selected,
+            onChange = { value ->
+                when (value) {
+                    CUSTOM_SENTINEL -> showCustomInput = true
+                    else -> onInteraction(FullscreenButtonOpacity(value))
+                }
+            },
+        )
+    }
+
+    if (showCustomInput) {
+        val validationError = stringResource(R.string.preference_fullscreen_button_opacity_validation)
+        InputBottomSheet(
+            title = stringResource(R.string.preference_fullscreen_button_opacity_title),
+            hint = stringResource(R.string.preference_fullscreen_button_opacity_hint),
+            defaultValue = currentPercentage.toString(),
+            keyboardType = KeyboardType.Number,
+            validate = { input ->
+                val parsed = input.toIntOrNull()
+                when {
+                    parsed == null || parsed !in 1..100 -> validationError
+                    else -> null
+                }
+            },
+            onConfirm = { input ->
+                val parsed = input.toIntOrNull() ?: return@InputBottomSheet
+                onInteraction(FullscreenButtonOpacity(parsed / 100f))
+                showCustomInput = false
+            },
+            onDismiss = { showCustomInput = false },
         )
     }
 }

@@ -292,6 +292,11 @@
     <string name="menu_exit_fullscreen">Esci dallo schermo intero</string>
     <string name="menu_hide_input">Nascondi input</string>
     <string name="menu_show_input">Mostra input</string>
+    <string name="preference_fullscreen_button_opacity_title">Opacità dei pulsanti a schermo intero</string>
+    <string name="preference_fullscreen_button_opacity_summary">Pulsanti mostrati a schermo intero o quando l\'input è nascosto: %d%%</string>
+    <string name="preference_fullscreen_button_opacity_hint">Opacità (1-100)</string>
+    <string name="preference_fullscreen_button_opacity_validation">Deve essere compreso tra 1 e 100</string>
+    <string name="preference_fullscreen_button_opacity_custom">Personalizzato</string>
     <string name="preference_swipe_navigation_title">Navigazione canali a scorrimento</string>
     <string name="preference_swipe_navigation_summary">Cambia canale scorrendo sulla chat</string>
     <string name="menu_mod_actions">Moderazione canale</string>

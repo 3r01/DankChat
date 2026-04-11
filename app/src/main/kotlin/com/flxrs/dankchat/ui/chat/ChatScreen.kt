@@ -125,6 +125,7 @@ fun ChatScreen(
     animateGifs: Boolean = true,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
+    fullscreenButtonOpacity: Float = 0.75f,
     onRecover: () -> Unit = {},
     fabMenuCallbacks: FabMenuCallbacks? = null,
     contentPadding: PaddingValues = PaddingValues(),
@@ -284,6 +285,7 @@ fun ChatScreen(
                     RecoveryFabs(
                         isFullscreen = isFullscreen,
                         showInput = showInput,
+                        fullscreenButtonOpacity = fullscreenButtonOpacity,
                         onRecover = onRecover,
                         fabMenuCallbacks = fabMenuCallbacks,
                         menuExpanded = fabMenuExpanded,
@@ -342,6 +344,7 @@ class FabMenuCallbacks(
 private fun RecoveryFabs(
     isFullscreen: Boolean,
     showInput: Boolean,
+    fullscreenButtonOpacity: Float,
     onRecover: () -> Unit,
     fabMenuCallbacks: FabMenuCallbacks?,
     menuExpanded: Boolean,
@@ -364,7 +367,7 @@ private fun RecoveryFabs(
             },
             containerColor = when {
                 isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
-                else -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f)
+                else -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity)
             },
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
@@ -425,6 +428,7 @@ private fun RecoveryFabs(
                         fabMenuCallbacks = fabMenuCallbacks,
                         menuExpanded = menuExpanded,
                         onMenuExpandedChange = onMenuExpandedChange,
+                        fullscreenButtonOpacity = fullscreenButtonOpacity,
                     )
                 }
                 escapeFab()
@@ -438,6 +442,7 @@ private fun FabMenuToggle(
     fabMenuCallbacks: FabMenuCallbacks,
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
+    fullscreenButtonOpacity: Float,
 ) {
     AnimatedContent(
         targetState = menuExpanded,
@@ -469,7 +474,7 @@ private fun FabMenuToggle(
             else -> {
                 SmallFloatingActionButton(
                     onClick = { onMenuExpandedChange(true) },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.75f),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity),
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
                 ) {

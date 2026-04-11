@@ -62,6 +62,7 @@ fun ChatComposable(
                 onAutomodBanUser = onAutomodBanUser,
             ),
         animateGifs = displaySettings.animateGifs,
+        fullscreenButtonOpacity = displaySettings.fullscreenButtonOpacity,
         modifier = modifier.fillMaxSize(),
         showInput = showInput,
         isFullscreen = isFullscreen,
