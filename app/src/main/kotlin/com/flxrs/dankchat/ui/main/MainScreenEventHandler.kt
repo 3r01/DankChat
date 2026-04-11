@@ -97,6 +97,17 @@ fun MainScreenEventHandler(
                     )
                 }
 
+                is MainEvent.LinkCopied -> {
+                    val result = snackbarHostState.showSnackbar(
+                        message = resources.getString(R.string.snackbar_link_copied),
+                        actionLabel = resources.getString(R.string.snackbar_paste),
+                        duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        chatInputViewModel.insertText(event.url)
+                    }
+                }
+
                 is MainEvent.OpenChannel -> {
                     if (event.channel == UserName.EMPTY) {
                         sheetNavigationViewModel.openWhispers()

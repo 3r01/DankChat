@@ -2,6 +2,7 @@ package com.flxrs.dankchat.ui.chat.message
 
 import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.UserName
+import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 sealed interface MessageOptionsState {
@@ -13,11 +14,13 @@ sealed interface MessageOptionsState {
         val name: UserName
         val originalMessage: String
         val canModerate: Boolean
+        val urls: ImmutableList<String>
 
         data class RegularMessage(
             override val name: UserName,
             override val originalMessage: String,
             override val canModerate: Boolean,
+            override val urls: ImmutableList<String>,
             val messageId: String,
             val rootThreadId: String,
             val rootThreadName: UserName?,
@@ -31,6 +34,7 @@ sealed interface MessageOptionsState {
             override val name: UserName,
             override val originalMessage: String,
             override val canModerate: Boolean,
+            override val urls: ImmutableList<String>,
         ) : Found
     }
 }

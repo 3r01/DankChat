@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">କଷ୍ଟମ୍ ମିଡିଆ ଅପଲୋଡ୍ |</string>
     <string name="snackbar_message_copied">ବାର୍ତ୍ତା କପି ହୋଇଛି |</string>
     <string name="snackbar_message_id_copied">ବାର୍ତ୍ତା ID କପି କରାଯାଇଛି |</string>
+    <string name="snackbar_link_copied">ଲିଙ୍କ କପି ହୋଇଛି</string>
     <string name="snackbar_error_copied">ତ୍ରୁଟି ସୂଚନା କପି ହୋଇଛି |</string>
     <string name="notification_stop">ବନ୍ଦ କର |</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -650,6 +651,7 @@
     <string name="message_reply_original">ମୂଳ ସନ୍ଦେଶର ଉତ୍ତର ଦିଅନ୍ତୁ</string>
     <string name="message_view_thread">ଥ୍ରେଡ୍ ଦେଖନ୍ତୁ |</string>
     <string name="message_copy_id">ବାର୍ତ୍ତା ID କପି କରନ୍ତୁ |</string>
+    <string name="message_copy_link">କପି: %s</string>
     <string name="message_more_actions">ଅଧିକ…</string>
     <string name="message_jump_to">ବାର୍ତ୍ତାକୁ ଯାଆନ୍ତୁ</string>
     <string name="message_not_in_history">ବାର୍ତ୍ତା ଆଉ ଚାଟ୍ ଇତିହାସରେ ନାହିଁ</string>

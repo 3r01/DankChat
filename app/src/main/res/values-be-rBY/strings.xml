@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Карыстальніцкая загрузка медыя файлаў</string>
     <string name="snackbar_message_copied">Паведамленне скапіявана</string>
     <string name="snackbar_message_id_copied">ID паведамлення скапіяваны</string>
+    <string name="snackbar_link_copied">Спасылка скапіявана</string>
     <string name="snackbar_error_copied">Інфармацыя пра памылку скапіявана</string>
     <string name="notification_stop">Стоп</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -664,6 +665,7 @@
     <string name="message_reply_original">Адказаць на зыходнае паведамленне</string>
     <string name="message_view_thread">Паглядзець галіну</string>
     <string name="message_copy_id">Скапіраваць ID паведамлення</string>
+    <string name="message_copy_link">Скапіраваць: %s</string>
     <string name="message_more_actions">Больш…</string>
     <string name="message_jump_to">Перайсці да паведамлення</string>
     <string name="message_not_in_history">Паведамленне больш не ў гісторыі чата</string>

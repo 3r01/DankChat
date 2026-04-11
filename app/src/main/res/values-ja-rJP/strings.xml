@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">カスタムメディアのアップロード</string>
     <string name="snackbar_message_copied">メッセージをコピーしました</string>
     <string name="snackbar_message_id_copied">メッセージIDをコピーしました</string>
+    <string name="snackbar_link_copied">リンクをコピーしました</string>
     <string name="snackbar_error_copied">エラー情報をコピーしました</string>
     <string name="notification_stop">停止</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -640,6 +641,7 @@
     <string name="message_reply_original">元のメッセージに返信</string>
     <string name="message_view_thread">スレッドを表示</string>
     <string name="message_copy_id">メッセージIDをコピー</string>
+    <string name="message_copy_link">コピー：%s</string>
     <string name="message_more_actions">もっとみる…</string>
     <string name="message_jump_to">メッセージに移動</string>
     <string name="message_not_in_history">メッセージはチャット履歴にありません</string>

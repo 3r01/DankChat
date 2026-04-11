@@ -61,4 +61,38 @@ fun AnnotatedString.Builder.appendWithLinks(
     }
 }
 
+fun extractUrls(text: String): List<String> {
+    val urls = mutableListOf<String>()
+    val matcher = Patterns.WEB_URL.matcher(text)
+
+    while (matcher.find()) {
+        val start = matcher.start()
+        var end = matcher.end()
+
+        val prevChar = if (start > 0) text[start - 1] else null
+        if (prevChar != null && !prevChar.isWhitespace()) {
+            continue
+        }
+
+        var fixedEnd = end
+        while (fixedEnd < text.length) {
+            val c = text[fixedEnd]
+            if (c.isWhitespace() || c in DISALLOWED_URL_CHARS) {
+                break
+            }
+            fixedEnd++
+        }
+        end = fixedEnd
+
+        val rawUrl = text.substring(start, end)
+        val url = when {
+            rawUrl.contains("://") -> rawUrl
+            else -> "https://$rawUrl"
+        }
+        urls += url
+    }
+
+    return urls
+}
+
 const val URL_ANNOTATION_TAG = "URL"

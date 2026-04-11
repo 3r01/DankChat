@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Özel medya yükleme</string>
     <string name="snackbar_message_copied">Mesaj kopyalandı</string>
     <string name="snackbar_message_id_copied">Mesaj ID\'si kopyalandı</string>
+    <string name="snackbar_link_copied">Bağlantı kopyalandı</string>
     <string name="snackbar_error_copied">Hata bilgisi kopyalandı</string>
     <string name="notification_stop">Durdur</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -655,6 +656,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="message_reply_original">Orijinal mesajı yanıtla</string>
     <string name="message_view_thread">Akışı görüntüle</string>
     <string name="message_copy_id">Mesaj ID\'sini kopyala</string>
+    <string name="message_copy_link">Kopyala: %s</string>
     <string name="message_more_actions">Daha fazlası…</string>
     <string name="message_jump_to">Mesaja git</string>
     <string name="message_not_in_history">Mesaj artık sohbet geçmişinde değil</string>

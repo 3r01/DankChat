@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">上傳自訂圖片</string>
     <string name="snackbar_message_copied">已複製訊息</string>
     <string name="snackbar_message_id_copied">訊息ID已複製</string>
+    <string name="snackbar_link_copied">連結已複製</string>
     <string name="snackbar_error_copied">已複製錯誤訊息</string>
     <string name="notification_stop">停止</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -648,6 +649,7 @@
     <string name="message_reply_original">回覆原始訊息</string>
     <string name="message_view_thread">查看回覆串</string>
     <string name="message_copy_id">複製訊息ID</string>
+    <string name="message_copy_link">複製：%s</string>
     <string name="message_more_actions">更多…</string>
     <string name="message_jump_to">跳至訊息</string>
     <string name="message_not_in_history">訊息已不在聊天紀錄中</string>

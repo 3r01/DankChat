@@ -35,6 +35,7 @@
     <string name="nuuls_upload_title">Prilagođeno slanje slika</string>
     <string name="snackbar_message_copied">Poruka kopirana</string>
     <string name="snackbar_message_id_copied">ID поруке копиран</string>
+    <string name="snackbar_link_copied">Линк копиран</string>
     <string name="snackbar_error_copied">Informacije o grešci kopirane</string>
     <string name="notification_stop">Stani</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -567,6 +568,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="message_reply_original">Одговори на оригиналну поруку</string>
     <string name="message_view_thread">Прикажи тему</string>
     <string name="message_copy_id">Копирај ID поруке</string>
+    <string name="message_copy_link">Копирај: %s</string>
     <string name="message_more_actions">Још…</string>
     <string name="message_jump_to">Иди на поруку</string>
     <string name="message_not_in_history">Порука више није у историји ћаскања</string>

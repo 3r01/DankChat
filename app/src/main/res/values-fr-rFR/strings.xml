@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Envoi d\'une image personalisée</string>
     <string name="snackbar_message_copied">Message copié</string>
     <string name="snackbar_message_id_copied">Message copié</string>
+    <string name="snackbar_link_copied">Lien copié</string>
     <string name="snackbar_error_copied">Info sur l\'erreur copiée</string>
     <string name="notification_stop">Stop</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -653,6 +654,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="message_reply_original">Répondre au message original</string>
     <string name="message_view_thread">Afficher le fil de discussion</string>
     <string name="message_copy_id">Copier l\'ID du message</string>
+    <string name="message_copy_link">Copier : %s</string>
     <string name="message_more_actions">Plus…</string>
     <string name="message_jump_to">Aller au message</string>
     <string name="message_not_in_history">Le message n\'est plus dans l\'historique du chat</string>

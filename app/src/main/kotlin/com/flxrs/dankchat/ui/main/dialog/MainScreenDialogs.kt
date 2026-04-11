@@ -473,6 +473,7 @@ private fun MessageOptionsDialogContainer(
                     canCopy = params.canCopy,
                     canJump = params.canJump,
                     hasReplyThread = s.hasReplyThread,
+                    urls = s.urls,
                     onJumpToMessage = {
                         params.channel?.let { channel ->
                             onJumpToMessage(params.messageId, channel)
@@ -497,6 +498,12 @@ private fun MessageOptionsDialogContainer(
                         scope.launch {
                             clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
                             mainEventBus.emitEvent(MainEvent.MessageIdCopied)
+                        }
+                    },
+                    onCopyUrl = { url ->
+                        scope.launch {
+                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("url", url)))
+                            mainEventBus.emitEvent(MainEvent.LinkCopied(url))
                         }
                     },
                     onDelete = viewModel::deleteMessage,

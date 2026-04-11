@@ -31,4 +31,8 @@ sealed interface MainEvent {
     ) : MainEvent
 
     data object MessageIdCopied : MainEvent
+
+    data class LinkCopied(
+        val url: String,
+    ) : MainEvent
 }

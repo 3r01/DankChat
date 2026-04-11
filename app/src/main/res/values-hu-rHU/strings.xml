@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Egyéni médiafeltöltés</string>
     <string name="snackbar_message_copied">Üzenet másolva</string>
     <string name="snackbar_message_id_copied">Üzenet id másolva</string>
+    <string name="snackbar_link_copied">Link másolva</string>
     <string name="snackbar_error_copied">Másolt hibainformáció</string>
     <string name="notification_stop">Leállítás</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -648,6 +649,7 @@
     <string name="message_reply_original">Válasz az eredeti üzenetre</string>
     <string name="message_view_thread">Gondolatmenet megtekintése</string>
     <string name="message_copy_id">Üzenet id másolása</string>
+    <string name="message_copy_link">Másolás: %s</string>
     <string name="message_more_actions">Több…</string>
     <string name="message_jump_to">Ugrás az üzenethez</string>
     <string name="message_not_in_history">Az üzenet már nincs a csevegési előzményekben</string>

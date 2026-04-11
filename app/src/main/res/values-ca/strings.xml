@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Pujada de contingut personalitzat</string>
     <string name="snackbar_message_copied">Missatge copiat</string>
     <string name="snackbar_message_id_copied">ID del missatge copiat</string>
+    <string name="snackbar_link_copied">Enllaç copiat</string>
     <string name="snackbar_error_copied">Error informació copiada</string>
     <string name="notification_stop">Parar</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -642,6 +643,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="message_reply_original">Respon al missatge original</string>
     <string name="message_view_thread">Mostra el fil</string>
     <string name="message_copy_id">Copia l\'ID del missatge</string>
+    <string name="message_copy_link">Copia: %s</string>
     <string name="message_more_actions">Més…</string>
     <string name="message_jump_to">Anar al missatge</string>
     <string name="message_not_in_history">El missatge ja no és a l\'historial del xat</string>

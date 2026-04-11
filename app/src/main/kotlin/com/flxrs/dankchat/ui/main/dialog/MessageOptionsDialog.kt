@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -52,8 +53,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import kotlinx.collections.immutable.ImmutableList
 
 private enum class MessageOptionsSubView {
     Timeout,
@@ -70,6 +73,7 @@ fun MessageOptionsDialog(
     canCopy: Boolean,
     canJump: Boolean,
     hasReplyThread: Boolean,
+    urls: ImmutableList<String>,
     onReply: () -> Unit,
     onReplyToOriginal: () -> Unit,
     onJumpToMessage: () -> Unit,
@@ -77,6 +81,7 @@ fun MessageOptionsDialog(
     onCopy: () -> Unit,
     onCopyFullMessage: () -> Unit,
     onCopyMessageId: () -> Unit,
+    onCopyUrl: (String) -> Unit,
     onDelete: () -> Unit,
     onTimeout: (index: Int) -> Unit,
     onBan: () -> Unit,
@@ -103,6 +108,7 @@ fun MessageOptionsDialog(
                         canModerate = canModerate,
                         hasReplyThread = hasReplyThread,
                         channel = channel,
+                        urls = urls,
                         onReply = {
                             onReply()
                             onDismiss()
@@ -129,6 +135,10 @@ fun MessageOptionsDialog(
                         },
                         onCopyMessageId = {
                             onCopyMessageId()
+                            onDismiss()
+                        },
+                        onCopyUrl = { url ->
+                            onCopyUrl(url)
                             onDismiss()
                         },
                         onUnban = {
@@ -187,6 +197,7 @@ private fun MessageOptionsMainView(
     canModerate: Boolean,
     hasReplyThread: Boolean,
     channel: String?,
+    urls: ImmutableList<String>,
     onReply: () -> Unit,
     onReplyToOriginal: () -> Unit,
     onJumpToMessage: () -> Unit,
@@ -194,6 +205,7 @@ private fun MessageOptionsMainView(
     onCopy: () -> Unit,
     onCopyFullMessage: () -> Unit,
     onCopyMessageId: () -> Unit,
+    onCopyUrl: (String) -> Unit,
     onUnban: () -> Unit,
     onTimeout: () -> Unit,
     onBan: () -> Unit,
@@ -244,6 +256,20 @@ private fun MessageOptionsMainView(
                 Column {
                     MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy_full), onCopyFullMessage)
                     MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy_id), onCopyMessageId)
+                    for (url in urls) {
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    text = stringResource(R.string.message_copy_link, url),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            leadingContent = { Icon(Icons.Default.Link, contentDescription = null) },
+                            modifier = Modifier.clickable { onCopyUrl(url) },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        )
+                    }
                 }
             }
         }

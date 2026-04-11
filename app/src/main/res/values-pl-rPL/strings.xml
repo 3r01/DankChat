@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Niestandardowe przesyłanie plików</string>
     <string name="snackbar_message_copied">Skopiowano wiadomość</string>
     <string name="snackbar_message_id_copied">Skopiowano id wiadomości</string>
+    <string name="snackbar_link_copied">Skopiowano link</string>
     <string name="snackbar_error_copied">Skopiowano wiadomość błędu</string>
     <string name="notification_stop">Stop</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -669,6 +670,7 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="message_reply_original">Odpowiedz na oryginalną wiadomość</string>
     <string name="message_view_thread">Zobacz wątek</string>
     <string name="message_copy_id">Kopiuj id wiadomości</string>
+    <string name="message_copy_link">Kopiuj: %s</string>
     <string name="message_more_actions">Więcej…</string>
     <string name="message_jump_to">Przejdź do wiadomości</string>
     <string name="message_not_in_history">Wiadomość nie jest już w historii czatu</string>

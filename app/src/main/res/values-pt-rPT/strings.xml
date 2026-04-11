@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Envio personalizado de mídia</string>
     <string name="snackbar_message_copied">Mensagem copiada</string>
     <string name="snackbar_message_id_copied">ID da mensagem copiado</string>
+    <string name="snackbar_link_copied">Link copiado</string>
     <string name="snackbar_error_copied">Informações de erro copiada</string>
     <string name="notification_stop">Parar</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -648,6 +649,7 @@
     <string name="message_reply_original">Responder à mensagem original</string>
     <string name="message_view_thread">Vê a thread</string>
     <string name="message_copy_id">Copia o ID da mensagem</string>
+    <string name="message_copy_link">Copiar: %s</string>
     <string name="message_more_actions">Mais…</string>
     <string name="message_jump_to">Ir para a mensagem</string>
     <string name="message_not_in_history">Mensagem já não está no histórico do chat</string>

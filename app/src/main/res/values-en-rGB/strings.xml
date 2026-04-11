@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Custom media upload</string>
     <string name="snackbar_message_copied">Message copied</string>
     <string name="snackbar_message_id_copied">Message id copied</string>
+    <string name="snackbar_link_copied">Link copied</string>
     <string name="snackbar_error_copied">Error information copied</string>
     <string name="notification_stop">Stop</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -591,6 +592,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="message_reply_original">Reply to original message</string>
     <string name="message_view_thread">View thread</string>
     <string name="message_copy_id">Copy message id</string>
+    <string name="message_copy_link">Copy: %s</string>
     <string name="message_more_actions">More…</string>
     <string name="message_jump_to">Jump to message</string>
     <string name="message_not_in_history">Message no longer in chat history</string>

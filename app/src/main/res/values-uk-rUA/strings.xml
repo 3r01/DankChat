@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Завантаження власного зображення</string>
     <string name="snackbar_message_copied">Повідомлення скопійовано</string>
     <string name="snackbar_message_id_copied">Ідентифікатор повідомлення скопійовано</string>
+    <string name="snackbar_link_copied">Посилання скопійовано</string>
     <string name="snackbar_error_copied">Інформацію про помилку скопійовано</string>
     <string name="notification_stop">Стоп</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -671,6 +672,7 @@
     <string name="message_reply_original">Відповісти на початкове повідомлення</string>
     <string name="message_view_thread">Переглянути тему</string>
     <string name="message_copy_id">Скопіювати ідентифікатор повідомлення</string>
+    <string name="message_copy_link">Скопіювати: %s</string>
     <string name="message_more_actions">Більше…</string>
     <string name="message_jump_to">Перейти до повідомлення</string>
     <string name="message_not_in_history">Повідомлення більше немає в історії чату</string>

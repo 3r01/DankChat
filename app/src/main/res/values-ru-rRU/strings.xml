@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Пользовательский загрузчик медиа</string>
     <string name="snackbar_message_copied">Сообщение скопировано</string>
     <string name="snackbar_message_id_copied">ID сообщения скопирован</string>
+    <string name="snackbar_link_copied">Ссылка скопирована</string>
     <string name="snackbar_error_copied">Информация об ошибке скопирована</string>
     <string name="notification_stop">Стоп</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -669,6 +670,7 @@
     <string name="message_reply_original">Ответить на исходное сообщение</string>
     <string name="message_view_thread">Посмотреть ветку</string>
     <string name="message_copy_id">Копировать ID сообщения</string>
+    <string name="message_copy_link">Копировать: %s</string>
     <string name="message_more_actions">Ещё…</string>
     <string name="message_jump_to">Перейти к сообщению</string>
     <string name="message_not_in_history">Сообщение больше не в истории чата</string>

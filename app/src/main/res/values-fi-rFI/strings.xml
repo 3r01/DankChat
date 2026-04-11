@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Mukautettu kuvan lataus</string>
     <string name="snackbar_message_copied">Viesti kopioitu</string>
     <string name="snackbar_message_id_copied">Viestin tunnus kopioitu</string>
+    <string name="snackbar_link_copied">Linkki kopioitu</string>
     <string name="snackbar_error_copied">Virhetiedot kopioitu</string>
     <string name="notification_stop">Pysäytä</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -602,6 +603,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="message_reply_original">Vastaa alkuperäiseen viestiin</string>
     <string name="message_view_thread">Näytä ketju</string>
     <string name="message_copy_id">Kopioi viestin tunnus</string>
+    <string name="message_copy_link">Kopioi: %s</string>
     <string name="message_more_actions">Lisää…</string>
     <string name="message_jump_to">Siirry viestiin</string>
     <string name="message_not_in_history">Viesti ei ole enää chat-historiassa</string>

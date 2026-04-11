@@ -16,6 +16,8 @@ import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
+import com.flxrs.dankchat.ui.chat.messages.common.extractUrls
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -55,10 +57,12 @@ class MessageOptionsViewModel(
                 }
 
                 is AutomodMessage -> {
+                    val originalMessage = message.messageText.orEmpty()
                     MessageOptionsState.Found.AutomodMessage(
                         name = message.userName,
-                        originalMessage = message.messageText.orEmpty(),
+                        originalMessage = originalMessage,
                         canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
+                        urls = extractUrls(originalMessage).toImmutableList(),
                     )
                 }
 
@@ -68,7 +72,7 @@ class MessageOptionsViewModel(
                     val thread = asPrivMessage?.thread
                     val rootId = thread?.rootId
                     val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
-                    val originalMessage = asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage
+                    val originalMessage = (asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage).orEmpty()
                     MessageOptionsState.Found.RegularMessage(
                         messageId = message.id,
                         rootThreadId = rootId ?: message.id,
@@ -76,8 +80,9 @@ class MessageOptionsViewModel(
                         rootThreadMessage = thread?.message,
                         replyName = name,
                         name = name,
-                        originalMessage = originalMessage.orEmpty(),
+                        originalMessage = originalMessage,
                         canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
+                        urls = extractUrls(originalMessage).toImmutableList(),
                         hasReplyThread = canReplyParam && rootId != null && repliesRepository.hasMessageThread(rootId),
                         canReply = connectionState == ConnectionState.CONNECTED && canReplyParam,
                     )

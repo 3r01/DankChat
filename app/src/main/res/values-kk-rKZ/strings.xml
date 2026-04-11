@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Арнаулы медиа жүктеп салу</string>
     <string name="snackbar_message_copied">Хабар көшірілді</string>
     <string name="snackbar_message_id_copied">Хабарламадың id көшіріп алды</string>
+    <string name="snackbar_link_copied">Сілтеме көшірілді</string>
     <string name="snackbar_error_copied">Қате туралы ақпарат көшірілді</string>
     <string name="notification_stop">Тоқта</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -588,6 +589,7 @@
     <string name="message_reply_original">Түпнұсқа хабарға жауап беру</string>
     <string name="message_view_thread">Жіпті қарау</string>
     <string name="message_copy_id">Хабар идентификатын көшіру</string>
+    <string name="message_copy_link">Көшіру: %s</string>
     <string name="message_more_actions">Қосымша…</string>
     <string name="message_jump_to">Хабарламаға өту</string>
     <string name="message_not_in_history">Хабарлама чат тарихында жоқ</string>

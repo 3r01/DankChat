@@ -40,6 +40,7 @@
     <string name="nuuls_upload_title">Benutzerdefinierter Medienupload</string>
     <string name="snackbar_message_copied">Nachricht kopiert</string>
     <string name="snackbar_message_id_copied">Nachrichten-ID kopiert</string>
+    <string name="snackbar_link_copied">Link kopiert</string>
     <string name="snackbar_error_copied">Inhalt der Fehlernachricht kopiert</string>
     <string name="notification_stop">Stop</string>
     <string name="notification_title">FeelsDankMan</string>
@@ -655,6 +656,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="message_reply_original">Auf ursprüngliche Nachricht antworten</string>
     <string name="message_view_thread">Antwortverlauf anzeigen</string>
     <string name="message_copy_id">Nachrichten-ID kopieren</string>
+    <string name="message_copy_link">Kopieren: %s</string>
     <string name="message_more_actions">Mehr…</string>
     <string name="message_jump_to">Zur Nachricht springen</string>
     <string name="message_not_in_history">Nachricht nicht mehr im Chatverlauf</string>
