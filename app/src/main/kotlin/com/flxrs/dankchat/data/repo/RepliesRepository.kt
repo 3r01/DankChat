@@ -3,6 +3,7 @@ package com.flxrs.dankchat.data.repo
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.Message
@@ -21,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Single
 class RepliesRepository(
     private val authDataStore: AuthDataStore,
+    private val usersRepository: UsersRepository,
 ) {
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
@@ -179,6 +181,7 @@ class RepliesRepository(
             sourceChannel = null,
             name = name,
             displayName = displayName,
+            color = usersRepository.getCachedUserColor(name),
             message = body,
             originalMessage = body,
             tags = emptyMap(),
