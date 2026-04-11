@@ -10,7 +10,7 @@ data class UserDisplayItem(
     val colorEnabled: Boolean,
     val color: Int, // color needs to be opaque
     val aliasEnabled: Boolean,
-    val alias: String
+    val alias: String,
 )
 
 fun UserDisplayItem.toEntity() = UserDisplayEntity(
@@ -21,7 +21,7 @@ fun UserDisplayItem.toEntity() = UserDisplayEntity(
     colorEnabled = colorEnabled,
     color = color,
     aliasEnabled = aliasEnabled,
-    alias = alias.ifEmpty { null }
+    alias = alias.ifEmpty { null },
 )
 
 fun UserDisplayEntity.toItem() = UserDisplayItem(
@@ -31,8 +31,7 @@ fun UserDisplayEntity.toItem() = UserDisplayItem(
     colorEnabled = colorEnabled,
     color = color,
     aliasEnabled = aliasEnabled,
-    alias = alias.orEmpty()
+    alias = alias.orEmpty(),
 )
 
 val UserDisplayItem.formattedDisplayColor: String get() = "#" + color.hexCode
-

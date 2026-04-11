@@ -33,19 +33,25 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - name: set up JDK 17
+      - name: set up JDK 21
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
 
-      - name: Lint
-        run: bash ./gradlew lintVitalRelease
+      - name: Spotless check
+        run: bash ./gradlew :app:spotlessCheck
+
+      - name: Detekt
+        run: bash ./gradlew :app:detektDebug
+
+      - name: Android Lint
+        run: bash ./gradlew :app:lintDebug
 
   build:
     name: Generate apk
@@ -117,6 +123,12 @@ jobs:
           fileDir: ${{ github.workspace }}
           encodedString: ${{ secrets.SIGNING_KEY }}
 
+      - name: Extract version name
+        id: version
+        run: |
+          base=$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          echo "tag=v${base}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
       - name: Build signed release apk
         run: bash ./gradlew app:assembleRelease
         env:
@@ -130,17 +142,11 @@ jobs:
           name: Signed release apk
           path: ${{ github.workspace }}/app/build/outputs/apk/release/*.apk
 
-      - name: Update release tag
-        uses: richardsimko/update-tag@v1.1.6
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: release
-
-      - name: Update signed release
+      - name: Update release
         uses: ncipollo/release-action@v1.21.0
         with:
-          tag: release
-          name: Signed release APK
+          tag: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
           artifacts: ${{ github.workspace }}/app/build/outputs/apk/release/*.apk
           allowUpdates: true
+          makeLatest: true

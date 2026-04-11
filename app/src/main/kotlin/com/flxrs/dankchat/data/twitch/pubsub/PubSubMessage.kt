@@ -4,7 +4,6 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModerationActionData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.redemption.PointRedemptionData
-import com.flxrs.dankchat.data.twitch.pubsub.dto.whisper.WhisperData
 import kotlin.time.Instant
 
 sealed interface PubSubMessage {
@@ -12,14 +11,12 @@ sealed interface PubSubMessage {
         val timestamp: Instant,
         val channelName: UserName,
         val channelId: UserId,
-        val data: PointRedemptionData
+        val data: PointRedemptionData,
     ) : PubSubMessage
-
-    data class Whisper(val data: WhisperData) : PubSubMessage
 
     data class ModeratorAction(
         val timestamp: Instant,
         val channelId: UserId,
-        val data: ModerationActionData
+        val data: ModerationActionData,
     ) : PubSubMessage
 }

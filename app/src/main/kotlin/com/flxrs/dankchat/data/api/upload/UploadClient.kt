@@ -1,60 +1,73 @@
 package com.flxrs.dankchat.data.api.upload
 
-import android.util.Log
 import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.upload.dto.UploadDto
-import com.flxrs.dankchat.di.UploadOkHttpClient
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.di.UPLOAD_OKHTTP_CLIENT
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
-import org.json.JSONObject
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 import java.io.File
 import java.net.URLConnection
 import java.time.Instant
 
+private val logger = KotlinLogging.logger("UploadClient")
+
 @Single
 class UploadClient(
-    @Named(type = UploadOkHttpClient::class) private val httpClient: OkHttpClient,
+    @Named(UPLOAD_OKHTTP_CLIENT) private val httpClient: OkHttpClient,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
-
-    suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(Dispatchers.IO) {
+    suspend fun uploadMedia(file: File): Result<UploadDto> = withContext(dispatchersProvider.io) {
         val uploader = toolsSettingsDataStore.settings.first().uploaderConfig
         val mimetype = URLConnection.guessContentTypeFromName(file.name)
 
-        val requestBody = MultipartBody.Builder()
-            .setType(MultipartBody.FORM)
-            .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
-            .build()
-        val request = Request.Builder()
-            .url(uploader.uploadUrl)
-            .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
-            .apply {
-                uploader.parsedHeaders.forEach { (name, value) ->
-                    header(name, value)
-                }
-            }
-            .post(requestBody)
-            .build()
+        val requestBody =
+            MultipartBody
+                .Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(name = uploader.formField, filename = file.name, body = file.asRequestBody(mimetype.toMediaType()))
+                .build()
+        val request =
+            Request
+                .Builder()
+                .url(uploader.uploadUrl)
+                .header(HttpHeaders.UserAgent, "dankchat/${BuildConfig.VERSION_NAME}")
+                .apply {
+                    uploader.parsedHeaders.forEach { (name, value) ->
+                        header(name, value)
+                    }
+                }.post(requestBody)
+                .build()
 
-        val response = runCatching {
-            httpClient.newCall(request).execute()
-        }.getOrElse {
-            return@withContext Result.failure(it)
-        }
+        val response =
+            runCatching {
+                httpClient.newCall(request).execute()
+            }.getOrElse {
+                return@withContext Result.failure(it)
+            }
 
         when {
             response.isSuccessful -> {
@@ -67,27 +80,26 @@ class UploadClient(
                         UploadDto(
                             imageLink = body,
                             deleteLink = null,
-                            timestamp = Instant.now()
+                            timestamp = Instant.now(),
                         )
                     }
                 }
 
                 response
-                    .asJsonObject()
+                    .asJson()
                     .mapCatching { json ->
                         val deleteLink = deletionLinkPattern?.takeIf { it.isNotBlank() }?.let { json.extractLink(it) }
                         val imageLink = json.extractLink(imageLinkPattern)
                         UploadDto(
                             imageLink = imageLink,
                             deleteLink = deleteLink,
-                            timestamp = Instant.now()
+                            timestamp = Instant.now(),
                         )
                     }
-
             }
 
-            else                  -> {
-                Log.e(TAG, "Upload failed with ${response.code} ${response.message}")
+            else -> {
+                logger.error { "Upload failed with ${response.code} ${response.message}" }
                 val url = URLBuilder(response.request.url.toString()).build()
                 Result.failure(ApiException(HttpStatusCode.fromValue(response.code), url, response.message))
             }
@@ -95,43 +107,45 @@ class UploadClient(
     }
 
     @Suppress("RegExpRedundantEscape")
-    private suspend fun JSONObject.extractLink(linkPattern: String): String = withContext(Dispatchers.Default) {
-        var imageLink: String = linkPattern
-
-        val regex = "\\{(.+?)\\}".toRegex()
-        regex.findAll(linkPattern).forEach {
-            val jsonValue = getValue(it.groupValues[1])
-            if (jsonValue != null) {
-                imageLink = imageLink.replace(it.groupValues[0], jsonValue)
-            }
-        }
-        imageLink
+    private suspend fun JsonElement.extractLink(linkPattern: String): String = withContext(dispatchersProvider.default) {
+        extractJsonLink(linkPattern)
     }
 
-    private fun Response.asJsonObject(): Result<JSONObject> = runCatching {
-        val bodyString = body.string()
-        JSONObject(bodyString)
+    private fun Response.asJson(): Result<JsonElement> = runCatching {
+        Json.parseToJsonElement(body.string())
     }.onFailure {
-        Log.d(TAG, "Error creating JsonObject from response: ", it)
-    }
-
-    private fun JSONObject.getValue(pattern: String): String? {
-        return runCatching {
-            pattern
-                .split(".")
-                .fold(this) { acc, key ->
-                    val value = acc.get(key)
-                    if (value !is JSONObject) {
-                        return value.toString()
-                    }
-
-                    value
-                }
-            null
-        }.getOrNull()
+        logger.debug(it) { "Error parsing JSON from response" }
     }
 
     companion object {
-        private val TAG = UploadClient::class.java.simpleName
+        private val LINK_PATTERN_REGEX = "\\{(.+?)\\}".toRegex()
+
+        @Suppress("RegExpRedundantEscape")
+        internal fun JsonElement.extractJsonLink(linkPattern: String): String {
+            var result = linkPattern
+            LINK_PATTERN_REGEX.findAll(linkPattern).forEach {
+                val jsonValue = getJsonValue(it.groupValues[1])
+                if (jsonValue != null) {
+                    result = result.replace(it.groupValues[0], jsonValue)
+                }
+            }
+            return result
+        }
+
+        internal fun JsonElement.getJsonValue(pattern: String): String? {
+            return runCatching {
+                val result = pattern.split(".").fold(this) { acc: JsonElement, key ->
+                    when (acc) {
+                        is JsonObject -> acc.jsonObject[key] ?: return@runCatching null
+                        is JsonArray -> acc.jsonArray[key.toInt()]
+                        is JsonPrimitive -> return@runCatching acc.content
+                    }
+                }
+                when (result) {
+                    is JsonPrimitive -> result.content
+                    is JsonObject, is JsonArray -> result.toString()
+                }
+            }.getOrNull()
+        }
     }
 }

@@ -5,14 +5,16 @@ enum class RoomStateTag {
     FOLLOW,
     R9K,
     SLOW,
-    SUBS;
+    SUBS,
+    ;
 
     val ircTag: String
-        get() = when (this) {
-            EMOTE  -> "emote-only"
-            FOLLOW -> "followers-only"
-            R9K    -> "r9k"
-            SLOW   -> "slow"
-            SUBS   -> "subs-only"
-        }
+        get() =
+            when (this) {
+                EMOTE -> "emote-only"
+                FOLLOW -> "followers-only"
+                R9K -> "r9k"
+                SLOW -> "slow"
+                SUBS -> "subs-only"
+            }
 }

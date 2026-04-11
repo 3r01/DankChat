@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.preferences.components
 
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Palette
@@ -35,7 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.flxrs.dankchat.theme.DankChatTheme
+import com.flxrs.dankchat.ui.theme.DankChatTheme
 import com.flxrs.dankchat.utils.compose.ContentAlpha
 import kotlin.math.roundToInt
 
@@ -72,16 +72,18 @@ fun ExpandablePreferenceItem(
     content: @Composable ExpandablePreferenceScope.() -> Unit,
 ) {
     var contentVisible by remember { mutableStateOf(false) }
-    val scope = object : ExpandablePreferenceScope {
-        override fun dismiss() {
-            contentVisible = false
+    val scope =
+        object : ExpandablePreferenceScope {
+            override fun dismiss() {
+                contentVisible = false
+            }
         }
-    }
     val contentColor = LocalContentColor.current
-    val color = when {
-        isEnabled -> contentColor
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
-    }
+    val color =
+        when {
+            isEnabled -> contentColor
+            else -> contentColor.copy(alpha = ContentAlpha.disabled)
+        }
     HorizontalPreferenceItemWrapper(
         title = title,
         icon = icon,
@@ -101,7 +103,7 @@ fun SliderPreferenceItem(
     value: Float,
     onDrag: (Float) -> Unit,
     range: ClosedFloatingPointRange<Float>,
-    onDragFinished: () -> Unit,
+    onDragFinish: () -> Unit,
     steps: Int = range.endInclusive.toInt() - range.start.toInt() - 1,
     isEnabled: Boolean = true,
     displayValue: Boolean = true,
@@ -121,12 +123,14 @@ fun SliderPreferenceItem(
                 Slider(
                     value = value,
                     onValueChange = onDrag,
-                    onValueChangeFinished = onDragFinished,
+                    onValueChangeFinished = onDragFinish,
                     valueRange = range,
                     steps = steps,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 4.dp),
+                    enabled = isEnabled,
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(top = 4.dp),
                 )
                 if (displayValue) {
                     Text(
@@ -136,7 +140,7 @@ fun SliderPreferenceItem(
                     )
                 }
             }
-        }
+        },
     )
 }
 
@@ -155,16 +159,18 @@ fun PreferenceItem(
         summary = summary,
         isEnabled = isEnabled,
         onClick = onClick,
-        content = trailingIcon?.let {
-            {
-                val contentColor = LocalContentColor.current
-                val color = when {
-                    isEnabled -> contentColor
-                    else      -> contentColor.copy(alpha = ContentAlpha.disabled)
+        content =
+            trailingIcon?.let {
+                {
+                    val contentColor = LocalContentColor.current
+                    val color =
+                        when {
+                            isEnabled -> contentColor
+                            else -> contentColor.copy(alpha = ContentAlpha.disabled)
+                        }
+                    Icon(it, title, Modifier.padding(end = 4.dp), color)
                 }
-                Icon(it, title, Modifier.padding(end = 4.dp), color)
-            }
-        }
+            },
     )
 }
 
@@ -179,16 +185,16 @@ private fun HorizontalPreferenceItemWrapper(
     content: (@Composable RowScope.() -> Unit)? = null,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(48.dp)
-            .clickable(
-                enabled = isEnabled,
-                onClick = onClick,
-                interactionSource = interactionSource,
-                indication = ripple(),
-            )
-            .padding(horizontal = 16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .heightIn(48.dp)
+                .clickable(
+                    enabled = isEnabled,
+                    onClick = onClick,
+                    interactionSource = interactionSource,
+                    indication = ripple(),
+                ).padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         Row(
@@ -201,7 +207,6 @@ private fun HorizontalPreferenceItemWrapper(
                 content()
             }
         }
-
     }
 }
 
@@ -216,16 +221,16 @@ private fun VerticalPreferenceItemWrapper(
     content: @Composable ColumnScope.() -> Unit = {},
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(48.dp)
-            .clickable(
-                enabled = isEnabled,
-                onClick = onClick,
-                interactionSource = interactionSource,
-                indication = ripple(),
-            )
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .heightIn(48.dp)
+                .clickable(
+                    enabled = isEnabled,
+                    onClick = onClick,
+                    interactionSource = interactionSource,
+                    indication = ripple(),
+                ).padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         Row(
@@ -247,10 +252,11 @@ private fun RowScope.PreferenceItemContent(
     textPaddingValues: PaddingValues = PaddingValues(vertical = 16.dp),
 ) {
     val contentColor = LocalContentColor.current
-    val color = when {
-        isEnabled -> contentColor
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
-    }
+    val color =
+        when {
+            isEnabled -> contentColor
+            else -> contentColor.copy(alpha = ContentAlpha.disabled)
+        }
     if (icon != null) {
         Icon(
             imageVector = icon,
@@ -262,12 +268,12 @@ private fun RowScope.PreferenceItemContent(
     Column(
         Modifier
             .padding(textPaddingValues)
-            .weight(1f)
+            .weight(1f),
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.basicMarquee(),
+            autoSize = TextAutoSize.StepBased(maxFontSize = MaterialTheme.typography.titleMedium.fontSize),
             maxLines = 1,
             color = color,
         )
@@ -277,9 +283,10 @@ private fun RowScope.PreferenceItemContent(
     }
 }
 
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewLightDark
-fun PreferenceItemPreview() {
+private fun PreferenceItemPreview() {
     DankChatTheme {
         Surface {
             PreferenceItem("Appearance", Icons.Default.Palette, summary = "Summary")

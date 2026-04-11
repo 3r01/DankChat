@@ -20,5 +20,5 @@ enum class AnnouncementColor {
     Orange,
 
     @SerialName("purple")
-    Purple
+    Purple,
 }

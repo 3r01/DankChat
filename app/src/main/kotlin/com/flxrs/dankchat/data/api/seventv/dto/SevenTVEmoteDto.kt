@@ -9,7 +9,7 @@ data class SevenTVEmoteDto(
     val id: String,
     val name: String,
     val flags: Long,
-    val data: SevenTVEmoteDataDto?
+    val data: SevenTVEmoteDataDto?,
 ) {
     val isZeroWidth get() = (ZERO_WIDTH_FLAG and flags) == ZERO_WIDTH_FLAG
 

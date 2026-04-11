@@ -58,4 +58,5 @@
     <string name="uploader_url">Unggah url</string>
     <string name="uploader_field">Bidang formulir</string>
     <string name="uploader_headers">Headers</string>
+    <string name="message_history_title">Riwayat: %1$s</string>
 </resources>

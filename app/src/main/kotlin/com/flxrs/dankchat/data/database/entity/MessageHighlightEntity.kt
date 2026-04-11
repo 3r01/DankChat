@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.database.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger("MessageHighlightEntity")
 
 @Entity(tableName = "message_highlight")
 data class MessageHighlightEntity(
@@ -13,7 +15,6 @@ data class MessageHighlightEntity(
     val enabled: Boolean,
     val type: MessageHighlightEntityType,
     val pattern: String,
-
     @ColumnInfo(name = "is_regex")
     val isRegex: Boolean = false,
     @ColumnInfo(name = "is_case_sensitive")
@@ -23,27 +24,22 @@ data class MessageHighlightEntity(
     @ColumnInfo(name = "custom_color")
     val customColor: Int? = null,
 ) {
-
     @delegate:Ignore
     val regex: Regex? by lazy {
         runCatching {
-            val options = when {
-                isCaseSensitive -> emptySet()
-                else            -> setOf(RegexOption.IGNORE_CASE)
-            }
+            val options =
+                when {
+                    isCaseSensitive -> emptySet()
+                    else -> setOf(RegexOption.IGNORE_CASE)
+                }
             when {
                 isRegex -> pattern.toRegex(options)
-                else    -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
+                else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
             }
-
         }.getOrElse {
-            Log.e(TAG, "Failed to create regex for pattern $pattern", it)
+            logger.error(it) { "Failed to create regex for pattern $pattern" }
             null
         }
-    }
-
-    companion object {
-        private val TAG = MessageHighlightEntity::class.java.simpleName
     }
 }
 
@@ -52,9 +48,10 @@ enum class MessageHighlightEntityType {
     Username,
     Subscription,
     Announcement,
+    WatchStreak,
     ChannelPointRedemption,
     FirstMessage,
     ElevatedMessage,
     Reply,
-    Custom
+    Custom,
 }

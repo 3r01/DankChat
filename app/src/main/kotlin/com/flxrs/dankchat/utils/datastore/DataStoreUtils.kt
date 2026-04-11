@@ -21,14 +21,21 @@ fun <T> createDataStore(
     scope: CoroutineScope,
     migrations: List<DataMigration<T>> = emptyList(),
 ) = DataStoreFactory.create(
-    storage = OkioStorage(
-        fileSystem = FileSystem.SYSTEM,
-        serializer = DataStoreKotlinxSerializer(
-            defaultValue = defaultValue,
-            serializer = serializer,
+    storage =
+        OkioStorage(
+            fileSystem = FileSystem.SYSTEM,
+            serializer =
+                DataStoreKotlinxSerializer(
+                    defaultValue = defaultValue,
+                    serializer = serializer,
+                ),
+            producePath = {
+                context.filesDir
+                    .resolve(fileName)
+                    .absolutePath
+                    .toPath()
+            },
         ),
-        producePath = { context.filesDir.resolve(fileName).absolutePath.toPath() },
-    ),
     scope = scope,
     migrations = migrations,
 )
@@ -36,6 +43,6 @@ fun <T> createDataStore(
 inline fun <reified T> DataStore<T>.safeData(defaultValue: T): Flow<T> = data.catch { e ->
     when (e) {
         is IOException -> emit(defaultValue)
-        else           -> throw e
+        else -> throw e
     }
 }

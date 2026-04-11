@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.preferences.notifications.highlights
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -74,19 +75,21 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.twitch.message.HighlightType
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.components.CheckboxWithText
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceTabRow
+import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
 import com.rarepebble.colorpicker.ColorPickerView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -110,7 +113,7 @@ fun HighlightsScreen(onNavBack: () -> Unit) {
         onRemove = viewModel::removeHighlight,
         onAddNew = viewModel::addHighlight,
         onAdd = viewModel::addHighlightItem,
-        onPageChanged = viewModel::setCurrentTab,
+        onPageChange = viewModel::setCurrentTab,
         onNavBack = onNavBack,
     )
 }
@@ -127,47 +130,50 @@ private fun HighlightsScreen(
     onRemove: (HighlightItem) -> Unit,
     onAddNew: () -> Unit,
     onAdd: (HighlightItem, Int) -> Unit,
-    onPageChanged: (Int) -> Unit,
+    onPageChange: (Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val dispatchersProvider = koinInject<DispatchersProvider>()
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val pagerState = rememberPagerState { HighlightsTab.entries.size }
     val listStates = HighlightsTab.entries.map { rememberLazyListState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val appBarContainerColor = animatedAppBarColor(scrollBehavior)
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect {
             snackbarHost.currentSnackbarData?.dismiss()
-            onPageChanged(it)
+            onPageChange(it)
         }
     }
 
     LaunchedEffect(eventsWrapper) {
         eventsWrapper.events
-            .flowOn(Dispatchers.Main.immediate)
+            .flowOn(dispatchersProvider.immediate)
             .collectLatest { event ->
                 focusManager.clearFocus()
                 when (event) {
                     is HighlightEvent.ItemRemoved -> {
-                        val result = snackbarHost.showSnackbar(
-                            message = context.getString(R.string.item_removed),
-                            actionLabel = context.getString(R.string.undo),
-                            duration = SnackbarDuration.Short,
-                        )
+                        val result =
+                            snackbarHost.showSnackbar(
+                                message = itemRemovedMsg,
+                                actionLabel = undoMsg,
+                                duration = SnackbarDuration.Short,
+                            )
                         if (result == SnackbarResult.ActionPerformed) {
                             onAdd(event.item, event.position)
                         }
                     }
 
-                    is HighlightEvent.ItemAdded   -> {
+                    is HighlightEvent.ItemAdded -> {
                         val listState = listStates[pagerState.currentPage]
                         when {
                             event.isLast && listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            event.isLast                               -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                            else                                       -> listState.animateScrollToItem(event.position)
+                            event.isLast -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                            else -> listState.animateScrollToItem(event.position)
                         }
                     }
                 }
@@ -182,9 +188,10 @@ private fun HighlightsScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -198,7 +205,7 @@ private fun HighlightsScreen(
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -206,9 +213,10 @@ private fun HighlightsScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.multi_entry_add_entry)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.multi_entry_add_entry)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = onAddNew,
                 )
             }
@@ -217,105 +225,121 @@ private fun HighlightsScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             Column(
-                modifier = Modifier
-                    .background(color = appBarContainerColor.value)
-                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                modifier =
+                    Modifier
+                        .background(color = appBarContainerColor.value)
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
             ) {
-                val subtitle = when (currentTab) {
-                    HighlightsTab.Messages         -> stringResource(R.string.highlights_messages_title)
-                    HighlightsTab.Users            -> stringResource(R.string.highlights_users_title)
-                    HighlightsTab.Badges           -> stringResource(R.string.highlights_badges_title)
-                    HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
-                }
+                val subtitle =
+                    when (currentTab) {
+                        HighlightsTab.Messages -> stringResource(R.string.highlights_messages_title)
+                        HighlightsTab.Users -> stringResource(R.string.highlights_users_title)
+                        HighlightsTab.Badges -> stringResource(R.string.highlights_badges_title)
+                        HighlightsTab.BlacklistedUsers -> stringResource(R.string.highlights_blacklisted_users_title)
+                    }
                 Text(
                     text = subtitle,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                     style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center,
                 )
                 PreferenceTabRow(
-                    appBarContainerColor = appBarContainerColor,
+                    appBarContainerColor = appBarContainerColor.value,
                     pagerState = pagerState,
                     tabCount = HighlightsTab.entries.size,
                     tabText = {
                         when (HighlightsTab.entries[it]) {
-                            HighlightsTab.Messages         -> stringResource(R.string.tab_messages)
-                            HighlightsTab.Users            -> stringResource(R.string.tab_users)
-                            HighlightsTab.Badges           -> stringResource(R.string.tab_badges)
+                            HighlightsTab.Messages -> stringResource(R.string.tab_messages)
+                            HighlightsTab.Users -> stringResource(R.string.tab_users)
+                            HighlightsTab.Badges -> stringResource(R.string.tab_badges)
                             HighlightsTab.BlacklistedUsers -> stringResource(R.string.tab_blacklisted_users)
                         }
-                    }
+                    },
                 )
             }
 
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(start = 16.dp, end = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = 16.dp, end = 16.dp),
             ) { page ->
                 val listState = listStates[page]
                 when (HighlightsTab.entries[page]) {
-                    HighlightsTab.Messages         -> HighlightsList(
-                        highlights = messageHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        MessageHighlightItem(
-                            item = item,
-                            onChanged = { messageHighlights[idx] = it },
-                            onRemove = { onRemove(messageHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Messages -> {
+                        HighlightsList(
+                            highlights = messageHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            MessageHighlightItem(
+                                item = item,
+                                onChange = { messageHighlights[idx] = it },
+                                onRemove = { onRemove(messageHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.Users            -> HighlightsList(
-                        highlights = userHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        UserHighlightItem(
-                            item = item,
-                            onChanged = { userHighlights[idx] = it },
-                            onRemove = { onRemove(userHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Users -> {
+                        HighlightsList(
+                            highlights = userHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            UserHighlightItem(
+                                item = item,
+                                onChange = { userHighlights[idx] = it },
+                                onRemove = { onRemove(userHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.Badges           -> HighlightsList(
-                        highlights = badgeHighlights,
-                        listState = listState,
-                    ) { idx, item ->
-                        BadgeHighlightItem(
-                            item = item,
-                            onChanged = { badgeHighlights[idx] = it },
-                            onRemove = { onRemove(badgeHighlights[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.Badges -> {
+                        HighlightsList(
+                            highlights = badgeHighlights,
+                            listState = listState,
+                        ) { idx, item ->
+                            BadgeHighlightItem(
+                                item = item,
+                                onChange = { badgeHighlights[idx] = it },
+                                onRemove = { onRemove(badgeHighlights[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
 
-                    HighlightsTab.BlacklistedUsers -> HighlightsList(
-                        highlights = blacklistedUsers,
-                        listState = listState,
-                    ) { idx, item ->
-                        BlacklistedUserItem(
-                            item = item,
-                            onChanged = { blacklistedUsers[idx] = it },
-                            onRemove = { onRemove(blacklistedUsers[idx]) },
-                            modifier = Modifier.animateItem(
-                                fadeInSpec = null,
-                                fadeOutSpec = null,
-                            ),
-                        )
+                    HighlightsTab.BlacklistedUsers -> {
+                        HighlightsList(
+                            highlights = blacklistedUsers,
+                            listState = listState,
+                        ) { idx, item ->
+                            BlacklistedUserItem(
+                                item = item,
+                                onChange = { blacklistedUsers[idx] = it },
+                                onRemove = { onRemove(blacklistedUsers[idx]) },
+                                modifier =
+                                    Modifier.animateItem(
+                                        fadeInSpec = null,
+                                        fadeOutSpec = null,
+                                    ),
+                            )
+                        }
                     }
                 }
             }
@@ -329,7 +353,6 @@ private fun <T : HighlightItem> HighlightsList(
     listState: LazyListState,
     itemContent: @Composable LazyItemScope.(Int, T) -> Unit,
 ) {
-
     DankBackground(visible = highlights.isEmpty())
 
     LazyColumn(
@@ -340,7 +363,7 @@ private fun <T : HighlightItem> HighlightsList(
         item(key = "top-spacer") {
             Spacer(Modifier.height(16.dp))
         }
-        itemsIndexed(highlights, key = { _, it -> it.id }) { idx, item ->
+        itemsIndexed(highlights, key = { _, highlight -> highlight.id }) { idx, item ->
             itemContent(idx, item)
         }
         item(key = "bottom-spacer") {
@@ -352,32 +375,35 @@ private fun <T : HighlightItem> HighlightsList(
 @Composable
 private fun MessageHighlightItem(
     item: MessageHighlightItem,
-    onChanged: (MessageHighlightItem) -> Unit,
+    onChange: (MessageHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val launcher = LocalUriHandler.current
-    val titleText = when (item.type) {
-        MessageHighlightItem.Type.Username               -> R.string.highlights_entry_username
-        MessageHighlightItem.Type.Subscription           -> R.string.highlights_ignores_entry_subscriptions
-        MessageHighlightItem.Type.Announcement           -> R.string.highlights_ignores_entry_announcements
-        MessageHighlightItem.Type.FirstMessage           -> R.string.highlights_ignores_entry_first_messages
-        MessageHighlightItem.Type.ElevatedMessage        -> R.string.highlights_ignores_entry_elevated_messages
-        MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
-        MessageHighlightItem.Type.Reply                  -> R.string.highlights_ignores_entry_replies
-        MessageHighlightItem.Type.Custom                 -> R.string.highlights_ignores_entry_custom
-    }
+    val titleText =
+        when (item.type) {
+            MessageHighlightItem.Type.Username -> R.string.highlights_entry_username
+            MessageHighlightItem.Type.Subscription -> R.string.highlights_ignores_entry_subscriptions
+            MessageHighlightItem.Type.Announcement -> R.string.highlights_ignores_entry_announcements
+            MessageHighlightItem.Type.WatchStreak -> R.string.highlights_ignores_entry_watch_streaks
+            MessageHighlightItem.Type.FirstMessage -> R.string.highlights_ignores_entry_first_messages
+            MessageHighlightItem.Type.ElevatedMessage -> R.string.highlights_ignores_entry_elevated_messages
+            MessageHighlightItem.Type.ChannelPointRedemption -> R.string.highlights_ignores_entry_redemptions
+            MessageHighlightItem.Type.Reply -> R.string.highlights_ignores_entry_replies
+            MessageHighlightItem.Type.Custom -> R.string.highlights_ignores_entry_custom
+        }
     val isCustom = item.type == MessageHighlightItem.Type.Custom
     ElevatedCard(modifier) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
         ) {
             Text(
                 text = stringResource(titleText),
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
             if (isCustom) {
                 IconButton(
@@ -389,47 +415,50 @@ private fun MessageHighlightItem(
         }
         if (isCustom) {
             OutlinedTextField(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(),
                 value = item.pattern,
-                onValueChange = { onChanged(item.copy(pattern = it)) },
+                onValueChange = { onChange(item.copy(pattern = it)) },
                 label = { Text(stringResource(R.string.pattern)) },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 maxLines = 1,
             )
         }
         FlowRow(
-            modifier = Modifier
-                .padding(8.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth(),
             verticalArrangement = Arrangement.Center,
         ) {
             CheckboxWithText(
                 text = stringResource(R.string.enabled),
                 checked = item.enabled,
-                onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                modifier = modifier.padding(end = 8.dp),
+                onCheckedChange = { onChange(item.copy(enabled = it)) },
+                modifier = Modifier.padding(end = 8.dp),
             )
             if (isCustom) {
                 CheckboxWithText(
                     text = stringResource(R.string.multi_entry_header_regex),
                     checked = item.isRegex,
-                    onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                    onCheckedChange = { onChange(item.copy(isRegex = it)) },
                     enabled = item.enabled,
                 )
                 IconButton(
                     onClick = { launcher.openUri(HighlightsViewModel.REGEX_INFO_URL) },
                     content = { Icon(Icons.Outlined.Info, contentDescription = "regex info") },
                     enabled = item.enabled,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(end = 8.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 8.dp),
                 )
                 CheckboxWithText(
                     text = stringResource(R.string.case_sensitive),
                     checked = item.isCaseSensitive,
-                    onCheckedChange = { onChanged(item.copy(isCaseSensitive = it)) },
+                    onCheckedChange = { onChange(item.copy(isCaseSensitive = it)) },
                     enabled = item.enabled,
                     modifier = Modifier.padding(end = 8.dp),
                 )
@@ -439,104 +468,50 @@ private fun MessageHighlightItem(
                 CheckboxWithText(
                     text = stringResource(R.string.create_notification),
                     checked = item.createNotification,
-                    onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                    onCheckedChange = { onChange(item.copy(createNotification = it)) },
                     enabled = item.enabled && enabled,
                 )
             }
         }
-        val defaultColor = when(item.type) {
-            MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ContextCompat.getColor(LocalContext.current, R.color.color_sub_highlight)
-            MessageHighlightItem.Type.ChannelPointRedemption                               -> ContextCompat.getColor(LocalContext.current, R.color.color_redemption_highlight)
-            MessageHighlightItem.Type.ElevatedMessage                                      -> ContextCompat.getColor(LocalContext.current, R.color.color_elevated_message_highlight)
-            MessageHighlightItem.Type.FirstMessage                                         -> ContextCompat.getColor(LocalContext.current, R.color.color_first_message_highlight)
-            MessageHighlightItem.Type.Username                                             -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-            MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom              -> ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-        }
-        val color = item.customColor ?: defaultColor
-        var showColorPicker by remember { mutableStateOf(false) }
-        var selectedColor by remember(color) { mutableIntStateOf(color) }
-        OutlinedButton(
-            onClick = { showColorPicker = true },
-            enabled = item.enabled,
-            contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-            content = {
-                Spacer(
-                    Modifier
-                        .size(ButtonDefaults.IconSize)
-                        .background(color = Color(color), shape = CircleShape)
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(text = stringResource(R.string.choose_highlight_color))
-            },
-            modifier = Modifier.padding(12.dp)
-        )
-        if (showColorPicker) {
-            ModalBottomSheet(
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                onDismissRequest = {
-                    onChanged(item.copy(customColor = selectedColor))
-                    showColorPicker = false
-                },
-            ) {
-                Text(
-                    text = stringResource(R.string.pick_highlight_color_title),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                )
-                Row (
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TextButton(
-                        onClick = { selectedColor = defaultColor },
-                        content = { Text(stringResource(R.string.reset_default_highlight_color)) },
-                    )
-                    TextButton(
-                        onClick = { selectedColor = color },
-                        content = { Text(stringResource(R.string.reset)) },
-                    )
-                }
-                AndroidView(
-                    factory = { context ->
-                        ColorPickerView(context).apply {
-                            showAlpha(true)
-                            setOriginalColor(color)
-                            setCurrentColor(selectedColor)
-                            addColorObserver {
-                                selectedColor = it.color
-                            }
-                        }
-                    },
-                    update = {
-                        it.setCurrentColor(selectedColor)
-                    }
-                )
+        val isDark = isSystemInDarkTheme()
+        val defaultColor =
+            when (item.type) {
+                MessageHighlightItem.Type.Subscription, MessageHighlightItem.Type.Announcement -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Subscription, isDark)
+                MessageHighlightItem.Type.WatchStreak -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.WatchStreak, isDark)
+                MessageHighlightItem.Type.ChannelPointRedemption -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ChannelPointRedemption, isDark)
+                MessageHighlightItem.Type.ElevatedMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.ElevatedMessage, isDark)
+                MessageHighlightItem.Type.FirstMessage -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.FirstMessage, isDark)
+                MessageHighlightItem.Type.Username -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isDark)
+                MessageHighlightItem.Type.Reply, MessageHighlightItem.Type.Custom -> ChatMessageMapper.defaultHighlightColorInt(HighlightType.Reply, isDark)
             }
-        }
+        HighlightColorPicker(
+            color = item.customColor ?: defaultColor,
+            defaultColor = defaultColor,
+            enabled = item.enabled,
+            onColorSelect = { onChange(item.copy(customColor = it)) },
+        )
     }
 }
 
 @Composable
 private fun UserHighlightItem(
     item: UserHighlightItem,
-    onChanged: (UserHighlightItem) -> Unit,
+    onChange: (UserHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = item.username,
-                    onValueChange = { onChanged(item.copy(username = it)) },
+                    onValueChange = { onChange(item.copy(username = it)) },
                     label = { Text(stringResource(R.string.username)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     maxLines = 1,
@@ -548,81 +523,23 @@ private fun UserHighlightItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.create_notification),
                         checked = item.createNotification,
-                        onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                        onCheckedChange = { onChange(item.copy(createNotification = it)) },
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
-                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-                val color = item.customColor ?: defaultColor
-                var showColorPicker by remember { mutableStateOf(false) }
-                var selectedColor by remember(color) { mutableIntStateOf(color) }
-                OutlinedButton(
-                    onClick = { showColorPicker = true },
+                val defaultColor = ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isSystemInDarkTheme())
+                HighlightColorPicker(
+                    color = item.customColor ?: defaultColor,
+                    defaultColor = defaultColor,
                     enabled = item.enabled,
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                    content = {
-                        Spacer(
-                            Modifier
-                                .size(ButtonDefaults.IconSize)
-                                .background(color = Color(color), shape = CircleShape)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(text = stringResource(R.string.choose_highlight_color))
-                    },
-                    modifier = Modifier.padding(12.dp)
+                    onColorSelect = { onChange(item.copy(customColor = it)) },
                 )
-                if (showColorPicker) {
-                    ModalBottomSheet(
-                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                        onDismissRequest = {
-                            onChanged(item.copy(customColor = selectedColor))
-                            showColorPicker = false
-                        },
-                    ) {
-                        Text(
-                            text = stringResource(R.string.pick_highlight_color_title),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                        )
-                        Row (
-                            modifier = modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            TextButton(
-                                onClick = { selectedColor = defaultColor },
-                                content = { Text(stringResource(R.string.reset_default_highlight_color)) },
-                            )
-                            TextButton(
-                                onClick = { selectedColor = color },
-                                content = { Text(stringResource(R.string.reset)) },
-                            )
-                        }
-                        AndroidView(
-                            factory = { context ->
-                                ColorPickerView(context).apply {
-                                    showAlpha(true)
-                                    setOriginalColor(color)
-                                    setCurrentColor(selectedColor)
-                                    addColorObserver {
-                                        selectedColor = it.color
-                                    }
-                                }
-                            },
-                            update = {
-                                it.setCurrentColor(selectedColor)
-                            }
-                        )
-                    }
-                }
             }
             IconButton(
                 onClick = onRemove,
@@ -635,22 +552,23 @@ private fun UserHighlightItem(
 @Composable
 private fun BadgeHighlightItem(
     item: BadgeHighlightItem,
-    onChanged: (BadgeHighlightItem) -> Unit,
+    onChange: (BadgeHighlightItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 if (item.isCustom) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = item.badgeName,
-                        onValueChange = { onChanged(item.copy(badgeName = it)) },
+                        onValueChange = { onChange(item.copy(badgeName = it)) },
                         label = { Text(stringResource(R.string.badge)) },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         maxLines = 1,
@@ -658,25 +576,26 @@ private fun BadgeHighlightItem(
                 } else {
                     var name = ""
                     when (item.badgeName) {
-                        "broadcaster"-> name = stringResource(R.string.badge_broadcaster)
-                        "admin"-> name = stringResource(R.string.badge_admin)
-                        "staff"-> name = stringResource(R.string.badge_staff)
-                        "moderator"-> name = stringResource(R.string.badge_moderator)
-                        "lead_moderator"-> name = stringResource(R.string.badge_lead_moderator)
-                        "partner"-> name = stringResource(R.string.badge_verified)
-                        "vip"-> name = stringResource(R.string.badge_vip)
-                        "founder"-> name = stringResource(R.string.badge_founder)
-                        "subscriber"-> name = stringResource(R.string.badge_subscriber)
+                        "broadcaster" -> name = stringResource(R.string.badge_broadcaster)
+                        "admin" -> name = stringResource(R.string.badge_admin)
+                        "staff" -> name = stringResource(R.string.badge_staff)
+                        "moderator" -> name = stringResource(R.string.badge_moderator)
+                        "lead_moderator" -> name = stringResource(R.string.badge_lead_moderator)
+                        "partner" -> name = stringResource(R.string.badge_verified)
+                        "vip" -> name = stringResource(R.string.badge_vip)
+                        "founder" -> name = stringResource(R.string.badge_founder)
+                        "subscriber" -> name = stringResource(R.string.badge_subscriber)
                     }
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
                     ) {
                         Text(
                             text = name,
                             style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.align(Alignment.Center),
                         )
                     }
                 }
@@ -687,81 +606,23 @@ private fun BadgeHighlightItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.create_notification),
                         checked = item.createNotification,
-                        onCheckedChange = { onChanged(item.copy(createNotification = it)) },
+                        onCheckedChange = { onChange(item.copy(createNotification = it)) },
                         enabled = item.enabled && item.notificationsEnabled,
                     )
                 }
-                val defaultColor = ContextCompat.getColor(LocalContext.current, R.color.color_mention_highlight)
-                val color = item.customColor ?: defaultColor
-                var showColorPicker by remember { mutableStateOf(false) }
-                var selectedColor by remember(color) { mutableIntStateOf(color) }
-                OutlinedButton(
-                    onClick = { showColorPicker = true },
+                val defaultColor = ChatMessageMapper.defaultHighlightColorInt(HighlightType.Username, isSystemInDarkTheme())
+                HighlightColorPicker(
+                    color = item.customColor ?: defaultColor,
+                    defaultColor = defaultColor,
                     enabled = item.enabled,
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                    content = {
-                        Spacer(
-                            Modifier
-                                .size(ButtonDefaults.IconSize)
-                                .background(color = Color(color), shape = CircleShape)
-                        )
-                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(text = stringResource(R.string.choose_highlight_color))
-                    },
-                    modifier = Modifier.padding(12.dp)
+                    onColorSelect = { onChange(item.copy(customColor = it)) },
                 )
-                if (showColorPicker) {
-                    ModalBottomSheet(
-                        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                        onDismissRequest = {
-                            onChanged(item.copy(customColor = selectedColor))
-                            showColorPicker = false
-                        },
-                    ) {
-                        Text(
-                            text = stringResource(R.string.pick_highlight_color_title),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                        )
-                        Row (
-                            modifier = modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            TextButton(
-                                onClick = { selectedColor = defaultColor },
-                                content = { Text(stringResource(R.string.reset_default_highlight_color)) },
-                            )
-                            TextButton(
-                                onClick = { selectedColor = color },
-                                content = { Text(stringResource(R.string.reset)) },
-                            )
-                        }
-                        AndroidView(
-                            factory = { context ->
-                                ColorPickerView(context).apply {
-                                    showAlpha(true)
-                                    setOriginalColor(color)
-                                    setCurrentColor(selectedColor)
-                                    addColorObserver {
-                                        selectedColor = it.color
-                                    }
-                                }
-                            },
-                            update = {
-                                it.setCurrentColor(selectedColor)
-                            }
-                        )
-                    }
-                }
             }
             if (item.isCustom) {
                 IconButton(
@@ -776,7 +637,7 @@ private fun BadgeHighlightItem(
 @Composable
 private fun BlacklistedUserItem(
     item: BlacklistedUserItem,
-    onChanged: (BlacklistedUserItem) -> Unit,
+    onChange: (BlacklistedUserItem) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -784,14 +645,15 @@ private fun BlacklistedUserItem(
     ElevatedCard(modifier) {
         Row {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(8.dp),
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = item.username,
-                    onValueChange = { onChanged(item.copy(username = it)) },
+                    onValueChange = { onChange(item.copy(username = it)) },
                     label = { Text(stringResource(R.string.username)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     maxLines = 1,
@@ -802,13 +664,13 @@ private fun BlacklistedUserItem(
                     CheckboxWithText(
                         text = stringResource(R.string.enabled),
                         checked = item.enabled,
-                        onCheckedChange = { onChanged(item.copy(enabled = it)) },
-                        modifier = modifier.padding(end = 8.dp),
+                        onCheckedChange = { onChange(item.copy(enabled = it)) },
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     CheckboxWithText(
                         text = stringResource(R.string.multi_entry_header_regex),
                         checked = item.isRegex,
-                        onCheckedChange = { onChanged(item.copy(isRegex = it)) },
+                        onCheckedChange = { onChange(item.copy(isRegex = it)) },
                         enabled = item.enabled,
                     )
                     IconButton(
@@ -822,6 +684,80 @@ private fun BlacklistedUserItem(
             IconButton(
                 onClick = onRemove,
                 content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear)) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun HighlightColorPicker(
+    color: Int,
+    defaultColor: Int,
+    enabled: Boolean,
+    onColorSelect: (Int) -> Unit,
+) {
+    var showColorPicker by remember { mutableStateOf(false) }
+    var selectedColor by remember(color) { mutableIntStateOf(color) }
+    OutlinedButton(
+        onClick = { showColorPicker = true },
+        enabled = enabled,
+        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+        content = {
+            Spacer(
+                Modifier
+                    .size(ButtonDefaults.IconSize)
+                    .background(color = Color(color), shape = CircleShape),
+            )
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Text(text = stringResource(R.string.choose_highlight_color))
+        },
+        modifier = Modifier.padding(12.dp),
+    )
+    if (showColorPicker) {
+        ModalBottomSheet(
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            onDismissRequest = {
+                onColorSelect(selectedColor)
+                showColorPicker = false
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Text(
+                text = stringResource(R.string.pick_highlight_color_title),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TextButton(
+                    onClick = { selectedColor = defaultColor },
+                    content = { Text(stringResource(R.string.reset_default_highlight_color)) },
+                )
+                TextButton(
+                    onClick = { selectedColor = color },
+                    content = { Text(stringResource(R.string.reset)) },
+                )
+            }
+            AndroidView(
+                factory = { context ->
+                    ColorPickerView(context).apply {
+                        showAlpha(true)
+                        setOriginalColor(color)
+                        setCurrentColor(selectedColor)
+                        addColorObserver {
+                            selectedColor = it.color
+                        }
+                    }
+                },
+                update = {
+                    it.setCurrentColor(selectedColor)
+                },
             )
         }
     }

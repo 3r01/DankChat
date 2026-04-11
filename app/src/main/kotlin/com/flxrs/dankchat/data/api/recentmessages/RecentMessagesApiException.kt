@@ -9,11 +9,11 @@ data class RecentMessagesApiException(
     override val status: HttpStatusCode,
     override val url: Url?,
     override val message: String? = null,
-    override val cause: Throwable? = null
+    override val cause: Throwable? = null,
 ) : ApiException(status, url, message, cause)
 
 enum class RecentMessagesError {
     ChannelNotJoined,
     ChannelIgnored,
-    Unknown
+    Unknown,
 }

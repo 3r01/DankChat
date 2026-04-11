@@ -22,7 +22,7 @@ fun animatedAppBarColor(scrollBehavior: TopAppBarScrollBehavior): State<Color> {
             lerp(
                 colors.containerColor,
                 colors.scrolledContainerColor,
-                FastOutLinearInEasing.transform(if (overlappingFraction > 0.01f) 1f else 0f)
+                FastOutLinearInEasing.transform(if (overlappingFraction > 0.01f) 1f else 0f),
             )
         }
     }

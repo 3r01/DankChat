@@ -40,7 +40,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -75,13 +74,14 @@ private fun UserIgnoreListScreen(
     onSaveAndNavBack: (List<UserIgnore>) -> Unit,
     onSave: (List<UserIgnore>) -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val ignores = remember { initialIgnores.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
@@ -91,9 +91,10 @@ private fun UserIgnoreListScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -112,19 +113,20 @@ private fun UserIgnoreListScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.tts_ignore_list_add_user)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.tts_ignore_list_add_user)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = {
                         focusManager.clearFocus()
                         ignores += UserIgnore(user = "")
                         scope.launch {
                             when {
                                 listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                                else                       -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                                else -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
                             }
                         }
-                    }
+                    },
                 )
             }
         },
@@ -133,25 +135,27 @@ private fun UserIgnoreListScreen(
         DankBackground(visible = ignores.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
-            itemsIndexed(ignores, key = { _, it -> it.id }) { idx, ignore ->
+            itemsIndexed(ignores, key = { _, item -> item.id }) { idx, ignore ->
                 UserIgnoreItem(
                     user = ignore.user,
-                    onUserChanged = { ignores[idx] = ignore.copy(user = it) },
+                    onUserChange = { ignores[idx] = ignore.copy(user = it) },
                     onRemove = {
                         focusManager.clearFocus()
                         val removed = ignores.removeAt(idx)
                         scope.launch {
                             snackbarHost.currentSnackbarData?.dismiss()
-                            val result = snackbarHost.showSnackbar(
-                                message = context.getString(R.string.item_removed),
-                                actionLabel = context.getString(R.string.undo),
-                                duration = SnackbarDuration.Short
-                            )
+                            val result =
+                                snackbarHost.showSnackbar(
+                                    message = itemRemovedMsg,
+                                    actionLabel = undoMsg,
+                                    duration = SnackbarDuration.Short,
+                                )
                             if (result == SnackbarResult.ActionPerformed) {
                                 focusManager.clearFocus()
                                 ignores.add(idx, removed)
@@ -159,12 +163,13 @@ private fun UserIgnoreListScreen(
                             }
                         }
                     },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -177,7 +182,7 @@ private fun UserIgnoreListScreen(
 @Composable
 private fun UserIgnoreItem(
     user: String,
-    onUserChanged: (String) -> Unit,
+    onUserChange: (String) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -185,11 +190,12 @@ private fun UserIgnoreItem(
         ElevatedCard {
             Row {
                 OutlinedTextField(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                     value = user,
-                    onValueChange = onUserChanged,
+                    onValueChange = onUserChange,
                     label = { Text(stringResource(R.string.tts_ignore_list_user_hint)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 )

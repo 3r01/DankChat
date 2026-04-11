@@ -31,7 +31,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -48,6 +47,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,15 +72,18 @@ import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceItem
 import com.flxrs.dankchat.preferences.components.PreferenceListDialog
+import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.preferences.tools.upload.RecentUpload
 import com.flxrs.dankchat.preferences.tools.upload.RecentUploadsViewModel
+import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.buildLinkAnnotation
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import sh.calvin.autolinktext.rememberAutoLinkText
+import kotlin.math.roundToInt
 
 @Composable
 fun ToolsSettingsScreen(
@@ -121,15 +124,16 @@ private fun ToolsSettingsScreen(
                         onClick = onNavBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             ImageUploaderCategory(hasRecentUploads = settings.hasRecentUploads, onNavToImageUploader = onNavToImageUploader)
             HorizontalDivider(thickness = Dp.Hairline)
@@ -167,6 +171,7 @@ fun ImageUploaderCategory(
         ModalBottomSheet(
             onDismissRequest = { recentUploadSheetOpen = false },
             modifier = Modifier.statusBarsPadding(),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
         ) {
             Text(
                 text = stringResource(R.string.preference_uploader_recent_uploads_title),
@@ -177,7 +182,7 @@ fun ImageUploaderCategory(
                 modifier = Modifier.align(Alignment.End),
                 onClick = { confirmClearDialog = true },
                 enabled = uploads.isNotEmpty(),
-                content = { Text(stringResource(R.string.recent_uploads_clear)) }
+                content = { Text(stringResource(R.string.recent_uploads_clear)) },
             )
             LazyColumn {
                 items(uploads) { upload ->
@@ -187,25 +192,14 @@ fun ImageUploaderCategory(
         }
 
         if (confirmClearDialog) {
-            AlertDialog(
-                onDismissRequest = { confirmClearDialog = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.clearUploads()
-                            recentUploadSheetOpen = false
-                        },
-                        content = { Text(stringResource(R.string.clear)) },
-                    )
+            ConfirmationBottomSheet(
+                title = stringResource(R.string.clear_recent_uploads_dialog_message),
+                confirmText = stringResource(R.string.clear),
+                onConfirm = {
+                    viewModel.clearUploads()
+                    recentUploadSheetOpen = false
                 },
-                dismissButton = {
-                    TextButton(
-                        onClick = { confirmClearDialog = false },
-                        content = { Text(stringResource(R.string.dialog_cancel)) },
-                    )
-                },
-                title = { Text(stringResource(R.string.clear_recent_uploads_dialog_title)) },
-                text = { Text(stringResource(R.string.clear_recent_uploads_dialog_message)) },
+                onDismiss = { confirmClearDialog = false },
             )
         }
     }
@@ -214,23 +208,26 @@ fun ImageUploaderCategory(
 @Composable
 fun RecentUploadItem(upload: RecentUpload) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         val clipboardManager = LocalClipboard.current
         val scope = rememberCoroutineScope()
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(8.dp)
-                .height(IntrinsicSize.Min),
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .height(IntrinsicSize.Min),
         ) {
             OutlinedCard {
                 AsyncImage(
-                    modifier = Modifier
-                        .background(CardDefaults.cardColors().containerColor)
-                        .size(96.dp),
+                    modifier =
+                        Modifier
+                            .background(CardDefaults.cardColors().containerColor)
+                            .size(96.dp),
                     model = upload.imageUrl,
                     contentDescription = upload.imageUrl,
                     contentScale = ContentScale.Inside,
@@ -239,16 +236,18 @@ fun RecentUploadItem(upload: RecentUpload) {
             Spacer(Modifier.width(8.dp))
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    val link = buildAnnotatedString {
-                        withLink(link = buildLinkAnnotation(upload.imageUrl)) {
-                            append(upload.imageUrl)
+                    val link =
+                        buildAnnotatedString {
+                            withLink(link = buildLinkAnnotation(upload.imageUrl)) {
+                                append(upload.imageUrl)
+                            }
                         }
-                    }
                     Text(
                         text = link,
                         modifier = Modifier.weight(1f),
@@ -267,10 +266,11 @@ fun RecentUploadItem(upload: RecentUpload) {
                 }
                 if (upload.deleteUrl != null) {
                     val deletionText = stringResource(R.string.recent_upload_deletion_link, upload.deleteUrl)
-                    val annotatedDeletionText = AnnotatedString.rememberAutoLinkText(
-                        text = deletionText,
-                        defaultLinkStyles = textLinkStyles(),
-                    )
+                    val annotatedDeletionText =
+                        AnnotatedString.rememberAutoLinkText(
+                            text = deletionText,
+                            defaultLinkStyles = textLinkStyles(),
+                        )
                     Text(annotatedDeletionText, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(8.dp))
                 }
@@ -293,12 +293,13 @@ fun TextToSpeechCategory(
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_tts_header)) {
         val context = LocalContext.current
-        val checkTTSDataLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            when {
-                it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
-                else                                                       -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
+        val checkTTSDataLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                when {
+                    it.resultCode != TextToSpeech.Engine.CHECK_VOICE_DATA_PASS -> context.startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA))
+                    else -> onInteraction(ToolsSettingsInteraction.TTSEnabled(true))
+                }
             }
-        }
         SwitchPreferenceItem(
             title = stringResource(R.string.preference_tts_title),
             summary = stringResource(R.string.preference_tts_summary),
@@ -321,7 +322,7 @@ fun TextToSpeechCategory(
             entries = modeEntries,
             selected = settings.ttsPlayMode,
             isEnabled = settings.ttsEnabled,
-            onChanged = { onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
+            onChange = { onInteraction(ToolsSettingsInteraction.TTSMode(it)) },
         )
 
         val formatMessage = stringResource(R.string.preference_tts_message_format_message)
@@ -334,7 +335,7 @@ fun TextToSpeechCategory(
             entries = formatEntries,
             selected = settings.ttsMessageFormat,
             isEnabled = settings.ttsEnabled,
-            onChanged = { onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
+            onChange = { onInteraction(ToolsSettingsInteraction.TTSFormat(it)) },
         )
 
         SwitchPreferenceItem(
@@ -358,6 +359,28 @@ fun TextToSpeechCategory(
             isEnabled = settings.ttsEnabled,
             onClick = { onInteraction(ToolsSettingsInteraction.TTSIgnoreEmotes(it)) },
         )
+
+        var volume by remember(settings.ttsVolume) { mutableFloatStateOf(settings.ttsVolume) }
+        val volumePercent = remember(volume) { "${(volume * 100).roundToInt()}%" }
+        SliderPreferenceItem(
+            title = stringResource(R.string.preference_tts_volume_title),
+            value = volume,
+            range = 0f..1f,
+            steps = 19,
+            onDrag = { volume = it },
+            onDragFinish = { onInteraction(ToolsSettingsInteraction.TTSVolume(volume)) },
+            summary = volumePercent,
+            isEnabled = settings.ttsEnabled,
+            displayValue = false,
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_tts_audio_ducking_title),
+            summary = stringResource(R.string.preference_tts_audio_ducking_summary),
+            isChecked = settings.ttsAudioDucking,
+            isEnabled = settings.ttsEnabled,
+            onClick = { onInteraction(ToolsSettingsInteraction.TTSAudioDucking(it)) },
+        )
+
         PreferenceItem(
             title = stringResource(R.string.preference_tts_user_ignore_list_title),
             summary = stringResource(R.string.preference_tts_user_ignore_list_summary),

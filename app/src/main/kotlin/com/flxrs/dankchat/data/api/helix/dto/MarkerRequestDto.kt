@@ -9,5 +9,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MarkerRequestDto(
     @SerialName("user_id") val userId: UserId,
-    val description: String?
+    val description: String?,
 )

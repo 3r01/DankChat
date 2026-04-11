@@ -10,5 +10,5 @@ data class CommandContext(
     val channelId: UserId,
     val roomState: RoomState,
     val originalMessage: String,
-    val args: List<String>
+    val args: List<String>,
 )

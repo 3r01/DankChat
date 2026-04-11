@@ -43,7 +43,6 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -65,6 +64,7 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
     val commands = viewModel.commands.collectAsStateWithLifecycle().value
     CustomCommandsScreen(
         initialCommands = commands,
+        reservedTriggers = viewModel.reservedTriggers,
         onSaveAndNavBack = {
             viewModel.save(it)
             onNavBack()
@@ -76,16 +76,18 @@ fun CustomCommandsScreen(onNavBack: () -> Unit) {
 @Composable
 private fun CustomCommandsScreen(
     initialCommands: ImmutableList<CustomCommand>,
+    reservedTriggers: Set<String>,
     onSaveAndNavBack: (List<CustomCommand>) -> Unit,
     onSave: (List<CustomCommand>) -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val commands = remember { initialCommands.toMutableStateList() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LifecycleStartEffect(Unit) {
         onStopOrDispose {
@@ -95,9 +97,10 @@ private fun CustomCommandsScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -108,7 +111,7 @@ private fun CustomCommandsScreen(
                         onClick = { onSaveAndNavBack(commands) },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -116,16 +119,17 @@ private fun CustomCommandsScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.add_command)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_command)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = {
                         focusManager.clearFocus()
                         commands += CustomCommand(trigger = "", command = "")
                         scope.launch {
                             when {
                                 listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                                else                       -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                                else -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
                             }
                         }
                     },
@@ -137,27 +141,36 @@ private fun CustomCommandsScreen(
         DankBackground(visible = commands.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
-            itemsIndexed(commands, key = { _, it -> it.id }) { idx, command ->
+            itemsIndexed(commands, key = { _, cmd -> cmd.id }) { idx, command ->
+                val triggerError = when {
+                    command.trigger.isBlank() -> null
+                    command.trigger in reservedTriggers -> TriggerError.Reserved
+                    commands.indexOfFirst { it.trigger == command.trigger } != idx -> TriggerError.Duplicate
+                    else -> null
+                }
                 CustomCommandItem(
                     trigger = command.trigger,
                     command = command.command,
-                    onTriggerChanged = { commands[idx] = command.copy(trigger = it) },
-                    onCommandChanged = { commands[idx] = command.copy(command = it) },
+                    triggerError = triggerError,
+                    onTriggerChange = { commands[idx] = command.copy(trigger = it) },
+                    onCommandChange = { commands[idx] = command.copy(command = it) },
                     onRemove = {
                         focusManager.clearFocus()
                         val removed = commands.removeAt(idx)
                         scope.launch {
                             snackbarHost.currentSnackbarData?.dismiss()
-                            val result = snackbarHost.showSnackbar(
-                                message = context.getString(R.string.item_removed),
-                                actionLabel = context.getString(R.string.undo),
-                                duration = SnackbarDuration.Short,
-                            )
+                            val result =
+                                snackbarHost.showSnackbar(
+                                    message = itemRemovedMsg,
+                                    actionLabel = undoMsg,
+                                    duration = SnackbarDuration.Short,
+                                )
                             if (result == SnackbarResult.ActionPerformed) {
                                 focusManager.clearFocus()
                                 commands.add(idx, removed)
@@ -165,12 +178,13 @@ private fun CustomCommandsScreen(
                             }
                         }
                     },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -180,12 +194,18 @@ private fun CustomCommandsScreen(
     }
 }
 
+private enum class TriggerError {
+    Reserved,
+    Duplicate,
+}
+
 @Composable
 private fun CustomCommandItem(
     trigger: String,
     command: String,
-    onTriggerChanged: (String) -> Unit,
-    onCommandChanged: (String) -> Unit,
+    triggerError: TriggerError?,
+    onTriggerChange: (String) -> Unit,
+    onCommandChange: (String) -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -193,15 +213,22 @@ private fun CustomCommandItem(
         ElevatedCard {
             Row {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = trigger,
-                        onValueChange = onTriggerChanged,
+                        onValueChange = onTriggerChange,
                         label = { Text(stringResource(R.string.command_trigger_hint)) },
+                        isError = triggerError != null,
+                        supportingText = when (triggerError) {
+                            TriggerError.Reserved -> ({ Text(stringResource(R.string.command_trigger_reserved)) })
+                            TriggerError.Duplicate -> ({ Text(stringResource(R.string.command_trigger_duplicate)) })
+                            null -> null
+                        },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                         maxLines = 1,
                     )
@@ -209,7 +236,7 @@ private fun CustomCommandItem(
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = command,
-                        onValueChange = onCommandChanged,
+                        onValueChange = onCommandChange,
                         label = { Text(stringResource(R.string.command__hint)) },
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                         maxLines = 1,
@@ -218,7 +245,7 @@ private fun CustomCommandItem(
                 IconButton(
                     modifier = Modifier.align(Alignment.Top),
                     onClick = onRemove,
-                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_command)) }
+                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_command)) },
                 )
             }
         }

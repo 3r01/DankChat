@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.twitch.emote
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.utils.IntRangeParceler
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.TypeParceler
 
+@Immutable
 @Parcelize
 @TypeParceler<IntRange, IntRangeParceler>
 data class ChatMessageEmote(
@@ -16,4 +18,6 @@ data class ChatMessageEmote(
     val type: ChatMessageEmoteType,
     val isTwitch: Boolean = false,
     val isOverlayEmote: Boolean = false,
+    val cheerAmount: Int? = null,
+    val cheerColor: Int? = null,
 ) : Parcelable

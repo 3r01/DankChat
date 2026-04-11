@@ -1,32 +1,31 @@
 package com.flxrs.dankchat.di
 
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ChatConnectionType
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import okhttp3.OkHttpClient
+import io.ktor.client.HttpClient
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 
-data object ReadConnection
-data object WriteConnection
+const val READ_CONNECTION = "ReadConnection"
+const val WRITE_CONNECTION = "WriteConnection"
 
 @Module
 class ConnectionModule {
-
     @Single
-    @Named(type = ReadConnection::class)
+    @Named(READ_CONNECTION)
     fun provideReadConnection(
-        @Named(type = WebSocketOkHttpClient::class) client: OkHttpClient,
+        httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
-        preferenceStore: DankChatPreferenceStore,
-    ): ChatConnection = ChatConnection(ChatConnectionType.Read, client, preferenceStore, dispatchersProvider)
+        authDataStore: AuthDataStore,
+    ): ChatConnection = ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchersProvider)
 
     @Single
-    @Named(type = WriteConnection::class)
+    @Named(WRITE_CONNECTION)
     fun provideWriteConnection(
-        @Named(type = WebSocketOkHttpClient::class) client: OkHttpClient,
+        httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
-        preferenceStore: DankChatPreferenceStore,
-    ): ChatConnection = ChatConnection(ChatConnectionType.Write, client, preferenceStore, dispatchersProvider)
+        authDataStore: AuthDataStore,
+    ): ChatConnection = ChatConnection(ChatConnectionType.Write, httpClient, authDataStore, dispatchersProvider)
 }

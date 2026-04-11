@@ -15,12 +15,9 @@ open class ApiException(
     open val status: HttpStatusCode,
     open val url: Url?,
     override val message: String?,
-    override val cause: Throwable? = null
+    override val cause: Throwable? = null,
 ) : Throwable(message, cause) {
-
-    override fun toString(): String {
-        return "ApiException(status=$status, url=$url, message=$message, cause=$cause)"
-    }
+    override fun toString(): String = "ApiException(status=$status, url=$url, message=$message, cause=$cause)"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -46,7 +43,7 @@ open class ApiException(
 fun <R, T : R> Result<T>.recoverNotFoundWith(default: R): Result<R> = recoverCatching {
     when {
         it is ApiException && it.status == HttpStatusCode.NotFound -> default
-        else                                                       -> throw it
+        else -> throw it
     }
 }
 
@@ -64,4 +61,6 @@ suspend fun HttpResponse.throwApiErrorOnFailure(json: Json): HttpResponse {
 
 @Keep
 @Serializable
-private data class GenericError(val message: String)
+private data class GenericError(
+    val message: String,
+)

@@ -1,8 +1,8 @@
 package com.flxrs.dankchat.data.api.eventapi.dto
 
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 data class EventSubSubscriptionResponseListDto(
@@ -31,10 +31,13 @@ data class EventSubSubscriptionResponseDto(
 enum class EventSubSubscriptionStatus {
     @SerialName("enabled")
     Enabled,
+
     @SerialName("authorization_revoked")
     AuthorizationRevoked,
+
     @SerialName("user_removed")
     UserRemoved,
+
     @SerialName("version_removed")
     VersionRemoved,
     Unknown,

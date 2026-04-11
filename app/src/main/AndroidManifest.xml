@@ -30,13 +30,15 @@
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="tiramisu">
 
+        <profileable android:shell="true" />
+
         <service
             android:name=".data.notification.NotificationService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
         <activity
-            android:name=".main.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
             android:supportsPictureInPicture="true"
@@ -44,6 +46,19 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.share.ShareUploadActivity"
+            android:exported="true"
+            android:label="@string/share_upload_label"
+            android:theme="@style/AppTheme.ShareUpload">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
 

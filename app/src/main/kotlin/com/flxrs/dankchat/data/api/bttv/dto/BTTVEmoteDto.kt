@@ -10,4 +10,3 @@ data class BTTVEmoteDto(
     val code: String,
     val user: BTTVEmoteUserDto?,
 )
-

@@ -5,5 +5,5 @@ import java.time.Instant
 data class UploadDto(
     val imageLink: String,
     val deleteLink: String?,
-    val timestamp: Instant
+    val timestamp: Instant,
 )

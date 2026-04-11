@@ -6,4 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class RaidDto(@SerialName("created_at") val createdAt: String, @SerialName("is_mature") val isMature: Boolean)
+data class RaidDto(
+    @SerialName("created_at") val createdAt: String,
+    @SerialName("is_mature") val isMature: Boolean,
+)

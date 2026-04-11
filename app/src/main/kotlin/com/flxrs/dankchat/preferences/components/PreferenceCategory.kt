@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
-import com.flxrs.dankchat.theme.DankChatTheme
+import com.flxrs.dankchat.ui.theme.DankChatTheme
 
 @Composable
 fun PreferenceCategory(
@@ -46,7 +46,10 @@ fun PreferenceCategoryWithSummary(
 }
 
 @Composable
-fun PreferenceCategoryTitle(text: String, modifier: Modifier = Modifier) {
+fun PreferenceCategoryTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
         style = MaterialTheme.typography.titleSmall,
@@ -55,29 +58,35 @@ fun PreferenceCategoryTitle(text: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("UnusedPrivateFunction")
 @Composable
 @PreviewLightDark
-fun PreferenceCategoryPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryPreview(
+    @PreviewParameter(provider = LoremIpsum::class) loremIpsum: String,
+) {
     DankChatTheme {
         Surface {
             PreferenceCategoryWithSummary(
                 title = { PreferenceCategoryTitle("Title") },
-                summary = { PreferenceSummary(loremIpsum.take(100)) }
+                summary = { PreferenceSummary(loremIpsum.take(100)) },
             )
         }
     }
 }
 
+@Suppress("UnusedPrivateFunction", "UnusedParameter")
 @Composable
 @PreviewLightDark
-fun PreferenceCategoryWithItemsPreview(@PreviewParameter(provider = LoremIpsum::class) loremIpsum: String) {
+private fun PreferenceCategoryWithItemsPreview(
+    @PreviewParameter(provider = LoremIpsum::class) loremIpsum: String,
+) {
     DankChatTheme {
         Surface {
             PreferenceCategory(
                 title = "Title",
                 content = {
                     PreferenceItem("Appearence", Icons.Default.Palette)
-                }
+                },
             )
         }
     }

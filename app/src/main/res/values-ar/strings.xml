@@ -374,4 +374,5 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="confirm_login_cancel_positive_button">إلغاء تسجيل الدخول</string>
     <string name="login_menu_zoom_out">تصغير</string>
     <string name="login_menu_zoom_in">تكبير الصورة</string>
+    <string name="message_history_title">تاريخ: %1$s</string>
 </resources>

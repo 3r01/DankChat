@@ -5,4 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class BanRequestDto(val data: BanRequestDataDto)
+data class BanRequestDto(
+    val data: BanRequestDataDto,
+)

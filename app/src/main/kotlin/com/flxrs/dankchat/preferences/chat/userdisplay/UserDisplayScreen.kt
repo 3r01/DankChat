@@ -57,7 +57,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -105,32 +104,34 @@ private fun UserDisplayScreen(
     onAdd: (UserDisplayItem, Int) -> Unit,
     onNavBack: () -> Unit,
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val snackbarHost = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val listState = rememberLazyListState()
+    val itemRemovedMsg = stringResource(R.string.item_removed)
+    val undoMsg = stringResource(R.string.undo)
 
     LaunchedEffect(eventsWrapper) {
         eventsWrapper.events.collectLatest {
             focusManager.clearFocus()
             when (it) {
                 is UserDisplayEvent.ItemRemoved -> {
-                    val result = snackbarHost.showSnackbar(
-                        message = context.getString(R.string.item_removed),
-                        actionLabel = context.getString(R.string.undo),
-                        duration = SnackbarDuration.Short,
-                    )
+                    val result =
+                        snackbarHost.showSnackbar(
+                            message = itemRemovedMsg,
+                            actionLabel = undoMsg,
+                            duration = SnackbarDuration.Short,
+                        )
                     if (result == SnackbarResult.ActionPerformed) {
                         onAdd(it.item, it.position)
                     }
                 }
 
-                is UserDisplayEvent.ItemAdded   -> {
+                is UserDisplayEvent.ItemAdded -> {
                     when {
                         it.isLast && listState.canScrollForward -> listState.animateScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                        it.isLast                               -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                        else                                    -> listState.animateScrollToItem(it.position)
+                        it.isLast -> listState.requestScrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                        else -> listState.animateScrollToItem(it.position)
                     }
                 }
             }
@@ -145,9 +146,10 @@ private fun UserDisplayScreen(
 
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets.exclude(WindowInsets.navigationBars),
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .imePadding(),
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .imePadding(),
         snackbarHost = { SnackbarHost(snackbarHost) },
         topBar = {
             TopAppBar(
@@ -161,7 +163,7 @@ private fun UserDisplayScreen(
                         },
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
         floatingActionButton = {
@@ -169,9 +171,10 @@ private fun UserDisplayScreen(
                 ExtendedFloatingActionButton(
                     text = { Text(stringResource(R.string.multi_entry_add_entry)) },
                     icon = { Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.multi_entry_add_entry)) },
-                    modifier = Modifier
-                        .navigationBarsPadding()
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .navigationBarsPadding()
+                            .padding(8.dp),
                     onClick = onAddNew,
                 )
             }
@@ -181,22 +184,24 @@ private fun UserDisplayScreen(
         DankBackground(visible = userDisplays.isEmpty())
         LazyColumn(
             state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp),
         ) {
-            itemsIndexed(userDisplays, key = { _, it -> it.id }) { idx, item ->
+            itemsIndexed(userDisplays, key = { _, display -> display.id }) { idx, item ->
                 UserDisplayItem(
                     item = item,
                     onChange = { userDisplays[idx] = it },
                     onRemove = { onRemove(userDisplays[idx]) },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .animateItem(
-                            fadeInSpec = null,
-                            fadeOutSpec = null,
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .animateItem(
+                                fadeInSpec = null,
+                                fadeOutSpec = null,
+                            ),
                 )
             }
             item(key = "spacer") {
@@ -218,9 +223,10 @@ private fun UserDisplayItem(
         ElevatedCard {
             Row {
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(16.dp),
                 ) {
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -278,21 +284,24 @@ private fun UserDisplayItem(
                                     onChange(item.copy(color = selectedColor))
                                     showColorPicker = false
                                 },
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             ) {
                                 Text(
                                     text = stringResource(R.string.pick_custom_user_color_title),
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.titleLarge,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                                 )
                                 TextButton(
                                     onClick = { selectedColor = Message.DEFAULT_COLOR },
                                     content = { Text(stringResource(R.string.reset)) },
-                                    modifier = Modifier
-                                        .align(Alignment.End)
-                                        .padding(horizontal = 16.dp),
+                                    modifier =
+                                        Modifier
+                                            .align(Alignment.End)
+                                            .padding(horizontal = 16.dp),
                                 )
                                 AndroidView(
                                     factory = { context ->
@@ -307,7 +316,7 @@ private fun UserDisplayItem(
                                     },
                                     update = {
                                         it.setCurrentColor(selectedColor)
-                                    }
+                                    },
                                 )
                             }
                         }
@@ -316,11 +325,9 @@ private fun UserDisplayItem(
                 IconButton(
                     modifier = Modifier.align(Alignment.Top),
                     onClick = onRemove,
-                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_custom_user_display)) }
+                    content = { Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.remove_custom_user_display)) },
                 )
             }
         }
     }
 }
-
-

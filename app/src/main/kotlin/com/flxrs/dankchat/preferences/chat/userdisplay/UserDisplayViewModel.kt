@@ -4,19 +4,19 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.repo.UserDisplayRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.replaceAll
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class UserDisplayViewModel(
-    private val userDisplayRepository: UserDisplayRepository
+    private val userDisplayRepository: UserDisplayRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
-
     private val eventChannel = Channel<UserDisplayEvent>(Channel.BUFFERED)
 
     val events = eventChannel.receiveAsFlow()
@@ -30,12 +30,14 @@ class UserDisplayViewModel(
     fun addUserDisplay() = viewModelScope.launch {
         val entity = userDisplayRepository.addUserDisplay()
         userDisplays += entity.toItem()
-        println("XXX ${userDisplays.toList()}")
         val position = userDisplays.lastIndex
         sendEvent(UserDisplayEvent.ItemAdded(position, isLast = true))
     }
 
-    fun addUserDisplayItem(item: UserDisplayItem, position: Int) = viewModelScope.launch {
+    fun addUserDisplayItem(
+        item: UserDisplayItem,
+        position: Int,
+    ) = viewModelScope.launch {
         userDisplayRepository.updateUserDisplay(item.toEntity())
         userDisplays.add(position, item)
         val isLast = position == userDisplays.lastIndex
@@ -58,7 +60,7 @@ class UserDisplayViewModel(
         userDisplayRepository.updateUserDisplays(entries)
     }
 
-    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(Dispatchers.Main.immediate) {
+    private suspend fun sendEvent(event: UserDisplayEvent) = withContext(dispatchersProvider.immediate) {
         eventChannel.send(event)
     }
 }

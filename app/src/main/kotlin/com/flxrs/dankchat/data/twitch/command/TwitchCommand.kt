@@ -1,7 +1,9 @@
 package com.flxrs.dankchat.data.twitch.command
 
 @Suppress("SpellCheckingInspection")
-enum class TwitchCommand(val trigger: String) {
+enum class TwitchCommand(
+    val trigger: String,
+) {
     Announce(trigger = "announce"),
     AnnounceBlue(trigger = "announceblue"),
     AnnounceGreen(trigger = "announcegreen"),
@@ -39,7 +41,8 @@ enum class TwitchCommand(val trigger: String) {
     Unvip(trigger = "unvip"),
     Vip(trigger = "vip"),
     Vips(trigger = "vips"),
-    Whisper(trigger = "w");
+    Whisper(trigger = "w"),
+    ;
 
     companion object {
         val ALL_COMMANDS = TwitchCommand.entries

@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class HelixErrorDto(
     val status: Int,
-    val message: String
+    val message: String,
 )

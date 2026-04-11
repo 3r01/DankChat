@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("4")
-data class ReconnectMessage(override val d: ReconnectData) : DataMessage
+data class ReconnectMessage(
+    override val d: ReconnectData,
+) : DataMessage
 
 @Serializable
 data object ReconnectData : Data

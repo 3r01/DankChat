@@ -7,4 +7,4 @@ data class SystemMessage(
     override val timestamp: Long = System.currentTimeMillis(),
     override val id: String = UUID.randomUUID().toString(),
     override val highlights: Set<Highlight> = emptySet(),
-) : Message()
+) : Message

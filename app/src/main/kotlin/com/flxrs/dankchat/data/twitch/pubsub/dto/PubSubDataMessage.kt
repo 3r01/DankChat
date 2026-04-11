@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PubSubDataMessage<T>(
     val type: String,
-    val data: T
+    val data: T,
 )

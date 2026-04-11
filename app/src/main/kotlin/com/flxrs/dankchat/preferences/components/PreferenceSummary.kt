@@ -9,12 +9,17 @@ import androidx.compose.ui.text.AnnotatedString
 import com.flxrs.dankchat.utils.compose.ContentAlpha
 
 @Composable
-fun PreferenceSummary(summary: AnnotatedString, modifier: Modifier = Modifier, isEnabled: Boolean = true) {
+fun PreferenceSummary(
+    summary: AnnotatedString,
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
+) {
     val contentColor = LocalContentColor.current
-    val color = when {
-        isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
-    }
+    val color =
+        when {
+            isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
+            else -> contentColor.copy(alpha = ContentAlpha.disabled)
+        }
     Text(
         text = summary,
         style = MaterialTheme.typography.bodyMedium,
@@ -24,12 +29,16 @@ fun PreferenceSummary(summary: AnnotatedString, modifier: Modifier = Modifier, i
 }
 
 @Composable
-fun PreferenceSummary(summary: String, isEnabled: Boolean = true) {
+fun PreferenceSummary(
+    summary: String,
+    isEnabled: Boolean = true,
+) {
     val contentColor = LocalContentColor.current
-    val color = when {
-        isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
-        else      -> contentColor.copy(alpha = ContentAlpha.disabled)
-    }
+    val color =
+        when {
+            isEnabled -> contentColor.copy(alpha = ContentAlpha.high)
+            else -> contentColor.copy(alpha = ContentAlpha.disabled)
+        }
     Text(
         text = summary,
         style = MaterialTheme.typography.bodyMedium,

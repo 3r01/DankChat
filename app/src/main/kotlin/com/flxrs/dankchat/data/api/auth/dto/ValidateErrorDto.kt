@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ValidateErrorDto(
     val status: Int,
-    val message: String
+    val message: String,
 )

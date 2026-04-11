@@ -3,9 +3,9 @@ package com.flxrs.dankchat.data.api.eventapi.dto.messages.notification
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 @Serializable
 @SerialName("channel.moderate")
@@ -78,70 +78,103 @@ data class ChannelModerateDto(
 enum class ChannelModerateAction {
     @SerialName("ban")
     Ban,
+
     @SerialName("timeout")
     Timeout,
+
     @SerialName("unban")
     Unban,
+
     @SerialName("untimeout")
     Untimeout,
+
     @SerialName("clear")
     Clear,
+
     @SerialName("emoteonly")
     EmoteOnly,
+
     @SerialName("emoteonlyoff")
     EmoteOnlyOff,
+
     @SerialName("followers")
     Followers,
+
     @SerialName("followersoff")
     FollowersOff,
+
     @SerialName("uniquechat")
     UniqueChat,
+
     @SerialName("uniquechatoff")
     UniqueChatOff,
+
     @SerialName("slow")
     Slow,
+
     @SerialName("slowoff")
     SlowOff,
+
     @SerialName("subscribers")
     Subscribers,
+
     @SerialName("subscribersoff")
     SubscribersOff,
+
     @SerialName("unraid")
     Unraid,
+
     @SerialName("delete")
     Delete,
+
     @SerialName("unvip")
     Unvip,
+
     @SerialName("vip")
     Vip,
+
     @SerialName("raid")
     Raid,
+
     @SerialName("add_blocked_term")
     AddBlockedTerm,
+
     @SerialName("add_permitted_term")
     AddPermittedTerm,
+
     @SerialName("remove_blocked_term")
     RemoveBlockedTerm,
+
     @SerialName("remove_permitted_term")
     RemovePermittedTerm,
+
     @SerialName("mod")
     Mod,
+
     @SerialName("unmod")
     Unmod,
+
     @SerialName("approve_unban_request")
     ApproveUnbanRequest,
+
     @SerialName("deny_unban_request")
     DenyUnbanRequest,
+
     @SerialName("warn")
     Warn,
+
     @SerialName("shared_chat_ban")
     SharedChatBan,
+
     @SerialName("shared_chat_timeout")
     SharedChatTimeout,
+
     @SerialName("shared_chat_unban")
     SharedChatUnban,
+
     @SerialName("shared_chat_untimeout")
     SharedChatUntimeout,
+
     @SerialName("shared_chat_delete")
     SharedChatDelete,
     Unknown,

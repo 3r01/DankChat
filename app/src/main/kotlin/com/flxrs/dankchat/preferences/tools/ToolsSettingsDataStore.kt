@@ -28,8 +28,9 @@ class ToolsSettingsDataStore(
     context: Context,
     dispatchersProvider: DispatchersProvider,
 ) {
-
-    private enum class ToolsPreferenceKeys(override val id: Int) : PreferenceKeys {
+    private enum class ToolsPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         TTS(R.string.preference_tts_key),
         TTSQueue(R.string.preference_tts_queue_key),
         TTSMessageFormat(R.string.preference_tts_message_format_key),
@@ -39,7 +40,9 @@ class ToolsSettingsDataStore(
         TTSUserIgnoreList(R.string.preference_tts_user_ignore_list_key),
     }
 
-    private enum class UploaderKeys(val key: String) {
+    private enum class UploaderKeys(
+        val key: String,
+    ) {
         UploadUrl("uploaderUrl"),
         FormField("uploaderFormField"),
         Headers("uploaderHeaders"),
@@ -47,82 +50,111 @@ class ToolsSettingsDataStore(
         DeletionLinkPattern("uploaderDeletionLink"),
     }
 
-    private val initialMigration = dankChatPreferencesMigration<ToolsPreferenceKeys, ToolsSettings>(context) { acc, key, value ->
-        when (key) {
-            ToolsPreferenceKeys.TTS                   -> acc.copy(ttsEnabled = value.booleanOrDefault(acc.ttsEnabled))
-            ToolsPreferenceKeys.TTSQueue              -> acc.copy(
-                ttsPlayMode = value.booleanOrNull()?.let {
-                    if (it) TTSPlayMode.Queue else TTSPlayMode.Newest
-                } ?: acc.ttsPlayMode
-            )
+    private val initialMigration =
+        dankChatPreferencesMigration<ToolsPreferenceKeys, ToolsSettings>(context) { acc, key, value ->
+            when (key) {
+                ToolsPreferenceKeys.TTS -> {
+                    acc.copy(ttsEnabled = value.booleanOrDefault(acc.ttsEnabled))
+                }
 
-            ToolsPreferenceKeys.TTSMessageFormat      -> acc.copy(
-                ttsMessageFormat = value.booleanOrNull()?.let {
-                    if (it) TTSMessageFormat.UserAndMessage else TTSMessageFormat.Message
-                } ?: acc.ttsMessageFormat
-            )
+                ToolsPreferenceKeys.TTSQueue -> {
+                    acc.copy(
+                        ttsPlayMode =
+                            value.booleanOrNull()?.let {
+                                if (it) TTSPlayMode.Queue else TTSPlayMode.Newest
+                            } ?: acc.ttsPlayMode,
+                    )
+                }
 
-            ToolsPreferenceKeys.TTSForceEnglish       -> acc.copy(ttsForceEnglish = value.booleanOrDefault(acc.ttsForceEnglish))
-            ToolsPreferenceKeys.TTSMessageIgnoreUrl   -> acc.copy(ttsIgnoreUrls = value.booleanOrDefault(acc.ttsIgnoreUrls))
-            ToolsPreferenceKeys.TTSMessageIgnoreEmote -> acc.copy(ttsIgnoreEmotes = value.booleanOrDefault(acc.ttsIgnoreEmotes))
-            ToolsPreferenceKeys.TTSUserIgnoreList     -> acc.copy(ttsUserIgnoreList = value.stringSetOrDefault(acc.ttsUserIgnoreList))
+                ToolsPreferenceKeys.TTSMessageFormat -> {
+                    acc.copy(
+                        ttsMessageFormat =
+                            value.booleanOrNull()?.let {
+                                if (it) TTSMessageFormat.UserAndMessage else TTSMessageFormat.Message
+                            } ?: acc.ttsMessageFormat,
+                    )
+                }
+
+                ToolsPreferenceKeys.TTSForceEnglish -> {
+                    acc.copy(ttsForceEnglish = value.booleanOrDefault(acc.ttsForceEnglish))
+                }
+
+                ToolsPreferenceKeys.TTSMessageIgnoreUrl -> {
+                    acc.copy(ttsIgnoreUrls = value.booleanOrDefault(acc.ttsIgnoreUrls))
+                }
+
+                ToolsPreferenceKeys.TTSMessageIgnoreEmote -> {
+                    acc.copy(ttsIgnoreEmotes = value.booleanOrDefault(acc.ttsIgnoreEmotes))
+                }
+
+                ToolsPreferenceKeys.TTSUserIgnoreList -> {
+                    acc.copy(ttsUserIgnoreList = value.stringSetOrDefault(acc.ttsUserIgnoreList))
+                }
+            }
         }
-    }
 
     private val dankchatPreferences = context.getSharedPreferences(context.getString(R.string.shared_preference_key), Context.MODE_PRIVATE)
-    private val uploaderMigration = object : DataMigration<ToolsSettings> {
-        override suspend fun migrate(currentData: ToolsSettings): ToolsSettings {
-            val current = currentData.uploaderConfig
-            val url = dankchatPreferences.getString(UploaderKeys.UploadUrl.key, current.uploadUrl) ?: current.uploadUrl
-            val field = dankchatPreferences.getString(UploaderKeys.FormField.key, current.formField) ?: current.formField
-            val isDefault = url == ImageUploaderConfig.DEFAULT.uploadUrl && field == ImageUploaderConfig.DEFAULT.formField
-            val headers = dankchatPreferences.getString(UploaderKeys.Headers.key, null)
-            val link = dankchatPreferences.getString(UploaderKeys.ImageLinkPattern.key, null)
-            val delete = dankchatPreferences.getString(UploaderKeys.DeletionLinkPattern.key, null)
-            return currentData.copy(
-                uploaderConfig = current.copy(
-                    uploadUrl = url,
-                    formField = field,
-                    headers = headers,
-                    imageLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.imageLinkPattern else link.orEmpty(),
-                    deletionLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.deletionLinkPattern else delete.orEmpty(),
+    private val uploaderMigration =
+        object : DataMigration<ToolsSettings> {
+            override suspend fun migrate(currentData: ToolsSettings): ToolsSettings {
+                val current = currentData.uploaderConfig
+                val url = dankchatPreferences.getString(UploaderKeys.UploadUrl.key, current.uploadUrl) ?: current.uploadUrl
+                val field = dankchatPreferences.getString(UploaderKeys.FormField.key, current.formField) ?: current.formField
+                val isDefault = url == ImageUploaderConfig.DEFAULT.uploadUrl && field == ImageUploaderConfig.DEFAULT.formField
+                val headers = dankchatPreferences.getString(UploaderKeys.Headers.key, null)
+                val link = dankchatPreferences.getString(UploaderKeys.ImageLinkPattern.key, null)
+                val delete = dankchatPreferences.getString(UploaderKeys.DeletionLinkPattern.key, null)
+                return currentData.copy(
+                    uploaderConfig =
+                        current.copy(
+                            uploadUrl = url,
+                            formField = field,
+                            headers = headers,
+                            imageLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.imageLinkPattern else link.orEmpty(),
+                            deletionLinkPattern = if (isDefault) ImageUploaderConfig.DEFAULT.deletionLinkPattern else delete.orEmpty(),
+                        ),
                 )
-            )
+            }
+
+            override suspend fun shouldMigrate(currentData: ToolsSettings): Boolean = UploaderKeys.entries.any { dankchatPreferences.contains(it.key) }
+
+            override suspend fun cleanUp() = dankchatPreferences.edit { UploaderKeys.entries.forEach { remove(it.key) } }
         }
 
-        override suspend fun shouldMigrate(currentData: ToolsSettings): Boolean = UploaderKeys.entries.any { dankchatPreferences.contains(it.key) }
-        override suspend fun cleanUp() = dankchatPreferences.edit { UploaderKeys.entries.forEach { remove(it.key) } }
-    }
-
-    private val dataStore = createDataStore(
-        fileName = "tools",
-        context = context,
-        defaultValue = ToolsSettings(),
-        serializer = ToolsSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-        migrations = listOf(initialMigration, uploaderMigration),
-    )
+    private val dataStore =
+        createDataStore(
+            fileName = "tools",
+            context = context,
+            defaultValue = ToolsSettings(),
+            serializer = ToolsSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(initialMigration, uploaderMigration),
+        )
 
     val settings = dataStore.safeData(ToolsSettings())
-    val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() }
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
-    val uploadConfig = settings
-        .map { it.uploaderConfig }
-        .distinctUntilChanged()
+    val uploadConfig =
+        settings
+            .map { it.uploaderConfig }
+            .distinctUntilChanged()
 
     fun current() = currentSettings.value
 
-    val ttsEnabled = settings
-        .map { it.ttsEnabled }
-        .distinctUntilChanged()
-    val ttsForceEnglishChanged = settings
-        .map { it.ttsForceEnglish }
-        .distinctUntilChanged()
-        .drop(1)
+    val ttsEnabled =
+        settings
+            .map { it.ttsEnabled }
+            .distinctUntilChanged()
+    val ttsForceEnglishChanged =
+        settings
+            .map { it.ttsForceEnglish }
+            .distinctUntilChanged()
+            .drop(1)
 
     suspend fun update(transform: suspend (ToolsSettings) -> ToolsSettings) {
         runCatching { dataStore.updateData(transform) }

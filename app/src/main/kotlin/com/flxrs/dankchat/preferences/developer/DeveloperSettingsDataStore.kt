@@ -22,38 +22,42 @@ class DeveloperSettingsDataStore(
     context: Context,
     dispatchersProvider: DispatchersProvider,
 ) {
-
-    private enum class DeveloperPreferenceKeys(override val id: Int) : PreferenceKeys {
+    private enum class DeveloperPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         DebugMode(R.string.preference_debug_mode_key),
         RepeatedSending(R.string.preference_repeated_sending_key),
         BypassCommandHandling(R.string.preference_bypass_command_handling_key),
-        CustomRecentMessagesHost(R.string.preference_rm_host_key)
+        CustomRecentMessagesHost(R.string.preference_rm_host_key),
     }
 
-    private val initialMigration = dankChatPreferencesMigration<DeveloperPreferenceKeys, DeveloperSettings>(context) { acc, key, value ->
-        when (key) {
-            DeveloperPreferenceKeys.DebugMode                -> acc.copy(debugMode = value.booleanOrDefault(acc.debugMode))
-            DeveloperPreferenceKeys.RepeatedSending          -> acc.copy(repeatedSending = value.booleanOrDefault(acc.repeatedSending))
-            DeveloperPreferenceKeys.BypassCommandHandling    -> acc.copy(bypassCommandHandling = value.booleanOrDefault(acc.bypassCommandHandling))
-            DeveloperPreferenceKeys.CustomRecentMessagesHost -> acc.copy(customRecentMessagesHost = value.stringOrDefault(acc.customRecentMessagesHost))
+    private val initialMigration =
+        dankChatPreferencesMigration<DeveloperPreferenceKeys, DeveloperSettings>(context) { acc, key, value ->
+            when (key) {
+                DeveloperPreferenceKeys.DebugMode -> acc.copy(debugMode = value.booleanOrDefault(acc.debugMode))
+                DeveloperPreferenceKeys.RepeatedSending -> acc.copy(repeatedSending = value.booleanOrDefault(acc.repeatedSending))
+                DeveloperPreferenceKeys.BypassCommandHandling -> acc.copy(bypassCommandHandling = value.booleanOrDefault(acc.bypassCommandHandling))
+                DeveloperPreferenceKeys.CustomRecentMessagesHost -> acc.copy(customRecentMessagesHost = value.stringOrDefault(acc.customRecentMessagesHost))
+            }
         }
-    }
 
-    private val dataStore = createDataStore(
-        fileName = "developer",
-        context = context,
-        defaultValue = DeveloperSettings(),
-        serializer = DeveloperSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-        migrations = listOf(initialMigration),
-    )
+    private val dataStore =
+        createDataStore(
+            fileName = "developer",
+            context = context,
+            defaultValue = DeveloperSettings(),
+            serializer = DeveloperSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(initialMigration),
+        )
 
     val settings = dataStore.safeData(DeveloperSettings())
-    val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() }
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
     fun current() = currentSettings.value
 

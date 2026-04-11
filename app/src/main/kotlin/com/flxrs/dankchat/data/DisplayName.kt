@@ -7,9 +7,12 @@ import kotlinx.serialization.Serializable
 @JvmInline
 @Serializable
 @Parcelize
-value class DisplayName(val value: String) : Parcelable {
+value class DisplayName(
+    val value: String,
+) : Parcelable {
     override fun toString() = value
 }
 
 fun DisplayName.toUserName() = UserName(value)
+
 fun String.toDisplayName() = DisplayName(this)

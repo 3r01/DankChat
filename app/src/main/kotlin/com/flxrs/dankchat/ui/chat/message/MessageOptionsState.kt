@@ -1,0 +1,36 @@
+package com.flxrs.dankchat.ui.chat.message
+
+import androidx.compose.runtime.Immutable
+import com.flxrs.dankchat.data.UserName
+
+@Immutable
+sealed interface MessageOptionsState {
+    data object Loading : MessageOptionsState
+
+    data object NotFound : MessageOptionsState
+
+    sealed interface Found : MessageOptionsState {
+        val name: UserName
+        val originalMessage: String
+        val canModerate: Boolean
+
+        data class RegularMessage(
+            override val name: UserName,
+            override val originalMessage: String,
+            override val canModerate: Boolean,
+            val messageId: String,
+            val rootThreadId: String,
+            val rootThreadName: UserName?,
+            val rootThreadMessage: String?,
+            val replyName: UserName,
+            val hasReplyThread: Boolean,
+            val canReply: Boolean,
+        ) : Found
+
+        data class AutomodMessage(
+            override val name: UserName,
+            override val originalMessage: String,
+            override val canModerate: Boolean,
+        ) : Found
+    }
+}

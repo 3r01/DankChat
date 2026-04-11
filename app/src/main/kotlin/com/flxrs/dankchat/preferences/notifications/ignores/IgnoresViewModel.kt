@@ -5,21 +5,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.database.entity.MessageIgnoreEntityType
 import com.flxrs.dankchat.data.repo.IgnoresRepository
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.replaceAll
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class IgnoresViewModel(
-    private val ignoresRepository: IgnoresRepository
+    private val ignoresRepository: IgnoresRepository,
+    private val dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
-
     private val _currentTab = MutableStateFlow(IgnoresTab.Messages)
     private val eventChannel = Channel<IgnoreEvent>(Channel.BUFFERED)
 
@@ -53,18 +53,23 @@ class IgnoresViewModel(
                 position = messageIgnores.lastIndex
             }
 
-            IgnoresTab.Users    -> {
+            IgnoresTab.Users -> {
                 val entity = ignoresRepository.addUserIgnore()
                 userIgnores += entity.toItem()
                 position = userIgnores.lastIndex
             }
 
-            IgnoresTab.Twitch   -> return@launch
+            IgnoresTab.Twitch -> {
+                return@launch
+            }
         }
         sendEvent(IgnoreEvent.ItemAdded(position, isLast = true))
     }
 
-    fun addIgnoreItem(item: IgnoreItem, position: Int) = viewModelScope.launch {
+    fun addIgnoreItem(
+        item: IgnoreItem,
+        position: Int,
+    ) = viewModelScope.launch {
         val isLast: Boolean
         when (item) {
             is MessageIgnoreItem -> {
@@ -73,13 +78,13 @@ class IgnoresViewModel(
                 isLast = position == messageIgnores.lastIndex
             }
 
-            is UserIgnoreItem    -> {
+            is UserIgnoreItem -> {
                 ignoresRepository.updateUserIgnore(item.toEntity())
                 userIgnores.add(position, item)
                 isLast = position == userIgnores.lastIndex
             }
 
-            is TwitchBlockItem   -> {
+            is TwitchBlockItem -> {
                 runCatching {
                     ignoresRepository.addUserBlock(item.userId, item.username)
                     twitchBlocks.add(position, item)
@@ -102,18 +107,17 @@ class IgnoresViewModel(
                 messageIgnores.removeAt(position)
             }
 
-            is UserIgnoreItem    -> {
+            is UserIgnoreItem -> {
                 position = userIgnores.indexOfFirst { it.id == item.id }
                 ignoresRepository.removeUserIgnore(item.toEntity())
                 userIgnores.removeAt(position)
             }
 
-            is TwitchBlockItem   -> {
+            is TwitchBlockItem -> {
                 position = twitchBlocks.indexOfFirst { it.id == item.id }
                 runCatching {
                     ignoresRepository.removeUserBlock(item.userId, item.username)
                     twitchBlocks.removeAt(position)
-
                 }.getOrElse {
                     eventChannel.trySend(IgnoreEvent.UnblockError(item))
                     return@launch
@@ -146,7 +150,7 @@ class IgnoresViewModel(
         .map { it.toEntity() }
         .partition { it.username.isBlank() }
 
-    private suspend fun sendEvent(event: IgnoreEvent) = withContext(Dispatchers.Main.immediate) {
+    private suspend fun sendEvent(event: IgnoreEvent) = withContext(dispatchersProvider.immediate) {
         eventChannel.send(event)
     }
 

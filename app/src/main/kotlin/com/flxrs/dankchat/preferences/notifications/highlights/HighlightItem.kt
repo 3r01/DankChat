@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.database.entity.BlacklistedUserEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntity
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntityType
 import com.flxrs.dankchat.data.database.entity.UserHighlightEntity
-import kotlinx.collections.immutable.ImmutableList
 
 sealed interface HighlightItem {
     val id: Long
@@ -27,11 +26,12 @@ data class MessageHighlightItem(
         Username,
         Subscription,
         Announcement,
+        WatchStreak,
         ChannelPointRedemption,
         FirstMessage,
         ElevatedMessage,
         Reply,
-        Custom
+        Custom,
     }
 
     val canNotify = type in WITH_NOTIFIES
@@ -67,7 +67,10 @@ data class BlacklistedUserItem(
     val isRegex: Boolean,
 ) : HighlightItem
 
-fun MessageHighlightEntity.toItem(loggedIn: Boolean, notificationsEnabled: Boolean) = MessageHighlightItem(
+fun MessageHighlightEntity.toItem(
+    loggedIn: Boolean,
+    notificationsEnabled: Boolean,
+) = MessageHighlightItem(
     id = id,
     enabled = enabled,
     type = type.toItemType(),
@@ -92,25 +95,27 @@ fun MessageHighlightItem.toEntity() = MessageHighlightEntity(
 )
 
 fun MessageHighlightItem.Type.toEntityType(): MessageHighlightEntityType = when (this) {
-    MessageHighlightItem.Type.Username               -> MessageHighlightEntityType.Username
-    MessageHighlightItem.Type.Subscription           -> MessageHighlightEntityType.Subscription
-    MessageHighlightItem.Type.Announcement           -> MessageHighlightEntityType.Announcement
+    MessageHighlightItem.Type.Username -> MessageHighlightEntityType.Username
+    MessageHighlightItem.Type.Subscription -> MessageHighlightEntityType.Subscription
+    MessageHighlightItem.Type.Announcement -> MessageHighlightEntityType.Announcement
+    MessageHighlightItem.Type.WatchStreak -> MessageHighlightEntityType.WatchStreak
     MessageHighlightItem.Type.ChannelPointRedemption -> MessageHighlightEntityType.ChannelPointRedemption
-    MessageHighlightItem.Type.FirstMessage           -> MessageHighlightEntityType.FirstMessage
-    MessageHighlightItem.Type.ElevatedMessage        -> MessageHighlightEntityType.ElevatedMessage
-    MessageHighlightItem.Type.Reply                  -> MessageHighlightEntityType.Reply
-    MessageHighlightItem.Type.Custom                 -> MessageHighlightEntityType.Custom
+    MessageHighlightItem.Type.FirstMessage -> MessageHighlightEntityType.FirstMessage
+    MessageHighlightItem.Type.ElevatedMessage -> MessageHighlightEntityType.ElevatedMessage
+    MessageHighlightItem.Type.Reply -> MessageHighlightEntityType.Reply
+    MessageHighlightItem.Type.Custom -> MessageHighlightEntityType.Custom
 }
 
 fun MessageHighlightEntityType.toItemType(): MessageHighlightItem.Type = when (this) {
-    MessageHighlightEntityType.Username               -> MessageHighlightItem.Type.Username
-    MessageHighlightEntityType.Subscription           -> MessageHighlightItem.Type.Subscription
-    MessageHighlightEntityType.Announcement           -> MessageHighlightItem.Type.Announcement
+    MessageHighlightEntityType.Username -> MessageHighlightItem.Type.Username
+    MessageHighlightEntityType.Subscription -> MessageHighlightItem.Type.Subscription
+    MessageHighlightEntityType.Announcement -> MessageHighlightItem.Type.Announcement
+    MessageHighlightEntityType.WatchStreak -> MessageHighlightItem.Type.WatchStreak
     MessageHighlightEntityType.ChannelPointRedemption -> MessageHighlightItem.Type.ChannelPointRedemption
-    MessageHighlightEntityType.FirstMessage           -> MessageHighlightItem.Type.FirstMessage
-    MessageHighlightEntityType.ElevatedMessage        -> MessageHighlightItem.Type.ElevatedMessage
-    MessageHighlightEntityType.Reply                  -> MessageHighlightItem.Type.Reply
-    MessageHighlightEntityType.Custom                 -> MessageHighlightItem.Type.Custom
+    MessageHighlightEntityType.FirstMessage -> MessageHighlightItem.Type.FirstMessage
+    MessageHighlightEntityType.ElevatedMessage -> MessageHighlightItem.Type.ElevatedMessage
+    MessageHighlightEntityType.Reply -> MessageHighlightItem.Type.Reply
+    MessageHighlightEntityType.Custom -> MessageHighlightItem.Type.Custom
 }
 
 fun UserHighlightEntity.toItem(notificationsEnabled: Boolean) = UserHighlightItem(

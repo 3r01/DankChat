@@ -1,7 +1,6 @@
 package com.flxrs.dankchat.data.notification
 
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
@@ -21,14 +20,21 @@ fun Message.toNotificationData(): NotificationData? {
     }
 
     return when (this) {
-        is PrivMessage    -> NotificationData(channel, name, originalMessage)
-        is WhisperMessage -> NotificationData(
-            channel = UserName.EMPTY,
-            name = name,
-            message = originalMessage,
-            isWhisper = true,
-        )
+        is PrivMessage -> {
+            NotificationData(channel, name, originalMessage)
+        }
 
-        else              -> null
+        is WhisperMessage -> {
+            NotificationData(
+                channel = UserName.EMPTY,
+                name = name,
+                message = originalMessage,
+                isWhisper = true,
+            )
+        }
+
+        else -> {
+            null
+        }
     }
 }

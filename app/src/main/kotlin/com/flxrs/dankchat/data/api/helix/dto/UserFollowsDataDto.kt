@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 @Keep
 @Serializable
 data class UserFollowsDataDto(
-    @SerialName(value = "followed_at") val followedAt: String
+    @SerialName(value = "followed_at") val followedAt: String,
 )

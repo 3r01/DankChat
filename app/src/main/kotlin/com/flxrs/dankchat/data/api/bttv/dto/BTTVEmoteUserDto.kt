@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class BTTVEmoteUserDto(val displayName: DisplayName?)
+data class BTTVEmoteUserDto(
+    val displayName: DisplayName?,
+)

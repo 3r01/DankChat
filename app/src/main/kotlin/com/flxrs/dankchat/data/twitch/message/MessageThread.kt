@@ -4,5 +4,5 @@ data class MessageThread(
     val rootMessageId: String,
     val rootMessage: PrivMessage,
     val replies: List<PrivMessage>,
-    val participated: Boolean
+    val participated: Boolean,
 )

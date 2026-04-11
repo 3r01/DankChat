@@ -73,15 +73,16 @@ private fun NotificationsSettingsScreen(
                         onClick = onNavBack,
                         content = { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) },
                     )
-                }
+                },
             )
         },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState()),
         ) {
             NotificationsCategory(
                 showNotifications = settings.showNotifications,
@@ -137,7 +138,7 @@ fun MentionsCategory(
             values = MentionFormat.entries.toImmutableList(),
             entries = entries,
             selected = mentionFormat,
-            onChanged = { onInteraction(NotificationsSettingsInteraction.Mention(it)) },
+            onChange = { onInteraction(NotificationsSettingsInteraction.Mention(it)) },
         )
 
         PreferenceItem(

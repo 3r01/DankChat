@@ -3,7 +3,7 @@ package com.flxrs.dankchat.preferences.developer.customlogin
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Default
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Failure
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState.Loading
@@ -21,9 +21,8 @@ import org.koin.core.annotation.Factory
 @Factory
 class CustomLoginViewModel(
     private val authApiClient: AuthApiClient,
-    private val dankChatPreferenceStore: DankChatPreferenceStore
+    private val authDataStore: AuthDataStore,
 ) {
-
     private val _customLoginState = MutableStateFlow<CustomLoginState>(Default)
     val customLoginState = _customLoginState.asStateFlow()
 
@@ -36,30 +35,33 @@ class CustomLoginViewModel(
         _customLoginState.update { Loading }
 
         val token = oAuthToken.withoutOAuthPrefix
-        val result = authApiClient.validateUser(token).fold(
-            onSuccess = { result ->
-                val scopes = result.scopes.orEmpty()
-                when {
-                    !authApiClient.validateScopes(scopes) -> MissingScopes(
-                        missingScopes = authApiClient.missingScopes(scopes).joinToString(),
-                        validation = result,
-                        token = token,
-                        dialogOpen = true,
-                    )
+        val result =
+            authApiClient.validateUser(token).fold(
+                onSuccess = { result ->
+                    val scopes = result.scopes.orEmpty()
+                    when {
+                        !authApiClient.validateScopes(scopes) -> {
+                            MissingScopes(
+                                missingScopes = authApiClient.missingScopes(scopes).joinToString(),
+                                validation = result,
+                                token = token,
+                                dialogOpen = true,
+                            )
+                        }
 
-                    else                                  -> {
-                        saveLogin(token, result)
-                        Validated
+                        else -> {
+                            saveLogin(token, result)
+                            Validated
+                        }
                     }
-                }
-            },
-            onFailure = {
-                when {
-                    it is ApiException && it.status == HttpStatusCode.Unauthorized -> TokenInvalid
-                    else                                                           -> Failure(it.message.orEmpty())
-                }
-            }
-        )
+                },
+                onFailure = {
+                    when {
+                        it is ApiException && it.status == HttpStatusCode.Unauthorized -> TokenInvalid
+                        else -> Failure(it.message.orEmpty())
+                    }
+                },
+            )
 
         _customLoginState.update { result }
     }
@@ -68,14 +70,22 @@ class CustomLoginViewModel(
         _customLoginState.update { (it as? MissingScopes)?.copy(dialogOpen = false) ?: it }
     }
 
-    fun saveLogin(token: String, validateDto: ValidateDto) = with(dankChatPreferenceStore) {
-        clientId = validateDto.clientId
-        oAuthKey = "oauth:$token"
-        userIdString = validateDto.userId
-        userName = validateDto.login
-        isLoggedIn = true
+    fun saveLogin(
+        token: String,
+        validateDto: ValidateDto,
+    ) {
+        authDataStore.updateAsync {
+            it.copy(
+                oAuthKey = "oauth:$token",
+                userName = validateDto.login.value,
+                userId = validateDto.userId.value,
+                clientId = validateDto.clientId,
+                isLoggedIn = true,
+            )
+        }
     }
 
     fun getScopes() = AuthApiClient.SCOPES.joinToString(separator = "+")
-    fun getToken() = dankChatPreferenceStore.oAuthKey?.withoutOAuthPrefix.orEmpty()
+
+    fun getToken() = authDataStore.oAuthKey?.withoutOAuthPrefix.orEmpty()
 }

@@ -384,4 +384,5 @@
         <item quantity="one">%d ماه</item>
         <item quantity="other">%d ماه</item>
     </plurals>
+    <string name="message_history_title">تاریخچه: %1$s</string>
 </resources>

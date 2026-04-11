@@ -10,5 +10,5 @@ data class BTTVChannelDto(
     @SerialName(value = "id") val id: String,
     @SerialName(value = "bots") val bots: List<String>,
     @SerialName(value = "channelEmotes") val emotes: List<BTTVEmoteDto>,
-    @SerialName(value = "sharedEmotes") val sharedEmotes: List<BTTVEmoteDto>
+    @SerialName(value = "sharedEmotes") val sharedEmotes: List<BTTVEmoteDto>,
 )

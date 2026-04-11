@@ -5,4 +5,7 @@ import com.flxrs.dankchat.data.UserName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ChannelWithRename(val channel: UserName, val rename: UserName?) : Parcelable
+data class ChannelWithRename(
+    val channel: UserName,
+    val rename: UserName?,
+) : Parcelable

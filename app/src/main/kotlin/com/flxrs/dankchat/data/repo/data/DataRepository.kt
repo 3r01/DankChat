@@ -1,13 +1,12 @@
 package com.flxrs.dankchat.data.repo.data
 
-import android.util.Log
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.badges.BadgesApiClient
-import com.flxrs.dankchat.data.api.bttv.BTTVApiClient
+import com.flxrs.dankchat.data.api.cache.CachedEmoteProvider
+import com.flxrs.dankchat.data.api.cache.CachedResult
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
-import com.flxrs.dankchat.data.api.ffz.FFZApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
 import com.flxrs.dankchat.data.api.helix.dto.UserDto
@@ -16,22 +15,23 @@ import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.api.upload.UploadClient
+import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.RecentUploadsRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.repo.emote.Emotes
 import com.flxrs.dankchat.data.twitch.badge.toBadgeSets
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.utils.extensions.measureTimeAndLog
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
@@ -41,25 +41,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.io.File
-import kotlin.system.measureTimeMillis
+
+private val logger = KotlinLogging.logger("DataRepository")
 
 @Single
 class DataRepository(
     private val helixApiClient: HelixApiClient,
     private val dankChatApiClient: DankChatApiClient,
     private val badgesApiClient: BadgesApiClient,
-    private val ffzApiClient: FFZApiClient,
-    private val bttvApiClient: BTTVApiClient,
+    private val cachedEmoteProvider: CachedEmoteProvider,
     private val sevenTVApiClient: SevenTVApiClient,
     private val sevenTVEventApiClient: SevenTVEventApiClient,
     private val uploadClient: UploadClient,
     private val emoteRepository: EmoteRepository,
     private val recentUploadsRepository: RecentUploadsRepository,
-    private val dankChatPreferenceStore: DankChatPreferenceStore,
+    private val authDataStore: AuthDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
-    dispatchersProvider: DispatchersProvider,
+    private val dispatchersProvider: DispatchersProvider,
 ) {
-
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val _dataLoadingFailures = MutableStateFlow(emptySet<DataLoadingFailure>())
     private val _dataUpdateEvents = MutableSharedFlow<DataUpdateEventMessage>()
@@ -69,7 +68,7 @@ class DataRepository(
         scope.launch {
             sevenTVEventApiClient.messages.collect { event ->
                 when (event) {
-                    is SevenTVEventMessage.UserUpdated     -> {
+                    is SevenTVEventMessage.UserUpdated -> {
                         val channel = emoteRepository.getChannelForSevenTVEmoteSet(event.oldEmoteSetId) ?: return@collect
                         val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@collect
                         if (details.connectionIndex != event.connectionIndex) {
@@ -100,11 +99,17 @@ class DataRepository(
 
     fun clearDataLoadingFailures() = _dataLoadingFailures.update { emptySet() }
 
-    fun getEmotes(channel: UserName): StateFlow<Emotes> = emoteRepository.getEmotes(channel)
+    fun getEmotes(channel: UserName): Flow<Emotes> = emoteRepository.getEmotes(channel)
+
     fun createFlowsIfNecessary(channels: List<UserName>) = emoteRepository.createFlowsIfNecessary(channels)
 
     suspend fun getUser(userId: UserId): UserDto? = helixApiClient.getUser(userId).getOrNull()
-    suspend fun getChannelFollowers(broadcasterId: UserId, targetId: UserId): UserFollowsDto? = helixApiClient.getChannelFollowers(broadcasterId, targetId).getOrNull()
+
+    suspend fun getChannelFollowers(
+        broadcasterId: UserId,
+        targetId: UserId,
+    ): UserFollowsDto? = helixApiClient.getChannelFollowers(broadcasterId, targetId).getOrNull()
+
     suspend fun getStreams(channels: List<UserName>): List<StreamDto>? = helixApiClient.getStreams(channels).getOrNull()
 
     suspend fun reconnect() {
@@ -128,130 +133,207 @@ class DataRepository(
         it.imageLink
     }
 
-    suspend fun loadGlobalBadges() = withContext(Dispatchers.IO) {
-        measureTimeAndLog(TAG, "global badges") {
-            val badges = when {
-                dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
-                System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
-                else                                              -> return@withContext
-            }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
-            badges?.also { emoteRepository.setGlobalBadges(it) }
+    suspend fun loadGlobalBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
+        measureTimeAndLog(logger, "global badges") {
+            val result =
+                when {
+                    authDataStore.isLoggedIn -> helixApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                    System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getGlobalBadges().map { it.toBadgeSets() }
+                    else -> return@withContext Result.success(Unit)
+                }.getOrEmitFailure { DataLoadingStep.GlobalBadges }
+            result.onSuccess { emoteRepository.setGlobalBadges(it) }.map { }
         }
     }
 
-    suspend fun loadDankChatBadges() = withContext(Dispatchers.IO) {
-        measureTimeMillis {
-            dankChatApiClient.getDankChatBadges()
+    suspend fun loadDankChatBadges(): Result<Unit> = withContext(dispatchersProvider.io) {
+        measureTimeAndLog(logger, "DankChat badges") {
+            dankChatApiClient
+                .getDankChatBadges()
                 .getOrEmitFailure { DataLoadingStep.DankChatBadges }
-                ?.let { emoteRepository.setDankChatBadges(it) }
-        }.let { Log.i(TAG, "Loaded DankChat badges in $it ms") }
+                .onSuccess { emoteRepository.setDankChatBadges(it) }
+                .map { }
+        }
     }
 
-    suspend fun loadUserStateEmotes(globalEmoteSetIds: List<String>, followerEmoteSetIds: Map<UserName, List<String>>) {
-        emoteRepository.loadUserStateEmotes(globalEmoteSetIds, followerEmoteSetIds)
-    }
+    suspend fun loadUserEmotes(
+        userId: UserId,
+        onFirstPageLoaded: (() -> Unit)? = null,
+    ): Result<Unit> = emoteRepository
+        .loadUserEmotes(userId, onFirstPageLoaded)
+        .getOrEmitFailure { DataLoadingStep.TwitchEmotes }
 
     suspend fun sendShutdownCommand() {
         serviceEventChannel.send(ServiceEvent.Shutdown)
     }
 
-    suspend fun loadChannelBadges(channel: UserName, id: UserId) = withContext(Dispatchers.IO) {
-        measureTimeAndLog(TAG, "channel badges for #$id") {
-            val badges = when {
-                dankChatPreferenceStore.isLoggedIn                -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
-                System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
-                else                                              -> return@withContext
-            }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }
-            badges?.also { emoteRepository.setChannelBadges(channel, it) }
+    suspend fun loadChannelBadges(
+        channel: UserName,
+        id: UserId,
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        measureTimeAndLog(logger, "channel badges for #$id") {
+            val result =
+                when {
+                    authDataStore.isLoggedIn -> helixApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                    System.currentTimeMillis() < BADGES_SUNSET_MILLIS -> badgesApiClient.getChannelBadges(id).map { it.toBadgeSets() }
+                    else -> return@withContext Result.success(Unit)
+                }.getOrEmitFailure { DataLoadingStep.ChannelBadges(channel, id) }
+            result.onSuccess { emoteRepository.setChannelBadges(channel, it) }.map { }
         }
     }
 
-    suspend fun loadChannelFFZEmotes(channel: UserName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelFFZEmotes(
+        channel: UserName,
+        channelId: UserId,
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
-        measureTimeMillis {
-            ffzApiClient.getFFZChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) }
-                ?.let { emoteRepository.setFFZEmotes(channel, it) }
-        }.let { Log.i(TAG, "Loaded FFZ emotes for #$channel in $it ms") }
+        measureTimeAndLog(logger, "FFZ emotes for #$channel") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getFFZChannelEmotes(channelId, forceNetwork),
+                onData = { emoteRepository.setFFZEmotes(channel, it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) } },
+            )
+        }
     }
 
-    suspend fun loadChannelBTTVEmotes(channel: UserName, channelDisplayName: DisplayName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelBTTVEmotes(
+        channel: UserName,
+        channelDisplayName: DisplayName,
+        channelId: UserId,
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
-        measureTimeMillis {
-            bttvApiClient.getBTTVChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) }
-                ?.let { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) }
-        }.let { Log.i(TAG, "Loaded BTTV emotes for #$channel in $it ms") }
+        measureTimeAndLog(logger, "BTTV emotes for #$channel") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getBTTVChannelEmotes(channelId, forceNetwork),
+                onData = { emoteRepository.setBTTVEmotes(channel, channelDisplayName, it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) } },
+            )
+        }
     }
 
-    suspend fun loadChannelSevenTVEmotes(channel: UserName, channelId: UserId) = withContext(Dispatchers.IO) {
+    suspend fun loadChannelSevenTVEmotes(
+        channel: UserName,
+        channelId: UserId,
+        forceNetwork: Boolean = false,
+    ): Result<EmoteLoadResult> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(EmoteLoadResult.Loaded)
         }
 
-        measureTimeMillis {
-            sevenTVApiClient.getSevenTVChannelEmotes(channelId)
-                .getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) }
-                ?.let { result ->
+        measureTimeAndLog(logger, "7TV emotes for #$channel") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getSevenTVChannelEmotes(channelId, forceNetwork),
+                onData = { result ->
                     if (result.emoteSet?.id != null) {
                         sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
                     }
                     sevenTVEventApiClient.subscribeUser(result.user.id)
                     emoteRepository.setSevenTVEmotes(channel, result)
-                }
-        }.let { Log.i(TAG, "Loaded 7TV emotes for #$channel in $it ms") }
+                },
+                onFailure = { getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) } },
+            )
+        }
     }
 
-    suspend fun loadGlobalFFZEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadChannelCheermotes(
+        channel: UserName,
+        channelId: UserId,
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        if (!authDataStore.isLoggedIn) {
+            return@withContext Result.success(Unit)
+        }
+
+        measureTimeAndLog(logger, "cheermotes for #$channel") {
+            helixApiClient
+                .getCheermotes(channelId)
+                .getOrEmitFailure { DataLoadingStep.ChannelCheermotes(channel, channelId) }
+                .onSuccess { emoteRepository.setCheermotes(channel, it) }
+                .map { }
+        }
+    }
+
+    suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
-            ffzApiClient.getFFZGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes }
-                ?.let { emoteRepository.setFFZGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global FFZ emotes in $it ms") }
+        measureTimeAndLog(logger, "global FFZ emotes") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getFFZGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setFFZGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalFFZEmotes } },
+            ).map { }
+        }
     }
 
-    suspend fun loadGlobalBTTVEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalBTTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.BTTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
-            bttvApiClient.getBTTVGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes }
-                ?.let { emoteRepository.setBTTVGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global BTTV emotes in $it ms") }
+        measureTimeAndLog(logger, "global BTTV emotes") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getBTTVGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setBTTVGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalBTTVEmotes } },
+            ).map { }
+        }
     }
 
-    suspend fun loadGlobalSevenTVEmotes() = withContext(Dispatchers.IO) {
+    suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.SevenTV !in chatSettingsDataStore.settings.first().visibleEmotes) {
-            return@withContext
+            return@withContext Result.success(Unit)
         }
 
-        measureTimeMillis {
-            sevenTVApiClient.getSevenTVGlobalEmotes()
-                .getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes }
-                ?.let { emoteRepository.setSevenTVGlobalEmotes(it) }
-        }.let { Log.i(TAG, "Loaded global 7TV emotes in $it ms") }
+        measureTimeAndLog(logger, "global 7TV emotes") {
+            collectCachedEmotes(
+                flow = cachedEmoteProvider.getSevenTVGlobalEmotes(forceNetwork),
+                onData = { emoteRepository.setSevenTVGlobalEmotes(it) },
+                onFailure = { getOrEmitFailure { DataLoadingStep.GlobalSevenTVEmotes } },
+            ).map { }
+        }
     }
 
-    private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): T? = getOrElse { throwable ->
-        Log.e(TAG, "Data request failed:", throwable)
-        _dataLoadingFailures.update { it + DataLoadingFailure(step(), throwable) }
-        null
+    private suspend fun <T : Any> collectCachedEmotes(
+        flow: Flow<CachedResult<T?>>,
+        onData: suspend (T) -> Unit,
+        onFailure: Result<EmoteLoadResult>.() -> Unit,
+    ): Result<EmoteLoadResult> {
+        var loadResult: Result<EmoteLoadResult> = Result.success(EmoteLoadResult.Loaded)
+        flow.collect { result ->
+            when (result) {
+                is CachedResult.Success -> {
+                    result.data?.let { onData(it) }
+                }
+
+                is CachedResult.CachedFallback -> {
+                    logger.warn(result.error) { "Using cached emotes as fallback" }
+                    loadResult = Result.success(EmoteLoadResult.CachedFallback)
+                }
+
+                is CachedResult.Failure -> {
+                    loadResult = Result.failure(result.error)
+                    loadResult.onFailure()
+                }
+            }
+        }
+        return loadResult
+    }
+
+    private fun <T> Result<T>.getOrEmitFailure(step: () -> DataLoadingStep): Result<T> = onFailure { throwable ->
+        val loadingStep = step()
+        logger.error(throwable) { "Data request failed [$loadingStep]" }
+        _dataLoadingFailures.update { it + DataLoadingFailure(loadingStep, throwable) }
     }
 
     companion object {
-        private val TAG = DataRepository::class.java.simpleName
         private const val BADGES_SUNSET_MILLIS = 1685637000000L // 2023-06-01 16:30:00
     }
 }

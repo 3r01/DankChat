@@ -12,6 +12,5 @@ data class ValidateDto(
     @SerialName(value = "client_id") val clientId: String,
     @SerialName(value = "login") val login: UserName,
     @SerialName(value = "scopes") val scopes: List<String>?,
-    @SerialName(value = "user_id") val userId: UserId
+    @SerialName(value = "user_id") val userId: UserId,
 )
-

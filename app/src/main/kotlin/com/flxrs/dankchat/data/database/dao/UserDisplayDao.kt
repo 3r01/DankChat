@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDisplayDao {
-
     @Query("SELECT * from user_display")
     fun getUserDisplaysFlow(): Flow<List<UserDisplayEntity>>
 

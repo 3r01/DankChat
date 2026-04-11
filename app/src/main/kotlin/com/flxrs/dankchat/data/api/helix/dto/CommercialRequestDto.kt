@@ -7,4 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class CommercialRequestDto(@SerialName("broadcaster_id") val broadcastUserId: UserId, val length: Int)
+data class CommercialRequestDto(
+    @SerialName("broadcaster_id") val broadcastUserId: UserId,
+    val length: Int,
+)

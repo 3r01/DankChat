@@ -22,7 +22,12 @@ data class SubscribeRequest(
 }
 
 @Serializable
-data class SubscriptionData(val type: String, val condition: SubscriptionCondition) : RequestData
+data class SubscriptionData(
+    val type: String,
+    val condition: SubscriptionCondition,
+) : RequestData
 
 @Serializable
-data class SubscriptionCondition(@SerialName("object_id") val objectId: String)
+data class SubscriptionCondition(
+    @SerialName("object_id") val objectId: String,
+)

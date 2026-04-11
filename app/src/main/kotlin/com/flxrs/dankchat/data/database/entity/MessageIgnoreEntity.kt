@@ -1,10 +1,12 @@
 package com.flxrs.dankchat.data.database.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger("MessageIgnoreEntity")
 
 @Entity(tableName = "message_ignore")
 data class MessageIgnoreEntity(
@@ -13,7 +15,6 @@ data class MessageIgnoreEntity(
     val enabled: Boolean,
     val type: MessageIgnoreEntityType,
     val pattern: String,
-
     @ColumnInfo(name = "is_regex")
     val isRegex: Boolean = false,
     @ColumnInfo(name = "is_case_sensitive")
@@ -25,16 +26,17 @@ data class MessageIgnoreEntity(
     @delegate:Ignore
     val regex: Regex? by lazy {
         runCatching {
-            val options = when {
-                isCaseSensitive -> emptySet()
-                else            -> setOf(RegexOption.IGNORE_CASE)
-            }
+            val options =
+                when {
+                    isCaseSensitive -> emptySet()
+                    else -> setOf(RegexOption.IGNORE_CASE)
+                }
             when {
                 isRegex -> pattern.toRegex(options)
-                else    -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
+                else -> """(?<!\w)${Regex.escape(pattern)}(?!\w)""".toRegex(options)
             }
         }.getOrElse {
-            Log.e(TAG, "Failed to create regex for pattern $pattern", it)
+            logger.error(it) { "Failed to create regex for pattern $pattern" }
             null
         }
     }
@@ -45,17 +47,14 @@ data class MessageIgnoreEntity(
             Regex.escapeReplacement(it)
         }
     }
-
-    companion object {
-        private val TAG = MessageIgnoreEntity::class.java.simpleName
-    }
 }
 
 enum class MessageIgnoreEntityType {
     Subscription,
     Announcement,
+    WatchStreak,
     ChannelPointRedemption,
     FirstMessage,
     ElevatedMessage,
-    Custom
+    Custom,
 }

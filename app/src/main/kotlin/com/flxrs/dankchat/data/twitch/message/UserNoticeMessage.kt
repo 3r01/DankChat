@@ -14,26 +14,31 @@ data class UserNoticeMessage(
     val message: String,
     val childMessage: PrivMessage?,
     val tags: Map<String, String>,
-) : Message() {
-
-    override val emoteData: EmoteData? = childMessage?.emoteData
-    override val badgeData: BadgeData? = childMessage?.badgeData
+) : Message {
+    override val emoteData: Message.EmoteData? = childMessage?.emoteData
+    override val badgeData: Message.BadgeData? = childMessage?.badgeData
 
     companion object {
-        val USER_NOTICE_MSG_IDS_WITH_MESSAGE = listOf(
-            "sub",
-            "subgift",
-            "resub",
-            "bitsbadgetier",
-            "ritual",
-            "announcement"
-        )
+        val USER_NOTICE_MSG_IDS_WITH_MESSAGE =
+            listOf(
+                "sub",
+                "subgift",
+                "resub",
+                "bitsbadgetier",
+                "ritual",
+                "announcement",
+                "viewermilestone",
+            )
 
-        fun parseUserNotice(message: IrcMessage, findChannel: (UserId) -> UserName?, historic: Boolean = false): UserNoticeMessage? = with(message) {
+        fun parseUserNotice(
+            message: IrcMessage,
+            findChannel: (UserId) -> UserName?,
+            historic: Boolean = false,
+        ): UserNoticeMessage? = with(message) {
             var msgId = tags["msg-id"]
             var mirrored = msgId == "sharedchatnotice"
             if (mirrored) {
-               msgId = tags["source-msg-id"]
+                msgId = tags["source-msg-id"]
             } else {
                 val roomId = tags["room-id"]
                 val sourceRoomId = tags["source-room-id"]
@@ -48,27 +53,37 @@ data class UserNoticeMessage(
 
             val id = tags["id"] ?: UUID.randomUUID().toString()
             val channel = params[0].substring(1)
-            val defaultMessage = tags["system-msg"] ?: ""
-            val systemMsg = when {
-                msgId == "announcement"  -> "Announcement"
-                msgId == "bitsbadgetier" -> {
-                    val displayName = tags["display-name"]
-                    val bitAmount = tags["msg-param-threshold"]
-                    when {
-                        displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount.toInt() / 1000}K Bits badge!"
-                        else                                     -> defaultMessage
+            val defaultMessage = tags["system-msg"].orEmpty()
+            val systemMsg =
+                when {
+                    msgId == "announcement" -> {
+                        "Announcement"
+                    }
+
+                    msgId == "bitsbadgetier" -> {
+                        val displayName = tags["display-name"]
+                        val bitAmount = tags["msg-param-threshold"]
+                        when {
+                            displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount.toInt() / 1000}K Bits badge!"
+                            else -> defaultMessage
+                        }
+                    }
+
+                    historic -> {
+                        params[1]
+                    }
+
+                    else -> {
+                        defaultMessage
                     }
                 }
-
-                historic                 -> params[1]
-                else                     -> defaultMessage
-            }
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
 
-            val childMessage = when (msgId) {
-                in USER_NOTICE_MSG_IDS_WITH_MESSAGE -> PrivMessage.parsePrivMessage(message, findChannel)
-                else                                -> null
-            }
+            val childMessage =
+                when (msgId) {
+                    in USER_NOTICE_MSG_IDS_WITH_MESSAGE -> PrivMessage.parsePrivMessage(message, findChannel)
+                    else -> null
+                }
 
             return UserNoticeMessage(
                 timestamp = ts,
@@ -84,7 +99,10 @@ data class UserNoticeMessage(
 
 // TODO split into different user notice message types
 val UserNoticeMessage.isSub: Boolean
-    get() = tags["msg-id"] != "announcement"
+    get() = tags["msg-id"].let { it != "announcement" && it != "viewermilestone" }
 
 val UserNoticeMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
+
+val UserNoticeMessage.isViewerMilestone: Boolean
+    get() = tags["msg-id"] == "viewermilestone"

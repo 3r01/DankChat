@@ -6,5 +6,5 @@ data class MessageThreadHeader(
     val rootId: String,
     val name: UserName,
     val message: String,
-    val participated: Boolean
+    val participated: Boolean,
 )

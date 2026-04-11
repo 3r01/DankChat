@@ -11,22 +11,27 @@ import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
 
 @Single
-class SevenTVApiClient(private val sevenTVApi: SevenTVApi, private val json: Json) {
-
+class SevenTVApiClient(
+    private val sevenTVApi: SevenTVApi,
+    private val json: Json,
+) {
     suspend fun getSevenTVChannelEmotes(channelId: UserId): Result<SevenTVUserDto?> = runCatching {
-        sevenTVApi.getChannelEmotes(channelId)
+        sevenTVApi
+            .getChannelEmotes(channelId)
             .throwApiErrorOnFailure(json)
             .body<SevenTVUserDto>()
     }.recoverNotFoundWith(default = null)
 
     suspend fun getSevenTVEmoteSet(emoteSetId: String): Result<SevenTVEmoteSetDto> = runCatching {
-        sevenTVApi.getEmoteSet(emoteSetId)
+        sevenTVApi
+            .getEmoteSet(emoteSetId)
             .throwApiErrorOnFailure(json)
             .body()
     }
 
     suspend fun getSevenTVGlobalEmotes(): Result<List<SevenTVEmoteDto>> = runCatching {
-        sevenTVApi.getGlobalEmotes()
+        sevenTVApi
+            .getGlobalEmotes()
             .throwApiErrorOnFailure(json)
             .body<SevenTVEmoteSetDto>()
             .emotes

@@ -7,6 +7,7 @@ import org.koin.core.annotation.Single
 
 @Module
 class CoroutineModule {
+    @Suppress("InjectDispatcher")
     @Single
     fun provideDispatchersProvider(): DispatchersProvider = object : DispatchersProvider {
         override val default: CoroutineDispatcher = Dispatchers.Default

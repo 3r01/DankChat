@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageIgnoreDao {
-
     @Query("SELECT * FROM message_ignore WHERE id = :id")
     suspend fun getMessageIgnore(id: Long): MessageIgnoreEntity
 

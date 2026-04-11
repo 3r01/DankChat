@@ -1,0 +1,258 @@
+package com.flxrs.dankchat.data.notification
+
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import androidx.core.content.getSystemService
+import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
+import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
+import com.flxrs.dankchat.data.twitch.message.Message
+import com.flxrs.dankchat.data.twitch.message.NoticeMessage
+import com.flxrs.dankchat.data.twitch.message.PrivMessage
+import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
+import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.tools.TTSMessageFormat
+import com.flxrs.dankchat.preferences.tools.TTSPlayMode
+import com.flxrs.dankchat.preferences.tools.ToolsSettings
+import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
+import com.flxrs.dankchat.utils.AppLifecycleListener
+import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.launch
+import org.koin.core.annotation.Single
+import java.util.Locale
+
+@Single
+class ChatTTSPlayer(
+    private val context: Context,
+    private val chatNotificationRepository: ChatNotificationRepository,
+    private val chatChannelProvider: ChatChannelProvider,
+    private val toolsSettingsDataStore: ToolsSettingsDataStore,
+    private val appLifecycleListener: AppLifecycleListener,
+    private val dispatchersProvider: DispatchersProvider,
+) {
+    private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
+
+    private var tts: TextToSpeech? = null
+    private var audioManager: AudioManager? = null
+    private var previousTTSUser: UserName? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
+    private var utteranceId = 0
+
+    fun start() {
+        scope.launch {
+            appLifecycleListener.appState
+                .flatMapLatest { state ->
+                    when (state) {
+                        AppLifecycle.Foreground -> {
+                            combine(
+                                chatNotificationRepository.messageUpdates,
+                                toolsSettingsDataStore.settings,
+                                chatChannelProvider.activeChannel,
+                            ) { items, settings, activeChannel ->
+                                Triple(items, settings, activeChannel)
+                            }
+                        }
+
+                        AppLifecycle.Background -> {
+                            shutdownTTS()
+                            emptyFlow()
+                        }
+                    }
+                }.collect { (items, settings, activeChannel) ->
+                    ensureTTSState(settings)
+                    items.forEach { (message) ->
+                        processMessage(message, settings, activeChannel)
+                    }
+                }
+        }
+    }
+
+    private fun ensureTTSState(settings: ToolsSettings) {
+        when {
+            settings.ttsEnabled && tts == null -> {
+                audioManager = context.getSystemService()
+                tts = TextToSpeech(context) { status ->
+                    when (status) {
+                        TextToSpeech.SUCCESS -> {
+                            applyVoice(settings.ttsForceEnglish)
+                            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                                override fun onStart(utteranceId: String?) = Unit
+
+                                override fun onDone(utteranceId: String?) = abandonAudioFocus()
+
+                                @Suppress("OVERRIDE_DEPRECATION")
+                                override fun onError(utteranceId: String?) = Unit
+
+                                override fun onError(
+                                    utteranceId: String?,
+                                    errorCode: Int,
+                                ) = abandonAudioFocus()
+                            })
+                        }
+
+                        else -> {
+                            shutdownTTS()
+                            scope.launch {
+                                toolsSettingsDataStore.update { it.copy(ttsEnabled = false) }
+                            }
+                        }
+                    }
+                }
+            }
+
+            !settings.ttsEnabled && tts != null -> {
+                shutdownTTS()
+            }
+        }
+    }
+
+    private fun applyVoice(forceEnglish: Boolean) {
+        val voice = when {
+            forceEnglish -> tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
+            else -> tts?.defaultVoice
+        }
+
+        if (voice == null || tts?.setVoice(voice) == TextToSpeech.ERROR) {
+            shutdownTTS()
+            scope.launch {
+                toolsSettingsDataStore.update { it.copy(ttsEnabled = false) }
+            }
+        }
+    }
+
+    private fun shutdownTTS() {
+        abandonAudioFocus()
+        tts?.shutdown()
+        tts = null
+        previousTTSUser = null
+        audioManager = null
+    }
+
+    private fun processMessage(
+        message: Message,
+        settings: ToolsSettings,
+        activeChannel: UserName?,
+    ) {
+        val channel = when (message) {
+            is PrivMessage -> message.channel
+            is UserNoticeMessage -> message.channel
+            is NoticeMessage -> message.channel
+            else -> return
+        }
+
+        if (!settings.ttsEnabled || tts == null || channel != activeChannel) {
+            return
+        }
+
+        if ((audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC) ?: 0) <= 0) {
+            return
+        }
+
+        if (message is PrivMessage && settings.ttsUserNameIgnores.any { it.matches(message.name) || it.matches(message.displayName) }) {
+            return
+        }
+
+        playTTSMessage(message, settings)
+    }
+
+    private fun requestAudioFocus() {
+        val manager = audioManager ?: return
+        if (audioFocusRequest != null) return
+
+        val attrs = AudioAttributes
+            .Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANT)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+            .build()
+        val request = AudioFocusRequest
+            .Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+            .setAudioAttributes(attrs)
+            .build()
+
+        if (manager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            audioFocusRequest = request
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        val request = audioFocusRequest ?: return
+        audioManager?.abandonAudioFocusRequest(request)
+        audioFocusRequest = null
+    }
+
+    private fun playTTSMessage(
+        message: Message,
+        settings: ToolsSettings,
+    ) {
+        val text = when (message) {
+            is UserNoticeMessage -> {
+                message.message
+            }
+
+            is NoticeMessage -> {
+                message.message
+            }
+
+            is PrivMessage -> {
+                val filtered = message.message
+                    .let { text ->
+                        when {
+                            settings.ttsIgnoreEmotes -> message.emotes.fold(text) { acc, emote -> acc.replace(emote.code, newValue = "", ignoreCase = true) }
+                            else -> text
+                        }
+                    }.let { text ->
+                        when {
+                            settings.ttsIgnoreEmotes -> text.replace(UNICODE_SYMBOL_REGEX, replacement = "")
+                            else -> text
+                        }
+                    }.let { text ->
+                        when {
+                            settings.ttsIgnoreUrls -> text.replace(URL_REGEX, replacement = "")
+                            else -> text
+                        }
+                    }
+
+                if (filtered.isBlank()) return
+
+                when {
+                    settings.ttsMessageFormat == TTSMessageFormat.Message || message.name == previousTTSUser -> filtered
+                    tts?.voice?.locale?.language == Locale.ENGLISH.language -> "${message.name} said $filtered"
+                    else -> "${message.name}. $filtered"
+                }.also { previousTTSUser = message.name }
+            }
+
+            else -> {
+                return
+            }
+        }
+
+        val queueMode = when (settings.ttsPlayMode) {
+            TTSPlayMode.Queue -> TextToSpeech.QUEUE_ADD
+            TTSPlayMode.Newest -> TextToSpeech.QUEUE_FLUSH
+        }
+
+        if (settings.ttsAudioDucking) {
+            requestAudioFocus()
+        }
+
+        val params = Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, settings.ttsVolume)
+        }
+        tts?.speak(text, queueMode, params, "tts_${utteranceId++}")
+    }
+
+    companion object {
+        private val UNICODE_SYMBOL_REGEX = "\\p{So}|\\p{Sc}|\\p{Sm}|\\p{Cn}".toRegex()
+        private val URL_REGEX = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)".toRegex(RegexOption.IGNORE_CASE)
+    }
+}

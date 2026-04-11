@@ -16,10 +16,13 @@ class RecentMessagesApiClient(
     private val recentMessagesApi: RecentMessagesApi,
     private val chatSettingsDataStore: ChatSettingsDataStore,
 ) {
-
-    suspend fun getRecentMessages(channel: UserName, messageLimit: Int? = null): Result<RecentMessagesDto> = runCatching {
+    suspend fun getRecentMessages(
+        channel: UserName,
+        messageLimit: Int? = null,
+    ): Result<RecentMessagesDto> = runCatching {
         val limit = messageLimit ?: chatSettingsDataStore.settings.first().scrollbackLength
-        recentMessagesApi.getRecentMessages(channel, limit)
+        recentMessagesApi
+            .getRecentMessages(channel, limit)
             .throwRecentMessagesErrorOnFailure()
             .body()
     }
@@ -32,11 +35,12 @@ class RecentMessagesApiClient(
         val errorBody = runCatching { body<RecentMessagesDto>() }.getOrNull()
         val betterStatus = HttpStatusCode.fromValue(status.value)
         val message = errorBody?.error ?: betterStatus.description
-        val error = when (errorBody?.errorCode) {
-            RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> RecentMessagesError.ChannelNotJoined
-            RecentMessagesDto.ERROR_CHANNEL_IGNORED    -> RecentMessagesError.ChannelIgnored
-            else                                       -> RecentMessagesError.Unknown
-        }
+        val error =
+            when (errorBody?.errorCode) {
+                RecentMessagesDto.ERROR_CHANNEL_NOT_JOINED -> RecentMessagesError.ChannelNotJoined
+                RecentMessagesDto.ERROR_CHANNEL_IGNORED -> RecentMessagesError.ChannelIgnored
+                else -> RecentMessagesError.Unknown
+            }
         throw RecentMessagesApiException(error, betterStatus, request.url, message)
     }
 }

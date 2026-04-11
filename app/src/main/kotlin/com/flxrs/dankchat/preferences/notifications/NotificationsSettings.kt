@@ -9,9 +9,11 @@ data class NotificationsSettings(
     val mentionFormat: MentionFormat = MentionFormat.Name,
 )
 
-enum class MentionFormat(val template: String) {
+enum class MentionFormat(
+    val template: String,
+) {
     Name("name"),
     NameComma("name,"),
     AtName("@name"),
-    AtNameComma("@name,");
+    AtNameComma("@name,"),
 }

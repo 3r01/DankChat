@@ -7,14 +7,53 @@ data class IrcMessage(
     val prefix: String,
     val command: String,
     val params: List<String> = listOf(),
-    val tags: Map<String, String> = mapOf()
+    val tags: Map<String, String> = mapOf(),
 ) {
-
-    fun isLoginFailed(): Boolean {
-        return command == "NOTICE" && params.getOrNull(0) == "*" && params.getOrNull(1) == "Login authentication failed"
-    }
+    fun isLoginFailed(): Boolean = command == "NOTICE" && params.getOrNull(0) == "*" && params.getOrNull(1) == "Login authentication failed"
 
     companion object {
+        private fun unescapeIrcTagValue(value: String): String {
+            val idx = value.indexOf('\\')
+            if (idx == -1) return value // fast path: no escapes (most values)
+
+            return buildString(value.length) {
+                var i = 0
+                while (i < value.length) {
+                    if (value[i] == '\\' && i + 1 < value.length) {
+                        when (value[i + 1]) {
+                            ':' -> {
+                                append(';')
+                            }
+
+                            's' -> {
+                                append(' ')
+                            }
+
+                            'r' -> {
+                                append('\r')
+                            }
+
+                            'n' -> {
+                                append('\n')
+                            }
+
+                            '\\' -> {
+                                append('\\')
+                            }
+
+                            else -> {
+                                append(value[i])
+                                append(value[i + 1])
+                            }
+                        }
+                        i += 2
+                    } else {
+                        append(value[i])
+                        i++
+                    }
+                }
+            }
+        }
 
         fun parse(message: String): IrcMessage {
             var pos = 0
@@ -28,7 +67,7 @@ data class IrcMessage(
                 while (message[pos] == ' ') pos++
             }
 
-            //tags
+            // tags
             if (message[pos] == '@') {
                 nextSpace = message.indexOf(' ')
 
@@ -36,29 +75,30 @@ data class IrcMessage(
                     throw ParseException("Malformed IRC message", pos)
                 }
 
-                tags.putAll(
-                    message
-                        .substring(1, nextSpace)
-                        .split(';')
-                        .associate {
-                            val kv = it.split('=')
-                            val v = when (kv.size) {
-                                2 -> kv[1].replace("\\:", ";")
-                                    .replace("\\s", " ")
-                                    .replace("\\r", "\r")
-                                    .replace("\\n", "\n")
-                                    .replace("\\\\", "\\")
+                // Index-based tag parsing: walk the tag section without split() allocations
+                var tagStart = 1 // skip '@'
+                while (tagStart < nextSpace) {
+                    val semiIdx = message.indexOf(';', tagStart)
+                    val tagEnd = if (semiIdx == -1 || semiIdx > nextSpace) nextSpace else semiIdx
 
-                                else -> "true"
-                            }
-                            kv[0] to v
-                        })
+                    val eqIdx = message.indexOf('=', tagStart)
+                    if (eqIdx != -1 && eqIdx < tagEnd) {
+                        val key = message.substring(tagStart, eqIdx)
+                        val rawValue = message.substring(eqIdx + 1, tagEnd)
+                        tags[key] = unescapeIrcTagValue(rawValue)
+                    } else {
+                        val key = message.substring(tagStart, tagEnd)
+                        tags[key] = "true"
+                    }
+
+                    tagStart = tagEnd + 1
+                }
                 pos = nextSpace + 1
             }
 
             skipTrailingWhitespace()
 
-            //prefix
+            // prefix
             if (message[pos] == ':') {
                 nextSpace = message.indexOf(' ', pos)
 

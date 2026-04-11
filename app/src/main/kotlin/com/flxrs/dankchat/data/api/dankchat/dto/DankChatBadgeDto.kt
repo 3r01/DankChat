@@ -10,5 +10,5 @@ import kotlinx.serialization.Serializable
 data class DankChatBadgeDto(
     @SerialName(value = "type") val type: String,
     @SerialName(value = "url") val url: String,
-    @SerialName(value = "users") val users: List<UserId>
+    @SerialName(value = "users") val users: List<UserId>,
 )

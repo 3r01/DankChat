@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FFZChannelDto(
     @SerialName(value = "room") val room: FFZRoomDto,
-    @SerialName(value = "sets") val sets: Map<String, FFZEmoteSetDto>
+    @SerialName(value = "sets") val sets: Map<String, FFZEmoteSetDto>,
 )

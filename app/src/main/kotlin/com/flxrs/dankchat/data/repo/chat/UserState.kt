@@ -15,10 +15,9 @@ data class UserState(
     val moderationChannels: Set<UserName> = emptySet(),
     val vipChannels: Set<UserName> = emptySet(),
 ) {
-
     fun getSendDelay(channel: UserName): Duration = when {
         hasHighRateLimit(channel) -> LOW_SEND_DELAY
-        else                      -> REGULAR_SEND_DELAY
+        else -> REGULAR_SEND_DELAY
     }
 
     private fun hasHighRateLimit(channel: UserName): Boolean = channel in moderationChannels || channel in vipChannels

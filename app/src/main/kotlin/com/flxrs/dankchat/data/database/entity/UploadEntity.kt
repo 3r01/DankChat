@@ -10,10 +10,8 @@ data class UploadEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val timestamp: Instant,
-
     @ColumnInfo(name = "image_link")
     val imageLink: String,
-
     @ColumnInfo(name = "delete_link")
-    val deleteLink: String?
+    val deleteLink: String?,
 )

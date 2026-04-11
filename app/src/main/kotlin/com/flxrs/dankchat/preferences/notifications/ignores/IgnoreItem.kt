@@ -24,10 +24,11 @@ data class MessageIgnoreItem(
     enum class Type {
         Subscription,
         Announcement,
+        WatchStreak,
         ChannelPointRedemption,
         FirstMessage,
         ElevatedMessage,
-        Custom
+        Custom,
     }
 }
 
@@ -36,7 +37,7 @@ data class UserIgnoreItem(
     val enabled: Boolean,
     val username: String,
     val isRegex: Boolean,
-    val isCaseSensitive: Boolean
+    val isCaseSensitive: Boolean,
 ) : IgnoreItem
 
 data class TwitchBlockItem(
@@ -53,7 +54,7 @@ fun MessageIgnoreEntity.toItem() = MessageIgnoreItem(
     isRegex = isRegex,
     isCaseSensitive = isCaseSensitive,
     isBlockMessage = isBlockMessage,
-    replacement = replacement ?: ""
+    replacement = replacement.orEmpty(),
 )
 
 fun MessageIgnoreItem.toEntity() = MessageIgnoreEntity(
@@ -64,28 +65,31 @@ fun MessageIgnoreItem.toEntity() = MessageIgnoreEntity(
     isRegex = isRegex,
     isCaseSensitive = isCaseSensitive,
     isBlockMessage = isBlockMessage,
-    replacement = when {
-        isBlockMessage -> null
-        else           -> replacement
-    }
+    replacement =
+        when {
+            isBlockMessage -> null
+            else -> replacement
+        },
 )
 
 fun MessageIgnoreItem.Type.toEntityType(): MessageIgnoreEntityType = when (this) {
-    MessageIgnoreItem.Type.Subscription           -> MessageIgnoreEntityType.Subscription
-    MessageIgnoreItem.Type.Announcement           -> MessageIgnoreEntityType.Announcement
+    MessageIgnoreItem.Type.Subscription -> MessageIgnoreEntityType.Subscription
+    MessageIgnoreItem.Type.Announcement -> MessageIgnoreEntityType.Announcement
+    MessageIgnoreItem.Type.WatchStreak -> MessageIgnoreEntityType.WatchStreak
     MessageIgnoreItem.Type.ChannelPointRedemption -> MessageIgnoreEntityType.ChannelPointRedemption
-    MessageIgnoreItem.Type.FirstMessage           -> MessageIgnoreEntityType.FirstMessage
-    MessageIgnoreItem.Type.ElevatedMessage        -> MessageIgnoreEntityType.ElevatedMessage
-    MessageIgnoreItem.Type.Custom                 -> MessageIgnoreEntityType.Custom
+    MessageIgnoreItem.Type.FirstMessage -> MessageIgnoreEntityType.FirstMessage
+    MessageIgnoreItem.Type.ElevatedMessage -> MessageIgnoreEntityType.ElevatedMessage
+    MessageIgnoreItem.Type.Custom -> MessageIgnoreEntityType.Custom
 }
 
 fun MessageIgnoreEntityType.toItemType(): MessageIgnoreItem.Type = when (this) {
-    MessageIgnoreEntityType.Subscription           -> MessageIgnoreItem.Type.Subscription
-    MessageIgnoreEntityType.Announcement           -> MessageIgnoreItem.Type.Announcement
+    MessageIgnoreEntityType.Subscription -> MessageIgnoreItem.Type.Subscription
+    MessageIgnoreEntityType.Announcement -> MessageIgnoreItem.Type.Announcement
+    MessageIgnoreEntityType.WatchStreak -> MessageIgnoreItem.Type.WatchStreak
     MessageIgnoreEntityType.ChannelPointRedemption -> MessageIgnoreItem.Type.ChannelPointRedemption
-    MessageIgnoreEntityType.FirstMessage           -> MessageIgnoreItem.Type.FirstMessage
-    MessageIgnoreEntityType.ElevatedMessage        -> MessageIgnoreItem.Type.ElevatedMessage
-    MessageIgnoreEntityType.Custom                 -> MessageIgnoreItem.Type.Custom
+    MessageIgnoreEntityType.FirstMessage -> MessageIgnoreItem.Type.FirstMessage
+    MessageIgnoreEntityType.ElevatedMessage -> MessageIgnoreItem.Type.ElevatedMessage
+    MessageIgnoreEntityType.Custom -> MessageIgnoreItem.Type.Custom
 }
 
 fun UserIgnoreEntity.toItem() = UserIgnoreItem(
@@ -101,7 +105,7 @@ fun UserIgnoreItem.toEntity() = UserIgnoreEntity(
     enabled = enabled,
     username = username,
     isRegex = isRegex,
-    isCaseSensitive = isCaseSensitive
+    isCaseSensitive = isCaseSensitive,
 )
 
 fun IgnoresRepository.TwitchBlock.toItem() = TwitchBlockItem(

@@ -11,6 +11,11 @@
 -dontwarn com.oracle.svm.core.annotate.TargetClass
 -dontwarn org.slf4j.impl.StaticLoggerBinder
 
+# logback-android
+-keep class ch.qos.logback.** { *; }
+-keep class org.slf4j.** { *; }
+-dontwarn ch.qos.logback.core.net.*
+
 # Keep `Companion` object fields of serializable classes.
 # This avoids serializer lookup through `getDeclaredClasses` as done for named companion objects.
 -if @kotlinx.serialization.Serializable class **

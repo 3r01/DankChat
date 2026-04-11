@@ -6,4 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Keep
 @Serializable
-data class SupibotChannelsDto(@SerialName(value = "data") val data: List<SupibotChannelDto>)
+data class SupibotChannelsDto(
+    @SerialName(value = "data") val data: List<SupibotChannelDto>,
+)

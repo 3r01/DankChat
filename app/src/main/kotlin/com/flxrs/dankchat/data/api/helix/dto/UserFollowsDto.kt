@@ -8,5 +8,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UserFollowsDto(
     @SerialName(value = "total") val total: Int,
-    @SerialName(value = "data") val data: List<UserFollowsDataDto>
+    @SerialName(value = "data") val data: List<UserFollowsDataDto>,
 )

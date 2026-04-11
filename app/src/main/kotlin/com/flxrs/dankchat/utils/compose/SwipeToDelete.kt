@@ -26,14 +26,20 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 
 @Composable
-fun SwipeToDelete(onDelete: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true, content: @Composable RowScope.() -> Unit) {
+fun SwipeToDelete(
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit,
+) {
     val density = LocalDensity.current
-    val state = remember {
-        SwipeToDismissBoxState(
-            positionalThreshold = { with(density) { 84.dp.toPx() } },
-            initialValue = SwipeToDismissBoxValue.Settled,
-        )
-    }
+    val state =
+        remember {
+            SwipeToDismissBoxState(
+                positionalThreshold = { with(density) { 84.dp.toPx() } },
+                initialValue = SwipeToDismissBoxValue.Settled,
+            )
+        }
     SwipeToDismissBox(
         gesturesEnabled = enabled,
         enableDismissFromEndToStart = enabled,
@@ -43,35 +49,45 @@ fun SwipeToDelete(onDelete: () -> Unit, modifier: Modifier = Modifier, enabled: 
         onDismiss = { onDelete() },
         backgroundContent = {
             val color by animateColorAsState(
-                targetValue = when (state.dismissDirection) {
-                    SwipeToDismissBoxValue.StartToEnd, SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
-                    SwipeToDismissBoxValue.Settled                                       -> MaterialTheme.colorScheme.surfaceContainer
-                }
+                targetValue =
+                    when (state.dismissDirection) {
+                        SwipeToDismissBoxValue.StartToEnd, SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.errorContainer
+                        SwipeToDismissBoxValue.Settled -> MaterialTheme.colorScheme.surfaceContainer
+                    },
             )
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color, CardDefaults.outlinedShape)
-                    .padding(horizontal = 16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color, CardDefaults.outlinedShape)
+                        .padding(horizontal = 16.dp),
             ) {
                 when (state.dismissDirection) {
-                    SwipeToDismissBoxValue.StartToEnd -> Icon(
-                        imageVector = Icons.Default.Delete,
-                        modifier = Modifier
-                            .align(Alignment.CenterStart)
-                            .size(32.dp),
-                        contentDescription = stringResource(R.string.remove_command),
-                    )
+                    SwipeToDismissBoxValue.StartToEnd -> {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterStart)
+                                    .size(32.dp),
+                            contentDescription = stringResource(R.string.remove_command),
+                        )
+                    }
 
-                    SwipeToDismissBoxValue.EndToStart -> Icon(
-                        imageVector = Icons.Default.Delete,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .size(32.dp),
-                        contentDescription = stringResource(R.string.remove_command),
-                    )
+                    SwipeToDismissBoxValue.EndToStart -> {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .size(32.dp),
+                            contentDescription = stringResource(R.string.remove_command),
+                        )
+                    }
 
-                    SwipeToDismissBoxValue.Settled    -> Unit
+                    SwipeToDismissBoxValue.Settled -> {
+                        Unit
+                    }
                 }
             }
         },

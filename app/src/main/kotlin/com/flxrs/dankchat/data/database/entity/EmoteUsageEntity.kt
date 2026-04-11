@@ -10,7 +10,6 @@ data class EmoteUsageEntity(
     @PrimaryKey
     @ColumnInfo(name = "emote_id")
     val emoteId: String,
-
     @ColumnInfo(name = "last_used")
     val lastUsed: Instant,
 )

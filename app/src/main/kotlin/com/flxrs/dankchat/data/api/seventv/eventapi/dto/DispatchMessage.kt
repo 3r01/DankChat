@@ -9,7 +9,9 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 
 @Serializable
 @SerialName("0")
-data class DispatchMessage(override val d: DispatchData) : DataMessage
+data class DispatchMessage(
+    override val d: DispatchData,
+) : DataMessage
 
 @Serializable
 @JsonClassDiscriminator(discriminator = "type")
@@ -23,12 +25,14 @@ interface ChangeMapData {
 }
 
 @Serializable
-data class Actor(@SerialName("display_name") val displayName: DisplayName)
+data class Actor(
+    @SerialName("display_name") val displayName: DisplayName,
+)
 
 @Serializable
 @SerialName("emote_set.update")
 data class EmoteSetDispatchData(
-    override val body: EmoteSetChangeMapData
+    override val body: EmoteSetChangeMapData,
 ) : DispatchData
 
 @Serializable
@@ -37,7 +41,7 @@ data class EmoteSetChangeMapData(
     override val actor: Actor,
     val pushed: List<EmoteChangeField>?,
     val pulled: List<EmoteChangeField>?,
-    val updated: List<EmoteChangeField>?
+    val updated: List<EmoteChangeField>?,
 ) : ChangeMapData
 
 @Serializable
@@ -46,31 +50,40 @@ sealed interface ChangeField
 
 @Serializable
 @SerialName("emotes")
-data class EmoteChangeField(val value: SevenTVEmoteDto?, @SerialName("old_value") val oldValue: SevenTVEmoteDto?) : ChangeField
+data class EmoteChangeField(
+    val value: SevenTVEmoteDto?,
+    @SerialName("old_value") val oldValue: SevenTVEmoteDto?,
+) : ChangeField
 
 @Serializable
 @SerialName("user.update")
 data class UserDispatchData(
-    override val body: UserChangeMapData
+    override val body: UserChangeMapData,
 ) : DispatchData
 
 @Serializable
 data class UserChangeMapData(
     override val id: String,
     override val actor: Actor,
-    val updated: List<UserChangeFields>?
+    val updated: List<UserChangeFields>?,
 ) : ChangeMapData
 
 @Serializable
 @SerialName("connections")
-data class UserChangeFields(val value: List<UserChangeField>?, val index: Int) : ChangeField
+data class UserChangeFields(
+    val value: List<UserChangeField>?,
+    val index: Int,
+) : ChangeField
 
 @Serializable
 sealed interface UserChangeField : ChangeField
 
 @Serializable
 @SerialName("emote_set")
-data class EmoteSetChangeField(val value: EmoteSet, @SerialName("old_value") val oldValue: EmoteSet) : UserChangeField
+data class EmoteSetChangeField(
+    val value: EmoteSet,
+    @SerialName("old_value") val oldValue: EmoteSet,
+) : UserChangeField
 
 @Keep
 @Serializable
@@ -78,4 +91,6 @@ data class EmoteSetChangeField(val value: EmoteSet, @SerialName("old_value") val
 data object EmoteSetIdChangeField : UserChangeField
 
 @Serializable
-data class EmoteSet(val id: String)
+data class EmoteSet(
+    val id: String,
+)

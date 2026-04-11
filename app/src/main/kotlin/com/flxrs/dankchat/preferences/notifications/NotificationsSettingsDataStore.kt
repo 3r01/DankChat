@@ -23,44 +23,58 @@ class NotificationsSettingsDataStore(
     context: Context,
     dispatchersProvider: DispatchersProvider,
 ) {
-
-    private enum class NotificationsPreferenceKeys(override val id: Int) : PreferenceKeys {
+    private enum class NotificationsPreferenceKeys(
+        override val id: Int,
+    ) : PreferenceKeys {
         ShowNotifications(R.string.preference_notification_key),
         ShowWhisperNotifications(R.string.preference_notification_whisper_key),
         MentionFormat(R.string.preference_mention_format_key),
     }
 
-    private val initialMigration = dankChatPreferencesMigration<NotificationsPreferenceKeys, NotificationsSettings>(context) { acc, key, value ->
-        when (key) {
-            NotificationsPreferenceKeys.ShowNotifications           -> acc.copy(showNotifications = value.booleanOrDefault(acc.showNotifications))
-            NotificationsPreferenceKeys.ShowWhisperNotifications    -> acc.copy(showWhisperNotifications = value.booleanOrDefault(acc.showWhisperNotifications))
-            NotificationsPreferenceKeys.MentionFormat               -> acc.copy(
-                mentionFormat = value.stringOrNull()?.let { format ->
-                    MentionFormat.entries.find { it.template == format }
-                } ?: acc.mentionFormat
-            )
-        }
-    }
+    private val initialMigration =
+        dankChatPreferencesMigration<NotificationsPreferenceKeys, NotificationsSettings>(context) { acc, key, value ->
+            when (key) {
+                NotificationsPreferenceKeys.ShowNotifications -> {
+                    acc.copy(showNotifications = value.booleanOrDefault(acc.showNotifications))
+                }
 
-    private val dataStore = createDataStore(
-        fileName = "notifications",
-        context = context,
-        defaultValue = NotificationsSettings(),
-        serializer = NotificationsSettings.serializer(),
-        scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
-        migrations = listOf(initialMigration),
-    )
+                NotificationsPreferenceKeys.ShowWhisperNotifications -> {
+                    acc.copy(showWhisperNotifications = value.booleanOrDefault(acc.showWhisperNotifications))
+                }
+
+                NotificationsPreferenceKeys.MentionFormat -> {
+                    acc.copy(
+                        mentionFormat =
+                            value.stringOrNull()?.let { format ->
+                                MentionFormat.entries.find { it.template == format }
+                            } ?: acc.mentionFormat,
+                    )
+                }
+            }
+        }
+
+    private val dataStore =
+        createDataStore(
+            fileName = "notifications",
+            context = context,
+            defaultValue = NotificationsSettings(),
+            serializer = NotificationsSettings.serializer(),
+            scope = CoroutineScope(dispatchersProvider.io + SupervisorJob()),
+            migrations = listOf(initialMigration),
+        )
 
     val settings = dataStore.data
-    val currentSettings = settings.stateIn(
-        scope = CoroutineScope(dispatchersProvider.io),
-        started = SharingStarted.Eagerly,
-        initialValue = runBlocking { settings.first() }
-    )
+    val currentSettings =
+        settings.stateIn(
+            scope = CoroutineScope(dispatchersProvider.io),
+            started = SharingStarted.Eagerly,
+            initialValue = runBlocking { settings.first() },
+        )
 
-    val showNotifications = settings
-        .map { it.showNotifications }
-        .distinctUntilChanged()
+    val showNotifications =
+        settings
+            .map { it.showNotifications }
+            .distinctUntilChanged()
 
     fun current() = currentSettings.value
 

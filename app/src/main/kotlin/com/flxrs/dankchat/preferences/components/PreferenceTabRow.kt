@@ -6,21 +6,20 @@ import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.launch
 
 @Composable
 fun PreferenceTabRow(
-    appBarContainerColor: State<Color>,
+    appBarContainerColor: Color,
     pagerState: PagerState,
     tabCount: Int,
     tabText: @Composable (Int) -> String,
 ) {
     val scope = rememberCoroutineScope()
     PrimaryTabRow(
-        containerColor = appBarContainerColor.value,
+        containerColor = appBarContainerColor,
         selectedTabIndex = pagerState.currentPage,
     ) {
         val unselectedColor = MaterialTheme.colorScheme.onSurface
