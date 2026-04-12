@@ -74,7 +74,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +81,6 @@ fun MainScreenDialogs(
     dialogViewModel: DialogStateViewModel,
     isLoggedIn: Boolean,
     activeChannel: UserName?,
-    modActionsChannel: UserName?,
     isStreamActive: Boolean,
     inputSheetState: InputSheetState,
     sheetsReady: Boolean,
@@ -121,14 +119,8 @@ fun MainScreenDialogs(
         )
     }
 
-    if (sheetsReady && dialogState.showModActions && modActionsChannel != null) {
-        ModActionsDialogContainer(
-            channel = modActionsChannel,
-            isStreamActive = isStreamActive,
-            onSendCommand = chatInputViewModel::trySendMessageOrCommand,
-            onAnnounce = { chatInputViewModel.setAnnouncing(true) },
-            onDismiss = dialogViewModel::dismissModActions,
-        )
+    if (sheetsReady) {
+        ModActionsSheetContainer(isStreamActive = isStreamActive)
     }
 
     if (dialogState.showRemoveChannel && activeChannel != null) {
@@ -368,32 +360,6 @@ private fun UploadDisclaimerSheet(
             }
         }
     }
-}
-
-@Composable
-private fun ModActionsDialogContainer(
-    channel: UserName,
-    isStreamActive: Boolean,
-    onSendCommand: (String) -> Unit,
-    onAnnounce: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val viewModel: ModActionsViewModel =
-        koinViewModel(
-            key = "mod-actions-${channel.value}",
-            parameters = { parametersOf(channel) },
-        )
-    val shieldModeActive by viewModel.shieldModeActive.collectAsStateWithLifecycle()
-    val roomState by viewModel.roomState.collectAsStateWithLifecycle()
-    ModActionsDialog(
-        roomState = roomState,
-        isBroadcaster = viewModel.isBroadcaster,
-        isStreamActive = isStreamActive,
-        shieldModeActive = shieldModeActive,
-        onSendCommand = onSendCommand,
-        onAnnounce = onAnnounce,
-        onDismiss = onDismiss,
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

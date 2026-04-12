@@ -84,6 +84,7 @@ import com.flxrs.dankchat.ui.main.channel.ChannelPagerViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelTabViewModel
 import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.dialog.MainScreenDialogs
+import com.flxrs.dankchat.ui.main.dialog.ModActionsViewModel
 import com.flxrs.dankchat.ui.main.input.ChatBottomBar
 import com.flxrs.dankchat.ui.main.input.ChatInputCallbacks
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
@@ -145,6 +146,7 @@ fun MainScreen(
     val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
     val userPopupViewModel: UserPopupViewModel = koinViewModel()
     val messageOptionsViewModel: MessageOptionsViewModel = koinViewModel()
+    val modActionsViewModel: ModActionsViewModel = koinViewModel()
     val mentionViewModel: MentionViewModel = koinViewModel()
     val preferenceStore: DankChatPreferenceStore = koinInject()
     val mainEventBus: MainEventBus = koinInject()
@@ -232,6 +234,7 @@ fun MainScreen(
     val emoteInfoActive by emoteInfoViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
     val userPopupActive by userPopupViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
     val messageOptionsActive by messageOptionsViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
+    val modActionsActive by modActionsViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
 
     val sheetNavState by sheetNavigationViewModel.sheetState.collectAsStateWithLifecycle()
     val fullScreenSheetState = sheetNavState.fullScreenSheet
@@ -245,7 +248,7 @@ fun MainScreen(
         messageOptionsActive ||
         userPopupActive ||
         emoteInfoActive ||
-        dialogState.showModActions
+        modActionsActive
     var sheetsReady by remember { mutableStateOf(true) }
     LaunchedEffect(hasBottomSheet) {
         if (hasBottomSheet && isImeVisible) {
@@ -284,7 +287,6 @@ fun MainScreen(
         dialogViewModel = dialogViewModel,
         isLoggedIn = isLoggedIn,
         activeChannel = activeChannel,
-        modActionsChannel = inputState.activeChannel,
         isStreamActive = currentStream != null,
         inputSheetState = inputSheetState,
         sheetsReady = sheetsReady,
@@ -418,7 +420,7 @@ fun MainScreen(
             val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
             // Shared scaffold bottom padding calculation
-            val hasDialogWithInput = dialogState.showAddChannel || dialogState.showModActions || dialogState.showManageChannels || dialogState.showNewWhisper
+            val hasDialogWithInput = dialogState.showAddChannel || modActionsActive || dialogState.showManageChannels || dialogState.showNewWhisper
             val currentImeDp = if (hasDialogWithInput) 0.dp else with(density) { currentImeHeight.toDp() }
             val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
             val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
@@ -461,7 +463,7 @@ fun MainScreen(
                                 }
                             },
                             onAudioOnly = { streamViewModel.toggleAudioOnly() },
-                            onModActions = dialogViewModel::showModActions,
+                            onModActions = { inputState.activeChannel?.let { modActionsViewModel.show(it) } },
                             onInputActionsChange = mainScreenViewModel::updateInputActions,
                             onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) } },
                             onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
@@ -693,7 +695,7 @@ fun MainScreen(
                             }
 
                             InputAction.ModActions -> {
-                                dialogViewModel.showModActions()
+                                inputState.activeChannel?.let { modActionsViewModel.show(it) }
                             }
 
                             InputAction.Fullscreen -> {

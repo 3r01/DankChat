@@ -65,14 +65,6 @@ class DialogStateViewModel(
         update { copy(showBlockChannel = false) }
     }
 
-    fun showModActions() {
-        update { copy(showModActions = true) }
-    }
-
-    fun dismissModActions() {
-        update { copy(showModActions = false) }
-    }
-
     // Auth dialogs
     fun showLogout() {
         update { copy(showLogout = true) }

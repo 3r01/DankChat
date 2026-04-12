@@ -9,7 +9,6 @@ data class DialogState(
     val showManageChannels: Boolean = false,
     val showRemoveChannel: Boolean = false,
     val showBlockChannel: Boolean = false,
-    val showModActions: Boolean = false,
     val showLogout: Boolean = false,
     val showNewWhisper: Boolean = false,
     val pendingUploadAction: (() -> Unit)? = null,
