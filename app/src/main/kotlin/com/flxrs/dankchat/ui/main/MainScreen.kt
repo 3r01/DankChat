@@ -68,6 +68,7 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
@@ -139,6 +140,7 @@ fun MainScreen(
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
     val streamViewModel: StreamViewModel = koinViewModel()
     val dialogViewModel: DialogStateViewModel = koinViewModel()
+    val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
     val mentionViewModel: MentionViewModel = koinViewModel()
     val preferenceStore: DankChatPreferenceStore = koinInject()
     val mainEventBus: MainEventBus = koinInject()
@@ -223,6 +225,7 @@ fun MainScreen(
     }
 
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
+    val emoteInfoActive by emoteInfoViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
 
     val sheetNavState by sheetNavigationViewModel.sheetState.collectAsStateWithLifecycle()
     val fullScreenSheetState = sheetNavState.fullScreenSheet
@@ -235,7 +238,7 @@ fun MainScreen(
     val hasBottomSheet = isSheetOpen ||
         dialogState.messageOptionsParams != null ||
         dialogState.userPopupParams != null ||
-        dialogState.emoteInfoEmoteIds != null ||
+        emoteInfoActive ||
         dialogState.showModActions
     var sheetsReady by remember { mutableStateOf(true) }
     LaunchedEffect(hasBottomSheet) {
@@ -638,7 +641,6 @@ fun MainScreen(
                         chatInputViewModel.insertText("$code ")
                         chatInputViewModel.addEmoteUsage(id)
                     },
-                    onEmoteLongClick = dialogViewModel::showEmoteInfo,
                     onBackspace = chatInputViewModel::deleteLastWord,
                     modifier = menuModifier,
                 )
@@ -651,7 +653,6 @@ fun MainScreen(
                         onShowUserPopup = dialogViewModel::showUserPopup,
                         onMentionUser = chatInputViewModel::mentionUser,
                         onShowMessageOptions = dialogViewModel::showMessageOptions,
-                        onShowEmoteInfo = dialogViewModel::showEmoteInfo,
                         onOpenReplies = sheetNavigationViewModel::openReplies,
                         onRecover = {
                             mainScreenViewModel.recoverInputAndFullscreen()
@@ -766,7 +767,6 @@ fun MainScreen(
                     },
                     onUserClick = dialogViewModel::showUserPopup,
                     onMessageLongClick = dialogViewModel::showMessageOptions,
-                    onEmoteClick = dialogViewModel::showEmoteInfo,
                     userLongClickBehavior = inputState.userLongClickBehavior,
                     onWhisperReply = chatInputViewModel::setWhisperTarget,
                     onUserMention = chatInputViewModel::mentionUser,

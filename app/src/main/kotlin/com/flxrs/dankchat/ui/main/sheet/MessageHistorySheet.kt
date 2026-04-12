@@ -78,12 +78,14 @@ import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MessageHistorySheet(
@@ -92,8 +94,9 @@ fun MessageHistorySheet(
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
 ) {
+    val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
+
     LaunchedEffect(viewModel, initialFilter) {
         viewModel.setInitialQuery(initialFilter)
     }
@@ -176,7 +179,7 @@ fun MessageHistorySheet(
                         ChatScreenCallbacks(
                             onUserClick = onUserClick,
                             onMessageLongClick = onMessageLongClick,
-                            onEmoteClick = onEmoteClick,
+                            onEmoteClick = { emoteInfoViewModel.show(it) },
                         ),
                     animateGifs = displaySettings.animateGifs,
                     showChannelPrefix = channel is HistoryChannel.Global,

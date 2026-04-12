@@ -22,9 +22,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.EmoteUi
+import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.StackedEmote
 import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
+import com.flxrs.dankchat.ui.chat.emote.toEmoteSheetData
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
@@ -40,7 +42,7 @@ fun MessageTextWithInlineContent(
     fontSize: Float,
     animateGifs: Boolean,
     onTextClick: (Int) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
+    onEmoteClick: (List<EmoteSheetData>) -> Unit,
     modifier: Modifier = Modifier,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
@@ -66,7 +68,7 @@ fun MessageTextWithInlineContent(
                             emoteCoordinator = emoteCoordinator,
                             animateGifs = animateGifs,
                             modifier = Modifier,
-                            onClick = { onEmoteClick(emote.emotes.map { it.id }) },
+                            onClick = { onEmoteClick(emote.emotes.map { it.toEmoteSheetData() }) },
                         )
                     }
                 }

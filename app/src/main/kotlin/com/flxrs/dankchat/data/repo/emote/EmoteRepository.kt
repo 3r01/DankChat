@@ -88,24 +88,6 @@ class EmoteRepository(
      */
     private val cachedEmoteMaps = ConcurrentHashMap<UserName, CachedEmoteMap>()
 
-    fun findEmoteById(id: String): GenericEmote? {
-        val global = globalEmoteState.value
-        val allEmotes = sequence {
-            yieldAll(global.sevenTvEmotes)
-            yieldAll(global.bttvEmotes)
-            yieldAll(global.ffzEmotes)
-            yieldAll(global.twitchEmotes)
-            channelEmoteStates.values.forEach { stateFlow ->
-                val state = stateFlow.value
-                yieldAll(state.sevenTvEmotes)
-                yieldAll(state.bttvEmotes)
-                yieldAll(state.ffzEmotes)
-                yieldAll(state.twitchEmotes)
-            }
-        }
-        return allEmotes.firstOrNull { it.id == id }
-    }
-
     fun getEmotes(channel: UserName): Flow<Emotes> {
         val channelFlow = channelEmoteStates.getOrPut(channel) { MutableStateFlow(ChannelEmoteState()) }
         return combine(globalEmoteState, channelFlow, ::mergeEmotes)

@@ -39,7 +39,6 @@ internal class ChatPagerCallbacks(
     val onShowUserPopup: (UserPopupStateParams) -> Unit,
     val onMentionUser: (UserName, DisplayName) -> Unit,
     val onShowMessageOptions: (MessageOptionsParams) -> Unit,
-    val onShowEmoteInfo: (List<String>) -> Unit,
     val onOpenReplies: (String, UserName) -> Unit,
     val onRecover: () -> Unit,
     val onScrollToBottom: () -> Unit,
@@ -158,9 +157,6 @@ internal fun MainScreenPagerContent(
                                             startWithBan = true,
                                         ),
                                     )
-                                },
-                                onEmoteClick = { emoteIds ->
-                                    callbacks.onShowEmoteInfo(emoteIds)
                                 },
                                 onReplyClick = { replyMessageId, replyName ->
                                     callbacks.onOpenReplies(replyMessageId, replyName)

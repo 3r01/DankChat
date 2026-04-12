@@ -35,7 +35,6 @@ fun FullScreenSheetOverlay(
     onDismissReplies: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
     modifier: Modifier = Modifier,
     userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
     onWhisperReply: (UserName) -> Unit = {},
@@ -63,7 +62,6 @@ fun FullScreenSheetOverlay(
                         onDismiss = onDismiss,
                         onUserClick = popupOnlyClickHandler(onUserClick),
                         onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
-                        onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
                         bottomContentPadding = bottomContentPadding,
                     )
@@ -76,7 +74,6 @@ fun FullScreenSheetOverlay(
                         onDismiss = onDismiss,
                         onUserClick = popupOnlyClickHandler(onUserClick),
                         onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = false),
-                        onEmoteClick = onEmoteClick,
                         onWhisperReply = onWhisperReply,
                         bottomContentPadding = bottomContentPadding,
                     )
@@ -88,7 +85,6 @@ fun FullScreenSheetOverlay(
                         onDismiss = onDismissReplies,
                         onUserClick = mentionableClickHandler(onUserClick, onUserMention, userLongClickBehavior),
                         onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
-                        onEmoteClick = onEmoteClick,
                         bottomContentPadding = bottomContentPadding,
                     )
                 }
@@ -100,7 +96,6 @@ fun FullScreenSheetOverlay(
                         onDismiss = onDismiss,
                         onUserClick = onUserClick,
                         onMessageLongClick = onMessageLongClick,
-                        onEmoteClick = onEmoteClick,
                     )
                 }
             }
@@ -115,7 +110,6 @@ private fun HistorySheetContent(
     onDismiss: () -> Unit,
     onUserClick: (UserPopupStateParams) -> Unit,
     onMessageLongClick: (MessageOptionsParams) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
 ) {
     val viewModel: MessageHistoryViewModel =
         koinViewModel(
@@ -131,7 +125,6 @@ private fun HistorySheetContent(
         onDismiss = onDismiss,
         onUserClick = clickHandler,
         onMessageLongClick = messageOptionsHandler(onMessageLongClick, canJump = true),
-        onEmoteClick = onEmoteClick,
     )
 }
 

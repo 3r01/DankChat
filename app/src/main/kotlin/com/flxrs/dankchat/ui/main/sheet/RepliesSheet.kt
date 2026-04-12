@@ -55,7 +55,6 @@ fun RepliesSheet(
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
     bottomContentPadding: Dp = 0.dp,
 ) {
     val viewModel: RepliesViewModel =
@@ -115,7 +114,6 @@ fun RepliesSheet(
             repliesViewModel = viewModel,
             onUserClick = onUserClick,
             onMessageLongClick = onMessageLongClick,
-            onEmoteClick = onEmoteClick,
             onMissing = onDismiss,
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),

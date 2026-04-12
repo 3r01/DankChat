@@ -70,7 +70,6 @@ fun MentionSheet(
     onDismiss: () -> Unit,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     bottomContentPadding: Dp = 0.dp,
 ) {
@@ -147,7 +146,6 @@ fun MentionSheet(
                 isWhisperTab = page == 1,
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick,
                 onWhisperReply = if (page == 1) onWhisperReply else null,
                 containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.repo.crash.CrashEntry
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
-import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 data class DialogState(
@@ -19,6 +18,5 @@ data class DialogState(
     val isUploading: Boolean = false,
     val userPopupParams: UserPopupStateParams? = null,
     val messageOptionsParams: MessageOptionsParams? = null,
-    val emoteInfoEmoteIds: ImmutableList<String>? = null,
     val crashEntry: CrashEntry? = null,
 )

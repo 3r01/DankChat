@@ -7,7 +7,6 @@ import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -129,18 +128,6 @@ class DialogStateViewModel(
 
     fun dismissMessageOptions() {
         update { copy(messageOptionsParams = null) }
-    }
-
-    fun showEmoteInfo(emoteIds: List<String>) {
-        update { copy(emoteInfoEmoteIds = emoteIds.toImmutableList()) }
-    }
-
-    fun showEmoteInfo(emoteId: String) {
-        showEmoteInfo(listOf(emoteId))
-    }
-
-    fun dismissEmoteInfo() {
-        update { copy(emoteInfoEmoteIds = null) }
     }
 
     // Crash report

@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -204,7 +203,6 @@ internal fun EmoteMenuOverlay(
     totalMenuHeight: Dp,
     backProgress: Float,
     onEmoteClick: (code: String, id: String) -> Unit,
-    onEmoteLongClick: (emoteId: String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -229,7 +227,6 @@ internal fun EmoteMenuOverlay(
         ) {
             EmoteMenu(
                 onEmoteClick = onEmoteClick,
-                onEmoteLongClick = onEmoteLongClick,
                 onBackspace = onBackspace,
                 modifier = Modifier.fillMaxSize(),
             )

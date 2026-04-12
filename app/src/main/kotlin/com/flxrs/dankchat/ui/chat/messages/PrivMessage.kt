@@ -39,6 +39,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
+import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
@@ -67,7 +68,7 @@ fun PrivMessageComposable(
     fontSize: Float,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<String>) -> Unit,
+    onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
     onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit,
     modifier: Modifier = Modifier,
     highlightShape: Shape = RectangleShape,
@@ -205,7 +206,7 @@ private fun PrivMessageText(
     backgroundColor: Color,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (emotes: List<String>) -> Unit,
+    onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
 ) {
     val context = LocalPlatformContext.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)

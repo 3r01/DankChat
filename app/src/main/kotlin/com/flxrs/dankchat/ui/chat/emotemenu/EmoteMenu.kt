@@ -45,7 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.preferences.components.DankBackground
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
+import com.flxrs.dankchat.ui.chat.emote.toEmoteSheetData
 import com.flxrs.dankchat.ui.main.sheet.EmoteMenuViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -54,10 +57,10 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun EmoteMenu(
     onEmoteClick: (String, String) -> Unit,
-    onEmoteLongClick: (emoteId: String) -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EmoteMenuViewModel = koinViewModel(),
+    emoteInfoViewModel: EmoteInfoViewModel = koinViewModel(),
 ) {
     val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
     val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
@@ -126,7 +129,7 @@ fun EmoteMenu(
                         subsGridState = subsGridState,
                         navBarBottomDp = navBarBottomDp,
                         onEmoteClick = onEmoteClick,
-                        onEmoteLongClick = onEmoteLongClick,
+                        onEmoteLongClick = { emote -> emoteInfoViewModel.show(listOf(emote.toEmoteSheetData())) },
                     )
                 }
 
@@ -160,7 +163,7 @@ private fun EmoteGridPage(
     subsGridState: LazyGridState,
     navBarBottomDp: Dp,
     onEmoteClick: (code: String, id: String) -> Unit,
-    onEmoteLongClick: (emoteId: String) -> Unit,
+    onEmoteLongClick: (GenericEmote) -> Unit,
 ) {
     val items = tab.items
 
@@ -232,7 +235,7 @@ private fun EmoteGridPage(
                                     .pointerInput(item.emote) {
                                         detectTapGestures(
                                             onTap = { onEmoteClick(item.emote.code, item.emote.id) },
-                                            onLongPress = { onEmoteLongClick(item.emote.id) },
+                                            onLongPress = { onEmoteLongClick(item.emote) },
                                         )
                                     },
                         )

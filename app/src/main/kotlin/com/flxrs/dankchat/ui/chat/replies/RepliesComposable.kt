@@ -10,7 +10,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import kotlinx.collections.immutable.persistentListOf
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Standalone composable for reply thread display.
@@ -27,7 +29,6 @@ fun RepliesComposable(
     repliesViewModel: RepliesViewModel,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
     onMissing: () -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier,
@@ -35,6 +36,7 @@ fun RepliesComposable(
     contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
 ) {
+    val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
     val displaySettings by repliesViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val uiState by repliesViewModel.uiState.collectAsStateWithLifecycle(initialValue = RepliesUiState.Found(persistentListOf()))
 
@@ -47,7 +49,7 @@ fun RepliesComposable(
                     ChatScreenCallbacks(
                         onUserClick = onUserClick,
                         onMessageLongClick = onMessageLongClick,
-                        onEmoteClick = onEmoteClick,
+                        onEmoteClick = { emoteInfoViewModel.show(it) },
                     ),
                 animateGifs = displaySettings.animateGifs,
                 modifier = modifier,

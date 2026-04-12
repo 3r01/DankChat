@@ -10,7 +10,9 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
+import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import kotlinx.collections.immutable.persistentListOf
+import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * Standalone composable for mentions/whispers display.
@@ -27,7 +29,6 @@ fun MentionComposable(
     isWhisperTab: Boolean,
     onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
-    onEmoteClick: (List<String>) -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
@@ -35,6 +36,7 @@ fun MentionComposable(
     contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
 ) {
+    val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
     val displaySettings by mentionViewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val messages by when {
         isWhisperTab -> mentionViewModel.whispersUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
@@ -48,7 +50,7 @@ fun MentionComposable(
             ChatScreenCallbacks(
                 onUserClick = onUserClick,
                 onMessageLongClick = onMessageLongClick,
-                onEmoteClick = onEmoteClick,
+                onEmoteClick = { emoteInfoViewModel.show(it) },
                 onWhisperReply = if (isWhisperTab) onWhisperReply else null,
             ),
         animateGifs = displaySettings.animateGifs,

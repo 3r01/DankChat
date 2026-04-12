@@ -64,7 +64,6 @@ import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.data.repo.log.LogRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.chat.BadgeUi
-import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
@@ -84,6 +83,7 @@ import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -250,15 +250,10 @@ fun MainScreenDialogs(
     }
 
     if (sheetsReady) {
-        dialogState.emoteInfoEmoteIds?.let { emoteIds ->
-            EmoteInfoDialogContainer(
-                emoteIds = emoteIds,
-                isLoggedIn = isLoggedIn,
-                onInsertText = chatInputViewModel::insertText,
-                onOpenUrl = onOpenUrl,
-                onDismiss = dialogViewModel::dismissEmoteInfo,
-            )
-        }
+        EmoteInfoSheetContainer(
+            isLoggedIn = isLoggedIn,
+            onOpenUrl = onOpenUrl,
+        )
     }
 
     if (sheetsReady) {
@@ -531,53 +526,6 @@ private fun MessageOptionsDialogContainer(
             }
         }
     }
-}
-
-@Composable
-private fun EmoteInfoDialogContainer(
-    emoteIds: List<String>,
-    isLoggedIn: Boolean,
-    onInsertText: (String) -> Unit,
-    onOpenUrl: (String) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val viewModel: EmoteInfoViewModel =
-        koinViewModel(
-            key = emoteIds.joinToString(),
-            parameters = { parametersOf(emoteIds) },
-        )
-    val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
-    val chatInputViewModel: ChatInputViewModel = koinViewModel()
-    val sheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
-    val whisperTarget by chatInputViewModel.whisperTarget.collectAsStateWithLifecycle()
-    val clipboardManager = LocalClipboard.current
-    val scope = rememberCoroutineScope()
-
-    val canUseEmote =
-        isLoggedIn &&
-            when (sheetState) {
-                is FullScreenSheetState.Closed,
-                is FullScreenSheetState.Replies,
-                -> true
-
-                is FullScreenSheetState.Mention,
-                is FullScreenSheetState.Whisper,
-                -> whisperTarget != null
-
-                is FullScreenSheetState.History -> false
-            }
-    EmoteInfoDialog(
-        items = viewModel.items,
-        isLoggedIn = canUseEmote,
-        onUseEmote = { onInsertText("$it ") },
-        onCopyEmote = {
-            scope.launch {
-                clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("emote", it)))
-            }
-        },
-        onOpenLink = onOpenUrl,
-        onDismiss = onDismiss,
-    )
 }
 
 @Composable
