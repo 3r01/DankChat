@@ -5,8 +5,6 @@ import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
-import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -110,24 +108,6 @@ class DialogStateViewModel(
 
     fun setUploading(uploading: Boolean) {
         update { copy(isUploading = uploading) }
-    }
-
-    // Message interactions
-    fun showUserPopup(params: UserPopupStateParams) {
-        if (!preferenceStore.isLoggedIn) return
-        update { copy(userPopupParams = params) }
-    }
-
-    fun dismissUserPopup() {
-        update { copy(userPopupParams = null) }
-    }
-
-    fun showMessageOptions(params: MessageOptionsParams) {
-        update { copy(messageOptionsParams = params) }
-    }
-
-    fun dismissMessageOptions() {
-        update { copy(messageOptionsParams = null) }
     }
 
     // Crash report

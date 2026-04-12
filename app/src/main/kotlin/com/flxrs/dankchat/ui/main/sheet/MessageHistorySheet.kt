@@ -73,14 +73,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.DisplayName
+import com.flxrs.dankchat.data.UserId
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.components.DankBackground
-import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.history.MessageHistoryViewModel
+import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
+import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
+import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
+import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -92,10 +98,10 @@ fun MessageHistorySheet(
     viewModel: MessageHistoryViewModel,
     initialFilter: String,
     onDismiss: () -> Unit,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
 ) {
     val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
+    val userPopupViewModel: UserPopupViewModel = koinViewModel()
+    val messageOptionsViewModel: MessageOptionsViewModel = koinViewModel()
 
     LaunchedEffect(viewModel, initialFilter) {
         viewModel.setInitialQuery(initialFilter)
@@ -177,8 +183,30 @@ fun MessageHistorySheet(
                     fontSize = displaySettings.fontSize,
                     callbacks =
                         ChatScreenCallbacks(
-                            onUserClick = onUserClick,
-                            onMessageLongClick = onMessageLongClick,
+                            onUserClick = { userId, userName, displayName, ch, badges, _ ->
+                                userPopupViewModel.show(
+                                    UserPopupStateParams(
+                                        targetUserId = userId?.let { UserId(it) },
+                                        targetUserName = UserName(userName),
+                                        targetDisplayName = DisplayName(displayName),
+                                        channel = ch?.let { UserName(it) },
+                                        badges = badges.map { it.badge },
+                                    ),
+                                )
+                            },
+                            onMessageLongClick = { messageId, ch, fullMessage ->
+                                messageOptionsViewModel.show(
+                                    MessageOptionsParams(
+                                        messageId = messageId,
+                                        channel = ch?.let { UserName(it) },
+                                        fullMessage = fullMessage,
+                                        canModerate = false,
+                                        canReply = false,
+                                        canCopy = true,
+                                        canJump = true,
+                                    ),
+                                )
+                            },
                             onEmoteClick = { emoteInfoViewModel.show(it) },
                         ),
                     animateGifs = displaySettings.animateGifs,

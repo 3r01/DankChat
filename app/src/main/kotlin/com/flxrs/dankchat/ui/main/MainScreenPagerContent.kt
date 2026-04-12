@@ -20,15 +20,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import com.flxrs.dankchat.data.DisplayName
-import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.preferences.chat.UserLongClickBehavior
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatComposable
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
-import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.tour.TourStep
@@ -36,9 +31,6 @@ import kotlinx.collections.immutable.ImmutableMap
 
 @Stable
 internal class ChatPagerCallbacks(
-    val onShowUserPopup: (UserPopupStateParams) -> Unit,
-    val onMentionUser: (UserName, DisplayName) -> Unit,
-    val onShowMessageOptions: (MessageOptionsParams) -> Unit,
     val onOpenReplies: (String, UserName) -> Unit,
     val onRecover: () -> Unit,
     val onScrollToBottom: () -> Unit,
@@ -64,7 +56,6 @@ internal fun MainScreenPagerContent(
     helperTextHeightDp: Dp,
     navBarHeightDp: Dp,
     effectiveRoundedCorner: Dp,
-    userLongClickBehavior: UserLongClickBehavior,
     scrollTargets: ImmutableMap<UserName, String>,
     onClearScrollTarget: (UserName) -> Unit,
     callbacks: ChatPagerCallbacks,
@@ -113,51 +104,6 @@ internal fun MainScreenPagerContent(
                             ChatComposable(
                                 channel = channel,
                                 isCollectionActive = isNearCurrentPage,
-                                onUserClick = { userId, userName, displayName, channel, badges, isLongPress ->
-                                    val shouldOpenPopup =
-                                        when (userLongClickBehavior) {
-                                            UserLongClickBehavior.MentionsUser -> !isLongPress
-                                            UserLongClickBehavior.OpensPopup -> isLongPress
-                                        }
-                                    if (shouldOpenPopup) {
-                                        callbacks.onShowUserPopup(
-                                            UserPopupStateParams(
-                                                targetUserId = userId?.let { UserId(it) } ?: UserId(""),
-                                                targetUserName = UserName(userName),
-                                                targetDisplayName = DisplayName(displayName),
-                                                channel = channel?.let { UserName(it) },
-                                                badges = badges.map { it.badge },
-                                            ),
-                                        )
-                                    } else {
-                                        callbacks.onMentionUser(UserName(userName), DisplayName(displayName))
-                                    }
-                                },
-                                onMessageLongClick = { messageId, channel, fullMessage ->
-                                    callbacks.onShowMessageOptions(
-                                        MessageOptionsParams(
-                                            messageId = messageId,
-                                            channel = channel?.let { UserName(it) },
-                                            fullMessage = fullMessage,
-                                            canModerate = isLoggedIn,
-                                            canReply = isLoggedIn,
-                                            canCopy = true,
-                                        ),
-                                    )
-                                },
-                                onAutomodBanUser = { messageId, channel, fullMessage ->
-                                    callbacks.onShowMessageOptions(
-                                        MessageOptionsParams(
-                                            messageId = messageId,
-                                            channel = channel?.let { UserName(it) },
-                                            fullMessage = fullMessage,
-                                            canModerate = isLoggedIn,
-                                            canReply = false,
-                                            canCopy = true,
-                                            startWithBan = true,
-                                        ),
-                                    )
-                                },
                                 onReplyClick = { replyMessageId, replyName ->
                                     callbacks.onOpenReplies(replyMessageId, replyName)
                                 },

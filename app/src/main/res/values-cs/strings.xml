@@ -798,6 +798,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="choose_highlight_color">Vybrat barvu</string>
     <string name="toggle_app_bar">Přepnout panel aplikace</string>
     <string name="error_with_message">Chyba: %s</string>
+    <string name="something_went_wrong">Něco se pokazilo</string>
     <!-- Onboarding -->
     <string name="onboarding_welcome_title">DankChat</string>
     <string name="onboarding_welcome_body">Pojďme vše nastavit.</string>

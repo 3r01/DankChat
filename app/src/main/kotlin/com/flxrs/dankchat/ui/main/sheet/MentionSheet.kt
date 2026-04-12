@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.mention.MentionComposable
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
@@ -68,8 +67,6 @@ fun MentionSheet(
     mentionViewModel: MentionViewModel,
     initialisWhisperTab: Boolean,
     onDismiss: () -> Unit,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onWhisperReply: ((userName: UserName) -> Unit)? = null,
     bottomContentPadding: Dp = 0.dp,
 ) {
@@ -144,8 +141,6 @@ fun MentionSheet(
             MentionComposable(
                 mentionViewModel = mentionViewModel,
                 isWhisperTab = page == 1,
-                onUserClick = onUserClick,
-                onMessageLongClick = onMessageLongClick,
                 onWhisperReply = if (page == 1) onWhisperReply else null,
                 containerColor = sheetBackgroundColor,
                 contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),

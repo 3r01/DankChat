@@ -12,6 +12,11 @@ sealed interface UserPopupState {
         val displayName: DisplayName,
     ) : UserPopupState
 
+    data class NotLoggedIn(
+        val userName: UserName,
+        val displayName: DisplayName,
+    ) : UserPopupState
+
     data class Error(
         val throwable: Throwable? = null,
     ) : UserPopupState

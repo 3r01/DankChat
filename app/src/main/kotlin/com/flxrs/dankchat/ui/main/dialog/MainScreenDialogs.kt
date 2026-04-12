@@ -33,12 +33,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
@@ -63,28 +60,17 @@ import com.flxrs.dankchat.data.repo.crash.CrashEntry
 import com.flxrs.dankchat.data.repo.crash.CrashRepository
 import com.flxrs.dankchat.data.repo.log.LogRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import com.flxrs.dankchat.ui.chat.BadgeUi
-import com.flxrs.dankchat.ui.chat.history.HistoryChannel
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
-import com.flxrs.dankchat.ui.chat.user.UserPopupDialog
-import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
-import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.MainEvent
-import com.flxrs.dankchat.ui.main.MainEventBus
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoSheet
 import com.flxrs.dankchat.ui.main.sheet.DebugInfoViewModel
-import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.ui.main.sheet.InputSheetState
 import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -238,15 +224,9 @@ fun MainScreenDialogs(
     }
 
     if (sheetsReady) {
-        dialogState.messageOptionsParams?.let { params ->
-            MessageOptionsDialogContainer(
-                params = params,
-                onJumpToMessage = onJumpToMessage,
-                onSetReplying = chatInputViewModel::setReplying,
-                onOpenReplies = sheetNavigationViewModel::openReplies,
-                onDismiss = dialogViewModel::dismissMessageOptions,
-            )
-        }
+        MessageOptionsSheetContainer(
+            onJumpToMessage = onJumpToMessage,
+        )
     }
 
     if (sheetsReady) {
@@ -257,34 +237,10 @@ fun MainScreenDialogs(
     }
 
     if (sheetsReady) {
-        dialogState.userPopupParams?.let { params ->
-            val currentSheetState by sheetNavigationViewModel.fullScreenSheetState.collectAsStateWithLifecycle()
-            val isHistoryOpen = currentSheetState is FullScreenSheetState.History
-            UserPopupDialogContainer(
-                params = params,
-                onMention = chatInputViewModel::mentionUser,
-                onWhisper = { userName ->
-                    sheetNavigationViewModel.openWhispers()
-                    chatInputViewModel.setWhisperTarget(userName)
-                },
-                onOpenUrl = onOpenUrl,
-                onReportChannel = onReportChannel,
-                onOpenHistory = { channel, filter ->
-                    sheetNavigationViewModel.openHistory(channel, filter)
-                    dialogViewModel.dismissUserPopup()
-                },
-                onViewHistory = when {
-                    isHistoryOpen -> { userName ->
-                        val historyState = currentSheetState as FullScreenSheetState.History
-                        sheetNavigationViewModel.openHistory(historyState.channel, "from:$userName")
-                        dialogViewModel.dismissUserPopup()
-                    }
-
-                    else -> null
-                },
-                onDismiss = dialogViewModel::dismissUserPopup,
-            )
-        }
+        UserPopupSheetContainer(
+            onOpenUrl = onOpenUrl,
+            onReportChannel = onReportChannel,
+        )
     }
 
     dialogState.crashEntry?.let { crashEntry ->
@@ -437,145 +393,6 @@ private fun ModActionsDialogContainer(
         onSendCommand = onSendCommand,
         onAnnounce = onAnnounce,
         onDismiss = onDismiss,
-    )
-}
-
-@Composable
-private fun MessageOptionsDialogContainer(
-    params: MessageOptionsParams,
-    onJumpToMessage: (String, UserName) -> Unit,
-    onSetReplying: (Boolean, String, UserName, String) -> Unit,
-    onOpenReplies: (String, UserName) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val viewModel: MessageOptionsViewModel =
-        koinViewModel(
-            key = "${params.messageId}-${params.canReply}-${params.canModerate}",
-            parameters = { parametersOf(params.messageId, params.channel, params.canModerate, params.canReply) },
-        )
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val clipboardManager = LocalClipboard.current
-    val mainEventBus: MainEventBus = koinInject()
-    val scope = rememberCoroutineScope()
-
-    (state as? MessageOptionsState.Found)?.let { s ->
-        when (s) {
-            is MessageOptionsState.Found.RegularMessage -> {
-                MessageOptionsDialog(
-                    channel = params.channel?.value,
-                    canModerate = s.canModerate,
-                    canReply = s.canReply,
-                    canCopy = params.canCopy,
-                    canJump = params.canJump,
-                    hasReplyThread = s.hasReplyThread,
-                    urls = s.urls,
-                    onJumpToMessage = {
-                        params.channel?.let { channel ->
-                            onJumpToMessage(params.messageId, channel)
-                        }
-                    },
-                    onReply = { onSetReplying(true, s.messageId, s.replyName, s.originalMessage) },
-                    onReplyToOriginal = { onSetReplying(true, s.rootThreadId, s.rootThreadName ?: s.replyName, s.rootThreadMessage.orEmpty()) },
-                    onViewThread = { onOpenReplies(s.rootThreadId, s.replyName) },
-                    onCopy = {
-                        scope.launch {
-                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                            mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
-                        }
-                    },
-                    onCopyFullMessage = {
-                        scope.launch {
-                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("full message", params.fullMessage)))
-                            mainEventBus.emitEvent(MainEvent.MessageCopied(params.fullMessage))
-                        }
-                    },
-                    onCopyMessageId = {
-                        scope.launch {
-                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message id", s.messageId)))
-                            mainEventBus.emitEvent(MainEvent.MessageIdCopied)
-                        }
-                    },
-                    onCopyUrl = { url ->
-                        scope.launch {
-                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("url", url)))
-                            mainEventBus.emitEvent(MainEvent.LinkCopied(url))
-                        }
-                    },
-                    onDelete = viewModel::deleteMessage,
-                    onTimeout = viewModel::timeoutUser,
-                    onBan = viewModel::banUser,
-                    onUnban = viewModel::unbanUser,
-                    onDismiss = onDismiss,
-                )
-            }
-
-            is MessageOptionsState.Found.AutomodMessage -> {
-                AutomodMessageOptionsDialog(
-                    canModerate = s.canModerate,
-                    startWithBan = params.startWithBan,
-                    onCopy = {
-                        scope.launch {
-                            clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("message", s.originalMessage)))
-                            mainEventBus.emitEvent(MainEvent.MessageCopied(s.originalMessage))
-                        }
-                    },
-                    onBan = viewModel::banUser,
-                    onUnban = viewModel::unbanUser,
-                    onDismiss = onDismiss,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun UserPopupDialogContainer(
-    params: UserPopupStateParams,
-    onMention: (UserName, DisplayName) -> Unit,
-    onWhisper: (UserName) -> Unit,
-    onOpenUrl: (String) -> Unit,
-    onReportChannel: () -> Unit,
-    onOpenHistory: (HistoryChannel, String) -> Unit,
-    onViewHistory: ((String) -> Unit)? = null,
-    onDismiss: () -> Unit,
-) {
-    val viewModel: UserPopupViewModel =
-        koinViewModel(
-            key = "${params.targetUserId}${params.channel?.value.orEmpty()}",
-            parameters = { parametersOf(params) },
-        )
-    val state by viewModel.userPopupState.collectAsStateWithLifecycle()
-    UserPopupDialog(
-        state = state,
-        badges = params.badges.mapIndexed { index, badge -> BadgeUi(badge.url, badge, index) }.toImmutableList(),
-        isOwnUser = viewModel.isOwnUser,
-        onBlockUser = viewModel::blockUser,
-        onUnblockUser = viewModel::unblockUser,
-        onDismiss = onDismiss,
-        onMention = when (onViewHistory) {
-            null -> { name: String, displayName: String ->
-                onMention(UserName(name), DisplayName(displayName))
-            }
-
-            else -> null
-        },
-        onWhisper = when (onViewHistory) {
-            null -> { name: String -> onWhisper(UserName(name)) }
-            else -> null
-        },
-        onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
-        onReport = { _ -> onReportChannel() },
-        onMessageHistory = when (onViewHistory) {
-            null -> { userName: String ->
-                params.channel?.let { channel ->
-                    onOpenHistory(HistoryChannel.Channel(channel), "from:$userName")
-                }
-                Unit
-            }
-
-            else -> null
-        },
-        onViewHistory = onViewHistory,
     )
 }
 

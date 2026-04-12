@@ -18,100 +18,126 @@ import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.ui.chat.messages.common.extractUrls
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.koin.core.annotation.InjectedParam
 import org.koin.core.annotation.KoinViewModel
+
+data class MessageOptionsUiState(
+    val optionsState: MessageOptionsState,
+    val params: MessageOptionsParams,
+)
 
 @KoinViewModel
 class MessageOptionsViewModel(
-    @InjectedParam private val messageId: String,
-    @InjectedParam private val channel: UserName?,
-    @InjectedParam private val canModerateParam: Boolean,
-    @InjectedParam private val canReplyParam: Boolean,
     private val chatRepository: ChatRepository,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
     private val commandRepository: CommandRepository,
     private val repliesRepository: RepliesRepository,
-    chatMessageRepository: ChatMessageRepository,
-    chatConnector: ChatConnector,
-    chatNotificationRepository: ChatNotificationRepository,
+    private val chatMessageRepository: ChatMessageRepository,
+    private val chatConnector: ChatConnector,
+    private val chatNotificationRepository: ChatNotificationRepository,
 ) : ViewModel() {
-    private val messageFlow = flowOf(chatMessageRepository.findMessage(messageId, channel, chatNotificationRepository.whispers))
-    private val connectionStateFlow = chatConnector.getConnectionState(channel ?: WhisperMessage.WHISPER_CHANNEL)
+    private val _state = MutableStateFlow<MessageOptionsUiState?>(null)
+    val state: StateFlow<MessageOptionsUiState?> = _state.asStateFlow()
+    val isActive = _state.map { it != null }
 
-    val state: StateFlow<MessageOptionsState> =
-        combine(
-            userStateRepository.userState,
-            connectionStateFlow,
-            messageFlow,
-        ) { userState, connectionState, message ->
-            when (message) {
-                null -> {
-                    MessageOptionsState.NotFound
-                }
+    private var currentParams: MessageOptionsParams? = null
+    private var collectJob: Job? = null
 
-                is AutomodMessage -> {
-                    val originalMessage = message.messageText.orEmpty()
-                    MessageOptionsState.Found.AutomodMessage(
-                        name = message.userName,
-                        originalMessage = originalMessage,
-                        canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
-                        urls = extractUrls(originalMessage).toImmutableList(),
-                    )
-                }
+    fun show(params: MessageOptionsParams) {
+        currentParams = params
+        collectJob?.cancel()
+        collectJob = viewModelScope.launch {
+            val messageFlow = flowOf(chatMessageRepository.findMessage(params.messageId, params.channel, chatNotificationRepository.whispers))
+            val connectionStateFlow = chatConnector.getConnectionState(params.channel ?: WhisperMessage.WHISPER_CHANNEL)
 
-                else -> {
-                    val asPrivMessage = message as? PrivMessage
-                    val asWhisperMessage = message as? WhisperMessage
-                    val thread = asPrivMessage?.thread
-                    val rootId = thread?.rootId
-                    val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
-                    val originalMessage = (asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage).orEmpty()
-                    MessageOptionsState.Found.RegularMessage(
-                        messageId = message.id,
-                        rootThreadId = rootId ?: message.id,
-                        rootThreadName = thread?.name,
-                        rootThreadMessage = thread?.message,
-                        replyName = name,
-                        name = name,
-                        originalMessage = originalMessage,
-                        canModerate = canModerateParam && channel != null && channel in userState.moderationChannels,
-                        urls = extractUrls(originalMessage).toImmutableList(),
-                        hasReplyThread = canReplyParam && rootId != null && repliesRepository.hasMessageThread(rootId),
-                        canReply = connectionState == ConnectionState.CONNECTED && canReplyParam,
-                    )
+            combine(
+                userStateRepository.userState,
+                connectionStateFlow,
+                messageFlow,
+            ) { userState, connectionState, message ->
+                when (message) {
+                    null -> {
+                        MessageOptionsState.NotFound
+                    }
+
+                    is AutomodMessage -> {
+                        val originalMessage = message.messageText.orEmpty()
+                        MessageOptionsState.Found.AutomodMessage(
+                            name = message.userName,
+                            originalMessage = originalMessage,
+                            canModerate = params.canModerate && params.channel != null && params.channel in userState.moderationChannels,
+                            urls = extractUrls(originalMessage).toImmutableList(),
+                        )
+                    }
+
+                    else -> {
+                        val asPrivMessage = message as? PrivMessage
+                        val asWhisperMessage = message as? WhisperMessage
+                        val thread = asPrivMessage?.thread
+                        val rootId = thread?.rootId
+                        val name = asPrivMessage?.name ?: asWhisperMessage?.name ?: return@combine MessageOptionsState.NotFound
+                        val originalMessage = (asPrivMessage?.originalMessage ?: asWhisperMessage?.originalMessage).orEmpty()
+                        MessageOptionsState.Found.RegularMessage(
+                            messageId = message.id,
+                            rootThreadId = rootId ?: message.id,
+                            rootThreadName = thread?.name,
+                            rootThreadMessage = thread?.message,
+                            replyName = name,
+                            name = name,
+                            originalMessage = originalMessage,
+                            canModerate = params.canModerate && params.channel != null && params.channel in userState.moderationChannels,
+                            urls = extractUrls(originalMessage).toImmutableList(),
+                            hasReplyThread = params.canReply && rootId != null && repliesRepository.hasMessageThread(rootId),
+                            canReply = connectionState == ConnectionState.CONNECTED && params.canReply,
+                        )
+                    }
                 }
+            }.collect { optionsState ->
+                _state.value = MessageOptionsUiState(
+                    optionsState = optionsState,
+                    params = params,
+                )
             }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MessageOptionsState.Loading)
+        }
+    }
+
+    fun dismiss() {
+        collectJob?.cancel()
+        currentParams = null
+        _state.value = null
+    }
 
     fun timeoutUser(index: Int) = viewModelScope.launch {
         val duration = TIMEOUT_MAP[index] ?: return@launch
-        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        val name = (_state.value?.optionsState as? MessageOptionsState.Found)?.name ?: return@launch
         sendCommand(".timeout $name $duration")
     }
 
     fun banUser() = viewModelScope.launch {
-        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        val name = (_state.value?.optionsState as? MessageOptionsState.Found)?.name ?: return@launch
         sendCommand(".ban $name")
     }
 
     fun unbanUser() = viewModelScope.launch {
-        val name = (state.value as? MessageOptionsState.Found)?.name ?: return@launch
+        val name = (_state.value?.optionsState as? MessageOptionsState.Found)?.name ?: return@launch
         sendCommand(".unban $name")
     }
 
     fun deleteMessage() = viewModelScope.launch {
+        val messageId = currentParams?.messageId ?: return@launch
         sendCommand(".delete $messageId")
     }
 
     private suspend fun sendCommand(message: String) {
-        val activeChannel = channel ?: return
+        val activeChannel = currentParams?.channel ?: return
         val roomState = channelRepository.getRoomState(activeChannel) ?: return
         val userState = userStateRepository.userState.value
         val result =

@@ -73,9 +73,11 @@ import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
+import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import com.flxrs.dankchat.ui.chat.swipeDownToHide
+import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerViewModel
@@ -141,6 +143,8 @@ fun MainScreen(
     val streamViewModel: StreamViewModel = koinViewModel()
     val dialogViewModel: DialogStateViewModel = koinViewModel()
     val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
+    val userPopupViewModel: UserPopupViewModel = koinViewModel()
+    val messageOptionsViewModel: MessageOptionsViewModel = koinViewModel()
     val mentionViewModel: MentionViewModel = koinViewModel()
     val preferenceStore: DankChatPreferenceStore = koinInject()
     val mainEventBus: MainEventBus = koinInject()
@@ -226,6 +230,8 @@ fun MainScreen(
 
     val dialogState by dialogViewModel.state.collectAsStateWithLifecycle()
     val emoteInfoActive by emoteInfoViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
+    val userPopupActive by userPopupViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
+    val messageOptionsActive by messageOptionsViewModel.isActive.collectAsStateWithLifecycle(initialValue = false)
 
     val sheetNavState by sheetNavigationViewModel.sheetState.collectAsStateWithLifecycle()
     val fullScreenSheetState = sheetNavState.fullScreenSheet
@@ -236,8 +242,8 @@ fun MainScreen(
     // Dismiss keyboard before opening sheets to prevent animation conflicts.
     // Defers sheet rendering until the keyboard has started closing.
     val hasBottomSheet = isSheetOpen ||
-        dialogState.messageOptionsParams != null ||
-        dialogState.userPopupParams != null ||
+        messageOptionsActive ||
+        userPopupActive ||
         emoteInfoActive ||
         dialogState.showModActions
     var sheetsReady by remember { mutableStateOf(true) }
@@ -294,7 +300,7 @@ fun MainScreen(
         onJumpToMessage = { messageId, channel ->
             val target = channelPagerViewModel.resolveJumpTarget(channel, messageId)
             if (target != null) {
-                dialogViewModel.dismissMessageOptions()
+                messageOptionsViewModel.dismiss()
                 sheetNavigationViewModel.closeFullScreenSheet()
                 scrollTargets[target.channel] = target.messageId
                 scope.launch { composePagerStateRef?.scrollToPage(target.channelIndex) }
@@ -650,9 +656,6 @@ fun MainScreen(
             val chatPagerCallbacks =
                 remember {
                     ChatPagerCallbacks(
-                        onShowUserPopup = dialogViewModel::showUserPopup,
-                        onMentionUser = chatInputViewModel::mentionUser,
-                        onShowMessageOptions = dialogViewModel::showMessageOptions,
                         onOpenReplies = sheetNavigationViewModel::openReplies,
                         onRecover = {
                             mainScreenViewModel.recoverInputAndFullscreen()
@@ -738,7 +741,6 @@ fun MainScreen(
                     helperTextHeightDp = helperTextHeightDp,
                     navBarHeightDp = navBarHeightDp,
                     effectiveRoundedCorner = effectiveRoundedCorner,
-                    userLongClickBehavior = inputState.userLongClickBehavior,
                     scrollTargets = scrollTargets.toImmutableMap(),
                     onClearScrollTarget = { scrollTargets.remove(it) },
                     callbacks = chatPagerCallbacks,
@@ -765,11 +767,7 @@ fun MainScreen(
                         sheetNavigationViewModel.closeFullScreenSheet()
                         chatInputViewModel.setReplying(false)
                     },
-                    onUserClick = dialogViewModel::showUserPopup,
-                    onMessageLongClick = dialogViewModel::showMessageOptions,
-                    userLongClickBehavior = inputState.userLongClickBehavior,
                     onWhisperReply = chatInputViewModel::setWhisperTarget,
-                    onUserMention = chatInputViewModel::mentionUser,
                     bottomContentPadding = effectiveBottomPadding,
                 )
             }

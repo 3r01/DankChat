@@ -1,11 +1,14 @@
 package com.flxrs.dankchat.ui.chat.user
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +28,7 @@ import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,6 +65,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import com.flxrs.dankchat.utils.compose.SheetErrorContent
 import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,16 +149,14 @@ fun UserPopupDialog(
                     ) {
                         when (state) {
                             is UserPopupState.Error -> {
-                                Text(
-                                    text = stringResource(R.string.error_with_message, state.throwable?.message.orEmpty()),
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                )
+                                SheetErrorContent()
                             }
 
                             else -> {
                                 val userName = state.userName
                                 val displayName = state.displayName
                                 val isSuccess = state is UserPopupState.Success
+                                val isLoggedIn = state !is UserPopupState.NotLoggedIn
                                 val isBlocked = (state as? UserPopupState.Success)?.isBlocked == true
 
                                 UserInfoSection(
@@ -164,7 +167,7 @@ fun UserPopupDialog(
                                     onOpenChannel = onOpenChannel,
                                 )
 
-                                if (onMention != null) {
+                                if (onMention != null && isLoggedIn) {
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
                                         leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
@@ -176,7 +179,7 @@ fun UserPopupDialog(
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
-                                if (onWhisper != null && !isOwnUser) {
+                                if (onWhisper != null && isLoggedIn && !isOwnUser) {
                                     ListItem(
                                         headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
                                         leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
@@ -205,7 +208,7 @@ fun UserPopupDialog(
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                                     )
                                 }
-                                if (isSuccess && !isOwnUser) {
+                                AnimatedVisibility(visible = isSuccess && !isOwnUser) {
                                     ListItem(
                                         headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
                                         leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
@@ -257,29 +260,53 @@ private fun UserInfoSection(
                 .padding(16.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        when (state) {
-            is UserPopupState.Success -> {
-                AsyncImage(
-                    model = state.avatarUrl,
-                    contentDescription = null,
-                    modifier =
-                        Modifier
+        Crossfade(targetState = state, label = "Avatar") { targetState ->
+            when (targetState) {
+                is UserPopupState.Success -> {
+                    AsyncImage(
+                        model = targetState.avatarUrl,
+                        contentDescription = null,
+                        modifier =
+                            Modifier
+                                .size(96.dp)
+                                .clip(CircleShape)
+                                .clickable { onOpenChannel(targetState.userName.value) },
+                    )
+                }
+
+                is UserPopupState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is UserPopupState.NotLoggedIn -> {
+                    Box(
+                        modifier = Modifier
                             .size(96.dp)
                             .clip(CircleShape)
-                            .clickable { onOpenChannel(state.userName.value) },
-                )
-            }
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            .clickable { onOpenChannel(targetState.userName.value) },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
 
-            is UserPopupState.Loading -> {
-                Box(
-                    modifier = Modifier.size(96.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
+                is UserPopupState.Error -> {
+                    Spacer(modifier = Modifier.size(96.dp))
                 }
             }
-
-            is UserPopupState.Error -> {}
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -290,56 +317,58 @@ private fun UserInfoSection(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
-            when (state) {
-                is UserPopupState.Success -> {
-                    Text(
-                        text = stringResource(R.string.user_popup_created, state.created),
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                    )
-                    if (state.showFollowingSince) {
+            val isSuccess = state is UserPopupState.Success
+            AnimatedVisibility(visible = isSuccess) {
+                val successState = state as? UserPopupState.Success
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (successState != null) {
                         Text(
-                            text =
-                                state.followingSince?.let {
-                                    stringResource(R.string.user_popup_following_since, it)
-                                } ?: stringResource(R.string.user_popup_not_following),
+                            text = stringResource(R.string.user_popup_created, successState.created),
                             style = MaterialTheme.typography.bodyMedium,
                             textAlign = TextAlign.Center,
                         )
-                    }
-                    if (badges.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        FlowRow(
-                            horizontalArrangement = Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterHorizontally),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            badges.forEach { badge ->
-                                val title = badge.badge.title
-                                if (title != null) {
-                                    TooltipBox(
-                                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-                                        tooltip = { PlainTooltip { Text(title) } },
-                                        state = rememberTooltipState(),
-                                    ) {
+                        if (successState.showFollowingSince) {
+                            Text(
+                                text =
+                                    successState.followingSince?.let {
+                                        stringResource(R.string.user_popup_following_since, it)
+                                    } ?: stringResource(R.string.user_popup_not_following),
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        if (badges.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(space = 4.dp, alignment = Alignment.CenterHorizontally),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                badges.forEach { badge ->
+                                    val title = badge.badge.title
+                                    if (title != null) {
+                                        TooltipBox(
+                                            positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                                            tooltip = { PlainTooltip { Text(title) } },
+                                            state = rememberTooltipState(),
+                                        ) {
+                                            AsyncImage(
+                                                model = badge.url,
+                                                contentDescription = title,
+                                                modifier = Modifier.size(32.dp),
+                                            )
+                                        }
+                                    } else {
                                         AsyncImage(
                                             model = badge.url,
-                                            contentDescription = title,
+                                            contentDescription = null,
                                             modifier = Modifier.size(32.dp),
                                         )
                                     }
-                                } else {
-                                    AsyncImage(
-                                        model = badge.url,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(32.dp),
-                                    )
                                 }
                             }
                         }
                     }
                 }
-
-                else -> {}
             }
         }
     }
@@ -349,6 +378,7 @@ private val UserPopupState.userName: UserName
     get() =
         when (this) {
             is UserPopupState.Loading -> userName
+            is UserPopupState.NotLoggedIn -> userName
             is UserPopupState.Success -> userName
             is UserPopupState.Error -> UserName("")
         }
@@ -357,6 +387,7 @@ private val UserPopupState.displayName: DisplayName
     get() =
         when (this) {
             is UserPopupState.Loading -> displayName
+            is UserPopupState.NotLoggedIn -> displayName
             is UserPopupState.Success -> displayName
             is UserPopupState.Error -> DisplayName("")
         }

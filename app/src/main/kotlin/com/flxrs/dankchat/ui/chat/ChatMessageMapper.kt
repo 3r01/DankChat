@@ -161,7 +161,7 @@ class ChatMessageMapper(
     ): ChatMessageUiState.SystemMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -324,7 +324,7 @@ class ChatMessageMapper(
     ): ChatMessageUiState.NoticeMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -359,7 +359,7 @@ class ChatMessageMapper(
                 else -> calculateCheckeredBackgroundColors(isAlternateBackground, false)
             }
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -396,7 +396,7 @@ class ChatMessageMapper(
     ): ChatMessageUiState.ModerationMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, false)
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -436,7 +436,7 @@ class ChatMessageMapper(
         textAlpha: Float,
     ): ChatMessageUiState.AutomodMessageUi {
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -498,7 +498,7 @@ class ChatMessageMapper(
             }
 
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -655,7 +655,7 @@ class ChatMessageMapper(
     ): ChatMessageUiState.PointRedemptionMessageUi {
         val backgroundColors = getHighlightColors(HighlightType.ChannelPointRedemption)
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""
@@ -689,7 +689,7 @@ class ChatMessageMapper(
     ): ChatMessageUiState.WhisperMessageUi {
         val backgroundColors = calculateCheckeredBackgroundColors(isAlternateBackground, true)
         val timestamp =
-            if (chatSettings.showTimestamps) {
+            if (chatSettings.showTimestamps && timestamp > 0L) {
                 DateTimeUtils.timestampToLocalTime(timestamp, chatSettings.formatter)
             } else {
                 ""

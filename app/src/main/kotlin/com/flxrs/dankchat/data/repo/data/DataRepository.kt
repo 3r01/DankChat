@@ -9,7 +9,6 @@ import com.flxrs.dankchat.data.api.cache.CachedResult
 import com.flxrs.dankchat.data.api.dankchat.DankChatApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
-import com.flxrs.dankchat.data.api.helix.dto.UserDto
 import com.flxrs.dankchat.data.api.helix.dto.UserFollowsDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
@@ -102,8 +101,6 @@ class DataRepository(
     fun getEmotes(channel: UserName): Flow<Emotes> = emoteRepository.getEmotes(channel)
 
     fun createFlowsIfNecessary(channels: List<UserName>) = emoteRepository.createFlowsIfNecessary(channels)
-
-    suspend fun getUser(userId: UserId): UserDto? = helixApiClient.getUser(userId).getOrNull()
 
     suspend fun getChannelFollowers(
         broadcasterId: UserId,

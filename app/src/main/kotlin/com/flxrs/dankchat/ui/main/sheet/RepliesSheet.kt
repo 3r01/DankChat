@@ -41,7 +41,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
-import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.replies.RepliesComposable
 import com.flxrs.dankchat.ui.chat.replies.RepliesViewModel
@@ -53,8 +52,6 @@ import org.koin.core.parameter.parametersOf
 fun RepliesSheet(
     rootMessageId: String,
     onDismiss: () -> Unit,
-    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
-    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     bottomContentPadding: Dp = 0.dp,
 ) {
     val viewModel: RepliesViewModel =
@@ -112,8 +109,6 @@ fun RepliesSheet(
     ) {
         RepliesComposable(
             repliesViewModel = viewModel,
-            onUserClick = onUserClick,
-            onMessageLongClick = onMessageLongClick,
             onMissing = onDismiss,
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),

@@ -176,6 +176,7 @@ class RepliesRepository(
         val body = if (parentId == rootId) reply.tags[PARENT_MESSAGE_BODY_TAG].orEmpty() else ""
 
         return PrivMessage(
+            timestamp = 0L,
             id = rootId,
             channel = reply.channel,
             sourceChannel = null,

@@ -3,6 +3,7 @@ package com.flxrs.dankchat.data.repo.channel
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.dto.UserDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
@@ -28,31 +29,27 @@ class ChannelRepository(
     private val dispatchersProvider: DispatchersProvider,
 ) {
     private val channelCache = ConcurrentHashMap<UserName, Channel>()
+    private val userDtoCache = ConcurrentHashMap<UserId, UserDto>()
     private val roomStates = ConcurrentHashMap<UserName, RoomState>()
     private val roomStateFlows = ConcurrentHashMap<UserName, MutableSharedFlow<RoomState>>()
 
     suspend fun getChannel(name: UserName): Channel? {
         val cached = channelCache[name]
         if (cached != null) {
-            return channelCache[name]
+            return cached
         }
 
-        val channel =
-            when {
-                authDataStore.isLoggedIn -> {
-                    helixApiClient
-                        .getUserByName(name)
-                        .getOrNull()
-                        ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
-                }
+        val userDto = when {
+            authDataStore.isLoggedIn -> helixApiClient.getUserByName(name).getOrNull()
+            else -> null
+        }
 
-                else -> {
-                    null
-                }
-            } ?: tryGetChannelFromIrc(name)
-
+        val channel = userDto?.toChannel() ?: tryGetChannelFromIrc(name)
         if (channel != null) {
             channelCache[name] = channel
+        }
+        if (userDto != null) {
+            userDtoCache[userDto.id] = userDto
         }
 
         return channel
@@ -68,18 +65,46 @@ class ChannelRepository(
             return null
         }
 
-        val channel =
-            helixApiClient
-                .getUser(id)
-                .getOrNull()
-                ?.let { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
+        val userDto = helixApiClient.getUser(id).getOrNull()
+        val channel = userDto?.toChannel()
 
         if (channel != null) {
             channelCache[channel.name] = channel
         }
+        if (userDto != null) {
+            userDtoCache[userDto.id] = userDto
+        }
 
         return channel
     }
+
+    suspend fun getUserDto(id: UserId): UserDto? {
+        userDtoCache[id]?.let { return it }
+
+        if (!authDataStore.isLoggedIn) {
+            return null
+        }
+
+        val userDto = helixApiClient.getUser(id).getOrNull() ?: return null
+        userDtoCache[userDto.id] = userDto
+        channelCache[userDto.name] = userDto.toChannel()
+        return userDto
+    }
+
+    suspend fun getUserDtoByName(name: UserName): UserDto? {
+        userDtoCache.values.firstOrNull { it.name == name }?.let { return it }
+
+        if (!authDataStore.isLoggedIn) {
+            return null
+        }
+
+        val userDto = helixApiClient.getUserByName(name).getOrNull() ?: return null
+        userDtoCache[userDto.id] = userDto
+        channelCache[userDto.name] = userDto.toChannel()
+        return userDto
+    }
+
+    fun getCachedUserDto(id: UserId): UserDto? = userDtoCache[id]
 
     fun getCachedChannelByIdOrNull(id: UserId): Channel? = channelCache.values.find { it.id == id }
 
@@ -117,14 +142,15 @@ class ChannelRepository(
             return@withContext cached
         }
 
-        val channels =
+        val users =
             helixApiClient
                 .getUsersByIds(remaining)
                 .getOrNull()
                 .orEmpty()
-                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
+        val channels = users.map { it.toChannel() }
         channels.forEach { channelCache[it.name] = it }
+        users.forEach { userDtoCache[it.id] = it }
         return@withContext cached + channels
     }
 
@@ -136,14 +162,15 @@ class ChannelRepository(
             return@withContext cached
         }
 
-        val channels =
+        val users =
             helixApiClient
                 .getUsersByNames(remaining)
                 .getOrNull()
                 .orEmpty()
-                .map { Channel(id = it.id, name = it.name, displayName = it.displayName, avatarUrl = it.avatarUrl) }
 
+        val channels = users.map { it.toChannel() }
         channels.forEach { channelCache[it.name] = it }
+        users.forEach { userDtoCache[it.id] = it }
         return@withContext cached + channels
     }
 
@@ -165,4 +192,6 @@ class ChannelRepository(
         val displayName = usersRepository.findDisplayName(name, name)
         return id?.let { Channel(id = it, name = name, displayName = displayName ?: name.toDisplayName(), avatarUrl = null) }
     }
+
+    private fun UserDto.toChannel() = Channel(id = id, name = name, displayName = displayName, avatarUrl = avatarUrl)
 }

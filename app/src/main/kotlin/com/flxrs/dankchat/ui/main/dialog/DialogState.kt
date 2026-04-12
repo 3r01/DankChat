@@ -2,8 +2,6 @@ package com.flxrs.dankchat.ui.main.dialog
 
 import androidx.compose.runtime.Immutable
 import com.flxrs.dankchat.data.repo.crash.CrashEntry
-import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
-import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 
 @Immutable
 data class DialogState(
@@ -16,7 +14,5 @@ data class DialogState(
     val showNewWhisper: Boolean = false,
     val pendingUploadAction: (() -> Unit)? = null,
     val isUploading: Boolean = false,
-    val userPopupParams: UserPopupStateParams? = null,
-    val messageOptionsParams: MessageOptionsParams? = null,
     val crashEntry: CrashEntry? = null,
 )
