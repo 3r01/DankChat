@@ -50,8 +50,8 @@ enum class ThemePreference { System, Dark, Light }
 @Immutable
 @Serializable
 enum class PaletteStylePreference(
-    @StringRes val labelRes: Int,
-    @StringRes val descriptionRes: Int,
+    @get:StringRes val labelRes: Int,
+    @get:StringRes val descriptionRes: Int,
     val isStandard: Boolean = true,
 ) {
     SystemDefault(R.string.palette_style_system_default, R.string.palette_style_system_default_desc),
@@ -70,7 +70,7 @@ enum class PaletteStylePreference(
 @Serializable
 enum class AccentColor(
     val seedColor: Color,
-    @StringRes val labelRes: Int,
+    @get:StringRes val labelRes: Int,
 ) {
     Blue(Color(0xFF1B6EF3), R.string.accent_color_blue),
     Teal(Color(0xFF00796B), R.string.accent_color_teal),

@@ -128,7 +128,7 @@ private fun LibraryLicenseSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        contentWindowInsets = { BottomSheetDefaults.windowInsets.exclude(WindowInsets.navigationBars) },
+        contentWindowInsets = { BottomSheetDefaults.modalWindowInsets.exclude(WindowInsets.navigationBars) },
     ) {
         Text(
             text = library.name,
