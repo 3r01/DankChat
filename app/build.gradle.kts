@@ -26,8 +26,8 @@ android {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 35
-        versionCode = 40026
-        versionName = "4.0.26"
+        versionCode = 40027
+        versionName = "4.0.27"
     }
 
     androidResources { generateLocaleConfig = true }
