@@ -1,8 +1,6 @@
 package com.flxrs.dankchat.domain
 
 import com.flxrs.dankchat.data.UserId
-import com.flxrs.dankchat.data.UserName
-import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.data.repo.command.CommandRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
@@ -16,7 +14,6 @@ import org.koin.core.annotation.Single
 class GlobalDataLoader(
     private val dataRepository: DataRepository,
     private val commandRepository: CommandRepository,
-    private val ignoresRepository: IgnoresRepository,
     private val dispatchersProvider: DispatchersProvider,
 ) {
     suspend fun loadGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
@@ -32,12 +29,9 @@ class GlobalDataLoader(
     }
 
     suspend fun loadAuthGlobalData(): List<Result<Unit>> = withContext(dispatchersProvider.io) {
-        val results =
-            awaitAll(
-                async { loadGlobalBadges() },
-            )
-        launch { loadUserBlocks() }
-        results
+        awaitAll(
+            async { loadGlobalBadges() },
+        )
     }
 
     suspend fun loadDankChatBadges(): Result<Unit> = dataRepository.loadDankChatBadges()
@@ -51,8 +45,6 @@ class GlobalDataLoader(
     suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalSevenTVEmotes(forceNetwork)
 
     suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
-
-    suspend fun loadUserBlocks() = ignoresRepository.loadUserBlocks()
 
     suspend fun loadUserEmotes(
         userId: UserId,

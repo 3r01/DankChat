@@ -47,6 +47,7 @@ internal class ChannelDataLoaderTest {
     private val chatMessageRepository: ChatMessageRepository = mockk(relaxed = true)
     private val channelRepository: ChannelRepository = mockk()
     private val getChannelsUseCase: GetChannelsUseCase = mockk()
+    private val userBlocksGate: UserBlocksGate = mockk(relaxed = true)
 
     private lateinit var loader: ChannelDataLoader
 
@@ -69,6 +70,7 @@ internal class ChannelDataLoaderTest {
                 chatMessageRepository = chatMessageRepository,
                 channelRepository = channelRepository,
                 getChannelsUseCase = getChannelsUseCase,
+                userBlocksGate = userBlocksGate,
                 dispatchersProvider = dispatchersProvider,
             )
     }

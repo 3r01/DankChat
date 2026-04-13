@@ -59,6 +59,7 @@ internal class ChannelDataCoordinatorTest {
     private val preferenceStore: DankChatPreferenceStore = mockk()
     private val startupValidationHolder = StartupValidationHolder()
     private val streamDataRepository: StreamDataRepository = mockk(relaxed = true)
+    private val userBlocksGate: UserBlocksGate = mockk(relaxed = true)
 
     private val dataUpdateEvents = MutableSharedFlow<DataUpdateEventMessage>()
     private val dataLoadingFailures = MutableStateFlow<Set<DataLoadingFailure>>(emptySet())
@@ -84,6 +85,7 @@ internal class ChannelDataCoordinatorTest {
                 preferenceStore = preferenceStore,
                 startupValidationHolder = startupValidationHolder,
                 streamDataRepository = streamDataRepository,
+                userBlocksGate = userBlocksGate,
                 dispatchersProvider = dispatchersProvider,
             )
     }
@@ -128,6 +130,7 @@ internal class ChannelDataCoordinatorTest {
 
         coordinator.loadGlobalData()
 
+        coVerify { userBlocksGate.loadAndOpen() }
         coVerify { streamDataRepository.fetchOnce(listOf(UserName("testchannel"))) }
         coVerify { globalDataLoader.loadAuthGlobalData() }
     }
@@ -135,7 +138,7 @@ internal class ChannelDataCoordinatorTest {
     @Test
     fun `loadChannelData transitions to Loaded`() = runTest(testDispatcher) {
         val channel = UserName("testchannel")
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+        coEvery { channelDataLoader.loadChannelData(channel, any()) } returns ChannelLoadingState.Loaded
 
         coordinator.loadChannelData(channel)
 
@@ -146,7 +149,7 @@ internal class ChannelDataCoordinatorTest {
     fun `loadChannelData transitions to Failed on loader failure`() = runTest(testDispatcher) {
         val channel = UserName("testchannel")
         val failures = listOf(ChannelLoadingFailure.BTTVEmotes(channel, RuntimeException("network")))
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Failed(failures)
+        coEvery { channelDataLoader.loadChannelData(channel, any()) } returns ChannelLoadingState.Failed(failures)
 
         coordinator.loadChannelData(channel)
 
@@ -197,7 +200,7 @@ internal class ChannelDataCoordinatorTest {
         val channel = UserName("testchannel")
         every { dataRepository.clearDataLoadingFailures() } just runs
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+        coEvery { channelDataLoader.loadChannelData(channel, any()) } returns ChannelLoadingState.Loaded
 
         val failedState =
             GlobalLoadingState.Failed(
@@ -206,7 +209,7 @@ internal class ChannelDataCoordinatorTest {
 
         coordinator.retryDataLoading(failedState)
 
-        coVerify { channelDataLoader.loadChannelData(channel) }
+        coVerify { channelDataLoader.loadChannelData(channel, any()) }
     }
 
     @Test
@@ -214,7 +217,7 @@ internal class ChannelDataCoordinatorTest {
         val channel = UserName("testchannel")
         every { dataRepository.clearDataLoadingFailures() } just runs
         every { chatMessageRepository.clearChatLoadingFailures() } just runs
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+        coEvery { channelDataLoader.loadChannelData(channel, any()) } returns ChannelLoadingState.Loaded
 
         val failedState =
             GlobalLoadingState.Failed(
@@ -223,7 +226,7 @@ internal class ChannelDataCoordinatorTest {
 
         coordinator.retryDataLoading(failedState)
 
-        coVerify { channelDataLoader.loadChannelData(channel) }
+        coVerify { channelDataLoader.loadChannelData(channel, any()) }
     }
 
     @Test
@@ -260,7 +263,7 @@ internal class ChannelDataCoordinatorTest {
     @Test
     fun `cleanupChannel removes channel state`() = runTest(testDispatcher) {
         val channel = UserName("testchannel")
-        coEvery { channelDataLoader.loadChannelData(channel) } returns ChannelLoadingState.Loaded
+        coEvery { channelDataLoader.loadChannelData(channel, any()) } returns ChannelLoadingState.Loaded
 
         coordinator.loadChannelData(channel)
         assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)

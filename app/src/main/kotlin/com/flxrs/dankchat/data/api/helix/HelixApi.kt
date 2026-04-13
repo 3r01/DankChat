@@ -82,12 +82,12 @@ class HelixApi(
         }
     }
 
-    suspend fun getUserBlocks(
+    suspend fun getUserBlocksUnvalidated(
         userId: UserId,
         first: Int,
         after: String? = null,
     ): HttpResponse? = ktorClient.get("users/blocks") {
-        val oAuth = getValidToken() ?: return null
+        val oAuth = authDataStore.oAuthKey?.withoutOAuthPrefix ?: return null
         bearerAuth(oAuth)
         parameter("broadcaster_id", userId)
         parameter("first", first)

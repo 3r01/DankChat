@@ -38,6 +38,7 @@ class ChannelDataCoordinator(
     private val preferenceStore: DankChatPreferenceStore,
     private val startupValidationHolder: StartupValidationHolder,
     private val streamDataRepository: StreamDataRepository,
+    private val userBlocksGate: UserBlocksGate,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -111,19 +112,21 @@ class ChannelDataCoordinator(
     }
 
     fun loadGlobalData() {
+        // Close the gate synchronously so later loadChannelData calls wait for blocks.
+        userBlocksGate.close()
         globalLoadJob =
             scope.launch {
                 _globalLoadingState.value = GlobalLoadingState.Loading
                 dataRepository.clearDataLoadingFailures()
 
-                // Phase 1: Non-auth data (3rd-party emotes, DankChat badges) — loads immediately
+                // Blocks bypass startup validation, so they can load fully in parallel.
+                launch { userBlocksGate.loadAndOpen() }
+
                 globalDataLoader.loadGlobalData()
                 chatMessageRepository.reparseAllEmotesAndBadges()
 
-                // Phase 2: Auth-gated data (badges, user emotes, blocks) — wait for validation to resolve
                 startupValidationHolder.awaitResolved()
                 if (startupValidationHolder.isAuthAvailable && authDataStore.isLoggedIn) {
-                    // Fetch stream data first — single lightweight call before heavy emote pagination
                     val channels = preferenceStore.channels
                     if (channels.isNotEmpty()) {
                         runCatching { streamDataRepository.fetchOnce(channels) }
@@ -160,6 +163,8 @@ class ChannelDataCoordinator(
     fun cancelGlobalLoading() {
         globalLoadJob?.cancel()
         globalLoadJob = null
+        // Ensure the gate doesn't stay closed if we cancel before loadAndOpen ran.
+        userBlocksGate.open()
     }
 
     fun cleanupChannel(channel: UserName) {

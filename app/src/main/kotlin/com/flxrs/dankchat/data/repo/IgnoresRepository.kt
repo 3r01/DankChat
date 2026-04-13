@@ -109,26 +109,17 @@ class IgnoresRepository(
         }
 
         val userId = preferences.userIdString ?: return@withContext
-        val blocks =
-            helixApiClient.getUserBlocks(userId).getOrElse {
-                logger.debug(it) { "Failed to load user blocks for $userId" }
-                return@withContext
-            }
-        if (blocks.isEmpty()) {
-            _twitchBlocks.update { emptySet() }
+        // Uses unvalidated variant so blocks load during startup before validation
+        // resolves. A stale token just 401s and is swallowed below.
+        val blocks = helixApiClient.getUserBlocksUnvalidated(userId).getOrElse {
+            logger.debug(it) { "Failed to load user blocks for $userId" }
             return@withContext
         }
-        val userIds = blocks.map { it.id }
-        val users =
-            helixApiClient.getUsersByIds(userIds).getOrElse {
-                logger.debug(it) { "Failed to load user ids $userIds" }
-                return@withContext
-            }
         val twitchBlocks =
-            users.mapTo(mutableSetOf()) { user ->
+            blocks.mapTo(mutableSetOf()) { block ->
                 TwitchBlock(
-                    id = user.id,
-                    name = user.name,
+                    id = block.id,
+                    name = block.name,
                 )
             }
 

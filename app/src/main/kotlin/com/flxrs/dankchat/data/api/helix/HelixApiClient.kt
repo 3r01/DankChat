@@ -97,12 +97,12 @@ class HelixApiClient(
         }
     }
 
-    suspend fun getUserBlocks(
+    suspend fun getUserBlocksUnvalidated(
         userId: UserId,
         maxUserBlocksToFetch: Int = 500,
     ): Result<List<UserBlockDto>> = runCatching {
         pageUntil(maxUserBlocksToFetch) { cursor ->
-            helixApi.getUserBlocks(userId, DEFAULT_PAGE_SIZE, cursor)
+            helixApi.getUserBlocksUnvalidated(userId, DEFAULT_PAGE_SIZE, cursor)
         }
     }
 

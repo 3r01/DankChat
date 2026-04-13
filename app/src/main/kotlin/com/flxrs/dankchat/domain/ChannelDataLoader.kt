@@ -14,6 +14,7 @@ import com.flxrs.dankchat.data.state.ChannelLoadingState
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 
@@ -24,35 +25,34 @@ class ChannelDataLoader(
     private val chatMessageRepository: ChatMessageRepository,
     private val channelRepository: ChannelRepository,
     private val getChannelsUseCase: GetChannelsUseCase,
+    private val userBlocksGate: UserBlocksGate,
     private val dispatchersProvider: DispatchersProvider,
 ) {
     suspend fun loadChannelData(
         channel: UserName,
         forceNetwork: Boolean = false,
-    ): ChannelLoadingState {
-        return try {
-            // Phase 1: No auth needed — create flows and load message history
+    ): ChannelLoadingState = withContext(dispatchersProvider.io) {
+        try {
             dataRepository.createFlowsIfNecessary(listOf(channel))
             chatRepository.createFlowsIfNecessary(channel)
-            chatRepository.loadRecentMessagesIfEnabled(channel)
 
-            // Phase 2: Needs channel info (Helix or IRC fallback) for emotes/badges
-            val channelInfo =
-                channelRepository.getChannel(channel)
-                    ?: getChannelsUseCase(listOf(channel)).firstOrNull()
-            if (channelInfo == null) {
-                return ChannelLoadingState.Failed(emptyList())
+            // Only recent messages needs the block list; everything else fetches in parallel.
+            launch {
+                userBlocksGate.awaitReady()
+                chatRepository.loadRecentMessagesIfEnabled(channel)
             }
 
-            val (failures, fallbacks) =
-                withContext(dispatchersProvider.io) {
-                    val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
-                    val emotesResults = async { loadChannelEmotes(channel, channelInfo, forceNetwork) }
+            val channelInfo = channelRepository.getChannel(channel)
+                ?: getChannelsUseCase(listOf(channel)).firstOrNull()
+            if (channelInfo == null) {
+                return@withContext ChannelLoadingState.Failed(emptyList())
+            }
 
-                    val (emoteFailures, emoteFallbacks) = emotesResults.await()
-                    val allFailures = listOfNotNull(badgesResult.await()) + emoteFailures
-                    allFailures to emoteFallbacks
-                }
+            val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
+            val emotesResults = async { loadChannelEmotes(channel, channelInfo, forceNetwork) }
+
+            val (emoteFailures, fallbacks) = emotesResults.await()
+            val failures = listOfNotNull(badgesResult.await()) + emoteFailures
 
             failures.forEach { failure ->
                 val status = (failure.error as? ApiException)?.status?.value?.toString() ?: "0"
