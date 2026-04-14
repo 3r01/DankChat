@@ -192,26 +192,27 @@ private fun EmoteGridPage(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             items(
-                items = items,
-                key = { item ->
-                    when (item) {
-                        is EmoteItem.Emote -> "emote-${item.emote.id}-${item.emote.code}"
-                        is EmoteItem.Header -> "header-${item.title}"
+                count = items.size,
+                key = { index ->
+                    when (val item = items[index]) {
+                        is EmoteItem.Emote -> "emote-${item.emote.id}-$index"
+                        is EmoteItem.Header -> "header-${item.title}-$index"
                     }
                 },
-                span = { item ->
-                    when (item) {
+                span = { index ->
+                    when (items[index]) {
                         is EmoteItem.Header -> GridItemSpan(maxLineSpan)
                         is EmoteItem.Emote -> GridItemSpan(1)
                     }
                 },
-                contentType = { item ->
-                    when (item) {
+                contentType = { index ->
+                    when (items[index]) {
                         is EmoteItem.Header -> "header"
                         is EmoteItem.Emote -> "emote"
                     }
                 },
-            ) { item ->
+            ) { index ->
+                val item = items[index]
                 when (item) {
                     is EmoteItem.Header -> {
                         Text(
