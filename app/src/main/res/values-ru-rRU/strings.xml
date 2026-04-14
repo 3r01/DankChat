@@ -333,6 +333,8 @@
     <string name="input_action_hide_input">Скрыть ввод</string>
     <string name="input_action_debug">Отладка</string>
     <string name="input_action_configure">Настроить действия</string>
+    <string name="input_action_hide_all">Скрыть все действия</string>
+    <string name="input_actions_none">Нет видимых действий</string>
     <string name="room_state_emote_only">Только эмоуты</string>
     <string name="room_state_subscriber_only">Только подписчики</string>
     <string name="room_state_slow_mode">Медленный режим</string>

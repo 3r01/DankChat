@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -67,6 +68,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
@@ -250,83 +252,89 @@ fun ChatInputLayout(
                     )
                 }
 
-                // Text Field
                 val density = LocalDensity.current
                 var singleLineHeight by remember { mutableIntStateOf(0) }
-                TextField(
-                    state = textFieldState,
-                    enabled = enabled && !tourState.isTourActive,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .defaultMinSize(minHeight = with(density) { singleLineHeight.toDp() })
-                            .onSizeChanged { size ->
-                                if (textFieldState.text.isEmpty()) {
-                                    singleLineHeight = maxOf(singleLineHeight, size.height)
-                                }
-                                callbacks.onInputMultilineChanged(singleLineHeight > 0 && size.height > singleLineHeight)
-                            }.focusRequester(focusRequester),
-                    label = { Text(hint) },
-                    suffix = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .height(IntrinsicSize.Min)
-                                .offset(y = (-8).dp),
-                        ) {
-                            when (characterCounter) {
-                                is CharacterCounterState.Hidden -> {
-                                    Unit
-                                }
+                val textFieldEnabled = enabled && !tourState.isTourActive
+                val onKeyboardSend: (() -> Unit) -> Unit = {
+                    if (canSend) {
+                        onSend()
+                        inputMethodManager?.restartInput(view)
+                    }
+                }
 
-                                is CharacterCounterState.Visible -> {
-                                    Text(
-                                        text = characterCounter.text,
-                                        color =
-                                            when {
-                                                characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
-                                                else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                            },
-                                        style = MaterialTheme.typography.labelSmall,
-                                    )
-                                }
+                val sizeTrackingModifier =
+                    Modifier
+                        .defaultMinSize(minHeight = with(density) { singleLineHeight.toDp() })
+                        .onSizeChanged { size ->
+                            if (textFieldState.text.isEmpty()) {
+                                singleLineHeight = maxOf(singleLineHeight, size.height)
                             }
-                            AnimatedVisibility(
-                                visible = enabled && uiState.showClearInputButton && textFieldState.text.isNotEmpty(),
-                                enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
-                                exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                            callbacks.onInputMultilineChanged(singleLineHeight > 0 && size.height > singleLineHeight)
+                        }
+
+                val chatTextField: @Composable (Modifier, PaddingValues) -> Unit = { textFieldModifier, contentPadding ->
+                    ChatTextField(
+                        textFieldState = textFieldState,
+                        enabled = textFieldEnabled,
+                        hint = hint,
+                        characterCounter = characterCounter,
+                        showClearInputButton = enabled && uiState.showClearInputButton,
+                        focusRequester = focusRequester,
+                        textFieldColors = textFieldColors,
+                        onKeyboardAction = onKeyboardSend,
+                        contentPadding = contentPadding,
+                        modifier = textFieldModifier.then(sizeTrackingModifier),
+                    )
+                }
+
+                if (uiState.isCompactMode) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(start = 8.dp, end = 4.dp),
+                    ) {
+                        EmoteKeyboardButton(
+                            isEmoteMenuOpen = isEmoteMenuOpen,
+                            enabled = textFieldEnabled,
+                            focusRequester = focusRequester,
+                            onEmoteClick = onEmoteClick,
+                            modifier = Modifier.size(40.dp),
+                        )
+                        chatTextField(Modifier.weight(1f), TextFieldDefaults.contentPaddingWithoutLabel(end = 8.dp))
+                        if (onNewWhisper != null) {
+                            IconButton(
+                                onClick = onNewWhisper,
+                                modifier = Modifier.size(40.dp),
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = stringResource(R.string.dialog_dismiss),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier =
-                                        Modifier
-                                            .padding(start = 4.dp)
-                                            .size(20.dp)
-                                            .clickable { textFieldState.clearText() },
+                                    imageVector = Icons.Default.AddComment,
+                                    contentDescription = stringResource(R.string.whisper_new),
                                 )
                             }
                         }
-                    },
-                    colors = textFieldColors,
-                    shape = RoundedCornerShape(0.dp),
-                    lineLimits =
-                        TextFieldLineLimits.MultiLine(
-                            minHeightInLines = 1,
-                            maxHeightInLines = 5,
-                        ),
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Send,
-                    ),
-                    onKeyboardAction = {
-                        if (canSend) {
-                            onSend()
-                            inputMethodManager?.restartInput(view)
+                        if (showQuickActions) {
+                            OverflowButton(
+                                quickActionsExpanded = quickActionsExpanded,
+                                tourState = tourState,
+                                onOverflowExpandedChange = onOverflowExpandedChange,
+                                modifier = Modifier.size(40.dp),
+                            )
                         }
-                    },
-                )
+                        if (uiState.showSendButton) {
+                            SendButton(
+                                enabled = canSend,
+                                isRepeatedSendEnabled = isRepeatedSendEnabled,
+                                onSend = {
+                                    onSend()
+                                    inputMethodManager?.restartInput(view)
+                                },
+                                onRepeatedSendChange = onRepeatedSendChange,
+                                modifier = Modifier.size(44.dp),
+                            )
+                        }
+                    }
+                } else {
+                    chatTextField(Modifier.fillMaxWidth(), TextFieldDefaults.contentPaddingWithoutLabel())
+                }
 
                 HelperTextRow(helperText = helperText)
 
@@ -344,39 +352,44 @@ fun ChatInputLayout(
                     )
                 }
 
-                // Actions Row — uses BoxWithConstraints to hide actions that don't fit
-                InputActionsRow(
-                    inputActions = inputActions,
-                    effectiveActions = effectiveActions,
-                    isEmoteMenuOpen = isEmoteMenuOpen,
-                    enabled = enabled,
-                    showQuickActions = showQuickActions,
-                    showSendButton = uiState.showSendButton,
-                    tourState = tourState,
-                    quickActionsExpanded = quickActionsExpanded,
-                    canSend = canSend,
-                    hasLastMessage = hasLastMessage,
-                    isStreamActive = isStreamActive,
-                    isFullscreen = isFullscreen,
-                    focusRequester = focusRequester,
-                    onEmoteClick = onEmoteClick,
-                    onOverflowExpandedChange = onOverflowExpandedChange,
-                    onNewWhisper = onNewWhisper,
-                    onSearchClick = onSearchClick,
-                    onLastMessageClick = onLastMessageClick,
-                    onToggleStream = onToggleStream,
-                    onModActions = onModActions,
-                    onToggleFullscreen = onToggleFullscreen,
-                    onToggleInput = onToggleInput,
-                    onDebugInfoClick = onDebugInfoClick,
-                    onSend = {
-                        onSend()
-                        inputMethodManager?.restartInput(view)
-                    },
-                    isRepeatedSendEnabled = isRepeatedSendEnabled,
-                    onRepeatedSendChange = onRepeatedSendChange,
-                    onVisibleActionsChange = { visibleActions = it },
-                )
+                AnimatedVisibility(
+                    visible = !uiState.isCompactMode,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    InputActionsRow(
+                        inputActions = inputActions,
+                        effectiveActions = effectiveActions,
+                        isEmoteMenuOpen = isEmoteMenuOpen,
+                        enabled = enabled,
+                        showQuickActions = showQuickActions,
+                        showSendButton = uiState.showSendButton,
+                        tourState = tourState,
+                        quickActionsExpanded = quickActionsExpanded,
+                        canSend = canSend,
+                        hasLastMessage = hasLastMessage,
+                        isStreamActive = isStreamActive,
+                        isFullscreen = isFullscreen,
+                        focusRequester = focusRequester,
+                        onEmoteClick = onEmoteClick,
+                        onOverflowExpandedChange = onOverflowExpandedChange,
+                        onNewWhisper = onNewWhisper,
+                        onSearchClick = onSearchClick,
+                        onLastMessageClick = onLastMessageClick,
+                        onToggleStream = onToggleStream,
+                        onModActions = onModActions,
+                        onToggleFullscreen = onToggleFullscreen,
+                        onToggleInput = onToggleInput,
+                        onDebugInfoClick = onDebugInfoClick,
+                        onSend = {
+                            onSend()
+                            inputMethodManager?.restartInput(view)
+                        },
+                        isRepeatedSendEnabled = isRepeatedSendEnabled,
+                        onRepeatedSendChange = onRepeatedSendChange,
+                        onVisibleActionsChange = { visibleActions = it },
+                    )
+                }
             }
         }
     }
@@ -429,6 +442,7 @@ fun ChatInputLayout(
                 isFullscreen = isFullscreen,
                 isModerator = isModerator,
                 tourState = tourState,
+                hasAnyConfiguredActions = inputActions.isNotEmpty(),
                 onActionClick = { action ->
                     when (action) {
                         InputAction.Search -> onSearchClick()
@@ -443,6 +457,10 @@ fun ChatInputLayout(
                 },
                 onAudioOnly = {
                     callbacks.onAudioOnly()
+                    onOverflowExpandedChange(false)
+                },
+                onHideAllActions = {
+                    onInputActionsChange(emptyList<InputAction>().toImmutableList())
                     onOverflowExpandedChange(false)
                 },
                 onConfigureClick = {
@@ -718,25 +736,13 @@ private fun InputActionsRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // Emote/Keyboard Button (start-aligned, always visible)
-            IconButton(
-                onClick = {
-                    if (isEmoteMenuOpen) {
-                        focusRequester.requestFocus()
-                    }
-                    onEmoteClick()
-                },
+            EmoteKeyboardButton(
+                isEmoteMenuOpen = isEmoteMenuOpen,
                 enabled = enabled && !tourState.isTourActive,
+                focusRequester = focusRequester,
+                onEmoteClick = onEmoteClick,
                 modifier = Modifier.size(iconSize),
-            ) {
-                Icon(
-                    imageVector = if (isEmoteMenuOpen) Icons.Outlined.Keyboard else Icons.Outlined.EmojiEmotions,
-                    contentDescription =
-                        stringResource(
-                            if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,
-                        ),
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -802,34 +808,13 @@ private fun EndAlignedActionGroup(
     isRepeatedSendEnabled: Boolean = false,
     onRepeatedSendChange: (Boolean) -> Unit = {},
 ) {
-    // Overflow Button (leading the end-aligned group)
     if (showQuickActions) {
-        val overflowButton: @Composable () -> Unit = {
-            IconButton(
-                onClick = {
-                    if (tourState.overflowMenuTooltipState != null) {
-                        tourState.onAdvance?.invoke()
-                    } else {
-                        onOverflowExpandedChange(!quickActionsExpanded)
-                    }
-                },
-                modifier = Modifier.size(iconSize),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = stringResource(R.string.more),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-        OptionalTourTooltip(
-            tooltipState = tourState.overflowMenuTooltipState,
-            text = stringResource(R.string.tour_overflow_menu),
-            onAdvance = tourState.onAdvance,
-            onSkip = tourState.onSkip,
-        ) {
-            overflowButton()
-        }
+        OverflowButton(
+            quickActionsExpanded = quickActionsExpanded,
+            tourState = tourState,
+            onOverflowExpandedChange = onOverflowExpandedChange,
+            modifier = Modifier.size(iconSize),
+        )
     }
 
     // New Whisper Button (only on whisper tab)
@@ -890,6 +875,145 @@ private fun EndAlignedActionGroup(
             onRepeatedSendChange = onRepeatedSendChange,
             modifier = Modifier.size(44.dp),
         )
+    }
+}
+
+@Composable
+private fun ChatTextField(
+    textFieldState: TextFieldState,
+    enabled: Boolean,
+    hint: String,
+    characterCounter: CharacterCounterState,
+    showClearInputButton: Boolean,
+    focusRequester: FocusRequester,
+    textFieldColors: TextFieldColors,
+    onKeyboardAction: (() -> Unit) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = TextFieldDefaults.contentPaddingWithoutLabel(),
+) {
+    TextField(
+        state = textFieldState,
+        enabled = enabled,
+        modifier = modifier.focusRequester(focusRequester),
+        contentPadding = contentPadding,
+        label = { Text(hint) },
+        suffix = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier
+                        .height(IntrinsicSize.Min)
+                        .offset(y = (-8).dp),
+            ) {
+                when (characterCounter) {
+                    is CharacterCounterState.Hidden -> {
+                        Unit
+                    }
+
+                    is CharacterCounterState.Visible -> {
+                        Text(
+                            text = characterCounter.text,
+                            color =
+                                when {
+                                    characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
+                }
+                AnimatedVisibility(
+                    visible = showClearInputButton && textFieldState.text.isNotEmpty(),
+                    enter = fadeIn() + expandHorizontally(expandFrom = Alignment.Start),
+                    exit = fadeOut() + shrinkHorizontally(shrinkTowards = Alignment.Start),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = stringResource(R.string.dialog_dismiss),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier =
+                            Modifier
+                                .padding(start = 4.dp)
+                                .size(20.dp)
+                                .clickable { textFieldState.clearText() },
+                    )
+                }
+            }
+        },
+        colors = textFieldColors,
+        shape = RoundedCornerShape(0.dp),
+        lineLimits =
+            TextFieldLineLimits.MultiLine(
+                minHeightInLines = 1,
+                maxHeightInLines = 5,
+            ),
+        keyboardOptions =
+            KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                imeAction = ImeAction.Send,
+            ),
+        onKeyboardAction = onKeyboardAction,
+    )
+}
+
+@Composable
+private fun EmoteKeyboardButton(
+    isEmoteMenuOpen: Boolean,
+    enabled: Boolean,
+    focusRequester: FocusRequester,
+    onEmoteClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        onClick = {
+            if (isEmoteMenuOpen) {
+                focusRequester.requestFocus()
+            }
+            onEmoteClick()
+        },
+        enabled = enabled,
+        modifier = modifier,
+    ) {
+        Icon(
+            imageVector = if (isEmoteMenuOpen) Icons.Outlined.Keyboard else Icons.Outlined.EmojiEmotions,
+            contentDescription =
+                stringResource(
+                    if (isEmoteMenuOpen) R.string.dialog_dismiss else R.string.emote_menu_hint,
+                ),
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun OverflowButton(
+    quickActionsExpanded: Boolean,
+    tourState: TourOverlayState,
+    onOverflowExpandedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    OptionalTourTooltip(
+        tooltipState = tourState.overflowMenuTooltipState,
+        text = stringResource(R.string.tour_overflow_menu),
+        onAdvance = tourState.onAdvance,
+        onSkip = tourState.onSkip,
+    ) {
+        IconButton(
+            onClick = {
+                if (tourState.overflowMenuTooltipState != null) {
+                    tourState.onAdvance?.invoke()
+                } else {
+                    onOverflowExpandedChange(!quickActionsExpanded)
+                }
+            },
+            modifier = modifier,
+        ) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = stringResource(R.string.more),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 

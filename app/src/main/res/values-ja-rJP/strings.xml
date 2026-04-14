@@ -304,6 +304,8 @@
     <string name="input_action_hide_input">入力欄を非表示</string>
     <string name="input_action_debug">デバッグ</string>
     <string name="input_action_configure">アクションを設定</string>
+    <string name="input_action_hide_all">すべてのアクションを非表示</string>
+    <string name="input_actions_none">表示中のアクションなし</string>
     <string name="room_state_emote_only">エモートのみ</string>
     <string name="room_state_subscriber_only">サブスクライバーのみ</string>
     <string name="room_state_slow_mode">スローモード</string>

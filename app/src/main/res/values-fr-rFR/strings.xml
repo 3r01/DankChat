@@ -317,6 +317,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="input_action_hide_input">Masquer la saisie</string>
     <string name="input_action_debug">Débogage</string>
     <string name="input_action_configure">Configurer les actions</string>
+    <string name="input_action_hide_all">Masquer toutes les actions</string>
+    <string name="input_actions_none">Aucune action visible</string>
     <string name="room_state_emote_only">Emotes uniquement</string>
     <string name="room_state_subscriber_only">Abonnés uniquement</string>
     <string name="room_state_slow_mode">Mode lent</string>

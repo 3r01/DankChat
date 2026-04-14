@@ -318,6 +318,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="input_action_hide_input">Girişi gizle</string>
     <string name="input_action_debug">Hata ayıklama</string>
     <string name="input_action_configure">Eylemleri yapılandır</string>
+    <string name="input_action_hide_all">Tüm işlemleri gizle</string>
+    <string name="input_actions_none">Görünür işlem yok</string>
     <string name="room_state_emote_only">Yalnızca emote</string>
     <string name="room_state_subscriber_only">Yalnızca aboneler</string>
     <string name="room_state_slow_mode">Yavaş mod</string>

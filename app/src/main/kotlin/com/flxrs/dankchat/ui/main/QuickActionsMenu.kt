@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material.icons.outlined.VideocamOff
@@ -67,8 +68,10 @@ fun QuickActionsMenu(
     isFullscreen: Boolean,
     isModerator: Boolean,
     tourState: TourOverlayState,
+    hasAnyConfiguredActions: Boolean,
     onActionClick: (InputAction) -> Unit,
     onAudioOnly: () -> Unit,
+    onHideAllActions: () -> Unit,
     onConfigureClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -125,6 +128,19 @@ fun QuickActionsMenu(
             }
 
             HorizontalDivider()
+
+            if (hasAnyConfiguredActions) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.input_action_hide_all)) },
+                    onClick = onHideAllActions,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Outlined.RemoveCircleOutline,
+                            contentDescription = null,
+                        )
+                    },
+                )
+            }
 
             val configureItem: @Composable () -> Unit = {
                 DropdownMenuItem(

@@ -78,8 +78,13 @@ internal fun InputActionConfigSheet(
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
         ) {
+            val headerText = when {
+                localEnabled.isEmpty() -> stringResource(R.string.input_actions_none)
+                atLimit -> pluralStringResource(R.plurals.input_actions_max, MAX_INPUT_ACTIONS, MAX_INPUT_ACTIONS)
+                else -> ""
+            }
             Text(
-                text = if (atLimit) pluralStringResource(R.plurals.input_actions_max, MAX_INPUT_ACTIONS, MAX_INPUT_ACTIONS) else "",
+                text = headerText,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),

@@ -82,14 +82,19 @@ class MainScreenViewModel(
         }
 
         viewModelScope.launch {
+            var previousDebugMode: Boolean? = null
             developerSettingsDataStore.settings
                 .map { it.debugMode }
                 .distinctUntilChanged()
                 .collect { enabled ->
+                    val wasEnabled = previousDebugMode
+                    previousDebugMode = enabled
+
                     appearanceSettingsDataStore.update { appearance ->
                         val actions = appearance.inputActions
                         when {
-                            enabled && InputAction.Debug !in actions && actions.size < MAX_INPUT_ACTIONS -> {
+                            // Only auto-add on actual false→true toggle, not on cold start
+                            enabled && wasEnabled == false && InputAction.Debug !in actions && actions.size < MAX_INPUT_ACTIONS -> {
                                 appearance.copy(inputActions = actions + InputAction.Debug)
                             }
 

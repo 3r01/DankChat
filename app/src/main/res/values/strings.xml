@@ -310,6 +310,7 @@
         <item quantity="one">Maximum of %1$d action</item>
         <item quantity="other">Maximum of %1$d actions</item>
     </plurals>
+    <string name="input_actions_none">No actions visible</string>
     <string name="input_action_search">Search messages</string>
     <string name="input_action_last_message">Last message</string>
     <string name="input_action_stream">Toggle stream</string>
@@ -318,6 +319,7 @@
     <string name="input_action_hide_input">Hide input</string>
     <string name="input_action_debug">Debug</string>
     <string name="input_action_configure">Configure actions</string>
+    <string name="input_action_hide_all">Hide all actions</string>
     <string name="room_state_emote_only">Emote only</string>
     <string name="room_state_subscriber_only">Subscriber only</string>
     <string name="room_state_slow_mode">Slow mode</string>

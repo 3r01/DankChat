@@ -3,7 +3,7 @@ package com.flxrs.dankchat.ui.main.input
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
@@ -63,9 +63,13 @@ fun ChatBottomBar(
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
 ) {
+    val inputVisibleState = remember { MutableTransitionState(showInput) }
+    inputVisibleState.targetState = showInput
+    val inputFullyHidden = !inputVisibleState.targetState && inputVisibleState.isIdle
+
     Column(modifier = modifier.fillMaxWidth()) {
         AnimatedVisibility(
-            visible = showInput,
+            visibleState = inputVisibleState,
             enter = EnterTransition.None,
             exit =
                 when {
@@ -98,8 +102,8 @@ fun ChatBottomBar(
             )
         }
 
-        // Sticky helper text + nav bar spacer when input is hidden
-        if (!showInput && !isSheetOpen) {
+        // Sticky helper text + nav bar spacer — wait for exit animation to finish
+        if (inputFullyHidden && !isSheetOpen) {
             val helperTextState = uiState.helperText
             if (!helperTextState.isEmpty) {
                 val horizontalPadding =

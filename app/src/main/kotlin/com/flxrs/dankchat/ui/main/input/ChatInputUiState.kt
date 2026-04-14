@@ -30,6 +30,7 @@ data class ChatInputUiState(
     val characterCounter: CharacterCounterState = CharacterCounterState.Hidden,
     val showClearInputButton: Boolean = true,
     val showSendButton: Boolean = true,
+    val isCompactMode: Boolean = false,
     val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
 )
 
