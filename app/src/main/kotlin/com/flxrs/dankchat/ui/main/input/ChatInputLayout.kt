@@ -272,7 +272,7 @@ fun ChatInputLayout(
                             callbacks.onInputMultilineChanged(singleLineHeight > 0 && size.height > singleLineHeight)
                         }
 
-                val chatTextField: @Composable (Modifier, PaddingValues) -> Unit = { textFieldModifier, contentPadding ->
+                val chatTextField: @Composable (Modifier, PaddingValues?) -> Unit = { textFieldModifier, contentPadding ->
                     ChatTextField(
                         textFieldState = textFieldState,
                         enabled = textFieldEnabled,
@@ -333,7 +333,7 @@ fun ChatInputLayout(
                         }
                     }
                 } else {
-                    chatTextField(Modifier.fillMaxWidth(), TextFieldDefaults.contentPaddingWithoutLabel())
+                    chatTextField(Modifier.fillMaxWidth(), null)
                 }
 
                 HelperTextRow(helperText = helperText)
@@ -889,13 +889,13 @@ private fun ChatTextField(
     textFieldColors: TextFieldColors,
     onKeyboardAction: (() -> Unit) -> Unit,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = TextFieldDefaults.contentPaddingWithoutLabel(),
+    contentPadding: PaddingValues? = null,
 ) {
     TextField(
         state = textFieldState,
         enabled = enabled,
         modifier = modifier.focusRequester(focusRequester),
-        contentPadding = contentPadding,
+        contentPadding = contentPadding ?: TextFieldDefaults.contentPaddingWithLabel(),
         label = { Text(hint) },
         suffix = {
             Row(
