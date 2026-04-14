@@ -127,7 +127,7 @@ jobs:
         id: version
         run: |
           base=$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
-          echo "tag=v${base}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "tag=nightly-v${base}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       - name: Build signed release apk
         run: bash ./gradlew app:assembleRelease
