@@ -21,7 +21,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.launch
@@ -242,8 +241,8 @@ private fun buildInlineContentMapFromDimensions(
     InlineTextContent(
         placeholder =
             Placeholder(
-                width = with(density) { dims.widthPx.toDp() }.value.sp,
-                height = with(density) { dims.heightPx.toDp() }.value.sp,
+                width = with(density) { dims.widthPx.toDp().toSp() },
+                height = with(density) { dims.heightPx.toDp().toSp() },
                 placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter,
             ),
     ) {
