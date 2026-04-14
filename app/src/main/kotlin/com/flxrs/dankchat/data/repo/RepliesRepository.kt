@@ -27,9 +27,12 @@ class RepliesRepository(
     private val threads = ConcurrentHashMap<String, MutableStateFlow<MessageThread>>()
 
     fun getThreadItemsFlow(rootMessageId: String): Flow<List<ChatItem>> = threads[rootMessageId]?.map { thread ->
-        val root = ChatItem(thread.rootMessage, isInReplies = true)
         val replies = thread.replies.map { ChatItem(it, isInReplies = true) }
-        listOf(root) + replies
+        if (thread.rootMessage.message.isEmpty()) {
+            replies
+        } else {
+            listOf(ChatItem(thread.rootMessage, isInReplies = true)) + replies
+        }
     } ?: flowOf(emptyList())
 
     fun hasMessageThread(rootMessageId: String) = threads.containsKey(rootMessageId)
