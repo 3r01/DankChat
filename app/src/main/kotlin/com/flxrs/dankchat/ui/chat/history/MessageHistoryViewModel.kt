@@ -80,13 +80,17 @@ class MessageHistoryViewModel(
     val selectedChannel: StateFlow<HistoryChannel> = _selectedChannel
 
     val availableChannels: StateFlow<ImmutableList<HistoryChannel>> =
-        chatMessageRepository.channels
-            .map { channels ->
-                buildList {
-                    add(HistoryChannel.Global)
-                    channels.forEach { add(HistoryChannel.Channel(it)) }
-                }.toImmutableList()
-            }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf(HistoryChannel.Global))
+        combine(
+            chatMessageRepository.channels,
+            preferenceStore.getChannelsWithRenamesFlow(),
+        ) { channels, preferredOrder ->
+            val orderIndex = preferredOrder.withIndex().associate { (idx, entry) -> entry.channel to idx }
+            val sortedChannels = channels.sortedBy { orderIndex[it] ?: Int.MAX_VALUE }
+            buildList {
+                add(HistoryChannel.Global)
+                sortedChannels.forEach { add(HistoryChannel.Channel(it)) }
+            }.toImmutableList()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf(HistoryChannel.Global))
 
     val isGlobal: StateFlow<Boolean> =
         _selectedChannel
