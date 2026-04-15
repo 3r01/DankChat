@@ -871,37 +871,50 @@ class ChatMessageMapper(
     }
 
     companion object {
-        // Highlight colors - Light theme (all dark enough for white text)
-        private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xFF7E57C2)
-        private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xFFCF5050)
-        private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xFF458B93)
-        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFF558B2F)
-        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xFFB08D2A)
-        private val COLOR_WATCH_STREAK_HIGHLIGHT_LIGHT = Color(0xFF2979B7)
+        // Highlight colors - Light theme (all dark enough for white text, 80% opacity)
+        private val COLOR_SUB_HIGHLIGHT_LIGHT = Color(0xCC7E57C2)
+        private val COLOR_MENTION_HIGHLIGHT_LIGHT = Color(0xCCCF5050)
+        private val COLOR_REDEMPTION_HIGHLIGHT_LIGHT = Color(0xCC458B93)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xCC558B2F)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xCCB08D2A)
+        private val COLOR_WATCH_STREAK_HIGHLIGHT_LIGHT = Color(0xCC2979B7)
 
-        // Highlight colors - Dark theme
-        private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xFF6A45A0)
-        private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xFF8C3A3B)
-        private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xFF00606B)
-        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xFF3A6600)
-        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xFF6B5800)
-        private val COLOR_WATCH_STREAK_HIGHLIGHT_DARK = Color(0xFF1A5C8A)
+        // Highlight colors - Dark theme (80% opacity)
+        private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xCC6A45A0)
+        private val COLOR_MENTION_HIGHLIGHT_DARK = Color(0xCC8C3A3B)
+        private val COLOR_REDEMPTION_HIGHLIGHT_DARK = Color(0xCC00606B)
+        private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xCC3A6600)
+        private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xCC6B5800)
+        private val COLOR_WATCH_STREAK_HIGHLIGHT_DARK = Color(0xCC1A5C8A)
 
         fun defaultHighlightColorInt(
             type: HighlightType,
             isDark: Boolean,
         ): Int = when (type) {
-            HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xFF6A45A0 else 0xFF7E57C2
-            HighlightType.WatchStreak -> if (isDark) 0xFF1A5C8A else 0xFF2979B7
-            HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xFF8C3A3B else 0xFFCF5050
-            HighlightType.ChannelPointRedemption -> if (isDark) 0xFF00606B else 0xFF458B93
-            HighlightType.FirstMessage -> if (isDark) 0xFF3A6600 else 0xFF558B2F
-            HighlightType.ElevatedMessage -> if (isDark) 0xFF6B5800 else 0xFFB08D2A
+            HighlightType.Subscription, HighlightType.Announcement -> if (isDark) 0xCC6A45A0 else 0xCC7E57C2
+            HighlightType.WatchStreak -> if (isDark) 0xCC1A5C8A else 0xCC2979B7
+            HighlightType.Username, HighlightType.Custom, HighlightType.Reply, HighlightType.Notification, HighlightType.Badge -> if (isDark) 0xCC8C3A3B else 0xCCCF5050
+            HighlightType.ChannelPointRedemption -> if (isDark) 0xCC00606B else 0xCC458B93
+            HighlightType.FirstMessage -> if (isDark) 0xCC3A6600 else 0xCC558B2F
+            HighlightType.ElevatedMessage -> if (isDark) 0xCC6B5800 else 0xCCB08D2A
         }.toInt()
 
         private val DEFAULT_HIGHLIGHT_COLOR_INTS =
             setOf(
-                // Current defaults
+                // Current defaults (80% opacity)
+                0xCC7E57C2.toInt(), // sub light
+                0xCC6A45A0.toInt(), // sub dark
+                0xCCCF5050.toInt(), // mention light
+                0xCC8C3A3B.toInt(), // mention dark
+                0xCC458B93.toInt(), // redemption light
+                0xCC00606B.toInt(), // redemption dark
+                0xCC558B2F.toInt(), // first message light
+                0xCC3A6600.toInt(), // first message dark
+                0xCCB08D2A.toInt(), // elevated light
+                0xCC6B5800.toInt(), // elevated dark
+                0xCC2979B7.toInt(), // watch streak light
+                0xCC1A5C8A.toInt(), // watch streak dark
+                // Legacy defaults (fully opaque)
                 0xFF7E57C2.toInt(), // sub light
                 0xFF6A45A0.toInt(), // sub dark
                 0xFFCF5050.toInt(), // mention light
@@ -914,7 +927,7 @@ class ChatMessageMapper(
                 0xFF6B5800.toInt(), // elevated dark
                 0xFF2979B7.toInt(), // watch streak light
                 0xFF1A5C8A.toInt(), // watch streak dark
-                // Legacy defaults
+                // Older legacy defaults
                 0xFFD1C4E9.toInt(),
                 0xFF543589.toInt(), // sub (v1)
                 0xFFEF9A9A.toInt(),
