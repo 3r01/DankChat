@@ -770,6 +770,9 @@
     <string name="pick_highlight_color_title">Scegli un colore di evidenziazione personalizzato</string>
     <string name="reset_default_highlight_color">Predefinito</string>
     <string name="choose_highlight_color">Scegli colore</string>
+    <string name="color_picker_brightness">Luminosità</string>
+    <string name="color_picker_opacity">Opacità</string>
+    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Mostra/nascondi barra app</string>
     <string name="error_with_message">Errore: %s</string>
     <string name="something_went_wrong">Qualcosa è andato storto</string>

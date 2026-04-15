@@ -759,6 +759,9 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="pick_highlight_color_title">Escull un color de ressaltat personalitzat</string>
     <string name="reset_default_highlight_color">Per defecte</string>
     <string name="choose_highlight_color">Escull un color</string>
+    <string name="color_picker_brightness">Lluminositat</string>
+    <string name="color_picker_opacity">Opacitat</string>
+    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Mostra/amaga la barra d\'aplicació</string>
     <string name="error_with_message">Error: %s</string>
     <!-- Onboarding -->

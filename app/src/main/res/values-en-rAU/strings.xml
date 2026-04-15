@@ -704,6 +704,9 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="pick_highlight_color_title">Pick custom highlight color</string>
     <string name="reset_default_highlight_color">Default</string>
     <string name="choose_highlight_color">Choose Color</string>
+    <string name="color_picker_brightness">Brightness</string>
+    <string name="color_picker_opacity">Opacity</string>
+    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Toggle App Bar</string>
     <string name="error_with_message">Error: %s</string>
     <!-- Onboarding -->

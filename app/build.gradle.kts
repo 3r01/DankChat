@@ -215,7 +215,7 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
 
     // Other
-    implementation(libs.colorpicker.android)
+    implementation(libs.colorpicker.compose)
     implementation(libs.materialkolor)
     implementation(libs.process.phoenix)
     implementation(libs.logback.android)

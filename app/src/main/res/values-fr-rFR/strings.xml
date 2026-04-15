@@ -776,6 +776,9 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="pick_highlight_color_title">Choisir une couleur de surbrillance personnalisée</string>
     <string name="reset_default_highlight_color">Par défaut</string>
     <string name="choose_highlight_color">Choisir une couleur</string>
+    <string name="color_picker_brightness">Luminosité</string>
+    <string name="color_picker_opacity">Opacité</string>
+    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Activer/désactiver la barre d\'application</string>
     <string name="error_with_message">Erreur : %s</string>
     <string name="something_went_wrong">Une erreur est survenue</string>

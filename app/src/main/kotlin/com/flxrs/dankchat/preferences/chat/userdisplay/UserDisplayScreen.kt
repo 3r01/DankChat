@@ -1,11 +1,13 @@
 package com.flxrs.dankchat.preferences.chat.userdisplay
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,12 +16,19 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeGestures
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -62,15 +71,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.preferences.components.CheckboxWithText
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
+import com.flxrs.dankchat.utils.compose.HexColorPicker
 import com.flxrs.dankchat.utils.compose.SwipeToDelete
-import com.rarepebble.colorpicker.ColorPickerView
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -284,40 +292,43 @@ private fun UserDisplayItem(
                                     onChange(item.copy(color = selectedColor))
                                     showColorPicker = false
                                 },
+                                contentWindowInsets = { WindowInsets.statusBars },
                                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                             ) {
-                                Text(
-                                    text = stringResource(R.string.pick_custom_user_color_title),
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    modifier =
-                                        Modifier
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(rememberScrollState())
+                                        .windowInsetsPadding(
+                                            WindowInsets(left = 16.dp, right = 16.dp)
+                                                .union(WindowInsets.safeGestures.only(WindowInsetsSides.Horizontal)),
+                                        ).imePadding()
+                                        .navigationBarsPadding(),
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.pick_custom_user_color_title),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                                )
-                                TextButton(
-                                    onClick = { selectedColor = Message.DEFAULT_COLOR },
-                                    content = { Text(stringResource(R.string.reset)) },
-                                    modifier =
-                                        Modifier
-                                            .align(Alignment.End)
-                                            .padding(horizontal = 16.dp),
-                                )
-                                AndroidView(
-                                    factory = { context ->
-                                        ColorPickerView(context).apply {
-                                            showAlpha(false)
-                                            setOriginalColor(item.color)
-                                            setCurrentColor(selectedColor)
-                                            addColorObserver {
-                                                selectedColor = it.color
-                                            }
-                                        }
-                                    },
-                                    update = {
-                                        it.setCurrentColor(selectedColor)
-                                    },
-                                )
+                                            .padding(bottom = 8.dp),
+                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                                    ) {
+                                        TextButton(
+                                            onClick = { selectedColor = Message.DEFAULT_COLOR },
+                                            content = { Text(stringResource(R.string.reset)) },
+                                        )
+                                    }
+                                    HexColorPicker(
+                                        color = selectedColor,
+                                        showAlpha = false,
+                                        onColorChange = { selectedColor = it },
+                                    )
+                                    Spacer(Modifier.height(16.dp))
+                                }
                             }
                         }
                     }
