@@ -409,9 +409,7 @@ class ChatInputViewModel(
         when (commandResult) {
             is CommandResult.Accepted,
             is CommandResult.Blocked,
-            -> {
-                Unit
-            }
+            -> Unit
 
             is CommandResult.IrcCommand -> {
                 chatRepository.sendMessage(message, replyIdOrNull, forceIrc = true)

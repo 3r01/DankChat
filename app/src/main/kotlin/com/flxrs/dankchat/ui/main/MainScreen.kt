@@ -1256,9 +1256,7 @@ private fun MainScreenTourEffects(
                 featureTourViewModel.addChannelTooltipState.dismiss()
             }
 
-            PostOnboardingStep.ToolbarPlusHint -> {
-                Unit
-            }
+            PostOnboardingStep.ToolbarPlusHint -> Unit
         }
     }
 

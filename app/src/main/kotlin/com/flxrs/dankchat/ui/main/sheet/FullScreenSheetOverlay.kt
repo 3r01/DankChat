@@ -41,9 +41,7 @@ fun FullScreenSheetOverlay(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             when (sheetState) {
-                is FullScreenSheetState.Closed -> {
-                    Unit
-                }
+                is FullScreenSheetState.Closed -> Unit
 
                 is FullScreenSheetState.Mention -> {
                     MentionSheet(

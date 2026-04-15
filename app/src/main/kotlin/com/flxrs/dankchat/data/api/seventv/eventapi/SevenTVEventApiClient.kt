@@ -294,13 +294,9 @@ class SevenTVEventApiClient(
                     scope.launch { reconnect() }
                 }
 
-                is EndOfStreamMessage -> {
-                    Unit
-                }
+                is EndOfStreamMessage -> Unit
 
-                is AckMessage -> {
-                    Unit
-                }
+                is AckMessage -> Unit
             }
         }
     }

@@ -927,9 +927,7 @@ private fun ChatTextField(
                         .offset(y = (-8).dp),
             ) {
                 when (characterCounter) {
-                    is CharacterCounterState.Hidden -> {
-                        Unit
-                    }
+                    is CharacterCounterState.Hidden -> Unit
 
                     is CharacterCounterState.Visible -> {
                         Text(

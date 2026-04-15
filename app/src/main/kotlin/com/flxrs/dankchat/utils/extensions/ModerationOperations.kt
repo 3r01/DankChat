@@ -122,9 +122,7 @@ private fun MutableList<ChatItem>.deduplicateOrStack(moderationMessage: Moderati
         // Same action within 5 seconds — deduplicate or stack
         when {
             // IRC arriving after EventSub → keep EventSub, discard IRC
-            !moderationMessage.fromEventSource && existing.fromEventSource -> {
-                Unit
-            }
+            !moderationMessage.fromEventSource && existing.fromEventSource -> Unit
 
             // EventSub arriving after IRC → replace IRC with EventSub (has moderator info), preserve stack count
             moderationMessage.fromEventSource && !existing.fromEventSource -> {

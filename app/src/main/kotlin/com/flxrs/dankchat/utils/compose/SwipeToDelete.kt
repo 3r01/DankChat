@@ -85,9 +85,7 @@ fun SwipeToDelete(
                         )
                     }
 
-                    SwipeToDismissBoxValue.Settled -> {
-                        Unit
-                    }
+                    SwipeToDismissBoxValue.Settled -> Unit
                 }
             }
         },

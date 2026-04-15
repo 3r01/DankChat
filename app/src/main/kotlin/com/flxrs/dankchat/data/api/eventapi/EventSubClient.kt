@@ -169,9 +169,7 @@ class EventSubClient(
                                     handleNotification(message)
                                 }
 
-                                is KeepAliveMessageDto -> {
-                                    Unit
-                                }
+                                is KeepAliveMessageDto -> Unit
                             }
                         }
                     }

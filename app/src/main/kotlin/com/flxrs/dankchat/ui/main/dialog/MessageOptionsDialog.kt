@@ -338,9 +338,7 @@ fun AutomodMessageOptionsDialog(
                     )
                 }
 
-                else -> {
-                    Unit
-                }
+                else -> Unit
             }
         }
     }
