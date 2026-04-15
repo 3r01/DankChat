@@ -52,7 +52,7 @@
     <string name="hint_disconnected">Bağlantı kesildi</string>
     <string name="hint_not_logged_int">Giriş yapılmadı</string>
     <string name="hint_replying">Yanıt</string>
-    <string name="hint_announcing">Send announcement</string>
+    <string name="hint_announcing">Duyuru gönder</string>
     <string name="notification_new_mentions">Yeni bahsetmeleriniz var</string>
     <string name="notification_mention">%1$s sizden #%2$s\'de bahsetti</string>
     <string name="notification_notify_mention">#%1$s\'de sizden bahsedildi</string>
@@ -68,7 +68,7 @@
     <string name="snackbar_retry">Yeniden dene</string>
     <string name="snackbar_data_reloaded">İfadeler yenilendi</string>
     <string name="snackbar_data_load_failed_cause">Veri yüklenemedi: %1$s</string>
-    <string name="snackbar_data_load_failed_multiple_causes">Birden çok hata ile başarısız veri yükleme:\n%1$s</string>
+    <string name="snackbar_data_load_failed_multiple_causes">Birden çok hata ile veri yüklenemedi:\n%1$s</string>
     <string name="data_loading_step_dankchat_badges">DankChat Rozetleri</string>
     <string name="data_loading_step_global_badges">Global Rozetler</string>
     <string name="data_loading_step_global_ffz_emotes">Global FFZ Emote\'ları</string>
@@ -203,9 +203,9 @@
     <string name="mod_unraid" comment="flex3rs canceled the raid to user123">%1$s, %2$s kanalına raidi iptal etti</string>
     <!-- Delete -->
     <string name="mod_delete_by_creator" comment="flex3rs deleted message from user123">%1$s, %2$s kullanıcısının mesajını sildi</string>
-    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: hello">%1$s, %2$s kullanıcısının mesajını sildi şunu diyerek: %3$s</string>
+    <string name="mod_delete_by_creator_message" comment="flex3rs deleted message from user123 saying: hello">%1$s, %2$s kullanıcısının mesajını sildi, içeriği: %3$s</string>
     <string name="mod_delete_no_creator" comment="A message from user123 was deleted">%1$s kullanıcısının bir mesajı silindi</string>
-    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: hello">%1$s kullanıcısının bir mesajı silindi şunu diyerek: %2$s</string>
+    <string name="mod_delete_no_creator_message" comment="A message from user123 was deleted saying: hello">%1$s kullanıcısının bir mesajı silindi, içeriği: %2$s</string>
     <!-- Clear -->
     <string name="mod_clear_by_creator" comment="flex3rs cleared the chat">%1$s sohbeti temizledi</string>
     <string name="mod_clear_no_creator">Sohbet bir moderatör tarafından temizlendi</string>
@@ -230,7 +230,7 @@
     <string name="mod_shared_ban_reason" comment="flex3rs banned user123 in channel456: reason">%1$s, %2$s kullanıcısını %3$s kanalında banladı: %4$s</string>
     <string name="mod_shared_unban" comment="flex3rs unbanned user123 in channel456">%1$s, %2$s kullanıcısının banını %3$s kanalında kaldırdı</string>
     <string name="mod_shared_delete" comment="flex3rs deleted message from user123 in channel456">%1$s, %2$s kullanıcısının mesajını %3$s kanalında sildi</string>
-    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: hello">%1$s, %2$s kullanıcısının mesajını %3$s kanalında sildi şunu diyerek: %4$s</string>
+    <string name="mod_shared_delete_message" comment="flex3rs deleted message from user123 in channel456 saying: hello">%1$s, %2$s kullanıcısının mesajını %3$s kanalında sildi, içeriği: %4$s</string>
     <!-- Helper: message + count concatenation -->
     <string name="mod_message_with_count" comment="flex3rs timed out user123 for 10m. (2 times)">%1$s%2$s</string>
     <!-- Parenthetical count (appended after complete sentences, safe for all languages) -->
@@ -337,24 +337,24 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
-    <string name="mod_actions_room_state_section">Room state</string>
-    <string name="mod_actions_section">Mod actions</string>
-    <string name="mod_actions_broadcaster_section">Broadcaster</string>
-    <string name="mod_actions_shield_mode">Shield mode</string>
-    <string name="mod_actions_clear_chat">Clear chat</string>
-    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_room_state_section">Oda durumu</string>
+    <string name="mod_actions_section">Mod eylemleri</string>
+    <string name="mod_actions_broadcaster_section">Yayıncı</string>
+    <string name="mod_actions_shield_mode">Kalkan modu</string>
+    <string name="mod_actions_clear_chat">Sohbeti temizle</string>
+    <string name="mod_actions_confirm_clear_chat">Bu kanaldaki tüm mesajlar temizlensin mi?</string>
     <string name="mod_actions_confirm_shield_mode_title">Kalkan Modu etkinleştirilsin mi?</string>
     <string name="mod_actions_confirm_shield_mode_body">Bu, kanalın önceden yapılandırılmış güvenlik ayarlarını uygulayacaktır; sohbet kısıtlamaları, AutoMod ayarları ve doğrulama gereksinimleri dahil olabilir.</string>
     <string name="mod_actions_shield_mode_activate">Etkinleştir</string>
-    <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_header">Announcement</string>
+    <string name="mod_actions_announce">Duyuru</string>
+    <string name="mod_actions_announce_header">Duyuru</string>
     <string name="mod_actions_shoutout">Shoutout</string>
-    <string name="mod_actions_commercial">Commercial</string>
+    <string name="mod_actions_commercial">Reklam</string>
     <string name="mod_actions_raid">Raid</string>
-    <string name="mod_actions_cancel_raid">Cancel raid</string>
-    <string name="mod_actions_stream_marker">Stream marker</string>
-    <string name="mod_actions_username_hint">Username</string>
-    <string name="mod_actions_channel_hint">Channel</string>
+    <string name="mod_actions_cancel_raid">Raidi iptal et</string>
+    <string name="mod_actions_stream_marker">Yayın işareti</string>
+    <string name="mod_actions_username_hint">Kullanıcı adı</string>
+    <string name="mod_actions_channel_hint">Kanal</string>
     <string name="account">Hesap</string>
     <string name="relogin">Yeniden giriş yap</string>
     <string name="logout">Çıkış yap</string>
@@ -534,7 +534,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_visible_badges_title">Görünür rozetler</string>
     <string name="preference_prefer_emote_suggestions_title">İfade önerilerini yeğle</string>
     <string name="preference_prefer_emote_suggestions_summary">Kullanıcı önerileri yerine ifade önerilerine öncelik ver</string>
-    <string name="preference_user_long_click_title">Kullanıcı adına uzunca tıklanıncaki davranış</string>
+    <string name="preference_user_long_click_title">Kullanıcı adına uzun basma davranışı</string>
     <string name="preference_user_long_click_summary_on">Normal tıklama pencereyi açar, uzun tıklama bahseder</string>
     <string name="preference_user_long_click_summary_off">Normal tıklama bahseder, uzun tıklama pencereyi açar</string>
     <string name="preference_colorize_nicknames_title">Takma adları renklendir</string>
@@ -544,7 +544,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_visible_emotes_title">Görünür üçüncü taraf ifadeler</string>
     <string name="preference_about_tos">Twitch hizmet koşulları ile kullanıcı politikası:</string>
     <string name="preference_show_chip_actions_title">Çip eylemlerini göster</string>
-    <string name="preference_show_chip_actions_summary">Yayınlar, tamekranı açıp kapamak ve sohbet modlarını ayarlamak için çipler gösterir</string>
+    <string name="preference_show_chip_actions_summary">Tam ekranı açıp kapamak, yayınlar ve sohbet modlarını ayarlamak için çipler gösterir</string>
     <string name="preference_show_character_counter_title">Karakter sayacını göster</string>
     <string name="preference_show_character_counter_summary">Giriş alanında kod noktası sayısını görüntüler</string>
     <string name="preference_show_clear_input_button_title">Girdiyi temizle düğmesini göster</string>
@@ -618,7 +618,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_highlights_ignores_header">Öne Çıkarmalar ve Yoksaymalar</string>
     <string name="username">Kullanıcı adı</string>
     <string name="block">Engelle</string>
-    <string name="replacement">Ornatma</string>
+    <string name="replacement">Değiştirme</string>
     <string name="ignores">Yok Saymalar</string>
     <string name="preference_ignores_summary">Mesaj yok saymaları düzenle</string>
     <string name="tab_messages">Mesajlar</string>
@@ -735,7 +735,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="emote_sheet_bttv_global_emote">Küresel BTTV İfadesi</string>
     <string name="emote_sheet_seventv_channel_emote">Kanal 7TV İfadesi</string>
     <string name="emote_sheet_seventv_global_emote">Küresel 7TV İfadesi</string>
-    <string name="emote_sheet_alias_of">%1$s kullanıcısının takma adı</string>
+    <string name="emote_sheet_alias_of">%1$s ifadesinin takma adı</string>
     <string name="emote_sheet_created_by">%1$s tarafından oluşturuldu</string>
     <string name="emote_sheet_zero_width_emote">(Sıfır En)</string>
     <string name="emote_copied">İfade kopyalandı</string>

@@ -10,7 +10,7 @@
     <string name="add_dialog_title">Dodaj kanal</string>
     <string name="edit_dialog_title">Preimenuj kanal</string>
     <string name="dialog_ok">U redu</string>
-    <string name="save">Сачувај</string>
+    <string name="save">Sačuvaj</string>
     <string name="dialog_cancel">Otkaži</string>
     <string name="dialog_dismiss">Odbaciti</string>
     <string name="error_dialog_copy">Kopirati</string>
@@ -47,7 +47,7 @@
     <string name="hint_disconnected">Veza nije uspostavljena</string>
     <string name="hint_not_logged_int">Niste prijavljeni</string>
     <string name="hint_replying">Одговор</string>
-    <string name="hint_announcing">Send announcement</string>
+    <string name="hint_announcing">Пошаљи објаву</string>
     <string name="notification_new_mentions">Neko te je spomenuo</string>
     <string name="notification_mention">%1$s te je spomenuo u #%2$s</string>
     <string name="notification_notify_mention">Spomenut si u #%1$s</string>
@@ -55,7 +55,7 @@
     <string name="snackbar_login_failed">Neuspešno prijavljivanje</string>
     <string name="snackbar_image_uploaded">Kopirano: %1$s</string>
     <string name="system_message_upload_complete">Otpremanje završeno: %1$s</string>
-    <string name="snackbar_upload_failed">Greška prilkom slanja</string>
+    <string name="snackbar_upload_failed">Greška prilikom slanja</string>
     <string name="snackbar_upload_failed_cause">Greška prilikom slanja: %1$s</string>
     <string name="share_upload_label">Отпреми</string>
     <string name="share_upload_copied">Копирано у привремену меморију</string>
@@ -109,7 +109,7 @@
     </plurals>
     <string name="duration_join_2">%1$s %2$s</string>
     <string name="duration_join_3">%1$s %2$s %3$s</string>
-    <string name="snackbar_paste">Paste</string>
+    <string name="snackbar_paste">Налепи</string>
     <string name="add_channel_hint">Naziv kanala</string>
     <string name="add_channel_already_added">Канал је већ додат</string>
     <string name="backspace">Обриши</string>
@@ -118,7 +118,7 @@
     <string name="emote_menu_tab_global">Globalno</string>
     <string name="system_message_connected">Povezan</string>
     <string name="system_message_reconnected">Поново повезан</string>
-    <string name="system_message_disconnected">Veza prekiuta</string>
+    <string name="system_message_disconnected">Veza prekinuta</string>
     <string name="system_message_no_history">Ne vidite prethodne poruke jer ste onemogućili integraciju nedavnih poruka.</string>
     <string name="system_message_ffz_emotes_failed">Учитавање FFZ емотикона није успело (Грешка %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Учитавање BTTV емотикона није успело (Грешка %1$s)</string>
@@ -279,7 +279,7 @@ Kako biste isključili ovu uslogu, pritisnite odustati ispod ili onemogućiti u�
     <string name="uploader_headers">Hederi</string>
     <string name="uploader_image_link">Obrazac za link slike</string>
     <string name="uploader_deletion_link">Obrazac za brisanje slike</string>
-    <string name="uploader_description">Možete da podestie host za uplodovanje slika, kao sto je imgur.com ili s-ul.eu. DankChat koristi isti format za konfiguraciju kao chatteriono.
+    <string name="uploader_description">Možete da podesite host za uplodovanje slika, kao sto je imgur.com ili s-ul.eu. DankChat koristi isti format za konfiguraciju kao Chatterino.
 Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="toggle_fullscreen">Režim celog ekrana</string>
     <string name="toggle_stream">Režim strima</string>
@@ -331,24 +331,24 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
-    <string name="mod_actions_room_state_section">Room state</string>
-    <string name="mod_actions_section">Mod actions</string>
-    <string name="mod_actions_broadcaster_section">Broadcaster</string>
-    <string name="mod_actions_shield_mode">Shield mode</string>
-    <string name="mod_actions_clear_chat">Clear chat</string>
-    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_room_state_section">Стање собе</string>
+    <string name="mod_actions_section">Акције модератора</string>
+    <string name="mod_actions_broadcaster_section">Стример</string>
+    <string name="mod_actions_shield_mode">Режим штита</string>
+    <string name="mod_actions_clear_chat">Очисти чат</string>
+    <string name="mod_actions_confirm_clear_chat">Обрисати све поруке у овом каналу?</string>
     <string name="mod_actions_confirm_shield_mode_title">Активирати режим штита?</string>
     <string name="mod_actions_confirm_shield_mode_body">Ово ће применити унапред конфигурисане безбедносне поставке канала, које могу укључивати ограничења ћаскања, подешавања AutoMod-а и захтеве за верификацију.</string>
     <string name="mod_actions_shield_mode_activate">Активирај</string>
-    <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_header">Announcement</string>
+    <string name="mod_actions_announce">Објава</string>
+    <string name="mod_actions_announce_header">Објава</string>
     <string name="mod_actions_shoutout">Shoutout</string>
-    <string name="mod_actions_commercial">Commercial</string>
-    <string name="mod_actions_raid">Raid</string>
-    <string name="mod_actions_cancel_raid">Cancel raid</string>
-    <string name="mod_actions_stream_marker">Stream marker</string>
-    <string name="mod_actions_username_hint">Username</string>
-    <string name="mod_actions_channel_hint">Channel</string>
+    <string name="mod_actions_commercial">Реклама</string>
+    <string name="mod_actions_raid">Рејд</string>
+    <string name="mod_actions_cancel_raid">Откажи рејд</string>
+    <string name="mod_actions_stream_marker">Маркер стрима</string>
+    <string name="mod_actions_username_hint">Корисничко име</string>
+    <string name="mod_actions_channel_hint">Канал</string>
     <string name="account">Nalog</string>
     <string name="relogin">Ponovno logovanje</string>
     <string name="logout">Odjavi se</string>
@@ -418,7 +418,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_appearance_header">Izgled</string>
     <string name="preference_about_summary">DankChat %1$s je napravljen od @flex3rs i saradnicima</string>
     <string name="preference_show_input_title">Prikaži unos</string>
-    <string name="preference_show_input_summary">Pirkazuje polje za unos za slanje poruka</string>
+    <string name="preference_show_input_summary">Prikazuje polje za unos za slanje poruka</string>
     <string name="preference_follow_system_title">Sistem praćenja</string>
     <string name="preference_true_dark_theme_title">AMOLED tamni režim</string>
     <string name="preference_true_dark_theme_summary">Potpuno crna pozadina za OLED ekrane</string>
@@ -510,10 +510,10 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_show_username_title">Prikaži korisničko ime</string>
     <string name="preference_visible_badges_title">Vidljivi bedževi</string>
     <string name="preference_prefer_emote_suggestions_title">Preferiraju automatsku dopunu emote-ova</string>
-    <string name="preference_prefer_emote_suggestions_summary">Priorituzuj automatsku dovršavanje emote-a u odnosu na korisnike</string>
+    <string name="preference_prefer_emote_suggestions_summary">Prioritizuj automatsko dovršavanje emote-a u odnosu na korisnike</string>
     <string name="preference_user_long_click_title">Ponašanje korisničkog dugog klika</string>
     <string name="preference_user_long_click_summary_on">Običan klik otvara iskačući prozor, duži klik otvara pominjanja</string>
-    <string name="preference_user_long_click_summary_off">Obićan klik otvara pominjanja, duži klik otvara iskačući prozor</string>
+    <string name="preference_user_long_click_summary_off">Običan klik otvara pominjanja, duži klik otvara iskačući prozor</string>
     <string name="preference_colorize_nicknames_title">Обојите надимке</string>
     <string name="preference_colorize_nicknames_summary">Додели насумичну боју корисницима без постављене боје</string>
     <string name="preference_tts_force_english_title">Forsiraj engleski jezik</string>
@@ -607,7 +607,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="crash_report_email_description">Пошаљи детаљан извештај о паду путем е-поште</string>
     <string name="crash_email_confirm_title">Пошаљи извештај о паду путем е-поште</string>
     <string name="crash_email_confirm_message">Следећи подаци ће бити укључени у извештај:</string>
-    <string name="crash_email_confirm_stacktrace">Трага стека</string>
+    <string name="crash_email_confirm_stacktrace">Траг стека</string>
     <string name="crash_email_confirm_include_logs">Укључи тренутни лог фајл</string>
     <string name="preference_crash_viewer_title">Извештаји о падовима</string>
     <string name="preference_crash_viewer_summary">Прегледај недавне извештаје о падовима</string>

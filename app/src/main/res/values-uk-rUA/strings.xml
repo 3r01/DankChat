@@ -52,7 +52,7 @@
     <string name="hint_disconnected">Від\'єднано</string>
     <string name="hint_not_logged_int">Ви не ввійшли</string>
     <string name="hint_replying">Відповісти</string>
-    <string name="hint_announcing">Send announcement</string>
+    <string name="hint_announcing">Надіслати оголошення</string>
     <string name="notification_new_mentions">У Вас є нові згадки</string>
     <string name="notification_mention">%1$s згадав Вас у #%2$s</string>
     <string name="notification_notify_mention">Вас згадали у #%1$s</string>
@@ -144,8 +144,8 @@
     <string name="system_message_7tv_emotes_cached_fallback">Використовуються кешовані 7TV emotes як запасний варіант</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s переключив активний 7TV Emote Set на \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s додав 7TV емоцію %2$s.</string>
-    <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s перейменовано на 7TV Emote %2$s на %3$s.</string>
-    <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s видалено 7TV Emote %2$s.</string>
+    <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s перейменував 7TV емоцію %2$s на %3$s.</string>
+    <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s видалив 7TV емоцію %2$s.</string>
     <!-- Send errors -->
     <string name="system_message_send_not_logged_in">Не виконано вхід</string>
     <string name="system_message_send_channel_not_resolved">Не вдалося визначити ID каналу для %1$s</string>
@@ -353,24 +353,24 @@
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
-    <string name="mod_actions_room_state_section">Room state</string>
-    <string name="mod_actions_section">Mod actions</string>
-    <string name="mod_actions_broadcaster_section">Broadcaster</string>
-    <string name="mod_actions_shield_mode">Shield mode</string>
-    <string name="mod_actions_clear_chat">Clear chat</string>
-    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_room_state_section">Стан кімнати</string>
+    <string name="mod_actions_section">Дії модератора</string>
+    <string name="mod_actions_broadcaster_section">Стример</string>
+    <string name="mod_actions_shield_mode">Режим щита</string>
+    <string name="mod_actions_clear_chat">Очистити чат</string>
+    <string name="mod_actions_confirm_clear_chat">Очистити всі повідомлення в цьому каналі?</string>
     <string name="mod_actions_confirm_shield_mode_title">Активувати режим щита?</string>
     <string name="mod_actions_confirm_shield_mode_body">Це застосує попередньо налаштовані параметри безпеки каналу, які можуть включати обмеження чату, налаштування AutoMod та вимоги верифікації.</string>
     <string name="mod_actions_shield_mode_activate">Активувати</string>
-    <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_header">Announcement</string>
+    <string name="mod_actions_announce">Оголошення</string>
+    <string name="mod_actions_announce_header">Оголошення</string>
     <string name="mod_actions_shoutout">Shoutout</string>
-    <string name="mod_actions_commercial">Commercial</string>
-    <string name="mod_actions_raid">Raid</string>
-    <string name="mod_actions_cancel_raid">Cancel raid</string>
-    <string name="mod_actions_stream_marker">Stream marker</string>
-    <string name="mod_actions_username_hint">Username</string>
-    <string name="mod_actions_channel_hint">Channel</string>
+    <string name="mod_actions_commercial">Реклама</string>
+    <string name="mod_actions_raid">Рейд</string>
+    <string name="mod_actions_cancel_raid">Скасувати рейд</string>
+    <string name="mod_actions_stream_marker">Мітка стріму</string>
+    <string name="mod_actions_username_hint">Ім\'я користувача</string>
+    <string name="mod_actions_channel_hint">Канал</string>
     <string name="account">Обліковий запис</string>
     <string name="relogin">Увійти знову</string>
     <string name="logout">Вийти</string>
@@ -417,12 +417,12 @@
     <string name="oauth_token">Токен OAuth</string>
     <string name="verify_login">Підтвердити та зберегти</string>
     <string name="custom_login_hint">Підтримуються лише ідентифікатори клієнтів, які працюють з API Helix від Twitch</string>
-    <string name="custom_login_show_scopes">Показати необхідні діапазони</string>
-    <string name="custom_login_required_scopes">Необхідні діапазони</string>
-    <string name="custom_login_missing_scopes_title">Відсутні приціли</string>
-    <string name="custom_login_missing_scopes_text">У токені відсутні деякі області видимості, необхідні для DankChat, і деякі функції можуть працювати не так, як очікувалося. Ви хочете продовжувати використовувати цей токен?\nВідсутній: %1$s</string>
-    <string name="custom_login_missing_scopes_continue">Продовжуйте</string>
-    <string name="custom_login_error_missing_scopes">Відсутні діапазони: %1$s</string>
+    <string name="custom_login_show_scopes">Показати необхідні дозволи</string>
+    <string name="custom_login_required_scopes">Необхідні дозволи</string>
+    <string name="custom_login_missing_scopes_title">Відсутні дозволи</string>
+    <string name="custom_login_missing_scopes_text">У токені відсутні деякі дозволи, необхідні для DankChat, і деякі функції можуть працювати не так, як очікувалося. Ви хочете продовжити використовувати цей токен?\nВідсутні: %1$s</string>
+    <string name="custom_login_missing_scopes_continue">Продовжити</string>
+    <string name="custom_login_error_missing_scopes">Відсутні дозволи: %1$s</string>
     <string name="custom_login_error_fallback">Помилка: %1$s</string>
     <string name="custom_login_error_empty_token">Токен не може бути порожнім</string>
     <string name="custom_login_error_invalid_token">Токен недійсний</string>
@@ -515,7 +515,7 @@
     <string name="preference_suggestions_supibot_desc">Активувати за допомогою $</string>
     <string name="preference_load_message_history_title">Завантажувати історію повідомлень при запуску</string>
     <string name="preference_load_messages_on_reconnect_title">Завантаження історії повідомлень після повторного підключення</string>
-    <string name="preference_load_messages_on_reconnect_summary">Спроби отримати пропущені повідомлення, які не були отримані під час з\'єднання, обриваються</string>
+    <string name="preference_load_messages_on_reconnect_summary">Спробує отримати пропущені повідомлення, які не були отримані під час розривів з\'єднання</string>
     <string name="preference_message_history_header">Історія повідомлень</string>
     <string name="preference_message_history_dashboard_title">Відкрити інформаційну панель</string>
     <string name="preference_message_history_dashboard_summary">Дізнатися більше про службу та відімкнути історію повідомлень для Вашого каналу</string>
@@ -600,13 +600,13 @@
     <string name="preference_show_changelogs">Показувати журнали змін після оновлення</string>
     <string name="preference_whats_new_header">Що нового</string>
     <string name="preference_custom_login_title">Користувацький логін</string>
-    <string name="preference_bypass_command_handling_title">Обробка команд обходу Twitch</string>
+    <string name="preference_bypass_command_handling_title">Обхід обробки команд Twitch</string>
     <string name="preference_bypass_command_handling_summary">Вимикає перехоплення команд Twitch і надсилає їх до чату</string>
     <string name="preference_chat_send_protocol_category">Протокол надсилання чату</string>
     <string name="preference_helix_sending_title">Використовувати Helix API для надсилання</string>
     <string name="preference_helix_sending_summary">Надсилати повідомлення чату через Twitch Helix API замість IRC</string>
     <string name="preference_7tv_live_updates_title">Оновлення емоцій в прямому ефірі 7TV</string>
-    <string name="preference_7tv_live_updates_timeout_title">Живі емоти оновлюють фонову поведінку</string>
+    <string name="preference_7tv_live_updates_timeout_title">Поведінка оновлень емоцій у фоні</string>
     <string name="preference_7tv_live_updates_timeout_summary_timeout">Оновлення припиняються після %1$s.\nЗменшення цього числа може збільшити час автономної роботи.</string>
     <string name="preference_7tv_live_updates_timeout_summary_always_active">Оновлення завжди активні.\nДодавання тайм-ауту може збільшити час автономної роботи.</string>
     <string name="preference_7tv_live_updates_timeout_summary_never_active">Оновлення ніколи не працюють у фоновому режимі.</string>
@@ -617,7 +617,7 @@
     <string name="preference_7tv_live_updates_entry_one_hour">1 година</string>
     <string name="preference_7tv_live_updates_entry_always">Завжди активні</string>
     <string name="preference_streams_header">Прямі ефіри</string>
-    <string name="preference_pip_title">Увімкнути режим \"картинка в картинці</string>
+    <string name="preference_pip_title">Увімкнути режим \"картинка в картинці\"</string>
     <string name="preference_pip_summary">Дозволяє потокам продовжувати відтворення, коли програма працює у фоновому режимі</string>
     <string name="reset_media_uploader_dialog_title">Скинути налаштування медіа-завантажувача</string>
     <string name="reset_media_uploader_dialog_message">Ви впевнені, що бажаєте скинути налаштування медіа-завантажувача до стандартних?</string>
@@ -741,17 +741,17 @@
     <string name="whisper_new_dialog_start">Надіслати</string>
     <string name="reply_thread_not_found">Тема відповіді не знайдена</string>
     <string name="message_not_found">Повідомлення не знайдено</string>
-    <string name="emote_sheet_use">Використовуйте смайлик</string>
+    <string name="emote_sheet_use">Використати смайлик</string>
     <string name="emote_sheet_copy">Скопіювати</string>
-    <string name="emote_sheet_open_link">Відкрийте емоційне посилання</string>
-    <string name="emote_sheet_image_description">Емоційне зображення</string>
-    <string name="emote_sheet_twitch_emote">Емоція Twitch</string>
-    <string name="emote_sheet_ffz_channel_emote">Канал FFZ Emote</string>
+    <string name="emote_sheet_open_link">Відкрити посилання на смайл</string>
+    <string name="emote_sheet_image_description">Зображення смайла</string>
+    <string name="emote_sheet_twitch_emote">Twitch смайл</string>
+    <string name="emote_sheet_ffz_channel_emote">Смайл каналу FFZ</string>
     <string name="emote_sheet_ffz_global_emote">Глобальний FFZ смайл</string>
-    <string name="emote_sheet_bttv_channel_emote">Канал BTTV Emote</string>
-    <string name="emote_sheet_bttv_shared_emote">Спільний BTTV Emote</string>
+    <string name="emote_sheet_bttv_channel_emote">Смайл каналу BTTV</string>
+    <string name="emote_sheet_bttv_shared_emote">Спільний BTTV смайл</string>
     <string name="emote_sheet_bttv_global_emote">Глобальний BTTV смайл</string>
-    <string name="emote_sheet_seventv_channel_emote">Канал 7TV Emote</string>
+    <string name="emote_sheet_seventv_channel_emote">Смайл каналу 7TV</string>
     <string name="emote_sheet_seventv_global_emote">Глобальний 7TV смайл</string>
     <string name="emote_sheet_alias_of">Псевдонім %1$s</string>
     <string name="emote_sheet_created_by">Створено %1$s</string>
@@ -767,16 +767,10 @@
     <string name="back">Назад</string>
     <string name="shared_chat">Спільний чат</string>
     <plurals name="viewers_and_uptime">
-        <item quantity="one">Один
-Прямий ефір з %1$d глядачем для %2$s
-Інший
-Прямий ефір з %1$d глядачами за %2$s</item>
-        <item quantity="few">Один
-Прямий ефір з %1$d глядачем для %2$s
-Інший
-Прямий ефір з %1$d глядачами за %2$s</item>
-        <item quantity="many">Прямий ефір з %1$d глядачами за %2$s</item>
-        <item quantity="other">Прямий ефір з %1$d глядачами за %2$s</item>
+        <item quantity="one">Наживо з %1$d глядачем протягом %2$s</item>
+        <item quantity="few">Наживо з %1$d глядачами протягом %2$s</item>
+        <item quantity="many">Наживо з %1$d глядачами протягом %2$s</item>
+        <item quantity="other">Наживо з %1$d глядачами протягом %2$s</item>
     </plurals>
     <plurals name="months">
         <item quantity="one">%d місяць</item>

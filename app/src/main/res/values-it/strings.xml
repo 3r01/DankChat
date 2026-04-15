@@ -36,7 +36,7 @@
     <string name="resume_scroll">Riprendi scorrimento</string>
     <string name="uploading_image">Caricamento file</string>
     <string name="settings">Impostazioni</string>
-    <string name="external_upload_disclaimer">Hosting esterno fornito da %1$s. Utilizzalo a tuo rischi e pericolo.</string>
+    <string name="external_upload_disclaimer">Hosting esterno fornito da %1$s. Utilizzalo a tuo rischio e pericolo.</string>
     <string name="nuuls_upload_title">Caricamento media personalizzato</string>
     <string name="snackbar_message_copied">Messaggio copiato</string>
     <string name="snackbar_message_id_copied">Id messaggio copiato</string>
@@ -52,7 +52,7 @@
     <string name="hint_disconnected">Disconnesso</string>
     <string name="hint_not_logged_int">Non connesso</string>
     <string name="hint_replying">Rispondi</string>
-    <string name="hint_announcing">Send announcement</string>
+    <string name="hint_announcing">Invia un annuncio</string>
     <string name="notification_new_mentions">Hai delle nuove menzioni</string>
     <string name="notification_mention">%1$s ti ha appena menzionato in #%2$s</string>
     <string name="notification_notify_mention">Sei stato menzionato in #%1$s</string>
@@ -129,9 +129,9 @@
     <string name="system_message_ffz_emotes_failed">Impossibile caricare le emote FFZ (Errore %1$s)</string>
     <string name="system_message_bttv_emotes_failed">Impossibile caricare le emote BTTV (Errore %1$s)</string>
     <string name="system_message_7tv_emotes_failed">Impossibile caricare le emote 7TV (Errore %1$s)</string>
-    <string name="system_message_ffz_emotes_cached_fallback">Utilizzo degli emotes FFZ memorizzati nella cache come fallback</string>
-    <string name="system_message_bttv_emotes_cached_fallback">Utilizzo degli emotes BTTV memorizzati nella cache come fallback</string>
-    <string name="system_message_7tv_emotes_cached_fallback">Utilizzo degli emotes 7TV memorizzati nella cache come fallback</string>
+    <string name="system_message_ffz_emotes_cached_fallback">Utilizzo delle emote FFZ memorizzate nella cache come fallback</string>
+    <string name="system_message_bttv_emotes_cached_fallback">Utilizzo delle emote BTTV memorizzate nella cache come fallback</string>
+    <string name="system_message_7tv_emotes_cached_fallback">Utilizzo delle emote 7TV memorizzate nella cache come fallback</string>
     <string name="system_message_7tv_emote_set_changed" comment="flex3rs switched the active 7TV Emote Set to &quot;flex3rs's Emotes&quot;. ">%1$s ha cambiato il Set Emote 7TV attivo a \"%2$s\".</string>
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s ha aggiunto l\'Emote 7TV %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s ha rinominato l\'Emote 7TV %2$s in %3$s.</string>
@@ -264,7 +264,7 @@
     <string name="user_popup_block">Blocca</string>
     <string name="user_popup_unblock">Sblocca</string>
     <string name="user_popup_mention">Menziona utente</string>
-    <string name="user_popup_whisper">Sussurra a utente</string>
+    <string name="user_popup_whisper">MP all\'utente</string>
     <string name="user_popup_created">Creato il: %1$s</string>
     <string name="user_popup_following_since">Seguito dal %1$s</string>
     <string name="user_popup_not_following">Non seguito</string>
@@ -331,24 +331,24 @@
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
-    <string name="mod_actions_room_state_section">Room state</string>
-    <string name="mod_actions_section">Mod actions</string>
+    <string name="mod_actions_room_state_section">Stato della stanza</string>
+    <string name="mod_actions_section">Azioni di moderazione</string>
     <string name="mod_actions_broadcaster_section">Broadcaster</string>
-    <string name="mod_actions_shield_mode">Shield mode</string>
-    <string name="mod_actions_clear_chat">Clear chat</string>
-    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_shield_mode">Modalità scudo</string>
+    <string name="mod_actions_clear_chat">Svuota la chat</string>
+    <string name="mod_actions_confirm_clear_chat">Svuotare tutti i messaggi di questo canale?</string>
     <string name="mod_actions_confirm_shield_mode_title">Attivare la modalità scudo?</string>
     <string name="mod_actions_confirm_shield_mode_body">Verranno applicate le impostazioni di sicurezza preconfigurate del canale, che possono includere restrizioni della chat, impostazioni AutoMod e requisiti di verifica.</string>
     <string name="mod_actions_shield_mode_activate">Attiva</string>
-    <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_header">Announcement</string>
+    <string name="mod_actions_announce">Annuncio</string>
+    <string name="mod_actions_announce_header">Annuncio</string>
     <string name="mod_actions_shoutout">Shoutout</string>
-    <string name="mod_actions_commercial">Commercial</string>
+    <string name="mod_actions_commercial">Pubblicità</string>
     <string name="mod_actions_raid">Raid</string>
-    <string name="mod_actions_cancel_raid">Cancel raid</string>
-    <string name="mod_actions_stream_marker">Stream marker</string>
-    <string name="mod_actions_username_hint">Username</string>
-    <string name="mod_actions_channel_hint">Channel</string>
+    <string name="mod_actions_cancel_raid">Annulla raid</string>
+    <string name="mod_actions_stream_marker">Marcatore dello stream</string>
+    <string name="mod_actions_username_hint">Nome utente</string>
+    <string name="mod_actions_channel_hint">Canale</string>
     <string name="account">Profilo</string>
     <string name="relogin">Accedi di nuovo</string>
     <string name="logout">Disconnettiti</string>
@@ -369,7 +369,7 @@
     <string name="confirm_user_delete_positive_button">Elimina</string>
     <string name="confirm_clear_chat_question">Cancellare la chat?</string>
     <string name="confirm_user_roomstate_title">Aggiorna modalità di chat</string>
-    <string name="roomstate_emote">Sole emote</string>
+    <string name="roomstate_emote">Solo emote</string>
     <string name="roomstate_subs">Solo iscritti</string>
     <string name="roomstate_slow">Modalità lenta</string>
     <string name="roomstate_r9k">Modalità R9K</string>
@@ -422,7 +422,7 @@
     <string name="preference_messages_header">Messaggi</string>
     <string name="preference_users_header">Utenti</string>
     <string name="preference_emotes_badges_header">Emote &amp; Badge</string>
-    <string name="preference_suggestion_mode_title">Modalita di suggerimento</string>
+    <string name="preference_suggestion_mode_title">Modalità di suggerimento</string>
     <string name="preference_suggestion_mode_automatic">Suggerisci corrispondenze durante la digitazione</string>
     <string name="preference_suggestion_mode_prefix_only">Suggerisci solo dopo un carattere di attivazione</string>
     <string name="preference_about_header">Info</string>
@@ -430,7 +430,7 @@
     <string name="preference_about_summary">DankChat %1$s, sviluppata da @flex3rs e collaboratori</string>
     <string name="preference_show_input_title">Mostra input</string>
     <string name="preference_show_input_summary">Mostra il campo di inserimento per inviare i messaggi</string>
-    <string name="preference_follow_system_title">Sistema di follow predefinito</string>
+    <string name="preference_follow_system_title">Segui il sistema predefinito</string>
     <string name="preference_true_dark_theme_title">Modalità scura AMOLED</string>
     <string name="preference_true_dark_theme_summary">Sfondi neri puri per schermi OLED</string>
     <string name="preference_accent_color_title">Colore di accento</string>
@@ -469,7 +469,7 @@
     <string name="palette_style_content">Content</string>
     <string name="palette_style_content_desc">Colore di accento con terziario analogo</string>
     <string name="palette_style_more">Altri stili</string>
-    <string name="preference_display_group_title">Schermo</string>
+    <string name="preference_display_group_title">Visualizzazione</string>
     <string name="preference_components_group_title">Componenti</string>
     <string name="preference_show_timed_out_messages_title">Mostra messaggi silenziati</string>
     <string name="preference_animate_gifs_title">Gif animate</string>
@@ -491,8 +491,8 @@
     <string name="preference_suggestions_supibot">Comandi Supibot</string>
     <string name="preference_suggestions_supibot_desc">Attiva con $</string>
     <string name="preference_load_message_history_title">Carica cronologia messaggi, all\'avvio</string>
-    <string name="preference_load_messages_on_reconnect_title">Carica la cronologia dei messaggi dopo una riconnessone</string>
-    <string name="preference_load_messages_on_reconnect_summary">Tenta di recuperare i messaggi persi durante un interruzione della connessione</string>
+    <string name="preference_load_messages_on_reconnect_title">Carica la cronologia dei messaggi dopo una riconnessione</string>
+    <string name="preference_load_messages_on_reconnect_summary">Tenta di recuperare i messaggi persi durante un\'interruzione della connessione</string>
     <string name="preference_message_history_header">Cronologia dei messaggi</string>
     <string name="preference_message_history_dashboard_title">Apri il pannello di controllo</string>
     <string name="preference_message_history_dashboard_summary">Scopri di più sul servizio e disabilita la cronologia dei messaggi per il tuo canale</string>
@@ -578,7 +578,7 @@
     <string name="preference_whats_new_header">Novità</string>
     <string name="preference_custom_login_title">Login personalizzato</string>
     <string name="preference_bypass_command_handling_title">Bypassa la gestione dei comandi di Twitch</string>
-    <string name="preference_bypass_command_handling_summary">Disabilità l\'intercettazione dei comandi di Twitch inviandoli invece in chat</string>
+    <string name="preference_bypass_command_handling_summary">Disabilita l\'intercettazione dei comandi di Twitch inviandoli invece in chat</string>
     <string name="preference_chat_send_protocol_category">Protocollo di invio della chat</string>
     <string name="preference_helix_sending_title">Usa Helix API per l\'invio</string>
     <string name="preference_helix_sending_summary">Invia messaggi in chat tramite Twitch Helix API invece di IRC</string>
@@ -596,7 +596,7 @@
     <string name="preference_streams_header">Canali live</string>
     <string name="preference_pip_title">Attiva modalità picture-in-picture</string>
     <string name="preference_pip_summary">Consente la riproduzione della live mentre l\'applicazione è in background</string>
-    <string name="reset_media_uploader_dialog_title">RIpristina Impostazioni Caricatore Multimediale</string>
+    <string name="reset_media_uploader_dialog_title">Ripristina impostazioni caricatore multimediale</string>
     <string name="reset_media_uploader_dialog_message">Sei sicuro di voler ripristinare le impostazioni del caricatore multimediale ai valori predefiniti?</string>
     <string name="reset_media_uploader_dialog_positive">Ripristina</string>
     <string name="clear_recent_uploads_dialog_title">Cancella Caricamenti Recenti</string>
@@ -641,7 +641,7 @@
     <string name="ignores_messages_title">Ignora messaggi secondo certi schemi.</string>
     <string name="ignores_users_title">Ignora messaggi da certi utenti.</string>
     <string name="ignores_twitch_title">Gestisci utenti di Twitch bloccati.</string>
-    <string name="preference_notification_whisper_title">Crea notifiche per sussurri.</string>
+    <string name="preference_notification_whisper_title">Crea notifiche per i MP</string>
     <string name="login_outdated_title">Accesso Obsoleto!</string>
     <string name="login_outdated_message">Il tuo accesso è obsoleto e non ha accesso ad alcune funzionalità. Sei pregato di accedere nuovamente.</string>
     <string name="custom_user_display_title">Schermata Utente Personalizzata</string>
@@ -674,7 +674,7 @@
     <string name="preference_log_viewer_empty">Nessun file di log disponibile</string>
     <string name="log_viewer_search_hint">Cerca nei log</string>
     <plurals name="log_viewer_selected_count">
-        <item quantity="one">%1$d selezionati</item>
+        <item quantity="one">%1$d selezionato</item>
         <item quantity="other">%1$d selezionati</item>
     </plurals>
     <string name="log_viewer_copy_selection">Copia log selezionati</string>
@@ -708,10 +708,10 @@
     <string name="search_filter_user">Utente</string>
     <string name="search_filter_badge">Distintivo</string>
     <string name="reply_header">Stai rispondendo a @%1$s</string>
-    <string name="whisper_header">Sussurro a @%1$s</string>
-    <string name="hint_whispering">Invia un sussurro</string>
-    <string name="whisper_new">Nuovo sussurro</string>
-    <string name="whisper_new_dialog_title">Invia sussurro a</string>
+    <string name="whisper_header">MP a @%1$s</string>
+    <string name="hint_whispering">Invia un MP</string>
+    <string name="whisper_new">Nuovo MP</string>
+    <string name="whisper_new_dialog_title">Invia MP a</string>
     <string name="whisper_new_dialog_hint">Nome utente</string>
     <string name="whisper_new_dialog_start">Invia</string>
     <string name="reply_thread_not_found">Thread risposta non trovato</string>
@@ -730,7 +730,7 @@
     <string name="emote_sheet_seventv_global_emote">Emote 7TV Globali</string>
     <string name="emote_sheet_alias_of">Alias di %1$s</string>
     <string name="emote_sheet_created_by">Creato da %1$s</string>
-    <string name="emote_sheet_zero_width_emote">(Zero Width)</string>
+    <string name="emote_sheet_zero_width_emote">(Larghezza zero)</string>
     <string name="emote_copied">Emote copiata</string>
     <string name="changelog_sheet_title">DankChat è stato aggiornato!</string>
     <string name="changelog_sheet_subtitle">Cosa c\'è di nuovo in v%1$s:</string>

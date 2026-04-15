@@ -36,7 +36,7 @@
     <string name="resume_scroll">Obnovit posouvání chatu</string>
     <string name="uploading_image">Nahrávání souboru</string>
     <string name="settings">Nastavení</string>
-    <string name="external_upload_disclaimer">Externí hostování poskytované %1$s ,používejte na vlastní riziko.</string>
+    <string name="external_upload_disclaimer">Externí hostování poskytované %1$s, používejte na vlastní riziko.</string>
     <string name="nuuls_upload_title">Nahrání vlastního obrázku</string>
     <string name="snackbar_message_copied">Zpráva zkopírována</string>
     <string name="snackbar_message_id_copied">ID zprávy zkopírováno</string>
@@ -52,7 +52,7 @@
     <string name="hint_disconnected">Odpojeno</string>
     <string name="hint_not_logged_int">Nejste přihlášen</string>
     <string name="hint_replying">Odpovědět</string>
-    <string name="hint_announcing">Send announcement</string>
+    <string name="hint_announcing">Odeslat oznámení</string>
     <string name="notification_new_mentions">Máte nové zmínky</string>
     <string name="notification_mention">%1$s vás právě zmínil v #%2$s</string>
     <string name="notification_notify_mention">Byli jste zmíněni v #%1$s</string>
@@ -288,7 +288,7 @@ Služba dočasně ukládá zprávy pro kanály, které vy (a další) navštív�
     <string name="user_popup_following_since">Sledování od %1$s</string>
     <string name="user_popup_not_following">Nesleduje</string>
     <string name="user_popup_avatar_description">Obrázek avataru</string>
-    <string name="user_popup_error">Chyba při načítání informaci o uživateli: %1$s</string>
+    <string name="user_popup_error">Chyba při načítání informací o uživateli: %1$s</string>
     <string name="confirm_user_block_title">Potvrdit zablokování</string>
     <string name="confirm_user_block_message">Jste si jisti, že si chcete zablokovat tohoto uživatele?</string>
     <string name="confirm_user_block_positive_button">Zablokovat</string>
@@ -302,7 +302,7 @@ Služba dočasně ukládá zprávy pro kanály, které vy (a další) navštív�
     <string name="uploader_deletion_link">Vzor odkazu pro smazání</string>
     <string name="uploader_description">Můžete nastavit vlastního hostitele pro nahrávání médií, jako je imgur.com nebo s-ul.eu. DankChat používá stejný formát nastavení jako Chatterino.
 Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploader</string>
-    <string name="toggle_fullscreen">Zapnou plnou obrazovku</string>
+    <string name="toggle_fullscreen">Zapnout plnou obrazovku</string>
     <string name="toggle_stream">Zapnout stream</string>
     <string name="menu_show_stream">Zobrazit stream</string>
     <string name="menu_hide_stream">Skrýt stream</string>
@@ -353,24 +353,24 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="room_state_duration_days">%1$dd</string>
     <string name="room_state_duration_weeks">%1$dw</string>
     <string name="room_state_duration_months">%1$dmo</string>
-    <string name="mod_actions_room_state_section">Room state</string>
-    <string name="mod_actions_section">Mod actions</string>
-    <string name="mod_actions_broadcaster_section">Broadcaster</string>
-    <string name="mod_actions_shield_mode">Shield mode</string>
-    <string name="mod_actions_clear_chat">Clear chat</string>
-    <string name="mod_actions_confirm_clear_chat">Clear all messages in this channel?</string>
+    <string name="mod_actions_room_state_section">Stav místnosti</string>
+    <string name="mod_actions_section">Akce moderátora</string>
+    <string name="mod_actions_broadcaster_section">Vysílající</string>
+    <string name="mod_actions_shield_mode">Režim štítu</string>
+    <string name="mod_actions_clear_chat">Vyčistit chat</string>
+    <string name="mod_actions_confirm_clear_chat">Vymazat všechny zprávy v tomto kanálu?</string>
     <string name="mod_actions_confirm_shield_mode_title">Aktivovat režim štítu?</string>
     <string name="mod_actions_confirm_shield_mode_body">Toto použije předkonfigurovaná bezpečnostní nastavení kanálu, která mohou zahrnovat omezení chatu, nastavení AutoModu a požadavky na ověření.</string>
     <string name="mod_actions_shield_mode_activate">Aktivovat</string>
-    <string name="mod_actions_announce">Announce</string>
-    <string name="mod_actions_announce_header">Announcement</string>
+    <string name="mod_actions_announce">Oznámení</string>
+    <string name="mod_actions_announce_header">Oznámení</string>
     <string name="mod_actions_shoutout">Shoutout</string>
-    <string name="mod_actions_commercial">Commercial</string>
+    <string name="mod_actions_commercial">Reklama</string>
     <string name="mod_actions_raid">Raid</string>
-    <string name="mod_actions_cancel_raid">Cancel raid</string>
-    <string name="mod_actions_stream_marker">Stream marker</string>
-    <string name="mod_actions_username_hint">Username</string>
-    <string name="mod_actions_channel_hint">Channel</string>
+    <string name="mod_actions_cancel_raid">Zrušit raid</string>
+    <string name="mod_actions_stream_marker">Značka streamu</string>
+    <string name="mod_actions_username_hint">Uživatelské jméno</string>
+    <string name="mod_actions_channel_hint">Kanál</string>
     <string name="account">Účet</string>
     <string name="relogin">Znovu se přihlásit</string>
     <string name="logout">Odhlásit se</string>
@@ -401,7 +401,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="add_command">Přidat příkaz</string>
     <string name="remove_command">Odebrat příkaz</string>
     <string name="command_trigger_hint">Spouštěč</string>
-    <string name="command_trigger_reserved">Tento spouštěč je vyhrazen vestavěným příkazem</string>
+    <string name="command_trigger_reserved">Tento spouštěč je vyhrazen vestavěnému příkazu</string>
     <string name="command_trigger_duplicate">Tento spouštěč je již používán jiným příkazem</string>
     <string name="command__hint">Příkaz</string>
     <string name="commands_title">Vlastní příkazy</string>
@@ -417,12 +417,12 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="oauth_token">Autorizační token</string>
     <string name="verify_login">Ověřit &amp; Uložit</string>
     <string name="custom_login_hint">Jsou podporována pouze klientská ID, které fungují s Twitch Helix API.</string>
-    <string name="custom_login_show_scopes">Zobrazit požadovaná pole</string>
-    <string name="custom_login_required_scopes">Požadované pole</string>
-    <string name="custom_login_missing_scopes_title">Chybějící pole</string>
-    <string name="custom_login_missing_scopes_text">V tokenu chybí některá pole, které DankChat vyžaduje a některé funkce nemusí fungovat podle očekávání. Chcete přesto tento token použít?\n Chybí: %1$s</string>
+    <string name="custom_login_show_scopes">Zobrazit požadovaná oprávnění</string>
+    <string name="custom_login_required_scopes">Požadovaná oprávnění</string>
+    <string name="custom_login_missing_scopes_title">Chybějící oprávnění</string>
+    <string name="custom_login_missing_scopes_text">V tokenu chybí některá oprávnění, která DankChat vyžaduje, a některé funkce nemusí fungovat podle očekávání. Chcete přesto tento token použít?\nChybí: %1$s</string>
     <string name="custom_login_missing_scopes_continue">Pokračovat</string>
-    <string name="custom_login_error_missing_scopes">Chybějící pole: %1$s</string>
+    <string name="custom_login_error_missing_scopes">Chybějící oprávnění: %1$s</string>
     <string name="custom_login_error_fallback">Chyba: %1$s</string>
     <string name="custom_login_error_empty_token">Token nemůže být prázdný</string>
     <string name="custom_login_error_invalid_token">Token není platný</string>
@@ -435,7 +435,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_roomstate_title">Zobrazit informaci o režimu místnosti</string>
     <string name="preference_roomstate_summary">Zobrazí informaci o současném režimu místnosti jako například pouze pro předplatitele</string>
     <string name="preference_streaminfo_title">Zobrazit informace o streamu</string>
-    <string name="preference_streaminfo_summary">Zobrazí stav a počet divákú</string>
+    <string name="preference_streaminfo_summary">Zobrazí stav a počet diváků</string>
     <string name="preference_notification_title">Zobrazit upozornění o zmínkách</string>
     <string name="preference_notification_summary">Vytváří upozornění, když jste zmíněni, pokud je aplikace na pozadí</string>
     <string name="preference_notification_header">Upozornění</string>
@@ -620,7 +620,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_pip_title">Zapnout režim obraz v obraze</string>
     <string name="preference_pip_summary">Umožní aby streamy nadále běžely, i když bude aplikace spuštěná na pozadí</string>
     <string name="reset_media_uploader_dialog_title">Obnovit nastavení nahrávače médií</string>
-    <string name="reset_media_uploader_dialog_message">Jste si jístí, že chcete obnovit výchozí nastavení nahrávače médií?</string>
+    <string name="reset_media_uploader_dialog_message">Jste si jistí, že chcete obnovit výchozí nastavení nahrávače médií?</string>
     <string name="reset_media_uploader_dialog_positive">Obnovit</string>
     <string name="clear_recent_uploads_dialog_title">Vymazat nedávná nahrání</string>
     <string name="clear_recent_uploads_dialog_message">Jste si jistí, že chcete smazat historii nahrávání? Vaše nahrané soubory nebudou smazány.</string>
@@ -782,8 +782,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <plurals name="viewers_and_uptime_with_cateogry" comment="Live with 1 viewer in Just Chatting for 1h 1m&#13;&#10;Live with 10 viewers in Just Chatting for 1h 1m">
         <item quantity="one">Živě s %1$d divákem v %2$s po dobu %3$s</item>
         <item quantity="few">Živě s %1$d diváky v %2$s po dobu %3$s</item>
-        <item quantity="many">Živě s %1$d diváků v %2$s po dobu %3$s</item>
-        <item quantity="other">Živě s %1$d diváků v %2$s po dobu %3$s</item>
+        <item quantity="many">Živě s %1$d diváky v %2$s po dobu %3$s</item>
+        <item quantity="other">Živě s %1$d diváky v %2$s po dobu %3$s</item>
     </plurals>
     <string name="preference_streaminfo_category_title">Zobrazit kategorii vysílání</string>
     <string name="preference_streaminfo_category_summary">Zobrazit také kategorii vysílání</string>
