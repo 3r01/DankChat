@@ -15,6 +15,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
+import com.flxrs.dankchat.preferences.appearance.FabAnchor
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils
@@ -49,7 +50,7 @@ class ChatViewModel(
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,
-    appearanceSettingsDataStore: AppearanceSettingsDataStore,
+    private val appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
@@ -62,6 +63,9 @@ class ChatViewModel(
                 fontSize = appearance.fontSize.toFloat(),
                 animateGifs = chat.animateGifs,
                 fullscreenButtonOpacity = appearance.fullscreenButtonOpacity,
+                fabAnchor = appearance.fabAnchor,
+                fabOffsetXFraction = appearance.fabOffsetXFraction,
+                fabOffsetYFraction = appearance.fabOffsetYFraction,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), ChatDisplaySettings())
 
@@ -174,6 +178,22 @@ class ChatViewModel(
                 }
         }
     }
+
+    fun persistFabPosition(
+        anchor: FabAnchor,
+        xFraction: Float,
+        yFraction: Float,
+    ) {
+        viewModelScope.launch {
+            appearanceSettingsDataStore.update {
+                it.copy(
+                    fabAnchor = anchor,
+                    fabOffsetXFraction = xFraction,
+                    fabOffsetYFraction = yFraction,
+                )
+            }
+        }
+    }
 }
 
 @Immutable
@@ -181,4 +201,7 @@ data class ChatDisplaySettings(
     val fontSize: Float = 14f,
     val animateGifs: Boolean = true,
     val fullscreenButtonOpacity: Float = 0.75f,
+    val fabAnchor: FabAnchor = FabAnchor.BottomEnd,
+    val fabOffsetXFraction: Float = 0f,
+    val fabOffsetYFraction: Float = 0f,
 )

@@ -18,6 +18,9 @@ enum class InputAction {
 }
 
 @Serializable
+enum class FabAnchor { BottomEnd, TopEnd, Free }
+
+@Serializable
 data class AppearanceSettings(
     val theme: ThemePreference = ThemePreference.System,
     val trueDarkTheme: Boolean = false,
@@ -36,6 +39,9 @@ data class AppearanceSettings(
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
     val fullscreenButtonOpacity: Float = 0.75f,
+    val fabAnchor: FabAnchor = FabAnchor.BottomEnd,
+    val fabOffsetXFraction: Float = 0f,
+    val fabOffsetYFraction: Float = 0f,
     val inputActions: List<InputAction> =
         listOf(
             InputAction.Stream,

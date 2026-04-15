@@ -3,9 +3,10 @@ package com.flxrs.dankchat.ui.chat
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -81,6 +82,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
@@ -88,6 +90,7 @@ import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.preferences.appearance.FabAnchor
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.messages.AutomodMessageComposable
@@ -127,6 +130,10 @@ fun ChatScreen(
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     fullscreenButtonOpacity: Float = 0.75f,
+    fabAnchor: FabAnchor = FabAnchor.BottomEnd,
+    fabOffsetXFraction: Float = 0f,
+    fabOffsetYFraction: Float = 0f,
+    onFabPositionChange: (FabAnchor, Float, Float) -> Unit = { _, _, _ -> },
     onRecover: () -> Unit = {},
     fabMenuCallbacks: FabMenuCallbacks? = null,
     contentPadding: PaddingValues = PaddingValues(),
@@ -250,12 +257,10 @@ fun ChatScreen(
             // FABs at bottom-end with coordinated position animation
             if (showFabs) {
                 val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
-                val bottomContentPadding = contentPadding.calculateBottomPadding()
-                val fabBottomPadding by animateDpAsState(
-                    targetValue = bottomContentPadding,
-                    animationSpec = if (showInput) snap() else spring(),
-                    label = "fabBottomPadding",
-                )
+                // Use the Scaffold-provided padding directly — it already animates with the
+                // input bar's show/hide. An extra spring here would double up and make the
+                // FAB cluster appear "too high" and slide down on input hide.
+                val fabBottomPadding = contentPadding.calculateBottomPadding()
                 val recoveryBottomPadding by animateDpAsState(
                     targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
                     label = "recoveryBottomPadding",
@@ -276,32 +281,13 @@ fun ChatScreen(
                                 },
                     )
                 }
+                // Scroll-to-bottom FAB stays anchored at BottomEnd regardless of RecoveryFab position.
                 Box(
                     modifier =
                         Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp + fabBottomPadding),
-                    contentAlignment = Alignment.BottomEnd,
+                            .padding(start = 16.dp, end = 16.dp, bottom = 24.dp + fabBottomPadding),
                 ) {
-                    RecoveryFabs(
-                        isFullscreen = isFullscreen,
-                        showInput = showInput,
-                        fullscreenButtonOpacity = fullscreenButtonOpacity,
-                        onRecover = onRecover,
-                        fabMenuCallbacks = fabMenuCallbacks,
-                        menuExpanded = fabMenuExpanded,
-                        onMenuExpandedChange = { fabMenuExpanded = it },
-                        recoveryFabTooltipState = recoveryFabTooltipState,
-                        onTourAdvance = {
-                            onTourAdvance?.invoke()
-                            onRecover()
-                        },
-                        onTourSkip = {
-                            onTourSkip?.invoke()
-                            onRecover()
-                        },
-                        modifier = Modifier.padding(bottom = recoveryBottomPadding),
-                    )
                     AnimatedVisibility(
                         visible = showScrollFab,
                         enter = scaleIn() + fadeIn(),
@@ -320,6 +306,42 @@ fun ChatScreen(
                             )
                         }
                     }
+                }
+                FabCluster(
+                    anchor = fabAnchor,
+                    offsetXFraction = fabOffsetXFraction,
+                    offsetYFraction = fabOffsetYFraction,
+                    onPositionChange = onFabPositionChange,
+                    topSystemInset = contentPadding.calculateTopPadding(),
+                    bottomSystemInset = fabBottomPadding,
+                    stackOffsetAtBottomEnd = recoveryBottomPadding,
+                    dragEnabled = recoveryFabTooltipState == null,
+                ) { dragModifier, isDragging ->
+                    val effectiveFabOpacity by animateFloatAsState(
+                        targetValue = if (isDragging) 1f else fullscreenButtonOpacity,
+                        animationSpec = tween(150),
+                        label = "fabClusterOpacity",
+                    )
+                    RecoveryFabs(
+                        isFullscreen = isFullscreen,
+                        showInput = showInput,
+                        isDragging = isDragging,
+                        fullscreenButtonOpacity = effectiveFabOpacity,
+                        onRecover = onRecover,
+                        fabMenuCallbacks = fabMenuCallbacks,
+                        menuExpanded = fabMenuExpanded,
+                        onMenuExpandedChange = { fabMenuExpanded = it },
+                        recoveryFabTooltipState = recoveryFabTooltipState,
+                        onTourAdvance = {
+                            onTourAdvance?.invoke()
+                            onRecover()
+                        },
+                        onTourSkip = {
+                            onTourSkip?.invoke()
+                            onRecover()
+                        },
+                        dragModifier = dragModifier,
+                    )
                 }
             }
         }
@@ -351,11 +373,28 @@ private fun RecoveryFabs(
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    dragModifier: Modifier = Modifier,
+    isDragging: Boolean = false,
     recoveryFabTooltipState: TooltipState? = null,
     onTourAdvance: (() -> Unit)? = null,
     onTourSkip: (() -> Unit)? = null,
 ) {
     val visible = isFullscreen || !showInput
+    val dragElevation = if (isDragging) 12.dp else 0.dp
+    val idleContainer = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity)
+    val dragContainer = MaterialTheme.colorScheme.primary
+    val idleContent = MaterialTheme.colorScheme.onSecondaryContainer
+    val dragContent = MaterialTheme.colorScheme.onPrimary
+    val animatedContainer by animateColorAsState(
+        targetValue = if (isDragging) dragContainer else idleContainer,
+        animationSpec = tween(150),
+        label = "fabDragContainer",
+    )
+    val animatedContent by animateColorAsState(
+        targetValue = if (isDragging) dragContent else idleContent,
+        animationSpec = tween(150),
+        label = "fabDragContent",
+    )
     val isTourHighlighted = recoveryFabTooltipState != null
     val fabShape = FloatingActionButtonDefaults.smallShape
 
@@ -368,10 +407,10 @@ private fun RecoveryFabs(
             },
             containerColor = when {
                 isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
-                else -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity)
+                else -> animatedContainer
             },
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
+            contentColor = animatedContent,
+            elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
             modifier = when {
                 isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
                 else -> Modifier
@@ -423,13 +462,16 @@ private fun RecoveryFabs(
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = dragModifier,
             ) {
                 if (!showInput && fabMenuCallbacks != null) {
                     FabMenuToggle(
                         fabMenuCallbacks = fabMenuCallbacks,
                         menuExpanded = menuExpanded,
                         onMenuExpandedChange = onMenuExpandedChange,
-                        fullscreenButtonOpacity = fullscreenButtonOpacity,
+                        containerColor = animatedContainer,
+                        contentColor = animatedContent,
+                        dragElevation = dragElevation,
                     )
                 }
                 escapeFab()
@@ -443,7 +485,9 @@ private fun FabMenuToggle(
     fabMenuCallbacks: FabMenuCallbacks,
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
-    fullscreenButtonOpacity: Float,
+    containerColor: Color,
+    contentColor: Color,
+    dragElevation: Dp = 0.dp,
 ) {
     AnimatedContent(
         targetState = menuExpanded,
@@ -475,9 +519,9 @@ private fun FabMenuToggle(
             else -> {
                 SmallFloatingActionButton(
                     onClick = { onMenuExpandedChange(true) },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = fullscreenButtonOpacity),
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
+                    containerColor = containerColor,
+                    contentColor = contentColor,
+                    elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
