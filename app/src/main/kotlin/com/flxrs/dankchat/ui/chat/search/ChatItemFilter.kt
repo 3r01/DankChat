@@ -30,8 +30,22 @@ object ChatItemFilter {
         item: ChatItem,
         query: String,
     ): Boolean = when (val message = item.message) {
-        is PrivMessage -> message.message.contains(query, ignoreCase = true)
-        is UserNoticeMessage -> message.message.contains(query, ignoreCase = true)
+        is PrivMessage ->
+            message.message.contains(query, ignoreCase = true) ||
+                message.name.value.contains(query, ignoreCase = true) ||
+                message.displayName.value.contains(query, ignoreCase = true)
+
+        is UserNoticeMessage ->
+            message.message.contains(query, ignoreCase = true) ||
+                message.childMessage
+                    ?.name
+                    ?.value
+                    ?.contains(query, ignoreCase = true) == true ||
+                message.childMessage
+                    ?.displayName
+                    ?.value
+                    ?.contains(query, ignoreCase = true) == true
+
         else -> false
     }
 
