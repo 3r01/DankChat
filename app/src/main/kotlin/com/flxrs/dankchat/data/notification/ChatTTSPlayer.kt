@@ -20,13 +20,9 @@ import com.flxrs.dankchat.preferences.tools.TTSMessageFormat
 import com.flxrs.dankchat.preferences.tools.TTSPlayMode
 import com.flxrs.dankchat.preferences.tools.ToolsSettings
 import com.flxrs.dankchat.preferences.tools.ToolsSettingsDataStore
-import com.flxrs.dankchat.utils.AppLifecycleListener
-import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import java.util.Locale
@@ -37,7 +33,6 @@ class ChatTTSPlayer(
     private val chatNotificationRepository: ChatNotificationRepository,
     private val chatChannelProvider: ChatChannelProvider,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
-    private val appLifecycleListener: AppLifecycleListener,
     private val dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
@@ -50,30 +45,18 @@ class ChatTTSPlayer(
 
     fun start() {
         scope.launch {
-            appLifecycleListener.appState
-                .flatMapLatest { state ->
-                    when (state) {
-                        AppLifecycle.Foreground -> {
-                            combine(
-                                chatNotificationRepository.messageUpdates,
-                                toolsSettingsDataStore.settings,
-                                chatChannelProvider.activeChannel,
-                            ) { items, settings, activeChannel ->
-                                Triple(items, settings, activeChannel)
-                            }
-                        }
-
-                        AppLifecycle.Background -> {
-                            shutdownTTS()
-                            emptyFlow()
-                        }
-                    }
-                }.collect { (items, settings, activeChannel) ->
-                    ensureTTSState(settings)
-                    items.forEach { (message) ->
-                        processMessage(message, settings, activeChannel)
-                    }
+            combine(
+                chatNotificationRepository.messageUpdates,
+                toolsSettingsDataStore.settings,
+                chatChannelProvider.activeChannel,
+            ) { items, settings, activeChannel ->
+                Triple(items, settings, activeChannel)
+            }.collect { (items, settings, activeChannel) ->
+                ensureTTSState(settings)
+                items.forEach { (message) ->
+                    processMessage(message, settings, activeChannel)
                 }
+            }
         }
     }
 
