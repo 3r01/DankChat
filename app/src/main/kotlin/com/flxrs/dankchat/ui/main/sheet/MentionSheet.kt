@@ -59,6 +59,9 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.mention.MentionComposable
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
+import com.flxrs.dankchat.utils.compose.PagerTabIndicator
+import com.flxrs.dankchat.utils.compose.rememberPagerTabIndicatorState
+import com.flxrs.dankchat.utils.compose.reportPosition
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -159,34 +162,45 @@ fun MentionSheet(
                 shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
-                Row {
-                    val tabs = listOf(R.string.mentions, R.string.whispers)
-                    tabs.forEachIndexed { index, stringRes ->
-                        val isSelected = pagerState.currentPage == index
-                        val textColor =
-                            when {
-                                isSelected -> MaterialTheme.colorScheme.primary
-                                else -> MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier =
-                                Modifier
-                                    .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
-                                    .defaultMinSize(minHeight = 48.dp)
-                                    .padding(horizontal = 16.dp),
-                        ) {
-                            Text(
-                                text = stringResource(stringRes),
-                                color = textColor,
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            if (index == 1 && whisperMentionCount > 0 && !isSelected) {
-                                Spacer(Modifier.width(4.dp))
-                                Badge()
+                val tabs = listOf(R.string.mentions, R.string.whispers)
+                val tabLayoutState = rememberPagerTabIndicatorState(tabs.size)
+                val indicatorColor = MaterialTheme.colorScheme.primary
+                Box {
+                    Row {
+                        tabs.forEachIndexed { index, stringRes ->
+                            val isSelected = pagerState.currentPage == index
+                            val textColor =
+                                when {
+                                    isSelected -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier =
+                                    Modifier
+                                        .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
+                                        .defaultMinSize(minHeight = 48.dp)
+                                        .padding(horizontal = 16.dp)
+                                        .reportPosition(tabLayoutState, index),
+                            ) {
+                                Text(
+                                    text = stringResource(stringRes),
+                                    color = textColor,
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                if (index == 1 && whisperMentionCount > 0 && !isSelected) {
+                                    Spacer(Modifier.width(4.dp))
+                                    Badge()
+                                }
                             }
                         }
                     }
+                    PagerTabIndicator(
+                        pagerState = pagerState,
+                        state = tabLayoutState,
+                        color = indicatorColor,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
                 }
             }
         }

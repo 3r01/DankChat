@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -76,9 +77,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -86,9 +89,7 @@ import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -98,6 +99,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.composables.core.ScrollArea
 import com.composables.core.Thumb
@@ -107,7 +109,11 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.main.stream.AudioOnlyBar
+import com.flxrs.dankchat.utils.compose.PagerTabIndicator
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
+import com.flxrs.dankchat.utils.compose.rememberPagerTabIndicatorState
+import com.flxrs.dankchat.utils.compose.reportPosition
+import com.flxrs.dankchat.utils.compose.selectedIndicatorBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
@@ -153,9 +159,7 @@ fun FloatingToolbar(
 
     val hasOverflow by remember { derivedStateOf { tabScrollState.maxValue > 0 } }
 
-    // Track tab positions after layout for centering calculations
-    val tabOffsets = remember { mutableStateOf(IntArray(0)) }
-    val tabWidths = remember { mutableStateOf(IntArray(0)) }
+    val tabLayoutState = rememberPagerTabIndicatorState(totalTabs)
     var tabViewportWidth by remember { mutableIntStateOf(0) }
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -249,13 +253,12 @@ fun FloatingToolbar(
             }
             Box {
                 // Center selected tab when selection changes
-                LaunchedEffect(selectedIndex, tabOffsets.value, tabWidths.value, tabViewportWidth) {
-                    val offsets = tabOffsets.value
-                    val widths = tabWidths.value
-                    if (selectedIndex !in offsets.indices || tabViewportWidth <= 0) return@LaunchedEffect
-
-                    val tabOffset = offsets[selectedIndex]
-                    val tabWidth = widths[selectedIndex]
+                LaunchedEffect(selectedIndex, tabLayoutState.ready, tabViewportWidth) {
+                    if (!tabLayoutState.ready || selectedIndex !in tabLayoutState.offsets.indices || tabViewportWidth <= 0) {
+                        return@LaunchedEffect
+                    }
+                    val tabOffset = tabLayoutState.offsets[selectedIndex]
+                    val tabWidth = tabLayoutState.widths[selectedIndex]
                     val centeredOffset = tabOffset - (tabViewportWidth / 2 - tabWidth / 2)
                     val clampedOffset = centeredOffset.coerceIn(0, tabScrollState.maxValue)
                     if (tabScrollState.value != clampedOffset) {
@@ -267,19 +270,20 @@ fun FloatingToolbar(
                 val hasLeftMention by remember(tabState.tabs) {
                     derivedStateOf {
                         val scrollPos = tabScrollState.value
-                        val offsets = tabOffsets.value
-                        val widths = tabWidths.value
                         tabState.tabs.indices.any { i ->
-                            i < offsets.size && offsets[i] + widths[i] < scrollPos && tabState.tabs[i].mentionCount > 0
+                            i < tabLayoutState.offsets.size &&
+                                tabLayoutState.offsets[i] + tabLayoutState.widths[i] < scrollPos &&
+                                tabState.tabs[i].mentionCount > 0
                         }
                     }
                 }
                 val hasRightMention by remember(tabState.tabs) {
                     derivedStateOf {
                         val scrollPos = tabScrollState.value
-                        val offsets = tabOffsets.value
                         tabState.tabs.indices.any { i ->
-                            i < offsets.size && offsets[i] > scrollPos + tabViewportWidth && tabState.tabs[i].mentionCount > 0
+                            i < tabLayoutState.offsets.size &&
+                                tabLayoutState.offsets[i] > scrollPos + tabViewportWidth &&
+                                tabState.tabs[i].mentionCount > 0
                         }
                     }
                 }
@@ -351,9 +355,9 @@ fun FloatingToolbar(
                                         },
                             ) {
                                 val pillColor = MaterialTheme.colorScheme.surfaceContainer
+                                val indicatorColor = MaterialTheme.colorScheme.primary
                                 Box {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
+                                    Box(
                                         modifier =
                                             Modifier
                                                 .padding(horizontal = 12.dp)
@@ -361,54 +365,54 @@ fun FloatingToolbar(
                                                 .clipToBounds()
                                                 .horizontalScroll(tabScrollState),
                                     ) {
-                                        tabState.tabs.forEachIndexed { index, tab ->
-                                            val isSelected = index == selectedIndex
-                                            val hasActivity = tab.mentionCount > 0 || tab.hasUnread
-                                            val textColor =
-                                                when {
-                                                    isSelected -> MaterialTheme.colorScheme.primary
-                                                    hasActivity -> MaterialTheme.colorScheme.onSurface
-                                                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                                }
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier =
-                                                    Modifier
-                                                        .combinedClickable(
-                                                            onClick = { onAction(ToolbarAction.SelectTab(index)) },
-                                                            onLongClick = { onAction(ToolbarAction.LongClickTab) },
-                                                        ).defaultMinSize(minHeight = 48.dp)
-                                                        .padding(horizontal = 12.dp)
-                                                        .onGloballyPositioned { coords ->
-                                                            val offsets = tabOffsets.value
-                                                            tabWidths.value
-                                                            if (offsets.size != totalTabs) {
-                                                                tabOffsets.value = IntArray(totalTabs)
-                                                                tabWidths.value = IntArray(totalTabs)
-                                                            }
-                                                            tabOffsets.value[index] = coords.positionInParent().x.toInt()
-                                                            tabWidths.value[index] = coords.size.width
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            tabState.tabs.forEachIndexed { index, tab ->
+                                                val isSelected = index == selectedIndex
+                                                val hasActivity = tab.mentionCount > 0 || tab.hasUnread
+                                                val textColor =
+                                                    when {
+                                                        isSelected -> MaterialTheme.colorScheme.primary
+                                                        hasActivity -> MaterialTheme.colorScheme.onSurface
+                                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                                                    }
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier =
+                                                        Modifier
+                                                            .combinedClickable(
+                                                                onClick = { onAction(ToolbarAction.SelectTab(index)) },
+                                                                onLongClick = { onAction(ToolbarAction.LongClickTab) },
+                                                            ).defaultMinSize(minHeight = 48.dp)
+                                                            .padding(horizontal = 12.dp)
+                                                            .reportPosition(tabLayoutState, index),
+                                                ) {
+                                                    Text(
+                                                        text = tab.displayName,
+                                                        color = textColor,
+                                                        style = MaterialTheme.typography.labelLarge,
+                                                        fontWeight = when {
+                                                            isSelected -> FontWeight.Bold
+                                                            hasActivity -> FontWeight.SemiBold
+                                                            else -> FontWeight.Normal
                                                         },
-                                            ) {
-                                                Text(
-                                                    text = tab.displayName,
-                                                    color = textColor,
-                                                    style = MaterialTheme.typography.labelLarge,
-                                                    fontWeight = when {
-                                                        isSelected -> FontWeight.Bold
-                                                        hasActivity -> FontWeight.SemiBold
-                                                        else -> FontWeight.Normal
-                                                    },
-                                                )
-                                                if (tab.mentionCount > 0) {
-                                                    Spacer(Modifier.width(4.dp))
-                                                    Badge()
+                                                    )
+                                                    if (tab.mentionCount > 0) {
+                                                        Spacer(Modifier.width(4.dp))
+                                                        Badge()
+                                                    }
                                                 }
                                             }
+                                            if (hasOverflow) {
+                                                Spacer(Modifier.width(18.dp))
+                                            }
                                         }
-                                        if (hasOverflow) {
-                                            Spacer(Modifier.width(18.dp))
-                                        }
+
+                                        PagerTabIndicator(
+                                            pagerState = composePagerState,
+                                            state = tabLayoutState,
+                                            color = indicatorColor,
+                                            modifier = Modifier.align(Alignment.BottomStart),
+                                        )
                                     }
 
                                     // Quick switch dropdown indicator (overlays end of tabs)
@@ -505,6 +509,18 @@ fun FloatingToolbar(
                                                 .widthIn(min = 125.dp, max = 200.dp)
                                                 .heightIn(max = maxMenuHeight),
                                     ) {
+                                        // Freeze the displayed selection while the dropdown is closing so the newly
+                                        // picked row doesn't flash as selected before the exit animation completes.
+                                        var frozenSelection by remember { mutableStateOf<Int?>(null) }
+                                        LaunchedEffect(showQuickSwitch) {
+                                            if (showQuickSwitch) {
+                                                frozenSelection = null
+                                            } else if (frozenSelection != null) {
+                                                delay(QUICK_SWITCH_FREEZE_MS)
+                                                frozenSelection = null
+                                            }
+                                        }
+                                        val displaySelectedIndex = frozenSelection ?: selectedIndex
                                         Column(
                                             modifier =
                                                 Modifier
@@ -512,17 +528,20 @@ fun FloatingToolbar(
                                                     .verticalScroll(quickSwitchScrollState)
                                                     .padding(vertical = 8.dp),
                                         ) {
+                                            val selectedIndicatorColor = MaterialTheme.colorScheme.primary
                                             tabState.tabs.forEachIndexed { index, tab ->
-                                                val isSelected = index == selectedIndex
+                                                val isSelected = index == displaySelectedIndex
                                                 val hasActivity = tab.mentionCount > 0 || tab.hasUnread
                                                 Row(
                                                     modifier =
                                                         Modifier
                                                             .fillMaxWidth()
                                                             .clickable {
+                                                                frozenSelection = selectedIndex
                                                                 onAction(ToolbarAction.SelectTab(index))
                                                                 showQuickSwitch = false
-                                                            }.padding(horizontal = 16.dp, vertical = 10.dp)
+                                                            }.selectedIndicatorBar(isSelected, selectedIndicatorColor)
+                                                            .padding(horizontal = 16.dp, vertical = 10.dp)
                                                             .then(if (index == 0) Modifier.onSizeChanged { itemHeightPx = it.height } else Modifier),
                                                     verticalAlignment = Alignment.CenterVertically,
                                                     horizontalArrangement = Arrangement.Center,
@@ -802,3 +821,4 @@ private fun Modifier.skipIntrinsicHeight() = this.then(
 )
 
 private const val MAX_LAYOUT_SIZE = 16_777_215
+private const val QUICK_SWITCH_FREEZE_MS = 400L

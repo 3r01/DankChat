@@ -13,6 +13,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -88,9 +89,12 @@ import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
+import com.flxrs.dankchat.utils.compose.predictiveBackScale
+import com.flxrs.dankchat.utils.compose.selectedIndicatorBar
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -243,6 +247,19 @@ fun MessageHistorySheet(
         }
 
         var showChannelDropdown by remember { mutableStateOf(false) }
+        var dropdownBackProgress by remember { mutableFloatStateOf(0f) }
+
+        // Dismiss scrim — tap anywhere outside the dropdown closes it
+        if (showChannelDropdown) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) { showChannelDropdown = false },
+            )
+        }
 
         SheetToolbar(
             visible = toolbarVisible,
@@ -293,7 +310,30 @@ fun MessageHistorySheet(
             Surface(
                 shape = MaterialTheme.shapes.large,
                 color = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.predictiveBackScale(dropdownBackProgress),
             ) {
+                PredictiveBackHandler(enabled = showChannelDropdown) { progress ->
+                    try {
+                        progress.collect { event ->
+                            dropdownBackProgress = event.progress
+                        }
+                        showChannelDropdown = false
+                    } catch (_: CancellationException) {
+                        dropdownBackProgress = 0f
+                    }
+                }
+                // Freeze the displayed selection while the dropdown is closing so the newly
+                // picked row doesn't flash as selected before the exit animation completes.
+                var frozenSelection by remember { mutableStateOf<HistoryChannel?>(null) }
+                LaunchedEffect(showChannelDropdown) {
+                    if (showChannelDropdown) {
+                        frozenSelection = null
+                    } else if (frozenSelection != null) {
+                        delay(DROPDOWN_FREEZE_MS)
+                        frozenSelection = null
+                    }
+                }
+                val displaySelectedChannel = frozenSelection ?: selectedChannel
                 Column(
                     modifier =
                         Modifier
@@ -301,16 +341,19 @@ fun MessageHistorySheet(
                             .verticalScroll(rememberScrollState())
                             .padding(vertical = 8.dp),
                 ) {
+                    val indicatorColor = MaterialTheme.colorScheme.primary
                     availableChannels.forEach { channel ->
-                        val isSelected = channel == selectedChannel
+                        val isSelected = channel == displaySelectedChannel
                         Row(
                             modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .clickable {
+                                        frozenSelection = selectedChannel
                                         viewModel.selectChannel(channel)
                                         showChannelDropdown = false
-                                    }.padding(horizontal = 16.dp, vertical = 10.dp),
+                                    }.selectedIndicatorBar(isSelected, indicatorColor)
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center,
                         ) {
@@ -419,3 +462,5 @@ private fun SearchToolbar(state: TextFieldState) {
         colors = textFieldColors,
     )
 }
+
+private const val DROPDOWN_FREEZE_MS = 400L
