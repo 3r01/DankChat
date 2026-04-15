@@ -3,6 +3,8 @@ package com.flxrs.dankchat.ui.main
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -56,6 +58,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -75,6 +78,8 @@ import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 @Immutable
 sealed interface AppBarMenu {
@@ -85,6 +90,8 @@ sealed interface AppBarMenu {
     data object Channel : AppBarMenu
 }
 
+internal const val RESTING_SCROLLBAR_ALPHA = 0.6f
+
 @Composable
 fun InlineOverflowMenu(
     isLoggedIn: Boolean,
@@ -92,6 +99,7 @@ fun InlineOverflowMenu(
     onAction: (ToolbarAction) -> Unit,
     initialMenu: AppBarMenu = AppBarMenu.Main,
     keyboardHeightDp: Dp = 0.dp,
+    inputBarHeightDp: Dp = 0.dp,
 ) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
     var backProgress by remember { mutableFloatStateOf(0f) }
@@ -124,14 +132,26 @@ fun InlineOverflowMenu(
             LocalWindowInfo.current.containerSize.height
                 .toDp()
         }
-    val maxHeight = (screenHeight - keyboardHeightDp) * 0.4f
+    // Reserve space for the toolbar above (~64dp) plus status bar inset (~24dp).
+    val topReservation = 88.dp
+    val bottomGap = 12.dp
+    val maxHeight = (screenHeight - keyboardHeightDp - inputBarHeightDp - topReservation - bottomGap).coerceAtLeast(160.dp)
     val scrollState = rememberScrollState()
     val scrollAreaState = rememberScrollAreaState(scrollState)
     var itemHeightPx by remember { mutableIntStateOf(0) }
     val measureModifier = Modifier.onSizeChanged { if (itemHeightPx == 0) itemHeightPx = it.height }
 
+    val scrollbarAlpha = remember { Animatable(RESTING_SCROLLBAR_ALPHA) }
     LaunchedEffect(currentMenu) {
         scrollState.scrollTo(0)
+        val maxScroll = snapshotFlow { scrollState.maxValue }.first { it != Int.MAX_VALUE }
+        if (maxScroll > 0) {
+            scrollbarAlpha.snapTo(1f)
+            delay(400)
+            scrollbarAlpha.animateTo(RESTING_SCROLLBAR_ALPHA, tween(500))
+        } else {
+            scrollbarAlpha.snapTo(RESTING_SCROLLBAR_ALPHA)
+        }
     }
 
     Surface(
@@ -197,12 +217,13 @@ fun InlineOverflowMenu(
                         Modifier
                             .align(Alignment.TopEnd)
                             .fillMaxHeight()
-                            .width(3.dp)
-                            .padding(vertical = 2.dp),
+                            .padding(vertical = 6.dp)
+                            .padding(end = 6.dp)
+                            .width(4.dp),
                 ) {
                     Thumb(
                         modifier = Modifier.background(
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
                             RoundedCornerShape(100),
                         ),
                         enabled = false,

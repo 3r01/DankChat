@@ -2,6 +2,8 @@ package com.flxrs.dankchat.ui.main
 
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -106,6 +108,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.main.stream.AudioOnlyBar
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlin.coroutines.cancellation.CancellationException
@@ -133,6 +136,7 @@ fun FloatingToolbar(
     onAddChannelTooltipDismiss: () -> Unit = {},
     onSkipTour: () -> Unit = {},
     keyboardHeightDp: Dp = 0.dp,
+    inputBarHeightDp: Dp = 0.dp,
     isEmoteMenuOpen: Boolean = false,
     onCloseEmoteMenu: () -> Unit = {},
     streamToolbarAlpha: Float = 1f,
@@ -477,10 +481,22 @@ fun FloatingToolbar(
                                             LocalWindowInfo.current.containerSize.height
                                                 .toDp()
                                         }
-                                    val maxMenuHeight = screenHeight * 0.3f
+                                    // Reserve space for the toolbar above (~64dp) plus status bar inset (~24dp).
+                                    val topReservation = 88.dp
+                                    val bottomGap = 12.dp
+                                    val maxMenuHeight = (screenHeight - keyboardHeightDp - inputBarHeightDp - topReservation - bottomGap).coerceAtLeast(160.dp)
                                     val quickSwitchScrollState = rememberScrollState()
                                     val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
                                     var itemHeightPx by remember { mutableIntStateOf(0) }
+                                    val scrollbarAlpha = remember { Animatable(RESTING_SCROLLBAR_ALPHA) }
+                                    LaunchedEffect(Unit) {
+                                        val maxScroll = snapshotFlow { quickSwitchScrollState.maxValue }.first { it != Int.MAX_VALUE }
+                                        if (maxScroll > 0) {
+                                            scrollbarAlpha.snapTo(1f)
+                                            delay(400)
+                                            scrollbarAlpha.animateTo(RESTING_SCROLLBAR_ALPHA, tween(500))
+                                        }
+                                    }
                                     ScrollArea(
                                         state = quickSwitchScrollAreaState,
                                         modifier =
@@ -542,12 +558,13 @@ fun FloatingToolbar(
                                                     Modifier
                                                         .align(Alignment.TopEnd)
                                                         .fillMaxHeight()
-                                                        .width(3.dp)
-                                                        .padding(vertical = 2.dp),
+                                                        .padding(vertical = 6.dp)
+                                                        .padding(end = 6.dp)
+                                                        .width(4.dp),
                                             ) {
                                                 Thumb(
                                                     modifier = Modifier.background(
-                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
                                                         RoundedCornerShape(100),
                                                     ),
                                                     enabled = false,
@@ -690,6 +707,7 @@ fun FloatingToolbar(
                                     initialMenu = overflowInitialMenu,
                                     onAction = onAction,
                                     keyboardHeightDp = keyboardHeightDp,
+                                    inputBarHeightDp = inputBarHeightDp,
                                 )
                             }
                         }
