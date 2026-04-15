@@ -127,7 +127,10 @@ jobs:
         id: version
         run: |
           base=$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
-          echo "tag=nightly-v${base}-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          short_sha="${GITHUB_SHA::7}"
+          tag="nightly-v${base}-${short_sha}"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "name=Nightly v${base} (${short_sha})" >> "$GITHUB_OUTPUT"
 
       - name: Build signed release apk
         run: bash ./gradlew app:assembleRelease
@@ -142,11 +145,43 @@ jobs:
           name: Signed release apk
           path: ${{ github.workspace }}/app/build/outputs/apk/release/*.apk
 
-      - name: Update release
-        uses: ncipollo/release-action@v1.21.0
-        with:
-          tag: ${{ steps.version.outputs.tag }}
-          name: ${{ steps.version.outputs.tag }}
-          artifacts: ${{ github.workspace }}/app/build/outputs/apk/release/*.apk
-          allowUpdates: true
-          makeLatest: true
+      - name: Update nightly release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_NAME: ${{ steps.version.outputs.name }}
+          REPO: ${{ github.repository }}
+        run: |
+          apk=$(ls ${{ github.workspace }}/app/build/outputs/apk/release/*.apk | head -1)
+
+          if ! git ls-remote --exit-code --tags origin "$TAG" >/dev/null 2>&1; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+          release_id=$(gh api "repos/$REPO/releases" \
+            --jq '.[] | select(.name | startswith("Nightly")) | .id' | head -1)
+
+          notes="Latest nightly build from the develop branch."
+
+          if [ -z "$release_id" ]; then
+            gh release create "$TAG" "$apk" \
+              --repo "$REPO" \
+              --title "$RELEASE_NAME" \
+              --notes "$notes" \
+              --latest
+          else
+            # Repoint the persistent release to the new tag, replacing old assets.
+            gh api "repos/$REPO/releases/$release_id/assets" --jq '.[].id' | while read -r asset_id; do
+              gh api -X DELETE "repos/$REPO/releases/assets/$asset_id"
+            done
+
+            gh api -X PATCH "repos/$REPO/releases/$release_id" \
+              -f tag_name="$TAG" \
+              -f target_commitish="$GITHUB_SHA" \
+              -f name="$RELEASE_NAME" \
+              -f body="$notes" \
+              -f make_latest="true"
+
+            gh release upload "$TAG" "$apk" --repo "$REPO"
+          fi
