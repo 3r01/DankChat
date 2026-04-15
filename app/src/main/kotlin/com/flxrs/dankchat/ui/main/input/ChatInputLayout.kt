@@ -92,6 +92,12 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -894,7 +900,22 @@ private fun ChatTextField(
     TextField(
         state = textFieldState,
         enabled = enabled,
-        modifier = modifier.focusRequester(focusRequester),
+        modifier =
+            modifier
+                .focusRequester(focusRequester)
+                .onPreviewKeyEvent { event ->
+                    val isEnter = event.key == Key.Enter || event.key == Key.NumPadEnter
+                    when {
+                        isEnter && !event.isShiftPressed -> {
+                            if (event.type == KeyEventType.KeyUp) {
+                                onKeyboardAction {}
+                            }
+                            true
+                        }
+
+                        else -> false
+                    }
+                },
         contentPadding = contentPadding ?: TextFieldDefaults.contentPaddingWithLabel(),
         label = { Text(hint) },
         suffix = {
