@@ -39,6 +39,7 @@ data class AppearanceSettings(
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
     val fullscreenButtonOpacity: Float = 0.75f,
+    val requireFullscreenExitConfirmation: Boolean = false,
     val fabAnchor: FabAnchor = FabAnchor.BottomEnd,
     val fabOffsetXFraction: Float = 0f,
     val fabOffsetYFraction: Float = 0f,

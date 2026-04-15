@@ -79,6 +79,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.F
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FullscreenButtonOpacity
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.LineSeparator
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.RequireFullscreenExitConfirmation
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowCharacterCounter
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowClearInputButton
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.ShowSendButton
@@ -171,6 +172,7 @@ private fun AppearanceSettingsContent(
             ComponentsCategory(
                 swipeNavigation = settings.swipeNavigation,
                 fullscreenButtonOpacity = settings.fullscreenButtonOpacity,
+                requireFullscreenExitConfirmation = settings.requireFullscreenExitConfirmation,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -217,6 +219,7 @@ private fun InputCategory(
 private fun ComponentsCategory(
     swipeNavigation: Boolean,
     fullscreenButtonOpacity: Float,
+    requireFullscreenExitConfirmation: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
 ) {
     val opacityPresets = remember { listOf(0.25f, 0.50f, 0.75f, 1.0f) }
@@ -254,6 +257,13 @@ private fun ComponentsCategory(
                     else -> onInteraction(FullscreenButtonOpacity(value))
                 }
             },
+        )
+
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_require_fullscreen_exit_confirmation_title),
+            summary = stringResource(R.string.preference_require_fullscreen_exit_confirmation_summary),
+            isChecked = requireFullscreenExitConfirmation,
+            onClick = { onInteraction(RequireFullscreenExitConfirmation(it)) },
         )
     }
 

@@ -303,6 +303,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_fullscreen_button_opacity_hint">Opacidad (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Debe estar entre 1 y 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Personalizado</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Confirmar salida de pantalla completa</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Requerir un segundo toque en el botón para salir de pantalla completa</string>
     <string name="preference_swipe_navigation_title">Navegación por deslizamiento de canales</string>
     <string name="preference_swipe_navigation_summary">Cambiar de canal deslizando en el chat</string>
     <string name="menu_mod_actions">Moderación del canal</string>

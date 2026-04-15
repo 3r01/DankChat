@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -130,6 +131,7 @@ fun ChatScreen(
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     fullscreenButtonOpacity: Float = 0.75f,
+    requireFullscreenExitConfirmation: Boolean = false,
     fabAnchor: FabAnchor = FabAnchor.BottomEnd,
     fabOffsetXFraction: Float = 0f,
     fabOffsetYFraction: Float = 0f,
@@ -257,9 +259,7 @@ fun ChatScreen(
             // FABs at bottom-end with coordinated position animation
             if (showFabs) {
                 val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
-                // Use the Scaffold-provided padding directly — it already animates with the
-                // input bar's show/hide. An extra spring here would double up and make the
-                // FAB cluster appear "too high" and slide down on input hide.
+                // Scaffold padding already animates with input show/hide; extra spring would double up.
                 val fabBottomPadding = contentPadding.calculateBottomPadding()
                 val recoveryBottomPadding by animateDpAsState(
                     targetValue = if (showScrollFab) 56.dp + 12.dp else 0.dp,
@@ -281,7 +281,6 @@ fun ChatScreen(
                                 },
                     )
                 }
-                // Scroll-to-bottom FAB stays anchored at BottomEnd regardless of RecoveryFab position.
                 Box(
                     modifier =
                         Modifier
@@ -327,6 +326,7 @@ fun ChatScreen(
                         showInput = showInput,
                         isDragging = isDragging,
                         fullscreenButtonOpacity = effectiveFabOpacity,
+                        requireConfirmation = requireFullscreenExitConfirmation,
                         onRecover = onRecover,
                         fabMenuCallbacks = fabMenuCallbacks,
                         menuExpanded = fabMenuExpanded,
@@ -375,6 +375,7 @@ private fun RecoveryFabs(
     modifier: Modifier = Modifier,
     dragModifier: Modifier = Modifier,
     isDragging: Boolean = false,
+    requireConfirmation: Boolean = false,
     recoveryFabTooltipState: TooltipState? = null,
     onTourAdvance: (() -> Unit)? = null,
     onTourSkip: (() -> Unit)? = null,
@@ -398,28 +399,75 @@ private fun RecoveryFabs(
     val isTourHighlighted = recoveryFabTooltipState != null
     val fabShape = FloatingActionButtonDefaults.smallShape
 
+    var confirmPending by remember { mutableStateOf(false) }
+    var pendingLabel by remember { mutableStateOf("") }
+    LaunchedEffect(visible, requireConfirmation) {
+        if (!visible || !requireConfirmation) confirmPending = false
+    }
+    LaunchedEffect(confirmPending) {
+        if (confirmPending) {
+            kotlinx.coroutines.delay(3000)
+            confirmPending = false
+        }
+    }
+
+    val commitRecover: () -> Unit = {
+        confirmPending = false
+        onMenuExpandedChange(false)
+        onTourAdvance?.invoke()
+        onRecover()
+    }
+    val actionLabel = when {
+        isFullscreen -> stringResource(R.string.menu_exit_fullscreen)
+        else -> stringResource(R.string.menu_show_input)
+    }
+    // Snapshotted at tap-time so the exit animation doesn't flash the next-mode label.
+    val chipLabel = pendingLabel.ifEmpty { actionLabel }
+
     val escapeFab: @Composable () -> Unit = {
-        SmallFloatingActionButton(
-            onClick = {
-                onMenuExpandedChange(false)
-                onTourAdvance?.invoke()
-                onRecover()
-            },
-            containerColor = when {
-                isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
-                else -> animatedContainer
-            },
-            contentColor = animatedContent,
-            elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
-            modifier = when {
-                isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
-                else -> Modifier
-            },
-        ) {
-            Icon(
-                imageVector = Icons.Default.FullscreenExit,
-                contentDescription = stringResource(R.string.menu_exit_fullscreen),
-            )
+        AnimatedContent(
+            targetState = confirmPending,
+            transitionSpec = { (scaleIn() + fadeIn()) togetherWith (scaleOut() + fadeOut()) },
+            label = "EscapeFabConfirm",
+        ) { pending ->
+            when {
+                pending -> ExtendedFloatingActionButton(
+                    onClick = commitRecover,
+                    containerColor = animatedContainer,
+                    contentColor = animatedContent,
+                    elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
+                    icon = { Icon(Icons.Default.FullscreenExit, contentDescription = null) },
+                    text = { Text(chipLabel) },
+                )
+
+                else -> SmallFloatingActionButton(
+                    onClick = {
+                        when {
+                            requireConfirmation && !isTourHighlighted -> {
+                                pendingLabel = actionLabel
+                                confirmPending = true
+                            }
+
+                            else -> commitRecover()
+                        }
+                    },
+                    containerColor = when {
+                        isTourHighlighted -> MaterialTheme.colorScheme.secondaryContainer
+                        else -> animatedContainer
+                    },
+                    contentColor = animatedContent,
+                    elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
+                    modifier = when {
+                        isTourHighlighted -> Modifier.border(2.dp, MaterialTheme.colorScheme.primary, fabShape)
+                        else -> Modifier
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FullscreenExit,
+                        contentDescription = actionLabel,
+                    )
+                }
+            }
         }
     }
 
@@ -462,7 +510,8 @@ private fun RecoveryFabs(
             Column(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = dragModifier,
+                // Chip expansion changes cluster size; disable drag to keep origin math correct.
+                modifier = if (confirmPending) Modifier else dragModifier,
             ) {
                 if (!showInput && fabMenuCallbacks != null) {
                     FabMenuToggle(

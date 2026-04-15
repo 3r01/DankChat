@@ -303,6 +303,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_fullscreen_button_opacity_hint">Saydamlık (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">1 ile 100 arasında olmalıdır</string>
     <string name="preference_fullscreen_button_opacity_custom">Özel</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Tam ekrandan çıkışı onayla</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Tam ekrandan çıkış butonuna iki kez dokunmayı gerektir</string>
     <string name="preference_swipe_navigation_title">Kanal kaydırma ile gezinme</string>
     <string name="preference_swipe_navigation_summary">Sohbette kaydırarak kanal değiştirme</string>
     <string name="menu_mod_actions">Kanal moderasyonu</string>

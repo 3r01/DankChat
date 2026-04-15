@@ -123,6 +123,7 @@ fun ChatComposable(
             ),
         animateGifs = displaySettings.animateGifs,
         fullscreenButtonOpacity = displaySettings.fullscreenButtonOpacity,
+        requireFullscreenExitConfirmation = displaySettings.requireFullscreenExitConfirmation,
         fabAnchor = displaySettings.fabAnchor,
         fabOffsetXFraction = displaySettings.fabOffsetXFraction,
         fabOffsetYFraction = displaySettings.fabOffsetYFraction,

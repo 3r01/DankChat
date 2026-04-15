@@ -295,6 +295,8 @@
     <string name="preference_fullscreen_button_opacity_hint">透明度 (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">必須介於 1 到 100 之間</string>
     <string name="preference_fullscreen_button_opacity_custom">自訂</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">確認退出全螢幕</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">需要再次點擊「退出全螢幕」按鈕</string>
     <string name="preference_swipe_navigation_title">頻道滑動導航</string>
     <string name="preference_swipe_navigation_summary">在聊天中滑動切換頻道</string>
     <string name="menu_mod_actions">頻道管理</string>

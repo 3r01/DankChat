@@ -62,6 +62,10 @@ sealed interface AppearanceSettingsInteraction {
     data class FullscreenButtonOpacity(
         val value: Float,
     ) : AppearanceSettingsInteraction
+
+    data class RequireFullscreenExitConfirmation(
+        val value: Boolean,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable

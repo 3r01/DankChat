@@ -302,6 +302,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_fullscreen_button_opacity_hint">Opacitat (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Ha de ser entre 1 i 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Personalitzat</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Confirmar la sortida de la pantalla completa</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Requereix un segon toc al botó per sortir de la pantalla completa</string>
     <string name="preference_swipe_navigation_title">Navegació de canals per lliscament</string>
     <string name="preference_swipe_navigation_summary">Canvia de canal lliscant al xat</string>
     <string name="menu_mod_actions">Moderació del canal</string>

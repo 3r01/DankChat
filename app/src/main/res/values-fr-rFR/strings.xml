@@ -302,6 +302,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_fullscreen_button_opacity_hint">Opacité (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Doit être compris entre 1 et 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Personnalisé</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Confirmer la sortie du plein écran</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Exiger un second appui sur le bouton pour quitter le plein écran</string>
     <string name="preference_swipe_navigation_title">Navigation par balayage des canaux</string>
     <string name="preference_swipe_navigation_summary">Changer de canal en balayant le chat</string>
     <string name="menu_mod_actions">Modération du canal</string>

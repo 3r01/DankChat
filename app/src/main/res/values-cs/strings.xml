@@ -317,6 +317,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_fullscreen_button_opacity_hint">Průhlednost (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Musí být mezi 1 a 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Vlastní</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Potvrdit ukončení celé obrazovky</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Vyžadovat druhé klepnutí na tlačítko pro ukončení celé obrazovky</string>
     <string name="preference_swipe_navigation_title">Navigace kanálů přejetím</string>
     <string name="preference_swipe_navigation_summary">Přepínejte kanály přejetím po chatu</string>
     <string name="menu_mod_actions">Moderování kanálu</string>

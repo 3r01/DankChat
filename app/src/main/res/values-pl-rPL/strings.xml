@@ -316,6 +316,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_fullscreen_button_opacity_hint">Krycie (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Wartość musi być między 1 a 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Niestandardowe</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Potwierdź wyjście z pełnego ekranu</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Wymagaj drugiego dotknięcia przycisku wyjścia z pełnego ekranu</string>
     <string name="preference_swipe_navigation_title">Nawigacja kanałów przesunięciem</string>
     <string name="preference_swipe_navigation_summary">Przełączaj kanały przesuwając na czacie</string>
     <string name="menu_mod_actions">Moderacja kanału</string>

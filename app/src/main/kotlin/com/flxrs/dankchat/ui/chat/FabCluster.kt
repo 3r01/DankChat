@@ -94,12 +94,8 @@ private val SnapThreshold = 40.dp
 private const val DRAG_SCALE = 1.06f
 
 /**
- * Positions a cluster of floating action buttons at one of three anchors (bottom-end, top-end, or
- * free-form) and supports long-press drag-to-reposition with magnetic snapping to corner anchors.
- *
- * Position is computed directly from layout metrics at render time, so layout changes (menu expand
- * or collapse) track synchronously with no one-frame lag. The internal [Animatable] is only
- * consulted while dragging, while a snap preview is active, or during an explicit anchor transition.
+ * Positions a FAB cluster at one of three anchors (bottom-end, top-end, or free) with long-press
+ * drag-to-reposition and magnetic snapping to the corner anchors.
  */
 @Composable
 fun FabCluster(
@@ -128,9 +124,7 @@ fun FabCluster(
     var isDragging by remember { mutableStateOf(false) }
     var fingerPos by remember { mutableStateOf(Offset.Zero) }
     var initialized by remember { mutableStateOf(false) }
-    // Bridges the gap between drag release and the external state update — keeps rendering
-    // from offsetAnim (which holds the committed drag position) until the new anchor/fractions
-    // flow back from the DataStore and can be used for direct rendering.
+    // Render from offsetAnim between drag release and the external state update.
     var pendingStateSync by remember { mutableStateOf(false) }
 
     val offsetAnim = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
@@ -148,7 +142,6 @@ fun FabCluster(
         isRtl = isRtl,
     )
 
-    // Initial snap when layout sizes first become available.
     LaunchedEffect(containerSize, clusterSize) {
         if (!initialized && currentMetrics.sizesReady) {
             offsetAnim.snapTo(currentMetrics.anchorToPx(anchor, offsetXFraction, offsetYFraction))
@@ -156,8 +149,7 @@ fun FabCluster(
         }
     }
 
-    // Animate only on discrete anchor/fraction changes. Size and stack offset are read fresh
-    // in the offset modifier below to avoid chaining their animations through a second spring.
+    // Size and stack changes are read fresh in the offset modifier to avoid chaining a second spring.
     LaunchedEffect(anchor, offsetXFraction, offsetYFraction) {
         if (!initialized || !currentMetrics.sizesReady || isDragging) return@LaunchedEffect
         if (!offsetAnim.isRunning) {
@@ -166,7 +158,6 @@ fun FabCluster(
                 spring(),
             )
         }
-        // State has arrived — safe to switch back to direct rendering.
         pendingStateSync = false
     }
 
@@ -181,8 +172,7 @@ fun FabCluster(
         else -> Modifier.pointerInput(Unit) {
             detectDragGesturesAfterLongPress(
                 onDragStart = {
-                    // Render may be direct while idle, so offsetAnim.value can be stale. Seed it
-                    // from the current rendered anchor so drag starts from where the FAB actually is.
+                    // Seed offsetAnim from the rendered anchor since direct render bypasses it while idle.
                     val currentPos = latestMetrics.anchorToPx(latestAnchor, latestFractionX, latestFractionY)
                     scope.launch { offsetAnim.snapTo(currentPos) }
                     fingerPos = currentPos
@@ -209,7 +199,7 @@ fun FabCluster(
                             val target = if (newCorner == FabAnchor.BottomEnd) bottomEndPx else topEndPx
                             scope.launch { offsetAnim.animateTo(target, tween(150)) }
                         }
-                        // Same corner still hovered — let the in-flight snap animation run.
+                        // Hovering the same corner — let the in-flight snap animation finish.
                     }
                 },
                 onDragEnd = {
@@ -223,10 +213,7 @@ fun FabCluster(
                         else -> Triple(snapTarget, 0f, 0f)
                     }
                     onPositionChange(newAnchor, newFx, newFy)
-                    // Only gate direct rendering if the state actually changes — otherwise the
-                    // LaunchedEffect won't fire, and pendingStateSync would stay true forever,
-                    // blocking subsequent layout changes (scroll-fab toggle etc.) from shifting
-                    // the FAB position.
+                    // Only gate if state actually changes; otherwise the LaunchedEffect never fires to clear it.
                     pendingStateSync = newAnchor != latestAnchor ||
                         newFx != latestFractionX ||
                         newFy != latestFractionY

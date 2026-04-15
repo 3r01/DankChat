@@ -316,6 +316,8 @@
     <string name="preference_fullscreen_button_opacity_hint">Прозрачность (1-100)</string>
     <string name="preference_fullscreen_button_opacity_validation">Значение должно быть от 1 до 100</string>
     <string name="preference_fullscreen_button_opacity_custom">Настраиваемое</string>
+    <string name="preference_require_fullscreen_exit_confirmation_title">Подтверждать выход из полноэкранного режима</string>
+    <string name="preference_require_fullscreen_exit_confirmation_summary">Требовать повторного нажатия кнопки выхода из полноэкранного режима</string>
     <string name="preference_swipe_navigation_title">Навигация каналов свайпом</string>
     <string name="preference_swipe_navigation_summary">Переключение каналов свайпом по чату</string>
     <string name="menu_mod_actions">Модерация канала</string>
