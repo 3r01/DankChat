@@ -418,6 +418,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_mention_format_title">Formato de la mención</string>
     <string name="preference_roomstate_title">Mostrar información sobre el estado del canal</string>
     <string name="preference_roomstate_summary">Mostrar información sobre el actual estado del canal (e.g. Modo solo suscriptores)</string>
+    <string name="preference_compact_channel_info_title">Información de canal compacta</string>
+    <string name="preference_compact_channel_info_summary">Muestra los modos del chat y la información del stream en una sola línea</string>
     <string name="preference_streaminfo_title">Mostrar información del stream</string>
     <string name="preference_streaminfo_summary">Muestra estado del stream y recuento de espectadores</string>
     <string name="preference_notification_title">Mostrar notificaciones de mención</string>

@@ -106,6 +106,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -1059,11 +1060,46 @@ internal fun ExpandableHelperText(
     modifier: Modifier = Modifier,
 ) {
     val resolvedRoomState = helperText.roomStateParts.map { it.resolve() }
-    val roomStateText = resolvedRoomState.joinToString(separator = ", ")
+    val partSeparator = if (helperText.isCompact) " · " else ", "
+    val sectionSeparator = if (helperText.isCompact) " · " else " - "
+    val roomStateText = resolvedRoomState.joinToString(separator = partSeparator)
     val streamInfoText = helperText.streamInfo
-    val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = " - ")
-    val textMeasurer = rememberTextMeasurer()
+    val combinedText = listOfNotNull(roomStateText.ifEmpty { null }, streamInfoText).joinToString(separator = sectionSeparator)
     val style = MaterialTheme.typography.labelSmall
+
+    when {
+        helperText.isCompact -> {
+            Text(
+                text = combinedText,
+                style = style,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = modifier.fillMaxWidth(),
+            )
+        }
+
+        else -> {
+            ExpandableMarqueeHelperText(
+                roomStateText = roomStateText,
+                streamInfoText = streamInfoText,
+                combinedText = combinedText,
+                style = style,
+                modifier = modifier,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ExpandableMarqueeHelperText(
+    roomStateText: String,
+    streamInfoText: String?,
+    combinedText: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    val textMeasurer = rememberTextMeasurer()
     val density = LocalDensity.current
     var expanded by remember { mutableStateOf(false) }
 

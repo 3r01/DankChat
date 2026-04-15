@@ -418,6 +418,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_mention_format_title">Erwähnungsformat</string>
     <string name="preference_roomstate_title">Chatmodi anzeigen</string>
     <string name="preference_roomstate_summary">Zeigt Informationen über den momentanen Chatmodus, wie \"Subscriber-Only\"</string>
+    <string name="preference_compact_channel_info_title">Kompakte Kanalinfo</string>
+    <string name="preference_compact_channel_info_summary">Chatmodi und Streaminfo in einer Zeile anzeigen</string>
     <string name="preference_streaminfo_title">Streaminfo anzeigen</string>
     <string name="preference_streaminfo_summary">Zeigt Live-Status und Zuschauerzahl</string>
     <string name="preference_notification_title">Benachrichtigungen bei Erwähnungen</string>

@@ -427,6 +427,8 @@
     <string name="preference_mention_format_title">Фармат згадвання</string>
     <string name="preference_roomstate_title">Адлюстраваць статус чату</string>
     <string name="preference_roomstate_summary">Адлюстроўваць інфармацыю пра статус бягучага чату, кшталту рэжыму толькі для падпісчыкаў</string>
+    <string name="preference_compact_channel_info_title">Кампактная інфармацыя пра канал</string>
+    <string name="preference_compact_channel_info_summary">Адлюстроўваць рэжымы чату і інфармацыю пра трансляцыю ў адзін радок</string>
     <string name="preference_streaminfo_title">Адлюстроўваць інфармацыю пра трансляцыю</string>
     <string name="preference_streaminfo_summary">Адлюстроўваць статус у сетцы і лічыльнік гледачоў</string>
     <string name="preference_notification_title">Адлюстроўваць апавяшчэнні пра згадванні</string>

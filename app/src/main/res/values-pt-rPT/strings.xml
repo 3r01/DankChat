@@ -411,6 +411,8 @@
     <string name="preference_mention_format_title">Formato de menção</string>
     <string name="preference_roomstate_title">Mostrar modos do chat</string>
     <string name="preference_roomstate_summary">Exibir informações sobre os modos atuais do chat, como o modo somente para subscritores</string>
+    <string name="preference_compact_channel_info_title">Informação de canal compacta</string>
+    <string name="preference_compact_channel_info_summary">Exibe os modos do chat e a informação da stream numa única linha</string>
     <string name="preference_streaminfo_title">Mostrar informação da stream</string>
     <string name="preference_streaminfo_summary">Exibe o estado ao vivo e a contagem de espectadores</string>
     <string name="preference_notification_title">Mostrar notificações de menções</string>

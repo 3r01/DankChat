@@ -138,6 +138,10 @@ class AppearanceSettingsDataStore(
         settings
             .map { it.showSendButton }
             .distinctUntilChanged()
+    val compactChannelInfo =
+        settings
+            .map { it.compactChannelInfo }
+            .distinctUntilChanged()
 
     fun current() = currentSettings.value
 

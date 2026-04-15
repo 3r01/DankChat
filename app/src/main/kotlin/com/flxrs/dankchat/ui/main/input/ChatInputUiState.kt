@@ -65,6 +65,7 @@ sealed interface CharacterCounterState {
 data class HelperText(
     val roomStateParts: ImmutableList<TextResource> = persistentListOf(),
     val streamInfo: String? = null,
+    val isCompact: Boolean = false,
 ) {
     val isEmpty: Boolean get() = roomStateParts.isEmpty() && streamInfo == null
 }

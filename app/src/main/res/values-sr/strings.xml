@@ -400,6 +400,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_mention_format_title">Format pominjanja</string>
     <string name="preference_roomstate_title">Prikaži informacije o režimu sobe</string>
     <string name="preference_roomstate_summary">Prikazuje informacije o trenutnom režimu sobe, poput režima samo za pretplatnike</string>
+    <string name="preference_compact_channel_info_title">Kompaktne informacije o kanalu</string>
+    <string name="preference_compact_channel_info_summary">Prikaži režime sobe i informacije o strimu u jednom redu</string>
     <string name="preference_streaminfo_title">Prikaži informacije o strimu</string>
     <string name="preference_streaminfo_summary">Prikazuje da li je strim aktivan i broj gledalaca</string>
     <string name="preference_notification_title">Prikaži obaveštenja o pominjanju</string>

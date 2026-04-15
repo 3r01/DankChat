@@ -75,6 +75,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.AutoDisableInput
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.CheckeredMessages
+import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.CompactChannelInfo
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FontSize
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.FullscreenButtonOpacity
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsInteraction.KeepScreenOn
@@ -171,6 +172,7 @@ private fun AppearanceSettingsContent(
             HorizontalDivider(thickness = Dp.Hairline)
             ComponentsCategory(
                 swipeNavigation = settings.swipeNavigation,
+                compactChannelInfo = settings.compactChannelInfo,
                 fullscreenButtonOpacity = settings.fullscreenButtonOpacity,
                 requireFullscreenExitConfirmation = settings.requireFullscreenExitConfirmation,
                 onInteraction = onInteraction,
@@ -218,6 +220,7 @@ private fun InputCategory(
 @Composable
 private fun ComponentsCategory(
     swipeNavigation: Boolean,
+    compactChannelInfo: Boolean,
     fullscreenButtonOpacity: Float,
     requireFullscreenExitConfirmation: Boolean,
     onInteraction: (AppearanceSettingsInteraction) -> Unit,
@@ -238,6 +241,13 @@ private fun ComponentsCategory(
             summary = stringResource(R.string.preference_swipe_navigation_summary),
             isChecked = swipeNavigation,
             onClick = { onInteraction(SwipeNavigation(it)) },
+        )
+
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_compact_channel_info_title),
+            summary = stringResource(R.string.preference_compact_channel_info_summary),
+            isChecked = compactChannelInfo,
+            onClick = { onInteraction(CompactChannelInfo(it)) },
         )
 
         val customLabel = stringResource(R.string.preference_fullscreen_button_opacity_custom)

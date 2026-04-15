@@ -432,6 +432,8 @@
     <string name="preference_mention_format_title">Формат упоминаний</string>
     <string name="preference_roomstate_title">Отображать статус чата</string>
     <string name="preference_roomstate_summary">Отображать информацию о статусе текущего чата, вроде режима только для подписчиков</string>
+    <string name="preference_compact_channel_info_title">Компактная информация о канале</string>
+    <string name="preference_compact_channel_info_summary">Отображать режимы чата и информацию о трансляции в одну строку</string>
     <string name="preference_streaminfo_title">Отображать информацию о трансляции</string>
     <string name="preference_streaminfo_summary">Отображать статус в сети и счётчик зрителей</string>
     <string name="preference_notification_title">Отображать уведомления об упоминаниях</string>

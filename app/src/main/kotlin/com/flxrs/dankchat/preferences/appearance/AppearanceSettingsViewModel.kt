@@ -42,6 +42,7 @@ class AppearanceSettingsViewModel(
                 is AppearanceSettingsInteraction.SetPaletteStyle -> dataStore.update { it.copy(paletteStyle = interaction.style) }
                 is AppearanceSettingsInteraction.FullscreenButtonOpacity -> dataStore.update { it.copy(fullscreenButtonOpacity = interaction.value) }
                 is AppearanceSettingsInteraction.RequireFullscreenExitConfirmation -> dataStore.update { it.copy(requireFullscreenExitConfirmation = interaction.value) }
+                is AppearanceSettingsInteraction.CompactChannelInfo -> dataStore.update { it.copy(compactChannelInfo = interaction.value) }
             }
         }
     }

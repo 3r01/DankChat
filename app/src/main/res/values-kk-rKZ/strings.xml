@@ -411,6 +411,8 @@
     <string name="preference_mention_format_title">Атау пішімі</string>
     <string name="preference_roomstate_title">Чат режимдері туралы ақпаратты көрсету</string>
     <string name="preference_roomstate_summary">Тек абоненттер режимі сияқты ағымдағы чат режимдері туралы ақпаратты көрсетеді</string>
+    <string name="preference_compact_channel_info_title">Ықшам арна ақпараты</string>
+    <string name="preference_compact_channel_info_summary">Чат режимдері мен ағын ақпаратын бір жолда көрсетеді</string>
     <string name="preference_streaminfo_title">Ағын ақпаратын көрсету</string>
     <string name="preference_streaminfo_summary">Жанды күй мен көрермен санын көрсетеді</string>
     <string name="preference_notification_title">Атау хабарландыруларын көрсету</string>

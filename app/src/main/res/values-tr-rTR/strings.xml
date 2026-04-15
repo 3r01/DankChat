@@ -418,6 +418,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_mention_format_title">Bahsetme biçimi</string>
     <string name="preference_roomstate_title">Kanal modu bilgisini göster</string>
     <string name="preference_roomstate_summary">Yalnız aboneler modu gibi şimdiki kanal moduna ilişkin bilgi gösterir</string>
+    <string name="preference_compact_channel_info_title">Kompakt kanal bilgisi</string>
+    <string name="preference_compact_channel_info_summary">Kanal modlarını ve yayın bilgisini tek satırda gösterir</string>
     <string name="preference_streaminfo_title">Yayın bilgisini göster</string>
     <string name="preference_streaminfo_summary">Canlılık durumunu ve izleyici sayısını gösterir</string>
     <string name="preference_notification_title">Bahsetme bildirimleri göster</string>

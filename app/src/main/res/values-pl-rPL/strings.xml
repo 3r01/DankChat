@@ -432,6 +432,8 @@ Aby zapewnić tą usługę, wspomniany serwis tymczasowo przechowuje wiadomości
     <string name="preference_mention_format_title">Format wzmianek</string>
     <string name="preference_roomstate_title">Pokazuj informacje dotyczące trybu kanału</string>
     <string name="preference_roomstate_summary">Pokazuj informacje dotyczące trybu kanału takie jak \"Czat tylko dla Subskrybentów\"</string>
+    <string name="preference_compact_channel_info_title">Kompaktowe informacje o kanale</string>
+    <string name="preference_compact_channel_info_summary">Pokazuj tryby czatu i informacje o transmisji w jednej linii</string>
     <string name="preference_streaminfo_title">Pokazuj informacje transmisji</string>
     <string name="preference_streaminfo_summary">Pokazuje status na żywo i liczbę widzów</string>
     <string name="preference_notification_title">Pokazuj powiadomienia wzmianek</string>

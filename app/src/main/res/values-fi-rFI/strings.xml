@@ -414,6 +414,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_mention_format_title">Maininnan muoto</string>
     <string name="preference_roomstate_title">Näytä chattitilojen tiedot</string>
     <string name="preference_roomstate_summary">Näyttää tiedot nykyisistä chattitiloista, kuten vain tilaajat -tila</string>
+    <string name="preference_compact_channel_info_title">Kompaktit kanavatiedot</string>
+    <string name="preference_compact_channel_info_summary">Näytä chattitilat ja suoratoistotiedot yhdellä rivillä</string>
     <string name="preference_streaminfo_title">Näytä suoratoistotiedot</string>
     <string name="preference_streaminfo_summary">Näyttää reaaliaikaisen tilan ja katsojien määrän</string>
     <string name="preference_notification_title">Näytä maininta-ilmoitukset</string>

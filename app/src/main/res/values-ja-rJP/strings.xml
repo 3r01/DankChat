@@ -403,6 +403,8 @@
     <string name="preference_mention_format_title">メンション形式</string>
     <string name="preference_roomstate_title">チャットモードの情報を表示</string>
     <string name="preference_roomstate_summary">現在のチャットモードに関する情報を表示します（例：サブスクライバー限定モード）</string>
+    <string name="preference_compact_channel_info_title">コンパクトなチャンネル情報</string>
+    <string name="preference_compact_channel_info_summary">チャットモードとストリーム情報を1行で表示します</string>
     <string name="preference_streaminfo_title">ストリーム情報を表示</string>
     <string name="preference_streaminfo_summary">ライブ状態と視聴者数を表示</string>
     <string name="preference_notification_title">メンション通知を表示</string>

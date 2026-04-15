@@ -38,6 +38,7 @@ data class AppearanceSettings(
     val showClearInputButton: Boolean = true,
     val showSendButton: Boolean = true,
     val swipeNavigation: Boolean = true,
+    val compactChannelInfo: Boolean = false,
     val fullscreenButtonOpacity: Float = 0.75f,
     val requireFullscreenExitConfirmation: Boolean = false,
     val fabAnchor: FabAnchor = FabAnchor.BottomEnd,

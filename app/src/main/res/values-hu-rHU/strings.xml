@@ -411,6 +411,8 @@
     <string name="preference_mention_format_title">Említés formátuma</string>
     <string name="preference_roomstate_title">Mutassa a chat módok információit</string>
     <string name="preference_roomstate_summary">Információt jelenít meg a jelenlegi chat módokrol mint a csak feliratkozói mód</string>
+    <string name="preference_compact_channel_info_title">Tömör csatornainformáció</string>
+    <string name="preference_compact_channel_info_summary">A chat módokat és az élő adás információit egyetlen sorban jeleníti meg</string>
     <string name="preference_streaminfo_title">Az élő adás információinak mutatása</string>
     <string name="preference_streaminfo_summary">Megjeleníti az élő státuszt és a nézőszámot</string>
     <string name="preference_notification_title">Mutassa az említési értesítéseket</string>

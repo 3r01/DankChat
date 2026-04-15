@@ -113,6 +113,15 @@ class DankChatPreferenceStore(
         else -> context.resources.getQuantityString(R.plurals.viewers_and_uptime_with_cateogry, viewers, viewers, category, uptime)
     }
 
+    fun formatViewersStringCompact(
+        viewers: Int,
+        uptime: String,
+        category: String?,
+    ): String = when (category) {
+        null -> context.getString(R.string.viewers_and_uptime_compact, viewers, uptime)
+        else -> context.getString(R.string.viewers_and_uptime_with_category_compact, viewers, category, uptime)
+    }
+
     fun removeChannel(channel: UserName): List<UserName> {
         val updated = channels - channel
         dankChatPreferences.edit {

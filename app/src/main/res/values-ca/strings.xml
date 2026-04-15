@@ -412,6 +412,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_mention_format_title">Format de mencions</string>
     <string name="preference_roomstate_title">Mostrar informació de modes de xat</string>
     <string name="preference_roomstate_summary">Mostra informació sobre els actuals modes de xat com el mode de només subscriptors</string>
+    <string name="preference_compact_channel_info_title">Informació de canal compacta</string>
+    <string name="preference_compact_channel_info_summary">Mostra els modes de xat i la informació de l\'stream en una sola línia</string>
     <string name="preference_streaminfo_title">Mostrar informació sobre l\'stream</string>
     <string name="preference_streaminfo_summary">Mostra estat en viu i nombre de visualitzacions</string>
     <string name="preference_notification_title">Mostrar notificacions de menció</string>

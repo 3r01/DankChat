@@ -416,6 +416,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_mention_format_title">Format des mentions</string>
     <string name="preference_roomstate_title">Afficher les informations de la salle de discussion</string>
     <string name="preference_roomstate_summary">Affiche les infos sur la salle de discussion tels que le mode \"sub-only\"</string>
+    <string name="preference_compact_channel_info_title">Infos de chaîne compactes</string>
+    <string name="preference_compact_channel_info_summary">Affiche les modes de discussion et les infos du live sur une seule ligne</string>
     <string name="preference_streaminfo_title">Récupérer les informations du live</string>
     <string name="preference_streaminfo_summary">Afficher le statut et le nombre de spectateurs</string>
     <string name="preference_notification_title">Afficher les notifications de mentions</string>

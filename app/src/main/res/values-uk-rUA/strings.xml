@@ -434,6 +434,8 @@
     <string name="preference_mention_format_title">Формат згадок</string>
     <string name="preference_roomstate_title">Показувати статус чату</string>
     <string name="preference_roomstate_summary">Показувати інформацію про статус чату (наприклад, режиму \"Тільки для підписників\")</string>
+    <string name="preference_compact_channel_info_title">Компактна інформація про канал</string>
+    <string name="preference_compact_channel_info_summary">Показувати режими чату та інформацію про стрім в одному рядку</string>
     <string name="preference_streaminfo_title">Показувати інформацію про стрім</string>
     <string name="preference_streaminfo_summary">Показувати статус в мережі та лічильник глядачів</string>
     <string name="preference_notification_title">Показувати сповіщення про згадки</string>

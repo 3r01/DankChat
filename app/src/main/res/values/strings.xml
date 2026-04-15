@@ -423,6 +423,8 @@
     <string name="preference_roomstate_key" translatable="false">show_roomstate</string>
     <string name="preference_roomstate_title">Show chat modes information</string>
     <string name="preference_roomstate_summary">Displays information about the current chat modes like subscribers only mode</string>
+    <string name="preference_compact_channel_info_title">Compact channel info</string>
+    <string name="preference_compact_channel_info_summary">Show chat modes and stream info on a single line</string>
     <string name="preference_streaminfo_key" translatable="false">show_streaminfo</string>
     <string name="preference_streaminfo_title">Show stream information</string>
     <string name="preference_streaminfo_summary">Displays live status and viewer count</string>
@@ -827,6 +829,8 @@
         <item quantity="one">Live with %1$d viewer in %2$s for %3$s</item>
         <item quantity="other">Live with %1$d viewers in %2$s for %3$s</item>
     </plurals>
+    <string name="viewers_and_uptime_compact">%1$d · %2$s</string>
+    <string name="viewers_and_uptime_with_category_compact">%1$d · %2$s · %3$s</string>
     <string name="preference_streaminfo_category_title">Show stream category</string>
     <string name="preference_streaminfo_category_summary">Also display stream category</string>
     <string name="toggle_input">Toggle input</string>

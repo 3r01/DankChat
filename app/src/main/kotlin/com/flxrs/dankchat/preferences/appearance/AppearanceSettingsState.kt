@@ -66,6 +66,10 @@ sealed interface AppearanceSettingsInteraction {
     data class RequireFullscreenExitConfirmation(
         val value: Boolean,
     ) : AppearanceSettingsInteraction
+
+    data class CompactChannelInfo(
+        val value: Boolean,
+    ) : AppearanceSettingsInteraction
 }
 
 @Immutable

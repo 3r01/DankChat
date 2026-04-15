@@ -409,6 +409,8 @@
     <string name="preference_mention_format_title">提及格式</string>
     <string name="preference_roomstate_title">顯示聊天室狀態</string>
     <string name="preference_roomstate_summary">顯示目前聊天室狀態，如訂閱者聊天模式</string>
+    <string name="preference_compact_channel_info_title">精簡頻道資訊</string>
+    <string name="preference_compact_channel_info_summary">將聊天室狀態與實況資訊顯示在同一行</string>
     <string name="preference_streaminfo_title">顯示實況訊息</string>
     <string name="preference_streaminfo_summary">顯示實況狀態及觀看人數</string>
     <string name="preference_notification_title">顯示訊息通知</string>
