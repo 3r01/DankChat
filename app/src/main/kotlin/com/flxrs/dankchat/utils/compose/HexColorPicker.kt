@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,7 +51,7 @@ fun HexColorPicker(
 ) {
     val controller = rememberColorPickerController()
     val initialColor = remember { Color(color) }
-    var lastFromPicker by remember { mutableIntStateOf(color) }
+    var lastFromPicker by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(color) {
         if (color != lastFromPicker) {
