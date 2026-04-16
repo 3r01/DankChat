@@ -27,6 +27,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -93,10 +94,6 @@ class NotificationService :
                     when (state) {
                         AppLifecycle.Foreground -> {
                             notifiedMessageIds.clear()
-                            val activeChannel = chatChannelProvider.activeChannel.value
-                            if (activeChannel != null) {
-                                clearNotificationsForChannel(activeChannel)
-                            }
                             emptyFlow()
                         }
 
@@ -122,6 +119,19 @@ class NotificationService :
                             iterator.remove()
                         }
                         message.toNotificationData()?.createMentionNotification()
+                    }
+                }
+        }
+
+        // Clear Android notifications when switching channels while the app is in the foreground
+        launch {
+            combine(
+                appLifecycleListener.appState,
+                chatChannelProvider.activeChannel.filterNotNull(),
+            ) { lifecycle, channel -> lifecycle to channel }
+                .collect { (lifecycle, channel) ->
+                    if (lifecycle == AppLifecycle.Foreground) {
+                        clearNotificationsForChannel(channel)
                     }
                 }
         }
