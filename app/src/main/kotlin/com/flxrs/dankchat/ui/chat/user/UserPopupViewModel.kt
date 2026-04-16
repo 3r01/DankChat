@@ -91,10 +91,20 @@ class UserPopupViewModel(
     private fun loadData(params: UserPopupStateParams) {
         loadJob?.cancel()
         val cachedUser = params.targetUserId?.let { channelRepository.getCachedUserDto(it) }
+        val initialState = when (cachedUser) {
+            null -> UserPopupState.Loading(params.targetUserName, params.targetDisplayName)
+
+            else -> UserPopupState.Success(
+                userId = cachedUser.id,
+                userName = cachedUser.name,
+                displayName = cachedUser.displayName,
+                avatarUrl = cachedUser.avatarUrl,
+                created = cachedUser.createdAt.asParsedZonedDateTime(),
+            )
+        }
+        emitState(params, initialState)
+
         loadJob = viewModelScope.launch {
-            if (cachedUser == null) {
-                emitState(params, UserPopupState.Loading(params.targetUserName, params.targetDisplayName))
-            }
             val currentUserId = preferenceStore.userIdString
             if (!preferenceStore.isLoggedIn || currentUserId == null) {
                 emitState(params, UserPopupState.NotLoggedIn(params.targetUserName, params.targetDisplayName))
