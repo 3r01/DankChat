@@ -797,7 +797,6 @@
     <string name="choose_highlight_color">Абраць колер</string>
     <string name="color_picker_brightness">Яркасць</string>
     <string name="color_picker_opacity">Непразрыстасць</string>
-    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Пераключыць панэль праграмы</string>
     <string name="error_with_message">Памылка: %s</string>
     <!-- Onboarding -->

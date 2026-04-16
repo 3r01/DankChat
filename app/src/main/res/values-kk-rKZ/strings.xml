@@ -707,7 +707,6 @@
     <string name="choose_highlight_color">Түс таңдау</string>
     <string name="color_picker_brightness">Жарықтылық</string>
     <string name="color_picker_opacity">Мөлдірсіздік</string>
-    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Қолданба тақтасын қосу/өшіру</string>
     <string name="error_with_message">Қате: %s</string>
     <!-- Onboarding -->

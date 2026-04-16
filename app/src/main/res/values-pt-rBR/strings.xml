@@ -773,7 +773,6 @@
     <string name="choose_highlight_color">Escolher cor</string>
     <string name="color_picker_brightness">Brilho</string>
     <string name="color_picker_opacity">Opacidade</string>
-    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Alternar barra do aplicativo</string>
     <string name="error_with_message">Erro: %s</string>
     <string name="something_went_wrong">Algo deu errado</string>

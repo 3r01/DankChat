@@ -689,7 +689,6 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="choose_highlight_color">Изабери боју</string>
     <string name="color_picker_brightness">Осветљеност</string>
     <string name="color_picker_opacity">Непрозирност</string>
-    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">Prikaži/sakrij traku aplikacije</string>
     <string name="error_with_message">Greška: %s</string>
     <!-- Onboarding -->

@@ -767,7 +767,6 @@
     <string name="choose_highlight_color">選擇色彩</string>
     <string name="color_picker_brightness">亮度</string>
     <string name="color_picker_opacity">不透明度</string>
-    <string name="color_picker_percent">%d%%</string>
     <string name="toggle_app_bar">切換應用程式列</string>
     <string name="error_with_message">錯誤: %s</string>
     <!-- Onboarding -->
