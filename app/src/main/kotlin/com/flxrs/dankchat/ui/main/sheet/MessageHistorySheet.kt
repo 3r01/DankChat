@@ -355,7 +355,7 @@ fun MessageHistorySheet(
                                     }.selectedIndicatorBar(isSelected, indicatorColor)
                                     .padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
+                            horizontalArrangement = Arrangement.Start,
                         ) {
                             Text(
                                 text = when (channel) {

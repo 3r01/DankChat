@@ -180,7 +180,7 @@ fun MentionSheet(
                                     Modifier
                                         .clickable { scope.launch { pagerState.animateScrollToPage(index) } }
                                         .defaultMinSize(minHeight = 48.dp)
-                                        .padding(horizontal = 16.dp)
+                                        .padding(horizontal = 16.dp, vertical = 14.dp)
                                         .reportPosition(tabLayoutState, index),
                             ) {
                                 Text(

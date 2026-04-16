@@ -383,7 +383,7 @@ fun FloatingToolbar(
                                                                 onClick = { onAction(ToolbarAction.SelectTab(index)) },
                                                                 onLongClick = { onAction(ToolbarAction.LongClickTab) },
                                                             ).defaultMinSize(minHeight = 48.dp)
-                                                            .padding(horizontal = 12.dp)
+                                                            .padding(horizontal = 12.dp, vertical = 14.dp)
                                                             .reportPosition(tabLayoutState, index),
                                                 ) {
                                                     Text(
@@ -544,7 +544,7 @@ fun FloatingToolbar(
                                                             .padding(horizontal = 16.dp, vertical = 10.dp)
                                                             .then(if (index == 0) Modifier.onSizeChanged { itemHeightPx = it.height } else Modifier),
                                                     verticalAlignment = Alignment.CenterVertically,
-                                                    horizontalArrangement = Arrangement.Center,
+                                                    horizontalArrangement = Arrangement.Start,
                                                 ) {
                                                     Text(
                                                         text = tab.displayName,

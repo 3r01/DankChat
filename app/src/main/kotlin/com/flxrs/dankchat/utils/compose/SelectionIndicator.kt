@@ -73,7 +73,7 @@ fun PagerTabIndicator(
     color: Color,
     modifier: Modifier = Modifier,
     height: Dp = 3.dp,
-    bottomInset: Dp = 4.dp,
+    bottomInset: Dp = 8.dp,
 ) {
     if (!state.ready || pagerState.pageCount == 0) return
     val density = LocalDensity.current
