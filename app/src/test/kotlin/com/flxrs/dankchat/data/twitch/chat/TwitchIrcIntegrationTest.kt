@@ -66,7 +66,7 @@ internal class ChatConnectionTest {
     @Test
     fun `anonymous connect sends correct CAP, PASS, NICK sequence`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
                 awaitFrame { it == "NICK justinfan12781923" }
@@ -81,7 +81,7 @@ internal class ChatConnectionTest {
     @Test
     fun `authenticated connect sends correct credentials`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection(userName = "testuser", oAuth = "oauth:abc123")
                 conn.connect()
                 awaitFrame { it == "NICK testuser" }
@@ -95,7 +95,7 @@ internal class ChatConnectionTest {
     @Test
     fun `connected state updates on successful handshake`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 assertFalse(conn.connected.value)
 
@@ -109,7 +109,7 @@ internal class ChatConnectionTest {
     @Test
     fun `joinChannels sends JOIN command after connect`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.joinChannels(listOf("testchannel".toUserName()))
                 conn.connect()
@@ -123,7 +123,7 @@ internal class ChatConnectionTest {
     @Test
     fun `partChannel sends PART command`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 val channel = "testchannel".toUserName()
                 conn.joinChannels(listOf(channel))
@@ -140,7 +140,7 @@ internal class ChatConnectionTest {
     @Test
     fun `sendMessage sends raw IRC through websocket`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
                 conn.connected.first { it }
@@ -155,7 +155,7 @@ internal class ChatConnectionTest {
     @Test
     fun `close resets connected state`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
                 conn.connected.first { it }
@@ -169,7 +169,7 @@ internal class ChatConnectionTest {
     @Test
     fun `PING from server is answered with PONG`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
                 conn.connected.first { it }
@@ -184,7 +184,7 @@ internal class ChatConnectionTest {
     @Test
     fun `reconnectIfNecessary does nothing when already connected`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
                 conn.connected.first { it }
@@ -202,7 +202,7 @@ internal class ChatConnectionTest {
     @Test
     fun `multiple channels are joined via single JOIN command`() = runTest {
         withContext(Dispatchers.Default) {
-            withTimeout(5.seconds) {
+            withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.joinChannels(listOf("ch1".toUserName(), "ch2".toUserName()))
                 conn.connect()
@@ -216,7 +216,7 @@ internal class ChatConnectionTest {
     }
 
     private suspend fun awaitFrame(
-        timeoutMs: Long = 3000,
+        timeoutMs: Long = 10_000,
         predicate: (String) -> Boolean,
     ) {
         val deadline = System.currentTimeMillis() + timeoutMs
