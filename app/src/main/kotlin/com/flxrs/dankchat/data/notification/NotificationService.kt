@@ -20,6 +20,7 @@ import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataSto
 import com.flxrs.dankchat.ui.main.MainActivity
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
@@ -52,6 +53,7 @@ class NotificationService :
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore by inject()
     private val appLifecycleListener: AppLifecycleListener by inject()
     private val dispatchersProvider: DispatchersProvider by inject()
+    private val foregroundServiceState: ForegroundServiceState by inject()
 
     private val pendingIntentFlag: Int = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
@@ -155,6 +157,7 @@ class NotificationService :
         fgsType: Int,
     ) {
         logger.warn { "Stopping foreground service due to 6h timeout restriction.." }
+        foregroundServiceState.setActive(false)
         stopSelf()
     }
 

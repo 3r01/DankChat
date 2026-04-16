@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -58,7 +59,7 @@ internal class ChatConnectionTest {
                 every { this@mockk.userName } returns userName?.toUserName()
                 every { oAuthKey } returns oAuth
             }
-        return ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchers, url = mockServer.url).also {
+        return ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchers, serviceActive = MutableStateFlow(true), url = mockServer.url).also {
             connection = it
         }
     }

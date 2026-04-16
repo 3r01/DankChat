@@ -25,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
@@ -54,6 +55,7 @@ class PubSubConnection(
     private val scope: CoroutineScope,
     private val oAuth: String,
     private val jsonFormat: Json,
+    private val serviceActive: StateFlow<Boolean>,
 ) {
     @Volatile
     private var session: DefaultClientWebSocketSession? = null
@@ -146,10 +148,15 @@ class PubSubConnection(
                         throw t
                     } catch (t: Throwable) {
                         logger.error { "[PubSub $tag] connection failed: $t" }
-                        logger.error { "[PubSub $tag] attempting to reconnect #$retryCount.." }
                         session = null
                         receiveChannel.trySend(PubSubEvent.Closed)
 
+                        if (!serviceActive.value) {
+                            logger.info { "[PubSub $tag] foreground service inactive, not retrying" }
+                            return@launch
+                        }
+
+                        logger.error { "[PubSub $tag] attempting to reconnect #$retryCount.." }
                         val jitter = randomJitter()
                         val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
                         delay(reconnectDelay + jitter)

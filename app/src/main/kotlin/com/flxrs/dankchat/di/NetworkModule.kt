@@ -29,15 +29,21 @@ import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.request.header
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
+import java.util.concurrent.SynchronousQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
 const val WEBSOCKET_OKHTTP_CLIENT = "WebSocketOkHttpClient"
 const val UPLOAD_OKHTTP_CLIENT = "UploadOkHttpClient"
+
+private val okhttpLogger = KotlinLogging.logger("OkHttp")
 
 @Module
 class NetworkModule {
@@ -56,6 +62,7 @@ class NetworkModule {
     @Named(WEBSOCKET_OKHTTP_CLIENT)
     fun provideOkHttpClient(): OkHttpClient = OkHttpClient
         .Builder()
+        .dispatcher(createSafeOkHttpDispatcher())
         .callTimeout(20.seconds.toJavaDuration())
         .build()
 
@@ -78,6 +85,11 @@ class NetworkModule {
     fun provideKtorClient(json: Json): HttpClient {
         val httpLogger = KotlinLogging.logger("HttpClient")
         return HttpClient(OkHttp) {
+            engine {
+                config {
+                    dispatcher(createSafeOkHttpDispatcher())
+                }
+            }
             install(Logging) {
                 level = LogLevel.INFO
                 logger =
@@ -198,4 +210,22 @@ class NetworkModule {
             }
         },
     )
+}
+
+private fun createSafeOkHttpDispatcher(): Dispatcher {
+    val executor = ThreadPoolExecutor(
+        0,
+        Int.MAX_VALUE,
+        60L,
+        TimeUnit.SECONDS,
+        SynchronousQueue(),
+    ) { runnable ->
+        Thread(runnable, "OkHttp Dispatcher").apply {
+            isDaemon = false
+            uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
+                okhttpLogger.error(throwable) { "Uncaught exception on OkHttp thread" }
+            }
+        }
+    }
+    return Dispatcher(executor)
 }

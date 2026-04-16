@@ -3,6 +3,7 @@ package com.flxrs.dankchat.di
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.twitch.chat.ChatConnection
 import com.flxrs.dankchat.data.twitch.chat.ChatConnectionType
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import io.ktor.client.HttpClient
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Named
@@ -19,7 +20,8 @@ class ConnectionModule {
         httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
         authDataStore: AuthDataStore,
-    ): ChatConnection = ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchersProvider)
+        foregroundServiceState: ForegroundServiceState,
+    ): ChatConnection = ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchersProvider, foregroundServiceState.active)
 
     @Single
     @Named(WRITE_CONNECTION)
@@ -27,5 +29,6 @@ class ConnectionModule {
         httpClient: HttpClient,
         dispatchersProvider: DispatchersProvider,
         authDataStore: AuthDataStore,
-    ): ChatConnection = ChatConnection(ChatConnectionType.Write, httpClient, authDataStore, dispatchersProvider)
+        foregroundServiceState: ForegroundServiceState,
+    ): ChatConnection = ChatConnection(ChatConnectionType.Write, httpClient, authDataStore, dispatchersProvider, foregroundServiceState.active)
 }

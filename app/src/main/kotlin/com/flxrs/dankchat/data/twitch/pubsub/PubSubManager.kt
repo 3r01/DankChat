@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import com.flxrs.dankchat.utils.extensions.withoutOAuthPrefix
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
@@ -37,6 +38,7 @@ class PubSubManager(
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val authDataStore: AuthDataStore,
     private val startupValidationHolder: StartupValidationHolder,
+    private val foregroundServiceState: ForegroundServiceState,
     httpClient: HttpClient,
     private val json: Json,
     dispatchersProvider: DispatchersProvider,
@@ -131,9 +133,10 @@ class PubSubManager(
                         PubSubConnection(
                             tag = "#${connections.size}",
                             client = client,
-                            scope = this,
+                            scope = scope,
                             oAuth = oAuth,
                             jsonFormat = json,
+                            serviceActive = foregroundServiceState.active,
                         )
                     connection.connect(initialTopics = chunk.toSet())
                     connections += connection

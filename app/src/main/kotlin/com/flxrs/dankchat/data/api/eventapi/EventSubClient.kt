@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelCha
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -58,6 +59,7 @@ private val logger = KotlinLogging.logger("EventSubClient")
 class EventSubClient(
     private val helixApiClient: HelixApiClient,
     private val json: Json,
+    private val foregroundServiceState: ForegroundServiceState,
     httpClient: HttpClient,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -183,6 +185,12 @@ class EventSubClient(
                     logger.error { "[EventSub]($sessionId) connection failed: $t" }
                     emitSystemMessage(message = "[EventSub]($sessionId) connection failed: $t")
                     if (shouldDiscardSession(sessionId)) {
+                        return@launch
+                    }
+
+                    if (!foregroundServiceState.active.value) {
+                        logger.info { "[EventSub] foreground service inactive, not retrying" }
+                        emitSystemMessage(message = "[EventSub] foreground service inactive, not retrying")
                         return@launch
                     }
 

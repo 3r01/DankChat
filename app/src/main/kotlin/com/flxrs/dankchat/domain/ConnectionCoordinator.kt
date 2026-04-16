@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -22,6 +23,7 @@ class ConnectionCoordinator(
     private val authStateCoordinator: AuthStateCoordinator,
     private val startupValidationHolder: StartupValidationHolder,
     private val appLifecycleListener: AppLifecycleListener,
+    private val foregroundServiceState: ForegroundServiceState,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -47,6 +49,7 @@ class ConnectionCoordinator(
                     is AppLifecycle.Foreground -> {
                         if (wasInBackground) {
                             wasInBackground = false
+                            foregroundServiceState.setActive(true)
                             chatConnector.reconnectIfNecessary()
                             dataRepository.reconnectIfNecessary()
                         }

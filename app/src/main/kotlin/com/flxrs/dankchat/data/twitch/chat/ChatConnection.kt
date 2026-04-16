@@ -77,6 +77,7 @@ class ChatConnection(
     httpClient: HttpClient,
     private val authDataStore: AuthDataStore,
     dispatchersProvider: DispatchersProvider,
+    private val serviceActive: StateFlow<Boolean>,
     private val url: String = IRC_URL,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -279,12 +280,17 @@ class ChatConnection(
                         throw t
                     } catch (t: Throwable) {
                         logger.error { "[$chatConnectionType] connection failed: $t" }
-                        logger.error { "[$chatConnectionType] attempting to reconnect #$retryCount.." }
                         _connected.value = false
                         session = null
                         channelsAttemptedToJoin.clear()
                         receiveChannel.send(ChatEvent.Closed)
 
+                        if (!serviceActive.value) {
+                            logger.info { "[$chatConnectionType] foreground service inactive, not retrying" }
+                            return@launch
+                        }
+
+                        logger.error { "[$chatConnectionType] attempting to reconnect #$retryCount.." }
                         val jitter = randomJitter()
                         val reconnectDelay = RECONNECT_BASE_DELAY * (1 shl (retryCount - 1))
                         delay(reconnectDelay + jitter)
@@ -320,6 +326,7 @@ class ChatConnection(
 
     fun reconnectIfNecessary() {
         if (session?.isActive == true && session?.incoming?.isClosedForReceive == false) return
+        logger.info { "[$chatConnectionType] connection lost, reconnecting" }
         reconnect()
     }
 

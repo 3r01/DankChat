@@ -19,6 +19,7 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.LiveUpdatesBackgroundBehavior
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle.Background
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import com.flxrs.dankchat.utils.extensions.timer
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.HttpHeaders
@@ -56,6 +57,7 @@ class SevenTVEventApiClient(
     @Named(WEBSOCKET_OKHTTP_CLIENT) private val client: OkHttpClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val appLifecycleListener: AppLifecycleListener,
+    private val foregroundServiceState: ForegroundServiceState,
     defaultJson: Json,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -205,6 +207,7 @@ class SevenTVEventApiClient(
     }
 
     private fun attemptReconnect() {
+        logger.info { "[7TV Event-Api] attempting to reconnect #$reconnectAttempts.." }
         scope.launch {
             delay(currentReconnectDelay)
             close()
@@ -243,10 +246,14 @@ class SevenTVEventApiClient(
             response: Response?,
         ) {
             logger.error { "[7TV Event-Api] connection failed: $t" }
-            logger.error { "[7TV Event-Api] attempting to reconnect #$reconnectAttempts.." }
             connected = false
             connecting = false
             heartBeatJob?.cancel()
+
+            if (!foregroundServiceState.active.value) {
+                logger.info { "[7TV Event-Api] foreground service inactive, not retrying" }
+                return
+            }
 
             attemptReconnect()
         }
