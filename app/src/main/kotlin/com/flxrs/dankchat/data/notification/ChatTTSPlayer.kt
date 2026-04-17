@@ -43,6 +43,12 @@ class ChatTTSPlayer(
     private var audioFocusRequest: AudioFocusRequest? = null
     private var utteranceId = 0
 
+    private val audioAttributes: AudioAttributes = AudioAttributes
+        .Builder()
+        .setUsage(AudioAttributes.USAGE_MEDIA)
+        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+        .build()
+
     fun start() {
         scope.launch {
             combine(
@@ -68,18 +74,19 @@ class ChatTTSPlayer(
                     when (status) {
                         TextToSpeech.SUCCESS -> {
                             applyVoice(settings.ttsForceEnglish)
+                            tts?.setAudioAttributes(audioAttributes)
                             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                                 override fun onStart(utteranceId: String?) = Unit
 
-                                override fun onDone(utteranceId: String?) = abandonAudioFocus()
+                                override fun onDone(utteranceId: String?) = onUtteranceFinished()
 
                                 @Suppress("OVERRIDE_DEPRECATION")
-                                override fun onError(utteranceId: String?) = Unit
+                                override fun onError(utteranceId: String?) = onUtteranceFinished()
 
                                 override fun onError(
                                     utteranceId: String?,
                                     errorCode: Int,
-                                ) = abandonAudioFocus()
+                                ) = onUtteranceFinished()
                             })
                         }
 
@@ -121,6 +128,12 @@ class ChatTTSPlayer(
         audioManager = null
     }
 
+    private fun onUtteranceFinished() {
+        if (tts?.isSpeaking != true) {
+            abandonAudioFocus()
+        }
+    }
+
     private fun processMessage(
         message: Message,
         settings: ToolsSettings,
@@ -152,14 +165,9 @@ class ChatTTSPlayer(
         val manager = audioManager ?: return
         if (audioFocusRequest != null) return
 
-        val attrs = AudioAttributes
-            .Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANT)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build()
         val request = AudioFocusRequest
             .Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-            .setAudioAttributes(attrs)
+            .setAudioAttributes(audioAttributes)
             .build()
 
         if (manager.requestAudioFocus(request) == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
@@ -231,7 +239,10 @@ class ChatTTSPlayer(
         val params = Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, settings.ttsVolume)
         }
-        tts?.speak(text, queueMode, params, "tts_${utteranceId++}")
+        val result = tts?.speak(text, queueMode, params, "tts_${utteranceId++}")
+        if (result != TextToSpeech.SUCCESS) {
+            onUtteranceFinished()
+        }
     }
 
     companion object {
