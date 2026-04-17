@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.debug.DebugEntry
 import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
+import com.flxrs.dankchat.utils.resolve
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,7 +80,7 @@ fun DebugInfoSheet(
                     }
                 }
 
-                items(section.entries, key = { "${section.title}_${it.label}" }) { entry ->
+                itemsIndexed(section.entries, key = { entryIndex, _ -> "${section.title}_$entryIndex" }) { _, entry ->
                     DebugEntryRow(entry)
                 }
 
@@ -108,6 +109,7 @@ fun DebugInfoSheet(
 
 @Composable
 private fun DebugEntryRow(entry: DebugEntry) {
+    val label = entry.label.resolve()
     val clipboardManager = LocalClipboard.current
     val scope = rememberCoroutineScope()
     val copyModifier =
@@ -115,7 +117,7 @@ private fun DebugEntryRow(entry: DebugEntry) {
             entry.copyValue != null -> {
                 Modifier.clickable {
                     scope.launch {
-                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText(entry.label, entry.copyValue)))
+                        clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText(label, entry.copyValue)))
                     }
                 }
             }
@@ -124,24 +126,52 @@ private fun DebugEntryRow(entry: DebugEntry) {
                 Modifier
             }
         }
-    Row(
-        modifier =
-            copyModifier
-                .fillMaxWidth()
-                .padding(vertical = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = entry.label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontFamily = FontFamily.Monospace,
-        )
-        Text(
-            text = entry.value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            fontFamily = FontFamily.Monospace,
-        )
+    when {
+        entry.stacked -> {
+            Column(
+                modifier =
+                    copyModifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = FontFamily.Monospace,
+                )
+                Text(
+                    text = entry.value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.Monospace,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+
+        else -> {
+            Row(
+                modifier =
+                    copyModifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = FontFamily.Monospace,
+                )
+                Text(
+                    text = entry.value,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = FontFamily.Monospace,
+                )
+            }
+        }
     }
 }

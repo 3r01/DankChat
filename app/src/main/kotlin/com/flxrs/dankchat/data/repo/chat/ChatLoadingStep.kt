@@ -8,9 +8,10 @@ import com.flxrs.dankchat.data.UserName
 sealed interface ChatLoadingStep {
     @get:StringRes
     val displayNameRes: Int
+    val channel: UserName?
 
     data class RecentMessages(
-        val channel: UserName,
+        override val channel: UserName,
     ) : ChatLoadingStep {
         override val displayNameRes = R.string.data_loading_step_recent_messages
     }

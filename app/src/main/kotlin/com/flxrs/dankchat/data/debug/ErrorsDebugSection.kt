@@ -1,7 +1,10 @@
 package com.flxrs.dankchat.data.debug
 
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.utils.TextResource
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import org.koin.core.annotation.Single
@@ -20,12 +23,20 @@ class ErrorsDebugSection(
             buildList {
                 add(DebugEntry("Total failures", "$totalFailures"))
                 dataFailures.forEach { failure ->
-                    add(DebugEntry(failure.step::class.simpleName ?: "Unknown", failure.failure.message ?: "Unknown error"))
+                    add(DebugEntry(label(failure.step.displayNameRes, failure.step.channel?.value), failure.failure.message ?: "Unknown error", stacked = true))
                 }
                 chatFailures.forEach { failure ->
-                    add(DebugEntry(failure.step::class.simpleName ?: "Unknown", failure.failure.message ?: "Unknown error"))
+                    add(DebugEntry(label(failure.step.displayNameRes, failure.step.channel?.value), failure.failure.message ?: "Unknown error", stacked = true))
                 }
             }
         DebugSectionSnapshot(title = baseTitle, entries = entries)
+    }
+
+    private fun label(
+        displayNameRes: Int,
+        channel: String?,
+    ): TextResource = when (channel) {
+        null -> TextResource.Res(displayNameRes)
+        else -> TextResource.Res(R.string.data_loading_step_with_channels, persistentListOf(TextResource.Res(displayNameRes), channel))
     }
 }

@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -100,18 +100,19 @@ fun SuggestionDropdown(
                         .fillMaxWidth()
                         .animateContentSize(),
             ) {
-                items(
+                itemsIndexed(
                     suggestions,
-                    key = { suggestion ->
-                        when (suggestion) {
+                    key = { index, suggestion ->
+                        val typeKey = when (suggestion) {
                             is Suggestion.EmoteSuggestion -> "emote-${suggestion.emote.emoteType}-${suggestion.emote.id}-${suggestion.emote.code}"
                             is Suggestion.UserSuggestion -> "user-${suggestion.name.value}"
                             is Suggestion.EmojiSuggestion -> "emoji-${suggestion.emoji.code}"
                             is Suggestion.CommandSuggestion -> "cmd-${suggestion.command}"
                             is Suggestion.FilterSuggestion -> "filter-${suggestion.keyword}"
                         }
+                        "$index-$typeKey"
                     },
-                ) { suggestion ->
+                ) { _, suggestion ->
                     SuggestionItem(
                         suggestion = suggestion,
                         onClick = { onSuggestionClick(suggestion) },

@@ -11,6 +11,7 @@ import com.flxrs.dankchat.utils.extensions.partitionIsInstance
 sealed interface DataLoadingStep {
     @get:StringRes
     val displayNameRes: Int
+    val channel: UserName? get() = null
 
     data object DankChatBadges : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_dankchat_badges
@@ -37,21 +38,21 @@ sealed interface DataLoadingStep {
     }
 
     data class ChannelBadges(
-        val channel: UserName,
+        override val channel: UserName,
         val channelId: UserId,
     ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_channel_badges
     }
 
     data class ChannelFFZEmotes(
-        val channel: UserName,
+        override val channel: UserName,
         val channelId: UserId,
     ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_ffz_emotes
     }
 
     data class ChannelBTTVEmotes(
-        val channel: UserName,
+        override val channel: UserName,
         val channelDisplayName: DisplayName,
         val channelId: UserId,
     ) : DataLoadingStep {
@@ -59,14 +60,14 @@ sealed interface DataLoadingStep {
     }
 
     data class ChannelSevenTVEmotes(
-        val channel: UserName,
+        override val channel: UserName,
         val channelId: UserId,
     ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_7tv_emotes
     }
 
     data class ChannelCheermotes(
-        val channel: UserName,
+        override val channel: UserName,
         val channelId: UserId,
     ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_cheermotes
