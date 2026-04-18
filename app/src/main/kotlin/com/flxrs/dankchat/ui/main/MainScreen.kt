@@ -946,8 +946,9 @@ private fun BoxScope.WideSplitLayout(
                     showTabsInSplit,
                 )
 
+                val statusBarVisible = WindowInsets.statusBars.getTop(density) > 0
                 AnimatedStatusBarScrim(
-                    visible = !isFullscreen && gestureToolbarHidden,
+                    visible = statusBarVisible && (gestureToolbarHidden || isFullscreen),
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
 
@@ -1144,8 +1145,9 @@ private fun BoxScope.NormalStackedLayout(
         )
     }
 
+    val statusBarVisible = WindowInsets.statusBars.getTop(density) > 0
     AnimatedStatusBarScrim(
-        visible = !isInPipMode && !isFullscreen && gestureToolbarHidden,
+        visible = !isInPipMode && statusBarVisible && (gestureToolbarHidden || isFullscreen),
         modifier = Modifier.align(Alignment.TopCenter),
     )
 
