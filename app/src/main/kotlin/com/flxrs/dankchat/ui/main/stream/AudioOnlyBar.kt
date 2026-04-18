@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.ui.theme.toolbarPillColor
 
 @Composable
 fun AudioOnlyBar(
@@ -31,7 +32,7 @@ fun AudioOnlyBar(
 ) {
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.toolbarPillColor,
         modifier = modifier.clickable(onClick = onExpandVideo),
     ) {
         Row(
