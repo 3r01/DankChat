@@ -14,6 +14,7 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelMod
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.ForegroundServiceState
+import com.flxrs.dankchat.utils.webSocketCoroutineExceptionHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -94,7 +95,7 @@ class EventSubClient(
             _state.update { EventSubClientState.Connecting }
         }
 
-        scope.launch {
+        scope.launch(webSocketCoroutineExceptionHandler("EventSub")) {
             var sessionId: String? = null
             var retryCount = 0
             while (retryCount < RECONNECT_MAX_ATTEMPTS) {

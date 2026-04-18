@@ -11,6 +11,7 @@ import com.flxrs.dankchat.data.twitch.pubsub.dto.moderation.ModeratorAddedData
 import com.flxrs.dankchat.data.twitch.pubsub.dto.redemption.PointRedemption
 import com.flxrs.dankchat.utils.extensions.decodeOrNull
 import com.flxrs.dankchat.utils.extensions.timer
+import com.flxrs.dankchat.utils.webSocketCoroutineExceptionHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -94,7 +95,7 @@ class PubSubConnection(
 
         logger.info { "[PubSub $tag] connecting with ${possibleTopics.size} topics" }
         connectionJob =
-            scope.launch {
+            scope.launch(webSocketCoroutineExceptionHandler("PubSub $tag")) {
                 var retryCount = 1
                 while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
                     var serverRequestedReconnect = false

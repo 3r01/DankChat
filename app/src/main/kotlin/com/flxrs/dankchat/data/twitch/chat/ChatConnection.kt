@@ -6,6 +6,7 @@ import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.timer
+import com.flxrs.dankchat.utils.webSocketCoroutineExceptionHandler
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
@@ -176,7 +177,7 @@ class ChatConnection(
         awaitingPong = false
 
         connectionJob =
-            scope.launch {
+            scope.launch(webSocketCoroutineExceptionHandler("Chat $chatConnectionType")) {
                 var retryCount = 1
                 while (retryCount <= RECONNECT_MAX_ATTEMPTS) {
                     var serverRequestedReconnect = false
