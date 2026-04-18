@@ -76,6 +76,7 @@ import com.composables.core.Thumb
 import com.composables.core.VerticalScrollbar
 import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.ui.theme.toolbarPillColor
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -156,7 +157,7 @@ fun InlineOverflowMenu(
 
     Surface(
         shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.toolbarPillColor,
         modifier = Modifier.predictiveBackScale(backProgress),
     ) {
         ScrollArea(

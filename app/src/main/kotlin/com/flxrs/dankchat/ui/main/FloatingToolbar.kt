@@ -109,6 +109,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.main.stream.AudioOnlyBar
+import com.flxrs.dankchat.ui.theme.toolbarPillColor
 import com.flxrs.dankchat.utils.compose.PagerTabIndicator
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import com.flxrs.dankchat.utils.compose.rememberPagerTabIndicatorState
@@ -315,7 +316,7 @@ fun FloatingToolbar(
                             val mentionGradientColor = MaterialTheme.colorScheme.error
                             Surface(
                                 shape = MaterialTheme.shapes.extraLarge,
-                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                color = MaterialTheme.colorScheme.toolbarPillColor,
                                 modifier =
                                     Modifier
                                         .clip(MaterialTheme.shapes.extraLarge)
@@ -354,7 +355,7 @@ fun FloatingToolbar(
                                             }
                                         },
                             ) {
-                                val pillColor = MaterialTheme.colorScheme.surfaceContainer
+                                val pillColor = MaterialTheme.colorScheme.toolbarPillColor
                                 val indicatorColor = MaterialTheme.colorScheme.primary
                                 Box {
                                     Box(
@@ -467,7 +468,7 @@ fun FloatingToolbar(
                                 var quickSwitchBackProgress by remember { mutableFloatStateOf(0f) }
                                 Surface(
                                     shape = MaterialTheme.shapes.large,
-                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    color = MaterialTheme.colorScheme.toolbarPillColor,
                                     modifier = Modifier.predictiveBackScale(quickSwitchBackProgress),
                                 ) {
                                     PredictiveBackHandler { progress ->
@@ -603,7 +604,7 @@ fun FloatingToolbar(
                         Column(modifier = Modifier.width(IntrinsicSize.Min)) {
                             Surface(
                                 shape = MaterialTheme.shapes.extraLarge,
-                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                color = MaterialTheme.colorScheme.toolbarPillColor,
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     // Reserve space at start when menu is open and not logged in,
