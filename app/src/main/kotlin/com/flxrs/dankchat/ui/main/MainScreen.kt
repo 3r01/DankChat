@@ -329,7 +329,7 @@ fun MainScreen(
             )
         }
 
-    val swipeDownThresholdPx = with(density) { 56.dp.toPx() }
+    val swipeDownThresholdPx = with(density) { (if (inputState.isCompactMode) 24.dp else 56.dp).toPx() }
 
     FullscreenSystemBarsEffect(isFullscreen)
 
