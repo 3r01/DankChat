@@ -1,5 +1,8 @@
 package com.flxrs.dankchat.data.twitch.chat
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okhttp3.Response
@@ -13,6 +16,8 @@ class MockIrcServer : AutoCloseable {
     private val server = MockWebServer()
     private var serverSocket: WebSocket? = null
     val sentFrames = CopyOnWriteArrayList<String>()
+    private val _frames = MutableSharedFlow<String>(replay = Int.MAX_VALUE)
+    val frames: Flow<String> = _frames.asSharedFlow()
     private val connectedLatch = CountDownLatch(1)
 
     private val listener =
@@ -31,6 +36,7 @@ class MockIrcServer : AutoCloseable {
             ) {
                 text.trimEnd('\r', '\n').split("\r\n").forEach { line ->
                     sentFrames.add(line)
+                    _frames.tryEmit(line)
                     handleIrcCommand(webSocket, line)
                 }
             }

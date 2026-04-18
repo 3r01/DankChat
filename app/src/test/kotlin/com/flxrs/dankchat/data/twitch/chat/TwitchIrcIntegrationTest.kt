@@ -70,7 +70,7 @@ internal class ChatConnectionTest {
             withTimeout(15.seconds) {
                 val conn = createConnection()
                 conn.connect()
-                awaitFrame { it == "NICK justinfan12781923" }
+                mockServer.frames.first { it == "NICK justinfan12781923" }
 
                 assertEquals("CAP REQ :twitch.tv/tags twitch.tv/commands twitch.tv/membership", mockServer.sentFrames[0])
                 assertEquals("PASS NaM", mockServer.sentFrames[1])
@@ -85,7 +85,7 @@ internal class ChatConnectionTest {
             withTimeout(15.seconds) {
                 val conn = createConnection(userName = "testuser", oAuth = "oauth:abc123")
                 conn.connect()
-                awaitFrame { it == "NICK testuser" }
+                mockServer.frames.first { it == "NICK testuser" }
 
                 assertEquals("PASS oauth:abc123", mockServer.sentFrames[1])
                 assertEquals("NICK testuser", mockServer.sentFrames[2])
@@ -115,7 +115,7 @@ internal class ChatConnectionTest {
                 conn.joinChannels(listOf("testchannel".toUserName()))
                 conn.connect()
 
-                awaitFrame { it.startsWith("JOIN") }
+                mockServer.frames.first { it.startsWith("JOIN") }
                 assertContains(mockServer.sentFrames, "JOIN #testchannel")
             }
         }
@@ -129,10 +129,10 @@ internal class ChatConnectionTest {
                 val channel = "testchannel".toUserName()
                 conn.joinChannels(listOf(channel))
                 conn.connect()
-                awaitFrame { it.startsWith("JOIN") }
+                mockServer.frames.first { it.startsWith("JOIN") }
 
                 conn.partChannel(channel)
-                awaitFrame { it.startsWith("PART") }
+                mockServer.frames.first { it.startsWith("PART") }
                 assertContains(mockServer.sentFrames, "PART #testchannel")
             }
         }
@@ -147,7 +147,7 @@ internal class ChatConnectionTest {
                 conn.connected.first { it }
 
                 conn.sendMessage("PRIVMSG #test :hello world")
-                awaitFrame { it.startsWith("PRIVMSG") }
+                mockServer.frames.first { it.startsWith("PRIVMSG") }
                 assertContains(mockServer.sentFrames, "PRIVMSG #test :hello world")
             }
         }
@@ -176,7 +176,7 @@ internal class ChatConnectionTest {
                 conn.connected.first { it }
 
                 mockServer.sendToClient("PING :tmi.twitch.tv")
-                awaitFrame { it.startsWith("PONG") }
+                mockServer.frames.first { it.startsWith("PONG") }
                 assertContains(mockServer.sentFrames, "PONG :tmi.twitch.tv")
             }
         }
@@ -193,7 +193,6 @@ internal class ChatConnectionTest {
                 val frameCountBefore = mockServer.sentFrames.size
                 conn.reconnectIfNecessary()
 
-                // No new connection = no new frames
                 assertEquals(frameCountBefore, mockServer.sentFrames.size)
                 assertTrue(conn.connected.value)
             }
@@ -208,23 +207,11 @@ internal class ChatConnectionTest {
                 conn.joinChannels(listOf("ch1".toUserName(), "ch2".toUserName()))
                 conn.connect()
 
-                awaitFrame { it.contains("#ch1") && it.contains("#ch2") }
+                mockServer.frames.first { it.contains("#ch1") && it.contains("#ch2") }
                 val joinFrame = mockServer.sentFrames.first { it.startsWith("JOIN") }
                 assertContains(joinFrame, "#ch1")
                 assertContains(joinFrame, "#ch2")
             }
         }
-    }
-
-    private suspend fun awaitFrame(
-        timeoutMs: Long = 10_000,
-        predicate: (String) -> Boolean,
-    ) {
-        val deadline = System.currentTimeMillis() + timeoutMs
-        while (System.currentTimeMillis() < deadline) {
-            if (mockServer.sentFrames.any(predicate)) return
-            kotlinx.coroutines.delay(25)
-        }
-        throw AssertionError("No frame matching predicate within ${timeoutMs}ms. Frames: ${mockServer.sentFrames}")
     }
 }
