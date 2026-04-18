@@ -373,7 +373,7 @@ class EventSubClient(
     }
 
     private suspend fun DefaultClientWebSocketSession.closeAndCancel() {
-        close()
+        runCatching { close() }
         cancel()
     }
 

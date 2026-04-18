@@ -121,7 +121,7 @@ class ChatConnection(
                     .filter { it in channels }
                     .chunked(JOIN_CHUNK_SIZE)
                     .forEach { chunk ->
-                        currentSession.joinChannels(chunk)
+                        runCatching { currentSession.joinChannels(chunk) }
                         channelsAttemptedToJoin.addAll(chunk)
                         setupJoinCheckInterval(chunk)
                         delay(duration = chunk.size * JOIN_DELAY)
@@ -133,7 +133,7 @@ class ChatConnection(
     suspend fun sendMessage(msg: String) {
         val currentSession = session ?: return
         if (!_connected.value) return
-        currentSession.sendIrc(msg)
+        runCatching { currentSession.sendIrc(msg) }
     }
 
     fun joinChannels(channelList: List<UserName>) {
@@ -164,7 +164,7 @@ class ChatConnection(
         channels.remove(channel)
         if (_connected.value) {
             val currentSession = session ?: return
-            currentSession.sendIrc("PART #$channel")
+            runCatching { currentSession.sendIrc("PART #$channel") }
         }
     }
 
