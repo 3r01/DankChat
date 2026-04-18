@@ -930,6 +930,7 @@ private fun BoxScope.WideSplitLayout(
                         SnackbarHost(
                             hostState = snackbarHostState,
                             modifier = Modifier.padding(bottom = inputHeightDp),
+                            snackbar = { data -> DismissibleSnackbar(data) },
                         )
                     },
                 ) { paddingValues ->
@@ -1071,6 +1072,7 @@ private fun BoxScope.NormalStackedLayout(
                 SnackbarHost(
                     hostState = snackbarHostState,
                     modifier = Modifier.padding(bottom = inputHeightDp),
+                    snackbar = { data -> DismissibleSnackbar(data) },
                 )
             },
         ) { paddingValues ->
