@@ -114,7 +114,7 @@ internal fun MainScreenPagerContent(
                                 fabMenuCallbacks = fabMenuCallbacks,
                                 contentPadding =
                                     PaddingValues(
-                                        top = chatTopPadding + 56.dp,
+                                        top = chatTopPadding + if (isFullscreen) 0.dp else 56.dp,
                                         bottom =
                                             paddingValues.calculateBottomPadding() +
                                                 when {
