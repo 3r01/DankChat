@@ -65,6 +65,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
+import com.flxrs.dankchat.ui.chat.messages.common.BadgeInlineContent
 import com.flxrs.dankchat.utils.compose.SheetErrorContent
 import kotlinx.collections.immutable.ImmutableList
 
@@ -351,18 +352,10 @@ private fun UserInfoSection(
                                             tooltip = { PlainTooltip { Text(title) } },
                                             state = rememberTooltipState(),
                                         ) {
-                                            AsyncImage(
-                                                model = badge.url,
-                                                contentDescription = title,
-                                                modifier = Modifier.size(32.dp),
-                                            )
+                                            BadgeInlineContent(badge = badge, size = 32.dp)
                                         }
                                     } else {
-                                        AsyncImage(
-                                            model = badge.url,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(32.dp),
-                                        )
+                                        BadgeInlineContent(badge = badge, size = 32.dp)
                                     }
                                 }
                             }

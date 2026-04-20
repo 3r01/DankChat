@@ -548,7 +548,7 @@ class EmoteRepository(
         }
         ffzResult.room.modBadgeUrls?.let {
             val url = it["4"] ?: it["2"] ?: it["1"] ?: return@let
-            ffzModBadges[channel] = url.withLeadingHttps
+            ffzModBadges[channel] = "${url.withLeadingHttps}/rounded"
         }
         ffzResult.room.vipBadgeUrls?.let {
             val url = it["4"] ?: it["2"] ?: it["1"] ?: return@let
