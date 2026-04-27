@@ -1,15 +1,16 @@
 package com.flxrs.dankchat.data.repo.crash
 
-import androidx.datastore.core.DataStore
 import com.flxrs.dankchat.BuildConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.koin.core.annotation.Provided
+import org.koin.core.annotation.Single
 
-@Provided
+@Single
 class CrashRepository(
-    private val dataStore: DataStore<CrashData>,
+    crashHandler: CrashHandler,
 ) {
+    private val dataStore = crashHandler.dataStore
+
     private fun currentData(): CrashData = runBlocking { dataStore.data.first() }
 
     fun hasUnshownCrash(): Boolean = currentData().hasUnshownCrash

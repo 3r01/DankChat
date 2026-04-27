@@ -4,21 +4,24 @@ import android.content.Context
 import android.os.Build
 import androidx.datastore.core.DataStore
 import com.flxrs.dankchat.BuildConfig
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.datastore.createDataStore
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
+import org.koin.core.annotation.Single
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.time.Instant
 
 private val logger = KotlinLogging.logger("CrashHandler")
 
+@Single(createdAtStart = true)
 class CrashHandler(
     context: Context,
-    private val isCrashReportingEnabled: () -> Boolean,
+    private val developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : Thread.UncaughtExceptionHandler {
     private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
 
@@ -31,7 +34,7 @@ class CrashHandler(
         scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     )
 
-    fun install() {
+    init {
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
 
@@ -43,7 +46,7 @@ class CrashHandler(
         logger.error(throwable) { "Uncaught exception on ${thread.name}" }
 
         // Only persist crash report data when debug mode is enabled
-        if (isCrashReportingEnabled()) {
+        if (developerSettingsDataStore.current().debugMode) {
             try {
                 persistCrash(thread, throwable)
             } catch (_: Throwable) {

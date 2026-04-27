@@ -9,13 +9,12 @@ import com.flxrs.dankchat.data.repo.log.LogRepository
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.ui.main.CrashViewer
 import org.koin.core.annotation.KoinViewModel
-import org.koin.core.annotation.Provided
 import java.io.File
 
 @KoinViewModel
 class CrashViewerViewModel(
     savedStateHandle: SavedStateHandle,
-    @Provided private val crashRepository: CrashRepository,
+    private val crashRepository: CrashRepository,
     private val preferenceStore: DankChatPreferenceStore,
     private val logRepository: LogRepository,
 ) : ViewModel() {

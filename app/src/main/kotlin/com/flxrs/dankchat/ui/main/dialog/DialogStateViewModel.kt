@@ -9,13 +9,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.koin.core.annotation.KoinViewModel
-import org.koin.core.annotation.Provided
 
 @KoinViewModel
 class DialogStateViewModel(
     private val preferenceStore: DankChatPreferenceStore,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
-    @Provided private val crashRepository: CrashRepository,
+    private val crashRepository: CrashRepository,
     developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : ViewModel() {
     private val _state = MutableStateFlow(DialogState())
