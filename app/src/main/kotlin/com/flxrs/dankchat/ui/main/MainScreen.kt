@@ -353,10 +353,15 @@ fun MainScreen(
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
     var isInputMultiline by remember { mutableStateOf(false) }
+    var toolbarBottomPx by remember { mutableIntStateOf(0) }
     if (!showInput) inputHeightPx = 0
     if (showInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
     val inputHeightDp = with(density) { inputHeightPx.toDp() }
     val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
+    val toolbarBottomDp = with(density) { toolbarBottomPx.toDp() }
+    val bottomReserveDp = with(density) {
+        maxOf(ime.getBottom(density), navBars.getBottom(density)).toDp()
+    }
 
     val focusManager = LocalFocusManager.current
     MainScreenFocusEffects(
@@ -390,6 +395,10 @@ fun MainScreen(
     ) {
         var containerWidthPx by remember { mutableIntStateOf(0) }
         var containerHeightPx by remember { mutableIntStateOf(0) }
+        val containerHeightDp = with(density) { containerHeightPx.toDp() }
+        val menuMaxHeightDp =
+            (containerHeightDp - toolbarBottomDp - inputHeightDp - bottomReserveDp - 8.dp)
+                .coerceAtLeast(0.dp)
         Box(
             modifier =
                 Modifier
@@ -513,6 +522,7 @@ fun MainScreen(
                     isInSplitLayout = useWideSplitLayout,
                     instantHide = isHistorySheet,
                     isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
+                    overflowMenuMaxHeightDp = menuMaxHeightDp,
                     tourState =
                         remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
                             TourOverlayState(
@@ -631,8 +641,8 @@ fun MainScreen(
                     addChannelTooltipState = if (featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint) featureTourViewModel.addChannelTooltipState else null,
                     onAddChannelTooltipDismiss = featureTourViewModel::onToolbarHintDismissed,
                     onSkipTour = featureTourViewModel::skipTour,
-                    keyboardHeightDp = with(density) { currentImeHeight.toDp() },
-                    inputBarHeightDp = inputHeightDp,
+                    menuMaxHeightDp = menuMaxHeightDp,
+                    onToolbarBottomChange = { toolbarBottomPx = it },
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     onCloseEmoteMenu = { chatInputViewModel.setEmoteMenuOpen(false) },
                     streamToolbarAlpha = streamState.effectiveAlpha,
@@ -806,6 +816,7 @@ fun MainScreen(
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
+                    menuMaxHeightDp = menuMaxHeightDp,
                     suggestions = inputState.suggestions,
                     onSuggestionClick = chatInputViewModel::applySuggestion,
                     onHideInput = { mainScreenViewModel.hideInput() },
@@ -842,6 +853,7 @@ fun MainScreen(
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
+                    menuMaxHeightDp = menuMaxHeightDp,
                     suggestions = inputState.suggestions,
                     onSuggestionClick = chatInputViewModel::applySuggestion,
                     onHideInput = { mainScreenViewModel.hideInput() },
@@ -877,6 +889,7 @@ private fun BoxScope.WideSplitLayout(
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
+    menuMaxHeightDp: Dp,
     suggestions: ImmutableList<Suggestion>,
     onSuggestionClick: (Suggestion) -> Unit,
     onHideInput: () -> Unit,
@@ -982,6 +995,7 @@ private fun BoxScope.WideSplitLayout(
                     SuggestionDropdown(
                         suggestions = suggestions,
                         onSuggestionClick = onSuggestionClick,
+                        availableMaxHeightDp = menuMaxHeightDp,
                         modifier =
                             Modifier
                                 .align(Alignment.BottomStart)
@@ -1039,6 +1053,7 @@ private fun BoxScope.NormalStackedLayout(
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
+    menuMaxHeightDp: Dp,
     suggestions: ImmutableList<Suggestion>,
     onSuggestionClick: (Suggestion) -> Unit,
     onHideInput: () -> Unit,
@@ -1186,6 +1201,7 @@ private fun BoxScope.NormalStackedLayout(
         SuggestionDropdown(
             suggestions = suggestions,
             onSuggestionClick = onSuggestionClick,
+            availableMaxHeightDp = menuMaxHeightDp,
             modifier =
                 Modifier
                     .align(Alignment.BottomStart)

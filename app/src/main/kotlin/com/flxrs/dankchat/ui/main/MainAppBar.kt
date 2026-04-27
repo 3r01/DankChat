@@ -65,7 +65,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
@@ -99,8 +98,7 @@ fun InlineOverflowMenu(
     onDismiss: () -> Unit,
     onAction: (ToolbarAction) -> Unit,
     initialMenu: AppBarMenu = AppBarMenu.Main,
-    keyboardHeightDp: Dp = 0.dp,
-    inputBarHeightDp: Dp = 0.dp,
+    maxHeightDp: Dp = 0.dp,
 ) {
     var currentMenu by remember(initialMenu) { mutableStateOf(initialMenu) }
     var backProgress by remember { mutableFloatStateOf(0f) }
@@ -125,18 +123,8 @@ fun InlineOverflowMenu(
         }
     }
 
-    val density = LocalDensity.current
     val menuWidth = rememberMainMenuWidth(isLoggedIn)
 
-    val screenHeight =
-        with(density) {
-            LocalWindowInfo.current.containerSize.height
-                .toDp()
-        }
-    // Reserve space for the toolbar above (~64dp) plus status bar inset (~24dp).
-    val topReservation = 88.dp
-    val bottomGap = 12.dp
-    val maxHeight = (screenHeight - keyboardHeightDp - inputBarHeightDp - topReservation - bottomGap).coerceAtLeast(160.dp)
     val scrollState = rememberScrollState()
     val scrollAreaState = rememberScrollAreaState(scrollState)
     var itemHeightPx by remember { mutableIntStateOf(0) }
@@ -165,7 +153,7 @@ fun InlineOverflowMenu(
             modifier =
                 Modifier
                     .width(menuWidth)
-                    .heightIn(max = maxHeight),
+                    .heightIn(max = maxHeightDp),
         ) {
             AnimatedContent(
                 targetState = currentMenu,

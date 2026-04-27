@@ -137,6 +137,9 @@ fun MessageHistorySheet(
     var searchBarHeightPx by remember { mutableIntStateOf(0) }
     val searchBarHeightDp = with(density) { searchBarHeightPx.toDp() }
 
+    var sheetHeightPx by remember { mutableIntStateOf(0) }
+    val sheetHeightDp = with(density) { sheetHeightPx.toDp() }
+
     PredictiveBackHandler { progress ->
         try {
             progress.collect { event ->
@@ -165,6 +168,7 @@ fun MessageHistorySheet(
         modifier =
             Modifier
                 .fillMaxSize()
+                .onSizeChanged { sheetHeightPx = it.height }
                 .background(sheetBackgroundColor)
                 .graphicsLayer {
                     scaleX = 1f - (backProgress * 0.1f)
@@ -393,9 +397,14 @@ fun MessageHistorySheet(
             )
         }
 
+        val sheetToolbarHeight = if (toolbarVisible) toolbarTopPadding else statusBarHeight
+        val suggestionMaxHeight =
+            (sheetHeightDp - currentImeDp - searchBarHeightDp - navBarHeightDp - sheetToolbarHeight - 8.dp)
+                .coerceAtLeast(0.dp)
         SuggestionDropdown(
             suggestions = filterSuggestions.toImmutableList(),
             onSuggestionClick = { suggestion -> viewModel.applySuggestion(suggestion) },
+            availableMaxHeightDp = suggestionMaxHeight,
             modifier =
                 Modifier
                     .align(Alignment.BottomStart)

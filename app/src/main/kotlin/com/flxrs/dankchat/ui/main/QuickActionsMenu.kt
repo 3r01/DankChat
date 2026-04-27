@@ -1,15 +1,21 @@
 package com.flxrs.dankchat.ui.main
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Fullscreen
@@ -34,12 +40,18 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TooltipBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -49,11 +61,17 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupPositionProvider
+import com.composables.core.ScrollArea
+import com.composables.core.Thumb
+import com.composables.core.VerticalScrollbar
+import com.composables.core.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.input.TourOverlayState
 import com.flxrs.dankchat.utils.compose.rememberStartAlignedTooltipPositionProvider
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,112 +93,153 @@ fun QuickActionsMenu(
     onConfigureClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val scrollState = rememberScrollState()
+    val scrollAreaState = rememberScrollAreaState(scrollState)
+    var itemHeightPx by remember { mutableIntStateOf(0) }
+    val measureModifier = Modifier.onSizeChanged { if (itemHeightPx == 0) itemHeightPx = it.height }
+
+    val scrollbarAlpha = remember { Animatable(RESTING_SCROLLBAR_ALPHA) }
+    LaunchedEffect(Unit) {
+        val maxScroll = snapshotFlow { scrollState.maxValue }.first { it != Int.MAX_VALUE }
+        if (maxScroll > 0) {
+            scrollbarAlpha.snapTo(1f)
+            delay(400)
+            scrollbarAlpha.animateTo(RESTING_SCROLLBAR_ALPHA, tween(500))
+        }
+    }
+
     Surface(
         shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
         color = surfaceColor,
         modifier = modifier,
     ) {
-        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-            for (action in InputAction.entries) {
-                if (action in visibleActions) continue
-                val overflowItem =
-                    getOverflowItem(
-                        action = action,
-                        isStreamActive = isStreamActive,
-                        hasStreamData = hasStreamData,
-                        isFullscreen = isFullscreen,
-                        isModerator = isModerator,
-                    )
-                if (overflowItem != null) {
-                    val actionEnabled = isActionEnabled(action, enabled, hasLastMessage)
+        ScrollArea(state = scrollAreaState) {
+            Column(
+                modifier = Modifier
+                    .width(IntrinsicSize.Max)
+                    .verticalScroll(scrollState),
+            ) {
+                for (action in InputAction.entries) {
+                    if (action in visibleActions) continue
+                    val overflowItem =
+                        getOverflowItem(
+                            action = action,
+                            isStreamActive = isStreamActive,
+                            hasStreamData = hasStreamData,
+                            isFullscreen = isFullscreen,
+                            isModerator = isModerator,
+                        )
+                    if (overflowItem != null) {
+                        val actionEnabled = isActionEnabled(action, enabled, hasLastMessage)
+                        DropdownMenuItem(
+                            text = { Text(stringResource(overflowItem.labelRes)) },
+                            onClick = { onActionClick(action) },
+                            enabled = actionEnabled,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = overflowItem.icon,
+                                    contentDescription = null,
+                                )
+                            },
+                        )
+                    }
+                }
+
+                if (isStreamActive) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(overflowItem.labelRes)) },
-                        onClick = { onActionClick(action) },
-                        enabled = actionEnabled,
+                        text = {
+                            Text(
+                                stringResource(
+                                    if (isAudioOnly) R.string.menu_exit_audio_only else R.string.menu_audio_only,
+                                ),
+                            )
+                        },
+                        onClick = onAudioOnly,
+                        enabled = enabled,
                         leadingIcon = {
                             Icon(
-                                imageVector = overflowItem.icon,
+                                imageVector = if (isAudioOnly) Icons.Outlined.Videocam else Icons.Default.Headphones,
                                 contentDescription = null,
                             )
                         },
                     )
                 }
-            }
 
-            if (isStreamActive) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(
-                                if (isAudioOnly) R.string.menu_exit_audio_only else R.string.menu_audio_only,
-                            ),
-                        )
-                    },
-                    onClick = onAudioOnly,
-                    enabled = enabled,
-                    leadingIcon = {
-                        Icon(
-                            imageVector = if (isAudioOnly) Icons.Outlined.Videocam else Icons.Default.Headphones,
-                            contentDescription = null,
-                        )
-                    },
-                )
-            }
+                HorizontalDivider()
 
-            HorizontalDivider()
-
-            if (hasAnyConfiguredActions) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.input_action_hide_all)) },
-                    onClick = onHideAllActions,
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.RemoveCircleOutline,
-                            contentDescription = null,
-                        )
-                    },
-                )
-            }
-
-            val configureItem: @Composable () -> Unit = {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.input_action_configure)) },
-                    onClick = {
-                        when {
-                            tourState.configureActionsTooltipState != null -> tourState.onAdvance?.invoke()
-                            else -> onConfigureClick()
-                        }
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                        )
-                    },
-                )
-            }
-            when {
-                tourState.configureActionsTooltipState != null -> {
-                    TooltipBox(
-                        positionProvider = rememberStartAlignedTooltipPositionProvider(),
-                        tooltip = {
-                            EndCaretTourTooltip(
-                                text = stringResource(R.string.tour_configure_actions),
-                                onAction = { tourState.onAdvance?.invoke() },
-                                onSkip = { tourState.onSkip?.invoke() },
+                if (hasAnyConfiguredActions) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.input_action_hide_all)) },
+                        onClick = onHideAllActions,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.RemoveCircleOutline,
+                                contentDescription = null,
                             )
                         },
-                        state = tourState.configureActionsTooltipState,
-                        onDismissRequest = {},
-                        focusable = true,
-                        hasAction = true,
-                    ) {
+                    )
+                }
+
+                val configureItem: @Composable () -> Unit = {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.input_action_configure)) },
+                        onClick = {
+                            when {
+                                tourState.configureActionsTooltipState != null -> tourState.onAdvance?.invoke()
+                                else -> onConfigureClick()
+                            }
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                            )
+                        },
+                        modifier = measureModifier,
+                    )
+                }
+                when {
+                    tourState.configureActionsTooltipState != null -> {
+                        TooltipBox(
+                            positionProvider = rememberStartAlignedTooltipPositionProvider(),
+                            tooltip = {
+                                EndCaretTourTooltip(
+                                    text = stringResource(R.string.tour_configure_actions),
+                                    onAction = { tourState.onAdvance?.invoke() },
+                                    onSkip = { tourState.onSkip?.invoke() },
+                                )
+                            },
+                            state = tourState.configureActionsTooltipState,
+                            onDismissRequest = {},
+                            focusable = true,
+                            hasAction = true,
+                        ) {
+                            configureItem()
+                        }
+                    }
+
+                    else -> {
                         configureItem()
                     }
                 }
-
-                else -> {
-                    configureItem()
+            }
+            if (scrollState.maxValue > itemHeightPx) {
+                VerticalScrollbar(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .fillMaxHeight()
+                            .padding(vertical = 6.dp)
+                            .padding(end = 6.dp)
+                            .width(4.dp),
+                ) {
+                    Thumb(
+                        modifier = Modifier.background(
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
+                            RoundedCornerShape(100),
+                        ),
+                        enabled = false,
+                    )
                 }
             }
         }

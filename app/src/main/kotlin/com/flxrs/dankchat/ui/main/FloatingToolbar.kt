@@ -30,6 +30,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -92,7 +94,6 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -142,8 +143,8 @@ fun FloatingToolbar(
     addChannelTooltipState: TooltipState? = null,
     onAddChannelTooltipDismiss: () -> Unit = {},
     onSkipTour: () -> Unit = {},
-    keyboardHeightDp: Dp = 0.dp,
-    inputBarHeightDp: Dp = 0.dp,
+    menuMaxHeightDp: Dp = 0.dp,
+    onToolbarBottomChange: (Int) -> Unit = {},
     isEmoteMenuOpen: Boolean = false,
     onCloseEmoteMenu: () -> Unit = {},
     streamToolbarAlpha: Float = 1f,
@@ -152,6 +153,17 @@ fun FloatingToolbar(
     var showOverflowMenu by remember { mutableStateOf(false) }
     var showQuickSwitch by remember { mutableStateOf(false) }
     var overflowInitialMenu by remember { mutableStateOf<AppBarMenu>(AppBarMenu.Main) }
+    var toolbarRowHeight by remember { mutableFloatStateOf(0f) }
+
+    val statusBarTopPx = WindowInsets.statusBars.getTop(density)
+    val toolbarBottomPx = with(density) {
+        when {
+            isFullscreen -> 0
+            !showAppBar -> statusBarTopPx
+            else -> statusBarTopPx + (8.dp.toPx() + 16.dp.toPx()).toInt() + toolbarRowHeight.toInt()
+        }
+    }
+    LaunchedEffect(toolbarBottomPx) { onToolbarBottomChange(toolbarBottomPx) }
 
     val totalTabs = tabState.tabs.size
     val selectedIndex = composePagerState.currentPage
@@ -172,7 +184,8 @@ fun FloatingToolbar(
             showQuickSwitch = false
         }
     }
-    val isKeyboardOpen = keyboardHeightDp > 0.dp
+    val keyboardHeightPx = (WindowInsets.ime.getBottom(density) - WindowInsets.navigationBars.getBottom(density)).coerceAtLeast(0)
+    val isKeyboardOpen = keyboardHeightPx > 0
     LaunchedEffect(isKeyboardOpen) {
         if (isKeyboardOpen) {
             showOverflowMenu = false
@@ -216,8 +229,7 @@ fun FloatingToolbar(
                 .graphicsLayer { alpha = streamToolbarAlpha },
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-        val statusBarPx = WindowInsets.statusBars.getTop(density).toFloat()
-        var toolbarRowHeight by remember { mutableFloatStateOf(0f) }
+        val statusBarPx = statusBarTopPx.toFloat()
         val scrimModifier =
             if (hasStream) {
                 Modifier.fillMaxWidth()
@@ -481,15 +493,6 @@ fun FloatingToolbar(
                                             quickSwitchBackProgress = 0f
                                         }
                                     }
-                                    val screenHeight =
-                                        with(density) {
-                                            LocalWindowInfo.current.containerSize.height
-                                                .toDp()
-                                        }
-                                    // Reserve space for the toolbar above (~64dp) plus status bar inset (~24dp).
-                                    val topReservation = 88.dp
-                                    val bottomGap = 12.dp
-                                    val maxMenuHeight = (screenHeight - keyboardHeightDp - inputBarHeightDp - topReservation - bottomGap).coerceAtLeast(160.dp)
                                     val quickSwitchScrollState = rememberScrollState()
                                     val quickSwitchScrollAreaState = rememberScrollAreaState(quickSwitchScrollState)
                                     var itemHeightPx by remember { mutableIntStateOf(0) }
@@ -508,7 +511,7 @@ fun FloatingToolbar(
                                             Modifier
                                                 .width(IntrinsicSize.Min)
                                                 .widthIn(min = 125.dp, max = 200.dp)
-                                                .heightIn(max = maxMenuHeight),
+                                                .heightIn(max = menuMaxHeightDp),
                                     ) {
                                         // Freeze the displayed selection while the dropdown is closing so the newly
                                         // picked row doesn't flash as selected before the exit animation completes.
@@ -726,8 +729,7 @@ fun FloatingToolbar(
                                     },
                                     initialMenu = overflowInitialMenu,
                                     onAction = onAction,
-                                    keyboardHeightDp = keyboardHeightDp,
-                                    inputBarHeightDp = inputBarHeightDp,
+                                    maxHeightDp = menuMaxHeightDp,
                                 )
                             }
                         }

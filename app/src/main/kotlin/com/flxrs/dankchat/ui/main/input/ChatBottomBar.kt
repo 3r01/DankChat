@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
@@ -62,6 +63,7 @@ fun ChatBottomBar(
     instantHide: Boolean = false,
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
+    overflowMenuMaxHeightDp: Dp = Dp.Unspecified,
 ) {
     val inputVisibleState = remember { MutableTransitionState(showInput) }
     inputVisibleState.targetState = showInput
@@ -95,6 +97,7 @@ fun ChatBottomBar(
                 onOverflowExpandedChange = onOverflowExpandedChange,
                 tourState = tourState,
                 isRepeatedSendEnabled = isRepeatedSendEnabled,
+                overflowMenuMaxHeightDp = overflowMenuMaxHeightDp,
                 modifier =
                     Modifier.onSizeChanged { size ->
                         onInputHeightChange(size.height)

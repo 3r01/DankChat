@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -148,6 +149,7 @@ fun ChatInputLayout(
     onOverflowExpandedChange: (Boolean) -> Unit = {},
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
+    overflowMenuMaxHeightDp: Dp = Dp.Unspecified,
 ) {
     val inputState = uiState.inputState
     val enabled = uiState.enabled
@@ -438,7 +440,9 @@ fun ChatInputLayout(
                 }
             }
             QuickActionsMenu(
-                modifier = Modifier.predictiveBackScale(backProgress),
+                modifier = Modifier
+                    .predictiveBackScale(backProgress)
+                    .heightIn(max = overflowMenuMaxHeightDp),
                 surfaceColor = surfaceColor,
                 visibleActions = visibleActions,
                 enabled = enabled,

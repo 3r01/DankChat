@@ -39,17 +39,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import kotlinx.collections.immutable.ImmutableList
 
+private val SUGGESTION_DROPDOWN_MAX_HEIGHT = 250.dp
+
 @Composable
 fun SuggestionDropdown(
     suggestions: ImmutableList<Suggestion>,
     onSuggestionClick: (Suggestion) -> Unit,
     modifier: Modifier = Modifier,
+    availableMaxHeightDp: Dp = SUGGESTION_DROPDOWN_MAX_HEIGHT,
 ) {
     AnimatedVisibility(
         visible = suggestions.isNotEmpty(),
@@ -89,7 +93,7 @@ fun SuggestionDropdown(
                 Modifier
                     .padding(horizontal = 2.dp)
                     .fillMaxWidth(0.66f)
-                    .heightIn(max = 250.dp),
+                    .heightIn(max = minOf(availableMaxHeightDp, SUGGESTION_DROPDOWN_MAX_HEIGHT)),
             elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
         ) {
             LazyColumn(
