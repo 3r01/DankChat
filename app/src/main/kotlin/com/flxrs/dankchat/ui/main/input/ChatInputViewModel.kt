@@ -269,7 +269,8 @@ class ChatInputViewModel(
             helperText,
             codePointCount,
             chatSettingsDataStore.userLongClickBehavior,
-        ) { deps, overlayState, helperText, codePoints, userLongClickBehavior ->
+            chatRepository.lastMessageFlow,
+        ) { deps, overlayState, helperText, codePoints, userLongClickBehavior, _ ->
             val isMentionsTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 0
             val isWhisperTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 1
             val isInReplyThread = overlayState.sheetState is FullScreenSheetState.Replies

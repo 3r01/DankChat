@@ -50,15 +50,9 @@ class ChatMessageSender(
     ) {
         val trimmedMessage = message.trimEnd()
         val replyIdOrBlank = replyId?.let { "@reply-parent-msg-id=$it " }.orEmpty()
-        val currentLastMessage = chatEventProcessor.getLastMessage(channel).orEmpty()
+        val messageWithSuffix = bypassDuplicateIfNeeded(channel, trimmedMessage)
 
-        val messageWithSuffix =
-            when {
-                currentLastMessage == trimmedMessage -> applyAntiDuplicate(trimmedMessage)
-                else -> trimmedMessage
-            }
-
-        chatEventProcessor.setLastMessage(channel, messageWithSuffix)
+        chatEventProcessor.setLastMessage(channel, sent = messageWithSuffix, typed = trimmedMessage)
         chatConnector.sendRaw("${replyIdOrBlank}PRIVMSG #$channel :$messageWithSuffix")
         chatMessageRepository.incrementSentMessageCount(ChatSendProtocol.IRC)
     }
@@ -80,11 +74,12 @@ class ChatMessageSender(
                 return
             }
 
+        val messageWithSuffix = bypassDuplicateIfNeeded(channel, trimmedMessage)
         val request =
             SendChatMessageRequestDto(
                 broadcasterId = broadcasterId,
                 senderId = senderId,
-                message = trimmedMessage,
+                message = messageWithSuffix,
                 replyParentMessageId = replyId,
             )
 
@@ -92,7 +87,7 @@ class ChatMessageSender(
             onSuccess = { response ->
                 when {
                     response.isSent -> {
-                        chatEventProcessor.setLastMessage(channel, trimmedMessage)
+                        chatEventProcessor.setLastMessage(channel, sent = messageWithSuffix, typed = trimmedMessage)
                         chatMessageRepository.incrementSentMessageCount(ChatSendProtocol.Helix)
                     }
 
@@ -111,6 +106,20 @@ class ChatMessageSender(
                 postError(channel, throwable.toSendErrorType())
             },
         )
+    }
+
+    // When the user repeats the same typed message, compound the bypass on the previously-sent
+    // wire so each successive send is unique within Twitch's duplicate-detection window.
+    private fun bypassDuplicateIfNeeded(
+        channel: UserName,
+        trimmedMessage: String,
+    ): String {
+        val previousTypedMessage = chatEventProcessor.getLastMessageForDisplay(channel)
+        val previousSentMessage = chatEventProcessor.getLastMessage(channel)
+        return when {
+            previousTypedMessage == trimmedMessage && previousSentMessage != null -> applyAntiDuplicate(previousSentMessage)
+            else -> trimmedMessage
+        }
     }
 
     private fun postError(

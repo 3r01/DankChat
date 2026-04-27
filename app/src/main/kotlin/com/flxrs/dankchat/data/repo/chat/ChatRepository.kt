@@ -114,6 +114,8 @@ class ChatRepository(
 
     fun getLastMessage(): String? = chatEventProcessor.getLastMessageForDisplay(chatChannelProvider.activeChannel.value)
 
+    internal val lastMessageFlow get() = chatEventProcessor.lastMessageFlow
+
     fun appendLastMessage(
         channel: UserName,
         message: String,

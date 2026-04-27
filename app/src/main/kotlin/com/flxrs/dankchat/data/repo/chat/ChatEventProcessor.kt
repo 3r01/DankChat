@@ -41,11 +41,17 @@ import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -54,6 +60,11 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger("ChatEventProcessor")
+
+internal data class LastMessage(
+    val sent: String,
+    val typed: String,
+)
 
 @Single
 class ChatEventProcessor(
@@ -71,7 +82,8 @@ class ChatEventProcessor(
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
-    private val lastMessage = ConcurrentHashMap<UserName, String>()
+    private val _lastMessage = MutableStateFlow<PersistentMap<UserName, LastMessage>>(persistentMapOf())
+    internal val lastMessageFlow: StateFlow<PersistentMap<UserName, LastMessage>> = _lastMessage.asStateFlow()
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
     private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val rewardMutex = Mutex()
@@ -83,19 +95,20 @@ class ChatEventProcessor(
         scope.launch { collectEventSubEvents() }
     }
 
-    fun getLastMessage(channel: UserName): String? = lastMessage[channel]
+    fun getLastMessage(channel: UserName): String? = _lastMessage.value[channel]?.sent
 
-    fun getLastMessageForDisplay(channel: UserName?): String? = channel?.let { lastMessage[it]?.withoutInvisibleChar }
+    fun getLastMessageForDisplay(channel: UserName?): String? = channel?.let { _lastMessage.value[it]?.typed }
 
     fun setLastMessage(
         channel: UserName,
-        message: String,
+        sent: String,
+        typed: String = sent,
     ) {
-        lastMessage[channel] = message
+        _lastMessage.update { it.put(channel, LastMessage(sent = sent, typed = typed)) }
     }
 
     fun removeLastMessage(channel: UserName) {
-        lastMessage.remove(channel)
+        _lastMessage.update { it.remove(channel) }
     }
 
     suspend fun loadRecentMessages(
@@ -561,10 +574,10 @@ class ChatEventProcessor(
         }
 
         if (message.name == authDataStore.userName) {
-            val previousLastMessage = lastMessage[message.channel].orEmpty()
+            val previousLastMessage = _lastMessage.value[message.channel]?.sent.orEmpty()
             val lastMessageWasCommand = previousLastMessage.startsWith('.') || previousLastMessage.startsWith('/')
             if (!lastMessageWasCommand && previousLastMessage.withoutInvisibleChar != message.originalMessage.withoutInvisibleChar) {
-                lastMessage[message.channel] = message.originalMessage
+                setLastMessage(channel = message.channel, sent = message.originalMessage, typed = message.originalMessage.withoutInvisibleChar)
             }
 
             val hasVip = message.badges.any { badge -> badge.badgeTag?.startsWith("vip") == true }
