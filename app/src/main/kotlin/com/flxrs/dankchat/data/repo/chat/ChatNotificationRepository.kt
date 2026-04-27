@@ -41,6 +41,7 @@ class ChatNotificationRepository(
     private val _messageUpdates = MutableSharedFlow<List<ChatItem>>(replay = 0, extraBufferCapacity = 10)
     private val _channelMentionCount = mutableSharedFlowOf(mutableMapOf<UserName, Int>())
     private val _unreadMessagesMap = mutableSharedFlowOf(mutableMapOf<UserName, Boolean>())
+    private val _notificationClearRequests = MutableSharedFlow<NotificationClearScope>(extraBufferCapacity = 16)
 
     private val scrollBackLengthFlow =
         chatSettingsDataStore.debouncedScrollBack
@@ -50,6 +51,7 @@ class ChatNotificationRepository(
     val messageUpdates: SharedFlow<List<ChatItem>> = _messageUpdates.asSharedFlow()
     val channelMentionCount: SharedFlow<Map<UserName, Int>> = _channelMentionCount.asSharedFlow()
     val unreadMessagesMap: SharedFlow<Map<UserName, Boolean>> = _unreadMessagesMap.asSharedFlow()
+    val notificationClearRequests: SharedFlow<NotificationClearScope> = _notificationClearRequests.asSharedFlow()
     val mentions: StateFlow<ImmutableList<ChatItem>> = _mentions
     val whispers: StateFlow<ImmutableList<ChatItem>> = _whispers
 
@@ -139,4 +141,18 @@ class ChatNotificationRepository(
     fun removeMentionFlows(channel: UserName) {
         _channelMentionCount.clear(channel)
     }
+
+    fun markMentionsRead() {
+        _notificationClearRequests.tryEmit(NotificationClearScope.Mentions)
+    }
+
+    fun markWhispersRead() {
+        _notificationClearRequests.tryEmit(NotificationClearScope.Whispers)
+    }
+}
+
+sealed interface NotificationClearScope {
+    data object Mentions : NotificationClearScope
+
+    data object Whispers : NotificationClearScope
 }

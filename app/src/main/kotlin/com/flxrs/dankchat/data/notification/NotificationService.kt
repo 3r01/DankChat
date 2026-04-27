@@ -14,6 +14,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
+import com.flxrs.dankchat.data.repo.chat.NotificationClearScope
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
@@ -137,6 +138,16 @@ class NotificationService :
                     }
                 }
         }
+
+        // React to UI signals that mention/whisper notifications were viewed.
+        launch {
+            chatNotificationRepository.notificationClearRequests.collect { scope ->
+                when (scope) {
+                    NotificationClearScope.Mentions -> clearAllMentionNotifications()
+                    NotificationClearScope.Whispers -> clearNotificationsForChannel(UserName.EMPTY)
+                }
+            }
+        }
     }
 
     override fun onStartCommand(
@@ -169,6 +180,11 @@ class NotificationService :
             manager.cancel(SUMMARY_NOTIFICATION_ID)
             manager.cancelAll()
         }
+    }
+
+    private fun clearAllMentionNotifications() {
+        val mentionChannels = notifications.keys.filter { it != UserName.EMPTY }
+        mentionChannels.forEach { clearNotificationsForChannel(it) }
     }
 
     private fun startForeground() {

@@ -107,8 +107,13 @@ fun MentionSheet(
 
     LaunchedEffect(pagerState.currentPage) {
         mentionViewModel.setCurrentTab(pagerState.currentPage)
-        if (pagerState.currentPage == 1) {
-            mentionViewModel.clearWhisperMentionCount()
+        when (pagerState.currentPage) {
+            0 -> mentionViewModel.markMentionsRead()
+
+            1 -> {
+                mentionViewModel.clearWhisperMentionCount()
+                mentionViewModel.markWhispersRead()
+            }
         }
     }
 

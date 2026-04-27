@@ -65,6 +65,14 @@ class MentionViewModel(
         chatNotificationRepository.clearMentionCount(WhisperMessage.WHISPER_CHANNEL)
     }
 
+    fun markMentionsRead() {
+        chatNotificationRepository.markMentionsRead()
+    }
+
+    fun markWhispersRead() {
+        chatNotificationRepository.markWhispersRead()
+    }
+
     val mentions: StateFlow<ImmutableList<ChatItem>> =
         chatNotificationRepository.mentions
             .map { it.toImmutableList() }
