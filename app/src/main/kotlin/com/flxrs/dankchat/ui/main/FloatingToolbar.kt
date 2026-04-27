@@ -16,6 +16,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +65,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -85,12 +88,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -601,136 +607,167 @@ fun FloatingToolbar(
                     }
 
                     // Action icons + inline overflow menu
+                    val overflowMenuRegistry = remember { InlineMenuItemRegistry() }
                     Row(verticalAlignment = Alignment.Top) {
                         Spacer(Modifier.width(8.dp))
 
-                        Column(modifier = Modifier.width(IntrinsicSize.Min)) {
-                            Surface(
-                                shape = MaterialTheme.shapes.extraLarge,
-                                color = MaterialTheme.colorScheme.toolbarPillColor,
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // Reserve space at start when menu is open and not logged in,
-                                    // so the pill matches the 3-icon width and icons stay end-aligned
-                                    if (!isLoggedIn && showOverflowMenu) {
-                                        Spacer(modifier = Modifier.width(48.dp))
-                                    }
-                                    val addChannelIcon: @Composable () -> Unit = {
-                                        IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
-                                            Icon(
-                                                imageVector = Icons.Default.Add,
-                                                contentDescription = stringResource(R.string.add_channel),
-                                            )
+                        CompositionLocalProvider(LocalInlineMenuItemRegistry provides overflowMenuRegistry) {
+                            Column(modifier = Modifier.width(IntrinsicSize.Min)) {
+                                Surface(
+                                    shape = MaterialTheme.shapes.extraLarge,
+                                    color = MaterialTheme.colorScheme.toolbarPillColor,
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        // Reserve space at start when menu is open and not logged in,
+                                        // so the pill matches the 3-icon width and icons stay end-aligned
+                                        if (!isLoggedIn && showOverflowMenu) {
+                                            Spacer(modifier = Modifier.width(48.dp))
                                         }
-                                    }
-                                    if (addChannelTooltipState != null) {
-                                        LaunchedEffect(Unit) {
-                                            addChannelTooltipState.show()
+                                        val addChannelIcon: @Composable () -> Unit = {
+                                            IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Add,
+                                                    contentDescription = stringResource(R.string.add_channel),
+                                                )
+                                            }
                                         }
-                                        LaunchedEffect(Unit) {
-                                            snapshotFlow { addChannelTooltipState.isVisible }
-                                                .dropWhile { !it } // skip initial false
-                                                .first { !it } // wait for dismiss (any cause)
-                                            onAddChannelTooltipDismiss()
-                                        }
-                                        TooltipBox(
-                                            positionProvider =
-                                                TooltipDefaults.rememberTooltipPositionProvider(
-                                                    TooltipAnchorPosition.Above,
-                                                    spacingBetweenTooltipAndAnchor = 8.dp,
-                                                ),
-                                            tooltip = {
-                                                val tourColors =
-                                                    TooltipDefaults.richTooltipColors(
-                                                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                        titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                        actionContentColor = MaterialTheme.colorScheme.secondary,
-                                                    )
-                                                RichTooltip(
-                                                    colors = tourColors,
-                                                    caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
-                                                    action = {
-                                                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                            TextButton(onClick = {
-                                                                addChannelTooltipState.dismiss()
-                                                                onAddChannelTooltipDismiss()
-                                                                onSkipTour()
-                                                            }) {
-                                                                Text(stringResource(R.string.tour_skip))
+                                        if (addChannelTooltipState != null) {
+                                            LaunchedEffect(Unit) {
+                                                addChannelTooltipState.show()
+                                            }
+                                            LaunchedEffect(Unit) {
+                                                snapshotFlow { addChannelTooltipState.isVisible }
+                                                    .dropWhile { !it } // skip initial false
+                                                    .first { !it } // wait for dismiss (any cause)
+                                                onAddChannelTooltipDismiss()
+                                            }
+                                            TooltipBox(
+                                                positionProvider =
+                                                    TooltipDefaults.rememberTooltipPositionProvider(
+                                                        TooltipAnchorPosition.Above,
+                                                        spacingBetweenTooltipAndAnchor = 8.dp,
+                                                    ),
+                                                tooltip = {
+                                                    val tourColors =
+                                                        TooltipDefaults.richTooltipColors(
+                                                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                            titleContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                            actionContentColor = MaterialTheme.colorScheme.secondary,
+                                                        )
+                                                    RichTooltip(
+                                                        colors = tourColors,
+                                                        caretShape = TooltipDefaults.caretShape(caretSize = DpSize(24.dp, 12.dp)),
+                                                        action = {
+                                                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                                TextButton(onClick = {
+                                                                    addChannelTooltipState.dismiss()
+                                                                    onAddChannelTooltipDismiss()
+                                                                    onSkipTour()
+                                                                }) {
+                                                                    Text(stringResource(R.string.tour_skip))
+                                                                }
+                                                                TextButton(onClick = {
+                                                                    addChannelTooltipState.dismiss()
+                                                                    onAddChannelTooltipDismiss()
+                                                                }) {
+                                                                    Text(stringResource(R.string.tour_next))
+                                                                }
                                                             }
-                                                            TextButton(onClick = {
-                                                                addChannelTooltipState.dismiss()
-                                                                onAddChannelTooltipDismiss()
-                                                            }) {
-                                                                Text(stringResource(R.string.tour_next))
+                                                        },
+                                                    ) {
+                                                        Text(stringResource(R.string.tour_add_more_channels_hint))
+                                                    }
+                                                },
+                                                state = addChannelTooltipState,
+                                                hasAction = true,
+                                            ) {
+                                                addChannelIcon()
+                                            }
+                                        } else {
+                                            addChannelIcon()
+                                        }
+                                        if (isLoggedIn) {
+                                            IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
+                                                Icon(
+                                                    imageVector = when {
+                                                        totalMentionCount > 0 -> Icons.Default.Notifications
+                                                        else -> Icons.Outlined.Notifications
+                                                    },
+                                                    contentDescription = stringResource(R.string.mentions_title),
+                                                    tint =
+                                                        if (totalMentionCount > 0) {
+                                                            MaterialTheme.colorScheme.error
+                                                        } else {
+                                                            LocalContentColor.current
+                                                        },
+                                                )
+                                            }
+                                        }
+                                        var triggerLayoutCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .size(48.dp)
+                                                    .onGloballyPositioned { triggerLayoutCoords = it }
+                                                    .pointerInput(overflowMenuRegistry) {
+                                                        awaitEachGesture {
+                                                            awaitFirstDown(requireUnconsumed = false)
+                                                            if (showOverflowMenu) {
+                                                                showOverflowMenu = false
+                                                                return@awaitEachGesture
+                                                            }
+                                                            showQuickSwitch = false
+                                                            overflowInitialMenu = AppBarMenu.Main
+                                                            showOverflowMenu = true
+                                                            keyboardController?.hide()
+                                                            onCloseEmoteMenu()
+                                                            while (true) {
+                                                                val event = awaitPointerEvent()
+                                                                val change = event.changes.first()
+                                                                val coords = triggerLayoutCoords
+                                                                val windowPos =
+                                                                    coords?.localToWindow(change.position) ?: change.position
+                                                                overflowMenuRegistry.pressedKey = overflowMenuRegistry.keyAt(windowPos)
+                                                                if (!change.pressed) {
+                                                                    overflowMenuRegistry.selectAt(windowPos)
+                                                                    overflowMenuRegistry.pressedKey = null
+                                                                    break
+                                                                }
                                                             }
                                                         }
                                                     },
-                                                ) {
-                                                    Text(stringResource(R.string.tour_add_more_channels_hint))
-                                                }
-                                            },
-                                            state = addChannelTooltipState,
-                                            hasAction = true,
+                                            contentAlignment = Alignment.Center,
                                         ) {
-                                            addChannelIcon()
-                                        }
-                                    } else {
-                                        addChannelIcon()
-                                    }
-                                    if (isLoggedIn) {
-                                        IconButton(onClick = { onAction(ToolbarAction.OpenMentions) }) {
                                             Icon(
-                                                imageVector = when {
-                                                    totalMentionCount > 0 -> Icons.Default.Notifications
-                                                    else -> Icons.Outlined.Notifications
-                                                },
-                                                contentDescription = stringResource(R.string.mentions_title),
-                                                tint =
-                                                    if (totalMentionCount > 0) {
-                                                        MaterialTheme.colorScheme.error
-                                                    } else {
-                                                        LocalContentColor.current
-                                                    },
+                                                imageVector = Icons.Default.MoreVert,
+                                                contentDescription = stringResource(R.string.more),
                                             )
                                         }
                                     }
-                                    IconButton(onClick = {
-                                        showQuickSwitch = false
-                                        overflowInitialMenu = AppBarMenu.Main
-                                        showOverflowMenu = !showOverflowMenu
-                                        keyboardController?.hide()
-                                        onCloseEmoteMenu()
-                                    }) {
-                                        Icon(
-                                            imageVector = Icons.Default.MoreVert,
-                                            contentDescription = stringResource(R.string.more),
-                                        )
-                                    }
                                 }
-                            }
 
-                            AnimatedVisibility(
-                                visible = showOverflowMenu,
-                                enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
-                                exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
-                                modifier =
-                                    Modifier
-                                        .skipIntrinsicHeight()
-                                        .padding(top = 4.dp)
-                                        .endAlignedOverflow(),
-                            ) {
-                                InlineOverflowMenu(
-                                    isLoggedIn = isLoggedIn,
-                                    onDismiss = {
-                                        showOverflowMenu = false
-                                        overflowInitialMenu = AppBarMenu.Main
-                                    },
-                                    initialMenu = overflowInitialMenu,
-                                    onAction = onAction,
-                                    maxHeightDp = menuMaxHeightDp,
-                                )
+                                AnimatedVisibility(
+                                    visible = showOverflowMenu,
+                                    enter = expandVertically(expandFrom = Alignment.Top) + fadeIn(),
+                                    exit = shrinkVertically(shrinkTowards = Alignment.Top) + fadeOut(),
+                                    modifier =
+                                        Modifier
+                                            .skipIntrinsicHeight()
+                                            .padding(top = 4.dp)
+                                            .endAlignedOverflow(),
+                                ) {
+                                    InlineOverflowMenu(
+                                        isLoggedIn = isLoggedIn,
+                                        onDismiss = {
+                                            showOverflowMenu = false
+                                            overflowInitialMenu = AppBarMenu.Main
+                                        },
+                                        initialMenu = overflowInitialMenu,
+                                        onAction = onAction,
+                                        maxHeightDp = menuMaxHeightDp,
+                                    )
+                                }
                             }
                         }
                     }

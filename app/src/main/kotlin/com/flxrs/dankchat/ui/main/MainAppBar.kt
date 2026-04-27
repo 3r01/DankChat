@@ -50,19 +50,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -91,6 +99,38 @@ sealed interface AppBarMenu {
 }
 
 internal const val RESTING_SCROLLBAR_ALPHA = 0.6f
+
+internal class InlineMenuItemRegistry {
+    var pressedKey by mutableStateOf<Any?>(null)
+    private val items = mutableStateMapOf<Any, ItemEntry>()
+
+    fun register(
+        key: Any,
+        bounds: Rect,
+        onSelect: () -> Unit,
+    ) {
+        items[key] = ItemEntry(bounds, onSelect)
+    }
+
+    fun unregister(key: Any) {
+        items.remove(key)
+    }
+
+    fun keyAt(window: Offset): Any? = items.entries.firstOrNull { it.value.bounds.contains(window) }?.key
+
+    fun selectAt(window: Offset): Boolean {
+        val entry = items.values.firstOrNull { it.bounds.contains(window) } ?: return false
+        entry.onSelect()
+        return true
+    }
+
+    private data class ItemEntry(
+        val bounds: Rect,
+        val onSelect: () -> Unit,
+    )
+}
+
+internal val LocalInlineMenuItemRegistry = staticCompositionLocalOf<InlineMenuItemRegistry?> { null }
 
 @Composable
 fun InlineOverflowMenu(
@@ -232,10 +272,21 @@ private fun InlineMenuItem(
     maxLines: Int = 1,
     hasSubMenu: Boolean = false,
 ) {
+    val registry = LocalInlineMenuItemRegistry.current
+    val isPressed = registry?.pressedKey == text
+    if (registry != null) {
+        DisposableEffect(registry, text) {
+            onDispose { registry.unregister(text) }
+        }
+    }
+    val highlightColor = MaterialTheme.colorScheme.surfaceContainerHighest
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
+                .onGloballyPositioned { coords ->
+                    registry?.register(text, coords.boundsInWindow(), onClick)
+                }.background(if (isPressed) highlightColor else Color.Transparent)
                 .clickable(onClick = onClick)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,

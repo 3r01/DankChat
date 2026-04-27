@@ -64,3 +64,4 @@ Compose:
       - LocalEmoteAnimationCoordinator
       - LocalAdaptiveColors
       - LocalContentAlpha
+      - LocalInlineMenuItemRegistry
