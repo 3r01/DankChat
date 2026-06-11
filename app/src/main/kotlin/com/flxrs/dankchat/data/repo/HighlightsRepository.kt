@@ -21,9 +21,9 @@ import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.isAnnouncement
 import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
 import com.flxrs.dankchat.data.twitch.message.isFirstMessage
+import com.flxrs.dankchat.data.twitch.message.isMilestone
 import com.flxrs.dankchat.data.twitch.message.isReward
 import com.flxrs.dankchat.data.twitch.message.isSub
-import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
@@ -227,7 +227,7 @@ class HighlightsRepository(
                 }
 
                 val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)
-                if (isViewerMilestone && watchStreakHighlight != null) {
+                if (isMilestone && watchStreakHighlight != null) {
                     add(Highlight(HighlightType.WatchStreak, watchStreakHighlight.customColor))
                 }
             }
@@ -272,7 +272,7 @@ class HighlightsRepository(
                 }
 
                 val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)
-                if (isViewerMilestone && watchStreakHighlight != null) {
+                if (isMilestone && watchStreakHighlight != null) {
                     add(Highlight(HighlightType.WatchStreak, watchStreakHighlight.customColor))
                 }
 

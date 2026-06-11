@@ -28,12 +28,15 @@ data class UserNoticeMessage(
                 "ritual",
                 "announcement",
                 "viewermilestone",
+                "modiversary",
             )
+
+        // Mod streaks are handled like watch streaks
+        val MILESTONE_MSG_IDS = listOf("viewermilestone", "modiversary")
 
         fun parseUserNotice(
             message: IrcMessage,
             findChannel: (UserId) -> UserName?,
-            historic: Boolean = false,
         ): UserNoticeMessage? = with(message) {
             var msgId = tags["msg-id"]
             var mirrored = msgId == "sharedchatnotice"
@@ -62,15 +65,17 @@ data class UserNoticeMessage(
 
                     msgId == "bitsbadgetier" -> {
                         val displayName = tags["display-name"]
-                        val bitAmount = tags["msg-param-threshold"]
+                        val bitAmount = tags["msg-param-threshold"]?.toIntOrNull()
                         when {
-                            displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount.toInt() / 1000}K Bits badge!"
+                            displayName != null && bitAmount != null -> "$displayName just earned a new ${bitAmount / 1000}K Bits badge!"
                             else -> defaultMessage
                         }
                     }
 
-                    historic -> {
-                        params[1]
+                    msgId == "modiversary" -> {
+                        // system-msg does not contain the username, prepend it manually
+                        val displayName = tags["display-name"] ?: tags["login"].orEmpty()
+                        "$displayName $defaultMessage".trim()
                     }
 
                     else -> {
@@ -99,10 +104,10 @@ data class UserNoticeMessage(
 
 // TODO split into different user notice message types
 val UserNoticeMessage.isSub: Boolean
-    get() = tags["msg-id"].let { it != "announcement" && it != "viewermilestone" }
+    get() = tags["msg-id"].let { it != "announcement" && it !in UserNoticeMessage.MILESTONE_MSG_IDS }
 
 val UserNoticeMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
 
-val UserNoticeMessage.isViewerMilestone: Boolean
-    get() = tags["msg-id"] == "viewermilestone"
+val UserNoticeMessage.isMilestone: Boolean
+    get() = tags["msg-id"] in UserNoticeMessage.MILESTONE_MSG_IDS

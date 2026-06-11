@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.message
 
-import android.graphics.Color
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -11,6 +10,7 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message.Companion.parseEmoteTag
+import com.flxrs.dankchat.utils.extensions.parseColorOrNull
 import java.util.UUID
 
 data class WhisperMessage(
@@ -47,8 +47,8 @@ data class WhisperMessage(
         ): WhisperMessage = with(ircMessage) {
             val name = prefix.substringBefore('!')
             val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor)
-            val recipientColor = recipientColorTag?.let(Color::parseColor)
+            val color = tags["color"]?.parseColorOrNull()
+            val recipientColor = recipientColorTag?.parseColorOrNull()
             val emoteTag = tags["emotes"].orEmpty()
             val message = params.getOrElse(1) { "" }
 

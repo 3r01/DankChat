@@ -17,9 +17,9 @@ import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.isAnnouncement
 import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
 import com.flxrs.dankchat.data.twitch.message.isFirstMessage
+import com.flxrs.dankchat.data.twitch.message.isMilestone
 import com.flxrs.dankchat.data.twitch.message.isReward
 import com.flxrs.dankchat.data.twitch.message.isSub
-import com.flxrs.dankchat.data.twitch.message.isViewerMilestone
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -220,7 +220,7 @@ class IgnoresRepository(
             return null
         }
 
-        if (isViewerMilestone && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.WatchStreak)) {
+        if (isMilestone && messageIgnores.isMessageIgnoreTypeEnabled(MessageIgnoreEntityType.WatchStreak)) {
             return null
         }
 

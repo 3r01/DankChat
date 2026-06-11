@@ -35,6 +35,7 @@ import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
+import com.flxrs.dankchat.utils.extensions.parseColorOrNull
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import org.koin.core.annotation.Single
@@ -368,7 +369,7 @@ class ChatMessageMapper(
         val displayName = tags["display-name"].orEmpty()
         val login = tags["login"]?.toUserName()
         val ircColor =
-            tags["color"]?.ifBlank { null }?.let(android.graphics.Color::parseColor)
+            tags["color"]?.parseColorOrNull()
                 ?: login?.let { usersRepository.getCachedUserColor(it) }
         val rawNameColor = resolveNameColor(null, ircColor, tags["user-id"]?.toUserId(), chatSettings)
 

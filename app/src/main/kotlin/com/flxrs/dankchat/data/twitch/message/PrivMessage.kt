@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.message
 
-import android.graphics.Color
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -11,6 +10,7 @@ import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message.Companion.parseEmoteTag
+import com.flxrs.dankchat.utils.extensions.parseColorOrNull
 import java.util.Locale
 import java.util.UUID
 
@@ -52,12 +52,12 @@ data class PrivMessage(
         ): PrivMessage = with(ircMessage) {
             val (name, id) =
                 when (ircMessage.command) {
-                    "USERNOTICE" -> tags.getValue("login") to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
+                    "USERNOTICE" -> tags["login"].orEmpty() to (tags["id"]?.let { "$it-msg" } ?: UUID.randomUUID().toString())
                     else -> prefix.substringBefore('!') to (tags["id"] ?: UUID.randomUUID().toString())
                 }
 
             val displayName = tags["display-name"] ?: name
-            val color = tags["color"]?.ifBlank { null }?.let(Color::parseColor)
+            val color = tags["color"]?.parseColorOrNull()
 
             val ts = tags["tmi-sent-ts"]?.toLongOrNull() ?: System.currentTimeMillis()
             var isAction = false
@@ -100,13 +100,13 @@ data class PrivMessage(
 }
 
 val PrivMessage.isSub: Boolean
-    get() = tags["msg-id"] in UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement" - "viewermilestone"
+    get() = tags["msg-id"] in UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement" - UserNoticeMessage.MILESTONE_MSG_IDS
 
 val PrivMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
 
-val PrivMessage.isViewerMilestone: Boolean
-    get() = tags["msg-id"] == "viewermilestone"
+val PrivMessage.isMilestone: Boolean
+    get() = tags["msg-id"] in UserNoticeMessage.MILESTONE_MSG_IDS
 
 val PrivMessage.isReward: Boolean
     get() = tags["msg-id"] in REWARD_MSG_IDS || !tags["custom-reward-id"].isNullOrEmpty()

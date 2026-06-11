@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.repo.chat
 
-import android.graphics.Color
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.chat.ChatItem
@@ -13,6 +12,7 @@ import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
+import com.flxrs.dankchat.utils.extensions.parseColorOrNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
@@ -97,7 +97,7 @@ class ChatRepository(
                     userId = userState.userId,
                     name = name,
                     displayName = displayName,
-                    color = userState.color?.let(Color::parseColor),
+                    color = userState.color?.parseColorOrNull(),
                     recipientId = null,
                     recipientColor = usersRepository.getCachedUserColor(split[1].toUserName()),
                     recipientName = split[1].toUserName(),

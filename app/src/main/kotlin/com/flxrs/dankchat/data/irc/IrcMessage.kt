@@ -87,8 +87,9 @@ data class IrcMessage(
                         val rawValue = message.substring(eqIdx + 1, tagEnd)
                         tags[key] = unescapeIrcTagValue(rawValue)
                     } else {
+                        // IRCv3: a tag without '=' is equivalent to an empty value
                         val key = message.substring(tagStart, tagEnd)
-                        tags[key] = "true"
+                        tags[key] = ""
                     }
 
                     tagStart = tagEnd + 1

@@ -176,6 +176,21 @@ internal class IrcMessageTest {
     }
 
     @Test
+    fun `parse privmsg with key-only tag`() {
+        val msg =
+            "@badge-info=;badges=;color;historical;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
+        val ircMessage = IrcMessage.parse(msg)
+
+        assertEquals(expected = "PRIVMSG", actual = ircMessage.command)
+        assertEquals(expected = listOf("#pajlada", "dank"), actual = ircMessage.params)
+        assertEquals(expected = "jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv", actual = ircMessage.prefix)
+        assertEquals(expected = "", actual = ircMessage.tags["color"])
+        assertEquals(expected = "", actual = ircMessage.tags["historical"])
+        assertEquals(expected = "JuN1oRRRR", actual = ircMessage.tags["display-name"])
+        assertEquals(expected = 15, actual = ircMessage.tags.size)
+    }
+
+    @Test
     fun `parse privmsg with character replacement inside tag values`() {
         val msg =
             "@badge-info=;badges=;color=#0000FF;foo=\\:;foo2=\\:\\s\\r\\n;display-name=JuN1oRRRR;emotes=;flags=;id=e9d998c3-36f1-430f-89ec-6b887c28af36;mod=0;room-id=11148817;subscriber=0;tmi-sent-ts=1594545155039;turbo=0;user-id=29803735;user-type= :jun1orrrr!jun1orrrr@jun1orrrr.tmi.twitch.tv PRIVMSG #pajlada dank"
