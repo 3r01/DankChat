@@ -1,16 +1,9 @@
 package com.flxrs.dankchat.utils.extensions
 
-import java.util.Collections
-
 fun <T> MutableCollection<T>.replaceAll(values: Collection<T>) {
     clear()
     addAll(values)
 }
-
-fun <T> MutableList<T>.swap(
-    i: Int,
-    j: Int,
-) = Collections.swap(this, i, j)
 
 inline fun <reified T : P, P> Collection<P>.partitionIsInstance(): Pair<List<T>, List<P>> {
     val first = mutableListOf<T>()
