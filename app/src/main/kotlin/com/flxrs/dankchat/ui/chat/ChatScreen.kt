@@ -85,10 +85,10 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.composables.core.ScrollArea
-import com.composables.core.Thumb
-import com.composables.core.VerticalScrollbar
-import com.composables.core.rememberScrollAreaState
+import com.composeunstyled.UnstyledScrollArea
+import com.composeunstyled.UnstyledThumb
+import com.composeunstyled.UnstyledVerticalScrollbar
+import com.composeunstyled.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.appearance.FabAnchor
@@ -604,7 +604,7 @@ private fun FabActionsMenu(
         shadowElevation = 4.dp,
         modifier = modifier.heightIn(max = menuMaxHeight),
     ) {
-        ScrollArea(state = rememberScrollAreaState(scrollState)) {
+        UnstyledScrollArea(state = rememberScrollAreaState(scrollState)) {
             Column(
                 modifier =
                     Modifier
@@ -678,7 +678,7 @@ private fun FabActionsMenu(
                 }
             }
             if (scrollState.maxValue > itemHeightPx) {
-                VerticalScrollbar(
+                UnstyledVerticalScrollbar(
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
@@ -686,7 +686,7 @@ private fun FabActionsMenu(
                             .width(3.dp)
                             .padding(vertical = 2.dp),
                 ) {
-                    Thumb(
+                    UnstyledThumb(
                         modifier = Modifier.background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                             RoundedCornerShape(100),

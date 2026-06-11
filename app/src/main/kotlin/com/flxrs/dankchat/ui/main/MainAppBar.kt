@@ -78,10 +78,10 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.composables.core.ScrollArea
-import com.composables.core.Thumb
-import com.composables.core.VerticalScrollbar
-import com.composables.core.rememberScrollAreaState
+import com.composeunstyled.UnstyledScrollArea
+import com.composeunstyled.UnstyledThumb
+import com.composeunstyled.UnstyledVerticalScrollbar
+import com.composeunstyled.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.ui.theme.toolbarPillColor
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
@@ -188,7 +188,7 @@ fun InlineOverflowMenu(
         color = MaterialTheme.colorScheme.toolbarPillColor,
         modifier = Modifier.predictiveBackScale(backProgress),
     ) {
-        ScrollArea(
+        UnstyledScrollArea(
             state = scrollAreaState,
             modifier =
                 Modifier
@@ -241,7 +241,7 @@ fun InlineOverflowMenu(
                 }
             }
             if (scrollState.maxValue > itemHeightPx) {
-                VerticalScrollbar(
+                UnstyledVerticalScrollbar(
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
@@ -250,7 +250,7 @@ fun InlineOverflowMenu(
                             .padding(end = 6.dp)
                             .width(4.dp),
                 ) {
-                    Thumb(
+                    UnstyledThumb(
                         modifier = Modifier.background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
                             RoundedCornerShape(100),

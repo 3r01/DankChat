@@ -108,10 +108,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.composables.core.ScrollArea
-import com.composables.core.Thumb
-import com.composables.core.VerticalScrollbar
-import com.composables.core.rememberScrollAreaState
+import com.composeunstyled.UnstyledScrollArea
+import com.composeunstyled.UnstyledThumb
+import com.composeunstyled.UnstyledVerticalScrollbar
+import com.composeunstyled.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
@@ -511,7 +511,7 @@ fun FloatingToolbar(
                                             scrollbarAlpha.animateTo(RESTING_SCROLLBAR_ALPHA, tween(500))
                                         }
                                     }
-                                    ScrollArea(
+                                    UnstyledScrollArea(
                                         state = quickSwitchScrollAreaState,
                                         modifier =
                                             Modifier
@@ -582,7 +582,7 @@ fun FloatingToolbar(
                                             }
                                         }
                                         if (quickSwitchScrollState.maxValue > itemHeightPx) {
-                                            VerticalScrollbar(
+                                            UnstyledVerticalScrollbar(
                                                 modifier =
                                                     Modifier
                                                         .align(Alignment.TopEnd)
@@ -591,7 +591,7 @@ fun FloatingToolbar(
                                                         .padding(end = 6.dp)
                                                         .width(4.dp),
                                             ) {
-                                                Thumb(
+                                                UnstyledThumb(
                                                     modifier = Modifier.background(
                                                         MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
                                                         RoundedCornerShape(100),
@@ -823,7 +823,7 @@ private fun Modifier.endAlignedOverflow() = this.then(
 
 /**
  * Prevents intrinsic height queries from propagating to children.
- * Needed because [com.composables.core.ScrollArea] crashes on intrinsic height measurement,
+ * Needed because [com.composeunstyled.UnstyledScrollArea] crashes on intrinsic height measurement,
  * and [IntrinsicSize.Min] on a parent Column triggers these queries.
  */
 private fun Modifier.skipIntrinsicHeight() = this.then(

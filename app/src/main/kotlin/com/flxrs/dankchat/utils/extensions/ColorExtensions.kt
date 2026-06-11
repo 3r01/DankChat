@@ -1,13 +1,13 @@
 package com.flxrs.dankchat.utils.extensions
 
-import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.toColorInt
 import kotlin.math.sin
 
 /** Parses an IRC color tag value, returning null for empty or malformed values instead of throwing. */
 @ColorInt
-fun String.parseColorOrNull(): Int? = runCatching { Color.parseColor(this) }.getOrNull()
+fun String.parseColorOrNull(): Int? = runCatching { toColorInt() }.getOrNull()
 
 /**
  * Adjusts this color to ensure readable contrast against [background].

@@ -61,10 +61,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupPositionProvider
-import com.composables.core.ScrollArea
-import com.composables.core.Thumb
-import com.composables.core.VerticalScrollbar
-import com.composables.core.rememberScrollAreaState
+import com.composeunstyled.UnstyledScrollArea
+import com.composeunstyled.UnstyledThumb
+import com.composeunstyled.UnstyledVerticalScrollbar
+import com.composeunstyled.rememberScrollAreaState
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.input.TourOverlayState
@@ -113,7 +113,7 @@ fun QuickActionsMenu(
         color = surfaceColor,
         modifier = modifier,
     ) {
-        ScrollArea(state = scrollAreaState) {
+        UnstyledScrollArea(state = scrollAreaState) {
             Column(
                 modifier = Modifier
                     .width(IntrinsicSize.Max)
@@ -224,7 +224,7 @@ fun QuickActionsMenu(
                 }
             }
             if (scrollState.maxValue > itemHeightPx) {
-                VerticalScrollbar(
+                UnstyledVerticalScrollbar(
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
@@ -233,7 +233,7 @@ fun QuickActionsMenu(
                             .padding(end = 6.dp)
                             .width(4.dp),
                 ) {
-                    Thumb(
+                    UnstyledThumb(
                         modifier = Modifier.background(
                             MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = scrollbarAlpha.value),
                             RoundedCornerShape(100),
