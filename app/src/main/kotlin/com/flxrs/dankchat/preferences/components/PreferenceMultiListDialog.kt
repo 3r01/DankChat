@@ -65,14 +65,14 @@ fun <T> PreferenceMultiListDialog(
                             .fillMaxWidth()
                             .selectable(
                                 selected = itemSelected,
-                                onClick = { selected = selected.set(idx, !itemSelected) },
+                                onClick = { selected = selected.replacingAt(idx, !itemSelected) },
                                 interactionSource = interactionSource,
                                 indication = ripple(),
                             ).padding(horizontal = 16.dp),
                 ) {
                     Checkbox(
                         checked = itemSelected,
-                        onCheckedChange = { selected = selected.set(idx, it) },
+                        onCheckedChange = { selected = selected.replacingAt(idx, it) },
                         interactionSource = interactionSource,
                     )
                     Column(modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)) {

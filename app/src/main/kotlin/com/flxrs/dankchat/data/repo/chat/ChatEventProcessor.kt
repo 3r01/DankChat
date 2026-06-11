@@ -105,11 +105,11 @@ class ChatEventProcessor(
         sent: String,
         typed: String = sent,
     ) {
-        _lastMessage.update { it.put(channel, LastMessage(sent = sent, typed = typed)) }
+        _lastMessage.update { it.putting(channel, LastMessage(sent = sent, typed = typed)) }
     }
 
     fun removeLastMessage(channel: UserName) {
-        _lastMessage.update { it.remove(channel) }
+        _lastMessage.update { it.removing(channel) }
     }
 
     suspend fun loadRecentMessages(
