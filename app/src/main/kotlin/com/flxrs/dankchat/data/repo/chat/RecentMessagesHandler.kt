@@ -22,6 +22,7 @@ import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.extensions.addAndLimit
 import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
+import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.flow.update
@@ -99,7 +100,7 @@ class RecentMessagesHandler(
 
                     else -> {
                         val message =
-                            runCatching {
+                            runCatchingCancellable {
                                 messageProcessor.processIrcMessage(parsedIrc) { _, id -> messageIndex[id] }
                             }.getOrNull() ?: continue
 

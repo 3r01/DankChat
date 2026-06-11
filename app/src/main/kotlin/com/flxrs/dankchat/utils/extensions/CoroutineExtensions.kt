@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.utils.extensions
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -15,6 +16,13 @@ private val logger = KotlinLogging.logger("CoroutineExtensions")
 
 suspend fun <T, R> Collection<T>.concurrentMap(block: suspend (T) -> R): List<R> = coroutineScope {
     map { async { block(it) } }.awaitAll()
+}
+
+/** [runCatching] that rethrows [CancellationException] instead of swallowing coroutine cancellation. */
+inline fun <T> runCatchingCancellable(block: () -> T): Result<T> = runCatching(block).onFailure {
+    if (it is CancellationException) {
+        throw it
+    }
 }
 
 fun CoroutineScope.timer(

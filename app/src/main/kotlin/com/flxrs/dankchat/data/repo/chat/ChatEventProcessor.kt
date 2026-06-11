@@ -40,6 +40,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.codePointSlice
+import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.PersistentMap
@@ -442,7 +443,7 @@ class ChatEventProcessor(
         val additionalMessages = resolvedReward?.toStandaloneMessage().orEmpty()
 
         val message =
-            runCatching {
+            runCatchingCancellable {
                 messageProcessor.processIrcMessage(ircMessage) { channel, id ->
                     chatMessageRepository.findMessage(id, channel, chatNotificationRepository.whispers)
                 }
