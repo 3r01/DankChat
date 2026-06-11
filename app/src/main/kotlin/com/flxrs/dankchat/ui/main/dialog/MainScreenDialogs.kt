@@ -28,7 +28,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,6 +69,7 @@ import com.flxrs.dankchat.ui.main.sheet.SheetNavigationViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.InfoBottomSheet
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -278,7 +278,7 @@ fun MainScreenDialogs(
         val debugInfoViewModel: DebugInfoViewModel = koinViewModel()
         DebugInfoSheet(
             viewModel = debugInfoViewModel,
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberModalSheetState(),
             onDismiss = sheetNavigationViewModel::closeInputSheet,
             onOpenLogViewer = onOpenLogViewer,
         )
@@ -317,7 +317,7 @@ private fun UploadDisclaimerSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = rememberModalSheetState(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
@@ -378,7 +378,7 @@ private fun CrashReportDialog(
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = rememberModalSheetState(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         AnimatedContent(

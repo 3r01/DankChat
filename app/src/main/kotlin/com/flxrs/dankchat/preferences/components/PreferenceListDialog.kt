@@ -11,7 +11,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.launch
 
@@ -42,7 +42,7 @@ fun <T> PreferenceListDialog(
         icon = icon,
         isEnabled = isEnabled,
     ) {
-        val sheetState = rememberModalBottomSheetState()
+        val sheetState = rememberModalSheetState()
         ModalBottomSheet(
             onDismissRequest = ::dismiss,
             sheetState = sheetState,

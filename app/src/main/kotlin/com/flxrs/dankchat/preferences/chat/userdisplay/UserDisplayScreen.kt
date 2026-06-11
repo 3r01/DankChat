@@ -53,7 +53,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,6 +78,7 @@ import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.utils.compose.HexColorPicker
 import com.flxrs.dankchat.utils.compose.SwipeToDelete
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -287,7 +287,7 @@ private fun UserDisplayItem(
                         )
                         if (showColorPicker) {
                             ModalBottomSheet(
-                                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                                sheetState = rememberModalSheetState(),
                                 onDismissRequest = {
                                     onChange(item.copy(color = selectedColor))
                                     showColorPicker = false

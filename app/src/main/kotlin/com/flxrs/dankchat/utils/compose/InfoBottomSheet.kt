@@ -17,7 +17,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -44,7 +43,7 @@ fun InfoBottomSheet(
         dismissible -> {
             ModalBottomSheet(
                 onDismissRequest = onDismiss,
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                sheetState = rememberModalSheetState(),
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             ) {
                 InfoSheetContent(title, message, confirmText, dismissText, onConfirm, onDismiss)

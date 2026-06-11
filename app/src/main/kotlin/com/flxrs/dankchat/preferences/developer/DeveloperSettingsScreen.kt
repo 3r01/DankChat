@@ -52,7 +52,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -86,6 +85,7 @@ import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.Eve
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginViewModel
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import com.flxrs.dankchat.utils.extensions.truncate
 import com.jakewharton.processphoenix.ProcessPhoenix
 import kotlinx.coroutines.flow.collectLatest
@@ -183,7 +183,7 @@ private fun DeveloperSettingsContent(
                         summary = stringResource(R.string.preference_log_viewer_summary),
                     ) {
                         val scope = rememberCoroutineScope()
-                        val sheetState = rememberModalBottomSheetState()
+                        val sheetState = rememberModalSheetState()
                         ModalBottomSheet(
                             onDismissRequest = ::dismiss,
                             sheetState = sheetState,
@@ -242,7 +242,7 @@ private fun DeveloperSettingsContent(
                     isEnabled = settings.debugMode,
                 ) {
                     val scope = rememberCoroutineScope()
-                    val sheetState = rememberModalBottomSheetState()
+                    val sheetState = rememberModalSheetState()
                     var confirmationState by remember { mutableStateOf<CrashDeleteConfirmation>(CrashDeleteConfirmation.None) }
                     ModalBottomSheet(
                         onDismissRequest = ::dismiss,
@@ -640,7 +640,7 @@ private fun ShowScopesBottomSheet(
     val scope = rememberCoroutineScope()
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        sheetState = rememberModalSheetState(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(Modifier.padding(horizontal = 16.dp)) {

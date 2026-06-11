@@ -49,7 +49,6 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -94,6 +93,7 @@ import com.flxrs.dankchat.preferences.components.PreferenceListDialog
 import com.flxrs.dankchat.preferences.components.SliderPreferenceItem
 import com.flxrs.dankchat.preferences.components.SwitchPreferenceItem
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -560,7 +560,7 @@ private fun PaletteStyleDialog(
         title = stringResource(R.string.preference_palette_style_title),
         summary = stringResource(paletteStyle.labelRes),
     ) {
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        val sheetState = rememberModalSheetState()
         val standardStyles = remember(showSystemDefault) {
             PaletteStylePreference.entries.filter {
                 it.isStandard && (showSystemDefault || it != PaletteStylePreference.SystemDefault)

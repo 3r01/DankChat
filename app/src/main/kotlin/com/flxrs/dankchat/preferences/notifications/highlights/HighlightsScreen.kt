@@ -61,7 +61,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -94,6 +93,7 @@ import com.flxrs.dankchat.preferences.components.PreferenceTabRow
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
 import com.flxrs.dankchat.utils.compose.HexColorPicker
 import com.flxrs.dankchat.utils.compose.animatedAppBarColor
+import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOn
 import org.koin.compose.koinInject
@@ -722,7 +722,7 @@ private fun HighlightColorPicker(
     )
     if (showColorPicker) {
         ModalBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberModalSheetState(),
             onDismissRequest = {
                 onColorSelect(selectedColor)
                 showColorPicker = false
