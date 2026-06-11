@@ -581,17 +581,17 @@ private fun BadgeHighlightItem(
                         maxLines = 1,
                     )
                 } else {
-                    var name = ""
-                    when (item.badgeName) {
-                        "broadcaster" -> name = stringResource(R.string.badge_broadcaster)
-                        "admin" -> name = stringResource(R.string.badge_admin)
-                        "staff" -> name = stringResource(R.string.badge_staff)
-                        "moderator" -> name = stringResource(R.string.badge_moderator)
-                        "lead_moderator" -> name = stringResource(R.string.badge_lead_moderator)
-                        "partner" -> name = stringResource(R.string.badge_verified)
-                        "vip" -> name = stringResource(R.string.badge_vip)
-                        "founder" -> name = stringResource(R.string.badge_founder)
-                        "subscriber" -> name = stringResource(R.string.badge_subscriber)
+                    val name = when (item.badgeName) {
+                        "broadcaster" -> stringResource(R.string.badge_broadcaster)
+                        "admin" -> stringResource(R.string.badge_admin)
+                        "staff" -> stringResource(R.string.badge_staff)
+                        "moderator" -> stringResource(R.string.badge_moderator)
+                        "lead_moderator" -> stringResource(R.string.badge_lead_moderator)
+                        "partner" -> stringResource(R.string.badge_verified)
+                        "vip" -> stringResource(R.string.badge_vip)
+                        "founder" -> stringResource(R.string.badge_founder)
+                        "subscriber" -> stringResource(R.string.badge_subscriber)
+                        else -> ""
                     }
                     Box(
                         modifier =

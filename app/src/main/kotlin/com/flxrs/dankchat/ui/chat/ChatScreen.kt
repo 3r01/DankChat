@@ -611,9 +611,8 @@ private fun FabActionsMenu(
                         .width(IntrinsicSize.Max)
                         .verticalScroll(scrollState),
             ) {
-                var measured = false
-                for (action in InputAction.entries) {
-                    val item =
+                val menuItems =
+                    InputAction.entries.mapNotNull { action ->
                         getFabMenuItem(
                             action = action,
                             isStreamActive = callbacks.isStreamActive,
@@ -621,8 +620,10 @@ private fun FabActionsMenu(
                             isFullscreen = callbacks.isFullscreen,
                             isModerator = callbacks.isModerator,
                             debugMode = callbacks.debugMode,
-                        ) ?: continue
+                        )?.let { action to it }
+                    }
 
+                menuItems.forEachIndexed { index, (action, item) ->
                     val actionEnabled =
                         when (action) {
                             InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
@@ -630,8 +631,7 @@ private fun FabActionsMenu(
                             InputAction.Stream, InputAction.ModActions -> callbacks.enabled
                         }
 
-                    val measureModifier = if (!measured) {
-                        measured = true
+                    val measureModifier = if (index == 0) {
                         Modifier.onSizeChanged { itemHeightPx = it.height }
                     } else {
                         Modifier
