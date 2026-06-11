@@ -181,6 +181,22 @@ val String.supplementaryCodePointPositions: List<Int>
         return positions
     }
 
+/**
+ * Returns the substring between [begin] (inclusive) and [end] (exclusive) measured in Unicode code points,
+ * or null if the range is invalid or outside of this string.
+ */
+fun String.codePointSlice(
+    begin: Int,
+    end: Int,
+): String? {
+    if (begin < 0 || end <= begin) return null
+    return runCatching {
+        val startIndex = offsetByCodePoints(0, begin)
+        val endIndex = offsetByCodePoints(startIndex, end - begin)
+        substring(startIndex, endIndex)
+    }.getOrNull()
+}
+
 val String.withoutOAuthPrefix: String
     get() = removePrefix("oauth:")
 

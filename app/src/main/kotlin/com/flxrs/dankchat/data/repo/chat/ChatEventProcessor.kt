@@ -39,6 +39,7 @@ import com.flxrs.dankchat.data.twitch.pubsub.PubSubMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
+import com.flxrs.dankchat.utils.extensions.codePointSlice
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.PersistentMap
@@ -636,11 +637,10 @@ class ChatEventProcessor(
 
         reason == "blocked_term" && blockedTerm != null -> {
             val terms =
-                blockedTerm.termsFound.joinToString { found ->
-                    val start = found.boundary.startPos
-                    val end = (found.boundary.endPos + 1).coerceAtMost(messageText.length)
-                    "\"${messageText.substring(start, end)}\""
-                }
+                blockedTerm.termsFound
+                    // boundaries are indexed in code points and occasionally out of range, drop terms that can't be sliced
+                    .mapNotNull { found -> messageText.codePointSlice(found.boundary.startPos, found.boundary.endPos + 1) }
+                    .joinToString { term -> "\"$term\"" }
             val count = blockedTerm.termsFound.size
             TextResource.PluralRes(R.plurals.automod_reason_blocked_terms, count, persistentListOf(count, terms))
         }
