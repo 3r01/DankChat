@@ -11,34 +11,6 @@ private val Int.isWhitespace: Boolean
 val Int.codePointAsString: String
     get() = String(Character.toChars(this))
 
-// Removes duplicate whitespace from the string and additionally returns the positions of every removed whitespace
-// "a  Kappa" -> 3-8 -> [2, 3]
-// "a Kappa"  -> 2-7
-fun String.removeDuplicateWhitespace(): Pair<String, List<Int>> {
-    val stringBuilder = StringBuilder()
-    var previousWhitespace = false
-    val removedSpacesPositions = mutableListOf<Int>()
-    var totalCharCount = 0
-
-    codePoints { codePoint ->
-        if (codePoint.isWhitespace) {
-            when {
-                previousWhitespace -> removedSpacesPositions += totalCharCount
-                else -> stringBuilder.appendCodePoint(codePoint)
-            }
-
-            previousWhitespace = true
-        } else {
-            previousWhitespace = false
-            stringBuilder.appendCodePoint(codePoint)
-        }
-
-        totalCharCount++
-    }
-
-    return stringBuilder.toString() to removedSpacesPositions
-}
-
 data class CodePointAnalysis(
     val supplementaryCodePointPositions: List<Int>,
     val deduplicatedString: String,
@@ -146,41 +118,6 @@ fun String.appendSpacesBetweenEmojiGroup(): Pair<String, List<Int>> {
     return fixedContentBuilder.toString() to addedSpacesPositions
 }
 
-inline fun String.codePoints(block: (Int) -> Unit) {
-    var i = 0
-    while (i < this.length) {
-        val c1: Char = this[i++]
-        if (!Character.isHighSurrogate(c1) || i >= this.length) {
-            block(c1.code)
-        } else {
-            val c2: Char = this[i]
-            if (Character.isLowSurrogate(c2)) {
-                i++
-                block(Character.toCodePoint(c1, c2))
-            } else {
-                block(c1.code)
-            }
-        }
-    }
-}
-
-val String.supplementaryCodePointPositions: List<Int>
-    get() {
-        val positions = mutableListOf<Int>()
-        var offset = 0
-        var index = 0
-        while (offset < length) {
-            val codepoint = codePointAt(offset)
-            if (Character.isSupplementaryCodePoint(codepoint)) {
-                positions += offset - index
-                index++
-            }
-            offset += Character.charCount(codepoint)
-        }
-
-        return positions
-    }
-
 /**
  * Returns the substring between [begin] (inclusive) and [end] (exclusive) measured in Unicode code points,
  * or null if the range is invalid or outside of this string.
@@ -207,29 +144,9 @@ val String.withTrailingSlash: String
             else -> "$this/"
         }
 
-val String.withTrailingSpace: String
-    get() =
-        when {
-            isNotBlank() && !endsWith(" ") -> "$this "
-            else -> this
-        }
-
 val INVISIBLE_CHAR = 0x034f.codePointAsString
 val String.withoutInvisibleChar: String
     get() = trimEnd().removeSuffix(INVISIBLE_CHAR).trimEnd()
-
-inline fun CharSequence.indexOfFirst(
-    startIndex: Int = 0,
-    predicate: (Char) -> Boolean,
-): Int {
-    for (index in startIndex.coerceAtLeast(0)..lastIndex) {
-        if (predicate(this[index])) {
-            return index
-        }
-    }
-
-    return -1
-}
 
 fun String.truncate(maxLength: Int = 120) = when {
     length <= maxLength -> this
