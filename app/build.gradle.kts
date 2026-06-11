@@ -160,7 +160,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.media)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.webkit)
     implementation(libs.androidx.room.runtime)

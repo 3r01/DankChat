@@ -9,7 +9,6 @@ import android.os.Binder
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import androidx.media.app.NotificationCompat.MediaStyle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
@@ -210,7 +209,6 @@ class NotificationService :
                 .setContentTitle(title)
                 .setContentText(message)
                 .addAction(R.drawable.ic_clear, getString(R.string.notification_stop), pendingStopIntent)
-                .setStyle(MediaStyle().setShowActionsInCompactView(0))
                 .setContentIntent(pendingStartActivityIntent)
                 .setSmallIcon(R.drawable.ic_notification_icon)
                 .build()

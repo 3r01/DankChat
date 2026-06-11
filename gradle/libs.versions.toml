@@ -23,7 +23,6 @@ androidxExif = "1.4.2"
 androidxFragment = "1.8.9"
 androidxTransition = "1.7.0"
 androidxLifecycle = "2.10.0"
-androidxMedia = "1.8.0"
 androidxNavigation = "2.9.8"
 androidxRecyclerview = "1.4.0"
 androidxViewpager2 = "1.1.0"
@@ -89,7 +88,6 @@ androidx-transition-ktx = { module = "androidx.transition:transition-ktx", versi
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-media = { module = "androidx.media:media", version.ref = "androidxMedia" }
 androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidxNavigation" }
 androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidxNavigation" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
