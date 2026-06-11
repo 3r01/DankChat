@@ -213,9 +213,23 @@ private fun PrivMessageText(
     val nameColor = rememberNormalizedColor(message.rawNameColor, backgroundColor)
     val linkColor = rememberAdaptiveLinkColor(backgroundColor)
 
-    // Build annotated string with text content
+    // Build annotated string with text content. Keyed on the content-affecting fields only,
+    // so layout-only copies (rounded corners, divider) don't rebuild the string.
     val annotatedString =
-        remember(message, defaultTextColor, nameColor, showChannelPrefix, linkColor) {
+        remember(
+            message.id,
+            message.timestamp,
+            message.badges,
+            message.nameText,
+            message.message,
+            message.emotes,
+            message.isAction,
+            defaultTextColor,
+            nameColor,
+            showChannelPrefix,
+            linkColor,
+            fontSize,
+        ) {
             buildAnnotatedString {
                 // Channel prefix (for mention tab)
                 if (showChannelPrefix) {
