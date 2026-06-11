@@ -74,6 +74,9 @@ class EventSubClient(
 
     private val eventsChannel = Channel<EventSubMessage>(Channel.UNLIMITED)
 
+    // EventSub delivers notifications at least once, duplicates have to be detected via metadata.message_id
+    private val seenNotificationIds = mutableSetOf<String>()
+
     private val client =
         httpClient.config {
             install(WebSockets)
@@ -292,6 +295,11 @@ class EventSubClient(
 
     private fun handleNotification(message: NotificationMessageDto) {
         logger.debug { "[EventSub] received notification message: $message" }
+        if (isDuplicateNotification(message.metadata.messageId)) {
+            logger.debug { "[EventSub] skipping duplicate notification: ${message.metadata.messageId}" }
+            return
+        }
+
         val eventSubMessage =
             when (val event = message.payload.event) {
                 is ChannelModerateDto -> {
@@ -367,6 +375,20 @@ class EventSubClient(
         }
     }
 
+    // sessions overlap during reconnects, both can deliver notifications concurrently
+    private fun isDuplicateNotification(messageId: String): Boolean = synchronized(seenNotificationIds) {
+        when {
+            !seenNotificationIds.add(messageId) -> true
+
+            else -> {
+                if (seenNotificationIds.size > SEEN_NOTIFICATION_IDS_LIMIT) {
+                    seenNotificationIds.remove(seenNotificationIds.first())
+                }
+                false
+            }
+        }
+    }
+
     private fun emitSystemMessage(message: String) {
         val systemMessage = SystemMessage(message = message)
         eventsChannel.trySend(systemMessage)
@@ -432,6 +454,7 @@ class EventSubClient(
 
     private companion object {
         const val DEFAULT_URL = "wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30"
+        const val SEEN_NOTIFICATION_IDS_LIMIT = 1_000
         const val MAX_JITTER = 250L
         const val RECONNECT_BASE_DELAY = 1_000L
         const val RECONNECT_MAX_ATTEMPTS = 6

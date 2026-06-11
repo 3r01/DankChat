@@ -225,7 +225,9 @@ class ChatEventProcessor(
 
     private fun handleAutomodHeld(eventMessage: AutomodHeld) {
         val data = eventMessage.data
-        knownAutomodHeldIds.add(data.messageId)
+        if (!knownAutomodHeldIds.add(data.messageId)) {
+            return
+        }
         val reason = formatAutomodReason(data.reason, data.automod, data.blockedTerm, data.message.text)
         val userColor = usersRepository.getCachedUserColor(data.userLogin)
         val automodBadge =
