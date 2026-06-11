@@ -78,6 +78,7 @@ import androidx.compose.material3.TooltipScope
 import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -740,7 +741,9 @@ private fun InputActionsRow(
         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
         val allActions = inputActions.take(maxVisibleActions).toImmutableList()
         val visibleActions = effectiveActions.take(maxVisibleActions).toImmutableList()
-        onVisibleActionsChange(visibleActions)
+        SideEffect {
+            onVisibleActionsChange(visibleActions)
+        }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
