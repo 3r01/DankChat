@@ -69,10 +69,10 @@ class HelixApiClient(
     }
 
     suspend fun getUser(userId: UserId): Result<UserDto> = getUsersByIds(listOf(userId))
-        .mapCatching { it.first() }
+        .mapCatching { it.firstOrNull() ?: throw HelixApiException(HelixError.EmptyResponse, HttpStatusCode.OK, url = null, message = "User $userId not found") }
 
     suspend fun getUserByName(name: UserName): Result<UserDto> = getUsersByNames(listOf(name))
-        .mapCatching { it.first() }
+        .mapCatching { it.firstOrNull() ?: throw HelixApiException(HelixError.EmptyResponse, HttpStatusCode.OK, url = null, message = "User $name not found") }
 
     suspend fun getUserIdByName(name: UserName): Result<UserId> = getUserByName(name)
         .mapCatching { it.id }
@@ -235,18 +235,14 @@ class HelixApiClient(
         helixApi
             .postMarker(requestDto)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<MarkerDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<MarkerDto>()
     }
 
     suspend fun postCommercial(request: CommercialRequestDto): Result<CommercialDto> = runCatching {
         helixApi
             .postCommercial(request)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<CommercialDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<CommercialDto>()
     }
 
     suspend fun postRaid(
@@ -256,9 +252,7 @@ class HelixApiClient(
         helixApi
             .postRaid(broadcastUserId, targetUserId)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<RaidDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<RaidDto>()
     }
 
     suspend fun deleteRaid(broadcastUserId: UserId): Result<Unit> = runCatching {
@@ -275,9 +269,7 @@ class HelixApiClient(
         helixApi
             .patchChatSettings(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<ChatSettingsDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<ChatSettingsDto>()
     }
 
     suspend fun getGlobalBadges(): Result<List<BadgeSetDto>> = runCatching {
@@ -331,9 +323,7 @@ class HelixApiClient(
         helixApi
             .getShieldMode(broadcastUserId, moderatorUserId)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<ShieldModeStatusDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<ShieldModeStatusDto>()
     }
 
     suspend fun putShieldMode(
@@ -344,9 +334,7 @@ class HelixApiClient(
         helixApi
             .putShieldMode(broadcastUserId, moderatorUserId, request)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<ShieldModeStatusDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<ShieldModeStatusDto>()
     }
 
     suspend fun postEventSubSubscription(request: EventSubSubscriptionRequestDto): Result<EventSubSubscriptionResponseListDto> = runCatching {
@@ -378,9 +366,7 @@ class HelixApiClient(
         helixApi
             .postChatMessage(request)
             .throwHelixApiErrorOnFailure()
-            .body<DataListDto<SendChatMessageResponseDto>>()
-            .data
-            .first()
+            .firstEntryOrThrow<SendChatMessageResponseDto>()
     }
 
     private inline fun <reified T> pageAsFlow(
@@ -429,6 +415,11 @@ class HelixApiClient(
 
         return entries
     }
+
+    private suspend inline fun <reified T> HttpResponse.firstEntryOrThrow(): T = body<DataListDto<T>>()
+        .data
+        .firstOrNull()
+        ?: throw HelixApiException(HelixError.EmptyResponse, status, request.url, message = "Response contained no entries")
 
     @Suppress("ThrowsCount")
     private suspend fun HttpResponse?.throwHelixApiErrorOnFailure(): HttpResponse {

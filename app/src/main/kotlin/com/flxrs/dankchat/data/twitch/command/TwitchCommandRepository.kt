@@ -943,7 +943,7 @@ class TwitchCommandRepository(
                 TextResource.Res(R.string.cmd_error_chat_rate_limited)
             }
 
-            HelixError.Unknown -> {
+            HelixError.Unknown, HelixError.EmptyResponse -> {
                 TextResource.Res(R.string.cmd_error_unknown)
             }
         }

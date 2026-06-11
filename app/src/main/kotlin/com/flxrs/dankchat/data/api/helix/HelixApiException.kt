@@ -19,6 +19,8 @@ sealed interface HelixError {
 
     data object Unknown : HelixError
 
+    data object EmptyResponse : HelixError
+
     data object WhisperSelf : HelixError
 
     data object NoVerifiedPhone : HelixError
