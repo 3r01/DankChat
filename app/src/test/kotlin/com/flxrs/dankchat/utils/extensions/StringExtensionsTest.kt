@@ -37,4 +37,53 @@ internal class StringExtensionsTest {
         assertEquals(expected = null, actual = "text".codePointSlice(2, 2))
         assertEquals(expected = null, actual = "text".codePointSlice(3, 1))
     }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup leaves text without emoji untouched`() {
+        assertEquals(expected = "NaM forsenE Keepo" to emptyList(), actual = "NaM forsenE Keepo".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup separates classic emoji from adjacent text`() {
+        assertEquals(expected = "NaM 😂 NaM" to listOf(3, 5), actual = "NaM😂NaM".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup keeps zwj sequence as a single group`() {
+        assertEquals(expected = "NaM 🙅🏻‍♂️ NaM" to listOf(3, 10), actual = "NaM🙅🏻‍♂️NaM".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup separates flag emoji from adjacent text`() {
+        assertEquals(expected = "NaM 🇩🇪 NaM" to listOf(3, 7), actual = "NaM🇩🇪NaM".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup matches unicode 16 emoji`() {
+        // U+1FAE9 face with bags under eyes
+        assertEquals(expected = "NaM 🫩 NaM" to listOf(3, 5), actual = "NaM🫩NaM".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup matches unicode 17 emoji`() {
+        // U+1FAEA distorted face
+        assertEquals(expected = "NaM 🫪 NaM" to listOf(3, 5), actual = "NaM🫪NaM".appendSpacesBetweenEmojiGroup())
+    }
+
+    @Test
+    fun `appendSpacesBetweenEmojiGroup ignores invisible and control characters`() {
+        // U+034F combining grapheme joiner, appended to bypass duplicate message detection
+        val withInvisibleChar = "NaM $INVISIBLE_CHAR"
+        assertEquals(expected = withInvisibleChar to emptyList(), actual = withInvisibleChar.appendSpacesBetweenEmojiGroup())
+
+        // U+E0002 tag character, used by EmoteRepository to escape emote names
+        val withEscapeTag = "NaM\uDB40\uDC02NaM"
+        assertEquals(expected = withEscapeTag to emptyList(), actual = withEscapeTag.appendSpacesBetweenEmojiGroup())
+
+        val withStandaloneZwj = "NaM\u200DNaM"
+        assertEquals(expected = withStandaloneZwj to emptyList(), actual = withStandaloneZwj.appendSpacesBetweenEmojiGroup())
+
+        val withStandaloneVariationSelector = "NaM\uFE0FNaM"
+        assertEquals(expected = withStandaloneVariationSelector to emptyList(), actual = withStandaloneVariationSelector.appendSpacesBetweenEmojiGroup())
+    }
 }
