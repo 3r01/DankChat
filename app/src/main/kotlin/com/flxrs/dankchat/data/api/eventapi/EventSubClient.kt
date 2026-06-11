@@ -12,6 +12,7 @@ import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelCha
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelChatUserMessageUpdateDto
 import com.flxrs.dankchat.data.api.eventapi.dto.messages.notification.ChannelModerateDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.HelixApiException
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.ForegroundServiceState
 import com.flxrs.dankchat.utils.webSocketCoroutineExceptionHandler
@@ -20,10 +21,12 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.http.HttpStatusCode
 import io.ktor.util.collections.ConcurrentSet
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
@@ -215,8 +218,16 @@ class EventSubClient(
         }
     }
 
-    suspend fun subscribe(topic: EventSubTopic) = subscriptionMutex.withLock {
-        wantedSubscriptions += topic
+    suspend fun subscribe(
+        topic: EventSubTopic,
+        attempt: Int = 1,
+    ): Unit = subscriptionMutex.withLock {
+        when {
+            attempt == 1 -> wantedSubscriptions += topic
+
+            // topic was unsubscribed while a retry was pending
+            topic !in wantedSubscriptions -> return@withLock
+        }
         if (subscriptions.value.any { it.topic == topic }) {
             // already subscribed, nothing to do
             return@withLock
@@ -239,9 +250,15 @@ class EventSubClient(
             helixApiClient
                 .postEventSubSubscription(request)
                 .getOrElse {
-                    // TODO: handle errors, maybe retry?
                     logger.error { "[EventSub] failed to subscribe: $it" }
                     emitSystemMessage(message = "[EventSub] failed to subscribe: $it")
+                    if (it.isTransient() && attempt < SUBSCRIBE_MAX_ATTEMPTS) {
+                        scope.launch {
+                            delay(SUBSCRIBE_RETRY_DELAY * attempt)
+                            logger.info { "[EventSub] retrying subscription to ${topic.shortFormatted()}, attempt ${attempt + 1}" }
+                            subscribe(topic, attempt + 1)
+                        }
+                    }
                     return@withLock
                 }
 
@@ -394,6 +411,12 @@ class EventSubClient(
         eventsChannel.trySend(systemMessage)
     }
 
+    private fun Throwable.isTransient(): Boolean = when (this) {
+        is HelixApiException -> status == HttpStatusCode.TooManyRequests || status.value in 500..599
+        is CancellationException -> false
+        else -> true
+    }
+
     private suspend fun DefaultClientWebSocketSession.closeAndCancel() {
         runCatching { close() }
         cancel()
@@ -458,6 +481,8 @@ class EventSubClient(
         const val MAX_JITTER = 250L
         const val RECONNECT_BASE_DELAY = 1_000L
         const val RECONNECT_MAX_ATTEMPTS = 6
+        const val SUBSCRIBE_MAX_ATTEMPTS = 3
         val SUBSCRIPTION_TIMEOUT = 5.seconds
+        val SUBSCRIBE_RETRY_DELAY = 5.seconds
     }
 }
