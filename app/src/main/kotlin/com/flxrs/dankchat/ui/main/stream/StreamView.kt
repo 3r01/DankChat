@@ -2,6 +2,7 @@ package com.flxrs.dankchat.ui.main.stream
 
 import android.view.MotionEvent
 import android.view.ViewGroup
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -40,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.doOnAttach
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import kotlinx.coroutines.delay
@@ -58,11 +60,13 @@ fun StreamView(
     fillPane: Boolean = false,
 ) {
     val streamViewModel: StreamViewModel = koinViewModel()
+    // Bumped when the render process dies, forcing a fresh WebView through the first-open flow
+    val webViewGeneration by streamViewModel.webViewGeneration.collectAsStateWithLifecycle()
     // Track whether the WebView has been attached to a window before.
     // First open: load URL while detached, attach after page loads (avoids white SurfaceView flash).
     // Subsequent opens: attach immediately, load URL while attached (video surface already initialized).
-    var hasBeenAttached by remember { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
-    var isPageLoaded by remember { mutableStateOf(hasBeenAttached) }
+    var hasBeenAttached by remember(webViewGeneration) { mutableStateOf(streamViewModel.hasWebViewBeenAttached) }
+    var isPageLoaded by remember(webViewGeneration) { mutableStateOf(hasBeenAttached) }
     var overlayTapTrigger by remember { mutableIntStateOf(0) }
     var showOverlayButtons by remember { mutableStateOf(false) }
 
@@ -74,12 +78,16 @@ fun StreamView(
         }
     }
     val webView =
-        remember {
+        remember(webViewGeneration) {
             streamViewModel.getOrCreateWebView().also { wv ->
                 wv.setBackgroundColor(android.graphics.Color.TRANSPARENT)
                 wv.webViewClient =
                     StreamComposeWebViewClient(
                         onPageFinished = { isPageLoaded = true },
+                        onRendererGone = { didCrash ->
+                            (wv.parent as? ViewGroup)?.removeView(wv)
+                            streamViewModel.onRenderProcessGone(wv, didCrash)
+                        },
                     )
                 var blockingGesture = false
                 @Suppress("ClickableViewAccessibility")
@@ -106,20 +114,16 @@ fun StreamView(
 
     // For first open: load URL on detached WebView
     if (!hasBeenAttached) {
-        DisposableEffect(channel) {
+        DisposableEffect(channel, webView) {
             streamViewModel.setStream(channel, webView)
             onDispose { }
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(webView) {
         onDispose {
             (webView.parent as? ViewGroup)?.removeView(webView)
-            // Active close (channel set to null) → destroy WebView
-            // Config change (channel still set) → just detach, keep alive for reuse
-            if (streamViewModel.streamState.value.currentStream == null) {
-                streamViewModel.destroyWebView(webView)
-            }
+            streamViewModel.onWebViewDisposed(webView)
         }
     }
 
@@ -234,6 +238,7 @@ private fun StreamOverlayButton(
 
 private class StreamComposeWebViewClient(
     private val onPageFinished: () -> Unit,
+    private val onRendererGone: (didCrash: Boolean) -> Unit,
 ) : WebViewClient() {
     override fun onPageFinished(
         view: WebView?,
@@ -242,6 +247,15 @@ private class StreamComposeWebViewClient(
         if (url != null && url != BLANK_URL) {
             onPageFinished()
         }
+    }
+
+    // Default behavior would crash the whole app when the render process dies
+    override fun onRenderProcessGone(
+        view: WebView?,
+        detail: RenderProcessGoneDetail?,
+    ): Boolean {
+        onRendererGone(detail?.didCrash() == true)
+        return true
     }
 
     @Deprecated("Deprecated in Java")

@@ -9,15 +9,19 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+
+private val logger = KotlinLogging.logger("StreamViewModel")
 
 @KoinViewModel
 class StreamViewModel(
@@ -77,6 +81,9 @@ class StreamViewModel(
     @SuppressLint("StaticFieldLeak")
     private var cachedWebView: StreamWebView? = null
 
+    private val _webViewGeneration = MutableStateFlow(0)
+    val webViewGeneration: StateFlow<Int> = _webViewGeneration.asStateFlow()
+
     fun getOrCreateWebView(): StreamWebView {
         val preventReloads = streamsSettingsDataStore.current().preventStreamReloads
         return if (preventReloads) {
@@ -95,7 +102,23 @@ class StreamViewModel(
         loadStream(channel, webView)
     }
 
-    fun destroyWebView(webView: StreamWebView) {
+    fun onWebViewDisposed(webView: StreamWebView) {
+        // Only the cached WebView is kept alive across compositions, and only while the stream stays open
+        if (cachedWebView !== webView || _currentStreamedChannel.value == null) {
+            destroyWebView(webView)
+        }
+    }
+
+    fun onRenderProcessGone(
+        webView: StreamWebView,
+        didCrash: Boolean,
+    ) {
+        logger.warn { "Stream WebView render process gone (didCrash=$didCrash), recreating" }
+        destroyWebView(webView)
+        _webViewGeneration.update { it + 1 }
+    }
+
+    private fun destroyWebView(webView: StreamWebView) {
         webView.stopLoading()
         webView.destroy()
         if (cachedWebView === webView) {
