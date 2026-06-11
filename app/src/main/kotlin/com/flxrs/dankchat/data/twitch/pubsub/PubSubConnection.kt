@@ -16,6 +16,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
+import io.ktor.util.collections.ConcurrentSet
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
@@ -66,7 +67,8 @@ class PubSubConnection(
 
     private var awaitingPong = false
 
-    private val topics = mutableSetOf<PubSubTopic>()
+    // mutated only via PubSubManager (serialized by its mutex), but read concurrently by the message loop
+    private val topics = ConcurrentSet<PubSubTopic>()
     private lateinit var currentOAuth: String
     private val canAcceptTopics: Boolean
         get() = connected && topics.size < MAX_TOPICS

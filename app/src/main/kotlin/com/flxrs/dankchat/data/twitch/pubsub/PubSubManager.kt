@@ -25,8 +25,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import org.koin.core.annotation.Single
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.channels.Channel as CoroutineChannel
 
 private val logger = KotlinLogging.logger("PubSubManager")
@@ -48,7 +51,10 @@ class PubSubManager(
         httpClient.config {
             install(WebSockets)
         }
-    private val connections = mutableListOf<PubSubConnection>()
+
+    // guards connections + collectJobs, all mutations run on the scope with the mutex held
+    private val mutex = Mutex()
+    private val connections = CopyOnWriteArrayList<PubSubConnection>()
     private val collectJobs = mutableListOf<Job>()
     private val receiveChannel = CoroutineChannel<PubSubMessage>(capacity = CoroutineChannel.BUFFERED)
 
@@ -66,15 +72,17 @@ class PubSubManager(
             ) { (isLoggedIn, userId), channels, shouldUsePubSub ->
                 Triple(if (isLoggedIn) userId else null, channels, shouldUsePubSub)
             }.collect { (userId, channels, shouldUsePubSub) ->
-                closeAll()
-                if (userId == null) {
-                    logger.debug { "[PubSub] skipping connection, not logged in" }
-                    return@collect
+                mutex.withLock {
+                    closeAll()
+                    if (userId == null) {
+                        logger.debug { "[PubSub] skipping connection, not logged in" }
+                        return@withLock
+                    }
+                    val resolved = channelRepository.getChannels(channels)
+                    val topics = buildTopics(userId, resolved, shouldUsePubSub)
+                    logger.info { "[PubSub] rebuilding connections for ${resolved.size} channels, ${topics.size} topics (pubsub=$shouldUsePubSub)" }
+                    listen(topics)
                 }
-                val resolved = channelRepository.getChannels(channels)
-                val topics = buildTopics(userId, resolved, shouldUsePubSub)
-                logger.info { "[PubSub] rebuilding connections for ${resolved.size} channels, ${topics.size} topics (pubsub=$shouldUsePubSub)" }
-                listen(topics)
             }
         }
     }
@@ -84,18 +92,22 @@ class PubSubManager(
     fun reconnectIfNecessary() = resetCollectionWith { reconnectIfNecessary() }
 
     fun removeChannel(channel: UserName) {
-        val emptyConnections =
-            connections
-                .onEach { it.unlistenByChannel(channel) }
-                .filterNot { it.hasTopics }
-                .onEach { it.close() }
+        scope.launch {
+            mutex.withLock {
+                val emptyConnections =
+                    connections
+                        .onEach { it.unlistenByChannel(channel) }
+                        .filterNot { it.hasTopics }
+                        .onEach { it.close() }
 
-        if (emptyConnections.isEmpty()) {
-            return
+                if (emptyConnections.isEmpty()) {
+                    return@withLock
+                }
+
+                connections.removeAll { conn -> emptyConnections.any { it.tag == conn.tag } }
+                resetCollection()
+            }
         }
-
-        connections.removeAll { conn -> emptyConnections.any { it.tag == conn.tag } }
-        resetCollectionWith()
     }
 
     private fun buildTopics(
@@ -123,26 +135,24 @@ class PubSubManager(
             return
         }
 
-        scope.launch {
-            remainingTopics
-                .chunked(PubSubConnection.MAX_TOPICS)
-                .withIndex()
-                .takeWhile { (idx, _) -> connections.size + idx + 1 <= PubSubConnection.MAX_CONNECTIONS }
-                .forEach { (_, chunk) ->
-                    val connection =
-                        PubSubConnection(
-                            tag = "#${connections.size}",
-                            client = client,
-                            scope = scope,
-                            oAuth = oAuth,
-                            jsonFormat = json,
-                            serviceActive = foregroundServiceState.active,
-                        )
-                    connection.connect(initialTopics = chunk.toSet())
-                    connections += connection
-                    collectJobs += launch { connection.collectEvents() }
-                }
-        }
+        remainingTopics
+            .chunked(PubSubConnection.MAX_TOPICS)
+            .withIndex()
+            .takeWhile { (idx, _) -> connections.size + idx + 1 <= PubSubConnection.MAX_CONNECTIONS }
+            .forEach { (_, chunk) ->
+                val connection =
+                    PubSubConnection(
+                        tag = "#${connections.size}",
+                        client = client,
+                        scope = scope,
+                        oAuth = oAuth,
+                        jsonFormat = json,
+                        serviceActive = foregroundServiceState.active,
+                    )
+                connection.connect(initialTopics = chunk.toSet())
+                connections += connection
+                collectJobs += scope.launch { connection.collectEvents() }
+            }
     }
 
     private fun closeAll() {
@@ -153,6 +163,12 @@ class PubSubManager(
     }
 
     private fun resetCollectionWith(action: PubSubConnection.() -> Unit = {}) = scope.launch {
+        mutex.withLock {
+            resetCollection(action)
+        }
+    }
+
+    private fun resetCollection(action: PubSubConnection.() -> Unit = {}) {
         collectJobs.forEach { it.cancel() }
         collectJobs.clear()
         collectJobs.addAll(
@@ -160,7 +176,7 @@ class PubSubManager(
                 connections
                     .map { conn ->
                         conn.action()
-                        launch { conn.collectEvents() }
+                        scope.launch { conn.collectEvents() }
                     },
         )
     }
