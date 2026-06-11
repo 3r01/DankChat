@@ -40,7 +40,6 @@ import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toJavaDuration
 
-const val WEBSOCKET_OKHTTP_CLIENT = "WebSocketOkHttpClient"
 const val UPLOAD_OKHTTP_CLIENT = "UploadOkHttpClient"
 
 private val okhttpLogger = KotlinLogging.logger("OkHttp")
@@ -57,14 +56,6 @@ class NetworkModule {
         const val BTTV_BASE_URL = "https://api.betterttv.net/3/cached/"
         const val SEVENTV_BASE_URL = "https://7tv.io/v3/"
     }
-
-    @Single
-    @Named(WEBSOCKET_OKHTTP_CLIENT)
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient
-        .Builder()
-        .dispatcher(createSafeOkHttpDispatcher())
-        .callTimeout(20.seconds.toJavaDuration())
-        .build()
 
     @Single
     @Named(UPLOAD_OKHTTP_CLIENT)
