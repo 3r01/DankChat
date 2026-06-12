@@ -14,6 +14,8 @@ import java.util.concurrent.TimeUnit
 
 class MockIrcServer : AutoCloseable {
     private val server = MockWebServer()
+
+    @Volatile
     private var serverSocket: WebSocket? = null
     val sentFrames = CopyOnWriteArrayList<String>()
     private val _frames = MutableSharedFlow<String>(replay = Int.MAX_VALUE)
@@ -55,7 +57,10 @@ class MockIrcServer : AutoCloseable {
     ): Boolean = connectedLatch.await(timeout, unit)
 
     fun sendToClient(ircLine: String) {
-        serverSocket?.send("$ircLine\r\n")
+        // The client can observe the websocket upgrade before onOpen runs on the server side,
+        // so wait for the socket instead of silently dropping the frame
+        check(awaitConnection()) { "Client did not connect within timeout" }
+        checkNotNull(serverSocket).send("$ircLine\r\n")
     }
 
     override fun close() {
