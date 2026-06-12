@@ -105,6 +105,13 @@ class ChannelDataLoader(
                     onFailure = { ChannelLoadingFailure.Cheermotes(channel, it) },
                 )
             }
+        val followerEmotesResult =
+            async {
+                dataRepository.loadChannelFollowerEmotes(channel, channelInfo.id).fold(
+                    onSuccess = { null },
+                    onFailure = { ChannelLoadingFailure.FollowerEmotes(channel, it) },
+                )
+            }
 
         val failures = mutableListOf<ChannelLoadingFailure>()
         val fallbackMessages = mutableListOf<SystemMessageType>()
@@ -122,6 +129,7 @@ class ChannelDataLoader(
             onFailure = { failures += ChannelLoadingFailure.SevenTVEmotes(channel, it) },
         )
         cheermotesResult.await()?.let { failures += it }
+        followerEmotesResult.await()?.let { failures += it }
 
         failures to fallbackMessages
     }

@@ -17,6 +17,7 @@ import com.flxrs.dankchat.data.api.ffz.dto.FFZChannelDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZEmoteDto
 import com.flxrs.dankchat.data.api.ffz.dto.FFZGlobalDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.helix.dto.ChannelEmoteDto
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVUserDetails
@@ -532,6 +533,19 @@ class EmoteRepository(
         logger.debug { "Helix getUserEmotes: $totalCount total, ${seenIds.size} unique, ${allEmotes.size} resolved" }
     }
 
+    suspend fun setChannelFollowerEmotes(
+        channel: UserName,
+        emotes: List<ChannelEmoteDto>,
+    ) = withContext(dispatchersProvider.default) {
+        val followerEmotes =
+            emotes
+                .filter { it.emoteType == "follower" }
+                .map { it.toGenericEmote(EmoteType.ChannelTwitchFollowerEmote(channel)) }
+        channelEmoteStates[channel]?.update {
+            it.copy(twitchEmotes = followerEmotes)
+        }
+    }
+
     suspend fun setFFZEmotes(
         channel: UserName,
         ffzResult: FFZChannelDto,
@@ -773,6 +787,15 @@ class EmoteRepository(
 
         return thirdPartyEmotes to cheermotes
     }
+
+    private fun ChannelEmoteDto.toGenericEmote(type: EmoteType): GenericEmote = GenericEmote(
+        code = name,
+        url = TWITCH_EMOTE_TEMPLATE.format(Locale.ROOT, id, TWITCH_EMOTE_SIZE),
+        lowResUrl = TWITCH_EMOTE_TEMPLATE.format(Locale.ROOT, id, TWITCH_LOW_RES_EMOTE_SIZE),
+        id = id,
+        scale = 1,
+        emoteType = type,
+    )
 
     private fun UserEmoteDto.toGenericEmote(type: EmoteType): GenericEmote {
         val code =

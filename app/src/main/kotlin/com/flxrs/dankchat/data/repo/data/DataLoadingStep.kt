@@ -72,6 +72,13 @@ sealed interface DataLoadingStep {
     ) : DataLoadingStep {
         override val displayNameRes = R.string.data_loading_step_cheermotes
     }
+
+    data class ChannelFollowerEmotes(
+        override val channel: UserName,
+        val channelId: UserId,
+    ) : DataLoadingStep {
+        override val displayNameRes = R.string.data_loading_step_follower_emotes
+    }
 }
 
 fun List<DataLoadingStep>.toDisplayStrings(resources: Resources): List<String> {

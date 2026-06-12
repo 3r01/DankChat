@@ -80,6 +80,7 @@
     <string name="data_loading_step_7tv_emotes">7TV 表情</string>
     <string name="data_loading_step_twitch_emotes">Twitch 表情</string>
     <string name="data_loading_step_cheermotes">Cheermotes</string>
+    <string name="data_loading_step_follower_emotes">追隨者表情</string>
     <string name="data_loading_step_recent_messages">近期訊息</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">首次聊天</string>

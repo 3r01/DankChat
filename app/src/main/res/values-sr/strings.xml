@@ -75,6 +75,7 @@
     <string name="data_loading_step_7tv_emotes">7TV emotikoni</string>
     <string name="data_loading_step_twitch_emotes">Twitch emotikoni</string>
     <string name="data_loading_step_cheermotes">Cheermotovi</string>
+    <string name="data_loading_step_follower_emotes">Emotikoni pratilaca</string>
     <string name="data_loading_step_recent_messages">Nedavne poruke</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">Прва порука</string>

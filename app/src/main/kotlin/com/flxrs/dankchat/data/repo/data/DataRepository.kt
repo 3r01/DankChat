@@ -256,6 +256,34 @@ class DataRepository(
         }
     }
 
+    suspend fun loadChannelFollowerEmotes(
+        channel: UserName,
+        channelId: UserId,
+    ): Result<Unit> = withContext(dispatchersProvider.io) {
+        val userId = authDataStore.userIdString
+        if (!authDataStore.isLoggedIn || userId == null) {
+            return@withContext Result.success(Unit)
+        }
+
+        measureTimeAndLog(logger, "follower emotes for #$channel") {
+            helixApiClient
+                .getFollowedChannel(userId, channelId)
+                .fold(
+                    // Subscribers already receive follower emotes via the user emotes endpoint,
+                    // merging dedups them, so the channel emotes are fetched for all followers
+                    onSuccess = { followed ->
+                        when (followed) {
+                            null -> Result.success(emptyList())
+                            else -> helixApiClient.getChannelEmotes(channelId)
+                        }
+                    },
+                    onFailure = { Result.failure(it) },
+                ).getOrEmitFailure { DataLoadingStep.ChannelFollowerEmotes(channel, channelId) }
+                .onSuccess { emoteRepository.setChannelFollowerEmotes(channel, it) }
+                .map { }
+        }
+    }
+
     suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = withContext(dispatchersProvider.io) {
         if (VisibleThirdPartyEmotes.FFZ !in chatSettingsDataStore.settings.first().visibleEmotes) {
             return@withContext Result.success(Unit)

@@ -80,6 +80,7 @@
     <string name="data_loading_step_7tv_emotes">Emotki 7TV</string>
     <string name="data_loading_step_twitch_emotes">Emotki Twitch</string>
     <string name="data_loading_step_cheermotes">Cheermoty</string>
+    <string name="data_loading_step_follower_emotes">Emotki dla obserwujących</string>
     <string name="data_loading_step_recent_messages">Ostatnie wiadomości</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">Pierwsza wiadomość</string>

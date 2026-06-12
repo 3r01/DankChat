@@ -80,6 +80,7 @@
     <string name="data_loading_step_7tv_emotes">7TV-emotet</string>
     <string name="data_loading_step_twitch_emotes">Twitch-emotet</string>
     <string name="data_loading_step_cheermotes">Cheermotit</string>
+    <string name="data_loading_step_follower_emotes">Seuraajaemotet</string>
     <string name="data_loading_step_recent_messages">Viimeaikaiset viestit</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">Ensimmäinen viesti</string>

@@ -14,6 +14,7 @@ import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialDto
 import com.flxrs.dankchat.data.api.helix.dto.CommercialRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.DataListDto
+import com.flxrs.dankchat.data.api.helix.dto.FollowedChannelDto
 import com.flxrs.dankchat.data.api.helix.dto.HelixErrorDto
 import com.flxrs.dankchat.data.api.helix.dto.ManageAutomodMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerDto
@@ -85,6 +86,18 @@ class HelixApiClient(
             .getChannelFollowers(broadcastUserId, targetUserId)
             .throwHelixApiErrorOnFailure()
             .body()
+    }
+
+    suspend fun getFollowedChannel(
+        userId: UserId,
+        broadcasterId: UserId,
+    ): Result<FollowedChannelDto?> = runCatching {
+        helixApi
+            .getFollowedChannels(userId, broadcasterId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<FollowedChannelDto>>()
+            .data
+            .firstOrNull()
     }
 
     suspend fun getStreams(channels: List<UserName>): Result<List<StreamDto>> = runCatching {

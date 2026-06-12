@@ -74,6 +74,16 @@ class HelixApi(
         }
     }
 
+    suspend fun getFollowedChannels(
+        userId: UserId,
+        broadcasterId: UserId,
+    ): HttpResponse? = ktorClient.get("channels/followed") {
+        val oAuth = getValidToken() ?: return null
+        bearerAuth(oAuth)
+        parameter("user_id", userId)
+        parameter("broadcaster_id", broadcasterId)
+    }
+
     suspend fun getStreams(channels: List<UserName>): HttpResponse? = ktorClient.get("streams") {
         val oAuth = getValidToken() ?: return null
         bearerAuth(oAuth)

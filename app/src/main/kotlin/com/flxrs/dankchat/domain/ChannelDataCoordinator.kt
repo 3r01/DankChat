@@ -267,6 +267,10 @@ class ChannelDataCoordinator(
                             is DataLoadingStep.ChannelCheermotes -> {
                                 channelsToRetry.add(step.channel)
                             }
+
+                            is DataLoadingStep.ChannelFollowerEmotes -> {
+                                channelsToRetry.add(step.channel)
+                            }
                         }
                     }
                 }

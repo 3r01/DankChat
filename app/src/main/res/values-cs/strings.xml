@@ -80,6 +80,7 @@
     <string name="data_loading_step_7tv_emotes">7TV emotikony</string>
     <string name="data_loading_step_twitch_emotes">Twitch emotikony</string>
     <string name="data_loading_step_cheermotes">Cheermoty</string>
+    <string name="data_loading_step_follower_emotes">Emotikony pro sledující</string>
     <string name="data_loading_step_recent_messages">Nedávné zprávy</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">První zpráva</string>

@@ -81,6 +81,7 @@ class AuthApiClient(
                 "user:read:blocked_users",
                 "user:read:chat",
                 "user:read:emotes",
+                "user:read:follows",
                 "user:write:chat",
                 "whispers:edit",
                 "whispers:read",

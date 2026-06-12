@@ -66,6 +66,7 @@
     <string name="data_loading_step_7tv_emotes">7TV ଇମୋଟ୍</string>
     <string name="data_loading_step_twitch_emotes">Twitch ଇମୋଟ୍</string>
     <string name="data_loading_step_cheermotes">ଚିୟରମୋଟ୍</string>
+    <string name="data_loading_step_follower_emotes">ଅନୁଗାମୀ ଇମୋଟ୍</string>
     <string name="data_loading_step_recent_messages">ସାମ୍ପ୍ରତିକ ବାର୍ତ୍ତା</string>
     <string name="data_loading_step_with_channels">%1$s (%2$s)</string>
     <string name="highlight_header_first_time_chat">ପ୍ରଥମ ଥର ଚାଟ୍</string>
