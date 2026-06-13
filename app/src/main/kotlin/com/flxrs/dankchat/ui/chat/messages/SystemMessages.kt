@@ -21,11 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.LocalPlatformContext
+import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.messages.common.LinkableText
+import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
 import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
 import com.flxrs.dankchat.ui.chat.messages.common.appendWithLinks
+import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
+import com.flxrs.dankchat.ui.chat.messages.common.parseUserAnnotation
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveLinkColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberAdaptiveTextColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
@@ -33,6 +38,7 @@ import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.resolve
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Renders a system message (connected, disconnected, emote loading failures, etc.)
@@ -76,28 +82,31 @@ fun NoticeMessageComposable(
 
 /**
  * Renders a user notice message (subscriptions, announcements, etc.)
- * The display name is highlighted with the user's color.
+ * The display name is highlighted with the user's color and is clickable to open the user popup.
  */
 @Composable
 fun UserNoticeMessageComposable(
     message: ChatMessageUiState.UserNoticeMessageUi,
     fontSize: Float,
+    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
+    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     modifier: Modifier = Modifier,
+    animateGifs: Boolean = true,
     highlightShape: Shape = RectangleShape,
 ) {
+    val context = LocalPlatformContext.current
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val linkColor = rememberAdaptiveLinkColor(bgColor)
     val timestampColor = rememberAdaptiveTextColor(bgColor)
     val nameColor = rememberNormalizedColor(message.rawNameColor, bgColor)
-    val textSize = fontSize.sp
 
     val annotatedString =
-        remember(message, textColor, nameColor, linkColor, timestampColor, textSize) {
+        remember(message, textColor, nameColor, linkColor, timestampColor, fontSize) {
             buildAnnotatedString {
                 // Timestamp
                 if (message.timestamp.isNotEmpty()) {
-                    withStyle(timestampSpanStyle(textSize.value, timestampColor)) {
+                    withStyle(timestampSpanStyle(fontSize, timestampColor)) {
                         append(message.timestamp)
                     }
                     appendInlineSpacer(6.dp)
@@ -121,9 +130,21 @@ fun UserNoticeMessageComposable(
                             }
                         }
 
-                        // Colored username
+                        // Colored username, clickable when we know the underlying login
                         withStyle(SpanStyle(color = nameColor)) {
-                            append(msgText.substring(nameIndex, nameIndex + displayName.length))
+                            val userName = message.userName
+                            when {
+                                userName != null -> {
+                                    pushStringAnnotation(
+                                        tag = "USER",
+                                        annotation = "${message.userId?.value.orEmpty()}|${userName.value}|${message.displayName}|${message.channel.value}",
+                                    )
+                                    append(msgText.substring(nameIndex, nameIndex + displayName.length))
+                                    pop()
+                                }
+
+                                else -> append(msgText.substring(nameIndex, nameIndex + displayName.length))
+                            }
                         }
 
                         // Text after name
@@ -154,9 +175,36 @@ fun UserNoticeMessageComposable(
                 .background(bgColor, highlightShape)
                 .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        LinkableText(
-            text = annotatedString,
-            style = TextStyle(fontSize = textSize),
+        MessageTextWithInlineContent(
+            annotatedString = annotatedString,
+            badges = persistentListOf(),
+            emotes = persistentListOf(),
+            fontSize = fontSize,
+            animateGifs = animateGifs,
+            onEmoteClick = {},
+            onTextClick = { offset ->
+                val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+                val url = annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()
+
+                when {
+                    user != null -> parseUserAnnotation(user.item)?.let {
+                        onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), emptyList(), false)
+                    }
+
+                    url != null -> launchCustomTab(context, url.item)
+                }
+            },
+            onTextLongClick = { offset ->
+                val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+
+                when {
+                    user != null -> parseUserAnnotation(user.item)?.let {
+                        onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), emptyList(), true)
+                    }
+
+                    else -> onMessageLongClick(message.id, message.channel.value, message.message)
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
         )
     }

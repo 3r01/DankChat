@@ -805,6 +805,9 @@ private fun ChatMessageItem(
                 message = message,
                 highlightShape = highlightShape,
                 fontSize = fontSize,
+                animateGifs = animateGifs,
+                onUserClick = callbacks.onUserClick,
+                onMessageLongClick = callbacks.onMessageLongClick,
             )
         }
 
