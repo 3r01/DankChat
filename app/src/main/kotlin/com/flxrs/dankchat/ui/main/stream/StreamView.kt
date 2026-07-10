@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.main.stream
 import android.view.MotionEvent
 import android.view.ViewGroup
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -44,6 +45,7 @@ import androidx.core.view.doOnAttach
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -276,7 +278,19 @@ private class StreamComposeWebViewClient(
         return ALLOWED_PATHS.none { url.startsWith(it) }
     }
 
+    override fun onReceivedError(
+        view: WebView?,
+        request: WebResourceRequest?,
+        error: WebResourceError?,
+    ) {
+        super.onReceivedError(view, request, error)
+        if (request?.isForMainFrame != true) return
+        val description = error?.description?.toString().orEmpty()
+        logger.warn { "Stream WebView failed to load ${request.url}: $description" }
+    }
+
     companion object {
+        private val logger = KotlinLogging.logger("StreamComposeWebViewClient")
         private const val BLANK_URL = "about:blank"
         private val ALLOWED_PATHS =
             listOf(
