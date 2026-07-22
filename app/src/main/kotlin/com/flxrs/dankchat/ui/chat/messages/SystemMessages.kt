@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.LocalPlatformContext
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
-import com.flxrs.dankchat.ui.chat.messages.common.LinkableText
 import com.flxrs.dankchat.ui.chat.messages.common.MessageTextWithInlineContent
 import com.flxrs.dankchat.ui.chat.messages.common.SimpleMessageContainer
 import com.flxrs.dankchat.ui.chat.messages.common.appendInlineSpacer
@@ -235,6 +234,7 @@ private data class StyledRange(
     val start: Int,
     val length: Int,
     val color: Color,
+    val userAnnotation: String? = null,
 )
 
 /**
@@ -244,9 +244,12 @@ private data class StyledRange(
 fun ModerationMessageComposable(
     message: ChatMessageUiState.ModerationMessageUi,
     fontSize: Float,
+    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    animateGifs: Boolean = true,
     showChannelPrefix: Boolean = false,
 ) {
+    val context = LocalPlatformContext.current
     val bgColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
     val textColor = rememberAdaptiveTextColor(bgColor)
     val timestampColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -294,14 +297,16 @@ fun ModerationMessageComposable(
                     message.creatorName?.let { name ->
                         val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
                         if (idx >= 0) {
-                            add(StyledRange(idx, name.length, creatorColor))
+                            val annotation = message.creatorUserName?.let { login -> "|${login.value}|$name|${message.channel.value}" }
+                            add(StyledRange(idx, name.length, creatorColor, annotation))
                             searchFrom = idx + name.length
                         }
                     }
                     message.targetName?.let { name ->
                         val idx = resolvedMessage.indexOf(name, startIndex = searchFrom, ignoreCase = true)
                         if (idx >= 0) {
-                            add(StyledRange(idx, name.length, targetColor))
+                            val annotation = message.targetUserName?.let { login -> "|${login.value}|$name|${message.channel.value}" }
+                            add(StyledRange(idx, name.length, targetColor, annotation))
                         }
                     }
                     for (arg in resolvedArguments) {
@@ -339,7 +344,16 @@ fun ModerationMessageComposable(
                         }
                     }
                     withStyle(SpanStyle(color = range.color)) {
-                        append(resolvedMessage.substring(range.start, range.start + range.length))
+                        val text = resolvedMessage.substring(range.start, range.start + range.length)
+                        when (val annotation = range.userAnnotation) {
+                            null -> append(text)
+
+                            else -> {
+                                pushStringAnnotation(tag = "USER", annotation = annotation)
+                                append(text)
+                                pop()
+                            }
+                        }
                     }
                     cursor = range.start + range.length
                 }
@@ -360,9 +374,31 @@ fun ModerationMessageComposable(
                 .background(bgColor)
                 .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
-        LinkableText(
-            text = annotatedString,
-            style = TextStyle(fontSize = textSize),
+        MessageTextWithInlineContent(
+            annotatedString = annotatedString,
+            badges = persistentListOf(),
+            emotes = persistentListOf(),
+            fontSize = fontSize,
+            animateGifs = animateGifs,
+            onEmoteClick = {},
+            onTextClick = { offset ->
+                val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+                val url = annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()
+
+                when {
+                    user != null -> parseUserAnnotation(user.item)?.let {
+                        onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), emptyList(), false)
+                    }
+
+                    url != null -> launchCustomTab(context, url.item)
+                }
+            },
+            onTextLongClick = { offset ->
+                val user = annotatedString.getStringAnnotations("USER", offset, offset).firstOrNull()
+                user?.let { parseUserAnnotation(it.item) }?.let {
+                    onUserClick(it.userId, it.userName, it.displayName, it.channel.orEmpty(), emptyList(), true)
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
         )
     }

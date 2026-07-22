@@ -428,7 +428,9 @@ class ChatMessageMapper(
             message = getSystemMessage(preferenceStore.userName, chatSettings.showTimedOutMessages),
             creatorName = creatorUserDisplay?.toString(),
             targetName = targetUserDisplay?.toString(),
-            creatorColor = creatorUserDisplay?.let { usersRepository.getCachedUserColor(UserName(it.toString())) } ?: Message.DEFAULT_COLOR,
+            creatorUserName = creatorUser,
+            targetUserName = targetUser,
+            creatorColor = creatorUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
             targetColor = targetUser?.let { usersRepository.getCachedUserColor(it) } ?: Message.DEFAULT_COLOR,
             arguments = arguments,
         )

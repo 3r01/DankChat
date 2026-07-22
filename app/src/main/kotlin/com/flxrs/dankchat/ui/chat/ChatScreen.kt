@@ -815,6 +815,8 @@ private fun ChatMessageItem(
             ModerationMessageComposable(
                 message = message,
                 fontSize = fontSize,
+                animateGifs = animateGifs,
+                onUserClick = callbacks.onUserClick,
                 showChannelPrefix = showChannelPrefix,
             )
         }
