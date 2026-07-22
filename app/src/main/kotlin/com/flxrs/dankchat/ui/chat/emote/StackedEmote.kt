@@ -7,14 +7,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.asDrawable
 import coil3.compose.LocalPlatformContext
 import coil3.imageLoader
@@ -54,6 +57,7 @@ fun StackedEmote(
         SingleEmoteDrawable(
             url = emote.urls.first(),
             chatEmote = emote.emotes.first(),
+            fontSize = fontSize,
             scaleFactor = scaleFactor,
             emoteCoordinator = emoteCoordinator,
             animateGifs = animateGifs,
@@ -74,36 +78,43 @@ fun StackedEmote(
 
     // Load or create LayerDrawable asynchronously
     val layerDrawableState =
-        produceState<LayerDrawable?>(initialValue = null, key1 = cacheKey) {
+        produceState<EmoteLoadState>(initialValue = EmoteLoadState.Loading, key1 = cacheKey) {
             // Check cache first
             val cached = emoteCoordinator.getLayerCached(cacheKey)
             if (cached != null) {
-                value = cached
+                value = EmoteLoadState.Loaded(cached)
                 // Control animation
                 cached.forEachLayer<Animatable> { it.setRunning(animateGifs) }
-            } else {
-                // Load all drawables
-                val drawables =
-                    emote.urls
-                        .mapIndexedNotNull { idx, url ->
-                            val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
-                            try {
-                                val request =
-                                    ImageRequest
-                                        .Builder(context)
-                                        .data(url)
-                                        .size(Size.ORIGINAL)
-                                        .build()
-                                val result = context.imageLoader.execute(request)
-                                result.image?.asDrawable(context.resources)?.let { drawable ->
-                                    transformEmoteDrawable(drawable, scaleFactor, emoteData)
-                                }
-                            } catch (_: Exception) {
-                                null
-                            }
-                        }.toTypedArray()
+                return@produceState
+            }
 
-                if (drawables.isNotEmpty()) {
+            // Load all drawables
+            val drawables =
+                emote.urls
+                    .mapIndexedNotNull { idx, url ->
+                        val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
+                        try {
+                            val request =
+                                ImageRequest
+                                    .Builder(context)
+                                    .data(url)
+                                    .size(Size.ORIGINAL)
+                                    .build()
+                            val result = context.imageLoader.execute(request)
+                            result.image?.asDrawable(context.resources)?.let { drawable ->
+                                transformEmoteDrawable(drawable, scaleFactor, emoteData)
+                            }
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }.toTypedArray()
+
+            when {
+                drawables.isEmpty() -> {
+                    value = EmoteLoadState.Failed
+                }
+
+                else -> {
                     val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
                     emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
                     // Store dimensions for future placeholder sizing
@@ -111,7 +122,7 @@ fun StackedEmote(
                         cacheKey,
                         layerDrawable.bounds.width() to layerDrawable.bounds.height(),
                     )
-                    value = layerDrawable
+                    value = EmoteLoadState.Loaded(layerDrawable)
                     // Control animation
                     layerDrawable.forEachLayer<Animatable> { it.setRunning(animateGifs) }
                 }
@@ -120,35 +131,57 @@ fun StackedEmote(
 
     // Update animation state when setting changes
     LaunchedEffect(animateGifs, layerDrawableState.value) {
-        layerDrawableState.value?.forEachLayer<Animatable> { it.setRunning(animateGifs) }
+        val loaded = layerDrawableState.value as? EmoteLoadState.Loaded ?: return@LaunchedEffect
+        (loaded.drawable as? LayerDrawable)?.forEachLayer<Animatable> { it.setRunning(animateGifs) }
     }
 
-    val layerDrawable = layerDrawableState.value
-    if (layerDrawable != null) {
-        // Render with actual dimensions
-        val widthDp = with(density) { layerDrawable.bounds.width().toDp() }
-        val heightDp = with(density) { layerDrawable.bounds.height().toDp() }
-        val painter = remember(layerDrawable) { EmoteDrawablePainter(layerDrawable) }
+    when (val state = layerDrawableState.value) {
+        is EmoteLoadState.Loaded -> {
+            // Render with actual dimensions
+            val widthDp = with(density) {
+                state.drawable.bounds
+                    .width()
+                    .toDp()
+            }
+            val heightDp = with(density) {
+                state.drawable.bounds
+                    .height()
+                    .toDp()
+            }
+            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable) }
 
-        Image(
-            painter = painter,
-            contentDescription = null,
-            alpha = alpha,
-            modifier =
-                modifier
-                    .size(width = widthDp, height = heightDp)
-                    .clickable { onClick() },
-        )
-    } else {
-        // Placeholder with estimated size to prevent layout shift
-        val widthDp = with(density) { estimatedWidthPx.toDp() }
-        val heightDp = with(density) { estimatedHeightPx.toDp() }
-        Box(
-            modifier =
-                modifier
-                    .size(width = widthDp, height = heightDp)
-                    .clickable { onClick() },
-        )
+            Image(
+                painter = painter,
+                contentDescription = null,
+                alpha = alpha,
+                modifier =
+                    modifier
+                        .size(width = widthDp, height = heightDp)
+                        .clickable { onClick() },
+            )
+        }
+
+        EmoteLoadState.Failed -> {
+            EmoteCodeFallback(
+                code = emote.code,
+                fontSize = fontSize,
+                alpha = alpha,
+                modifier = modifier,
+                onClick = onClick,
+            )
+        }
+
+        EmoteLoadState.Loading -> {
+            // Placeholder with estimated size to prevent layout shift
+            val widthDp = with(density) { estimatedWidthPx.toDp() }
+            val heightDp = with(density) { estimatedHeightPx.toDp() }
+            Box(
+                modifier =
+                    modifier
+                        .size(width = widthDp, height = heightDp)
+                        .clickable { onClick() },
+            )
+        }
     }
 }
 
@@ -156,6 +189,7 @@ fun StackedEmote(
 private fun SingleEmoteDrawable(
     url: String,
     chatEmote: ChatMessageEmote,
+    fontSize: Float,
     scaleFactor: Double,
     emoteCoordinator: EmoteAnimationCoordinator,
     animateGifs: Boolean,
@@ -171,12 +205,15 @@ private fun SingleEmoteDrawable(
 
     // Load drawable asynchronously
     val drawableState =
-        produceState<Drawable?>(initialValue = null, key1 = url) {
+        produceState<EmoteLoadState>(initialValue = EmoteLoadState.Loading, key1 = url) {
             // Fast path: check cache first
             val cached = emoteCoordinator.getCached(url)
             if (cached != null) {
-                value = cached
-            } else {
+                value = EmoteLoadState.Loaded(cached)
+                return@produceState
+            }
+
+            val transformed =
                 try {
                     val request =
                         ImageRequest
@@ -187,55 +224,110 @@ private fun SingleEmoteDrawable(
                     val result = context.imageLoader.execute(request)
                     result.image?.asDrawable(context.resources)?.let { drawable ->
                         // Transform and cache
-                        val transformed = transformEmoteDrawable(drawable, scaleFactor, chatEmote)
-                        emoteCoordinator.putInCache(url, transformed)
-                        // Store dimensions for future placeholder sizing
-                        emoteCoordinator.dimensionCache.put(
-                            url,
-                            transformed.bounds.width() to transformed.bounds.height(),
-                        )
-                        value = transformed
+                        transformEmoteDrawable(drawable, scaleFactor, chatEmote).also {
+                            emoteCoordinator.putInCache(url, it)
+                            // Store dimensions for future placeholder sizing
+                            emoteCoordinator.dimensionCache.put(
+                                url,
+                                it.bounds.width() to it.bounds.height(),
+                            )
+                        }
                     }
                 } catch (_: Exception) {
-                    // Ignore errors
+                    null
                 }
+
+            value = when (transformed) {
+                null -> EmoteLoadState.Failed
+                else -> EmoteLoadState.Loaded(transformed)
             }
         }
 
     // Update animation state when setting changes
     LaunchedEffect(animateGifs, drawableState.value) {
-        if (drawableState.value is Animatable) {
-            (drawableState.value as Animatable).setRunning(animateGifs)
+        val loaded = drawableState.value as? EmoteLoadState.Loaded ?: return@LaunchedEffect
+        (loaded.drawable as? Animatable)?.setRunning(animateGifs)
+    }
+
+    when (val state = drawableState.value) {
+        is EmoteLoadState.Loaded -> {
+            // Render with actual dimensions
+            val widthDp = with(density) {
+                state.drawable.bounds
+                    .width()
+                    .toDp()
+            }
+            val heightDp = with(density) {
+                state.drawable.bounds
+                    .height()
+                    .toDp()
+            }
+            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable) }
+
+            Image(
+                painter = painter,
+                contentDescription = null,
+                alpha = alpha,
+                modifier =
+                    modifier
+                        .size(width = widthDp, height = heightDp)
+                        .clickable { onClick() },
+            )
+        }
+
+        EmoteLoadState.Failed -> {
+            EmoteCodeFallback(
+                code = chatEmote.code,
+                fontSize = fontSize,
+                alpha = alpha,
+                modifier = modifier,
+                onClick = onClick,
+            )
+        }
+
+        EmoteLoadState.Loading -> {
+            if (cachedDims != null) {
+                // Placeholder with cached size to prevent layout shift
+                val widthDp = with(density) { cachedDims.first.toDp() }
+                val heightDp = with(density) { cachedDims.second.toDp() }
+                Box(
+                    modifier =
+                        modifier
+                            .size(width = widthDp, height = heightDp)
+                            .clickable { onClick() },
+                )
+            }
         }
     }
+}
 
-    val drawable = drawableState.value
-    if (drawable != null) {
-        // Render with actual dimensions
-        val widthDp = with(density) { drawable.bounds.width().toDp() }
-        val heightDp = with(density) { drawable.bounds.height().toDp() }
-        val painter = remember(drawable) { EmoteDrawablePainter(drawable) }
+// Shown in place of an emote whose image failed to load
+@Composable
+private fun EmoteCodeFallback(
+    code: String,
+    fontSize: Float,
+    alpha: Float,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    Text(
+        text = code,
+        fontSize = fontSize.sp,
+        modifier =
+            modifier
+                .alpha(alpha)
+                .clickable { onClick() },
+    )
+}
 
-        Image(
-            painter = painter,
-            contentDescription = null,
-            alpha = alpha,
-            modifier =
-                modifier
-                    .size(width = widthDp, height = heightDp)
-                    .clickable { onClick() },
-        )
-    } else if (cachedDims != null) {
-        // Placeholder with cached size to prevent layout shift
-        val widthDp = with(density) { cachedDims.first.toDp() }
-        val heightDp = with(density) { cachedDims.second.toDp() }
-        Box(
-            modifier =
-                modifier
-                    .size(width = widthDp, height = heightDp)
-                    .clickable { onClick() },
-        )
-    }
+private sealed interface EmoteLoadState {
+    data object Loading : EmoteLoadState
+
+    data object Failed : EmoteLoadState
+
+    data class Loaded(
+        val drawable: Drawable,
+    ) : EmoteLoadState
 }
 
 private fun transformEmoteDrawable(
