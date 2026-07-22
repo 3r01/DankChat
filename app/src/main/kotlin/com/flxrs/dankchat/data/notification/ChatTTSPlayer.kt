@@ -7,6 +7,7 @@ import android.media.AudioManager
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import androidx.core.content.getSystemService
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
@@ -115,17 +116,33 @@ class ChatTTSPlayer(
 
     private fun applyVoice(forceEnglish: Boolean) {
         val voice = when {
-            forceEnglish -> tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
+            forceEnglish -> findEnglishVoice()
             else -> tts?.defaultVoice
         }
 
-        if (voice == null || tts?.setVoice(voice) == TextToSpeech.ERROR) {
-            shutdownTTS()
+        if (voice != null && tts?.setVoice(voice) != TextToSpeech.ERROR) {
+            return
+        }
+
+        // The engine may not support the system language, fall back to English
+        val fallbackVoice = when {
+            forceEnglish -> null
+            else -> findEnglishVoice()
+        }
+        if (fallbackVoice != null && tts?.setVoice(fallbackVoice) != TextToSpeech.ERROR) {
             scope.launch {
-                toolsSettingsDataStore.update { it.copy(ttsEnabled = false) }
+                toolsSettingsDataStore.update { it.copy(ttsForceEnglish = true) }
             }
+            return
+        }
+
+        shutdownTTS()
+        scope.launch {
+            toolsSettingsDataStore.update { it.copy(ttsEnabled = false) }
         }
     }
+
+    private fun findEnglishVoice(): Voice? = tts?.voices?.find { it.locale == Locale.US && !it.isNetworkConnectionRequired }
 
     private fun shutdownTTS() {
         pendingUtterances.set(0)
