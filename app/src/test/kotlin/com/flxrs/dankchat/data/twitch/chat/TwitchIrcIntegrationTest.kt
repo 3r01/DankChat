@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -21,6 +22,8 @@ import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 internal class ChatConnectionTest {
@@ -53,13 +56,14 @@ internal class ChatConnectionTest {
     private fun createConnection(
         userName: String? = null,
         oAuth: String? = null,
+        pongTimeout: Duration = 10.seconds,
     ): ChatConnection {
         val authDataStore: AuthDataStore =
             mockk {
                 every { this@mockk.userName } returns userName?.toUserName()
                 every { oAuthKey } returns oAuth
             }
-        return ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchers, serviceActive = MutableStateFlow(true), url = mockServer.url).also {
+        return ChatConnection(ChatConnectionType.Read, httpClient, authDataStore, dispatchers, serviceActive = MutableStateFlow(true), url = mockServer.url, pongTimeout = pongTimeout).also {
             connection = it
         }
     }
@@ -183,18 +187,40 @@ internal class ChatConnectionTest {
     }
 
     @Test
-    fun `reconnectIfNecessary does nothing when already connected`() = runTest {
+    fun `reconnectIfNecessary keeps connection when pong is received`() = runTest {
         withContext(Dispatchers.Default) {
             withTimeout(15.seconds) {
-                val conn = createConnection()
+                val conn = createConnection(pongTimeout = 1.seconds)
+                conn.connect()
+                conn.connected.first { it }
+                mockServer.frames.first { it.startsWith("CAP REQ") }
+
+                conn.reconnectIfNecessary()
+                mockServer.frames.first { it.startsWith("PING") }
+
+                delay(2.seconds)
+                assertTrue(conn.connected.value)
+                assertEquals(1, mockServer.sentFrames.count { it.startsWith("CAP REQ") })
+            }
+        }
+    }
+
+    @Test
+    fun `reconnectIfNecessary reconnects when pong is not received`() = runTest {
+        withContext(Dispatchers.Default) {
+            withTimeout(15.seconds) {
+                mockServer.respondToPing = false
+                mockServer.enqueueUpgrade()
+
+                val conn = createConnection(pongTimeout = 500.milliseconds)
                 conn.connect()
                 conn.connected.first { it }
 
-                val frameCountBefore = mockServer.sentFrames.size
                 conn.reconnectIfNecessary()
+                mockServer.frames.first { it.startsWith("PING") }
 
-                assertEquals(frameCountBefore, mockServer.sentFrames.size)
-                assertTrue(conn.connected.value)
+                mockServer.frames.first { mockServer.sentFrames.count { frame -> frame.startsWith("CAP REQ") } >= 2 }
+                conn.connected.first { it }
             }
         }
     }

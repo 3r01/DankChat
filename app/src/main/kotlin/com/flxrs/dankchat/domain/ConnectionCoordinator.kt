@@ -6,6 +6,7 @@ import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository
+import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
@@ -20,6 +21,7 @@ class ConnectionCoordinator(
     private val chatConnector: ChatConnector,
     private val dataRepository: DataRepository,
     private val chatChannelProvider: ChatChannelProvider,
+    private val channelDataCoordinator: ChannelDataCoordinator,
     private val authStateCoordinator: AuthStateCoordinator,
     private val startupValidationHolder: StartupValidationHolder,
     private val appLifecycleListener: AppLifecycleListener,
@@ -52,6 +54,11 @@ class ConnectionCoordinator(
                             foregroundServiceState.setActive(true)
                             chatConnector.reconnectIfNecessary()
                             dataRepository.reconnectIfNecessary()
+
+                            val loadingState = channelDataCoordinator.globalLoadingState.value
+                            if (loadingState is GlobalLoadingState.Failed) {
+                                channelDataCoordinator.retryDataLoading(loadingState)
+                            }
                         }
                     }
                 }

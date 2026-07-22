@@ -17,6 +17,7 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Job
@@ -32,8 +33,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.random.Random
 import kotlin.random.nextLong
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
@@ -80,6 +83,7 @@ class ChatConnection(
     dispatchersProvider: DispatchersProvider,
     private val serviceActive: StateFlow<Boolean>,
     private val url: String = IRC_URL,
+    private val pongTimeout: Duration = PONG_TIMEOUT,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val client =
@@ -94,6 +98,9 @@ class ChatConnection(
     private val receiveChannel = Channel<ChatEvent>(capacity = Channel.BUFFERED)
 
     private var awaitingPong = false
+
+    @Volatile
+    private var pongReceived: CompletableDeferred<Unit>? = null
 
     private val channels = mutableSetOf<UserName>()
     private val channelsAttemptedToJoin = ConcurrentSet<UserName>()
@@ -245,6 +252,7 @@ class ChatConnection(
 
                                             "PONG" -> {
                                                 awaitingPong = false
+                                                pongReceived?.complete(Unit)
                                             }
 
                                             "RECONNECT" -> {
@@ -326,9 +334,28 @@ class ChatConnection(
     }
 
     fun reconnectIfNecessary() {
-        if (session?.isActive == true && session?.incoming?.isClosedForReceive == false) return
-        logger.info { "[$chatConnectionType] connection lost, reconnecting" }
-        reconnect()
+        val currentSession = session
+        if (currentSession?.isActive != true || currentSession.incoming.isClosedForReceive) {
+            logger.info { "[$chatConnectionType] connection lost, reconnecting" }
+            reconnect()
+            return
+        }
+
+        verifyConnection(currentSession)
+    }
+
+    // A session can still look active with a dead TCP socket, e.g. after the app was frozen in the background.
+    private fun verifyConnection(currentSession: DefaultClientWebSocketSession) = scope.launch {
+        if (!_connected.value) return@launch
+
+        val pong = CompletableDeferred<Unit>()
+        pongReceived = pong
+        runCatching { currentSession.send(Frame.Text("PING\r\n")) }
+        val received = withTimeoutOrNull(pongTimeout) { pong.await() }
+        if (received == null && session === currentSession) {
+            logger.info { "[$chatConnectionType] no pong received, reconnecting" }
+            reconnect()
+        }
     }
 
     private fun randomJitter() = Random.nextLong(range = 0L..MAX_JITTER).milliseconds
@@ -383,6 +410,7 @@ class ChatConnection(
         private val RECONNECT_BASE_DELAY = 1.seconds
         private const val RECONNECT_MAX_ATTEMPTS = 4
         private val PING_INTERVAL = 5.minutes
+        private val PONG_TIMEOUT = 10.seconds
         private val JOIN_CHECK_DELAY = 10.seconds
         private val JOIN_DELAY = 600.milliseconds
         private const val JOIN_CHUNK_SIZE = 5

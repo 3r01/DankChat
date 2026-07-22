@@ -16,7 +16,11 @@ class MockIrcServer : AutoCloseable {
     private val server = MockWebServer()
 
     @Volatile
+    var respondToPing = true
+
+    @Volatile
     private var serverSocket: WebSocket? = null
+    private val sockets = CopyOnWriteArrayList<WebSocket>()
     val sentFrames = CopyOnWriteArrayList<String>()
     private val _frames = MutableSharedFlow<String>(replay = Int.MAX_VALUE)
     val frames: Flow<String> = _frames.asSharedFlow()
@@ -29,6 +33,7 @@ class MockIrcServer : AutoCloseable {
                 response: Response,
             ) {
                 serverSocket = webSocket
+                sockets += webSocket
                 connectedLatch.countDown()
             }
 
@@ -47,8 +52,12 @@ class MockIrcServer : AutoCloseable {
     val url: String get() = server.url("/").toString().replace("http://", "ws://")
 
     fun start() {
-        server.enqueue(MockResponse.Builder().webSocketUpgrade(listener).build())
+        enqueueUpgrade()
         server.start()
+    }
+
+    fun enqueueUpgrade() {
+        server.enqueue(MockResponse.Builder().webSocketUpgrade(listener).build())
     }
 
     fun awaitConnection(
@@ -64,7 +73,7 @@ class MockIrcServer : AutoCloseable {
     }
 
     override fun close() {
-        serverSocket?.close(1000, null)
+        sockets.forEach { runCatching { it.close(1000, null) } }
         server.close()
     }
 
@@ -88,7 +97,7 @@ class MockIrcServer : AutoCloseable {
                 }
             }
 
-            line.startsWith("PING") -> {
+            line.startsWith("PING") && respondToPing -> {
                 webSocket.send(":tmi.twitch.tv PONG tmi.twitch.tv\r\n")
             }
         }
