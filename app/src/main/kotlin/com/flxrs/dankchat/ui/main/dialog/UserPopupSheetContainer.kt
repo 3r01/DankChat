@@ -16,10 +16,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun UserPopupSheetContainer(
-    onOpenUrl: (String) -> Unit,
-    onReportChannel: () -> Unit,
-) {
+fun UserPopupSheetContainer(onOpenUrl: (String) -> Unit) {
     val userPopupViewModel: UserPopupViewModel = koinViewModel()
     val chatInputViewModel: ChatInputViewModel = koinViewModel()
     val sheetNavigationViewModel: SheetNavigationViewModel = koinViewModel()
@@ -55,7 +52,7 @@ fun UserPopupSheetContainer(
             }
         },
         onOpenChannel = { userName -> onOpenUrl("https://twitch.tv/$userName") },
-        onReport = { _ -> onReportChannel() },
+        onReport = { userName -> onOpenUrl("https://twitch.tv/$userName/report") },
         onMessageHistory = when {
             isHistoryOpen -> null
 

@@ -87,7 +87,6 @@ fun MainScreenDialogs(
     onAddChannel: (UserName) -> Unit,
     onLogout: () -> Unit,
     onLogin: () -> Unit,
-    onReportChannel: () -> Unit,
     onOpenUrl: (String) -> Unit,
     onJumpToMessage: (messageId: String, channel: UserName) -> Unit = { _, _ -> },
     onOpenLogViewer: () -> Unit = {},
@@ -231,7 +230,6 @@ fun MainScreenDialogs(
     if (sheetsReady) {
         UserPopupSheetContainer(
             onOpenUrl = onOpenUrl,
-            onReportChannel = onReportChannel,
         )
     }
 

@@ -296,7 +296,6 @@ fun MainScreen(
         },
         onLogout = onLogout,
         onLogin = onLogin,
-        onReportChannel = onReportChannel,
         onOpenUrl = onOpenUrl,
         onOpenLogViewer = onOpenLogViewer,
         onJumpToMessage = { messageId, channel ->
