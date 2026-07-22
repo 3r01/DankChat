@@ -170,7 +170,6 @@ fun UserPopupDialog(
 
                                 if (onMention != null && isLoggedIn) {
                                     ListItem(
-                                        headlineContent = { Text(stringResource(R.string.user_popup_mention)) },
                                         leadingContent = { Icon(Icons.Default.AlternateEmail, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
@@ -178,11 +177,12 @@ fun UserPopupDialog(
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    )
+                                    ) {
+                                        Text(stringResource(R.string.user_popup_mention))
+                                    }
                                 }
                                 if (onWhisper != null && isLoggedIn && !isOwnUser) {
                                     ListItem(
-                                        headlineContent = { Text(stringResource(R.string.user_popup_whisper)) },
                                         leadingContent = { Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
@@ -190,7 +190,9 @@ fun UserPopupDialog(
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    )
+                                    ) {
+                                        Text(stringResource(R.string.user_popup_whisper))
+                                    }
                                 }
                                 val historyCallback = onViewHistory ?: onMessageHistory
                                 if (historyCallback != null) {
@@ -199,7 +201,6 @@ fun UserPopupDialog(
                                         else -> R.string.view_history
                                     }
                                     ListItem(
-                                        headlineContent = { Text(stringResource(label)) },
                                         leadingContent = { Icon(Icons.Default.History, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
@@ -207,11 +208,12 @@ fun UserPopupDialog(
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    )
+                                    ) {
+                                        Text(stringResource(label))
+                                    }
                                 }
                                 AnimatedVisibility(visible = isSuccess && !isOwnUser) {
                                     ListItem(
-                                        headlineContent = { Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block)) },
                                         leadingContent = { Icon(Icons.Default.Block, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
@@ -222,11 +224,12 @@ fun UserPopupDialog(
                                                 }
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    )
+                                    ) {
+                                        Text(if (isBlocked) stringResource(R.string.user_popup_unblock) else stringResource(R.string.user_popup_block))
+                                    }
                                 }
                                 if (!isOwnUser) {
                                     ListItem(
-                                        headlineContent = { Text(stringResource(R.string.user_popup_report)) },
                                         leadingContent = { Icon(Icons.Default.Report, contentDescription = null) },
                                         modifier =
                                             Modifier.clickable {
@@ -234,7 +237,9 @@ fun UserPopupDialog(
                                                 onDismiss()
                                             },
                                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                                    )
+                                    ) {
+                                        Text(stringResource(R.string.user_popup_report))
+                                    }
                                 }
                             }
                         }

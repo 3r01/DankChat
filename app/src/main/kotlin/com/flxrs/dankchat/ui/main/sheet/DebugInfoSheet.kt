@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.res.stringResource
@@ -34,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.debug.DebugEntry
-import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import com.flxrs.dankchat.utils.resolve
 import kotlinx.coroutines.launch
 
@@ -59,7 +57,6 @@ fun DebugInfoSheet(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .nestedScroll(BottomSheetNestedScrollConnection)
                     .padding(horizontal = 16.dp),
             contentPadding = navBarPadding,
             verticalArrangement = Arrangement.spacedBy(4.dp),

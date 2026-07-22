@@ -56,7 +56,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -71,7 +70,6 @@ import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.model.ChannelWithRename
-import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
@@ -124,8 +122,7 @@ fun ManageChannelsDialog(
                     LazyColumn(
                         modifier =
                             Modifier
-                                .fillMaxWidth()
-                                .nestedScroll(BottomSheetNestedScrollConnection),
+                                .fillMaxWidth(),
                         state = lazyListState,
                         contentPadding = navBarPadding,
                     ) {

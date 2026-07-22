@@ -236,7 +236,6 @@ private fun MessageOptionsMainView(
         if (canCopy) {
             MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy), onCopy)
             ListItem(
-                headlineContent = { Text(stringResource(R.string.message_more_actions)) },
                 leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },
                 trailingContent = {
                     Icon(
@@ -247,7 +246,9 @@ private fun MessageOptionsMainView(
                 },
                 modifier = Modifier.clickable { moreExpanded = !moreExpanded },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-            )
+            ) {
+                Text(stringResource(R.string.message_more_actions))
+            }
             AnimatedVisibility(
                 visible = moreExpanded,
                 enter = expandVertically(),
@@ -258,17 +259,16 @@ private fun MessageOptionsMainView(
                     MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy_id), onCopyMessageId)
                     for (url in urls) {
                         ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = stringResource(R.string.message_copy_link, url),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            },
                             leadingContent = { Icon(Icons.Default.Link, contentDescription = null) },
                             modifier = Modifier.clickable { onCopyUrl(url) },
                             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                        )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.message_copy_link, url),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
                 }
             }
@@ -351,11 +351,12 @@ private fun MessageOptionItem(
     onClick: () -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text(text) },
         leadingContent = { Icon(icon, contentDescription = null) },
         modifier = Modifier.clickable(onClick = onClick),
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-    )
+    ) {
+        Text(text)
+    }
 }
 
 @Composable

@@ -177,24 +177,27 @@ private fun EmoteInfoContent(
 
         if (showUseEmote) {
             ListItem(
-                headlineContent = { Text(stringResource(R.string.emote_sheet_use)) },
                 leadingContent = { Icon(Icons.Default.InsertEmoticon, contentDescription = null) },
                 modifier = Modifier.clickable(onClick = onUseEmote),
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-            )
+            ) {
+                Text(stringResource(R.string.emote_sheet_use))
+            }
         }
         ListItem(
-            headlineContent = { Text(stringResource(R.string.emote_sheet_copy)) },
             leadingContent = { Icon(Icons.Default.ContentCopy, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onCopyEmote),
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        )
+        ) {
+            Text(stringResource(R.string.emote_sheet_copy))
+        }
         ListItem(
-            headlineContent = { Text(stringResource(R.string.emote_sheet_open_link)) },
             leadingContent = { Icon(Icons.Default.OpenInBrowser, contentDescription = null) },
             modifier = Modifier.clickable(onClick = onOpenLink),
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        )
+        ) {
+            Text(stringResource(R.string.emote_sheet_open_link))
+        }
     }
 }
 

@@ -39,7 +39,6 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.di.DispatchersProvider
-import com.flxrs.dankchat.utils.compose.BottomSheetNestedScrollConnection
 import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import com.flxrs.dankchat.utils.compose.textLinkStyles
 import com.mikepenz.aboutlibraries.Libs
@@ -147,7 +146,6 @@ private fun LibraryLicenseSheet(
             modifier =
                 Modifier
                     .weight(1f, fill = false)
-                    .nestedScroll(BottomSheetNestedScrollConnection)
                     .verticalScroll(scrollState)
                     .padding(start = 16.dp, end = 16.dp, bottom = navBarBottom),
         )

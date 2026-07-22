@@ -61,7 +61,6 @@ fun UserPopupSheetContainer(onOpenUrl: (String) -> Unit) {
                     sheetNavigationViewModel.openHistory(HistoryChannel.Channel(channel), "from:$userName")
                     userPopupViewModel.dismiss()
                 }
-                Unit
             }
         },
         onViewHistory = when {
