@@ -762,6 +762,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="cmd_error_no_permission">Sinulla ei ole oikeutta suorittaa tätä toimintoa.</string>
     <string name="cmd_error_missing_scopes">Puuttuva vaadittu oikeus. Kirjaudu uudelleen tililläsi ja yritä uudelleen.</string>
     <string name="cmd_error_not_logged_in_credentials">Puuttuvat kirjautumistiedot. Kirjaudu uudelleen tililläsi ja yritä uudelleen.</string>
+    <string name="cmd_error_unknown_command">%1$s ei ole tunnettu komento</string>
     <string name="cmd_block_usage">Käyttö: /block &lt;käyttäjä&gt;</string>
     <string name="cmd_block_success">Estit onnistuneesti käyttäjän %1$s</string>
     <string name="cmd_block_not_found">Käyttäjää %1$s ei voitu estää, tällä nimellä ei löytynyt käyttäjää!</string>

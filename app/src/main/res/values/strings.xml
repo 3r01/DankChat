@@ -893,6 +893,7 @@
     <string name="cmd_error_no_permission">You don\'t have permission to perform that action.</string>
     <string name="cmd_error_missing_scopes">Missing required scope. Re-login with your account and try again.</string>
     <string name="cmd_error_not_logged_in_credentials">Missing login credentials. Re-login with your account and try again.</string>
+    <string name="cmd_error_unknown_command">%1$s is not a known command</string>
     <string name="cmd_block_usage">Usage: /block &lt;user&gt;</string>
     <string name="cmd_block_success">You successfully blocked user %1$s</string>
     <string name="cmd_block_not_found">User %1$s couldn\'t be blocked, no user with that name found!</string>

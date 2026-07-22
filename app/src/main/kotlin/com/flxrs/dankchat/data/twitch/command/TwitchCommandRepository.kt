@@ -956,6 +956,12 @@ class TwitchCommandRepository(
 
         fun asCommandTriggers(command: String): List<String> = ALLOWED_FIRST_TRIGGER_CHARS.map { "$it$command" }
 
+        // `/`- or `.`-prefixed input that Twitch would post verbatim as a chat message,
+        // allowing "/me", dot-only messages and escaped variants like "/ text" or ". text"
+        private val UNKNOWN_COMMAND_REGEX = """^(?:\.(?!\.|$)|/)(?!me(?:\s|$)|\s)""".toRegex(RegexOption.IGNORE_CASE)
+
+        fun isUnknownCommand(message: String): Boolean = UNKNOWN_COMMAND_REGEX.containsMatchIn(message)
+
         val ALL_COMMAND_TRIGGERS = ALLOWED_IRC_COMMAND_TRIGGERS + TwitchCommand.ALL_COMMANDS.flatMap { asCommandTriggers(it.trigger) }
 
         private val VALID_HELIX_COLORS =

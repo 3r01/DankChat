@@ -813,6 +813,7 @@
     <string name="cmd_error_no_permission">Non hai il permesso di eseguire questa azione.</string>
     <string name="cmd_error_missing_scopes">Permesso richiesto mancante. Effettua nuovamente l\'accesso con il tuo account e riprova.</string>
     <string name="cmd_error_not_logged_in_credentials">Credenziali di accesso mancanti. Effettua nuovamente l\'accesso con il tuo account e riprova.</string>
+    <string name="cmd_error_unknown_command">%1$s non è un comando conosciuto</string>
     <string name="cmd_block_usage">Uso: /block &lt;utente&gt;</string>
     <string name="cmd_block_success">Hai bloccato con successo l\'utente %1$s</string>
     <string name="cmd_block_not_found">Impossibile bloccare l\'utente %1$s, nessun utente trovato con quel nome!</string>

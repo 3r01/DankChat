@@ -814,6 +814,7 @@
     <string name="cmd_error_no_permission">Бұл әрекетті орындауға рұқсатыңыз жоқ.</string>
     <string name="cmd_error_missing_scopes">Қажетті рұқсат жоқ. Аккаунтыңызбен қайта кіріп, қайталаңыз.</string>
     <string name="cmd_error_not_logged_in_credentials">Кіру деректері жоқ. Аккаунтыңызбен қайта кіріп, қайталаңыз.</string>
+    <string name="cmd_error_unknown_command">%1$s белгілі пәрмен емес</string>
     <string name="cmd_block_usage">Қолданысы: /block &lt;user&gt;</string>
     <string name="cmd_block_success">%1$s пайдаланушысы сәтті бұғатталды</string>
     <string name="cmd_block_not_found">%1$s пайдаланушысын бұғаттау мүмкін емес, бұл атпен пайдаланушы табылмады!</string>

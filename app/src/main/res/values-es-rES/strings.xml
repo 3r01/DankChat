@@ -821,6 +821,7 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="cmd_error_no_permission">No tienes permiso para realizar esa acción.</string>
     <string name="cmd_error_missing_scopes">Falta un permiso requerido. Vuelve a iniciar sesión con tu cuenta e inténtalo de nuevo.</string>
     <string name="cmd_error_not_logged_in_credentials">Faltan las credenciales de inicio de sesión. Vuelve a iniciar sesión con tu cuenta e inténtalo de nuevo.</string>
+    <string name="cmd_error_unknown_command">%1$s no es un comando conocido</string>
     <string name="cmd_block_usage">Uso: /block &lt;usuario&gt;</string>
     <string name="cmd_block_success">Has bloqueado correctamente al usuario %1$s</string>
     <string name="cmd_block_not_found">No se pudo bloquear al usuario %1$s, no se encontró ningún usuario con ese nombre.</string>

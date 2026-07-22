@@ -845,6 +845,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="cmd_error_no_permission">Nemáte oprávnění k provedení této akce.</string>
     <string name="cmd_error_missing_scopes">Chybí požadované oprávnění. Přihlaste se znovu a zkuste to znovu.</string>
     <string name="cmd_error_not_logged_in_credentials">Chybí přihlašovací údaje. Přihlaste se znovu a zkuste to znovu.</string>
+    <string name="cmd_error_unknown_command">%1$s není známý příkaz</string>
     <string name="cmd_block_usage">Použití: /block &lt;uživatel&gt;</string>
     <string name="cmd_block_success">Úspěšně jste zablokovali uživatele %1$s</string>
     <string name="cmd_block_not_found">Uživatele %1$s se nepodařilo zablokovat, uživatel s tímto jménem nebyl nalezen!</string>

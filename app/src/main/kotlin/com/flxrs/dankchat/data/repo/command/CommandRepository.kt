@@ -17,6 +17,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import com.flxrs.dankchat.preferences.chat.SuggestionType
+import com.flxrs.dankchat.preferences.developer.ChatSendProtocol
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.DateTimeUtils.calculateUptime
 import com.flxrs.dankchat.utils.TextResource
@@ -146,7 +147,24 @@ class CommandRepository(
             }
         }
 
-        return checkUserCommands(trigger)
+        val userCommand = checkUserCommands(trigger)
+        if (userCommand != CommandResult.NotFound) {
+            return userCommand
+        }
+
+        if (!TwitchCommandRepository.isUnknownCommand(message)) {
+            return CommandResult.NotFound
+        }
+
+        val developerSettings = developerSettingsDataStore.settings.first()
+        return when {
+            developerSettings.bypassCommandHandling -> CommandResult.IrcCommand
+
+            // Twitch rejects unknown commands itself when sending via IRC
+            developerSettings.chatSendProtocol == ChatSendProtocol.IRC -> CommandResult.NotFound
+
+            else -> CommandResult.UnknownCommand(trigger)
+        }
     }
 
     suspend fun checkForWhisperCommand(

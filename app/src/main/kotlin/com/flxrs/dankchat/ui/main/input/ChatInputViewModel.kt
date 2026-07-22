@@ -7,6 +7,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.text.TextRange
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
@@ -426,6 +427,11 @@ class ChatInputViewModel(
             is CommandResult.NotFound -> {
                 chatRepository.sendMessage(message, replyIdOrNull)
                 setReplying(false)
+            }
+
+            is CommandResult.UnknownCommand -> {
+                val response = TextResource.Res(R.string.cmd_error_unknown_command, persistentListOf(commandResult.trigger))
+                chatRepository.makeAndPostCustomSystemMessage(response, channel)
             }
 
             is CommandResult.AcceptedTwitchCommand -> {

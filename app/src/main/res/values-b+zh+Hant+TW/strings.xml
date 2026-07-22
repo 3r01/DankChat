@@ -809,6 +809,7 @@
     <string name="cmd_error_no_permission">您沒有權限執行該操作。</string>
     <string name="cmd_error_missing_scopes">缺少必要的權限範圍。請重新登入您的帳號後再試一次。</string>
     <string name="cmd_error_not_logged_in_credentials">缺少登入憑證。請重新登入您的帳號後再試一次。</string>
+    <string name="cmd_error_unknown_command">%1$s 不是已知的指令</string>
     <string name="cmd_block_usage">用法：/block &lt;user&gt;</string>
     <string name="cmd_block_success">您已成功封鎖使用者 %1$s</string>
     <string name="cmd_block_not_found">無法封鎖使用者 %1$s，找不到該名稱的使用者！</string>

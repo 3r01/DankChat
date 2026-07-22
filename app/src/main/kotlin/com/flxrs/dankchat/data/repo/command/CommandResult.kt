@@ -21,6 +21,10 @@ sealed interface CommandResult {
 
     data object NotFound : CommandResult
 
+    data class UnknownCommand(
+        val trigger: String,
+    ) : CommandResult
+
     data object IrcCommand : CommandResult
 
     data object Blocked : CommandResult

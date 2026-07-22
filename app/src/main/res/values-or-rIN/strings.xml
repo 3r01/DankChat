@@ -746,6 +746,7 @@
     <string name="cmd_error_no_permission">ଏହି କାର୍ଯ୍ୟ କରିବାକୁ ଆପଣଙ୍କର ଅନୁମତି ନାହିଁ।</string>
     <string name="cmd_error_missing_scopes">ଆବଶ୍ୟକ ସ୍କୋପ୍ ନାହିଁ। ଆପଣଙ୍କ ଆକାଉଣ୍ଟରେ ପୁନଃ ଲଗ୍ ଇନ୍ କରି ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।</string>
     <string name="cmd_error_not_logged_in_credentials">ଲଗ୍ ଇନ୍ ପ୍ରମାଣପତ୍ର ନାହିଁ। ଆପଣଙ୍କ ଆକାଉଣ୍ଟରେ ପୁନଃ ଲଗ୍ ଇନ୍ କରି ପୁନଃଚେଷ୍ଟା କରନ୍ତୁ।</string>
+    <string name="cmd_error_unknown_command">%1$s ଏକ ଜଣା କମାଣ୍ଡ ନୁହେଁ</string>
     <string name="cmd_block_usage">ବ୍ୟବହାର: /block &lt;user&gt;</string>
     <string name="cmd_block_success">ଆପଣ ସଫଳତାର ସହ %1$s ୟୁଜରଙ୍କୁ ବ୍ଲକ୍ କଲେ</string>
     <string name="cmd_block_not_found">%1$s ୟୁଜରଙ୍କୁ ବ୍ଲକ୍ କରାଯାଇପାରିଲା ନାହିଁ, ସେହି ନାମର କୌଣସି ୟୁଜର ମିଳିଲା ନାହିଁ!</string>

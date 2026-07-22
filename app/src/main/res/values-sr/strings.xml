@@ -729,6 +729,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="cmd_error_no_permission">Немате дозволу за извршавање ове радње.</string>
     <string name="cmd_error_missing_scopes">Недостаје потребна дозвола. Поново се пријавите и покушајте поново.</string>
     <string name="cmd_error_not_logged_in_credentials">Недостају подаци за пријаву. Поново се пријавите и покушајте поново.</string>
+    <string name="cmd_error_unknown_command">%1$s није позната команда</string>
     <string name="cmd_block_usage">Употреба: /block &lt;корисник&gt;</string>
     <string name="cmd_block_success">Успешно сте блокирали корисника %1$s</string>
     <string name="cmd_block_not_found">Корисник %1$s није могао бити блокиран, корисник са тим именом није пронађен!</string>

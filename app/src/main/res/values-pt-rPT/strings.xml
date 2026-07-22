@@ -812,6 +812,7 @@
     <string name="cmd_error_no_permission">Não tens permissão para realizar essa ação.</string>
     <string name="cmd_error_missing_scopes">Permissão necessária em falta. Inicia sessão novamente com a tua conta e tenta outra vez.</string>
     <string name="cmd_error_not_logged_in_credentials">Credenciais de início de sessão em falta. Inicia sessão novamente com a tua conta e tenta outra vez.</string>
+    <string name="cmd_error_unknown_command">%1$s não é um comando conhecido</string>
     <string name="cmd_block_usage">Utilização: /block &lt;utilizador&gt;</string>
     <string name="cmd_block_success">Bloqueaste o utilizador %1$s com sucesso</string>
     <string name="cmd_block_not_found">Não foi possível bloquear o utilizador %1$s, nenhum utilizador encontrado com esse nome!</string>

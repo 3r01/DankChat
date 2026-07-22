@@ -814,6 +814,7 @@
     <string name="cmd_error_no_permission">Você não tem permissão para realizar essa ação.</string>
     <string name="cmd_error_missing_scopes">Permissão necessária ausente. Faça login novamente com sua conta e tente outra vez.</string>
     <string name="cmd_error_not_logged_in_credentials">Credenciais de login ausentes. Faça login novamente com sua conta e tente outra vez.</string>
+    <string name="cmd_error_unknown_command">%1$s não é um comando conhecido</string>
     <string name="cmd_block_usage">Uso: /block &lt;usuário&gt;</string>
     <string name="cmd_block_success">Você bloqueou o usuário %1$s com sucesso</string>
     <string name="cmd_block_not_found">Não foi possível bloquear o usuário %1$s, nenhum usuário encontrado com esse nome!</string>

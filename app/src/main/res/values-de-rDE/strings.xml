@@ -821,6 +821,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="cmd_error_no_permission">Du hast keine Berechtigung, diese Aktion auszuführen.</string>
     <string name="cmd_error_missing_scopes">Fehlende erforderliche Berechtigung. Melde dich erneut an und versuche es nochmal.</string>
     <string name="cmd_error_not_logged_in_credentials">Fehlende Anmeldedaten. Melde dich erneut an und versuche es nochmal.</string>
+    <string name="cmd_error_unknown_command">%1$s ist kein bekannter Befehl</string>
     <string name="cmd_block_usage">Verwendung: /block &lt;Benutzer&gt;</string>
     <string name="cmd_block_success">Du hast den Benutzer %1$s erfolgreich blockiert</string>
     <string name="cmd_block_not_found">Benutzer %1$s konnte nicht blockiert werden, kein Benutzer mit diesem Namen gefunden!</string>

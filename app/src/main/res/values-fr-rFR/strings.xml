@@ -819,6 +819,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="cmd_error_no_permission">Vous n\'avez pas la permission d\'effectuer cette action.</string>
     <string name="cmd_error_missing_scopes">Permission requise manquante. Reconnectez-vous avec votre compte et réessayez.</string>
     <string name="cmd_error_not_logged_in_credentials">Identifiants de connexion manquants. Reconnectez-vous avec votre compte et réessayez.</string>
+    <string name="cmd_error_unknown_command">%1$s n\'est pas une commande connue</string>
     <string name="cmd_block_usage">Utilisation : /block &lt;utilisateur&gt;</string>
     <string name="cmd_block_success">Vous avez bloqué l\'utilisateur %1$s avec succès</string>
     <string name="cmd_block_not_found">L\'utilisateur %1$s n\'a pas pu être bloqué, aucun utilisateur trouvé avec ce nom !</string>
