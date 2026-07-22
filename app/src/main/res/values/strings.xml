@@ -555,6 +555,8 @@
     <string name="preference_tts_message_ignore_emote_message">Ignores emotes and emojis in TTS</string>
     <string name="preference_tts_message_ignore_emote_key" translatable="false">tts_message_ignore_emote</string>
     <string name="preference_tts_message_ignore_emote_title">Ignore emotes</string>
+    <string name="preference_tts_message_ignore_command_message">Ignores messages starting with a command prefix (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignore commands</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Audio ducking</string>
     <string name="preference_tts_audio_ducking_summary">Lower other audio volume while TTS is speaking</string>

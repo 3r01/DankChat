@@ -522,6 +522,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_tts_message_format_message">Lukee vain viestin ääneen</string>
     <string name="preference_tts_message_format_combined">Lukee käyttäjän ja viestin</string>
     <string name="preference_tts_message_format_title">Viestin muoto</string>
+    <string name="preference_tts_message_ignore_command_message">Ohittaa viestit, jotka alkavat komentoetuliitteellä (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ohita komennot</string>
     <string name="preference_tts_message_ignore_url_message">Ohittaa URL-osoitteet TTS:ssä</string>
     <string name="preference_tts_volume_title">Äänenvoimakkuus</string>
     <string name="preference_tts_audio_ducking_title">Äänen vaimennus</string>

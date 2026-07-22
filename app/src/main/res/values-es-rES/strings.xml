@@ -528,6 +528,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="preference_tts_message_ignore_url_title">Ignorar URLs</string>
     <string name="preference_tts_message_ignore_emote_message">Ignorar emotes y emojis en los TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignorar emotes</string>
+    <string name="preference_tts_message_ignore_command_message">Ignora los mensajes que empiezan con un prefijo de comando (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignorar comandos</string>
     <string name="preference_tts_volume_title">Volumen</string>
     <string name="preference_tts_audio_ducking_title">Atenuación de audio</string>
     <string name="preference_tts_audio_ducking_summary">Reducir el volumen de otras aplicaciones mientras TTS habla</string>

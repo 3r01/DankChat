@@ -528,6 +528,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_tts_message_ignore_url_title">URL\'leri yoksay</string>
     <string name="preference_tts_message_ignore_emote_message">TTS\'te ifadeler ile emojileri yok sayar</string>
     <string name="preference_tts_message_ignore_emote_title">İfadeleri yok say</string>
+    <string name="preference_tts_message_ignore_command_message">Komut ön ekiyle (!, $, %, +, -, ~) başlayan mesajları yok sayar</string>
+    <string name="preference_tts_message_ignore_command_title">Komutları yok say</string>
     <string name="preference_tts_volume_title">Ses seviyesi</string>
     <string name="preference_tts_audio_ducking_title">Ses kısma</string>
     <string name="preference_tts_audio_ducking_summary">TTS konuşurken diğer uygulamaların sesini kıs</string>

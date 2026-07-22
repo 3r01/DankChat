@@ -184,6 +184,10 @@ class ChatTTSPlayer(
             return
         }
 
+        if (message is PrivMessage && settings.ttsIgnoreCommands && message.message.firstOrNull() in TTS_COMMAND_PREFIXES) {
+            return
+        }
+
         playTTSMessage(message, settings)
     }
 
@@ -273,6 +277,7 @@ class ChatTTSPlayer(
     }
 
     companion object {
+        private val TTS_COMMAND_PREFIXES = setOf('!', '$', '%', '+', '-', '~')
         private val UNICODE_SYMBOL_REGEX = "\\p{So}|\\p{Sc}|\\p{Sm}|\\p{Cn}".toRegex()
         private val URL_REGEX = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)".toRegex(RegexOption.IGNORE_CASE)
     }

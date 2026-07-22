@@ -526,6 +526,8 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="preference_tts_message_ignore_url_title">Ignorer les URL</string>
     <string name="preference_tts_message_ignore_emote_message">Ignorer les emotes et les émojis en TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignorer les emotes</string>
+    <string name="preference_tts_message_ignore_command_message">Ignorer les messages commençant par un préfixe de commande (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignorer les commandes</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Atténuation audio</string>
     <string name="preference_tts_audio_ducking_summary">Réduire le volume des autres applications pendant la lecture TTS</string>

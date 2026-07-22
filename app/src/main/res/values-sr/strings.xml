@@ -507,6 +507,8 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="preference_tts_message_format_message">Čita samo poruku</string>
     <string name="preference_tts_message_format_combined">Čita korisnika i poruku</string>
     <string name="preference_tts_message_format_title">Režim formata poruka</string>
+    <string name="preference_tts_message_ignore_command_message">Ignoriše poruke koje počinju prefiksom komande (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignoriši komande</string>
     <string name="preference_tts_volume_title">Јачина звука</string>
     <string name="preference_tts_audio_ducking_title">Пригушивање звука</string>
     <string name="preference_tts_audio_ducking_summary">Смањи јачину других апликација док TTS говори</string>

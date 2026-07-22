@@ -544,6 +544,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_tts_message_ignore_url_title">Ignorovat odkazy</string>
     <string name="preference_tts_message_ignore_emote_message">Ignoruje emotikony při používání TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ignorovat emotikony</string>
+    <string name="preference_tts_message_ignore_command_message">Ignoruje zprávy začínající předponou příkazu (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignorovat příkazy</string>
     <string name="preference_tts_volume_title">Hlasitost</string>
     <string name="preference_tts_audio_ducking_title">Ztlumení zvuku</string>
     <string name="preference_tts_audio_ducking_summary">Snížit hlasitost ostatních aplikací při přehrávání TTS</string>

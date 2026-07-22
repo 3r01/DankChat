@@ -521,6 +521,8 @@
     <string name="preference_tts_message_ignore_url_title">Ignorar URLs</string>
     <string name="preference_tts_message_ignore_emote_message">Ignora emotes e emojis no Texto-para-voz</string>
     <string name="preference_tts_message_ignore_emote_title">Ignorar emotes</string>
+    <string name="preference_tts_message_ignore_command_message">Ignora mensagens que começam com um prefixo de comando (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ignorar comandos</string>
     <string name="preference_tts_volume_title">Volume</string>
     <string name="preference_tts_audio_ducking_title">Redução de áudio</string>
     <string name="preference_tts_audio_ducking_summary">Reduzir o volume de outros áudios enquanto o TTS fala</string>

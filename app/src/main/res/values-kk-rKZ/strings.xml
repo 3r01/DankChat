@@ -521,6 +521,8 @@
     <string name="preference_tts_message_ignore_url_title">URL мекенжайын елемеу</string>
     <string name="preference_tts_message_ignore_emote_message">TTS-те эмоттар мен эмодзилерді елемейді</string>
     <string name="preference_tts_message_ignore_emote_title">Эмоттарды елемеу</string>
+    <string name="preference_tts_message_ignore_command_message">Пәрмен префиксімен (!, $, %, +, -, ~) басталатын хабарларды елемейді</string>
+    <string name="preference_tts_message_ignore_command_title">Пәрмендерді елемеу</string>
     <string name="preference_tts_volume_title">Дыбыс деңгейі</string>
     <string name="preference_tts_audio_ducking_title">Дыбысты басу</string>
     <string name="preference_tts_audio_ducking_summary">TTS сөйлеп жатқанда басқа қолданбалардың дыбысын азайту</string>

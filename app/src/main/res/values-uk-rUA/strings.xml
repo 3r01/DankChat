@@ -544,6 +544,8 @@
     <string name="preference_tts_message_ignore_url_title">Ігнорувати URL-адреси</string>
     <string name="preference_tts_message_ignore_emote_message">Ігнорує емоції та емодзі в TTS</string>
     <string name="preference_tts_message_ignore_emote_title">Ігнорувати емоції</string>
+    <string name="preference_tts_message_ignore_command_message">Ігнорує повідомлення, що починаються з префікса команди (!, $, %, +, -, ~)</string>
+    <string name="preference_tts_message_ignore_command_title">Ігнорувати команди</string>
     <string name="preference_tts_volume_title">Гучність</string>
     <string name="preference_tts_audio_ducking_title">Приглушення звуку</string>
     <string name="preference_tts_audio_ducking_summary">Зменшувати гучність інших додатків під час озвучення</string>
