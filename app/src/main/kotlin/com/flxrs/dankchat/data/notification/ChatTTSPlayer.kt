@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 
 @Single
 class ChatTTSPlayer(
@@ -42,6 +43,7 @@ class ChatTTSPlayer(
     private var previousTTSUser: UserName? = null
     private var audioFocusRequest: AudioFocusRequest? = null
     private var utteranceId = 0
+    private val pendingUtterances = AtomicInteger(0)
 
     private val audioAttributes: AudioAttributes = AudioAttributes
         .Builder()
@@ -87,6 +89,11 @@ class ChatTTSPlayer(
                                     utteranceId: String?,
                                     errorCode: Int,
                                 ) = onUtteranceFinished()
+
+                                override fun onStop(
+                                    utteranceId: String?,
+                                    interrupted: Boolean,
+                                ) = onUtteranceFinished()
                             })
                         }
 
@@ -121,6 +128,7 @@ class ChatTTSPlayer(
     }
 
     private fun shutdownTTS() {
+        pendingUtterances.set(0)
         abandonAudioFocus()
         tts?.shutdown()
         tts = null
@@ -128,8 +136,9 @@ class ChatTTSPlayer(
         audioManager = null
     }
 
+    // isSpeaking can lag behind the engine, so track pending utterances instead of querying it
     private fun onUtteranceFinished() {
-        if (tts?.isSpeaking != true) {
+        if (pendingUtterances.updateAndGet { (it - 1).coerceAtLeast(0) } == 0) {
             abandonAudioFocus()
         }
     }
@@ -239,6 +248,7 @@ class ChatTTSPlayer(
         val params = Bundle().apply {
             putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, settings.ttsVolume)
         }
+        pendingUtterances.incrementAndGet()
         val result = tts?.speak(text, queueMode, params, "tts_${utteranceId++}")
         if (result != TextToSpeech.SUCCESS) {
             onUtteranceFinished()
