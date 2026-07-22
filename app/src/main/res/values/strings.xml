@@ -140,6 +140,9 @@
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s added 7TV Emote %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s renamed 7TV Emote %2$s to %3$s.</string>
     <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s removed 7TV Emote %2$s.</string>
+    <string name="system_message_stream_live">%1$s is live!</string>
+    <string name="system_message_stream_live_with_title">%1$s is live: %2$s</string>
+    <string name="system_message_stream_offline">%1$s is now offline</string>
     <!-- Send errors -->
     <string name="system_message_send_not_logged_in">Not logged in</string>
     <string name="system_message_send_channel_not_resolved">Could not resolve channel ID for %1$s</string>
@@ -633,6 +636,8 @@
     <string name="oauth_expired_message">Your login token has expired! Please login again.</string>
     <string name="oauth_expired_login_again">Login Again</string>
     <string name="oauth_verify_failed">Failed to verify the login token, check your connection.</string>
+    <string name="preference_stream_live_messages_title">Show live status messages</string>
+    <string name="preference_stream_live_messages_summary">Adds a chat message when a channel goes live or offline</string>
     <string name="preference_retain_webview_title">Prevent stream reloads</string>
     <string name="preference_retain_webview_summary">Enables experimental prevention of stream reloads after orientation changes or re-opening DankChat.</string>
     <string name="preference_show_changelogs_key" translatable="false">show_changelogs_key</string>

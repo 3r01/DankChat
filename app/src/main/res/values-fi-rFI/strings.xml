@@ -137,6 +137,9 @@
     <string name="system_message_7tv_emote_added" comment="flex3rs added 7TV emote asd.">%1$s lisäsi 7TV-emotin %2$s.</string>
     <string name="system_message_7tv_emote_renamed" comment="flex3rs renamed 7TV emote asd to ASD.">%1$s nimesi 7TV-emotin %2$s uudelleen nimellä %3$s.</string>
     <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s poisti 7TV-emotin %2$s.</string>
+    <string name="system_message_stream_live">%1$s on nyt livenä!</string>
+    <string name="system_message_stream_live_with_title">%1$s on livenä: %2$s</string>
+    <string name="system_message_stream_offline">%1$s ei ole enää livenä</string>
     <!-- Send errors -->
     <string name="system_message_send_not_logged_in">Ei kirjautunut sisään</string>
     <string name="system_message_send_channel_not_resolved">Kanavan tunnusta ei voitu selvittää kanavalle %1$s</string>
@@ -419,6 +422,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_compact_channel_info_summary">Näytä chattitilat ja suoratoistotiedot yhdellä rivillä</string>
     <string name="preference_streaminfo_title">Näytä suoratoistotiedot</string>
     <string name="preference_streaminfo_summary">Näyttää reaaliaikaisen tilan ja katsojien määrän</string>
+    <string name="preference_stream_live_messages_title">Näytä live-tilan viestit</string>
+    <string name="preference_stream_live_messages_summary">Lisää chattiin viestin, kun kanava aloittaa tai lopettaa lähetyksen</string>
     <string name="preference_notification_title">Näytä maininta-ilmoitukset</string>
     <string name="preference_notification_summary">Luo ilmoituksia, kun sinut mainitaan, kun sovellus on taustalla</string>
     <string name="preference_notification_header">Ilmoitukset</string>

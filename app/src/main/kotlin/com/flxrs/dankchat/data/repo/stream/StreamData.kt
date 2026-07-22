@@ -9,4 +9,5 @@ data class StreamData(
     val viewerCount: Int = 0,
     val startedAt: String = "",
     val category: String? = null,
+    val title: String? = null,
 )

@@ -293,6 +293,17 @@ class ChatMessageMapper(
                     TextResource.Res(R.string.system_message_7tv_emote_set_changed, persistentListOf(type.actorName, type.newEmoteSetName))
                 }
 
+                is SystemMessageType.StreamLive -> {
+                    when (type.title) {
+                        null -> TextResource.Res(R.string.system_message_stream_live, persistentListOf(type.channel))
+                        else -> TextResource.Res(R.string.system_message_stream_live_with_title, persistentListOf(type.channel, type.title))
+                    }
+                }
+
+                is SystemMessageType.StreamOffline -> {
+                    TextResource.Res(R.string.system_message_stream_offline, persistentListOf(type.channel))
+                }
+
                 is SystemMessageType.AutomodActionFailed -> {
                     val actionRes = TextResource.Res(if (type.allow) R.string.automod_allow else R.string.automod_deny)
                     val errorResId =

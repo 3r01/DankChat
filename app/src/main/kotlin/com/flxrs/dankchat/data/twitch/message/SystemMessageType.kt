@@ -95,6 +95,15 @@ sealed interface SystemMessageType {
         val message: String?,
     ) : SystemMessageType
 
+    data class StreamLive(
+        val channel: UserName,
+        val title: String?,
+    ) : SystemMessageType
+
+    data class StreamOffline(
+        val channel: UserName,
+    ) : SystemMessageType
+
     data class Debug(
         val message: String,
     ) : SystemMessageType

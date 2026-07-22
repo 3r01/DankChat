@@ -114,6 +114,9 @@
     <string name="system_message_ffz_emotes_failed">FFZ ଇମୋଟସ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ (ଇ %1$s)</string>
     <string name="system_message_7tv_emotes_failed">7TV ଇମୋଟସ୍ ଲୋଡ୍ କରିବାରେ ବିଫଳ (ଇ %1$s)</string>
     <string name="system_message_7tv_emote_removed" comment="flex3rs removed 7TV emote asd.">%1$s 7TV ଇମୋଟ ହଟାଇଛି %2$s.</string>
+    <string name="system_message_stream_live">%1$s ଲାଇଭ ଅଛି!</string>
+    <string name="system_message_stream_live_with_title">%1$s ଲାଇଭ ଅଛି: %2$s</string>
+    <string name="system_message_stream_offline">%1$s ବର୍ତ୍ତମାନ ଅଫଲାଇନ ଅଛି</string>
     <!-- Send errors -->
     <string name="system_message_send_not_logged_in">ଲଗ୍ ଇନ୍ ହୋଇନାହାଁନ୍ତି</string>
     <string name="system_message_send_channel_not_resolved">%1$s ପାଇଁ ଚ୍ୟାନେଲ ID ସମାଧାନ ହୋଇପାରିଲା ନାହିଁ</string>
@@ -372,6 +375,8 @@
     <string name="preference_roomstate_summary">କେବଳ ଚାଟ୍ ମୋଡ୍ ପରି ସାମ୍ପ୍ରତିକ ଚାଟ୍ ମୋଡ୍ ବିଷୟରେ ସୂଚନା ପ୍ରଦର୍ଶନ କରେ</string>
     <string name="preference_streaminfo_title">ଷ୍ଟ୍ରିମ୍ ସୂଚନା ଦେଖାନ୍ତୁ</string>
     <string name="preference_streaminfo_summary">ଲାଇଭ୍ ସ୍ଥିତି ଏବଂ ଦର୍ଶକ ଗଣନା ପ୍ରଦର୍ଶନ କରେ</string>
+    <string name="preference_stream_live_messages_title">ଲାଇଭ ସ୍ଥିତି ବାର୍ତ୍ତା ଦେଖାନ୍ତୁ</string>
+    <string name="preference_stream_live_messages_summary">ଏକ ଚ୍ୟାନେଲ ଲାଇଭ କିମ୍ବା ଅଫଲାଇନ ହେଲେ ଚାଟରେ ଏକ ବାର୍ତ୍ତା ଯୋଡ଼େ</string>
     <string name="preference_notification_title">ଉଲ୍ଲେଖ ବିଜ୍ଞପ୍ତିଗୁଡିକ ଦେଖାନ୍ତୁ</string>
     <string name="preference_notification_summary">ଆପ୍ ପୃଷ୍ଠଭୂମିରେ ଥିବାବେଳେ ଉଲ୍ଲେଖ କଲାବେଳେ ବିଜ୍ଞପ୍ତି ସୃଷ୍ଟି କରେ</string>
     <string name="preference_notification_header">ଵିଜ୍ଞପ୍ତି</string>
