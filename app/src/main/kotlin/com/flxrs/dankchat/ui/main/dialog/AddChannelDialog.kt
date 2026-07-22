@@ -2,6 +2,7 @@ package com.flxrs.dankchat.ui.main.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.utils.compose.InputBottomSheet
@@ -16,6 +17,8 @@ fun AddChannelDialog(
     InputBottomSheet(
         title = stringResource(R.string.add_channel),
         hint = stringResource(R.string.add_channel_hint),
+        capitalization = KeyboardCapitalization.None,
+        autoCorrectEnabled = false,
         showClearButton = true,
         validate = { input ->
             when {

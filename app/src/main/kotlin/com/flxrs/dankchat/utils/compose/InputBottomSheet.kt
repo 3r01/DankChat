@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,8 @@ fun InputBottomSheet(
     confirmText: String = stringResource(R.string.dialog_ok),
     defaultValue: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
+    capitalization: KeyboardCapitalization = KeyboardCapitalization.Unspecified,
+    autoCorrectEnabled: Boolean = true,
     showClearButton: Boolean = false,
     validate: ((String) -> String?)? = null,
 ) {
@@ -185,6 +188,8 @@ fun InputBottomSheet(
                         },
                     keyboardOptions =
                         KeyboardOptions(
+                            capitalization = capitalization,
+                            autoCorrectEnabled = autoCorrectEnabled,
                             keyboardType = keyboardType,
                             imeAction = ImeAction.Done,
                         ),

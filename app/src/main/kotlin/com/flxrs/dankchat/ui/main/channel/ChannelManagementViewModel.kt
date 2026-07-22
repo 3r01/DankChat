@@ -74,11 +74,12 @@ class ChannelManagementViewModel(
     fun isChannelAdded(name: String): Boolean = preferenceStore.channels.any { it.value.equals(name, ignoreCase = true) }
 
     fun addChannel(channel: UserName) {
+        val normalized = channel.lowercase()
         val current = preferenceStore.channels
-        if (channel !in current) {
-            preferenceStore.channels = current + channel
-            chatRepository.joinChannel(channel)
-            chatChannelProvider.setActiveChannel(channel)
+        if (normalized !in current) {
+            preferenceStore.channels = current + normalized
+            chatRepository.joinChannel(normalized)
+            chatChannelProvider.setActiveChannel(normalized)
         }
     }
 
