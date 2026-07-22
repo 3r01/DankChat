@@ -18,6 +18,7 @@ import com.flxrs.dankchat.data.twitch.message.PointRedemptionMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.UserNoticeMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
+import com.flxrs.dankchat.data.twitch.message.announcementColor
 import com.flxrs.dankchat.data.twitch.message.isAnnouncement
 import com.flxrs.dankchat.data.twitch.message.isElevatedMessage
 import com.flxrs.dankchat.data.twitch.message.isFirstMessage
@@ -223,7 +224,7 @@ class HighlightsRepository(
 
                 val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
                 if (isAnnouncement && announcementsHighlight != null) {
-                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
+                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor, announcementColor))
                 }
 
                 val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)
@@ -268,7 +269,7 @@ class HighlightsRepository(
 
                 val announcementsHighlight = messageHighlights.ofType(MessageHighlightEntityType.Announcement)
                 if (isAnnouncement && announcementsHighlight != null) {
-                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor))
+                    add(Highlight(HighlightType.Announcement, announcementsHighlight.customColor, announcementColor))
                 }
 
                 val watchStreakHighlight = messageHighlights.ofType(MessageHighlightEntityType.WatchStreak)

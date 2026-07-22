@@ -10,6 +10,7 @@ import com.flxrs.dankchat.data.repo.chat.UsersRepository
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
+import com.flxrs.dankchat.data.twitch.message.AnnouncementColor
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.Highlight
 import com.flxrs.dankchat.data.twitch.message.HighlightType
@@ -867,6 +868,11 @@ class ChatMessageMapper(
             this.maxByOrNull { it.type.priority.value }
                 ?: return BackgroundColors(Color.Transparent, Color.Transparent)
 
+        // Explicitly colored announcements keep their color, custom colors only apply to default announcements
+        if (highlight.type == HighlightType.Announcement && highlight.announcementColor != AnnouncementColor.Primary) {
+            return getAnnouncementColors(highlight.announcementColor)
+        }
+
         val customColor = highlight.customColor
         if (customColor != null && customColor !in DEFAULT_HIGHLIGHT_COLOR_INTS) {
             val color = Color(customColor)
@@ -874,6 +880,14 @@ class ChatMessageMapper(
         }
 
         return getHighlightColors(highlight.type)
+    }
+
+    private fun getAnnouncementColors(color: AnnouncementColor): BackgroundColors = when (color) {
+        AnnouncementColor.Primary -> getHighlightColors(HighlightType.Announcement)
+        AnnouncementColor.Blue -> BackgroundColors(COLOR_ANNOUNCEMENT_BLUE_LIGHT, COLOR_ANNOUNCEMENT_BLUE_DARK)
+        AnnouncementColor.Green -> BackgroundColors(COLOR_ANNOUNCEMENT_GREEN_LIGHT, COLOR_ANNOUNCEMENT_GREEN_DARK)
+        AnnouncementColor.Orange -> BackgroundColors(COLOR_ANNOUNCEMENT_ORANGE_LIGHT, COLOR_ANNOUNCEMENT_ORANGE_DARK)
+        AnnouncementColor.Purple -> BackgroundColors(COLOR_ANNOUNCEMENT_PURPLE_LIGHT, COLOR_ANNOUNCEMENT_PURPLE_DARK)
     }
 
     companion object {
@@ -884,6 +898,10 @@ class ChatMessageMapper(
         private val COLOR_FIRST_MESSAGE_HIGHLIGHT_LIGHT = Color(0xCC558B2F)
         private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_LIGHT = Color(0xCCB08D2A)
         private val COLOR_WATCH_STREAK_HIGHLIGHT_LIGHT = Color(0xCC2979B7)
+        private val COLOR_ANNOUNCEMENT_BLUE_LIGHT = Color(0xCC3363C0)
+        private val COLOR_ANNOUNCEMENT_GREEN_LIGHT = Color(0xCC2E7D32)
+        private val COLOR_ANNOUNCEMENT_ORANGE_LIGHT = Color(0xCCBF6516)
+        private val COLOR_ANNOUNCEMENT_PURPLE_LIGHT = Color(0xCCAB3D9E)
 
         // Highlight colors - Dark theme (80% opacity)
         private val COLOR_SUB_HIGHLIGHT_DARK = Color(0xCC6A45A0)
@@ -892,6 +910,10 @@ class ChatMessageMapper(
         private val COLOR_FIRST_MESSAGE_HIGHLIGHT_DARK = Color(0xCC3A6600)
         private val COLOR_ELEVATED_MESSAGE_HIGHLIGHT_DARK = Color(0xCC6B5800)
         private val COLOR_WATCH_STREAK_HIGHLIGHT_DARK = Color(0xCC1A5C8A)
+        private val COLOR_ANNOUNCEMENT_BLUE_DARK = Color(0xCC24488F)
+        private val COLOR_ANNOUNCEMENT_GREEN_DARK = Color(0xCC1B5E20)
+        private val COLOR_ANNOUNCEMENT_ORANGE_DARK = Color(0xCC8F4A0E)
+        private val COLOR_ANNOUNCEMENT_PURPLE_DARK = Color(0xCC7E2C75)
 
         fun defaultHighlightColorInt(
             type: HighlightType,

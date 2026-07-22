@@ -3,12 +3,26 @@ package com.flxrs.dankchat.data.twitch.message
 data class Highlight(
     val type: HighlightType,
     val customColor: Int? = null,
+    val announcementColor: AnnouncementColor = AnnouncementColor.Primary,
 ) {
     val isMention = type in MENTION_TYPES
     val shouldNotify = type == HighlightType.Notification
 
     companion object {
         private val MENTION_TYPES = listOf(HighlightType.Username, HighlightType.Custom, HighlightType.Reply)
+    }
+}
+
+enum class AnnouncementColor {
+    Primary,
+    Blue,
+    Green,
+    Orange,
+    Purple,
+    ;
+
+    companion object {
+        fun parse(value: String?): AnnouncementColor = entries.find { it.name.equals(value, ignoreCase = true) } ?: Primary
     }
 }
 

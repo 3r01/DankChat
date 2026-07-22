@@ -109,5 +109,8 @@ val UserNoticeMessage.isSub: Boolean
 val UserNoticeMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"
 
+val UserNoticeMessage.announcementColor: AnnouncementColor
+    get() = AnnouncementColor.parse(tags["msg-param-color"])
+
 val UserNoticeMessage.isMilestone: Boolean
     get() = tags["msg-id"] in UserNoticeMessage.MILESTONE_MSG_IDS
