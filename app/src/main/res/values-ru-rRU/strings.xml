@@ -603,6 +603,8 @@
     <string name="oauth_verify_failed">Не удалось проверить токен входа, проверьте подключение.</string>
     <string name="preference_stream_live_messages_title">Показывать сообщения о статусе эфира</string>
     <string name="preference_stream_live_messages_summary">Добавляет сообщение в чат, когда канал начинает или заканчивает эфир</string>
+    <string name="preference_stream_extensions_title">Показывать расширения трансляции</string>
+    <string name="preference_stream_extensions_summary">Показывает наложения расширений в проигрывателе трансляции</string>
     <string name="preference_retain_webview_title">Предотвратить перезагрузку трансляции</string>
     <string name="preference_retain_webview_summary">Включить экспериментальное предотвращение перезагрузки трансляции после изменения ориентации или повторного открытия DankChat.</string>
     <string name="preference_show_changelogs">Отображать список изменений после обновления</string>

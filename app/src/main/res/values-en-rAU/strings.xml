@@ -416,6 +416,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_streaminfo_summary">Displays live status and viewer count</string>
     <string name="preference_stream_live_messages_title">Show live status messages</string>
     <string name="preference_stream_live_messages_summary">Adds a chat message when a channel goes live or offline</string>
+    <string name="preference_stream_extensions_title">Show stream extensions</string>
+    <string name="preference_stream_extensions_summary">Shows extension overlays on the stream player</string>
     <string name="preference_notification_title">Show mention notifications</string>
     <string name="preference_notification_summary">Creates notifications when mentioned while the app is in the background</string>
     <string name="preference_notification_header">Notifications</string>

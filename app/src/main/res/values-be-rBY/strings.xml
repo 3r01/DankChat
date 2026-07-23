@@ -598,6 +598,8 @@
     <string name="oauth_verify_failed">Не ўдалося праверыць токен уваходу, праверце падключэнне.</string>
     <string name="preference_stream_live_messages_title">Паказваць паведамленні аб статусе эфіру</string>
     <string name="preference_stream_live_messages_summary">Дадае паведамленне ў чат, калі канал пачынае або заканчвае эфір</string>
+    <string name="preference_stream_extensions_title">Паказваць пашырэнні трансляцыі</string>
+    <string name="preference_stream_extensions_summary">Паказвае пашырэнні паверх прайгравальніка трансляцыі</string>
     <string name="preference_retain_webview_title">Перапыніць перазагрузкі стрыма</string>
     <string name="preference_retain_webview_summary">Уключае эксперыментальнае запабяганне перазагрузкі стрыма пасля змены арыентацыі ці перазапуску DankChat.</string>
     <string name="preference_show_changelogs">Паказаць змены пасля абнаўлення</string>

@@ -132,7 +132,8 @@ class StreamViewModel(
         channel: UserName,
         webView: StreamWebView,
     ) {
-        val url = "https://player.twitch.tv/?channel=$channel&enableExtensions=true&muted=false&parent=twitch.tv"
+        val enableExtensions = streamsSettingsDataStore.current().showStreamExtensions
+        val url = "https://player.twitch.tv/?channel=$channel&enableExtensions=$enableExtensions&muted=false&parent=twitch.tv"
         webView.stopLoading()
         webView.loadUrl(url)
     }

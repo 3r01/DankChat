@@ -589,6 +589,8 @@ Mira esta guía para más ayuda: https://wiki.chatterino.com/Image%20Uploader/</
     <string name="oauth_verify_failed">No se ha podido verificar el token de acceso, comprueba tu conexión.</string>
     <string name="preference_stream_live_messages_title">Mostrar mensajes de estado del directo</string>
     <string name="preference_stream_live_messages_summary">Añade un mensaje al chat cuando un canal empieza o termina el directo</string>
+    <string name="preference_stream_extensions_title">Mostrar extensiones del stream</string>
+    <string name="preference_stream_extensions_summary">Muestra las superposiciones de extensiones en el reproductor del stream</string>
     <string name="preference_retain_webview_title">Evitar la recarga de las transmisiones</string>
     <string name="preference_retain_webview_summary">Activa la prevención experimental de recargas de las transmisiones después de cambios de orientación o al volver a abrir DankChat.</string>
     <string name="preference_show_changelogs">Mostrar cambios después de actualizar</string>

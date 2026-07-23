@@ -582,6 +582,8 @@
     <string name="oauth_verify_failed">Falha ao verificar o token de sessão, verifique sua conexão.</string>
     <string name="preference_stream_live_messages_title">Mostrar mensagens de status da transmissão</string>
     <string name="preference_stream_live_messages_summary">Adiciona uma mensagem no chat quando um canal entra ou sai do ar</string>
+    <string name="preference_stream_extensions_title">Mostrar extensões da transmissão</string>
+    <string name="preference_stream_extensions_summary">Mostra as sobreposições de extensões no player da transmissão</string>
     <string name="preference_retain_webview_title">Impedir recargas de transmissão</string>
     <string name="preference_retain_webview_summary">Permite a prevenção experimental de recargas de stream após mudanças de orientação ou reabertura do DankChat.</string>
     <string name="preference_show_changelogs">Mostrar as alterações após atualizar</string>

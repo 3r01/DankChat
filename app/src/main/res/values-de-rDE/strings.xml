@@ -589,6 +589,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="oauth_verify_failed">Login-Token konnte nicht verifiziert werden, überprüfe deine Verbindung.</string>
     <string name="preference_stream_live_messages_title">Live-Status-Nachrichten anzeigen</string>
     <string name="preference_stream_live_messages_summary">Fügt eine Chat-Nachricht hinzu, wenn ein Kanal live oder offline geht</string>
+    <string name="preference_stream_extensions_title">Stream-Erweiterungen anzeigen</string>
+    <string name="preference_stream_extensions_summary">Zeigt Erweiterungs-Overlays im Stream-Player an</string>
     <string name="preference_retain_webview_title">Neuladen des Streams verhindern</string>
     <string name="preference_retain_webview_summary">Aktiviert experimentelles Verhindern vom Neuladen des Streams, nachdem sich die Orientierung ändert oder DankChat neu geöffnet wird.</string>
     <string name="preference_show_changelogs">Changelogs nach Updates anzeigen</string>

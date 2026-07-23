@@ -8,6 +8,7 @@ data class StreamsSettings(
     val showStreamInfo: Boolean = true,
     val showStreamCategory: Boolean = false,
     val showLiveMessages: Boolean = true,
+    val showStreamExtensions: Boolean = false,
     val preventStreamReloads: Boolean = true,
     val enablePiP: Boolean = false,
 )

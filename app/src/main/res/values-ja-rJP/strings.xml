@@ -574,6 +574,8 @@
     <string name="oauth_verify_failed">ログイントークンの確認に失敗しました。接続を確認してください。</string>
     <string name="preference_stream_live_messages_title">配信状態のメッセージを表示</string>
     <string name="preference_stream_live_messages_summary">チャンネルが配信を開始または終了したときにチャットにメッセージを追加します</string>
+    <string name="preference_stream_extensions_title">ストリームの拡張機能を表示</string>
+    <string name="preference_stream_extensions_summary">ストリームプレイヤーに拡張機能のオーバーレイを表示</string>
     <string name="preference_retain_webview_title">ストリームのリロードを防止</string>
     <string name="preference_retain_webview_summary">オリエンテーションの変更またはDankChatの再開後に、実験的にストリームのリロード防止を有効にします。</string>
     <string name="preference_show_changelogs">更新後に更新履歴を表示</string>

@@ -424,6 +424,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_streaminfo_summary">Näyttää reaaliaikaisen tilan ja katsojien määrän</string>
     <string name="preference_stream_live_messages_title">Näytä live-tilan viestit</string>
     <string name="preference_stream_live_messages_summary">Lisää chattiin viestin, kun kanava aloittaa tai lopettaa lähetyksen</string>
+    <string name="preference_stream_extensions_title">Näytä suoratoiston laajennukset</string>
+    <string name="preference_stream_extensions_summary">Näyttää laajennukset suoratoistosoittimen päällä</string>
     <string name="preference_notification_title">Näytä maininta-ilmoitukset</string>
     <string name="preference_notification_summary">Luo ilmoituksia, kun sinut mainitaan, kun sovellus on taustalla</string>
     <string name="preference_notification_header">Ilmoitukset</string>

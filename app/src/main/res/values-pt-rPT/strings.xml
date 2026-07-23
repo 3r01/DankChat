@@ -582,6 +582,8 @@
     <string name="oauth_verify_failed">Falha ao verificar o token de início de sessão, verifica a tua conexão.</string>
     <string name="preference_stream_live_messages_title">Mostrar mensagens de estado do direto</string>
     <string name="preference_stream_live_messages_summary">Adiciona uma mensagem no chat quando um canal começa ou termina o direto</string>
+    <string name="preference_stream_extensions_title">Mostrar extensões da stream</string>
+    <string name="preference_stream_extensions_summary">Mostra as sobreposições de extensões no leitor da stream</string>
     <string name="preference_retain_webview_title">Impedir recarregamentos da stream</string>
     <string name="preference_retain_webview_summary">Permite a prevenção experimental de recargas da stream após mudanças da orientação ou reabertura do DankChat.</string>
     <string name="preference_show_changelogs">Mostrar lista de alterações após uma actualização</string>

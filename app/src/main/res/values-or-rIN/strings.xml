@@ -377,6 +377,8 @@
     <string name="preference_streaminfo_summary">ଲାଇଭ୍ ସ୍ଥିତି ଏବଂ ଦର୍ଶକ ଗଣନା ପ୍ରଦର୍ଶନ କରେ</string>
     <string name="preference_stream_live_messages_title">ଲାଇଭ ସ୍ଥିତି ବାର୍ତ୍ତା ଦେଖାନ୍ତୁ</string>
     <string name="preference_stream_live_messages_summary">ଏକ ଚ୍ୟାନେଲ ଲାଇଭ କିମ୍ବା ଅଫଲାଇନ ହେଲେ ଚାଟରେ ଏକ ବାର୍ତ୍ତା ଯୋଡ଼େ</string>
+    <string name="preference_stream_extensions_title">ଷ୍ଟ୍ରିମ୍ ଏକ୍ସଟେନସନ୍ ଦେଖାନ୍ତୁ</string>
+    <string name="preference_stream_extensions_summary">ଷ୍ଟ୍ରିମ୍ ପ୍ଲେୟାରରେ ଏକ୍ସଟେନସନ୍ ଓଭରଲେ ଦେଖାଏ</string>
     <string name="preference_notification_title">ଉଲ୍ଲେଖ ବିଜ୍ଞପ୍ତିଗୁଡିକ ଦେଖାନ୍ତୁ</string>
     <string name="preference_notification_summary">ଆପ୍ ପୃଷ୍ଠଭୂମିରେ ଥିବାବେଳେ ଉଲ୍ଲେଖ କଲାବେଳେ ବିଜ୍ଞପ୍ତି ସୃଷ୍ଟି କରେ</string>
     <string name="preference_notification_header">ଵିଜ୍ଞପ୍ତି</string>

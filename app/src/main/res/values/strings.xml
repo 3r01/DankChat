@@ -640,6 +640,8 @@
     <string name="oauth_verify_failed">Failed to verify the login token, check your connection.</string>
     <string name="preference_stream_live_messages_title">Show live status messages</string>
     <string name="preference_stream_live_messages_summary">Adds a chat message when a channel goes live or offline</string>
+    <string name="preference_stream_extensions_title">Show stream extensions</string>
+    <string name="preference_stream_extensions_summary">Shows extension overlays on the stream player</string>
     <string name="preference_retain_webview_title">Prevent stream reloads</string>
     <string name="preference_retain_webview_summary">Enables experimental prevention of stream reloads after orientation changes or re-opening DankChat.</string>
     <string name="preference_show_changelogs_key" translatable="false">show_changelogs_key</string>

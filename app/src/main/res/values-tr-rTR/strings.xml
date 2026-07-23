@@ -589,6 +589,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="oauth_verify_failed">Giriş jetonu doğrulanamadı, bağlantınızı kontrol edin.</string>
     <string name="preference_stream_live_messages_title">Yayın durumu mesajlarını göster</string>
     <string name="preference_stream_live_messages_summary">Bir kanal yayına girdiğinde veya yayını sonlandırdığında sohbete bir mesaj ekler</string>
+    <string name="preference_stream_extensions_title">Yayın uzantılarını göster</string>
+    <string name="preference_stream_extensions_summary">Yayın oynatıcısının üzerinde uzantıları gösterir</string>
     <string name="preference_retain_webview_title">Yayın yenilemelerini önle</string>
     <string name="preference_retain_webview_summary">Yön değişikliklerinden ya da DankChat\'in yeniden açılmasından sonra yayın yenilemelerinin deneysel önlenmesini etkinleştirir.</string>
     <string name="preference_show_changelogs">Güncellemeden sonra değişiklik günlüklerini göster</string>
