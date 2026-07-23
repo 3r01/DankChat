@@ -621,6 +621,7 @@ fun MainScreen(
             }
 
             // Shared floating toolbar
+            var isToolbarMenuOpen by remember { mutableStateOf(false) }
             val floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit = { toolbarModifier, visible, endAligned, showTabs ->
                 FloatingToolbar(
                     tabState = tabState,
@@ -644,6 +645,7 @@ fun MainScreen(
                     onToolbarBottomChange = { toolbarBottomPx = it },
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     onCloseEmoteMenu = { chatInputViewModel.setEmoteMenuOpen(false) },
+                    onMenuVisibleChange = { isToolbarMenuOpen = it },
                     streamToolbarAlpha = streamState.effectiveAlpha,
                     modifier = toolbarModifier,
                 )
@@ -810,6 +812,7 @@ fun MainScreen(
                     isKeyboardVisible = isKeyboardVisible,
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     isSheetOpen = isSheetOpen,
+                    isToolbarMenuOpen = isToolbarMenuOpen,
                     showInput = showInput,
                     isInputMultiline = isInputMultiline,
                     inputOverflowExpanded = inputOverflowExpanded,
@@ -883,6 +886,7 @@ private fun BoxScope.WideSplitLayout(
     isKeyboardVisible: Boolean,
     isEmoteMenuOpen: Boolean,
     isSheetOpen: Boolean,
+    isToolbarMenuOpen: Boolean,
     showInput: Boolean,
     isInputMultiline: Boolean,
     inputOverflowExpanded: Boolean,
@@ -1006,7 +1010,7 @@ private fun BoxScope.WideSplitLayout(
             }
         }
 
-        if (!isAudioOnly) {
+        if (!isAudioOnly && !isToolbarMenuOpen) {
             DraggableHandle(
                 onDrag = { deltaPx ->
                     if (containerWidthPx > 0) {

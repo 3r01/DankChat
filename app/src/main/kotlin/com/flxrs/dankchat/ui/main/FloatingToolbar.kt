@@ -153,6 +153,7 @@ fun FloatingToolbar(
     onToolbarBottomChange: (Int) -> Unit = {},
     isEmoteMenuOpen: Boolean = false,
     onCloseEmoteMenu: () -> Unit = {},
+    onMenuVisibleChange: (Boolean) -> Unit = {},
     streamToolbarAlpha: Float = 1f,
 ) {
     val density = LocalDensity.current
@@ -203,6 +204,9 @@ fun FloatingToolbar(
             showOverflowMenu = false
             showQuickSwitch = false
         }
+    }
+    LaunchedEffect(showOverflowMenu, showQuickSwitch) {
+        onMenuVisibleChange(showOverflowMenu || showQuickSwitch)
     }
 
     // Dismiss scrim for menus
