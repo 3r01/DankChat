@@ -170,6 +170,8 @@ class NotificationService :
     ) {
         logger.warn { "Stopping foreground service due to 6h timeout restriction.." }
         foregroundServiceState.setActive(false)
+        // stopSelf alone does not stop the service while clients are bound, demote explicitly to satisfy the timeout deadline
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
