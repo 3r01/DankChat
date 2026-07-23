@@ -26,6 +26,7 @@ import io.ktor.util.collections.ConcurrentSet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -35,6 +36,7 @@ import org.koin.android.ext.android.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger("NotificationService")
 
@@ -186,7 +188,7 @@ class NotificationService :
         mentionChannels.forEach { clearNotificationsForChannel(it) }
     }
 
-    private fun startForeground() {
+    private fun startForeground(allowRetry: Boolean = true) {
         val title = getString(R.string.notification_title)
         val message = getString(R.string.notification_message)
 
@@ -213,7 +215,19 @@ class NotificationService :
                 .setSmallIcon(R.drawable.ic_notification_icon)
                 .build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        try {
+            startForeground(NOTIFICATION_ID, notification)
+        } catch (e: IllegalStateException) {
+            // Android 15+ throws when the 6h dataSync budget is exhausted, even on starts racing
+            // the foreground transition.
+            logger.warn(e) { "Failed to promote service to foreground" }
+            if (allowRetry) {
+                launch {
+                    delay(FOREGROUND_RETRY_DELAY)
+                    startForeground(allowRetry = false)
+                }
+            }
+        }
     }
 
     private fun NotificationData.createMentionNotification() {
@@ -269,6 +283,7 @@ class NotificationService :
         private const val STOP_COMMAND = "STOP_DANKING"
 
         private const val MAX_NOTIFIED_IDS = 500
+        private val FOREGROUND_RETRY_DELAY = 5.seconds
 
         private val notificationId = AtomicInt(42)
         private val notificationIntentCode = AtomicInt(420)
