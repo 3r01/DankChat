@@ -109,7 +109,7 @@ fun UserIgnoreItem.toEntity() = UserIgnoreEntity(
 )
 
 fun IgnoresRepository.TwitchBlock.toItem() = TwitchBlockItem(
-    id = id.hashCode().toLong(),
+    id = id.value.toLongOrNull() ?: id.hashCode().toLong(),
     userId = id,
     username = name,
 )

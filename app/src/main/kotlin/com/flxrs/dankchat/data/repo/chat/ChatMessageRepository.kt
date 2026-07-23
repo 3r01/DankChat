@@ -100,7 +100,11 @@ class ChatMessageRepository(
             keys.isEmpty() -> flowOf(emptyList())
 
             else -> combine(keys.map { getChat(it) }) { arrays ->
-                arrays.flatMap { it.toList() }.sortedBy { it.message.timestamp }
+                arrays
+                    .flatMap { it.toList() }
+                    // Global notices are broadcast to all channels with the same message id
+                    .distinctBy { it.message.id }
+                    .sortedBy { it.message.timestamp }
             }
         }
     }
