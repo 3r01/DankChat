@@ -27,11 +27,16 @@ class UsersRepository {
         new: List<Pair<UserName, DisplayName>>,
     ) {
         val current = users.getOrPut(channel) { LruCache(USER_CACHE_SIZE) }
-        new.forEach { current.put(it.first, it.second) }
+        var changed = false
+        new.forEach { (name, displayName) ->
+            if (current.put(name, displayName) != displayName) {
+                changed = true
+            }
+        }
 
-        usersFlows
-            .getOrPut(channel) { MutableStateFlow(emptySet()) }
-            .update { current.snapshot().values.toSet() }
+        if (changed) {
+            publishUsers(channel, current)
+        }
     }
 
     fun updateUser(
@@ -40,11 +45,19 @@ class UsersRepository {
         displayName: DisplayName,
     ) {
         val current = users.getOrPut(channel) { LruCache(USER_CACHE_SIZE) }
-        current.put(name, displayName)
+        if (current.put(name, displayName) != displayName) {
+            publishUsers(channel, current)
+        }
+    }
 
+    // Rebuilding the set copies the whole cache twice, only do it when an entry actually changed
+    private fun publishUsers(
+        channel: UserName,
+        cache: LruCache<UserName, DisplayName>,
+    ) {
         usersFlows
             .getOrPut(channel) { MutableStateFlow(emptySet()) }
-            .update { current.snapshot().values.toSet() }
+            .update { cache.snapshot().values.toSet() }
     }
 
     fun updateGlobalUser(
