@@ -72,7 +72,7 @@ fun StackedEmote(
     val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
 
     // Estimate placeholder size from dimension cache or from base height
-    val cachedDims = emoteCoordinator.dimensionCache.get(cacheKey)
+    val cachedDims = emoteCoordinator.getDimensions(cacheKey)
     val estimatedHeightPx = cachedDims?.second ?: (baseHeightPx * (emote.emotes.firstOrNull()?.scale ?: 1))
     val estimatedWidthPx = cachedDims?.first ?: estimatedHeightPx
 
@@ -127,7 +127,7 @@ fun StackedEmote(
                     val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
                     emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
                     // Store dimensions for future placeholder sizing
-                    emoteCoordinator.dimensionCache.put(
+                    emoteCoordinator.putDimensions(
                         cacheKey,
                         layerDrawable.bounds.width() to layerDrawable.bounds.height(),
                     )
@@ -210,7 +210,7 @@ private fun SingleEmoteDrawable(
     val density = LocalDensity.current
 
     // Use dimension cache for instant placeholder sizing on repeat views
-    val cachedDims = emoteCoordinator.dimensionCache.get(url)
+    val cachedDims = emoteCoordinator.getDimensions(url)
 
     // Load drawable asynchronously, cache hits resolve synchronously so the first frame
     // already renders the emote
@@ -245,7 +245,7 @@ private fun SingleEmoteDrawable(
                         transformEmoteDrawable(drawable, scaleFactor, chatEmote).also {
                             emoteCoordinator.putInCache(url, it)
                             // Store dimensions for future placeholder sizing
-                            emoteCoordinator.dimensionCache.put(
+                            emoteCoordinator.putDimensions(
                                 url,
                                 it.bounds.width() to it.bounds.height(),
                             )

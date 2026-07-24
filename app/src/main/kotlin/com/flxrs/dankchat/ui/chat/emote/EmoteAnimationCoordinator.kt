@@ -9,12 +9,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 @Stable
 class EmoteAnimationCoordinator {
     private val emoteCache = LruCache<String, Drawable>(512)
     private val layerCache = LruCache<String, LayerDrawable>(256)
-    val dimensionCache = LruCache<String, Pair<Int, Int>>(1024)
+    private val dimensionCache = LruCache<String, Pair<Int, Int>>(1024)
+
+    // Bumped on every put so rows waiting for emote dimensions can re-check and upgrade
+    // to the measured text fast path
+    private val _dimensionUpdates = MutableStateFlow(0L)
+    val dimensionUpdates: StateFlow<Long> = _dimensionUpdates.asStateFlow()
+
+    fun getDimensions(key: String): Pair<Int, Int>? = dimensionCache.get(key)
+
+    fun putDimensions(
+        key: String,
+        dimensions: Pair<Int, Int>,
+    ) {
+        dimensionCache.put(key, dimensions)
+        _dimensionUpdates.update { it + 1 }
+    }
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private val invalidationListeners = HashMap<Drawable, MutableSet<() -> Unit>>()
@@ -92,6 +111,7 @@ class EmoteAnimationCoordinator {
         emoteCache.evictAll()
         layerCache.evictAll()
         dimensionCache.evictAll()
+        _dimensionUpdates.update { it + 1 }
     }
 }
 

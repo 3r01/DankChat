@@ -6,7 +6,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -75,34 +79,38 @@ fun MessageTextWithInlineContent(
             }.toImmutableMap()
         }
 
+    val baseHeightPx = with(density) { badgeSize.toPx().toInt() }
+    var dimensionRefresh by remember(badges, emotes, fontSize) { mutableIntStateOf(0) }
     val knownDimensions =
-        remember(badges, emotes, fontSize, emoteCoordinator) {
+        remember(badges, emotes, fontSize, emoteCoordinator, dimensionRefresh) {
             buildMap {
-                val badgeSizePx = with(density) { badgeSize.toPx().toInt() }
                 badges.forEach { badge ->
-                    put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", badgeSizePx, badgeSizePx))
+                    put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", baseHeightPx, baseHeightPx))
                 }
 
-                val baseHeight = emoteBaseHeight(fontSize)
-                val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
                 emotes.forEach { emote ->
                     val id = "EMOTE_${emote.position}"
-                    val dims = when {
-                        emote.urls.size == 1 -> {
-                            emoteCoordinator.dimensionCache.get(emote.urls.first())
-                        }
-
-                        else -> {
-                            val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
-                            emoteCoordinator.dimensionCache.get(cacheKey)
-                        }
-                    }
+                    val dims = emoteCoordinator.getDimensions(emote.dimensionKey(baseHeightPx))
                     if (dims != null) {
                         put(id, EmoteDimensions(id, dims.first, dims.second))
                     }
                 }
             }.toImmutableMap()
         }
+
+    // Rows composed before their emotes loaded wait for the dimensions to land, then upgrade
+    // to the measured text fast path
+    val hasMissingDimensions = emotes.any { "EMOTE_${it.position}" !in knownDimensions }
+    if (hasMissingDimensions) {
+        LaunchedEffect(badges, emotes, fontSize) {
+            emoteCoordinator.dimensionUpdates.collect {
+                val allKnown = emotes.all { emote -> emoteCoordinator.getDimensions(emote.dimensionKey(baseHeightPx)) != null }
+                if (allKnown) {
+                    dimensionRefresh++
+                }
+            }
+        }
+    }
 
     TextWithMeasuredInlineContent(
         text = annotatedString,
@@ -114,6 +122,11 @@ fun MessageTextWithInlineContent(
         onTextClick = onTextClick,
         onTextLongClick = onTextLongClick,
     )
+}
+
+private fun EmoteUi.dimensionKey(baseHeightPx: Int): String = when {
+    urls.size == 1 -> urls.first()
+    else -> "${emotes.joinToString("-") { it.id }}-$baseHeightPx"
 }
 
 fun launchCustomTab(
