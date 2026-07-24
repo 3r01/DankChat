@@ -293,7 +293,7 @@ private fun PrivMessageText(
                         }
 
                         // Emote inline content
-                        appendInlineContent("EMOTE_${emote.code}", emote.code)
+                        appendInlineContent("EMOTE_${emote.position}", emote.code)
 
                         // Cheer amount text
                         if (emote.cheerAmount != null) {

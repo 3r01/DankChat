@@ -61,7 +61,7 @@ fun MessageTextWithInlineContent(
                 }
 
                 emotes.forEach { emote ->
-                    put("EMOTE_${emote.code}") {
+                    put("EMOTE_${emote.position}") {
                         StackedEmote(
                             emote = emote,
                             fontSize = fontSize,
@@ -86,7 +86,7 @@ fun MessageTextWithInlineContent(
                 val baseHeight = emoteBaseHeight(fontSize)
                 val baseHeightPx = with(density) { baseHeight.toPx().toInt() }
                 emotes.forEach { emote ->
-                    val id = "EMOTE_${emote.code}"
+                    val id = "EMOTE_${emote.position}"
                     val dims = when {
                         emote.urls.size == 1 -> {
                             emoteCoordinator.dimensionCache.get(emote.urls.first())
