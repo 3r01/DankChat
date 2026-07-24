@@ -174,14 +174,15 @@ fun ChatScreen(
         onScrollDirectionChange(listState.lastScrolledForward)
     }
 
-    // Auto-scroll when new messages arrive or when re-enabled
-    LaunchedEffect(shouldAutoScroll, messages) {
+    // Auto-scroll when new messages arrive or when re-enabled, keyed on the newest message id
+    // so emissions that only rewrite or prepend messages don't restart the effect
+    LaunchedEffect(shouldAutoScroll, messages.lastOrNull()?.id) {
         if (shouldAutoScroll) {
             listState.scrollToItem(0)
         }
     }
 
-    val reversedMessages = remember(messages) { messages.asReversed() }
+    val reversedMessages = messages.asReversed()
 
     // Handle scroll-to-message requests — keyed on both scrollToMessageId and whether messages
     // are available, so the scroll retries after ViewModel recreation (which briefly empties messages).
