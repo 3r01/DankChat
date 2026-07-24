@@ -5,7 +5,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -49,6 +47,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -58,6 +57,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -113,6 +113,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.roundToInt
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
 private const val MIN_VISIBLE_MESSAGE_LINES = 9
@@ -939,31 +940,23 @@ private fun BoxScope.WideSplitLayout(
                 .fillMaxSize()
                 .onSizeChanged { containerWidthPx = it.width },
     ) {
-        Row(modifier = Modifier.fillMaxSize()) {
+        SplitPaneLayout(
+            splitFraction = { splitFraction },
+            isAudioOnly = isAudioOnly,
+            modifier = Modifier.fillMaxSize(),
             // Left pane: Stream (hidden but composed in audio-only mode to keep audio playing)
-            Box(
-                modifier =
-                    when {
-                        isAudioOnly -> Modifier.width(0.dp)
-                        else -> Modifier.weight(splitFraction).fillMaxSize()
-                    },
-            ) {
+            left = {
                 StreamView(
-                    channel = currentStream ?: return,
+                    channel = currentStream ?: return@SplitPaneLayout,
                     fillPane = true,
                     onClose = onStreamClose,
                     onAudioOnly = onAudioOnly,
                     modifier = Modifier.fillMaxSize(),
                 )
-            }
-
+            },
             // Right pane: Chat + all overlays
-            Box(
-                modifier =
-                    Modifier
-                        .weight(if (isAudioOnly) 1f else 1f - splitFraction)
-                        .fillMaxSize(),
-            ) {
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
 
                 Scaffold(
@@ -983,8 +976,12 @@ private fun BoxScope.WideSplitLayout(
                     scaffoldContent(paddingValues, statusBarTop)
                 }
 
-                val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
-                val showTabsInSplit = chatPaneWidthDp > 250.dp
+                val showTabsInSplit by remember(density) {
+                    derivedStateOf {
+                        val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
+                        chatPaneWidthDp > 250.dp
+                    }
+                }
 
                 floatingToolbar(
                     Modifier.align(Alignment.TopCenter),
@@ -1048,6 +1045,38 @@ private fun BoxScope.WideSplitLayout(
                         .align(Alignment.CenterStart)
                         .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
             )
+        }
+    }
+}
+
+// The fraction is read in the measure pass, so drags relayout the panes without recomposing them
+@Composable
+private fun SplitPaneLayout(
+    splitFraction: () -> Float,
+    isAudioOnly: Boolean,
+    left: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    right: @Composable () -> Unit,
+) {
+    Layout(
+        content = {
+            left()
+            right()
+        },
+        modifier = modifier,
+    ) { measurables, constraints ->
+        val width = constraints.maxWidth
+        val height = constraints.maxHeight
+        val leftWidth = when {
+            isAudioOnly -> 0
+            else -> (width * splitFraction()).roundToInt()
+        }
+        val rightWidth = width - leftWidth
+        val leftPlaceable = measurables[0].measure(Constraints.fixed(leftWidth, height))
+        val rightPlaceable = measurables[1].measure(Constraints.fixed(rightWidth, height))
+        layout(width, height) {
+            leftPlaceable.place(0, 0)
+            rightPlaceable.place(leftWidth, 0)
         }
     }
 }
