@@ -32,8 +32,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -191,8 +190,7 @@ fun FloatingToolbar(
             showQuickSwitch = false
         }
     }
-    val keyboardHeightPx = (WindowInsets.ime.getBottom(density) - WindowInsets.navigationBars.getBottom(density)).coerceAtLeast(0)
-    val isKeyboardOpen = keyboardHeightPx > 0
+    val isKeyboardOpen = WindowInsets.isImeVisible
     LaunchedEffect(isKeyboardOpen) {
         if (isKeyboardOpen) {
             showOverflowMenu = false
