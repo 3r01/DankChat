@@ -8,6 +8,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
+import com.flxrs.dankchat.ui.chat.messages.common.LinkUi
 import com.flxrs.dankchat.utils.TextResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -47,6 +48,7 @@ sealed interface ChatMessageUiState {
         val rawNameColor: Int,
         val nameText: String,
         val message: String,
+        val links: ImmutableList<LinkUi>,
         val emotes: ImmutableList<EmoteUi>,
         val isAction: Boolean,
         val thread: ThreadUi?,
@@ -87,6 +89,7 @@ sealed interface ChatMessageUiState {
         override val roundedBottomCorners: Boolean = false,
         override val showDividerBelow: Boolean = false,
         val message: String,
+        val links: ImmutableList<LinkUi> = persistentListOf(),
     ) : ChatMessageUiState
 
     @Immutable
@@ -106,6 +109,7 @@ sealed interface ChatMessageUiState {
         val userId: UserId? = null,
         val userName: UserName? = null,
         val message: String,
+        val links: ImmutableList<LinkUi> = persistentListOf(),
         val displayName: String = "",
         val rawNameColor: Int = Message.DEFAULT_COLOR,
         val shouldHighlight: Boolean,
@@ -220,6 +224,7 @@ sealed interface ChatMessageUiState {
         val senderName: String,
         val recipientName: String,
         val message: String,
+        val links: ImmutableList<LinkUi>,
         val emotes: ImmutableList<EmoteUi>,
         val fullMessage: String,
         val replyTargetName: UserName,

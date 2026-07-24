@@ -184,8 +184,7 @@ private fun WhisperMessageText(
                         // Text before emote
                         if (currentPos < emote.position.first) {
                             val segment = message.message.substring(currentPos, emote.position.first)
-                            val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
-                            appendWithLinks(segment, linkColor, prevChar)
+                            appendWithLinks(segment, currentPos, message.links, linkColor)
                         }
 
                         // Emote inline content
@@ -203,8 +202,7 @@ private fun WhisperMessageText(
                     // Remaining text
                     if (currentPos < message.message.length) {
                         val segment = message.message.substring(currentPos)
-                        val prevChar = if (currentPos > 0) message.message[currentPos - 1] else null
-                        appendWithLinks(segment, linkColor, prevChar)
+                        appendWithLinks(segment, currentPos, message.links, linkColor)
                     }
                 }
             }

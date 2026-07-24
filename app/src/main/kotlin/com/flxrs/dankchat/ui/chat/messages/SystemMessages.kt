@@ -75,6 +75,7 @@ fun NoticeMessageComposable(
         lightBackgroundColor = message.lightBackgroundColor,
         darkBackgroundColor = message.darkBackgroundColor,
         textAlpha = message.textAlpha,
+        links = message.links,
         modifier = modifier,
     )
 }
@@ -125,7 +126,7 @@ fun UserNoticeMessageComposable(
                         // Text before name
                         if (nameIndex > 0) {
                             withStyle(SpanStyle(color = textColor)) {
-                                appendWithLinks(msgText.substring(0, nameIndex), linkColor)
+                                appendWithLinks(msgText.substring(0, nameIndex), 0, message.links, linkColor)
                             }
                         }
 
@@ -150,7 +151,7 @@ fun UserNoticeMessageComposable(
                         val afterIndex = nameIndex + displayName.length
                         if (afterIndex < msgText.length) {
                             withStyle(SpanStyle(color = textColor)) {
-                                appendWithLinks(msgText.substring(afterIndex), linkColor)
+                                appendWithLinks(msgText.substring(afterIndex), afterIndex, message.links, linkColor)
                             }
                         }
                     }
@@ -158,7 +159,7 @@ fun UserNoticeMessageComposable(
                     else -> {
                         // No display name found, render as plain text
                         withStyle(SpanStyle(color = textColor)) {
-                            appendWithLinks(msgText, linkColor)
+                            appendWithLinks(msgText, 0, message.links, linkColor)
                         }
                     }
                 }

@@ -34,6 +34,7 @@ import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettings
+import com.flxrs.dankchat.ui.chat.messages.common.findLinks
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.parseColorOrNull
@@ -351,6 +352,7 @@ class ChatMessageMapper(
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message,
+            links = findLinks(message).toImmutableList(),
         )
     }
 
@@ -397,6 +399,7 @@ class ChatMessageMapper(
             userId = tags["user-id"]?.toUserId(),
             userName = login,
             message = message,
+            links = findLinks(message).toImmutableList(),
             displayName = displayName,
             rawNameColor = rawNameColor,
             shouldHighlight = highlightType != null,
@@ -652,6 +655,7 @@ class ChatMessageMapper(
             rawNameColor = rawNameColor,
             nameText = nameText,
             message = message,
+            links = findLinks(message).toImmutableList(),
             emotes = emoteUis,
             isAction = isAction,
             thread = threadUi,
@@ -791,6 +795,7 @@ class ChatMessageMapper(
             senderName = senderAliasOrFormattedName,
             recipientName = recipientAliasOrFormattedName,
             message = message,
+            links = findLinks(message).toImmutableList(),
             emotes = emoteUis,
             fullMessage = fullMessage,
             replyTargetName = if (currentUserName != null && name.value.equals(currentUserName.value, ignoreCase = true)) recipientName else name,

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun SimpleMessageContainer(
@@ -28,6 +29,8 @@ fun SimpleMessageContainer(
     darkBackgroundColor: Color,
     textAlpha: Float,
     modifier: Modifier = Modifier,
+    // Null for texts that only resolve at composition time, those run link detection here
+    links: ImmutableList<LinkUi>? = null,
     timestampSpacerWidth: Dp = 6.dp,
 ) {
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
@@ -36,14 +39,17 @@ fun SimpleMessageContainer(
     val timestampColor = MaterialTheme.colorScheme.onSurface
 
     val annotatedString =
-        remember(message, timestamp, textColor, linkColor, timestampColor, fontSize, timestampSpacerWidth) {
+        remember(message, links, timestamp, textColor, linkColor, timestampColor, fontSize, timestampSpacerWidth) {
             buildAnnotatedString {
                 withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
                     append(timestamp)
                 }
                 appendInlineSpacer(timestampSpacerWidth)
                 withStyle(SpanStyle(color = textColor)) {
-                    appendWithLinks(message, linkColor)
+                    when {
+                        links != null -> appendWithLinks(message, 0, links, linkColor)
+                        else -> appendWithLinks(message, linkColor)
+                    }
                 }
             }
         }
