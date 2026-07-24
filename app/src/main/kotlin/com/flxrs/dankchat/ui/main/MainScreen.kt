@@ -78,7 +78,6 @@ import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
-import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import com.flxrs.dankchat.ui.chat.swipeDownToHide
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
@@ -105,7 +104,6 @@ import com.flxrs.dankchat.ui.tour.PostOnboardingStep
 import com.flxrs.dankchat.ui.tour.TourStep
 import com.flxrs.dankchat.utils.compose.bottomInsetsPadding
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.delay
@@ -458,6 +456,7 @@ fun MainScreen(
                     showInput = showInput && !isHistorySheet,
                     textFieldState = chatInputViewModel.textFieldState,
                     uiState = inputState,
+                    characterCounter = chatInputViewModel.characterCounter,
                     callbacks =
                         ChatInputCallbacks(
                             onSend = chatInputViewModel::sendMessage,
@@ -811,6 +810,17 @@ fun MainScreen(
                 )
             }
 
+            // Collected inside the slot so suggestion updates only recompose the dropdown
+            val suggestionDropdown: @Composable (Modifier) -> Unit = { dropdownModifier ->
+                val suggestions by chatInputViewModel.suggestions.collectAsStateWithLifecycle()
+                SuggestionDropdown(
+                    suggestions = suggestions,
+                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    availableMaxHeightDp = menuMaxHeightDp,
+                    modifier = dropdownModifier,
+                )
+            }
+
             val onStreamClose = {
                 keyboardController?.hide()
                 focusManager.clearFocus()
@@ -843,9 +853,7 @@ fun MainScreen(
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
-                    menuMaxHeightDp = menuMaxHeightDp,
-                    suggestions = inputState.suggestions,
-                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    suggestionDropdown = suggestionDropdown,
                     onHideInput = { mainScreenViewModel.hideInput() },
                     onDismissOverflow = { inputOverflowExpanded = false },
                     modifier = modifier,
@@ -881,9 +889,7 @@ fun MainScreen(
                     inputOverflowExpanded = inputOverflowExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
-                    menuMaxHeightDp = menuMaxHeightDp,
-                    suggestions = inputState.suggestions,
-                    onSuggestionClick = chatInputViewModel::applySuggestion,
+                    suggestionDropdown = suggestionDropdown,
                     onHideInput = { mainScreenViewModel.hideInput() },
                     onDismissOverflow = { inputOverflowExpanded = false },
                     modifier = modifier,
@@ -918,9 +924,7 @@ private fun BoxScope.WideSplitLayout(
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
-    menuMaxHeightDp: Dp,
-    suggestions: ImmutableList<Suggestion>,
-    onSuggestionClick: (Suggestion) -> Unit,
+    suggestionDropdown: @Composable (Modifier) -> Unit,
     onHideInput: () -> Unit,
     onDismissOverflow: () -> Unit,
     modifier: Modifier = Modifier,
@@ -1021,16 +1025,12 @@ private fun BoxScope.WideSplitLayout(
                 emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
                 if (showInput && isKeyboardVisible) {
-                    SuggestionDropdown(
-                        suggestions = suggestions,
-                        onSuggestionClick = onSuggestionClick,
-                        availableMaxHeightDp = menuMaxHeightDp,
-                        modifier =
-                            Modifier
-                                .align(Alignment.BottomStart)
-                                .navigationBarsPadding()
-                                .imePadding()
-                                .padding(bottom = inputHeightDp + 2.dp),
+                    suggestionDropdown(
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .navigationBarsPadding()
+                            .imePadding()
+                            .padding(bottom = inputHeightDp + 2.dp),
                     )
                 }
             }
@@ -1083,9 +1083,7 @@ private fun BoxScope.NormalStackedLayout(
     inputOverflowExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
-    menuMaxHeightDp: Dp,
-    suggestions: ImmutableList<Suggestion>,
-    onSuggestionClick: (Suggestion) -> Unit,
+    suggestionDropdown: @Composable (Modifier) -> Unit,
     onHideInput: () -> Unit,
     onDismissOverflow: () -> Unit,
     modifier: Modifier = Modifier,
@@ -1228,16 +1226,12 @@ private fun BoxScope.NormalStackedLayout(
     if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
 
     if (!isInPipMode && showInput && isKeyboardVisible) {
-        SuggestionDropdown(
-            suggestions = suggestions,
-            onSuggestionClick = onSuggestionClick,
-            availableMaxHeightDp = menuMaxHeightDp,
-            modifier =
-                Modifier
-                    .align(Alignment.BottomStart)
-                    .navigationBarsPadding()
-                    .imePadding()
-                    .padding(bottom = inputHeightDp + 2.dp),
+        suggestionDropdown(
+            Modifier
+                .align(Alignment.BottomStart)
+                .navigationBarsPadding()
+                .imePadding()
+                .padding(bottom = inputHeightDp + 2.dp),
         )
     }
 }

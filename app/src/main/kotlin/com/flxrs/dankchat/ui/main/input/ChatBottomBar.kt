@@ -36,6 +36,7 @@ import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerHorizontalPadding
 import com.flxrs.dankchat.utils.resolve
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +44,7 @@ fun ChatBottomBar(
     showInput: Boolean,
     textFieldState: TextFieldState,
     uiState: ChatInputUiState,
+    characterCounter: StateFlow<CharacterCounterState>,
     callbacks: ChatInputCallbacks,
     isUploading: Boolean,
     isLoading: Boolean,
@@ -82,6 +84,7 @@ fun ChatBottomBar(
             ChatInputLayout(
                 textFieldState = textFieldState,
                 uiState = uiState,
+                characterCounter = characterCounter,
                 callbacks = callbacks,
                 isSheetOpen = isSheetOpen,
                 isUploading = isUploading,

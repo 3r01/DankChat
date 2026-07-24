@@ -118,6 +118,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
@@ -128,11 +129,13 @@ import com.materialkolor.ktx.blend
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun ChatInputLayout(
     textFieldState: TextFieldState,
     uiState: ChatInputUiState,
+    characterCounter: StateFlow<CharacterCounterState>,
     callbacks: ChatInputCallbacks,
     isSheetOpen: Boolean,
     isUploading: Boolean,
@@ -158,7 +161,6 @@ fun ChatInputLayout(
     val isEmoteMenuOpen = uiState.isEmoteMenuOpen
     val helperText = if (isSheetOpen) HelperText() else uiState.helperText
     val overlay = uiState.overlay
-    val characterCounter = uiState.characterCounter
     val showQuickActions = !isSheetOpen
     val onSend = callbacks.onSend
     val onLastMessageClick = callbacks.onLastMessageClick
@@ -896,7 +898,7 @@ private fun ChatTextField(
     textFieldState: TextFieldState,
     enabled: Boolean,
     hint: String,
-    characterCounter: CharacterCounterState,
+    characterCounter: StateFlow<CharacterCounterState>,
     showClearInputButton: Boolean,
     focusRequester: FocusRequester,
     textFieldColors: TextFieldColors,
@@ -933,15 +935,17 @@ private fun ChatTextField(
                         .height(IntrinsicSize.Min)
                         .offset(y = (-8).dp),
             ) {
-                when (characterCounter) {
+                // Collected here so per-keystroke counter updates only invalidate the suffix
+                val counterState by characterCounter.collectAsStateWithLifecycle()
+                when (val counter = counterState) {
                     is CharacterCounterState.Hidden -> Unit
 
                     is CharacterCounterState.Visible -> {
                         Text(
-                            text = characterCounter.text,
+                            text = counter.text,
                             color =
                                 when {
-                                    characterCounter.isOverLimit -> MaterialTheme.colorScheme.error
+                                    counter.isOverLimit -> MaterialTheme.colorScheme.error
                                     else -> MaterialTheme.colorScheme.onSurfaceVariant
                                 },
                             style = MaterialTheme.typography.labelSmall,
