@@ -31,6 +31,7 @@ class ChatConnector(
     val readEvents get() = readConnection.messages
     val writeEvents get() = writeConnection.messages
     val pubSubEvents get() = pubSubManager.messages
+    val pubSubConnected get() = pubSubManager.connected
     val eventSubEvents get() = eventSubManager.events
 
     fun getConnectionState(channel: UserName): StateFlow<ConnectionState> = connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }

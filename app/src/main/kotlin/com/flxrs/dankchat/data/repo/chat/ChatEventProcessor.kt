@@ -517,12 +517,19 @@ class ChatEventProcessor(
                     knownRewards.remove(rewardId)
                 }
                 ?: run {
-                    logger.debug { "Waiting for pubsub reward message with id $rewardId" }
-                    withTimeoutOrNull(PUBSUB_TIMEOUT) {
-                        chatConnector.pubSubEvents
-                            .filterIsInstance<PubSubMessage.PointRedemption>()
-                            .first { it.data.reward.id == rewardId }
-                    }?.also { knownRewards[rewardId] = it }
+                    // Waiting is pointless without a connection and would stall the message pipeline
+                    when {
+                        !chatConnector.pubSubConnected -> null
+
+                        else -> {
+                            logger.debug { "Waiting for pubsub reward message with id $rewardId" }
+                            withTimeoutOrNull(PUBSUB_TIMEOUT) {
+                                chatConnector.pubSubEvents
+                                    .filterIsInstance<PubSubMessage.PointRedemption>()
+                                    .first { it.data.reward.id == rewardId }
+                            }?.also { knownRewards[rewardId] = it }
+                        }
+                    }
                 }
         }
     }
@@ -554,10 +561,16 @@ class ChatEventProcessor(
 
         val reward = rewardMutex.withLock {
             knownRewards.remove(msgId)
-        } ?: withTimeoutOrNull(PUBSUB_TIMEOUT) {
-            chatConnector.pubSubEvents
-                .filterIsInstance<PubSubMessage.PointRedemption>()
-                .first { it.data.reward.effectiveId == msgId }
+        } ?: when {
+            // Waiting is pointless without a connection and would stall the message pipeline
+            !chatConnector.pubSubConnected -> null
+
+            else ->
+                withTimeoutOrNull(PUBSUB_TIMEOUT) {
+                    chatConnector.pubSubEvents
+                        .filterIsInstance<PubSubMessage.PointRedemption>()
+                        .first { it.data.reward.effectiveId == msgId }
+                }
         }
 
         val rewardData = reward?.data?.reward ?: return message
@@ -654,7 +667,7 @@ class ChatEventProcessor(
     }
 
     companion object {
-        private const val PUBSUB_TIMEOUT = 5000L
+        private const val PUBSUB_TIMEOUT = 3000L
         private val AUTOMOD_NOTICE_MSG_IDS = setOf("msg_rejected", "msg_rejected_mandatory")
     }
 }
