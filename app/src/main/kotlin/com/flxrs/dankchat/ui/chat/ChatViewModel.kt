@@ -42,6 +42,9 @@ import java.util.Locale
 
 private val logger = KotlinLogging.logger("ChatViewModel")
 
+private const val MAPPING_CACHE_MIN_SIZE = 512
+private const val MAPPING_CACHE_MARGIN = 64
+
 @KoinViewModel
 class ChatViewModel(
     @InjectedParam private val channel: UserName,
@@ -75,7 +78,7 @@ class ChatViewModel(
             .getChat(channel)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), emptyList())
 
-    private val mappingCache = LruCache<String, ChatMessageUiState>(512)
+    private val mappingCache = LruCache<String, ChatMessageUiState>(MAPPING_CACHE_MIN_SIZE)
     private val checkeredTracker = CheckeredMessageTracker()
     private var lastAppearanceSettings: AppearanceSettings? = null
     private var lastChatSettings: ChatSettings? = null
@@ -91,6 +94,9 @@ class ChatViewModel(
             // Clear cache when settings change (affects all mapped results)
             if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
                 mappingCache.evictAll()
+                // The cache must fit the whole scrollback, an LruCache smaller than the
+                // sequentially scanned message list degrades to a 100% miss rate
+                mappingCache.resize(maxOf(chatSettings.scrollbackLength + MAPPING_CACHE_MARGIN, MAPPING_CACHE_MIN_SIZE))
                 lastAppearanceSettings = appearanceSettings
                 lastChatSettings = chatSettings
             }
