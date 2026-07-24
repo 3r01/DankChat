@@ -665,7 +665,7 @@ fun MainScreen(
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     onCloseEmoteMenu = { chatInputViewModel.setEmoteMenuOpen(false) },
                     onMenuVisibleChange = { isToolbarMenuOpen = it },
-                    streamToolbarAlpha = streamState.effectiveAlpha,
+                    streamToolbarAlpha = { streamState.effectiveAlpha },
                     modifier = toolbarModifier,
                 )
             }
@@ -1148,7 +1148,9 @@ private fun BoxScope.NormalStackedLayout(
                 )
             },
         ) { paddingValues ->
-            val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp * streamState.alpha.value)
+            // The stream fade covers the transition visually, interpolating the padding with the
+            // fade alpha would relayout the whole pager every animation frame
+            val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp)
             scaffoldContent(paddingValues, chatTopPadding)
         }
     }

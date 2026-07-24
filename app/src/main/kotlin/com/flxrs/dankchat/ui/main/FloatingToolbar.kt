@@ -153,7 +153,7 @@ fun FloatingToolbar(
     isEmoteMenuOpen: Boolean = false,
     onCloseEmoteMenu: () -> Unit = {},
     onMenuVisibleChange: (Boolean) -> Unit = {},
-    streamToolbarAlpha: Float = 1f,
+    streamToolbarAlpha: () -> Float = { 1f },
 ) {
     val density = LocalDensity.current
     var showOverflowMenu by remember { mutableStateOf(false) }
@@ -234,7 +234,7 @@ fun FloatingToolbar(
             modifier
                 .fillMaxWidth()
                 .padding(top = if (hasStream) streamHeightDp + 8.dp else 0.dp)
-                .graphicsLayer { alpha = streamToolbarAlpha },
+                .graphicsLayer { alpha = streamToolbarAlpha() },
     ) {
         val scrimColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         val statusBarPx = statusBarTopPx.toFloat()
