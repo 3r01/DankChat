@@ -1,15 +1,22 @@
 package com.flxrs.dankchat.utils.extensions
 
 import com.flxrs.dankchat.data.chat.ChatItem
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.toPersistentList
+
+// Persistent lists share structure between the emitted snapshots instead of copying the
+// whole buffer per message
+private fun List<ChatItem>.asPersistent(): PersistentList<ChatItem> = this as? PersistentList<ChatItem> ?: toPersistentList()
 
 fun List<ChatItem>.addAndLimit(
     item: ChatItem,
     scrollBackLength: Int,
     onMessageRemoved: (ChatItem) -> Unit,
-): List<ChatItem> = toMutableList().apply {
-    add(item)
-    while (size > scrollBackLength) {
-        onMessageRemoved(removeAt(index = 0))
+): List<ChatItem> = asPersistent().mutate { list ->
+    list.add(item)
+    while (list.size > scrollBackLength) {
+        onMessageRemoved(list.removeAt(0))
     }
 }
 
@@ -35,16 +42,16 @@ fun List<ChatItem>.addAndLimit(
             onMessageRemoved(sorted[i])
         }
         when {
-            excess > 0 -> sorted.subList(excess, sorted.size)
-            else -> sorted
+            excess > 0 -> sorted.subList(excess, sorted.size).toPersistentList()
+            else -> sorted.toPersistentList()
         }
     }
 
     else -> {
-        toMutableList().apply {
-            addAll(items)
-            while (size > scrollBackLength) {
-                onMessageRemoved(removeAt(index = 0))
+        asPersistent().mutate { list ->
+            list.addAll(items)
+            while (list.size > scrollBackLength) {
+                onMessageRemoved(list.removeAt(0))
             }
         }
     }
