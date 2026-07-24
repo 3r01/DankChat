@@ -169,24 +169,17 @@ jobs:
           notes="**Version:** \`v${VERSION}\`
           **Commit:** [\`${SHORT_SHA}\`](https://github.com/${REPO}/commit/${GITHUB_SHA})"
 
-          if [ -z "$release_id" ]; then
-            gh release create "$TAG" "$apk" \
-              --repo "$REPO" \
-              --title "$RELEASE_NAME" \
-              --notes "$notes" \
-              --latest
-          else
-            # Repoint the persistent release to the new tag, replacing old assets.
-            gh api "repos/$REPO/releases/$release_id/assets" --jq '.[].id' | while read -r asset_id; do
-              gh api -X DELETE "repos/$REPO/releases/assets/$asset_id"
-            done
-
-            gh api -X PATCH "repos/$REPO/releases/$release_id" \
-              -f tag_name="$TAG" \
-              -f target_commitish="$GITHUB_SHA" \
-              -f name="$RELEASE_NAME" \
-              -f body="$notes" \
-              -f make_latest="true"
-
-            gh release upload "$TAG" "$apk" --repo "$REPO"
+          # GitHub displays the original publish date, so the release is recreated on every build
+          if [ -n "$release_id" ]; then
+            old_tag=$(gh api "repos/$REPO/releases/$release_id" --jq '.tag_name')
+            gh api -X DELETE "repos/$REPO/releases/$release_id"
+            if [ "$old_tag" != "$TAG" ]; then
+              git push origin ":refs/tags/$old_tag" || true
+            fi
           fi
+
+          gh release create "$TAG" "$apk" \
+            --repo "$REPO" \
+            --title "$RELEASE_NAME" \
+            --notes "$notes" \
+            --latest
