@@ -22,11 +22,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.imeAnimationTarget
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -90,6 +91,7 @@ import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.input.SuggestionDropdown
+import com.flxrs.dankchat.utils.compose.bottomInsetsPadding
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import com.flxrs.dankchat.utils.compose.selectedIndicatorBar
 import kotlinx.collections.immutable.persistentListOf
@@ -136,8 +138,11 @@ fun MessageHistorySheet(
     val ime = WindowInsets.ime
     val navBars = WindowInsets.navigationBars
     val navBarHeightDp = with(density) { navBars.getBottom(density).toDp() }
-    val currentImeHeight = (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
-    val currentImeDp = with(density) { currentImeHeight.toDp() }
+    // Resolved in the layout phase, the per-frame ime values must not be read in composition
+    val imeAboveNavBars = remember(ime, navBars) { ime.exclude(navBars) }
+    val targetImeDp = with(density) {
+        (WindowInsets.imeAnimationTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0).toDp()
+    }
 
     var searchBarHeightPx by remember { mutableIntStateOf(0) }
     val searchBarHeightDp = with(density) { searchBarHeightPx.toDp() }
@@ -190,7 +195,11 @@ fun MessageHistorySheet(
             label = "HistoryChannelSwitch",
             modifier = Modifier.fillMaxSize(),
         ) { channel ->
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .bottomInsetsPadding(imeAboveNavBars),
+            ) {
                 ChatScreen(
                     messages = messages,
                     fontSize = displaySettings.fontSize,
@@ -225,7 +234,7 @@ fun MessageHistorySheet(
                     animateGifs = displaySettings.animateGifs,
                     showChannelPrefix = channel is HistoryChannel.Global,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp),
+                    contentPadding = PaddingValues(top = toolbarTopPadding, bottom = searchBarHeightDp + navBarHeightDp),
                     scrollModifier = scrollModifier,
                     containerColor = sheetBackgroundColor,
                     onScrollToBottom = { toolbarVisible = true },
@@ -236,7 +245,6 @@ fun MessageHistorySheet(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
                             .fillMaxSize()
-                            .imePadding()
                             .navigationBarsPadding()
                             .padding(bottom = searchBarHeightDp),
                     ) {
@@ -404,7 +412,7 @@ fun MessageHistorySheet(
 
         val sheetToolbarHeight = if (toolbarVisible) toolbarTopPadding else statusBarHeight
         val suggestionMaxHeight =
-            (sheetHeightDp - currentImeDp - searchBarHeightDp - navBarHeightDp - sheetToolbarHeight - 8.dp)
+            (sheetHeightDp - targetImeDp - searchBarHeightDp - navBarHeightDp - sheetToolbarHeight - 8.dp)
                 .coerceAtLeast(0.dp)
         SuggestionDropdown(
             suggestions = filterSuggestions.toImmutableList(),
@@ -413,7 +421,8 @@ fun MessageHistorySheet(
             modifier =
                 Modifier
                     .align(Alignment.BottomStart)
-                    .padding(bottom = searchBarHeightDp + navBarHeightDp + currentImeDp + 8.dp)
+                    .bottomInsetsPadding(imeAboveNavBars)
+                    .padding(bottom = searchBarHeightDp + navBarHeightDp + 8.dp)
                     .padding(horizontal = 8.dp),
         )
 
@@ -423,7 +432,7 @@ fun MessageHistorySheet(
                 Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(bottom = currentImeDp)
+                    .bottomInsetsPadding(imeAboveNavBars)
                     .navigationBarsPadding()
                     .onSizeChanged { size ->
                         searchBarHeightPx = size.height
