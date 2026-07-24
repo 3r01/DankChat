@@ -76,9 +76,18 @@ fun StackedEmote(
     val estimatedHeightPx = cachedDims?.second ?: (baseHeightPx * (emote.emotes.firstOrNull()?.scale ?: 1))
     val estimatedWidthPx = cachedDims?.first ?: estimatedHeightPx
 
-    // Load or create LayerDrawable asynchronously
+    // Load or create LayerDrawable asynchronously, cache hits resolve synchronously so the
+    // first frame already renders the emote
+    val initialLayerState =
+        remember(cacheKey) {
+            emoteCoordinator.getLayerCached(cacheKey)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading
+        }
     val layerDrawableState =
-        produceState<EmoteLoadState>(initialValue = EmoteLoadState.Loading, key1 = cacheKey) {
+        produceState(initialValue = initialLayerState, key1 = cacheKey) {
+            if (value is EmoteLoadState.Loaded) {
+                return@produceState
+            }
+
             // Check cache first
             val cached = emoteCoordinator.getLayerCached(cacheKey)
             if (cached != null) {
@@ -203,9 +212,18 @@ private fun SingleEmoteDrawable(
     // Use dimension cache for instant placeholder sizing on repeat views
     val cachedDims = emoteCoordinator.dimensionCache.get(url)
 
-    // Load drawable asynchronously
+    // Load drawable asynchronously, cache hits resolve synchronously so the first frame
+    // already renders the emote
+    val initialState =
+        remember(url) {
+            emoteCoordinator.getCached(url)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading
+        }
     val drawableState =
-        produceState<EmoteLoadState>(initialValue = EmoteLoadState.Loading, key1 = url) {
+        produceState(initialValue = initialState, key1 = url) {
+            if (value is EmoteLoadState.Loaded) {
+                return@produceState
+            }
+
             // Fast path: check cache first
             val cached = emoteCoordinator.getCached(url)
             if (cached != null) {
