@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.PagerState
@@ -33,6 +35,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -100,6 +103,7 @@ import com.flxrs.dankchat.ui.tour.FeatureTourUiState
 import com.flxrs.dankchat.ui.tour.FeatureTourViewModel
 import com.flxrs.dankchat.ui.tour.PostOnboardingStep
 import com.flxrs.dankchat.ui.tour.TourStep
+import com.flxrs.dankchat.utils.compose.bottomInsetsPadding
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -167,20 +171,23 @@ fun MainScreen(
     val ime = WindowInsets.ime
     val navBars = WindowInsets.navigationBars
     val imeTarget = WindowInsets.imeAnimationTarget
-    val currentImeHeight = (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
-
     // Target height for stability during opening animation
     val targetImeHeight = (imeTarget.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0)
     val isImeOpening = targetImeHeight > 0
 
-    val imeHeightState = rememberUpdatedState(currentImeHeight)
+    // The ime inset changes on every animation frame, only read it inside effects and derived state
+    val imeHeightState = remember(density) {
+        derivedStateOf { (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0) }
+    }
     val isImeVisible = WindowInsets.isImeVisible
 
     // Keyboard height tracking — VM handles debounce + persistence
     LaunchedEffect(isLandscape) { mainScreenViewModel.initKeyboardHeight(isLandscape) }
     val keyboardHeightPx by mainScreenViewModel.keyboardHeightPx.collectAsStateWithLifecycle()
     val minKeyboardHeightPx = with(density) { 100.dp.toPx() }
-    mainScreenViewModel.trackKeyboardHeight(targetImeHeight, isLandscape, minKeyboardHeightPx)
+    LaunchedEffect(targetImeHeight, isLandscape) {
+        mainScreenViewModel.trackKeyboardHeight(targetImeHeight, isLandscape, minKeyboardHeightPx)
+    }
 
     // Close emote menu when keyboard opens, but wait for keyboard to reach
     // persisted height so scaffold padding doesn't jump during the transition
@@ -216,9 +223,10 @@ fun MainScreen(
         )
     val useWideSplitLayout = isWideWindow && currentStream != null && !isInPipMode
 
-    // Only intercept when menu is visible AND keyboard is fully GONE
-    // Using currentImeHeight == 0 ensures we don't intercept during system keyboard close gestures
-    PredictiveBackHandler(enabled = inputState.isEmoteMenuOpen && currentImeHeight == 0) { progress ->
+    // Only intercept when menu is visible AND keyboard is fully GONE,
+    // so system keyboard close gestures are not intercepted
+    val isImeFullyHidden by remember { derivedStateOf { imeHeightState.value == 0 } }
+    PredictiveBackHandler(enabled = inputState.isEmoteMenuOpen && isImeFullyHidden) { progress ->
         try {
             progress.collect { event ->
                 backProgress = event.progress
@@ -359,7 +367,7 @@ fun MainScreen(
     val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
     val toolbarBottomDp = with(density) { toolbarBottomPx.toDp() }
     val bottomReserveDp = with(density) {
-        maxOf(ime.getBottom(density), navBars.getBottom(density)).toDp()
+        maxOf(imeTarget.getBottom(density), navBars.getBottom(density)).toDp()
     }
 
     val focusManager = LocalFocusManager.current
@@ -427,11 +435,22 @@ fun MainScreen(
                 }
             val totalMenuHeight = targetMenuHeight + navBarHeightDp
 
-            // Shared scaffold bottom padding calculation
+            // Shared scaffold bottom padding: max(ime, emote menu), with the ime ignored while a
+            // dialog owns it. Resolved in the layout phase to avoid per-frame recomposition.
             val hasDialogWithInput = dialogState.showAddChannel || modActionsActive || dialogState.showManageChannels || dialogState.showNewWhisper
-            val currentImeDp = if (hasDialogWithInput) 0.dp else with(density) { currentImeHeight.toDp() }
             val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
-            val scaffoldBottomPadding = max(currentImeDp, emoteMenuPadding)
+            val scaffoldBottomInsets = remember(ime, navBars, hasDialogWithInput, emoteMenuPadding) {
+                val emoteMenuInsets = WindowInsets(bottom = emoteMenuPadding)
+                when {
+                    hasDialogWithInput -> emoteMenuInsets
+                    else -> ime.exclude(navBars).union(emoteMenuInsets)
+                }
+            }
+            val targetImeDp = when {
+                hasDialogWithInput -> 0.dp
+                else -> with(density) { targetImeHeight.toDp() }
+            }
+            val scaffoldBottomTargetDp = max(targetImeDp, emoteMenuPadding)
 
             // Shared bottom bar content
             val bottomBar: @Composable () -> Unit = {
@@ -767,7 +786,13 @@ fun MainScreen(
             }
 
             // Shared fullscreen sheet overlay
-            val fullScreenSheetOverlay: @Composable (Dp) -> Unit = { bottomPadding ->
+            val fullScreenSheetOverlay: @Composable () -> Unit = {
+                // Per-frame ime read scoped to this overlay, and only while a sheet is visible
+                val scaffoldBottomDp = when {
+                    isSheetOpen -> with(density) { scaffoldBottomInsets.getBottom(this).toDp() }
+                    else -> 0.dp
+                }
+                val bottomPadding = inputHeightDp + scaffoldBottomDp
                 val effectiveBottomPadding =
                     when {
                         !showInput -> bottomPadding + max(navBarHeightDp, effectiveRoundedCorner)
@@ -805,7 +830,7 @@ fun MainScreen(
                     bottomBar = bottomBar,
                     emoteMenuLayer = emoteMenuLayer,
                     snackbarHostState = snackbarHostState,
-                    scaffoldBottomPadding = scaffoldBottomPadding,
+                    scaffoldBottomInsets = scaffoldBottomInsets,
                     inputHeightDp = inputHeightDp,
                     isFullscreen = isFullscreen,
                     gestureToolbarHidden = mainState.gestureToolbarHidden,
@@ -840,7 +865,8 @@ fun MainScreen(
                     bottomBar = bottomBar,
                     emoteMenuLayer = emoteMenuLayer,
                     snackbarHostState = snackbarHostState,
-                    scaffoldBottomPadding = scaffoldBottomPadding,
+                    scaffoldBottomInsets = scaffoldBottomInsets,
+                    scaffoldBottomTargetDp = scaffoldBottomTargetDp,
                     inputHeightDp = inputHeightDp,
                     isFullscreen = isFullscreen,
                     gestureToolbarHidden = mainState.gestureToolbarHidden,
@@ -875,11 +901,11 @@ private fun BoxScope.WideSplitLayout(
     onAudioOnly: () -> Unit,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
-    fullScreenSheetOverlay: @Composable (Dp) -> Unit,
+    fullScreenSheetOverlay: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
     emoteMenuLayer: @Composable (Modifier) -> Unit,
     snackbarHostState: SnackbarHostState,
-    scaffoldBottomPadding: Dp,
+    scaffoldBottomInsets: WindowInsets,
     inputHeightDp: Dp,
     isFullscreen: Boolean,
     gestureToolbarHidden: Boolean,
@@ -940,7 +966,7 @@ private fun BoxScope.WideSplitLayout(
                     modifier =
                         Modifier
                             .fillMaxSize()
-                            .padding(bottom = scaffoldBottomPadding),
+                            .bottomInsetsPadding(scaffoldBottomInsets),
                     contentWindowInsets = WindowInsets(0),
                     snackbarHost = {
                         SnackbarHost(
@@ -969,7 +995,7 @@ private fun BoxScope.WideSplitLayout(
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
 
-                fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+                fullScreenSheetOverlay()
 
                 if (inputOverflowExpanded) {
                     InputDismissScrim(
@@ -982,7 +1008,7 @@ private fun BoxScope.WideSplitLayout(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = scaffoldBottomPadding)
+                            .bottomInsetsPadding(scaffoldBottomInsets)
                             .swipeDownToHide(
                                 enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
                                 thresholdPx = swipeDownThresholdPx,
@@ -1037,11 +1063,12 @@ private fun BoxScope.NormalStackedLayout(
     streamState: StreamToolbarState,
     scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
-    fullScreenSheetOverlay: @Composable (Dp) -> Unit,
+    fullScreenSheetOverlay: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
     emoteMenuLayer: @Composable (Modifier) -> Unit,
     snackbarHostState: SnackbarHostState,
-    scaffoldBottomPadding: Dp,
+    scaffoldBottomInsets: WindowInsets,
+    scaffoldBottomTargetDp: Dp,
     inputHeightDp: Dp,
     isFullscreen: Boolean,
     gestureToolbarHidden: Boolean,
@@ -1072,7 +1099,7 @@ private fun BoxScope.NormalStackedLayout(
         isEmoteMenuOpen = isEmoteMenuOpen,
         containerWidthPx = containerWidthPx,
         containerHeightPx = containerHeightPx,
-        scaffoldBottomPadding = scaffoldBottomPadding,
+        scaffoldBottomPadding = scaffoldBottomTargetDp,
         inputHeightDp = inputHeightDp,
         fontSize = fontSize,
         density = density,
@@ -1084,7 +1111,7 @@ private fun BoxScope.NormalStackedLayout(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(bottom = scaffoldBottomPadding),
+                    .bottomInsetsPadding(scaffoldBottomInsets),
             contentWindowInsets = WindowInsets(0),
             snackbarHost = {
                 SnackbarHost(
@@ -1172,7 +1199,7 @@ private fun BoxScope.NormalStackedLayout(
     )
 
     if (!isInPipMode) {
-        fullScreenSheetOverlay(inputHeightDp + scaffoldBottomPadding)
+        fullScreenSheetOverlay()
     }
 
     if (!isInPipMode && inputOverflowExpanded) {
@@ -1187,7 +1214,7 @@ private fun BoxScope.NormalStackedLayout(
             modifier =
                 Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = scaffoldBottomPadding)
+                    .bottomInsetsPadding(scaffoldBottomInsets)
                     .swipeDownToHide(
                         enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
                         thresholdPx = swipeDownThresholdPx,
