@@ -1,8 +1,7 @@
 package com.flxrs.dankchat.ui.chat.emote
 
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -17,33 +16,12 @@ import androidx.compose.ui.unit.LayoutDirection
 @Stable
 class EmoteDrawablePainter(
     val drawable: Drawable,
+    private val emoteCoordinator: EmoteAnimationCoordinator,
 ) : Painter(),
-    androidx.compose.runtime.RememberObserver {
+    RememberObserver {
     private var invalidateTick by mutableIntStateOf(0)
 
-    private val mainHandler = Handler(Looper.getMainLooper())
-
-    private val callback =
-        object : Drawable.Callback {
-            override fun invalidateDrawable(d: Drawable) {
-                invalidateTick++
-            }
-
-            override fun scheduleDrawable(
-                d: Drawable,
-                what: Runnable,
-                time: Long,
-            ) {
-                mainHandler.postAtTime(what, time)
-            }
-
-            override fun unscheduleDrawable(
-                d: Drawable,
-                what: Runnable,
-            ) {
-                mainHandler.removeCallbacks(what)
-            }
-        }
+    private val invalidationListener: () -> Unit = { invalidateTick++ }
 
     override val intrinsicSize: Size
         get() {
@@ -58,7 +36,7 @@ class EmoteDrawablePainter(
     override fun applyLayoutDirection(layoutDirection: LayoutDirection): Boolean = false
 
     override fun DrawScope.onDraw() {
-        // Read invalidateTick to trigger recomposition on animation frames
+        // Read invalidateTick so animation frames invalidate this draw scope
         invalidateTick
         drawIntoCanvas { canvas ->
             drawable.draw(canvas.nativeCanvas)
@@ -66,13 +44,11 @@ class EmoteDrawablePainter(
     }
 
     override fun onRemembered() {
-        drawable.callback = callback
-        drawable.setVisible(true, true)
+        emoteCoordinator.registerInvalidationListener(drawable, invalidationListener)
     }
 
     override fun onForgotten() {
-        drawable.setVisible(false, false)
-        drawable.callback = null
+        emoteCoordinator.unregisterInvalidationListener(drawable, invalidationListener)
     }
 
     override fun onAbandoned() {

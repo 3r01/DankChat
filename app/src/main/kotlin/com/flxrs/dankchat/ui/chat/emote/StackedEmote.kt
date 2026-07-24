@@ -148,7 +148,7 @@ fun StackedEmote(
                     .height()
                     .toDp()
             }
-            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable) }
+            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable, emoteCoordinator) }
 
             Image(
                 painter = painter,
@@ -262,7 +262,7 @@ private fun SingleEmoteDrawable(
                     .height()
                     .toDp()
             }
-            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable) }
+            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable, emoteCoordinator) }
 
             Image(
                 painter = painter,
