@@ -88,10 +88,29 @@ class EmoteRepository(
      * Invalidated via referential identity checks on the global/channel state snapshots.
      */
     private val cachedEmoteMaps = ConcurrentHashMap<UserName, CachedEmoteMap>()
+    private val cachedMergedEmotes = ConcurrentHashMap<UserName, CachedMergedEmotes>()
 
     fun getEmotes(channel: UserName): Flow<Emotes> {
         val channelFlow = channelEmoteStates.getOrPut(channel) { MutableStateFlow(ChannelEmoteState()) }
-        return combine(globalEmoteState, channelFlow, ::mergeEmotes)
+        return combine(globalEmoteState, channelFlow) { globalState, channelState ->
+            getOrMergeEmotes(channel, globalState, channelState)
+        }
+    }
+
+    // Merging eagerly sorts all emotes, new collectors must reuse the result for unchanged state
+    private fun getOrMergeEmotes(
+        channel: UserName,
+        globalState: GlobalEmoteState,
+        channelState: ChannelEmoteState,
+    ): Emotes {
+        val cached = cachedMergedEmotes[channel]
+        if (cached != null && cached.globalState === globalState && cached.channelState === channelState) {
+            return cached.emotes
+        }
+
+        val merged = mergeEmotes(globalState, channelState)
+        cachedMergedEmotes[channel] = CachedMergedEmotes(globalState, channelState, merged)
+        return merged
     }
 
     fun createFlowsIfNecessary(channels: List<UserName>) {
@@ -101,6 +120,7 @@ class EmoteRepository(
     fun removeChannel(channel: UserName) {
         channelEmoteStates.remove(channel)
         cachedEmoteMaps.remove(channel)
+        cachedMergedEmotes.remove(channel)
     }
 
     fun clearTwitchEmotes() {
@@ -353,6 +373,12 @@ class EmoteRepository(
         val globalState: GlobalEmoteState,
         val channelState: ChannelEmoteState,
         val map: Map<String, GenericEmote>,
+    )
+
+    private data class CachedMergedEmotes(
+        val globalState: GlobalEmoteState,
+        val channelState: ChannelEmoteState,
+        val emotes: Emotes,
     )
 
     data class TagListEntry(

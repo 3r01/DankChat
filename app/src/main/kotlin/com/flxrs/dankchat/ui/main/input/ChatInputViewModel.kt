@@ -22,6 +22,7 @@ import com.flxrs.dankchat.data.repo.emote.EmoteUsageRepository
 import com.flxrs.dankchat.data.repo.stream.StreamDataRepository
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.command.TwitchCommand
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -79,6 +81,7 @@ class ChatInputViewModel(
     private val mainEventBus: MainEventBus,
     streamsSettingsDataStore: StreamsSettingsDataStore,
     streamDataRepository: StreamDataRepository,
+    dispatchersProvider: DispatchersProvider,
 ) : ViewModel() {
     val textFieldState = TextFieldState()
 
@@ -124,6 +127,8 @@ class ChatInputViewModel(
         }.flatMapLatest { input ->
             suggestionProvider.getSuggestions(input.text, input.cursorPos, input.channel, input.enabledTypes, input.prefixOnly)
         }.map { it.toImmutableList() }
+            // Filtering and scoring emotes, emojis and users must not run on the main thread
+            .flowOn(dispatchersProvider.default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
     private val roomStateResources: StateFlow<ImmutableList<TextResource>> =
@@ -569,7 +574,7 @@ class ChatInputViewModel(
     }
 
     companion object {
-        private const val SUGGESTION_DEBOUNCE_MS = 20L
+        private const val SUGGESTION_DEBOUNCE_MS = 50L
         private const val MESSAGE_CODE_POINT_LIMIT = 500
     }
 }
