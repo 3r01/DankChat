@@ -101,7 +101,7 @@ class ChatMessageRepository(
 
             else -> combine(keys.map { getChat(it) }) { arrays ->
                 arrays
-                    .flatMap { it.toList() }
+                    .flatMap { it }
                     // Global notices are broadcast to all channels with the same message id
                     .distinctBy { it.message.id }
                     .sortedBy { it.message.timestamp }

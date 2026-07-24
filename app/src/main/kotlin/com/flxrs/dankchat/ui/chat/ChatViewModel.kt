@@ -108,7 +108,7 @@ class ChatViewModel(
             var previousEpochDay = Long.MIN_VALUE
             for (index in messages.indices) {
                 val item = messages[index]
-                val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
+                val altBg = appearanceSettings.checkeredMessages && checkeredTracker.isAlternate(item.message.id)
                 val cacheKey = if (altBg) "${item.mappingCacheKey}-true" else item.mappingCacheKey
 
                 val mapped =

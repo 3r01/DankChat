@@ -20,6 +20,21 @@ data class CodePointAnalysis(
 
 // Combined single-pass: finds supplementary codepoint positions AND removes duplicate whitespace
 fun String.analyzeCodePoints(): CodePointAnalysis {
+    // Fast path: text without supplementary codepoints or duplicate whitespace needs no rewrite
+    var needsAnalysis = false
+    var previousWhitespaceScan = false
+    for (char in this) {
+        val whitespace = char.code.isWhitespace
+        if (char.isHighSurrogate() || (previousWhitespaceScan && whitespace)) {
+            needsAnalysis = true
+            break
+        }
+        previousWhitespaceScan = whitespace
+    }
+    if (!needsAnalysis) {
+        return CodePointAnalysis(emptyList(), this, emptyList())
+    }
+
     val supplementaryPositions = mutableListOf<Int>()
     val stringBuilder = StringBuilder()
     var previousWhitespace = false

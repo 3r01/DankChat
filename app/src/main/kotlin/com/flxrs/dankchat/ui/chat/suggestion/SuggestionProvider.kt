@@ -249,6 +249,8 @@ class SuggestionProvider(
         constraint: String,
     ): List<Suggestion.CommandSuggestion> = commands
         .filter { it.startsWith(constraint, ignoreCase = true) }
+        // Twitch and supibot commands can share a name, lazy list keys require unique entries
+        .distinct()
         .sortedWith(String.CASE_INSENSITIVE_ORDER)
         .map { Suggestion.CommandSuggestion(it) }
 

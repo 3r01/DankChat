@@ -13,7 +13,7 @@ import kotlinx.serialization.json.Json
 fun List<GenericEmote>?.toEmoteItems(): List<EmoteItem> = this
     ?.groupBy { it.emoteType.title }
     ?.toSortedMap(String.CASE_INSENSITIVE_ORDER)
-    ?.mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
+    ?.mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.distinctBy(GenericEmote::id).map(EmoteItem::Emote).sorted() }
     ?.flatMap { it.value }
     .orEmpty()
 
@@ -33,7 +33,7 @@ fun List<GenericEmote>?.toEmoteItemsWithFront(channel: UserName?): List<EmoteIte
             sorted
         }
     return ordered
-        .mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.map(EmoteItem::Emote).sorted() }
+        .mapValues { (title, emotes) -> EmoteItem.Header(title) + emotes.distinctBy(GenericEmote::id).map(EmoteItem::Emote).sorted() }
         .flatMap { it.value }
 }
 

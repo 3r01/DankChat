@@ -106,15 +106,15 @@ fun SuggestionDropdown(
             ) {
                 itemsIndexed(
                     suggestions,
-                    key = { index, suggestion ->
-                        val typeKey = when (suggestion) {
+                    // Position-independent keys so filter changes reuse rows instead of rebuilding them
+                    key = { _, suggestion ->
+                        when (suggestion) {
                             is Suggestion.EmoteSuggestion -> "emote-${suggestion.emote.emoteType}-${suggestion.emote.id}-${suggestion.emote.code}"
                             is Suggestion.UserSuggestion -> "user-${suggestion.name.value}"
                             is Suggestion.EmojiSuggestion -> "emoji-${suggestion.emoji.code}"
                             is Suggestion.CommandSuggestion -> "cmd-${suggestion.command}"
                             is Suggestion.FilterSuggestion -> "filter-${suggestion.keyword}"
                         }
-                        "$index-$typeKey"
                     },
                 ) { _, suggestion ->
                     SuggestionItem(

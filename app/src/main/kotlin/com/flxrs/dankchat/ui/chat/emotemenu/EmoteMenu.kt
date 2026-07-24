@@ -193,10 +193,12 @@ private fun EmoteGridPage(
         ) {
             items(
                 count = items.size,
+                // Sections are unique by title and emote ids are deduplicated per section, so keys
+                // stay stable across list shifts and items can be reused
                 key = { index ->
                     when (val item = items[index]) {
-                        is EmoteItem.Emote -> "emote-${item.emote.id}-$index"
-                        is EmoteItem.Header -> "header-${item.title}-$index"
+                        is EmoteItem.Emote -> "emote-${item.emote.emoteType.title}-${item.emote.id}"
+                        is EmoteItem.Header -> "header-${item.title}"
                     }
                 },
                 span = { index ->

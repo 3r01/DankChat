@@ -56,7 +56,7 @@ fun MessageTextWithInlineContent(
 
     val badgeSize = emoteBaseHeight(fontSize)
     val inlineContentProviders: ImmutableMap<String, @Composable () -> Unit> =
-        remember(badges, emotes, fontSize) {
+        remember(badges, emotes, fontSize, animateGifs) {
             buildMap<String, @Composable () -> Unit> {
                 badges.forEach { badge ->
                     put("BADGE_${badge.position}") {

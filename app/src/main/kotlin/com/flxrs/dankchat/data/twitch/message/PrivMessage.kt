@@ -99,8 +99,10 @@ data class PrivMessage(
     }
 }
 
+private val SUB_MSG_IDS = UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement" - UserNoticeMessage.MILESTONE_MSG_IDS
+
 val PrivMessage.isSub: Boolean
-    get() = tags["msg-id"] in UserNoticeMessage.USER_NOTICE_MSG_IDS_WITH_MESSAGE - "announcement" - UserNoticeMessage.MILESTONE_MSG_IDS
+    get() = tags["msg-id"] in SUB_MSG_IDS
 
 val PrivMessage.isAnnouncement: Boolean
     get() = tags["msg-id"] == "announcement"

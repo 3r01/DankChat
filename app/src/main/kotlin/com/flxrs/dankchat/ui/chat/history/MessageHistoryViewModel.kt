@@ -47,6 +47,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import org.koin.core.annotation.InjectedParam
@@ -114,13 +115,15 @@ class MessageHistoryViewModel(
         ).map { ChatSearchFilterParser.parse(it) }
             .distinctUntilChanged()
 
+    // Shared so the global chat merge runs once per message instead of once per collector
     private val messagesFlow: Flow<List<ChatItem>> =
-        _selectedChannel.flatMapLatest { channel ->
-            when (channel) {
-                is HistoryChannel.Global -> chatMessageRepository.getAllChat()
-                is HistoryChannel.Channel -> chatMessageRepository.getChat(channel.name)
-            }
-        }
+        _selectedChannel
+            .flatMapLatest { channel ->
+                when (channel) {
+                    is HistoryChannel.Global -> chatMessageRepository.getAllChat()
+                    is HistoryChannel.Channel -> chatMessageRepository.getChat(channel.name)
+                }
+            }.shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), replay = 1)
 
     val historyUiStates: Flow<ImmutableList<ChatMessageUiState>> =
         combine(
@@ -135,7 +138,7 @@ class MessageHistoryViewModel(
                         .filter { it.message !is SystemMessage }
                         .filter { ChatItemFilter.matches(it, activeFilters) }
                         .map { item ->
-                            val altBg = checkeredTracker.isAlternate(item.message.id) && appearanceSettings.checkeredMessages
+                            val altBg = appearanceSettings.checkeredMessages && checkeredTracker.isAlternate(item.message.id)
                             mapToUiState(
                                 item = item,
                                 chatSettings = chatSettings,
