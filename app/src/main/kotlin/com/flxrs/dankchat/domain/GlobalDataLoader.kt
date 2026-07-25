@@ -6,7 +6,6 @@ import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 
@@ -24,7 +23,8 @@ class GlobalDataLoader(
                 async { loadGlobalFFZEmotes() },
                 async { loadGlobalSevenTVEmotes() },
             )
-        launch { loadSupibotCommands() }
+        // Best-effort load, must not delay the global loading state
+        commandRepository.loadSupibotCommands()
         results
     }
 
@@ -43,8 +43,6 @@ class GlobalDataLoader(
     suspend fun loadGlobalFFZEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalFFZEmotes(forceNetwork)
 
     suspend fun loadGlobalSevenTVEmotes(forceNetwork: Boolean = false): Result<Unit> = dataRepository.loadGlobalSevenTVEmotes(forceNetwork)
-
-    suspend fun loadSupibotCommands() = commandRepository.loadSupibotCommands()
 
     suspend fun loadUserEmotes(
         userId: UserId,

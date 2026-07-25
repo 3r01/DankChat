@@ -14,6 +14,7 @@ import com.flxrs.dankchat.data.twitch.command.TwitchCommandRepository
 import com.flxrs.dankchat.data.twitch.message.RoomState
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.domain.BackgroundDataLoader
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.CustomCommand
 import com.flxrs.dankchat.preferences.chat.SuggestionType
@@ -42,6 +43,7 @@ import org.koin.core.annotation.Single
 import kotlin.system.measureTimeMillis
 
 private val logger = KotlinLogging.logger("CommandRepository")
+private const val SUPIBOT_LOAD_TAG = "supibot-commands"
 
 @Single
 class CommandRepository(
@@ -52,6 +54,7 @@ class CommandRepository(
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
     private val authDataStore: AuthDataStore,
+    private val backgroundDataLoader: BackgroundDataLoader,
     private val dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -193,7 +196,13 @@ class CommandRepository(
         }
     }
 
-    suspend fun loadSupibotCommands() = withContext(dispatchersProvider.default) {
+    fun loadSupibotCommands() {
+        backgroundDataLoader.load(SUPIBOT_LOAD_TAG) {
+            fetchSupibotCommands()
+        }
+    }
+
+    private suspend fun fetchSupibotCommands() = withContext(dispatchersProvider.default) {
         if (!authDataStore.isLoggedIn || SuggestionType.SupibotCommands !in chatSettingsDataStore.settings.first().suggestionTypes) {
             return@withContext
         }

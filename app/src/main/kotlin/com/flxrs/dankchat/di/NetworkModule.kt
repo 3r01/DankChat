@@ -55,6 +55,11 @@ class NetworkModule {
         const val FFZ_BASE_URL = "https://api.frankerfacez.com/v1/"
         const val BTTV_BASE_URL = "https://api.betterttv.net/3/cached/"
         const val SEVENTV_BASE_URL = "https://7tv.io/v3/"
+
+        const val DEFAULT_TIMEOUT_MS = 30_000L
+
+        // For best-effort APIs whose data no feature depends on, they should fail fast
+        const val BEST_EFFORT_TIMEOUT_MS = 10_000L
     }
 
     @Single
@@ -98,9 +103,9 @@ class NetworkModule {
                 json(json)
             }
             install(HttpTimeout) {
-                connectTimeoutMillis = 30_000
-                requestTimeoutMillis = 30_000
-                socketTimeoutMillis = 30_000
+                connectTimeoutMillis = DEFAULT_TIMEOUT_MS
+                requestTimeoutMillis = DEFAULT_TIMEOUT_MS
+                socketTimeoutMillis = DEFAULT_TIMEOUT_MS
             }
         }
     }
@@ -128,6 +133,11 @@ class NetworkModule {
         ktorClient.config {
             defaultRequest {
                 url(SUPIBOT_BASE_URL)
+            }
+            install(HttpTimeout) {
+                connectTimeoutMillis = BEST_EFFORT_TIMEOUT_MS
+                requestTimeoutMillis = BEST_EFFORT_TIMEOUT_MS
+                socketTimeoutMillis = BEST_EFFORT_TIMEOUT_MS
             }
         },
     )
