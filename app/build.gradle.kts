@@ -78,6 +78,16 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += "release"
         }
+        // Sacrificial benchmark target: benchmarks reinstall the target app and wipe its data,
+        // the own suffix keeps them away from real installs
+        create("perf") {
+            initWith(getByName("release"))
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            manifestPlaceholders["applicationLabel"] = "@string/app_name_perf"
+            applicationIdSuffix = ".perf"
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
+        }
     }
 
     androidComponents.onVariants { variant ->

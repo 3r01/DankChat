@@ -11,9 +11,25 @@ android {
         minSdk = 30
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Benchmarks run on the managed device, absolute numbers are not representative
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
+        buildConfigField("String", "TARGET_APP_ID", "\"com.flxrs.dankchat\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     targetProjectPath = ":app"
+
+    buildTypes {
+        // Mirrors the app's sacrificial perf build type, benchmarks run against it on a
+        // connected device via connectedBenchmarkPerfAndroidTest
+        create("perf") {
+            isDebuggable = false
+            buildConfigField("String", "TARGET_APP_ID", "\"com.flxrs.dankchat.perf\"")
+        }
+    }
 
     testOptions {
         managedDevices {
