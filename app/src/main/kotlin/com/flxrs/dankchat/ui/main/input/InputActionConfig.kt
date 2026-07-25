@@ -45,7 +45,6 @@ import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import sh.calvin.reorderable.ReorderableColumn
-import sh.calvin.reorderable.ReorderableItem
 
 private const val MAX_INPUT_ACTIONS = 4
 

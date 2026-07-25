@@ -1,9 +1,6 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.LayerDrawable
-import android.util.LruCache
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.toColorInt
 import com.flxrs.dankchat.data.DisplayName
@@ -48,9 +45,7 @@ import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.analyzeCodePoints
 import com.flxrs.dankchat.utils.extensions.appendSpacesBetweenEmojiGroup
-import com.flxrs.dankchat.utils.extensions.chunkedBy
 import com.flxrs.dankchat.utils.extensions.codePointAsString
-import com.flxrs.dankchat.utils.extensions.concurrentMap
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

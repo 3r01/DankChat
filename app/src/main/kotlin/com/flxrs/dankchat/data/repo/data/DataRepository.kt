@@ -25,7 +25,6 @@ import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.utils.extensions.measureTimeAndLog
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow

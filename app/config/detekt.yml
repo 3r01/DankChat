@@ -33,6 +33,8 @@ performance:
 style:
   MagicNumber:
     active: false
+  UnusedImport:
+    active: true
   MaxLineLength:
     maxLineLength: 210
     excludeCommentStatements: true

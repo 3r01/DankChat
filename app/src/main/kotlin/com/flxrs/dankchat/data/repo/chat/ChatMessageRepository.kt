@@ -14,7 +14,6 @@ import com.flxrs.dankchat.utils.extensions.addSystemMessage
 import com.flxrs.dankchat.utils.extensions.replaceOrAddModerationMessage
 import com.flxrs.dankchat.utils.extensions.replaceWithTimeout
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
