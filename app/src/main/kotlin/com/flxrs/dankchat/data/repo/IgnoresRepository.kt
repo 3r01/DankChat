@@ -66,6 +66,10 @@ class IgnoresRepository(
         messageIgnores
             .map { ignores -> ignores.filter { it.enabled && (it.type != MessageIgnoreEntityType.Custom || it.pattern.isNotBlank()) } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val customMessageIgnores =
+        validMessageIgnores
+            .map { ignores -> ignores.filter { it.type == MessageIgnoreEntityType.Custom } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     private val validUserIgnores =
         userIgnores
             .map { ignores -> ignores.filter { it.enabled && it.username.isNotBlank() } }
@@ -256,7 +260,7 @@ class IgnoresRepository(
             return null
         }
 
-        messageIgnores
+        customMessageIgnores.value
             .isIgnoredMessageWithReplacement(message) { replacement ->
                 replacement ?: return null
                 val filteredPositions = adaptEmotePositions(replacement, emoteData.emotesWithPositions)
@@ -287,7 +291,7 @@ class IgnoresRepository(
             return null
         }
 
-        validMessageIgnores.value
+        customMessageIgnores.value
             .isIgnoredMessageWithReplacement(message) { replacement ->
                 replacement ?: return null
                 val filteredPositions = adaptEmotePositions(replacement, emoteData.emotesWithPositions)
@@ -330,20 +334,19 @@ class IgnoresRepository(
         message: String,
         onReplacement: (ReplacementResult?) -> Unit,
     ) {
-        filter { it.type == MessageIgnoreEntityType.Custom }
-            .forEach { ignoreEntity ->
-                val regex = ignoreEntity.regex ?: return@forEach
-                val results = regex.findAll(message).toList()
+        forEach { ignoreEntity ->
+            val regex = ignoreEntity.regex ?: return@forEach
+            val results = regex.findAll(message).toList()
 
-                if (results.isNotEmpty()) {
-                    ignoreEntity.escapedReplacement?.let { replacement ->
-                        val filtered = message.replace(regex, replacement)
-                        return onReplacement(ReplacementResult(filtered, replacement, results.map(MatchResult::range)))
-                    }
-
-                    return onReplacement(null)
+            if (results.isNotEmpty()) {
+                ignoreEntity.escapedReplacement?.let { replacement ->
+                    val filtered = message.replace(regex, replacement)
+                    return onReplacement(ReplacementResult(filtered, replacement, results.map(MatchResult::range)))
                 }
+
+                return onReplacement(null)
             }
+        }
     }
 
     private fun adaptEmotePositions(

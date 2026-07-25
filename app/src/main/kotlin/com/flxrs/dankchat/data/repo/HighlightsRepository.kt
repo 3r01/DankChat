@@ -74,6 +74,10 @@ class HighlightsRepository(
         messageHighlights
             .map { highlights -> highlights.filter { it.enabled && (it.type != MessageHighlightEntityType.Custom || it.pattern.isNotBlank()) } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    private val customMessageHighlights =
+        validMessageHighlights
+            .map { highlights -> highlights.filter { it.type == MessageHighlightEntityType.Custom } }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     private val validUserHighlights =
         userHighlights
             .map { highlights -> highlights.filter { it.enabled && it.username.isNotBlank() } }
@@ -308,16 +312,14 @@ class HighlightsRepository(
                     }
                 }
 
-                messageHighlights
-                    .filter { it.type == MessageHighlightEntityType.Custom }
-                    .forEach {
-                        val regex = it.regex ?: return@forEach
+                customMessageHighlights.value.forEach {
+                    val regex = it.regex ?: return@forEach
 
-                        if (message.contains(regex)) {
-                            add(Highlight(HighlightType.Custom, it.customColor))
-                            addNotificationHighlightIfEnabled(it.createNotification)
-                        }
+                    if (message.contains(regex)) {
+                        add(Highlight(HighlightType.Custom, it.customColor))
+                        addNotificationHighlightIfEnabled(it.createNotification)
                     }
+                }
 
                 userHighlights.forEach {
                     if (name.matches(it.username)) {
