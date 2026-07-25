@@ -114,6 +114,10 @@ class ChatSettingsViewModel(
                 is ChatSettingsInteraction.ChatModes -> {
                     chatSettingsDataStore.update { it.copy(showChatModes = interaction.value) }
                 }
+
+                is ChatSettingsInteraction.AlwaysShowPinnedMessage -> {
+                    chatSettingsDataStore.update { it.copy(alwaysShowPinnedMessage = interaction.value) }
+                }
             }
         }
     }
@@ -140,6 +144,7 @@ private fun ChatSettings.toState() = ChatSettingsState(
     loadMessageHistoryAfterReconnect = loadMessageHistoryOnReconnect,
     messageHistoryDashboardUrl = RECENT_MESSAGES_DASHBOARD,
     showChatModes = showChatModes,
+    alwaysShowPinnedMessage = alwaysShowPinnedMessage,
 )
 
 private const val RECENT_MESSAGES_DASHBOARD = "https://recent-messages.robotty.de"

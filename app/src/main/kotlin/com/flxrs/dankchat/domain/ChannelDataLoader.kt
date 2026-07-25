@@ -3,6 +3,7 @@ package com.flxrs.dankchat.domain
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
+import com.flxrs.dankchat.data.repo.PinnedMessageRepository
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
@@ -24,6 +25,7 @@ class ChannelDataLoader(
     private val chatRepository: ChatRepository,
     private val chatMessageRepository: ChatMessageRepository,
     private val channelRepository: ChannelRepository,
+    private val pinnedMessageRepository: PinnedMessageRepository,
     private val getChannelsUseCase: GetChannelsUseCase,
     private val userBlocksGate: UserBlocksGate,
     private val dispatchersProvider: DispatchersProvider,
@@ -47,6 +49,8 @@ class ChannelDataLoader(
             if (channelInfo == null) {
                 return@withContext ChannelLoadingState.Failed(emptyList())
             }
+
+            launch { pinnedMessageRepository.fetch(channel) }
 
             val badgesResult = async { loadChannelBadges(channel, channelInfo.id) }
             val emotesResults = async { loadChannelEmotes(channel, channelInfo, forceNetwork) }

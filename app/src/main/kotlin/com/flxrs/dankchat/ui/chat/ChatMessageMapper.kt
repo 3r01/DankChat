@@ -317,6 +317,15 @@ class ChatMessageMapper(
                         }
                     TextResource.Res(errorResId, persistentListOf(actionRes))
                 }
+
+                is SystemMessageType.PinnedMessageActionFailed -> {
+                    val status = type.statusCode?.toString() ?: "0"
+                    when {
+                        type.pin && type.statusCode == 409 -> TextResource.Res(R.string.system_message_pin_already_pinned)
+                        type.pin -> TextResource.Res(R.string.system_message_pin_failed, persistentListOf(status))
+                        else -> TextResource.Res(R.string.system_message_unpin_failed, persistentListOf(status))
+                    }
+                }
             }
 
         return ChatMessageUiState.SystemMessageUi(

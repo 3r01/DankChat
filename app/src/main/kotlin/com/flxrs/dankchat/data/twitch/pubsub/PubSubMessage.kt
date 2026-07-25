@@ -19,4 +19,9 @@ sealed interface PubSubMessage {
         val channelId: UserId,
         val data: ModerationActionData,
     ) : PubSubMessage
+
+    data class PinnedChatUpdate(
+        val channelName: UserName,
+        val removed: Boolean,
+    ) : PubSubMessage
 }

@@ -112,6 +112,11 @@ sealed interface SystemMessageType {
         val statusCode: Int?,
         val allow: Boolean,
     ) : SystemMessageType
+
+    data class PinnedMessageActionFailed(
+        val statusCode: Int?,
+        val pin: Boolean,
+    ) : SystemMessageType
 }
 
 fun SystemMessageType.toChatItem() = ChatItem(SystemMessage(this), importance = ChatImportance.SYSTEM)

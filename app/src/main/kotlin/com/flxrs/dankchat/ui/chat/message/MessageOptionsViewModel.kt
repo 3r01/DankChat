@@ -2,7 +2,8 @@ package com.flxrs.dankchat.ui.chat.message
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.helix.HelixApiException
+import com.flxrs.dankchat.data.repo.PinnedMessageRepository
 import com.flxrs.dankchat.data.repo.RepliesRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
@@ -15,6 +16,7 @@ import com.flxrs.dankchat.data.repo.command.CommandResult
 import com.flxrs.dankchat.data.twitch.chat.ConnectionState
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
+import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.ui.chat.messages.common.extractUrls
 import kotlinx.collections.immutable.toImmutableList
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+import kotlin.time.Duration.Companion.seconds
 
 data class MessageOptionsUiState(
     val optionsState: MessageOptionsState,
@@ -43,6 +46,7 @@ class MessageOptionsViewModel(
     private val chatMessageRepository: ChatMessageRepository,
     private val chatConnector: ChatConnector,
     private val chatNotificationRepository: ChatNotificationRepository,
+    private val pinnedMessageRepository: PinnedMessageRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow<MessageOptionsUiState?>(null)
     val state: StateFlow<MessageOptionsUiState?> = _state.asStateFlow()
@@ -136,6 +140,18 @@ class MessageOptionsViewModel(
         sendCommand(".delete $messageId")
     }
 
+    fun pinMessage(index: Int) = viewModelScope.launch {
+        val channel = currentParams?.channel ?: return@launch
+        val messageId = currentParams?.messageId ?: return@launch
+        val duration = PIN_DURATION_MAP[index]?.seconds
+        pinnedMessageRepository
+            .pin(channel, messageId, duration)
+            .onFailure { error ->
+                val statusCode = (error as? HelixApiException)?.status?.value
+                chatMessageRepository.addSystemMessage(channel, SystemMessageType.PinnedMessageActionFailed(statusCode = statusCode, pin = true))
+            }
+    }
+
     private suspend fun sendCommand(message: String) {
         val activeChannel = currentParams?.channel ?: return
         val roomState = channelRepository.getRoomState(activeChannel) ?: return
@@ -164,6 +180,17 @@ class MessageOptionsViewModel(
                 6 to "3600",
                 7 to "86400",
                 8 to "604800",
+            )
+
+        // Index 0 = no duration, the pin stays until the stream ends or it gets unpinned
+        private val PIN_DURATION_MAP =
+            mapOf<Int, Long?>(
+                0 to null,
+                1 to 60L,
+                2 to 300L,
+                3 to 600L,
+                4 to 1200L,
+                5 to 1800L,
             )
     }
 }

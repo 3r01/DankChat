@@ -118,6 +118,7 @@ class PubSubManager(
         val uid = userId.toUserId()
         for (channel in channels) {
             add(PubSubTopic.PointRedemptions(channelId = channel.id, channelName = channel.name))
+            add(PubSubTopic.PinnedChatUpdates(channelId = channel.id, channelName = channel.name))
             if (shouldUsePubSub) {
                 add(PubSubTopic.ModeratorActions(userId = uid, channelId = channel.id, channelName = channel.name))
             }

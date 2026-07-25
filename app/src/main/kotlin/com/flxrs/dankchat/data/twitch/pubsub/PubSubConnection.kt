@@ -1,6 +1,5 @@
 package com.flxrs.dankchat.data.twitch.pubsub
 
-import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.ifBlank
 import com.flxrs.dankchat.data.toUserId
@@ -197,10 +196,7 @@ class PubSubConnection(
     }
 
     fun unlistenByChannel(channel: UserName) {
-        val toUnlisten =
-            topics.filter {
-                (it is PubSubTopic.PointRedemptions && it.channelName == channel) || (it is PubSubTopic.ModeratorActions && it.channelName == channel)
-            }
+        val toUnlisten = topics.filter { it.channelName == channel }
         unlisten(toUnlisten.toSet())
     }
 
@@ -357,6 +353,23 @@ class PubSubConnection(
                                 }
                             }
                         }
+
+                        is PubSubTopic.PinnedChatUpdates -> {
+                            // The payload body is undocumented, the pin content is fetched via Helix instead
+                            when (messageTopic) {
+                                "pin-message", "update-message" -> {
+                                    PubSubMessage.PinnedChatUpdate(channelName = match.channelName, removed = false)
+                                }
+
+                                "unpin-message" -> {
+                                    PubSubMessage.PinnedChatUpdate(channelName = match.channelName, removed = true)
+                                }
+
+                                else -> {
+                                    return false
+                                }
+                            }
+                        }
                     }
                 receiveChannel.trySend(PubSubEvent.Message(pubSubMessage))
             }
@@ -367,10 +380,10 @@ class PubSubConnection(
     private fun <T> Collection<T>.splitAt(n: Int): Pair<Collection<T>, Collection<T>> = take(n) to drop(n)
 
     private fun Collection<PubSubTopic>.toRequestMessages(type: String = "LISTEN"): List<String> {
-        val (pointRewards, rest) = partition { it is PubSubTopic.PointRedemptions }
+        val (authedTopics, unauthedTopics) = partition { it.requiresAuth }
         return listOf(
-            rest.toRequestMessage(type),
-            pointRewards.toRequestMessage(type, withAuth = false),
+            authedTopics.toRequestMessage(type),
+            unauthedTopics.toRequestMessage(type, withAuth = false),
         )
     }
 

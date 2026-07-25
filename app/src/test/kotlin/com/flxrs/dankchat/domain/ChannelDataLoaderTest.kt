@@ -3,6 +3,7 @@ package com.flxrs.dankchat.domain
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.repo.PinnedMessageRepository
 import com.flxrs.dankchat.data.repo.channel.Channel
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
@@ -46,6 +47,7 @@ internal class ChannelDataLoaderTest {
     private val chatRepository: ChatRepository = mockk(relaxed = true)
     private val chatMessageRepository: ChatMessageRepository = mockk(relaxed = true)
     private val channelRepository: ChannelRepository = mockk()
+    private val pinnedMessageRepository: PinnedMessageRepository = mockk(relaxed = true)
     private val getChannelsUseCase: GetChannelsUseCase = mockk()
     private val userBlocksGate: UserBlocksGate = mockk(relaxed = true)
 
@@ -69,6 +71,7 @@ internal class ChannelDataLoaderTest {
                 chatRepository = chatRepository,
                 chatMessageRepository = chatMessageRepository,
                 channelRepository = channelRepository,
+                pinnedMessageRepository = pinnedMessageRepository,
                 getChannelsUseCase = getChannelsUseCase,
                 userBlocksGate = userBlocksGate,
                 dispatchersProvider = dispatchersProvider,

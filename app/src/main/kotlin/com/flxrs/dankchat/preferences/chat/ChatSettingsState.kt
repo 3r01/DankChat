@@ -83,6 +83,10 @@ sealed interface ChatSettingsInteraction {
     data class ChatModes(
         val value: Boolean,
     ) : ChatSettingsInteraction
+
+    data class AlwaysShowPinnedMessage(
+        val value: Boolean,
+    ) : ChatSettingsInteraction
 }
 
 @Immutable
@@ -107,4 +111,5 @@ data class ChatSettingsState(
     val loadMessageHistoryAfterReconnect: Boolean,
     val messageHistoryDashboardUrl: String,
     val showChatModes: Boolean,
+    val alwaysShowPinnedMessage: Boolean,
 )

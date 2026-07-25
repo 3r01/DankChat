@@ -21,6 +21,7 @@ import com.flxrs.dankchat.data.api.helix.dto.MarkerDto
 import com.flxrs.dankchat.data.api.helix.dto.MarkerRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.ModVipDto
 import com.flxrs.dankchat.data.api.helix.dto.PagedDto
+import com.flxrs.dankchat.data.api.helix.dto.PinnedChatMessageDto
 import com.flxrs.dankchat.data.api.helix.dto.RaidDto
 import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
 import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageResponseDto
@@ -380,6 +381,39 @@ class HelixApiClient(
             .postChatMessage(request)
             .throwHelixApiErrorOnFailure()
             .firstEntryOrThrow<SendChatMessageResponseDto>()
+    }
+
+    suspend fun getPinnedChatMessage(
+        broadcastUserId: UserId,
+        moderatorUserId: UserId,
+    ): Result<PinnedChatMessageDto?> = runCatching {
+        helixApi
+            .getPinnedChatMessage(broadcastUserId, moderatorUserId)
+            .throwHelixApiErrorOnFailure()
+            .body<DataListDto<PinnedChatMessageDto>>()
+            .data
+            .firstOrNull()
+    }
+
+    suspend fun pinChatMessage(
+        broadcastUserId: UserId,
+        moderatorUserId: UserId,
+        messageId: String,
+        durationSeconds: Long?,
+    ): Result<Unit> = runCatching {
+        helixApi
+            .putChatPin(broadcastUserId, moderatorUserId, messageId, durationSeconds)
+            .throwHelixApiErrorOnFailure()
+    }
+
+    suspend fun unpinChatMessage(
+        broadcastUserId: UserId,
+        moderatorUserId: UserId,
+        messageId: String,
+    ): Result<Unit> = runCatching {
+        helixApi
+            .deleteChatPin(broadcastUserId, moderatorUserId, messageId)
+            .throwHelixApiErrorOnFailure()
     }
 
     private inline fun <reified T> pageAsFlow(

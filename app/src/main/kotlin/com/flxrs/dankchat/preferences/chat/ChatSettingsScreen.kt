@@ -174,6 +174,7 @@ private fun ChatSettingsScreen(
             HorizontalDivider(thickness = Dp.Hairline)
             ChannelDataCategory(
                 showChatModes = settings.showChatModes,
+                alwaysShowPinnedMessage = settings.alwaysShowPinnedMessage,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -417,6 +418,7 @@ private fun MessageHistoryCategory(
 @Composable
 private fun ChannelDataCategory(
     showChatModes: Boolean,
+    alwaysShowPinnedMessage: Boolean,
     onInteraction: (ChatSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_channel_data_header)) {
@@ -425,6 +427,12 @@ private fun ChannelDataCategory(
             summary = stringResource(R.string.preference_roomstate_summary),
             isChecked = showChatModes,
             onClick = { onInteraction(ChatSettingsInteraction.ChatModes(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_always_show_pinned_message_title),
+            summary = stringResource(R.string.preference_always_show_pinned_message_summary),
+            isChecked = alwaysShowPinnedMessage,
+            onClick = { onInteraction(ChatSettingsInteraction.AlwaysShowPinnedMessage(it)) },
         )
     }
 }

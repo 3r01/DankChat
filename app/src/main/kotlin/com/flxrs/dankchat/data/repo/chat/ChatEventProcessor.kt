@@ -16,6 +16,7 @@ import com.flxrs.dankchat.data.chat.ChatImportance
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.chat.toMentionTabItems
 import com.flxrs.dankchat.data.irc.IrcMessage
+import com.flxrs.dankchat.data.repo.PinnedMessageRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
@@ -78,6 +79,7 @@ class ChatEventProcessor(
     private val recentMessagesHandler: RecentMessagesHandler,
     private val userStateRepository: UserStateRepository,
     private val usersRepository: UsersRepository,
+    private val pinnedMessageRepository: PinnedMessageRepository,
     private val authDataStore: AuthDataStore,
     private val channelRepository: ChannelRepository,
     private val chatSettingsDataStore: ChatSettingsDataStore,
@@ -148,7 +150,15 @@ class ChatEventProcessor(
             when (pubSubMessage) {
                 is PubSubMessage.PointRedemption -> handlePubSubReward(pubSubMessage)
                 is PubSubMessage.ModeratorAction -> handlePubSubModeration(pubSubMessage)
+                is PubSubMessage.PinnedChatUpdate -> handlePubSubPinnedChatUpdate(pubSubMessage)
             }
+        }
+    }
+
+    private suspend fun handlePubSubPinnedChatUpdate(pubSubMessage: PubSubMessage.PinnedChatUpdate) {
+        when {
+            pubSubMessage.removed -> pinnedMessageRepository.clear(pubSubMessage.channelName)
+            else -> pinnedMessageRepository.fetch(pubSubMessage.channelName)
         }
     }
 
@@ -630,6 +640,8 @@ class ChatEventProcessor(
                     loadRecentMessages(channel, isReconnect = true)
                 }
             }
+            // PubSub doesn't replay missed pin events, so re-sync after reconnects
+            scope.launch { pinnedMessageRepository.fetch(channel) }
         }
     }
 

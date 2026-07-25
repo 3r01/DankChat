@@ -41,4 +41,6 @@ sealed interface ToolbarAction {
     data object Reconnect : ToolbarAction
 
     data object OpenSettings : ToolbarAction
+
+    data object TogglePinnedMessage : ToolbarAction
 }

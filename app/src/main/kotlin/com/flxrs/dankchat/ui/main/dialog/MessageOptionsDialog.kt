@@ -4,12 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -62,6 +58,7 @@ private enum class MessageOptionsSubView {
     Timeout,
     Ban,
     Delete,
+    Pin,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -86,6 +83,7 @@ fun MessageOptionsDialog(
     onTimeout: (index: Int) -> Unit,
     onBan: () -> Unit,
     onUnban: () -> Unit,
+    onPinMessage: (index: Int) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var subView by remember { mutableStateOf<MessageOptionsSubView?>(null) }
@@ -148,6 +146,7 @@ fun MessageOptionsDialog(
                         onTimeout = { subView = MessageOptionsSubView.Timeout },
                         onBan = { subView = MessageOptionsSubView.Ban },
                         onDelete = { subView = MessageOptionsSubView.Delete },
+                        onPinMessage = { subView = MessageOptionsSubView.Pin },
                     )
                 }
 
@@ -184,6 +183,16 @@ fun MessageOptionsDialog(
                         onBack = { subView = null },
                     )
                 }
+
+                MessageOptionsSubView.Pin -> {
+                    PinSubView(
+                        onConfirm = { index ->
+                            onPinMessage(index)
+                            onDismiss()
+                        },
+                        onBack = { subView = null },
+                    )
+                }
             }
         }
     }
@@ -210,6 +219,7 @@ private fun MessageOptionsMainView(
     onTimeout: () -> Unit,
     onBan: () -> Unit,
     onDelete: () -> Unit,
+    onPinMessage: () -> Unit,
 ) {
     var moreExpanded by remember { mutableStateOf(false) }
     val arrowRotation by animateFloatAsState(
@@ -275,6 +285,9 @@ private fun MessageOptionsMainView(
         }
         if (canModerate) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            if (channel != null) {
+                MessageOptionItem(Icons.Default.PushPin, stringResource(R.string.message_pin), onPinMessage)
+            }
             MessageOptionItem(Icons.Default.Timer, stringResource(R.string.user_popup_timeout), onTimeout)
             MessageOptionItem(Icons.Default.Delete, stringResource(R.string.user_popup_delete), onDelete)
             MessageOptionItem(Icons.Default.Gavel, stringResource(R.string.user_popup_ban), onBan)
@@ -356,6 +369,63 @@ private fun MessageOptionItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     ) {
         Text(text)
+    }
+}
+
+@Composable
+private fun PinSubView(
+    onConfirm: (Int) -> Unit,
+    onBack: () -> Unit,
+) {
+    val choices = stringArrayResource(R.array.pin_duration_entries)
+    var sliderPosition by remember { mutableFloatStateOf(0f) }
+    val currentIndex = sliderPosition.toInt()
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp),
+    ) {
+        Text(
+            text = stringResource(R.string.confirm_pin_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 12.dp),
+        )
+
+        Text(
+            text = choices[currentIndex],
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(vertical = 8.dp),
+        )
+
+        Slider(
+            value = sliderPosition,
+            onValueChange = { sliderPosition = it },
+            valueRange = 0f..(choices.size - 1).toFloat(),
+            steps = choices.size - 2,
+        )
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+        ) {
+            OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.dialog_cancel))
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Button(onClick = { onConfirm(currentIndex) }, modifier = Modifier.weight(1f)) {
+                Text(stringResource(R.string.confirm_pin_positive_button))
+            }
+        }
     }
 }
 

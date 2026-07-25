@@ -70,6 +70,8 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
+import com.flxrs.dankchat.ui.chat.PinnedMessageUiState
+import com.flxrs.dankchat.ui.chat.PinnedMessageViewModel
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
@@ -113,6 +115,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
@@ -280,6 +283,20 @@ fun MainScreen(
 
     val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
+
+    // Same key as in ChatComposable, so this resolves the active page's instance
+    val activePinnedMessageViewModel =
+        activeChannel?.let { channel ->
+            koinViewModel<PinnedMessageViewModel>(
+                key = "pinned-${channel.value}",
+                parameters = { parametersOf(channel) },
+            )
+        }
+    val activePinnedMessageState =
+        activePinnedMessageViewModel
+            ?.uiState
+            ?.collectAsStateWithLifecycle()
+            ?.value ?: PinnedMessageUiState.Hidden
 
     MainScreenTourEffects(
         featureTourViewModel = featureTourViewModel,
@@ -636,6 +653,10 @@ fun MainScreen(
                     ToolbarAction.OpenSettings -> {
                         onNavigateToSettings()
                     }
+
+                    ToolbarAction.TogglePinnedMessage -> {
+                        activePinnedMessageViewModel?.toggleExpanded()
+                    }
                 }
             }
 
@@ -652,6 +673,8 @@ fun MainScreen(
                     isAudioOnly = isAudioOnly,
                     streamHeightDp = streamState.heightDp,
                     totalMentionCount = tabState.tabs.sumOf { it.mentionCount } + tabState.whisperMentionCount,
+                    hasActivePinnedMessage = activePinnedMessageState != PinnedMessageUiState.Hidden,
+                    isPinnedMessageShown = activePinnedMessageState is PinnedMessageUiState.Expanded,
                     onAction = handleToolbarAction,
                     onAudioOnly = { streamViewModel.toggleAudioOnly() },
                     onStreamClose = { streamViewModel.closeStream() },
@@ -778,6 +801,8 @@ fun MainScreen(
                     onClearScrollTarget = { scrollTargets.remove(it) },
                     callbacks = chatPagerCallbacks,
                     fabMenuCallbacks = fabMenuCallbacks,
+                    showPinnedMessage = !mainState.gestureToolbarHidden,
+                    isToolbarMenuOpen = isToolbarMenuOpen,
                     currentTourStep = featureTourState.currentTourStep,
                     recoveryFabTooltipState = featureTourViewModel.recoveryFabTooltipState,
                     onAddChannel = dialogViewModel::showAddChannel,

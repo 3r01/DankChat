@@ -404,4 +404,40 @@ class HelixApi(
         contentType(ContentType.Application.Json)
         setBody(request)
     }
+
+    suspend fun getPinnedChatMessage(
+        broadcasterUserId: UserId,
+        moderatorUserId: UserId,
+    ): HttpResponse? = ktorClient.get("chat/pins") {
+        val oAuth = getValidToken() ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterUserId)
+        parameter("moderator_id", moderatorUserId)
+    }
+
+    suspend fun putChatPin(
+        broadcasterUserId: UserId,
+        moderatorUserId: UserId,
+        messageId: String,
+        durationSeconds: Long?,
+    ): HttpResponse? = ktorClient.put("chat/pins") {
+        val oAuth = getValidToken() ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterUserId)
+        parameter("moderator_id", moderatorUserId)
+        parameter("message_id", messageId)
+        parameter("duration_seconds", durationSeconds)
+    }
+
+    suspend fun deleteChatPin(
+        broadcasterUserId: UserId,
+        moderatorUserId: UserId,
+        messageId: String,
+    ): HttpResponse? = ktorClient.delete("chat/pins") {
+        val oAuth = getValidToken() ?: return null
+        bearerAuth(oAuth)
+        parameter("broadcaster_id", broadcasterUserId)
+        parameter("moderator_id", moderatorUserId)
+        parameter("message_id", messageId)
+    }
 }

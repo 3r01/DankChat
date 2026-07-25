@@ -3,18 +3,17 @@ package com.flxrs.dankchat.data.repo.chat
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.repo.PinnedMessageRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
-import com.flxrs.dankchat.data.twitch.message.toChatItem
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.parseColorOrNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
 import org.koin.core.annotation.Single
 
 @Single
@@ -26,6 +25,7 @@ class ChatRepository(
     private val chatEventProcessor: ChatEventProcessor,
     private val userStateRepository: UserStateRepository,
     private val usersRepository: UsersRepository,
+    private val pinnedMessageRepository: PinnedMessageRepository,
     private val emoteRepository: EmoteRepository,
     private val channelRepository: ChannelRepository,
     private val messageProcessor: MessageProcessor,
@@ -149,6 +149,7 @@ class ChatRepository(
         chatEventProcessor.removeLastMessage(channel)
         usersRepository.removeChannel(channel)
         userStateRepository.removeChannel(channel)
+        pinnedMessageRepository.removeChannel(channel)
         channelRepository.removeRoomState(channel)
         emoteRepository.removeChannel(channel)
         messageProcessor.cleanupMessageThreadsInChannel(channel)

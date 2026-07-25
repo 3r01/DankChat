@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.isImeVisible
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -48,7 +47,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -81,11 +82,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -105,7 +104,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.composeunstyled.UnstyledScrollArea
 import com.composeunstyled.UnstyledThumb
@@ -139,6 +137,8 @@ fun FloatingToolbar(
     isAudioOnly: Boolean,
     streamHeightDp: Dp,
     totalMentionCount: Int,
+    hasActivePinnedMessage: Boolean,
+    isPinnedMessageShown: Boolean,
     onAction: (ToolbarAction) -> Unit,
     onAudioOnly: () -> Unit,
     onStreamClose: () -> Unit,
@@ -401,6 +401,8 @@ fun FloatingToolbar(
                                                     modifier =
                                                         Modifier
                                                             .combinedClickable(
+                                                                // Let taps fall through to the dismiss scrim while a menu is open
+                                                                enabled = !showOverflowMenu && !showQuickSwitch,
                                                                 onClick = { onAction(ToolbarAction.SelectTab(index)) },
                                                                 onLongClick = { onAction(ToolbarAction.LongClickTab) },
                                                             ).defaultMinSize(minHeight = 48.dp)
@@ -553,6 +555,7 @@ fun FloatingToolbar(
                                                                 onAction(ToolbarAction.SelectTab(index))
                                                                 showQuickSwitch = false
                                                             }.selectedIndicatorBar(isSelected, selectedIndicatorColor)
+                                                            .defaultMinSize(minHeight = 48.dp)
                                                             .padding(horizontal = 16.dp, vertical = 10.dp)
                                                             .then(if (index == 0) Modifier.onSizeChanged { itemHeightPx = it.height } else Modifier),
                                                     verticalAlignment = Alignment.CenterVertically,
@@ -624,6 +627,22 @@ fun FloatingToolbar(
                                         // so the pill matches the 3-icon width and icons stay end-aligned
                                         if (!isLoggedIn && showOverflowMenu) {
                                             Spacer(modifier = Modifier.width(48.dp))
+                                        }
+                                        if (hasActivePinnedMessage) {
+                                            IconButton(onClick = { onAction(ToolbarAction.TogglePinnedMessage) }) {
+                                                when {
+                                                    isPinnedMessageShown -> Icon(
+                                                        imageVector = Icons.Default.PushPin,
+                                                        contentDescription = stringResource(R.string.pinned_message_collapse),
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                    )
+
+                                                    else -> Icon(
+                                                        imageVector = Icons.Outlined.PushPin,
+                                                        contentDescription = stringResource(R.string.pinned_message_show),
+                                                    )
+                                                }
+                                            }
                                         }
                                         val addChannelIcon: @Composable () -> Unit = {
                                             IconButton(onClick = { onAction(ToolbarAction.AddChannel) }) {

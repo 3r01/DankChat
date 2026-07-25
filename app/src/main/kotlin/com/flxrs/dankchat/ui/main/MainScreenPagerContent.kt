@@ -60,6 +60,8 @@ internal fun MainScreenPagerContent(
     onClearScrollTarget: (UserName) -> Unit,
     callbacks: ChatPagerCallbacks,
     fabMenuCallbacks: FabMenuCallbacks?,
+    showPinnedMessage: Boolean,
+    isToolbarMenuOpen: Boolean,
     currentTourStep: TourStep?,
     recoveryFabTooltipState: TooltipState?,
     onAddChannel: () -> Unit,
@@ -112,6 +114,8 @@ internal fun MainScreenPagerContent(
                                 showFabs = !isSheetOpen,
                                 onRecover = callbacks.onRecover,
                                 fabMenuCallbacks = fabMenuCallbacks,
+                                showPinnedMessage = showPinnedMessage,
+                                isToolbarMenuOpen = isToolbarMenuOpen,
                                 contentPadding =
                                     PaddingValues(
                                         top = chatTopPadding + if (isFullscreen) 0.dp else 56.dp,
