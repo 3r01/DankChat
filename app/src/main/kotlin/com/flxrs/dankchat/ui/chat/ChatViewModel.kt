@@ -100,6 +100,8 @@ class ChatViewModel(
 
             val zone = ZoneId.systemDefault()
             val result = ArrayList<ChatMessageUiState>(messages.size + 8)
+            // Cache keys aligned with result, null for uncached items (date separators)
+            val resultCacheKeys = ArrayList<String?>(messages.size + 8)
             var cachedDayStartMillis = 0L
             var cachedDayEndMillis = 0L
             var previousEpochDay = Long.MIN_VALUE
@@ -150,13 +152,19 @@ class ChatViewModel(
                             timestamp = timestamp,
                             dateText = day.format(dateFormatter),
                         )
+                    resultCacheKeys += null
                 }
                 previousEpochDay = currentEpochDay
 
                 result += mapped
+                resultCacheKeys += cacheKey
             }
 
-            result.applyHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
+            // Write laid-out items back into the cache so unchanged layouts skip the copy on
+            // the next emission
+            result.applyHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator) { index, updated ->
+                resultCacheKeys[index]?.let { mappingCache.put(it, updated) }
+            }
             result.toImmutableList()
         }.flowOn(dispatchersProvider.default + CoroutineName("ChatViewModel[$channel]"))
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), persistentListOf())

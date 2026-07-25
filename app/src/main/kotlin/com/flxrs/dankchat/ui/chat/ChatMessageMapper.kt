@@ -1043,7 +1043,10 @@ private fun ChatMessageUiState.hasSameHighlightBackground(other: ChatMessageUiSt
     other.lightBackgroundColor == lightBackgroundColor &&
     other.darkBackgroundColor == darkBackgroundColor
 
-fun MutableList<ChatMessageUiState>.applyHighlightLayout(showLineSeparator: Boolean) {
+fun MutableList<ChatMessageUiState>.applyHighlightLayout(
+    showLineSeparator: Boolean,
+    onItemUpdated: (index: Int, updated: ChatMessageUiState) -> Unit = { _, _ -> },
+) {
     for (index in indices) {
         val message = this[index]
         val above = getOrNull(index - 1)
@@ -1058,8 +1061,13 @@ fun MutableList<ChatMessageUiState>.applyHighlightLayout(showLineSeparator: Bool
             (below != null && below.isHighlighted && !below.hasSameHighlightBackground(message))
         val showDivider = showLineSeparator && below != null && !isHighlightBoundary
 
-        if (roundedTop || roundedBottom || showDivider) {
-            this[index] = message.withLayout(roundedTop, roundedBottom, showDivider)
+        val layoutChanged = message.roundedTopCorners != roundedTop ||
+            message.roundedBottomCorners != roundedBottom ||
+            message.showDividerBelow != showDivider
+        if (layoutChanged) {
+            val updated = message.withLayout(roundedTop, roundedBottom, showDivider)
+            this[index] = updated
+            onItemUpdated(index, updated)
         }
     }
 }
