@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TooltipState
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
@@ -168,6 +171,16 @@ fun ChatComposable(
             onTourAdvance = onTourAdvance,
             onTourSkip = onTourSkip,
         )
+
+        // Compact window heights (landscape phones) have no room for the banner, collapse it into
+        // the toolbar pin icon; it can still be expanded manually and new pins still pop up
+        val isCompactHeightWindow =
+            !currentWindowAdaptiveInfo().windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
+        LaunchedEffect(isCompactHeightWindow) {
+            if (isCompactHeightWindow) {
+                pinnedMessageViewModel.collapse()
+            }
+        }
 
         val pinnedState by pinnedMessageViewModel.uiState.collectAsStateWithLifecycle()
         val expandedPinnedState = pinnedState as? PinnedMessageUiState.Expanded

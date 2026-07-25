@@ -112,6 +112,11 @@ class PinnedMessageViewModel(
         expanded.value = !expanded.value
     }
 
+    fun collapse() {
+        collapseJob?.cancel()
+        expanded.value = false
+    }
+
     fun unpin() {
         viewModelScope.launch {
             pinnedMessageRepository.unpin(channel).onFailure { error ->
