@@ -13,7 +13,6 @@ import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
-import com.flxrs.dankchat.preferences.appearance.AppearanceSettings
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.FabAnchor
 import com.flxrs.dankchat.preferences.chat.ChatSettings
@@ -79,7 +78,6 @@ class ChatViewModel(
 
     private val mappingCache = LruCache<String, ChatMessageUiState>(MAPPING_CACHE_MIN_SIZE)
     private val checkeredTracker = CheckeredMessageTracker()
-    private var lastAppearanceSettings: AppearanceSettings? = null
     private var lastChatSettings: ChatSettings? = null
 
     private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.getDefault())
@@ -90,13 +88,13 @@ class ChatViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, appearanceSettings, chatSettings ->
-            // Clear cache when settings change (affects all mapped results)
-            if (appearanceSettings != lastAppearanceSettings || chatSettings != lastChatSettings) {
+            // Mapped results only depend on chat settings; appearance settings are either part
+            // of the cache key (checkered background) or applied after mapping
+            if (chatSettings != lastChatSettings) {
                 mappingCache.evictAll()
                 // The cache must fit the whole scrollback, an LruCache smaller than the
                 // sequentially scanned message list degrades to a 100% miss rate
                 mappingCache.resize(maxOf(chatSettings.scrollbackLength + MAPPING_CACHE_MARGIN, MAPPING_CACHE_MIN_SIZE))
-                lastAppearanceSettings = appearanceSettings
                 lastChatSettings = chatSettings
             }
 
