@@ -4,6 +4,7 @@ import androidx.annotation.Keep
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.shared.dto.MessageFragmentDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
@@ -28,4 +29,5 @@ data class PinnedChatMessageDto(
 @Serializable
 data class PinnedChatMessageContentDto(
     @SerialName("text") val text: String,
+    @SerialName("fragments") val fragments: List<MessageFragmentDto> = emptyList(),
 )

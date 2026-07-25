@@ -14,6 +14,8 @@ import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
 import com.flxrs.dankchat.data.repo.chat.MessageProcessor
 import com.flxrs.dankchat.data.repo.chat.UserStateRepository
+import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
@@ -63,6 +65,7 @@ class PinnedMessageViewModel(
     private val chatMessageMapper: ChatMessageMapper,
     private val preferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val usersRepository: UsersRepository,
     userStateRepository: UserStateRepository,
 ) : ViewModel() {
     private val expanded = MutableStateFlow(false)
@@ -168,8 +171,8 @@ class PinnedMessageViewModel(
             }
         }
 
-        // Prefer the original message from the chat buffer since it has Twitch emotes parsed from
-        // IRC tags, the Helix pin payload only contains the plain text
+        // Prefer the original message from the chat buffer, the synthetic fallback rebuilds
+        // Twitch emotes from the Helix pin fragments and third-party emotes from the text
         val existing = chatMessageRepository.findMessage(pin.messageId, channel, chatNotificationRepository.whispers) as? PrivMessage
         val message = existing ?: messageProcessor.reparseEmotesAndBadges(pin.toSyntheticMessage()) as? PrivMessage ?: return null
         val messageUi =
@@ -192,8 +195,14 @@ class PinnedMessageViewModel(
         userId = senderId,
         name = senderLogin,
         displayName = senderName,
+        color = usersRepository.getCachedUserColor(senderLogin),
         message = text,
         tags = emptyMap(),
+        emoteData = Message.EmoteData(
+            message = text,
+            channel = channel,
+            emotesWithPositions = emotesWithPositions,
+        ),
     )
 
     companion object {

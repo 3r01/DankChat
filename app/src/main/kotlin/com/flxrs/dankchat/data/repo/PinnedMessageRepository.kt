@@ -5,8 +5,10 @@ import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.PinnedChatMessageDto
+import com.flxrs.dankchat.data.api.shared.dto.toEmotesWithPositions
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.twitch.message.EmoteWithPositions
 import com.flxrs.dankchat.di.DispatchersProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -35,6 +37,7 @@ data class PinnedMessage(
     val messageId: String,
     val channel: UserName,
     val text: String,
+    val emotesWithPositions: List<EmoteWithPositions>,
     val senderId: UserId,
     val senderLogin: UserName,
     val senderName: DisplayName,
@@ -136,6 +139,7 @@ class PinnedMessageRepository(
         messageId = messageId,
         channel = channel,
         text = message.text,
+        emotesWithPositions = message.fragments.toEmotesWithPositions(),
         senderId = senderUserId,
         senderLogin = senderUserLogin,
         senderName = senderUserName,
