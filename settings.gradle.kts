@@ -29,3 +29,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DankChat"
 include(":app")
+include(":baselineprofile")

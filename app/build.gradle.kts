@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.about.libraries.android)
     alias(libs.plugins.android.junit5)
+    alias(libs.plugins.baselineprofile)
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
 }
@@ -75,6 +76,7 @@ android {
             applicationIdSuffix = ".dank"
             isDefault = true
             signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += "release"
         }
     }
 
@@ -111,6 +113,12 @@ ksp {
 
 koinCompiler {
     compileSafety = true
+}
+
+baselineProfile {
+    // Write the generated profile to src/main so it applies to all variants
+    mergeIntoMain = true
+    saveInSrc = true
 }
 
 tasks.withType<Test> { useJUnitPlatform() }
@@ -182,6 +190,10 @@ dependencies {
     implementation(libs.compose.unstyled)
     implementation(libs.lazycolumn.scrollbar)
     implementation(libs.compose.material3.adaptive)
+
+    // Baseline profile
+    implementation(libs.androidx.profileinstaller)
+    baselineProfile(project(":baselineprofile"))
 
     // Theme & splash
     implementation(libs.appcompat)
