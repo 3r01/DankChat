@@ -1122,14 +1122,14 @@ private fun ExpandableMarqueeHelperText(
                             style = style,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                            modifier = Modifier.fillMaxWidth().basicMarquee(),
                         )
                         Text(
                             text = streamInfoText,
                             style = style,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
-                            modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                            modifier = Modifier.fillMaxWidth().basicMarquee(),
                         )
                     }
                 }
@@ -1140,7 +1140,7 @@ private fun ExpandableMarqueeHelperText(
                         style = style,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
-                        modifier = Modifier.fillMaxWidth().basicMarquee(iterations = Int.MAX_VALUE),
+                        modifier = Modifier.fillMaxWidth().basicMarquee(),
                     )
                 }
             }
