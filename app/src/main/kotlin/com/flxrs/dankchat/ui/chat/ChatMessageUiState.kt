@@ -73,6 +73,7 @@ sealed interface ChatMessageUiState {
         override val roundedBottomCorners: Boolean = false,
         override val showDividerBelow: Boolean = false,
         val message: TextResource,
+        val boldText: String? = null,
     ) : ChatMessageUiState
 
     @Immutable

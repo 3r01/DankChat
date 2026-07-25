@@ -31,6 +31,7 @@ data class ChatSettings(
     val loadMessageHistoryOnReconnect: Boolean = true,
     val showChatModes: Boolean = true,
     val alwaysShowPinnedMessage: Boolean = false,
+    val showStreamTitleInLiveMessage: Boolean = false,
     val sharedChatMigration: Boolean = false,
 ) {
     @Transient

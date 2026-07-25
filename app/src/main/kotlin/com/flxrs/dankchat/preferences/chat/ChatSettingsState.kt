@@ -87,6 +87,10 @@ sealed interface ChatSettingsInteraction {
     data class AlwaysShowPinnedMessage(
         val value: Boolean,
     ) : ChatSettingsInteraction
+
+    data class ShowStreamTitleInLiveMessage(
+        val value: Boolean,
+    ) : ChatSettingsInteraction
 }
 
 @Immutable
@@ -112,4 +116,5 @@ data class ChatSettingsState(
     val messageHistoryDashboardUrl: String,
     val showChatModes: Boolean,
     val alwaysShowPinnedMessage: Boolean,
+    val showStreamTitleInLiveMessage: Boolean,
 )

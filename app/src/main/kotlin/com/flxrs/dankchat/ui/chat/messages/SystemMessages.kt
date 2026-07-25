@@ -54,6 +54,7 @@ fun SystemMessageComposable(
         lightBackgroundColor = message.lightBackgroundColor,
         darkBackgroundColor = message.darkBackgroundColor,
         textAlpha = message.textAlpha,
+        boldText = message.boldText,
         modifier = modifier,
     )
 }

@@ -118,6 +118,10 @@ class ChatSettingsViewModel(
                 is ChatSettingsInteraction.AlwaysShowPinnedMessage -> {
                     chatSettingsDataStore.update { it.copy(alwaysShowPinnedMessage = interaction.value) }
                 }
+
+                is ChatSettingsInteraction.ShowStreamTitleInLiveMessage -> {
+                    chatSettingsDataStore.update { it.copy(showStreamTitleInLiveMessage = interaction.value) }
+                }
             }
         }
     }
@@ -145,6 +149,7 @@ private fun ChatSettings.toState() = ChatSettingsState(
     messageHistoryDashboardUrl = RECENT_MESSAGES_DASHBOARD,
     showChatModes = showChatModes,
     alwaysShowPinnedMessage = alwaysShowPinnedMessage,
+    showStreamTitleInLiveMessage = showStreamTitleInLiveMessage,
 )
 
 private const val RECENT_MESSAGES_DASHBOARD = "https://recent-messages.robotty.de"

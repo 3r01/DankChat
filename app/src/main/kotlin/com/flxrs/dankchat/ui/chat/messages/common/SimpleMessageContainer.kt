@@ -11,9 +11,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -31,6 +33,7 @@ fun SimpleMessageContainer(
     modifier: Modifier = Modifier,
     // Null for texts that only resolve at composition time, those run link detection here
     links: ImmutableList<LinkUi>? = null,
+    boldText: String? = null,
     timestampSpacerWidth: Dp = 6.dp,
 ) {
     val bgColor = rememberBackgroundColor(lightBackgroundColor, darkBackgroundColor)
@@ -39,16 +42,35 @@ fun SimpleMessageContainer(
     val timestampColor = MaterialTheme.colorScheme.onSurface
 
     val annotatedString =
-        remember(message, links, timestamp, textColor, linkColor, timestampColor, fontSize, timestampSpacerWidth) {
+        remember(message, links, boldText, timestamp, textColor, linkColor, timestampColor, fontSize, timestampSpacerWidth) {
             buildAnnotatedString {
                 withStyle(timestampSpanStyle(fontSize.value, timestampColor)) {
                     append(timestamp)
                 }
                 appendInlineSpacer(timestampSpacerWidth)
                 withStyle(SpanStyle(color = textColor)) {
+                    val appendSegment: AnnotatedString.Builder.(segment: String, segmentStart: Int) -> Unit = { segment, segmentStart ->
+                        when {
+                            links != null -> appendWithLinks(segment, segmentStart, links, linkColor)
+                            else -> appendWithLinks(segment, linkColor)
+                        }
+                    }
+
+                    val boldIndex =
+                        when {
+                            boldText != null -> message.indexOf(boldText, ignoreCase = true)
+                            else -> -1
+                        }
                     when {
-                        links != null -> appendWithLinks(message, 0, links, linkColor)
-                        else -> appendWithLinks(message, linkColor)
+                        boldIndex >= 0 && boldText != null -> {
+                            appendSegment(message.substring(0, boldIndex), 0)
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(message.substring(boldIndex, boldIndex + boldText.length))
+                            }
+                            appendSegment(message.substring(boldIndex + boldText.length), boldIndex + boldText.length)
+                        }
+
+                        else -> appendSegment(message, 0)
                     }
                 }
             }

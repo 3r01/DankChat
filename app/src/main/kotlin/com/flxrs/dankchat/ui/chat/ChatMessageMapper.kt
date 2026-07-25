@@ -295,9 +295,10 @@ class ChatMessageMapper(
                 }
 
                 is SystemMessageType.StreamLive -> {
-                    when (type.title) {
+                    val title = type.title?.takeIf { chatSettings.showStreamTitleInLiveMessage }
+                    when (title) {
                         null -> TextResource.Res(R.string.system_message_stream_live, persistentListOf(type.channel))
-                        else -> TextResource.Res(R.string.system_message_stream_live_with_title, persistentListOf(type.channel, type.title))
+                        else -> TextResource.Res(R.string.system_message_stream_live_with_title, persistentListOf(type.channel, title))
                     }
                 }
 
@@ -328,6 +329,13 @@ class ChatMessageMapper(
                 }
             }
 
+        val boldText =
+            when (type) {
+                is SystemMessageType.StreamLive -> type.channel.value
+                is SystemMessageType.StreamOffline -> type.channel.value
+                else -> null
+            }
+
         return ChatMessageUiState.SystemMessageUi(
             id = id,
             tag = tag,
@@ -336,6 +344,7 @@ class ChatMessageMapper(
             darkBackgroundColor = backgroundColors.dark,
             textAlpha = textAlpha,
             message = message,
+            boldText = boldText,
         )
     }
 

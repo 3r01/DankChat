@@ -175,6 +175,7 @@ private fun ChatSettingsScreen(
             ChannelDataCategory(
                 showChatModes = settings.showChatModes,
                 alwaysShowPinnedMessage = settings.alwaysShowPinnedMessage,
+                showStreamTitleInLiveMessage = settings.showStreamTitleInLiveMessage,
                 onInteraction = onInteraction,
             )
             NavigationBarSpacer()
@@ -419,6 +420,7 @@ private fun MessageHistoryCategory(
 private fun ChannelDataCategory(
     showChatModes: Boolean,
     alwaysShowPinnedMessage: Boolean,
+    showStreamTitleInLiveMessage: Boolean,
     onInteraction: (ChatSettingsInteraction) -> Unit,
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_channel_data_header)) {
@@ -433,6 +435,11 @@ private fun ChannelDataCategory(
             summary = stringResource(R.string.preference_always_show_pinned_message_summary),
             isChecked = alwaysShowPinnedMessage,
             onClick = { onInteraction(ChatSettingsInteraction.AlwaysShowPinnedMessage(it)) },
+        )
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_show_stream_title_in_live_message_title),
+            isChecked = showStreamTitleInLiveMessage,
+            onClick = { onInteraction(ChatSettingsInteraction.ShowStreamTitleInLiveMessage(it)) },
         )
     }
 }
