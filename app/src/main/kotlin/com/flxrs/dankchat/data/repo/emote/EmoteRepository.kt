@@ -133,13 +133,12 @@ class EmoteRepository(
         val emoteMap = getOrBuildEmoteMap(channel, withTwitch)
 
         // Single pass through words
-        var currentPosition = 0
         return buildList {
-            message.split(WHITESPACE_REGEX).forEach { word ->
+            message.forEachWord { word, startIndex ->
                 emoteMap[word]?.let { emote ->
                     this +=
                         ChatMessageEmote(
-                            position = currentPosition..currentPosition + word.length,
+                            position = startIndex..startIndex + word.length,
                             url = emote.url,
                             id = emote.id,
                             code = emote.code,
@@ -148,7 +147,6 @@ class EmoteRepository(
                             isOverlayEmote = emote.isOverlayEmote,
                         )
                 }
-                currentPosition += word.length + 1
             }
         }
     }
@@ -159,7 +157,7 @@ class EmoteRepository(
     ): Set<String> {
         val emoteMap = getOrBuildEmoteMap(channel, withTwitch = true)
         return buildSet {
-            message.split(WHITESPACE_REGEX).forEach { word ->
+            message.forEachWord { word, _ ->
                 emoteMap[word]?.let { add(it.id) }
             }
         }
@@ -763,9 +761,8 @@ class EmoteRepository(
 
         val thirdPartyEmotes = mutableListOf<ChatMessageEmote>()
         val cheermotes = mutableListOf<ChatMessageEmote>()
-        var currentPosition = 0
 
-        message.split(WHITESPACE_REGEX).forEach { word ->
+        message.forEachWord { word, startIndex ->
             var matchedCheermote = false
             if (cheermoteSets.isNotEmpty()) {
                 for (set in cheermoteSets) {
@@ -775,7 +772,7 @@ class EmoteRepository(
                         val tier = set.tiers.firstOrNull { bits >= it.minBits } ?: break
                         cheermotes +=
                             ChatMessageEmote(
-                                position = currentPosition..currentPosition + word.length,
+                                position = startIndex..startIndex + word.length,
                                 url = tier.animatedUrl,
                                 id = "${set.prefix}_$bits",
                                 code = word,
@@ -793,7 +790,7 @@ class EmoteRepository(
                 emoteMap[word]?.let { emote ->
                     thirdPartyEmotes +=
                         ChatMessageEmote(
-                            position = currentPosition..currentPosition + word.length,
+                            position = startIndex..startIndex + word.length,
                             url = emote.url,
                             id = emote.id,
                             code = emote.code,
@@ -803,7 +800,6 @@ class EmoteRepository(
                         )
                 }
             }
-            currentPosition += word.length + 1
         }
 
         return thirdPartyEmotes to cheermotes
@@ -1050,6 +1046,24 @@ class EmoteRepository(
                 else -> "https:$this"
             }
 
+    // Matches the \s character class: split(WHITESPACE_REGEX) semantics without the regex and word-list allocations
+    private fun Char.isWordSeparator(): Boolean = this == ' ' || this == '\t' || this == '\n' || this == '\u000B' || this == '\u000C' || this == '\r'
+
+    private inline fun String.forEachWord(action: (word: String, startIndex: Int) -> Unit) {
+        var wordStart = 0
+        for (index in indices) {
+            if (this[index].isWordSeparator()) {
+                if (index > wordStart) {
+                    action(substring(wordStart, index), wordStart)
+                }
+                wordStart = index + 1
+            }
+        }
+        if (length > wordStart) {
+            action(substring(wordStart), wordStart)
+        }
+    }
+
     companion object {
         private val ESCAPE_TAG = 0x000E0002.codePointAsString
         val ESCAPE_TAG_REGEX = "(?<!$ESCAPE_TAG)$ESCAPE_TAG".toRegex()
@@ -1065,7 +1079,6 @@ class EmoteRepository(
         private const val BTTV_EMOTE_SIZE = "3x"
         private const val BTTV_LOW_RES_EMOTE_SIZE = "2x"
 
-        private val WHITESPACE_REGEX = "\\s".toRegex()
         private val EMOTE_REPLACEMENTS =
             mapOf(
                 "[oO](_|\\.)[oO]" to "O_o",
