@@ -97,40 +97,45 @@ fun StackedEmote(
                 return@produceState
             }
 
-            // Load all drawables
-            val drawables =
-                emote.urls
-                    .mapIndexedNotNull { idx, url ->
-                        val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
-                        try {
-                            val request =
-                                ImageRequest
-                                    .Builder(context)
-                                    .data(url)
-                                    .size(Size.ORIGINAL)
-                                    .build()
-                            val result = context.imageLoader.execute(request)
-                            result.image?.asDrawable(context.resources)?.let { drawable ->
-                                transformEmoteDrawable(drawable, scaleFactor, emoteData)
-                            }
-                        } catch (_: Exception) {
-                            null
+            // Load all drawables, keeping each one paired with its emote so a failed layer
+            // cannot misalign the remaining layers
+            val loadedLayers =
+                emote.urls.mapIndexedNotNull { idx, url ->
+                    val emoteData = emote.emotes.getOrNull(idx) ?: emote.emotes.first()
+                    try {
+                        val request =
+                            ImageRequest
+                                .Builder(context)
+                                .data(url)
+                                .size(Size.ORIGINAL)
+                                .build()
+                        val result = context.imageLoader.execute(request)
+                        result.image?.asDrawable(context.resources)?.let { drawable ->
+                            transformEmoteDrawable(drawable, scaleFactor, emoteData) to emoteData
                         }
-                    }.toTypedArray()
+                    } catch (_: Exception) {
+                        null
+                    }
+                }
 
             when {
-                drawables.isEmpty() -> {
+                loadedLayers.isEmpty() -> {
                     value = EmoteLoadState.Failed
                 }
 
                 else -> {
-                    val layerDrawable = drawables.toLayerDrawable(scaleFactor, emote.emotes)
-                    emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
-                    // Store dimensions for future placeholder sizing
-                    emoteCoordinator.putDimensions(
-                        cacheKey,
-                        layerDrawable.bounds.width() to layerDrawable.bounds.height(),
-                    )
+                    val drawables = loadedLayers.map { it.first }.toTypedArray()
+                    val layerDrawable = drawables.toLayerDrawable(scaleFactor, loadedLayers.map { it.second })
+                    // Partial stacks render what loaded but must not be cached, otherwise the
+                    // missing layers would never be retried within the session
+                    if (loadedLayers.size == emote.urls.size) {
+                        emoteCoordinator.putLayerInCache(cacheKey, layerDrawable)
+                        // Store dimensions for future placeholder sizing
+                        emoteCoordinator.putDimensions(
+                            cacheKey,
+                            layerDrawable.bounds.width() to layerDrawable.bounds.height(),
+                        )
+                    }
                     value = EmoteLoadState.Loaded(layerDrawable)
                     // Control animation
                     layerDrawable.forEachLayer<Animatable> { it.setRunning(animateGifs) }
