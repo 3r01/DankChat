@@ -244,7 +244,10 @@ fun LogViewerSheet(onDismiss: () -> Unit) {
                     .padding(end = 16.dp, bottom = searchBarHeightDp + navBarHeightDp + currentImeDp + 8.dp),
         ) {
             FloatingActionButton(
-                onClick = { shouldAutoScroll = true },
+                onClick = {
+                    shouldAutoScroll = true
+                    toolbarVisible = true
+                },
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 2.dp),
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
             ) {
