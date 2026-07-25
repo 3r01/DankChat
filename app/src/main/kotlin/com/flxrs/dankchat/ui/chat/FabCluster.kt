@@ -42,7 +42,6 @@ private data class FabMetrics(
     val horizontalPad: Float,
     val topPad: Float,
     val bottomPad: Float,
-    val stack: Float,
     val isRtl: Boolean,
 ) {
     val sizesReady: Boolean get() = containerW > 0f && clusterW > 0f
@@ -51,12 +50,13 @@ private data class FabMetrics(
         anchor: FabAnchor,
         freeX: Float,
         freeY: Float,
+        stackOffset: Float = 0f,
     ): Offset {
         val xEnd = if (isRtl) horizontalPad else (containerW - clusterW - horizontalPad).coerceAtLeast(horizontalPad)
         val minY = topPad
         val maxY = (containerH - clusterH - bottomPad).coerceAtLeast(minY)
         return when (anchor) {
-            FabAnchor.BottomEnd -> Offset(xEnd, (maxY - stack).coerceAtLeast(minY))
+            FabAnchor.BottomEnd -> Offset(xEnd, (maxY - stackOffset).coerceAtLeast(minY))
 
             FabAnchor.TopEnd -> Offset(xEnd, minY)
 
@@ -105,7 +105,7 @@ fun FabCluster(
     onPositionChange: (FabAnchor, Float, Float) -> Unit,
     topSystemInset: Dp,
     bottomSystemInset: Dp,
-    stackOffsetAtBottomEnd: Dp,
+    stackOffsetAtBottomEnd: () -> Dp,
     dragEnabled: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable (dragModifier: Modifier, isDragging: Boolean) -> Unit,
@@ -115,7 +115,6 @@ fun FabCluster(
     val horizontalPadPx = with(density) { 16.dp.toPx() }
     val topPadPx = with(density) { (16.dp + topSystemInset).toPx() }
     val bottomPadPx = with(density) { (24.dp + bottomSystemInset).toPx() }
-    val stackOffsetPx = with(density) { stackOffsetAtBottomEnd.toPx() }
     val snapThresholdPx = with(density) { SnapThreshold.toPx() }
 
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
@@ -138,13 +137,16 @@ fun FabCluster(
         horizontalPad = horizontalPadPx,
         topPad = topPadPx,
         bottomPad = bottomPadPx,
-        stack = stackOffsetPx,
         isRtl = isRtl,
     )
 
+    // The stack offset animates with the scroll FAB, reading it in composition would recompose
+    // the cluster every animation frame
+    val stackOffsetPx = { with(density) { stackOffsetAtBottomEnd().toPx() } }
+
     LaunchedEffect(containerSize, clusterSize) {
         if (!initialized && currentMetrics.sizesReady) {
-            offsetAnim.snapTo(currentMetrics.anchorToPx(anchor, offsetXFraction, offsetYFraction))
+            offsetAnim.snapTo(currentMetrics.anchorToPx(anchor, offsetXFraction, offsetYFraction, stackOffsetPx()))
             initialized = true
         }
     }
@@ -154,7 +156,7 @@ fun FabCluster(
         if (!initialized || !currentMetrics.sizesReady || isDragging) return@LaunchedEffect
         if (!offsetAnim.isRunning) {
             offsetAnim.animateTo(
-                currentMetrics.anchorToPx(anchor, offsetXFraction, offsetYFraction),
+                currentMetrics.anchorToPx(anchor, offsetXFraction, offsetYFraction, stackOffsetPx()),
                 spring(),
             )
         }
@@ -165,6 +167,7 @@ fun FabCluster(
     val latestAnchor by rememberUpdatedState(anchor)
     val latestFractionX by rememberUpdatedState(offsetXFraction)
     val latestFractionY by rememberUpdatedState(offsetYFraction)
+    val latestStackOffsetPx by rememberUpdatedState(stackOffsetPx)
 
     val dragBehavior = when {
         !dragEnabled -> Modifier
@@ -173,7 +176,7 @@ fun FabCluster(
             detectDragGesturesAfterLongPress(
                 onDragStart = {
                     // Seed offsetAnim from the rendered anchor since direct render bypasses it while idle.
-                    val currentPos = latestMetrics.anchorToPx(latestAnchor, latestFractionX, latestFractionY)
+                    val currentPos = latestMetrics.anchorToPx(latestAnchor, latestFractionX, latestFractionY, latestStackOffsetPx())
                     scope.launch { offsetAnim.snapTo(currentPos) }
                     fingerPos = currentPos
                     isDragging = true
@@ -183,7 +186,7 @@ fun FabCluster(
                     val m = latestMetrics
                     val newFinger = m.clampToBounds(fingerPos + drag)
                     fingerPos = newFinger
-                    val bottomEndPx = m.anchorToPx(FabAnchor.BottomEnd, latestFractionX, latestFractionY)
+                    val bottomEndPx = m.anchorToPx(FabAnchor.BottomEnd, latestFractionX, latestFractionY, latestStackOffsetPx())
                     val topEndPx = m.anchorToPx(FabAnchor.TopEnd, latestFractionX, latestFractionY)
                     val newCorner = when {
                         (newFinger - bottomEndPx).getDistance() < snapThresholdPx -> FabAnchor.BottomEnd
@@ -247,13 +250,12 @@ fun FabCluster(
                         horizontalPad = horizontalPadPx,
                         topPad = topPadPx,
                         bottomPad = bottomPadPx,
-                        stack = stackOffsetPx,
                         isRtl = isRtl,
                     )
                     val pos = when {
                         !m.sizesReady -> Offset.Zero
                         isDragging || offsetAnim.isRunning || pendingStateSync -> offsetAnim.value
-                        else -> m.anchorToPx(anchor, offsetXFraction, offsetYFraction)
+                        else -> m.anchorToPx(anchor, offsetXFraction, offsetYFraction, stackOffsetAtBottomEnd().toPx())
                     }
                     IntOffset(pos.x.roundToInt(), pos.y.roundToInt())
                 }.graphicsLayer {

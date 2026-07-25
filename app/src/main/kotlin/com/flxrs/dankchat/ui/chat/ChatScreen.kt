@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -312,19 +311,14 @@ fun ChatScreen(
                     onPositionChange = onFabPositionChange,
                     topSystemInset = contentPadding.calculateTopPadding(),
                     bottomSystemInset = fabBottomPadding,
-                    stackOffsetAtBottomEnd = recoveryBottomPadding,
+                    stackOffsetAtBottomEnd = { recoveryBottomPadding },
                     dragEnabled = recoveryFabTooltipState == null,
                 ) { dragModifier, isDragging ->
-                    val effectiveFabOpacity by animateFloatAsState(
-                        targetValue = if (isDragging) 1f else fullscreenButtonOpacity,
-                        animationSpec = tween(150),
-                        label = "fabClusterOpacity",
-                    )
                     RecoveryFabs(
                         isFullscreen = isFullscreen,
                         showInput = showInput,
                         isDragging = isDragging,
-                        fullscreenButtonOpacity = effectiveFabOpacity,
+                        fullscreenButtonOpacity = fullscreenButtonOpacity,
                         requireConfirmation = requireFullscreenExitConfirmation,
                         onRecover = onRecover,
                         fabMenuCallbacks = fabMenuCallbacks,
