@@ -33,6 +33,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.concurrent.atomics.AtomicInt
 import kotlin.concurrent.atomics.plusAssign
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.TimeSource
 
 @Single
 class StreamDataRepository(
@@ -54,6 +55,7 @@ class StreamDataRepository(
 
     init {
         scope.launch {
+            var pausedAt: TimeSource.Monotonic.ValueTimeMark? = null
             combine(
                 activeChannels,
                 streamsSettingsDataStore.settings
@@ -63,12 +65,20 @@ class StreamDataRepository(
             ) { channels, config, lifecycle -> Triple(channels, config, lifecycle) }
                 .collectLatest { (channels, config, lifecycle) ->
                     if (channels.isEmpty() || !config.fetchStreams || !authDataStore.isLoggedIn) {
+                        liveStates.clear()
                         _streamData.value = persistentListOf()
                         return@collectLatest
                     }
                     if (lifecycle == AppLifecycle.Background) {
+                        pausedAt = pausedAt ?: TimeSource.Monotonic.markNow()
                         return@collectLatest
                     }
+                    // Transitions that happened while not polling would be reported with a
+                    // wrong timestamp, forget the states instead so they are re-baselined
+                    if (pausedAt?.let { it.elapsedNow() > STALE_LIVE_STATE_THRESHOLD } == true) {
+                        liveStates.clear()
+                    }
+                    pausedAt = null
                     coroutineScope {
                         while (isActive) {
                             runCatching { fetchOnce(channels) }
@@ -147,5 +157,9 @@ class StreamDataRepository(
 
     companion object {
         private val STREAM_REFRESH_RATE = 30.seconds
+
+        // Live states older than this are considered stale, quick app switches still report
+        // transitions with an acceptable timestamp error
+        private val STALE_LIVE_STATE_THRESHOLD = 60.seconds
     }
 }
