@@ -277,6 +277,7 @@
     <string name="input_actions_none">କୌଣସି କାର୍ଯ୍ୟ ଦୃଶ୍ୟମାନ ନାହିଁ</string>
     <string name="input_action_search">ବାର୍ତ୍ତା ଖୋଜନ୍ତୁ</string>
     <string name="input_action_last_message">ଶେଷ ବାର୍ତ୍ତା</string>
+    <string name="input_action_recent_messages">ସାମ୍ପ୍ରତିକ ବାର୍ତ୍ତା</string>
     <string name="input_action_stream">ଷ୍ଟ୍ରିମ୍ ଟୋଗଲ୍ କରନ୍ତୁ</string>
     <string name="input_action_mod_actions">ଚ୍ୟାନେଲ ମଡରେସନ</string>
     <string name="input_action_fullscreen">ଫୁଲ୍ ସ୍କ୍ରିନ୍</string>

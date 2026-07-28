@@ -342,6 +342,7 @@
     <string name="input_actions_none">Нет видимых действий</string>
     <string name="input_action_search">Поиск сообщений</string>
     <string name="input_action_last_message">Последнее сообщение</string>
+    <string name="input_action_recent_messages">Последние сообщения</string>
     <string name="input_action_stream">Переключить трансляцию</string>
     <string name="input_action_mod_actions">Модерация канала</string>
     <string name="input_action_fullscreen">На весь экран</string>

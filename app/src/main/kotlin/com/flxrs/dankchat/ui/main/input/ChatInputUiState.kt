@@ -14,7 +14,7 @@ import kotlinx.collections.immutable.persistentListOf
 data class ChatInputUiState(
     val canSend: Boolean = false,
     val enabled: Boolean = false,
-    val hasLastMessage: Boolean = false,
+    val recentMessages: ImmutableList<String> = persistentListOf(),
     val activeChannel: UserName? = null,
     val connectionState: ConnectionState = ConnectionState.DISCONNECTED,
     val isLoggedIn: Boolean = false,
@@ -28,7 +28,9 @@ data class ChatInputUiState(
     val showSendButton: Boolean = true,
     val isCompactMode: Boolean = false,
     val userLongClickBehavior: UserLongClickBehavior = UserLongClickBehavior.MentionsUser,
-)
+) {
+    val hasLastMessage: Boolean get() = recentMessages.isNotEmpty()
+}
 
 @Stable
 sealed interface InputOverlay {

@@ -320,6 +320,7 @@
     <string name="input_actions_none">無可見操作</string>
     <string name="input_action_search">搜尋訊息</string>
     <string name="input_action_last_message">上一則訊息</string>
+    <string name="input_action_recent_messages">近期訊息</string>
     <string name="input_action_stream">切換實況</string>
     <string name="input_action_mod_actions">頻道管理</string>
     <string name="input_action_fullscreen">全螢幕</string>

@@ -13,6 +13,7 @@ import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.parseColorOrNull
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.first
 import org.koin.core.annotation.Single
 
@@ -114,7 +115,9 @@ class ChatRepository(
 
     fun getLastMessage(): String? = chatEventProcessor.getLastMessageForDisplay(chatChannelProvider.activeChannel.value)
 
-    internal val lastMessageFlow get() = chatEventProcessor.lastMessageFlow
+    fun getRecentMessages(): ImmutableList<String> = chatEventProcessor.getRecentMessagesForDisplay(chatChannelProvider.activeChannel.value)
+
+    internal val lastMessagesFlow get() = chatEventProcessor.lastMessagesFlow
 
     fun appendLastMessage(
         channel: UserName,
@@ -146,7 +149,7 @@ class ChatRepository(
         chatConnector.removeConnectionState(channel)
         chatConnector.partChannel(channel)
         chatNotificationRepository.removeMentionFlows(channel)
-        chatEventProcessor.removeLastMessage(channel)
+        chatEventProcessor.removeLastMessages(channel)
         usersRepository.removeChannel(channel)
         userStateRepository.removeChannel(channel)
         pinnedMessageRepository.removeChannel(channel)

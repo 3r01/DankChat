@@ -44,9 +44,13 @@ import com.flxrs.dankchat.utils.extensions.codePointSlice
 import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import com.flxrs.dankchat.utils.extensions.withoutInvisibleChar
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.PersistentMap
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,6 +67,7 @@ import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger("ChatEventProcessor")
+private const val MAX_LAST_MESSAGES = 5
 
 internal data class LastMessage(
     val sent: String,
@@ -86,8 +91,8 @@ class ChatEventProcessor(
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
-    private val _lastMessage = MutableStateFlow<PersistentMap<UserName, LastMessage>>(persistentMapOf())
-    internal val lastMessageFlow: StateFlow<PersistentMap<UserName, LastMessage>> = _lastMessage.asStateFlow()
+    private val _lastMessages = MutableStateFlow<PersistentMap<UserName, PersistentList<LastMessage>>>(persistentMapOf())
+    internal val lastMessagesFlow: StateFlow<PersistentMap<UserName, PersistentList<LastMessage>>> = _lastMessages.asStateFlow()
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
     private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val rewardMutex = Mutex()
@@ -99,20 +104,35 @@ class ChatEventProcessor(
         scope.launch { collectEventSubEvents() }
     }
 
-    fun getLastMessage(channel: UserName): String? = _lastMessage.value[channel]?.sent
+    fun getLastMessage(channel: UserName): String? = _lastMessages.value[channel]?.firstOrNull()?.sent
 
-    fun getLastMessageForDisplay(channel: UserName?): String? = channel?.let { _lastMessage.value[it]?.typed }
+    fun getLastMessageForDisplay(channel: UserName?): String? = channel?.let { _lastMessages.value[it]?.firstOrNull()?.typed }
+
+    fun getRecentMessagesForDisplay(channel: UserName?): ImmutableList<String> = when (channel) {
+        null -> persistentListOf()
+
+        else -> _lastMessages.value[channel]
+            ?.map { it.typed }
+            .orEmpty()
+            .toImmutableList()
+    }
 
     fun setLastMessage(
         channel: UserName,
         sent: String,
         typed: String = sent,
     ) {
-        _lastMessage.update { it.putting(channel, LastMessage(sent = sent, typed = typed)) }
+        _lastMessages.update { messages ->
+            val updated = (messages[channel] ?: persistentListOf())
+                .removeAll { it.typed == typed }
+                .add(0, LastMessage(sent = sent, typed = typed))
+                .let { it.subList(0, minOf(it.size, MAX_LAST_MESSAGES)).toPersistentList() }
+            messages.putting(channel, updated)
+        }
     }
 
-    fun removeLastMessage(channel: UserName) {
-        _lastMessage.update { it.removing(channel) }
+    fun removeLastMessages(channel: UserName) {
+        _lastMessages.update { it.removing(channel) }
     }
 
     suspend fun loadRecentMessages(
@@ -601,7 +621,7 @@ class ChatEventProcessor(
         }
 
         if (message.name == authDataStore.userName) {
-            val previousLastMessage = _lastMessage.value[message.channel]?.sent.orEmpty()
+            val previousLastMessage = getLastMessage(message.channel).orEmpty()
             val lastMessageWasCommand = previousLastMessage.startsWith('.') || previousLastMessage.startsWith('/')
             if (!lastMessageWasCommand && previousLastMessage.withoutInvisibleChar != message.originalMessage.withoutInvisibleChar) {
                 setLastMessage(channel = message.channel, sent = message.originalMessage, typed = message.originalMessage.withoutInvisibleChar)

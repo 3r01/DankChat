@@ -321,6 +321,7 @@
     <string name="input_actions_none">Nincs látható művelet</string>
     <string name="input_action_search">Üzenetek keresése</string>
     <string name="input_action_last_message">Utolsó üzenet</string>
+    <string name="input_action_recent_messages">Legutóbbi üzenetek</string>
     <string name="input_action_stream">Közvetítés váltása</string>
     <string name="input_action_mod_actions">Csatorna moderálás</string>
     <string name="input_action_fullscreen">Teljes képernyő</string>

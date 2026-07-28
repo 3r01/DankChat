@@ -321,6 +321,7 @@
     <string name="input_actions_none">Nessuna azione visibile</string>
     <string name="input_action_search">Cerca messaggi</string>
     <string name="input_action_last_message">Ultimo messaggio</string>
+    <string name="input_action_recent_messages">Messaggi recenti</string>
     <string name="input_action_stream">Attiva/disattiva stream</string>
     <string name="input_action_mod_actions">Moderazione canale</string>
     <string name="input_action_fullscreen">Schermo intero</string>

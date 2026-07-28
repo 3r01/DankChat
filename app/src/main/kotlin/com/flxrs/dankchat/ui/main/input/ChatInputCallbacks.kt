@@ -14,6 +14,7 @@ data class ChatInputCallbacks(
     val onAudioOnly: () -> Unit,
     val onModActions: () -> Unit,
     val onInputActionsChange: (ImmutableList<InputAction>) -> Unit,
+    val onRecentMessageClick: (String) -> Unit = {},
     val onSearchClick: () -> Unit = {},
     val onDebugInfoClick: () -> Unit = {},
     val onNewWhisper: (() -> Unit)? = null,

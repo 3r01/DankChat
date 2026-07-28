@@ -326,6 +326,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="input_actions_none">Ei näkyviä toimintoja</string>
     <string name="input_action_search">Hae viestejä</string>
     <string name="input_action_last_message">Viimeisin viesti</string>
+    <string name="input_action_recent_messages">Viimeaikaiset viestit</string>
     <string name="input_action_stream">Vaihda lähetys</string>
     <string name="input_action_mod_actions">Kanavan moderointi</string>
     <string name="input_action_fullscreen">Koko näyttö</string>

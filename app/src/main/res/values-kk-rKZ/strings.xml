@@ -321,6 +321,7 @@
     <string name="input_actions_none">Көрінетін әрекеттер жоқ</string>
     <string name="input_action_search">Хабарларды іздеу</string>
     <string name="input_action_last_message">Соңғы хабарлама</string>
+    <string name="input_action_recent_messages">Соңғы хабарламалар</string>
     <string name="input_action_stream">Ағынды қосу/өшіру</string>
     <string name="input_action_mod_actions">Арна модерациясы</string>
     <string name="input_action_fullscreen">Толық экран</string>

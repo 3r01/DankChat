@@ -326,6 +326,7 @@ Le service stocke temporairement les messages pour les chaînes que vous (et les
     <string name="input_actions_none">Aucune action visible</string>
     <string name="input_action_search">Rechercher des messages</string>
     <string name="input_action_last_message">Dernier message</string>
+    <string name="input_action_recent_messages">Messages récents</string>
     <string name="input_action_stream">Basculer le stream</string>
     <string name="input_action_mod_actions">Modération du canal</string>
     <string name="input_action_fullscreen">Plein écran</string>

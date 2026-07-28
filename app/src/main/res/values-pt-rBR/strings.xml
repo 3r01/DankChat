@@ -321,6 +321,7 @@
     <string name="input_actions_none">Nenhuma ação visível</string>
     <string name="input_action_search">Pesquisar mensagens</string>
     <string name="input_action_last_message">Última mensagem</string>
+    <string name="input_action_recent_messages">Mensagens recentes</string>
     <string name="input_action_stream">Alternar stream</string>
     <string name="input_action_mod_actions">Moderação do canal</string>
     <string name="input_action_fullscreen">Tela cheia</string>

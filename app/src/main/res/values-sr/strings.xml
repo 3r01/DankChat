@@ -321,6 +321,7 @@ Pogledajte ovaj guide za pomoć https://wiki.chatterino.com/Image%20Uploader/</s
     <string name="input_actions_none">Нема видљивих радњи</string>
     <string name="input_action_search">Претражи поруке</string>
     <string name="input_action_last_message">Последња порука</string>
+    <string name="input_action_recent_messages">Недавне поруке</string>
     <string name="input_action_stream">Укључи/искључи стрим</string>
     <string name="input_action_mod_actions">Модерација канала</string>
     <string name="input_action_fullscreen">Цео екран</string>

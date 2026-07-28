@@ -11,8 +11,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +34,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -67,6 +71,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -76,10 +81,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
@@ -90,9 +97,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -101,6 +110,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
@@ -133,6 +143,8 @@ fun ChatInputLayout(
     debugMode: Boolean = false,
     overflowExpanded: Boolean = false,
     onOverflowExpandedChange: (Boolean) -> Unit = {},
+    recentMessagesExpanded: Boolean = false,
+    onRecentMessagesExpandedChange: (Boolean) -> Unit = {},
     tourState: TourOverlayState = TourOverlayState(),
     isRepeatedSendEnabled: Boolean = false,
     overflowMenuMaxHeightDp: Dp = Dp.Unspecified,
@@ -145,7 +157,10 @@ fun ChatInputLayout(
     val helperText = if (isSheetOpen) HelperText() else uiState.helperText
     val overlay = uiState.overlay
     val showQuickActions = !isSheetOpen
-    val onSend = callbacks.onSend
+    val onSend = {
+        callbacks.onSend()
+        onRecentMessagesExpandedChange(false)
+    }
     val onLastMessageClick = callbacks.onLastMessageClick
     val onEmoteClick = callbacks.onEmoteClick
     val onOverlayDismiss = callbacks.onOverlayDismiss
@@ -209,7 +224,7 @@ fun ChatInputLayout(
     val quickActionsExpanded = overflowExpanded || tourState.forceOverflowOpen
     var showConfigSheet by remember { mutableStateOf(false) }
     val topEndRadius by animateDpAsState(
-        targetValue = if (quickActionsExpanded) 0.dp else 24.dp,
+        targetValue = if (quickActionsExpanded || recentMessagesExpanded) 0.dp else 24.dp,
         label = "topEndCornerRadius",
     )
 
@@ -370,6 +385,7 @@ fun ChatInputLayout(
                         onNewWhisper = onNewWhisper,
                         onSearchClick = onSearchClick,
                         onLastMessageClick = onLastMessageClick,
+                        onLastMessageLongClick = { onRecentMessagesExpandedChange(true) },
                         onToggleStream = onToggleStream,
                         onModActions = onModActions,
                         onToggleFullscreen = onToggleFullscreen,
@@ -388,7 +404,7 @@ fun ChatInputLayout(
         }
     }
 
-    Box(modifier = modifier.fillMaxWidth()) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         OptionalTourTooltip(
             tooltipState = tourState.swipeGestureTooltipState,
             text = stringResource(R.string.tour_swipe_gesture),
@@ -396,6 +412,53 @@ fun ChatInputLayout(
             onSkip = tourState.onSkip,
         ) {
             inputContent()
+        }
+
+        // Recent messages popup — overlays above input, end-aligned
+        LaunchedEffect(uiState.recentMessages) {
+            if (recentMessagesExpanded && uiState.recentMessages.isEmpty()) {
+                onRecentMessagesExpandedChange(false)
+            }
+        }
+        val recentMessagesMaxWidth = min(this.maxWidth / 2, 320.dp)
+        AnimatedVisibility(
+            visible = recentMessagesExpanded && uiState.recentMessages.isNotEmpty(),
+            enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+            exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut(),
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, 0) {
+                            placeable.placeRelative(0, -placeable.height)
+                        }
+                    },
+        ) {
+            var backProgress by remember { mutableFloatStateOf(0f) }
+            PredictiveBackHandler { progress ->
+                try {
+                    progress.collect { event ->
+                        backProgress = event.progress
+                    }
+                    onRecentMessagesExpandedChange(false)
+                } catch (_: CancellationException) {
+                    backProgress = 0f
+                }
+            }
+            RecentMessagesPopup(
+                messages = uiState.recentMessages,
+                surfaceColor = surfaceColor,
+                onMessageClick = { message ->
+                    callbacks.onRecentMessageClick(message)
+                    onRecentMessagesExpandedChange(false)
+                },
+                modifier =
+                    Modifier
+                        .predictiveBackScale(backProgress)
+                        .widthIn(max = recentMessagesMaxWidth)
+                        .heightIn(max = overflowMenuMaxHeightDp),
+            )
         }
 
         // Overflow menu — overlays above input, end-aligned
@@ -536,6 +599,7 @@ private fun SendButton(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun InputActionButton(
     action: InputAction,
@@ -545,6 +609,7 @@ private fun InputActionButton(
     isFullscreen: Boolean,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
+    onLastMessageLongClick: () -> Unit,
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
@@ -620,16 +685,51 @@ private fun InputActionButton(
             InputAction.Stream, InputAction.ModActions -> enabled
         }
 
-    IconButton(
-        onClick = onClick,
-        enabled = actionEnabled,
-        modifier = modifier,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = stringResource(contentDescription),
-            tint = tint ?: LocalContentColor.current,
-        )
+    when (action) {
+        InputAction.LastMessage -> {
+            val haptics = LocalHapticFeedback.current
+            val contentColor = tint ?: LocalContentColor.current
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier =
+                    modifier
+                        .clip(CircleShape)
+                        .combinedClickable(
+                            enabled = actionEnabled,
+                            role = Role.Button,
+                            onClick = onClick,
+                            onLongClickLabel = stringResource(R.string.input_action_recent_messages),
+                            onLongClick = {
+                                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                                onLastMessageLongClick()
+                            },
+                        ),
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = stringResource(contentDescription),
+                    tint =
+                        when {
+                            actionEnabled -> contentColor
+                            else -> contentColor.copy(alpha = 0.38f)
+                        },
+                )
+            }
+        }
+
+        else -> {
+            IconButton(
+                onClick = onClick,
+                enabled = actionEnabled,
+                modifier = modifier,
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = stringResource(contentDescription),
+                    tint = tint ?: LocalContentColor.current,
+                )
+            }
+        }
     }
 }
 
@@ -703,6 +803,7 @@ private fun InputActionsRow(
     onNewWhisper: (() -> Unit)?,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
+    onLastMessageLongClick: () -> Unit,
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
@@ -763,6 +864,7 @@ private fun InputActionsRow(
                     onNewWhisper = onNewWhisper,
                     onSearchClick = onSearchClick,
                     onLastMessageClick = onLastMessageClick,
+                    onLastMessageLongClick = onLastMessageLongClick,
                     onToggleStream = onToggleStream,
                     onModActions = onModActions,
                     onToggleFullscreen = onToggleFullscreen,
@@ -797,6 +899,7 @@ private fun EndAlignedActionGroup(
     onNewWhisper: (() -> Unit)?,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
+    onLastMessageLongClick: () -> Unit,
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
@@ -851,6 +954,7 @@ private fun EndAlignedActionGroup(
                         isFullscreen = isFullscreen,
                         onSearchClick = onSearchClick,
                         onLastMessageClick = onLastMessageClick,
+                        onLastMessageLongClick = onLastMessageLongClick,
                         onToggleStream = onToggleStream,
                         onModActions = onModActions,
                         onToggleFullscreen = onToggleFullscreen,

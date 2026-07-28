@@ -315,6 +315,7 @@
     <string name="input_actions_none">表示中のアクションなし</string>
     <string name="input_action_search">メッセージを検索</string>
     <string name="input_action_last_message">最後のメッセージ</string>
+    <string name="input_action_recent_messages">最近のメッセージ</string>
     <string name="input_action_stream">配信を切り替え</string>
     <string name="input_action_mod_actions">チャンネルモデレーション</string>
     <string name="input_action_fullscreen">全画面</string>

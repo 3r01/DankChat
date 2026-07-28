@@ -375,6 +375,7 @@ fun MainScreen(
     var inputHeightPx by remember { mutableIntStateOf(0) }
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
+    var recentMessagesExpanded by remember { mutableStateOf(false) }
     var isInputMultiline by remember { mutableStateOf(false) }
     var toolbarBottomPx by remember { mutableIntStateOf(0) }
     if (!showInput) inputHeightPx = 0
@@ -479,6 +480,7 @@ fun MainScreen(
                         ChatInputCallbacks(
                             onSend = chatInputViewModel::sendMessage,
                             onLastMessageClick = chatInputViewModel::getLastMessage,
+                            onRecentMessageClick = chatInputViewModel::setInputFromHistory,
                             onEmoteClick = {
                                 if (!inputState.isEmoteMenuOpen) {
                                     keyboardController?.hide()
@@ -552,7 +554,19 @@ fun MainScreen(
                     onInputHeightChange = { inputHeightPx = it },
                     debugMode = mainState.debugMode,
                     overflowExpanded = inputOverflowExpanded,
-                    onOverflowExpandedChange = { inputOverflowExpanded = it },
+                    onOverflowExpandedChange = {
+                        inputOverflowExpanded = it
+                        if (it) {
+                            recentMessagesExpanded = false
+                        }
+                    },
+                    recentMessagesExpanded = recentMessagesExpanded,
+                    onRecentMessagesExpandedChange = {
+                        recentMessagesExpanded = it
+                        if (it) {
+                            inputOverflowExpanded = false
+                        }
+                    },
                     onHelperTextHeightChange = { helperTextHeightPx = it },
                     isInSplitLayout = useWideSplitLayout,
                     instantHide = isHistorySheet,
@@ -876,12 +890,15 @@ fun MainScreen(
                     isToolbarMenuOpen = isToolbarMenuOpen,
                     showInput = showInput,
                     isInputMultiline = isInputMultiline,
-                    inputOverflowExpanded = inputOverflowExpanded,
+                    inputPopupExpanded = inputOverflowExpanded || recentMessagesExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestionDropdown = suggestionDropdown,
                     onHideInput = { mainScreenViewModel.hideInput() },
-                    onDismissOverflow = { inputOverflowExpanded = false },
+                    onDismissInputPopup = {
+                        inputOverflowExpanded = false
+                        recentMessagesExpanded = false
+                    },
                     modifier = modifier,
                 )
             } else {
@@ -912,12 +929,15 @@ fun MainScreen(
                     containerHeightPx = containerHeightPx,
                     fontSize = mainState.fontSize,
                     showInput = showInput,
-                    inputOverflowExpanded = inputOverflowExpanded,
+                    inputPopupExpanded = inputOverflowExpanded || recentMessagesExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestionDropdown = suggestionDropdown,
                     onHideInput = { mainScreenViewModel.hideInput() },
-                    onDismissOverflow = { inputOverflowExpanded = false },
+                    onDismissInputPopup = {
+                        inputOverflowExpanded = false
+                        recentMessagesExpanded = false
+                    },
                     modifier = modifier,
                 )
             }
@@ -947,12 +967,12 @@ private fun BoxScope.WideSplitLayout(
     isToolbarMenuOpen: Boolean,
     showInput: Boolean,
     isInputMultiline: Boolean,
-    inputOverflowExpanded: Boolean,
+    inputPopupExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
     suggestionDropdown: @Composable (Modifier) -> Unit,
     onHideInput: () -> Unit,
-    onDismissOverflow: () -> Unit,
+    onDismissInputPopup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -1023,10 +1043,10 @@ private fun BoxScope.WideSplitLayout(
 
                 fullScreenSheetOverlay()
 
-                if (inputOverflowExpanded) {
+                if (inputPopupExpanded) {
                     InputDismissScrim(
                         forceOpen = forceOverflowOpen,
-                        onDismiss = onDismissOverflow,
+                        onDismiss = onDismissInputPopup,
                     )
                 }
 
@@ -1134,12 +1154,12 @@ private fun BoxScope.NormalStackedLayout(
     containerHeightPx: Int,
     fontSize: Int,
     showInput: Boolean,
-    inputOverflowExpanded: Boolean,
+    inputPopupExpanded: Boolean,
     forceOverflowOpen: Boolean,
     swipeDownThresholdPx: Float,
     suggestionDropdown: @Composable (Modifier) -> Unit,
     onHideInput: () -> Unit,
-    onDismissOverflow: () -> Unit,
+    onDismissInputPopup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -1256,10 +1276,10 @@ private fun BoxScope.NormalStackedLayout(
         fullScreenSheetOverlay()
     }
 
-    if (!isInPipMode && inputOverflowExpanded) {
+    if (!isInPipMode && inputPopupExpanded) {
         InputDismissScrim(
             forceOpen = forceOverflowOpen,
-            onDismiss = onDismissOverflow,
+            onDismiss = onDismissInputPopup,
         )
     }
 

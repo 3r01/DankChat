@@ -288,7 +288,7 @@ class ChatInputViewModel(
             inputOverlayFlow,
             helperText,
             chatSettingsDataStore.userLongClickBehavior,
-            chatRepository.lastMessageFlow,
+            chatRepository.lastMessagesFlow,
         ) { deps, overlayState, helperText, userLongClickBehavior, _ ->
             val isMentionsTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 0
             val isWhisperTabActive = (overlayState.sheetState is FullScreenSheetState.Mention || overlayState.sheetState is FullScreenSheetState.Whisper) && overlayState.tab == 1
@@ -338,10 +338,10 @@ class ChatInputViewModel(
             ChatInputUiState(
                 canSend = canSend,
                 enabled = enabled,
-                hasLastMessage =
+                recentMessages =
                     when {
-                        isWhisperTabActive -> lastWhisperText != null
-                        else -> chatRepository.getLastMessage() != null
+                        isWhisperTabActive -> lastWhisperText?.let { persistentListOf(it) } ?: persistentListOf()
+                        else -> chatRepository.getRecentMessages()
                     },
                 activeChannel = deps.activeChannel,
                 connectionState = deps.connectionState,
@@ -474,6 +474,10 @@ class ChatInputViewModel(
                 _whisperTarget.value != null -> lastWhisperText
                 else -> chatRepository.getLastMessage()
             } ?: return
+        setInputFromHistory(message)
+    }
+
+    fun setInputFromHistory(message: String) {
         textFieldState.edit {
             replace(0, length, message)
             placeCursorAtEnd()
