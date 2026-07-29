@@ -14,10 +14,14 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import com.flxrs.dankchat.data.UserName
@@ -28,6 +32,50 @@ import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.tour.TourStep
 import kotlinx.collections.immutable.ImmutableMap
+
+/**
+ * Blocks stray horizontal drag input from reaching the pager while a vertical drag inside a
+ * page is in progress. During a diagonal chat scroll the pager's drag detector can belatedly
+ * win the gesture and deliver the accumulated horizontal component as one large delta,
+ * visibly jerking the pager sideways. A vertical drag is recognized by its pure-vertical
+ * user-input deltas bubbling up; the block lifts once the gesture ends in a fling.
+ * Intentional page swipes dispatch pure-horizontal deltas from the start and pass through.
+ */
+private class PagerCrossAxisGestureGuard : NestedScrollConnection {
+    private var verticalDragActive = false
+
+    override fun onPreScroll(
+        available: Offset,
+        source: NestedScrollSource,
+    ): Offset {
+        if (source != NestedScrollSource.UserInput) {
+            return Offset.Zero
+        }
+        return when {
+            available.y != 0f && available.x == 0f -> {
+                verticalDragActive = true
+                Offset.Zero
+            }
+
+            verticalDragActive && available.x != 0f -> Offset(available.x, 0f)
+
+            else -> Offset.Zero
+        }
+    }
+
+    override suspend fun onPreFling(available: Velocity): Velocity {
+        verticalDragActive = false
+        return Velocity.Zero
+    }
+
+    override suspend fun onPostFling(
+        consumed: Velocity,
+        available: Velocity,
+    ): Velocity {
+        verticalDragActive = false
+        return Velocity.Zero
+    }
+}
 
 @Stable
 internal class ChatPagerCallbacks(
@@ -94,9 +142,10 @@ internal fun MainScreenPagerContent(
                         .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
+                    val crossAxisGestureGuard = remember { PagerCrossAxisGestureGuard() }
                     HorizontalPager(
                         state = composePagerState,
-                        modifier = Modifier.fillMaxSize().edgeGestureGuard(),
+                        modifier = Modifier.fillMaxSize().nestedScroll(crossAxisGestureGuard).edgeGestureGuard(),
                         userScrollEnabled = swipeNavigation,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
