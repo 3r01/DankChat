@@ -124,8 +124,8 @@ class ChatEventProcessor(
     ) {
         _lastMessages.update { messages ->
             val updated = (messages[channel] ?: persistentListOf())
-                .removeAll { it.typed == typed }
-                .add(0, LastMessage(sent = sent, typed = typed))
+                .removingAll { it.typed == typed }
+                .addingAt(0, LastMessage(sent = sent, typed = typed))
                 .let { it.subList(0, minOf(it.size, MAX_LAST_MESSAGES)).toPersistentList() }
             messages.putting(channel, updated)
         }
