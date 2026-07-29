@@ -57,7 +57,7 @@ class IgnoresRepository(
     val messageIgnores =
         messageIgnoreDao
             .getMessageIgnoresFlow()
-            .map { it.addDefaultsIfNecessary() }
+            .map { ignores -> ignores.sortedBy { it.type.ordinal } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val userIgnores = userIgnoreDao.getUserIgnoresFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
     val twitchBlocks = _twitchBlocks.asStateFlow()
@@ -85,15 +85,23 @@ class IgnoresRepository(
 
     fun runMigrationsIfNeeded() = coroutineScope.launch {
         runCatching {
-            if (messageIgnoreDao.getMessageIgnores().isNotEmpty()) {
-                return@launch
+            val existingIgnores = messageIgnoreDao.getMessageIgnores()
+
+            // Non-custom types must exist exactly once; keep the oldest row and drop the rest
+            val duplicates = existingIgnores
+                .filter { it.type != MessageIgnoreEntityType.Custom }
+                .groupBy { it.type }
+                .values
+                .flatMap { it.drop(1) }
+            duplicates.forEach { messageIgnoreDao.deleteIgnore(it) }
+
+            val existingTypes = existingIgnores.mapTo(mutableSetOf()) { it.type }
+            val missingDefaults = DEFAULT_IGNORES.filter { it.type !in existingTypes }
+            if (missingDefaults.isNotEmpty()) {
+                logger.debug { "Running ignores migration..." }
+                messageIgnoreDao.addIgnores(missingDefaults)
+                logger.debug { "Ignores migration completed, added ${missingDefaults.size} entries." }
             }
-
-            logger.debug { "Running ignores migration..." }
-            messageIgnoreDao.addIgnores(DEFAULT_IGNORES)
-
-            val totalIgnores = DEFAULT_IGNORES.size
-            logger.debug { "Ignores migration completed, added $totalIgnores entries." }
         }.getOrElse {
             logger.error(it) { "Failed to run ignores migration" }
             runCatching {
@@ -378,13 +386,5 @@ class IgnoresRepository(
                 MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.FirstMessage, pattern = ""),
                 MessageIgnoreEntity(id = 0, enabled = false, type = MessageIgnoreEntityType.ElevatedMessage, pattern = ""),
             )
-
-        private fun List<MessageIgnoreEntity>.addDefaultsIfNecessary(): List<MessageIgnoreEntity> = (this + DEFAULT_IGNORES)
-            .distinctBy {
-                when (it.type) {
-                    MessageIgnoreEntityType.Custom -> it.id
-                    else -> it.type
-                }
-            }.sortedBy { it.type.ordinal }
     }
 }

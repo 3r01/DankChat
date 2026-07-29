@@ -60,7 +60,7 @@ class HighlightsRepository(
     val messageHighlights =
         messageHighlightDao
             .getMessageHighlightsFlow()
-            .map { it.addDefaultsIfNecessary() }
+            .map { highlights -> highlights.sortedBy { it.type.ordinal } }
             .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
     val userHighlights = userHighlightDao.getUserHighlightsFlow().stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
@@ -101,10 +101,22 @@ class HighlightsRepository(
 
     fun runMigrationsIfNeeded() = coroutineScope.launch {
         runCatching {
-            if (messageHighlightDao.getMessageHighlights().isEmpty()) {
+            val existingHighlights = messageHighlightDao.getMessageHighlights()
+
+            // Non-custom types must exist exactly once; keep the oldest row and drop the rest
+            val duplicates = existingHighlights
+                .filter { it.type != MessageHighlightEntityType.Custom }
+                .groupBy { it.type }
+                .values
+                .flatMap { it.drop(1) }
+            duplicates.forEach { messageHighlightDao.deleteHighlight(it) }
+
+            val existingTypes = existingHighlights.mapTo(mutableSetOf()) { it.type }
+            val missingDefaults = DEFAULT_MESSAGE_HIGHLIGHTS.filter { it.type !in existingTypes }
+            if (missingDefaults.isNotEmpty()) {
                 logger.debug { "Running message highlights migration" }
-                messageHighlightDao.addHighlights(DEFAULT_MESSAGE_HIGHLIGHTS)
-                logger.debug { "Message highlights migration completed" }
+                messageHighlightDao.addHighlights(missingDefaults)
+                logger.debug { "Message highlights migration completed, added ${missingDefaults.size} entries." }
             }
             if (badgeHighlightDao.getBadgeHighlights().isEmpty()) {
                 logger.debug { "Running badge highlights migration" }
@@ -403,14 +415,6 @@ class HighlightsRepository(
 
         return false
     }
-
-    private fun List<MessageHighlightEntity>.addDefaultsIfNecessary(): List<MessageHighlightEntity> = (this + DEFAULT_MESSAGE_HIGHLIGHTS)
-        .distinctBy {
-            when (it.type) {
-                MessageHighlightEntityType.Custom -> it.id
-                else -> it.type
-            }
-        }.sortedBy { it.type.ordinal }
 
     companion object {
         private val DEFAULT_MESSAGE_HIGHLIGHTS =
