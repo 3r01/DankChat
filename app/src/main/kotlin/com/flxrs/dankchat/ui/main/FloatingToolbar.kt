@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.main
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -628,19 +629,35 @@ fun FloatingToolbar(
                                         if (!isLoggedIn && showOverflowMenu) {
                                             Spacer(modifier = Modifier.width(48.dp))
                                         }
-                                        if (hasActivePinnedMessage) {
-                                            IconButton(onClick = { onAction(ToolbarAction.TogglePinnedMessage) }) {
-                                                when {
-                                                    isPinnedMessageShown -> Icon(
-                                                        imageVector = Icons.Default.PushPin,
-                                                        contentDescription = stringResource(R.string.pinned_message_collapse),
-                                                        tint = MaterialTheme.colorScheme.primary,
-                                                    )
+                                        // Animate the measured width instead of using AnimatedVisibility: the pill
+                                        // sits in an IntrinsicSize.Min column, and AnimatedVisibility reports the
+                                        // full intrinsic width during its exit, making the tabs pill jump afterwards
+                                        val pinButtonWidth by animateDpAsState(
+                                            targetValue = if (hasActivePinnedMessage) 48.dp else 0.dp,
+                                            label = "pinButtonWidth",
+                                        )
+                                        if (pinButtonWidth > 0.dp) {
+                                            Box(
+                                                contentAlignment = Alignment.Center,
+                                                modifier =
+                                                    Modifier
+                                                        .width(pinButtonWidth)
+                                                        .clipToBounds()
+                                                        .graphicsLayer { alpha = pinButtonWidth.value / 48f },
+                                            ) {
+                                                IconButton(onClick = { onAction(ToolbarAction.TogglePinnedMessage) }) {
+                                                    when {
+                                                        isPinnedMessageShown -> Icon(
+                                                            imageVector = Icons.Default.PushPin,
+                                                            contentDescription = stringResource(R.string.pinned_message_collapse),
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                        )
 
-                                                    else -> Icon(
-                                                        imageVector = Icons.Outlined.PushPin,
-                                                        contentDescription = stringResource(R.string.pinned_message_show),
-                                                    )
+                                                        else -> Icon(
+                                                            imageVector = Icons.Outlined.PushPin,
+                                                            contentDescription = stringResource(R.string.pinned_message_show),
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
