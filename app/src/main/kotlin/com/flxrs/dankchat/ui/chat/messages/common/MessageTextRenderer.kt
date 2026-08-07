@@ -8,6 +8,7 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,20 +60,26 @@ fun MessageTextWithInlineContent(
             buildMap<String, @Composable () -> Unit> {
                 badges.forEach { badge ->
                     put("BADGE_${badge.position}") {
-                        BadgeInlineContent(badge = badge, size = badgeSize)
+                        // BasicText composes inline children positionally, so an explicit key
+                        // prevents a slot reused for a different item from inheriting its state
+                        key(badge.position, badge.url) {
+                            BadgeInlineContent(badge = badge, size = badgeSize)
+                        }
                     }
                 }
 
                 emotes.forEach { emote ->
                     put("EMOTE_${emote.position}") {
-                        StackedEmote(
-                            emote = emote,
-                            fontSize = fontSize,
-                            emoteCoordinator = emoteCoordinator,
-                            animateGifs = animateGifs,
-                            modifier = Modifier,
-                            onClick = { onEmoteClick(emote.emotes.map { it.toEmoteSheetData() }) },
-                        )
+                        key(emote.position, emote.urls) {
+                            StackedEmote(
+                                emote = emote,
+                                fontSize = fontSize,
+                                emoteCoordinator = emoteCoordinator,
+                                animateGifs = animateGifs,
+                                modifier = Modifier,
+                                onClick = { onEmoteClick(emote.emotes.map { it.toEmoteSheetData() }) },
+                            )
+                        }
                     }
                 }
             }.toImmutableMap()
