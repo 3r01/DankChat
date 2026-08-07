@@ -51,6 +51,36 @@ internal class EmoteRepositoryTest {
     }
 
     @Test
+    fun `emotes with out of bounds positions are skipped`() {
+        val message = "hello Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(999..1005)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = emptyList(), actual = result)
+    }
+
+    @Test
+    fun `emotes with inverted positions are skipped`() {
+        val message = "hello Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(5..2)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = emptyList(),
+            appendedSpaces = emptyList(),
+            removedSpaces = emptyList(),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = emptyList(), actual = result)
+    }
+
+    @Test
     fun `emote positions are correct with removed duplicate whitespace before an emoji`() {
         // Original: "a   😂 Kappa" — Kappa at codepoints 6..10; whitespace dedup removes
         // codepoints 2 and 3 and shifts the emoji to codepoint 2 of "a 😂 Kappa"

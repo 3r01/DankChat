@@ -918,7 +918,7 @@ class EmoteRepository(
         removedSpaces: List<Int>,
         replyMentionOffset: Int,
     ): List<ChatMessageEmote> = emotesWithPositions.flatMap { (id, positions) ->
-        positions.map { range ->
+        positions.mapNotNull { range ->
             // Twitch positions include the reply mention prefix, but our message/positions are stripped.
             // Subtract replyMentionOffset first so lookups align with the stripped message.
             val adjustedFirst = range.first - replyMentionOffset
@@ -931,6 +931,9 @@ class EmoteRepository(
 
             // be extra safe in case twitch sends invalid emote ranges :)
             val fixedPos = fixedStart.coerceAtLeast(minimumValue = 0)..(fixedEnd + 1).coerceAtMost(message.length)
+            if (fixedPos.first >= fixedPos.last) {
+                return@mapNotNull null
+            }
             val code = message.substring(fixedPos.first, fixedPos.last)
             ChatMessageEmote(
                 position = fixedPos,
