@@ -71,6 +71,33 @@ internal class StringExtensionsTest {
     }
 
     @Test
+    fun `analyzeCodePoints records supplementary positions in deduplicated codepoint coordinates`() {
+        // "a   😂 Kappa": duplicate spaces at codepoints 2 and 3 are removed, the emoji lands
+        // at codepoint 2 of the deduplicated string "a 😂 Kappa"
+        val result = "a   😂 Kappa".analyzeCodePoints()
+        assertEquals(expected = "a 😂 Kappa", actual = result.deduplicatedString)
+        assertEquals(expected = listOf(2, 3), actual = result.removedSpacesPositions)
+        assertEquals(expected = listOf(2), actual = result.supplementaryCodePointPositions)
+    }
+
+    @Test
+    fun `analyzeCodePoints keeps supplementary positions without whitespace deduplication`() {
+        val result = "🐍🐍 Kappa 🐍".analyzeCodePoints()
+        assertEquals(expected = "🐍🐍 Kappa 🐍", actual = result.deduplicatedString)
+        assertEquals(expected = emptyList(), actual = result.removedSpacesPositions)
+        assertEquals(expected = listOf(0, 1, 9), actual = result.supplementaryCodePointPositions)
+    }
+
+    @Test
+    fun `analyzeCodePoints adjusts each supplementary position by the removals before it`() {
+        // "😂  😂 x": the duplicate space at codepoint 2 shifts the second emoji to codepoint 2
+        val result = "😂  😂 x".analyzeCodePoints()
+        assertEquals(expected = "😂 😂 x", actual = result.deduplicatedString)
+        assertEquals(expected = listOf(2), actual = result.removedSpacesPositions)
+        assertEquals(expected = listOf(0, 2), actual = result.supplementaryCodePointPositions)
+    }
+
+    @Test
     fun `appendSpacesBetweenEmojiGroup ignores invisible and control characters`() {
         // U+034F combining grapheme joiner, appended to bypass duplicate message detection
         val withInvisibleChar = "NaM $INVISIBLE_CHAR"

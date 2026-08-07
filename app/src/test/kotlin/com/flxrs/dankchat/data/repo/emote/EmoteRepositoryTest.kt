@@ -51,6 +51,24 @@ internal class EmoteRepositoryTest {
     }
 
     @Test
+    fun `emote positions are correct with removed duplicate whitespace before an emoji`() {
+        // Original: "a   😂 Kappa" — Kappa at codepoints 6..10; whitespace dedup removes
+        // codepoints 2 and 3 and shifts the emoji to codepoint 2 of "a 😂 Kappa"
+        val message = "a 😂 Kappa"
+        val emotes = listOf(EmoteWithPositions(id = "25", positions = listOf(6..10)))
+        val result = emoteRepository.parseTwitchEmotes(
+            emotesWithPositions = emotes,
+            message = message,
+            supplementaryCodePointPositions = listOf(2),
+            appendedSpaces = emptyList(),
+            removedSpaces = listOf(2, 3),
+            replyMentionOffset = 0,
+        )
+        assertEquals(expected = "Kappa", actual = result.single().code)
+        assertEquals(expected = 5..10, actual = result.single().position)
+    }
+
+    @Test
     fun `emote positions are correct for reply message without emoji`() {
         // Original: "@someuser hello Kappa world" — Kappa at Twitch position 16..20
         // Stripped: "hello Kappa world" — replyMentionOffset = 10 ("@someuser " = 10 chars)

@@ -39,7 +39,6 @@ fun String.analyzeCodePoints(): CodePointAnalysis {
     val stringBuilder = StringBuilder()
     var previousWhitespace = false
     val removedSpacesPositions = mutableListOf<Int>()
-    var supplementaryOffset = 0
     var totalCharCount = 0
     var charOffset = 0
 
@@ -47,10 +46,11 @@ fun String.analyzeCodePoints(): CodePointAnalysis {
         val codePoint = codePointAt(charOffset)
         val charCount = Character.charCount(codePoint)
 
-        // Track supplementary codepoint positions (pre-dedup, like the original property)
+        // Track supplementary codepoint positions in deduplicated codepoint coordinates —
+        // consumers compare them against post-dedup indices. Whitespace is never
+        // supplementary, so every supplementary codepoint survives deduplication.
         if (Character.isSupplementaryCodePoint(codePoint)) {
-            supplementaryPositions += charOffset - supplementaryOffset
-            supplementaryOffset++
+            supplementaryPositions += totalCharCount - removedSpacesPositions.size
         }
 
         // Remove duplicate whitespace
