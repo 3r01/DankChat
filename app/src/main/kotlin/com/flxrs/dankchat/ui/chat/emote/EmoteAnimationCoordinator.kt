@@ -106,13 +106,6 @@ class EmoteAnimationCoordinator {
     ) {
         layerCache.put(cacheKey, layerDrawable)
     }
-
-    fun clear() {
-        emoteCache.evictAll()
-        layerCache.evictAll()
-        dimensionCache.evictAll()
-        _dimensionUpdates.update { it + 1 }
-    }
 }
 
 val LocalEmoteAnimationCoordinator =

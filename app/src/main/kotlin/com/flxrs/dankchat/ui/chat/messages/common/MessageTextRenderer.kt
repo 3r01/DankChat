@@ -30,6 +30,8 @@ import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.StackedEmote
 import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
+import com.flxrs.dankchat.ui.chat.emote.singleEmoteCacheKey
+import com.flxrs.dankchat.ui.chat.emote.stackedCacheKey
 import com.flxrs.dankchat.ui.chat.emote.toEmoteSheetData
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
@@ -131,8 +133,8 @@ fun MessageTextWithInlineContent(
 }
 
 private fun EmoteUi.dimensionKey(baseHeightPx: Int): String = when {
-    urls.size == 1 -> urls.first()
-    else -> "${emotes.joinToString("-") { it.id }}-$baseHeightPx"
+    urls.size == 1 -> singleEmoteCacheKey(urls.first(), baseHeightPx)
+    else -> stackedCacheKey(baseHeightPx)
 }
 
 fun launchCustomTab(

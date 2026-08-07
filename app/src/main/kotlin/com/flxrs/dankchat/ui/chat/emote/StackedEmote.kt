@@ -36,6 +36,17 @@ fun emoteBaseHeight(fontSizeSp: Float): Dp = (fontSizeSp * BASE_HEIGHT_CONSTANT)
 
 internal fun emoteScaleFactor(baseHeightPx: Int): Double = baseHeightPx * SCALE_FACTOR_CONSTANT
 
+// Cache key for a stacked emote's layer drawable and dimensions. Keyed by urls because
+// emote ids are not unique across services (Twitch and FFZ ids share a numeric namespace).
+internal fun EmoteUi.stackedCacheKey(baseHeightPx: Int): String = urls.joinToString(separator = "\n", postfix = "\n$baseHeightPx")
+
+// Cache key for a single emote's drawable and dimensions — includes the render height
+// because the drawable's bounds are baked for a specific font size at load time.
+internal fun singleEmoteCacheKey(
+    url: String,
+    baseHeightPx: Int,
+): String = "$url\n$baseHeightPx"
+
 @Composable
 fun StackedEmote(
     emote: EmoteUi,
@@ -68,8 +79,7 @@ fun StackedEmote(
         return
     }
 
-    // For stacked emotes, create cache key matching old implementation
-    val cacheKey = "${emote.emotes.joinToString("-") { it.id }}-$baseHeightPx"
+    val cacheKey = emote.stackedCacheKey(baseHeightPx)
 
     // Estimate placeholder size from dimension cache or from base height
     val cachedDims = emoteCoordinator.getDimensions(cacheKey)
@@ -213,24 +223,26 @@ private fun SingleEmoteDrawable(
 ) {
     val context = LocalPlatformContext.current
     val density = LocalDensity.current
+    val baseHeightPx = with(density) { emoteBaseHeight(fontSize).toPx().toInt() }
+    val cacheKey = singleEmoteCacheKey(url, baseHeightPx)
 
     // Use dimension cache for instant placeholder sizing on repeat views
-    val cachedDims = emoteCoordinator.getDimensions(url)
+    val cachedDims = emoteCoordinator.getDimensions(cacheKey)
 
     // Load drawable asynchronously, cache hits resolve synchronously so the first frame
-    // already renders the emote. The state is keyed by url so a composition slot reused
+    // already renders the emote. The state is keyed by cacheKey so a composition slot reused
     // for a different emote can never keep the previous emote's drawable.
     val drawableState =
-        remember(url) {
-            mutableStateOf(emoteCoordinator.getCached(url)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading)
+        remember(cacheKey) {
+            mutableStateOf(emoteCoordinator.getCached(cacheKey)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading)
         }
-    LaunchedEffect(url) {
+    LaunchedEffect(cacheKey) {
         if (drawableState.value is EmoteLoadState.Loaded) {
             return@LaunchedEffect
         }
 
         // Fast path: check cache first
-        val cached = emoteCoordinator.getCached(url)
+        val cached = emoteCoordinator.getCached(cacheKey)
         if (cached != null) {
             drawableState.value = EmoteLoadState.Loaded(cached)
             return@LaunchedEffect
@@ -248,10 +260,10 @@ private fun SingleEmoteDrawable(
                 result.image?.asDrawable(context.resources)?.let { drawable ->
                     // Transform and cache
                     transformEmoteDrawable(drawable, scaleFactor, chatEmote).also {
-                        emoteCoordinator.putInCache(url, it)
+                        emoteCoordinator.putInCache(cacheKey, it)
                         // Store dimensions for future placeholder sizing
                         emoteCoordinator.putDimensions(
-                            url,
+                            cacheKey,
                             it.bounds.width() to it.bounds.height(),
                         )
                     }
@@ -311,7 +323,6 @@ private fun SingleEmoteDrawable(
         EmoteLoadState.Loading -> {
             // Placeholder keeps the inline slot measurable while loading — emitting nothing
             // would drop the emote from the inline content list and shift sibling slots
-            val baseHeightPx = with(density) { emoteBaseHeight(fontSize).toPx().toInt() }
             val estimatedSizePx = baseHeightPx * chatEmote.scale
             val widthDp = with(density) { (cachedDims?.first ?: estimatedSizePx).toDp() }
             val heightDp = with(density) { (cachedDims?.second ?: estimatedSizePx).toDp() }
