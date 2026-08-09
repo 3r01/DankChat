@@ -33,6 +33,9 @@ object UserDisplaySettings
 object StreamsSettings
 
 @Serializable
+object BatterySettings
+
+@Serializable
 object ToolsSettings
 
 @Serializable

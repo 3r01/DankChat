@@ -17,6 +17,7 @@ import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -62,6 +63,8 @@ class PubSubManager(
     val connected: Boolean
         get() = connections.any { it.connected }
 
+    private val pausedInBackground = MutableStateFlow(false)
+
     init {
         scope.launch {
             startupValidationHolder.awaitResolved()
@@ -69,13 +72,18 @@ class PubSubManager(
                 authDataStore.settings.map { it.isLoggedIn to it.userId }.distinctUntilChanged(),
                 chatChannelProvider.channels.filterNotNull(),
                 developerSettingsDataStore.settings.map { it.shouldUsePubSub }.distinctUntilChanged(),
-            ) { (isLoggedIn, userId), channels, shouldUsePubSub ->
-                Triple(if (isLoggedIn) userId else null, channels, shouldUsePubSub)
+                pausedInBackground,
+            ) { (isLoggedIn, userId), channels, shouldUsePubSub, paused ->
+                ConnectionParams(
+                    userId = userId.takeIf { isLoggedIn && !paused },
+                    channels = channels,
+                    shouldUsePubSub = shouldUsePubSub,
+                )
             }.collect { (userId, channels, shouldUsePubSub) ->
                 mutex.withLock {
                     closeAll()
                     if (userId == null) {
-                        logger.debug { "[PubSub] skipping connection, not logged in" }
+                        logger.debug { "[PubSub] skipping connection, not logged in or paused" }
                         return@withLock
                     }
                     val resolved = channelRepository.getChannels(channels)
@@ -85,6 +93,14 @@ class PubSubManager(
                 }
             }
         }
+    }
+
+    fun pause() {
+        pausedInBackground.value = true
+    }
+
+    fun resume() {
+        pausedInBackground.value = false
     }
 
     fun reconnect() = resetCollectionWith { reconnect() }
@@ -155,6 +171,12 @@ class PubSubManager(
                 collectJobs += scope.launch { connection.collectEvents() }
             }
     }
+
+    private data class ConnectionParams(
+        val userId: String?,
+        val channels: List<UserName>,
+        val shouldUsePubSub: Boolean,
+    )
 
     private fun closeAll() {
         collectJobs.forEach { it.cancel() }

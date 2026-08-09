@@ -13,8 +13,8 @@ import com.flxrs.dankchat.data.api.seventv.eventapi.dto.SubscribeRequest
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UnsubscribeRequest
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UserDispatchData
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.preferences.chat.LiveUpdatesBackgroundBehavior
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle.Background
 import com.flxrs.dankchat.utils.ForegroundServiceState
@@ -47,9 +47,7 @@ import org.koin.core.annotation.Single
 import kotlin.random.Random
 import kotlin.random.nextLong
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeMark
 import kotlin.time.TimeSource
@@ -60,6 +58,7 @@ private val logger = KotlinLogging.logger("SevenTVEventApiClient")
 class SevenTVEventApiClient(
     httpClient: HttpClient,
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val batterySettingsDataStore: BatterySettingsDataStore,
     private val appLifecycleListener: AppLifecycleListener,
     private val foregroundServiceState: ForegroundServiceState,
     defaultJson: Json,
@@ -102,16 +101,12 @@ class SevenTVEventApiClient(
                             .debounce(FLOW_DEBOUNCE)
                             .collectLatest { state ->
                                 if (state == Background) {
-                                    val timeout =
-                                        when (chatSettingsDataStore.settings.first().sevenTVLiveEmoteUpdatesBehavior) {
-                                            LiveUpdatesBackgroundBehavior.Always -> return@collectLatest
-                                            LiveUpdatesBackgroundBehavior.Never -> Duration.ZERO
-                                            LiveUpdatesBackgroundBehavior.FiveMinutes -> 5.minutes
-                                            LiveUpdatesBackgroundBehavior.OneHour -> 1.hours
-                                            LiveUpdatesBackgroundBehavior.OneMinute -> 1.minutes
-                                            LiveUpdatesBackgroundBehavior.ThirtyMinutes -> 30.minutes
-                                        }
+                                    val batterySettings = batterySettingsDataStore.settings.first()
+                                    if (!batterySettings.pauseSevenTvLiveUpdates) {
+                                        return@collectLatest
+                                    }
 
+                                    val timeout = batterySettings.backgroundDelay.duration
                                     logger.debug { "[7TV Event-Api] Sleeping for $timeout until connection is closed" }
                                     delay(timeout)
                                     close()

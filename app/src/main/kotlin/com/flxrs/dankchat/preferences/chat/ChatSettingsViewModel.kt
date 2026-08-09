@@ -99,10 +99,6 @@ class ChatSettingsViewModel(
                     chatSettingsDataStore.update { it.copy(sevenTVLiveEmoteUpdates = interaction.value) }
                 }
 
-                is ChatSettingsInteraction.LiveEmoteUpdatesBehavior -> {
-                    chatSettingsDataStore.update { it.copy(sevenTVLiveEmoteUpdatesBehavior = interaction.value) }
-                }
-
                 is ChatSettingsInteraction.MessageHistory -> {
                     chatSettingsDataStore.update { it.copy(loadMessageHistory = interaction.value) }
                 }
@@ -143,7 +139,6 @@ private fun ChatSettings.toState() = ChatSettingsState(
     visibleEmotes = visibleEmotes.toImmutableList(),
     allowUnlistedSevenTvEmotes = allowUnlistedSevenTvEmotes,
     sevenTVLiveEmoteUpdates = sevenTVLiveEmoteUpdates,
-    sevenTVLiveEmoteUpdatesBehavior = sevenTVLiveEmoteUpdatesBehavior,
     loadMessageHistory = loadMessageHistory,
     loadMessageHistoryAfterReconnect = loadMessageHistoryOnReconnect,
     messageHistoryDashboardUrl = RECENT_MESSAGES_DASHBOARD,

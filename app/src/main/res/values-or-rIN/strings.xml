@@ -544,16 +544,6 @@
     <string name="preference_helix_sending_title">ପଠାଇବା ପାଇଁ Helix API ବ୍ୟବହାର କରନ୍ତୁ</string>
     <string name="preference_helix_sending_summary">IRC ବଦଳରେ Twitch Helix API ମାଧ୍ୟମରେ ଚାଟ୍ ବାର୍ତ୍ତା ପଠାନ୍ତୁ</string>
     <string name="preference_7tv_live_updates_title">7TV ଲାଇଭ୍ ଇମୋଟେଟ୍ ଅପଡେଟ୍</string>
-    <string name="preference_7tv_live_updates_timeout_title">ଲାଇଭ୍ ଇମୋଟ୍ ଅପଡେଟ୍ ପୃଷ୍ଠଭୂମି ଆଚରଣ</string>
-    <string name="preference_7tv_live_updates_timeout_summary_timeout">%1$s ପରେ ଅଟକି ଯାଅ.\nଏହି ସଂଖ୍ୟା ହ୍ରାସ କରିବା ବ୍ୟାଟେରୀ ଜୀବନ ବୃଦ୍ଧି କରିପାରେ</string>
-    <string name="preference_7tv_live_updates_timeout_summary_always_active">ଅଦ୍ୟତନଗୁଡ଼ିକ ସର୍ବଦା ସକ୍ରିୟ ଅଛି.\nଏକ ଟାଇମ୍ଆଉଟ୍ ଯୋଡିବା ବ୍ୟାଟେରୀ ଜୀବନ ବୃଦ୍ଧି କରିପାରେ.</string>
-    <string name="preference_7tv_live_updates_timeout_summary_never_active">ଅଦ୍ୟତନଗୁଡ଼ିକ ପୃଷ୍ଠଭୂମିରେ କଦାପି ସକ୍ରିୟ ହୁଏ ନାହିଁ.</string>
-    <string name="preference_7tv_live_updates_entry_never">କଦାପି ସକ୍ରିୟ କରନ୍ତୁ ନାହିଁ</string>
-    <string name="preference_7tv_live_updates_entry_one_minute">1 ମିନିଟ୍</string>
-    <string name="preference_7tv_live_updates_entry_five_minutes">5 ମିନିଟ୍</string>
-    <string name="preference_7tv_live_updates_entry_thirty_minutes">30 ମିନିଟ୍</string>
-    <string name="preference_7tv_live_updates_entry_one_hour">1 ଘଣ୍ଟା</string>
-    <string name="preference_7tv_live_updates_entry_always">ସର୍ବଦା-ଚାଲୁ ସକ୍ରିୟ</string>
     <string name="preference_streams_header">ଲାଇଭଷ୍ଟ୍ରିମ୍</string>
     <string name="preference_pip_title">ଚିତ୍ର-ଇନ୍-ଚିତ୍ର ମୋଡ୍ ସକ୍ଷମ କରନ୍ତୁ</string>
     <string name="preference_pip_summary">ଆପ୍ ପୃଷ୍ଠଭୂମିରେ ଥିବାବେଳେ ସ୍ରୋତଗୁଡିକ ଖେଳିବା ଜାରି ରଖିବାକୁ ଅନୁମତି ଦିଏ</string>

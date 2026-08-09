@@ -57,6 +57,7 @@ import kotlin.math.roundToInt
 fun ChatSettingsScreen(
     onNavToCommands: () -> Unit,
     onNavToUserDisplays: () -> Unit,
+    onNavToBattery: () -> Unit,
     onNavBack: () -> Unit,
 ) {
     val viewModel = koinViewModel<ChatSettingsViewModel>()
@@ -89,6 +90,7 @@ fun ChatSettingsScreen(
         onInteraction = { viewModel.onInteraction(it) },
         onNavToCommands = onNavToCommands,
         onNavToUserDisplays = onNavToUserDisplays,
+        onNavToBattery = onNavToBattery,
         onNavBack = onNavBack,
     )
 }
@@ -100,6 +102,7 @@ private fun ChatSettingsScreen(
     onInteraction: (ChatSettingsInteraction) -> Unit,
     onNavToCommands: () -> Unit,
     onNavToUserDisplays: () -> Unit,
+    onNavToBattery: () -> Unit,
     onNavBack: () -> Unit,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -161,8 +164,8 @@ private fun ChatSettingsScreen(
                 enabled = VisibleThirdPartyEmotes.SevenTV in settings.visibleEmotes,
                 allowUnlistedSevenTvEmotes = settings.allowUnlistedSevenTvEmotes,
                 sevenTVLiveEmoteUpdates = settings.sevenTVLiveEmoteUpdates,
-                sevenTVLiveEmoteUpdatesBehavior = settings.sevenTVLiveEmoteUpdatesBehavior,
                 onInteraction = onInteraction,
+                onNavToBattery = onNavToBattery,
             )
             HorizontalDivider(thickness = Dp.Hairline)
             MessageHistoryCategory(
@@ -352,8 +355,8 @@ private fun SevenTVCategory(
     enabled: Boolean,
     allowUnlistedSevenTvEmotes: Boolean,
     sevenTVLiveEmoteUpdates: Boolean,
-    sevenTVLiveEmoteUpdatesBehavior: LiveUpdatesBackgroundBehavior,
     onInteraction: (ChatSettingsInteraction) -> Unit,
+    onNavToBattery: () -> Unit,
 ) {
     PreferenceCategory(title = stringResource(R.string.preference_7tv_category_title)) {
         SwitchPreferenceItem(
@@ -369,21 +372,9 @@ private fun SevenTVCategory(
             isChecked = sevenTVLiveEmoteUpdates,
             onClick = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdates(it)) },
         )
-        val liveUpdateEntries = stringArrayResource(R.array.event_api_timeout_entries).toImmutableList()
-        val summary =
-            when (sevenTVLiveEmoteUpdatesBehavior) {
-                LiveUpdatesBackgroundBehavior.Never -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_never_active)
-                LiveUpdatesBackgroundBehavior.Always -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_always_active)
-                else -> stringResource(R.string.preference_7tv_live_updates_timeout_summary_timeout, liveUpdateEntries[sevenTVLiveEmoteUpdatesBehavior.ordinal])
-            }
-        PreferenceListDialog(
-            isEnabled = enabled && sevenTVLiveEmoteUpdates,
-            title = stringResource(R.string.preference_7tv_live_updates_timeout_title),
-            summary = summary,
-            values = LiveUpdatesBackgroundBehavior.entries.toImmutableList(),
-            entries = liveUpdateEntries,
-            selected = sevenTVLiveEmoteUpdatesBehavior,
-            onChange = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdatesBehavior(it)) },
+        PreferenceItem(
+            title = stringResource(R.string.preference_battery_pause_7tv_title),
+            onClick = onNavToBattery,
         )
     }
 }

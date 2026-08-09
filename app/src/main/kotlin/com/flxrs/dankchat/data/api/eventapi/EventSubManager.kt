@@ -40,13 +40,7 @@ class EventSubManager(
             }
 
             userStateRepository.userState.map { it.moderationChannels }.collect {
-                val userId = authDataStore.userIdString ?: return@collect
-                val channels = channelRepository.getChannels(it)
-                channels.forEach { channel ->
-                    eventSubClient.subscribe(EventSubTopic.ChannelModerate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
-                    eventSubClient.subscribe(EventSubTopic.AutomodMessageHold(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
-                    eventSubClient.subscribe(EventSubTopic.AutomodMessageUpdate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
-                }
+                subscribeModerationTopics(it)
             }
         }
 
@@ -56,12 +50,7 @@ class EventSubManager(
             }
 
             chatChannelProvider.channels.filterNotNull().collect { channels ->
-                val userId = authDataStore.userIdString ?: return@collect
-                val resolved = channelRepository.getChannels(channels)
-                resolved.forEach {
-                    eventSubClient.subscribe(EventSubTopic.UserMessageHold(channel = it.name, broadcasterId = it.id, userId = userId))
-                    eventSubClient.subscribe(EventSubTopic.UserMessageUpdate(channel = it.name, broadcasterId = it.id, userId = userId))
-                }
+                subscribeUserMessageTopics(channels)
             }
         }
 
@@ -73,6 +62,44 @@ class EventSubManager(
             developerSettingsDataStore.settings.collect {
                 debugOutput = it.eventSubDebugOutput
             }
+        }
+    }
+
+    private suspend fun subscribeModerationTopics(moderationChannels: Set<UserName>) {
+        val userId = authDataStore.userIdString ?: return
+        val channels = channelRepository.getChannels(moderationChannels)
+        channels.forEach { channel ->
+            eventSubClient.subscribe(EventSubTopic.ChannelModerate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
+            eventSubClient.subscribe(EventSubTopic.AutomodMessageHold(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
+            eventSubClient.subscribe(EventSubTopic.AutomodMessageUpdate(channel = channel.name, broadcasterId = channel.id, moderatorId = userId))
+        }
+    }
+
+    private suspend fun subscribeUserMessageTopics(channelNames: List<UserName>) {
+        val userId = authDataStore.userIdString ?: return
+        val resolved = channelRepository.getChannels(channelNames)
+        resolved.forEach {
+            eventSubClient.subscribe(EventSubTopic.UserMessageHold(channel = it.name, broadcasterId = it.id, userId = userId))
+            eventSubClient.subscribe(EventSubTopic.UserMessageUpdate(channel = it.name, broadcasterId = it.id, userId = userId))
+        }
+    }
+
+    suspend fun pause() {
+        if (!isEnabled) {
+            return
+        }
+
+        eventSubClient.closeAndClearTopics()
+    }
+
+    fun resume() {
+        if (!isEnabled) {
+            return
+        }
+
+        scope.launch {
+            subscribeModerationTopics(userStateRepository.userState.value.moderationChannels)
+            chatChannelProvider.channels.value?.let { subscribeUserMessageTopics(it) }
         }
     }
 

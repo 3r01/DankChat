@@ -296,16 +296,6 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="preference_bypass_command_handling_title">تجاوز معالجة أوامر Twitch</string>
     <string name="preference_bypass_command_handling_summary">تعطيل اعتراض أوامر Twitch وإرسالها إلى الدردشة بدلاً من ذلك</string>
     <string name="preference_7tv_live_updates_title">تحديثات البث المباشر لـ 7TV</string>
-    <string name="preference_7tv_live_updates_timeout_title">تحديثات حية لسلوك الخلفية المعبرة المباشرة</string>
-    <string name="preference_7tv_live_updates_timeout_summary_timeout">إيقاف التحديثات بعد %1$s.\nتخفيض هذا الرقم قد يزيد من عمر البطارية.</string>
-    <string name="preference_7tv_live_updates_timeout_summary_always_active">التحديثات نشطة دائماً.\nإضافة مهلة قد تزيد من عمر البطارية.</string>
-    <string name="preference_7tv_live_updates_timeout_summary_never_active">التحديثات غير نشطة أبداً في الخلفية.</string>
-    <string name="preference_7tv_live_updates_entry_never">غير نشط أبداً</string>
-    <string name="preference_7tv_live_updates_entry_one_minute">1 دقيقة</string>
-    <string name="preference_7tv_live_updates_entry_five_minutes">5 دقائق</string>
-    <string name="preference_7tv_live_updates_entry_thirty_minutes">30 دقيقة</string>
-    <string name="preference_7tv_live_updates_entry_one_hour">1 ساعة</string>
-    <string name="preference_7tv_live_updates_entry_always">نشط دائماً</string>
     <string name="preference_streams_header">البث المباشر</string>
     <string name="preference_pip_title">تمكين وضع صورة داخل صورة</string>
     <string name="preference_pip_summary">السماح باستمرار تشغيل التدفقات أثناء وجود التطبيق في الخلفية</string>

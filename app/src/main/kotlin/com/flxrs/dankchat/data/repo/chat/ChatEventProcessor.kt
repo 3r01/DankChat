@@ -88,6 +88,7 @@ class ChatEventProcessor(
     private val authDataStore: AuthDataStore,
     private val channelRepository: ChannelRepository,
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val messageRateTracker: ChannelMessageRateTracker,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -363,11 +364,22 @@ class ChatEventProcessor(
     private suspend fun onMessage(msg: IrcMessage) {
         when (msg.command) {
             "CLEARCHAT" -> handleClearChat(msg)
+
             "CLEARMSG" -> handleClearMsg(msg)
+
             "ROOMSTATE" -> channelRepository.handleRoomState(msg)
+
             "USERSTATE" -> userStateRepository.handleUserState(msg)
+
             "GLOBALUSERSTATE" -> userStateRepository.handleGlobalUserState(msg)
+
             "WHISPER" -> handleWhisper(msg)
+
+            "PRIVMSG" -> {
+                msg.params.firstOrNull()?.let { messageRateTracker.onMessage(it.substring(1).toUserName()) }
+                handleMessage(msg)
+            }
+
             else -> handleMessage(msg)
         }
     }

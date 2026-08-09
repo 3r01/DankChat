@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.BatterySaver
 import androidx.compose.material.icons.filled.Construction
 import androidx.compose.material.icons.filled.DeveloperMode
 import androidx.compose.material.icons.filled.FiberNew
@@ -58,6 +59,8 @@ sealed interface SettingsNavigation {
     data object Chat : SettingsNavigation
 
     data object Streams : SettingsNavigation
+
+    data object Battery : SettingsNavigation
 
     data object Tools : SettingsNavigation
 
@@ -119,6 +122,9 @@ fun OverviewSettingsScreen(
             })
             PreferenceItem(stringResource(R.string.preference_streams_header), Icons.Default.PlayArrow, onClick = {
                 onNavigate(SettingsNavigation.Streams)
+            })
+            PreferenceItem(stringResource(R.string.preference_battery_header), Icons.Default.BatterySaver, onClick = {
+                onNavigate(SettingsNavigation.Battery)
             })
             PreferenceItem(stringResource(R.string.preference_tools_header), Icons.Default.Construction, onClick = {
                 onNavigate(SettingsNavigation.Tools)

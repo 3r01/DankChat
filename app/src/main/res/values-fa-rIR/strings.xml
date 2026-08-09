@@ -295,16 +295,6 @@
     <string name="preference_bypass_command_handling_title">عبور از پردازش دستورهای Twitch</string>
     <string name="preference_bypass_command_handling_summary">غیرفعال کردن اعمال دستورهای Twitch و ارسال آنها به گفتگو به جای آن</string>
     <string name="preference_7tv_live_updates_title">به‌روزرسانی‌ زنده ایموت‌های 7TV</string>
-    <string name="preference_7tv_live_updates_timeout_title">رفتار پس‌زمینه به‌روزرسانی‌های ایموت زنده</string>
-    <string name="preference_7tv_live_updates_timeout_summary_timeout">به‌روزرسانی‌ها پس از %1$s متوقف می‌شوند.\nکاهش این عدد ممکن است باعث افزایش عمر باتری شود.</string>
-    <string name="preference_7tv_live_updates_timeout_summary_always_active">به‌روزرسانی‌ها همیشه فعال هستند.\nافزودن زمان محدودیت ممکن است باعث افزایش عمر باتری شود.</string>
-    <string name="preference_7tv_live_updates_timeout_summary_never_active">به‌روزرسانی‌ها هیچ‌گاه در پس‌زمینه فعال نیستند.</string>
-    <string name="preference_7tv_live_updates_entry_never">هیچ‌گاه فعال نیست.</string>
-    <string name="preference_7tv_live_updates_entry_one_minute">۱ دقیقه</string>
-    <string name="preference_7tv_live_updates_entry_five_minutes">5 دقیقه</string>
-    <string name="preference_7tv_live_updates_entry_thirty_minutes">30 دقیقه</string>
-    <string name="preference_7tv_live_updates_entry_one_hour">۱ ساعت</string>
-    <string name="preference_7tv_live_updates_entry_always">همیشه فعال</string>
     <string name="preference_streams_header">پخش‌های زنده</string>
     <string name="preference_pip_title">فعال سازی حالت تصویر در تصویر</string>
     <string name="preference_pip_summary">اجازه می‌دهد تا استریم‌ها هنگامی که برنامه در پس‌زمینه است، ادامه پخش شوند</string>

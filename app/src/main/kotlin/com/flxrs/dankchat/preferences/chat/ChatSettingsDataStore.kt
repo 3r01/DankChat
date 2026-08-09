@@ -10,7 +10,6 @@ import com.flxrs.dankchat.utils.datastore.booleanOrNull
 import com.flxrs.dankchat.utils.datastore.createDataStore
 import com.flxrs.dankchat.utils.datastore.dankChatPreferencesMigration
 import com.flxrs.dankchat.utils.datastore.intOrNull
-import com.flxrs.dankchat.utils.datastore.mappedStringOrDefault
 import com.flxrs.dankchat.utils.datastore.mappedStringSetOrDefault
 import com.flxrs.dankchat.utils.datastore.safeData
 import com.flxrs.dankchat.utils.datastore.stringOrDefault
@@ -51,7 +50,6 @@ class ChatSettingsDataStore(
         VisibleEmotes(R.string.preference_visible_emotes_key),
         UnlistedEmotes(R.string.preference_unlisted_emotes_key),
         LiveUpdates(R.string.preference_7tv_live_updates_key),
-        LiveUpdatesTimeout(R.string.preference_7tv_live_updates_timeout_key),
         LoadMessageHistory(R.string.preference_load_message_history_key),
         LoadMessageHistoryOnReconnect(R.string.preference_load_messages_on_reconnect__key),
         ShowRoomState(R.string.preference_roomstate_key),
@@ -145,17 +143,6 @@ class ChatSettingsDataStore(
 
                 ChatPreferenceKeys.LiveUpdates -> {
                     acc.copy(sevenTVLiveEmoteUpdates = value.booleanOrDefault(acc.sevenTVLiveEmoteUpdates))
-                }
-
-                ChatPreferenceKeys.LiveUpdatesTimeout -> {
-                    acc.copy(
-                        sevenTVLiveEmoteUpdatesBehavior =
-                            value.mappedStringOrDefault(
-                                original = context.resources.getStringArray(R.array.event_api_timeout_entry_values),
-                                enumEntries = LiveUpdatesBackgroundBehavior.entries,
-                                default = acc.sevenTVLiveEmoteUpdatesBehavior,
-                            ),
-                    )
                 }
 
                 ChatPreferenceKeys.LoadMessageHistory -> {

@@ -15,6 +15,7 @@ import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.di.DankChatModule
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.domain.BatterySaverCoordinator
 import com.flxrs.dankchat.domain.ConnectionCoordinator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
@@ -46,6 +47,7 @@ class DankChatApplication :
     private val ignoresRepository: IgnoresRepository by inject()
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore by inject()
     private val connectionCoordinator: ConnectionCoordinator by inject()
+    private val batterySaverCoordinator: BatterySaverCoordinator by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -54,6 +56,7 @@ class DankChatApplication :
         }
 
         connectionCoordinator.initialize()
+        batterySaverCoordinator.initialize()
 
         setupThemeMode()
 

@@ -26,7 +26,7 @@ data class ChatSettings(
     val visibleEmotes: List<VisibleThirdPartyEmotes> = VisibleThirdPartyEmotes.entries,
     val allowUnlistedSevenTvEmotes: Boolean = false,
     val sevenTVLiveEmoteUpdates: Boolean = true,
-    val sevenTVLiveEmoteUpdatesBehavior: LiveUpdatesBackgroundBehavior = LiveUpdatesBackgroundBehavior.FiveMinutes,
+    @Deprecated("Migrated to BatterySettings.pauseSevenTvLiveUpdates") val sevenTVLiveEmoteUpdatesBehavior: LiveUpdatesBackgroundBehavior = LiveUpdatesBackgroundBehavior.FiveMinutes,
     val loadMessageHistory: Boolean = true,
     val loadMessageHistoryOnReconnect: Boolean = true,
     val showChatModes: Boolean = true,

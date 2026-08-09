@@ -60,6 +60,7 @@ import com.flxrs.dankchat.preferences.about.AboutScreen
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsScreen
 import com.flxrs.dankchat.preferences.appearance.ThemePreference
+import com.flxrs.dankchat.preferences.battery.BatterySettingsScreen
 import com.flxrs.dankchat.preferences.chat.ChatSettingsScreen
 import com.flxrs.dankchat.preferences.chat.commands.CustomCommandsScreen
 import com.flxrs.dankchat.preferences.chat.userdisplay.UserDisplayScreen
@@ -314,6 +315,7 @@ class MainActivity : ComponentActivity() {
                                         SettingsNavigation.Notifications -> navController.navigate(NotificationsSettings)
                                         SettingsNavigation.Chat -> navController.navigate(ChatSettings)
                                         SettingsNavigation.Streams -> navController.navigate(StreamsSettings)
+                                        SettingsNavigation.Battery -> navController.navigate(BatterySettings)
                                         SettingsNavigation.Tools -> navController.navigate(ToolsSettings)
                                         SettingsNavigation.Developer -> navController.navigate(DeveloperSettings)
                                         SettingsNavigation.Changelog -> navController.navigate(ChangelogSettings)
@@ -387,6 +389,7 @@ class MainActivity : ComponentActivity() {
                             ChatSettingsScreen(
                                 onNavToCommands = { navController.navigate(CustomCommandsSettings) },
                                 onNavToUserDisplays = { navController.navigate(UserDisplaySettings) },
+                                onNavToBattery = { navController.navigate(BatterySettings) },
                                 onNavBack = { navController.popBackStack() },
                             )
                         }
@@ -417,6 +420,16 @@ class MainActivity : ComponentActivity() {
                             popExitTransition = subPopExit,
                         ) {
                             StreamsSettingsScreen(
+                                onBack = { navController.popBackStack() },
+                            )
+                        }
+                        composable<BatterySettings>(
+                            enterTransition = subEnter,
+                            exitTransition = subExit,
+                            popEnterTransition = subPopEnter,
+                            popExitTransition = subPopExit,
+                        ) {
+                            BatterySettingsScreen(
                                 onBack = { navController.popBackStack() },
                             )
                         }
