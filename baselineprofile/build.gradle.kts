@@ -22,21 +22,12 @@ android {
 
     targetProjectPath = ":app"
 
-    buildTypes {
-        // Mirrors the app's sacrificial perf build type, benchmarks run against it on a
-        // connected device via connectedBenchmarkPerfAndroidTest
-        create("perf") {
-            isDebuggable = false
-            buildConfigField("String", "TARGET_APP_ID", "\"com.flxrs.dankchat.perf\"")
-        }
-    }
-
     testOptions {
         managedDevices {
             localDevices {
-                create("pixel6Api34") {
-                    device = "Pixel 6"
-                    apiLevel = 34
+                create("pixel10Api36") {
+                    device = "Pixel 10"
+                    apiLevel = 36
                     systemImageSource = "aosp-atd"
                 }
             }
@@ -45,7 +36,7 @@ android {
 }
 
 baselineProfile {
-    managedDevices += "pixel6Api34"
+    managedDevices += "pixel10Api36"
     useConnectedDevices = false
 }
 

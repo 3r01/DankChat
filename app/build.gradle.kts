@@ -27,8 +27,8 @@ android {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = 40040
-        versionName = "4.0.40"
+        versionCode = 40041
+        versionName = "4.0.41"
     }
 
     androidResources { generateLocaleConfig = true }
@@ -75,16 +75,6 @@ android {
             manifestPlaceholders["applicationLabel"] = "@string/app_name_dank"
             applicationIdSuffix = ".dank"
             isDefault = true
-            signingConfig = signingConfigs.getByName("debug")
-            matchingFallbacks += "release"
-        }
-        // Sacrificial benchmark target: benchmarks reinstall the target app and wipe its data,
-        // the own suffix keeps them away from real installs
-        create("perf") {
-            initWith(getByName("release"))
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            manifestPlaceholders["applicationLabel"] = "@string/app_name_perf"
-            applicationIdSuffix = ".perf"
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += "release"
         }
