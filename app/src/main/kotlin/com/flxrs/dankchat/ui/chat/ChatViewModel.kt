@@ -47,7 +47,7 @@ private const val MAPPING_CACHE_MARGIN = 64
 class ChatViewModel(
     @InjectedParam private val channel: UserName,
     private val chatMessageRepository: ChatMessageRepository,
-    private val chatMessageMapper: ChatMessageMapper,
+    chatMessageMapper: ChatMessageMapper,
     private val helixApiClient: HelixApiClient,
     private val authDataStore: AuthDataStore,
     private val preferenceStore: DankChatPreferenceStore,

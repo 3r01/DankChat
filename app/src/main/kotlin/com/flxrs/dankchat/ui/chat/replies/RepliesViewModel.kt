@@ -25,8 +25,8 @@ import org.koin.core.annotation.KoinViewModel
 class RepliesViewModel(
     @InjectedParam private val rootMessageId: String,
     repliesRepository: RepliesRepository,
-    private val chatMessageMapper: ChatMessageMapper,
-    private val preferenceStore: DankChatPreferenceStore,
+    chatMessageMapper: ChatMessageMapper,
+    preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,

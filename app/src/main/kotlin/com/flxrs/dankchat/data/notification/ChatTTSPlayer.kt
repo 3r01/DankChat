@@ -35,7 +35,7 @@ class ChatTTSPlayer(
     private val chatNotificationRepository: ChatNotificationRepository,
     private val chatChannelProvider: ChatChannelProvider,
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
-    private val dispatchersProvider: DispatchersProvider,
+    dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(dispatchersProvider.io + SupervisorJob())
 

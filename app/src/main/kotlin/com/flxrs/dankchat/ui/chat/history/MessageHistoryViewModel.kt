@@ -55,11 +55,11 @@ import org.koin.core.annotation.KoinViewModel
 @OptIn(ExperimentalCoroutinesApi::class)
 @KoinViewModel
 class MessageHistoryViewModel(
-    @InjectedParam private val initialChannel: HistoryChannel,
-    private val chatMessageRepository: ChatMessageRepository,
+    @InjectedParam initialChannel: HistoryChannel,
+    chatMessageRepository: ChatMessageRepository,
     usersRepository: UsersRepository,
-    private val chatMessageMapper: ChatMessageMapper,
-    private val preferenceStore: DankChatPreferenceStore,
+    chatMessageMapper: ChatMessageMapper,
+    preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,

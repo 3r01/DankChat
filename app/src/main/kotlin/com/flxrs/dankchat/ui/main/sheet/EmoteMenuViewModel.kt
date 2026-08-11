@@ -29,7 +29,7 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class EmoteMenuViewModel(
-    private val dataRepository: DataRepository,
+    dataRepository: DataRepository,
     chatChannelProvider: ChatChannelProvider,
     emoteUsageRepository: EmoteUsageRepository,
     dispatchersProvider: DispatchersProvider,

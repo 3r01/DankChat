@@ -32,8 +32,8 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class MentionViewModel(
     private val chatNotificationRepository: ChatNotificationRepository,
-    private val chatMessageMapper: ChatMessageMapper,
-    private val preferenceStore: DankChatPreferenceStore,
+    chatMessageMapper: ChatMessageMapper,
+    preferenceStore: DankChatPreferenceStore,
     appearanceSettingsDataStore: AppearanceSettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
     dispatchersProvider: DispatchersProvider,

@@ -12,7 +12,7 @@ import okio.BufferedSource
 class DataStoreKotlinxSerializer<T>(
     override val defaultValue: T,
     private val serializer: KSerializer<T>,
-    private val customSerializersModule: SerializersModule? = null,
+    customSerializersModule: SerializersModule? = null,
 ) : OkioSerializer<T> {
     private val json =
         Json {

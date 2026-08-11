@@ -22,7 +22,7 @@ import org.koin.core.annotation.KoinViewModel
 class ChannelTabViewModel(
     private val chatChannelProvider: ChatChannelProvider,
     private val chatNotificationRepository: ChatNotificationRepository,
-    private val channelDataCoordinator: ChannelDataCoordinator,
+    channelDataCoordinator: ChannelDataCoordinator,
     private val preferenceStore: DankChatPreferenceStore,
 ) : ViewModel() {
     val uiState: StateFlow<ChannelTabUiState> =

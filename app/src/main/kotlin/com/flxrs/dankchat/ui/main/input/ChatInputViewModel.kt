@@ -71,7 +71,7 @@ class ChatInputViewModel(
     private val commandRepository: CommandRepository,
     private val channelRepository: ChannelRepository,
     private val userStateRepository: UserStateRepository,
-    private val suggestionProvider: SuggestionProvider,
+    suggestionProvider: SuggestionProvider,
     private val preferenceStore: DankChatPreferenceStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore,

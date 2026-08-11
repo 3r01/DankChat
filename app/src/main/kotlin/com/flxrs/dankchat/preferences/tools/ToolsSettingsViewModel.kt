@@ -15,7 +15,7 @@ import kotlin.time.Duration.Companion.seconds
 @KoinViewModel
 class ToolsSettingsViewModel(
     private val toolsSettingsDataStore: ToolsSettingsDataStore,
-    private val recentUploadsRepository: RecentUploadsRepository,
+    recentUploadsRepository: RecentUploadsRepository,
 ) : ViewModel() {
     val settings =
         combine(
