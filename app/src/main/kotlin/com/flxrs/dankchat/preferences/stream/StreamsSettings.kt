@@ -11,4 +11,5 @@ data class StreamsSettings(
     val showStreamExtensions: Boolean = false,
     val preventStreamReloads: Boolean = true,
     val enablePiP: Boolean = false,
+    val splitFraction: Float = 0.6f,
 )

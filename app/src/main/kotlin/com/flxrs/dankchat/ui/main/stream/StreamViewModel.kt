@@ -152,6 +152,15 @@ class StreamViewModel(
         _isAudioOnly.value = false
     }
 
+    val splitFraction: Float
+        get() = streamsSettingsDataStore.current().splitFraction
+
+    fun setSplitFraction(fraction: Float) {
+        viewModelScope.launch {
+            streamsSettingsDataStore.update { it.copy(splitFraction = fraction) }
+        }
+    }
+
     override fun onCleared() {
         streamDataRepository.cancelStreamData()
         cachedWebView?.destroy()

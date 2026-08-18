@@ -976,7 +976,8 @@ private fun BoxScope.WideSplitLayout(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    var splitFraction by remember { mutableFloatStateOf(0.6f) }
+    val streamViewModel: StreamViewModel = koinViewModel()
+    var splitFraction by remember { mutableFloatStateOf(streamViewModel.splitFraction) }
     var containerWidthPx by remember { mutableIntStateOf(0) }
 
     Box(
@@ -1085,6 +1086,7 @@ private fun BoxScope.WideSplitLayout(
                         splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
                     }
                 },
+                onDragEnd = { streamViewModel.setSplitFraction(splitFraction) },
                 modifier =
                     Modifier
                         .align(Alignment.CenterStart)

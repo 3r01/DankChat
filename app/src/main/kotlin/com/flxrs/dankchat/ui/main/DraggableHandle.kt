@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun DraggableHandle(
     onDrag: (deltaPx: Float) -> Unit,
+    onDragEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -26,7 +27,7 @@ fun DraggableHandle(
                 .width(24.dp)
                 .fillMaxHeight()
                 .pointerInput(Unit) {
-                    detectHorizontalDragGestures { _, dragAmount ->
+                    detectHorizontalDragGestures(onDragEnd = onDragEnd) { _, dragAmount ->
                         onDrag(dragAmount)
                     }
                 },
