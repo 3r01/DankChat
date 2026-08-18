@@ -531,6 +531,22 @@ class ChatInputViewModel(
         }
     }
 
+    fun insertEmote(code: String) {
+        val selection = textFieldState.selection
+        val text = textFieldState.text
+        val prefix =
+            when {
+                selection.min > 0 && text[selection.min - 1] != ' ' -> " "
+                else -> ""
+            }
+        val suffix =
+            when {
+                selection.max < text.length && text[selection.max] == ' ' -> ""
+                else -> " "
+            }
+        insertText("$prefix$code$suffix")
+    }
+
     fun deleteLastWord() {
         val text = textFieldState.text
         if (text.isEmpty()) return

@@ -48,7 +48,7 @@ fun EmoteInfoSheetContainer(
     EmoteInfoDialog(
         items = items,
         isLoggedIn = canUseEmote,
-        onUseEmote = { chatInputViewModel.insertText("$it ") },
+        onUseEmote = { chatInputViewModel.insertEmote(it) },
         onCopyEmote = {
             scope.launch {
                 clipboardManager.setClipEntry(ClipEntry(ClipData.newPlainText("emote", it)))

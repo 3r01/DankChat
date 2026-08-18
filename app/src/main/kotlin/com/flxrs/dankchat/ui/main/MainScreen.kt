@@ -714,7 +714,7 @@ fun MainScreen(
                     totalMenuHeight = totalMenuHeight,
                     backProgress = backProgress,
                     onEmoteClick = { code, id ->
-                        chatInputViewModel.insertText("$code ")
+                        chatInputViewModel.insertEmote(code)
                         chatInputViewModel.addEmoteUsage(id)
                     },
                     onBackspace = chatInputViewModel::deleteLastWord,
