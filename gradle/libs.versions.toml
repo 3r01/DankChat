@@ -16,16 +16,11 @@ androidGradlePlugin = "9.3.1"
 androidDesugarLibs = "2.1.5"
 androidxActivity = "1.13.0"
 androidxBrowser = "1.10.0"
-androidxConstraintLayout = "2.2.1"
 androidxCore = "1.19.0"
 androidxEmoji2 = "1.6.0"
 androidxExif = "1.4.2"
-androidxFragment = "1.9.0"
-androidxTransition = "1.7.0"
 androidxLifecycle = "2.11.0"
 androidxNavigation = "2.9.8"
-androidxRecyclerview = "1.4.0"
-androidxViewpager2 = "1.1.0"
 androidxRoom = "2.8.4"
 androidxWebkit = "1.17.0"
 androidxDataStore = "1.2.1"
@@ -86,19 +81,12 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "androidxActivity" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-browser = { module = "androidx.browser:browser", version.ref = "androidxBrowser" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidxConstraintLayout" }
 androidx-emoji2 = { module = "androidx.emoji2:emoji2", version.ref = "androidxEmoji2" }
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidxExif" }
-androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "androidxFragment" }
-androidx-transition-ktx = { module = "androidx.transition:transition-ktx", version.ref = "androidxTransition" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
-androidx-navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "androidxNavigation" }
-androidx-navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "androidxNavigation" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigation" }
-androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "androidxRecyclerview" }
-androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "androidxViewpager2" }
 androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "androidxWebkit" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidxRoom" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidxRoom" }
