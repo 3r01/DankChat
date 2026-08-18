@@ -1,5 +1,7 @@
 package com.flxrs.dankchat.data.debug
 
+import android.os.Process
+import android.os.SystemClock
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
@@ -8,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import org.koin.core.annotation.Single
-import kotlin.time.TimeSource
+import kotlin.time.Duration.Companion.milliseconds
 
 @Single
 class SessionDebugSection(
@@ -16,8 +18,6 @@ class SessionDebugSection(
     private val chatChannelProvider: ChatChannelProvider,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
 ) : DebugSection {
-    private val startMark = TimeSource.Monotonic.markNow()
-
     override val order = 1
     override val baseTitle = "Session"
 
@@ -30,7 +30,8 @@ class SessionDebugSection(
                 }
             }
         return combine(ticker, chatChannelProvider.channels) { _, channels ->
-            val elapsed = startMark.elapsedNow()
+            // Measured from process start, so lazy creation of this section doesn't shift the timer
+            val elapsed = (SystemClock.elapsedRealtime() - Process.getStartElapsedRealtime()).milliseconds
             val hours = elapsed.inWholeHours
             val minutes = elapsed.inWholeMinutes % 60
             val seconds = elapsed.inWholeSeconds % 60
