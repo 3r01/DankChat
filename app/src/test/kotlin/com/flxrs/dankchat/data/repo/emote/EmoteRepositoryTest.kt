@@ -1,18 +1,27 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.data.twitch.badge.BadgeSet
+import com.flxrs.dankchat.data.twitch.badge.BadgeVersion
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.EmoteWithPositions
+import com.flxrs.dankchat.data.twitch.message.Message
+import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @ExtendWith(MockKExtension::class)
 internal class EmoteRepositoryTest {
@@ -289,5 +298,36 @@ internal class EmoteRepositoryTest {
 
         assertEquals(expected = expectedMessage, actual = resultMessage)
         assertEquals(expected = expectedEmotes, actual = resultEmotes)
+    }
+
+    // --- badge parsing tests ---
+
+    @Test
+    fun `campaign badges resolve from channel badge sets without a global counterpart`() = runBlocking {
+        val campaignSetId = "campaign-38949074-1e80f2d1-4993-45e4-8c07-14699b3f4f02-mw"
+        emoteRepository.setChannelBadges(
+            channel = "icdb".toUserName(),
+            badges =
+                mapOf(
+                    campaignSetId to
+                        BadgeSet(
+                            id = campaignSetId,
+                            versions =
+                                mapOf(
+                                    "1" to BadgeVersion(id = "1", title = "FeelsDankMan", imageUrlLow = "1x", imageUrlMedium = "2x", imageUrlHigh = "4x"),
+                                ),
+                        ),
+                ),
+        )
+
+        val raw =
+            "@badge-info=;badges=moderator/1,$campaignSetId/1;color=#F1C40F;display-name=sunred_;emotes=;first-msg=0;flags=;id=4e0f1b81-0c65-42cf-b52b-21386d288e8a;mod=1;returning-chatter=0;room-id=38949074;subscriber=0;tmi-sent-ts=1786793453714;turbo=0;user-id=99308836;user-type=mod :sunred_!sunred_@sunred_.tmi.twitch.tv PRIVMSG #icdb :-tags"
+        val message = assertIs<PrivMessage>(Message.parse(IrcMessage.parse(raw)) { null })
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message))
+
+        val campaignBadge = assertIs<Badge.ChannelBadge>(parsed.badges.single())
+        assertEquals(expected = "FeelsDankMan", actual = campaignBadge.title)
+        assertEquals(expected = "4x", actual = campaignBadge.url)
     }
 }

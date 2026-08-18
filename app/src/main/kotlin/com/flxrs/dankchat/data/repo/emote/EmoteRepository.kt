@@ -311,8 +311,9 @@ class EmoteRepository(
                             )
                         }
 
-                        (badgeKey.startsWith("subscriber") || badgeKey.startsWith("bits")) &&
-                            channelBadgeUrl != null -> {
+                        // Channel badge sets take precedence over global sets, this also covers
+                        // sets that only exist per channel, like campaign badges
+                        channelBadgeUrl != null -> {
                             Badge.ChannelBadge(
                                 title = title,
                                 badgeTag = tag,
