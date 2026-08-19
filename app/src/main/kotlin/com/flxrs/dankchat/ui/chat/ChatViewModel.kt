@@ -57,8 +57,8 @@ class ChatViewModel(
 ) : ViewModel() {
     val chatDisplaySettings: StateFlow<ChatDisplaySettings> =
         combine(
-            appearanceSettingsDataStore.settings,
-            chatSettingsDataStore.settings,
+            appearanceSettingsDataStore.currentSettings,
+            chatSettingsDataStore.currentSettings,
         ) { appearance, chat ->
             ChatDisplaySettings(
                 fontSize = appearance.fontSize.toFloat(),
@@ -71,10 +71,7 @@ class ChatViewModel(
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), ChatDisplaySettings())
 
-    private val chat: StateFlow<List<ChatItem>> =
-        chatMessageRepository
-            .getChat(channel)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 500L), emptyList())
+    private val chat: StateFlow<List<ChatItem>> = chatMessageRepository.getChat(channel)
 
     private val mappingCache = LruCache<String, ChatMessageUiState>(MAPPING_CACHE_MIN_SIZE)
     private val checkeredTracker = CheckeredMessageTracker()
@@ -85,8 +82,8 @@ class ChatViewModel(
     val chatUiStates: StateFlow<ImmutableList<ChatMessageUiState>> =
         combine(
             chat,
-            appearanceSettingsDataStore.settings,
-            chatSettingsDataStore.settings,
+            appearanceSettingsDataStore.currentSettings,
+            chatSettingsDataStore.currentSettings,
         ) { messages, appearanceSettings, chatSettings ->
             // Mapped results only depend on chat settings; appearance settings are either part
             // of the cache key (checkered background) or applied after mapping
