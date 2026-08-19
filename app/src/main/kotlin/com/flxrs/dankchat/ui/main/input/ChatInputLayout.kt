@@ -52,6 +52,7 @@ import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material.icons.outlined.Keyboard
@@ -116,6 +117,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.preferences.appearance.InputAction
 import com.flxrs.dankchat.ui.main.InputState
 import com.flxrs.dankchat.ui.main.QuickActionsMenu
+import com.flxrs.dankchat.ui.main.TheaterChatModeIcon
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import com.flxrs.dankchat.utils.resolve
 import com.materialkolor.ktx.blend
@@ -140,6 +142,10 @@ fun ChatInputLayout(
     hasStreamData: Boolean,
     inputActions: ImmutableList<InputAction>,
     modifier: Modifier = Modifier,
+    isTheaterMode: Boolean = false,
+    showTheaterDockToggle: Boolean = false,
+    isTheaterChatDocked: Boolean = false,
+    onToggleTheaterChatMode: () -> Unit = {},
     debugMode: Boolean = false,
     overflowExpanded: Boolean = false,
     onOverflowExpandedChange: (Boolean) -> Unit = {},
@@ -165,6 +171,7 @@ fun ChatInputLayout(
     val onEmoteClick = callbacks.onEmoteClick
     val onOverlayDismiss = callbacks.onOverlayDismiss
     val onToggleFullscreen = callbacks.onToggleFullscreen
+    val onToggleTheater = callbacks.onToggleTheater
     val onToggleInput = callbacks.onToggleInput
     val onToggleStream = callbacks.onToggleStream
     val onModActions = callbacks.onModActions
@@ -369,6 +376,9 @@ fun ChatInputLayout(
                     InputActionsRow(
                         inputActions = inputActions,
                         effectiveActions = effectiveActions,
+                        showTheaterDockToggle = showTheaterDockToggle,
+                        isTheaterChatDocked = isTheaterChatDocked,
+                        onToggleTheaterChatMode = onToggleTheaterChatMode,
                         isEmoteMenuOpen = isEmoteMenuOpen,
                         enabled = enabled,
                         showQuickActions = showQuickActions,
@@ -379,6 +389,7 @@ fun ChatInputLayout(
                         hasLastMessage = hasLastMessage,
                         isStreamActive = isStreamActive,
                         isFullscreen = isFullscreen,
+                        isTheaterMode = isTheaterMode,
                         focusRequester = focusRequester,
                         onEmoteClick = onEmoteClick,
                         onOverflowExpandedChange = onOverflowExpandedChange,
@@ -389,6 +400,7 @@ fun ChatInputLayout(
                         onToggleStream = onToggleStream,
                         onModActions = onModActions,
                         onToggleFullscreen = onToggleFullscreen,
+                        onToggleTheater = onToggleTheater,
                         onToggleInput = onToggleInput,
                         onDebugInfoClick = onDebugInfoClick,
                         onSend = {
@@ -499,6 +511,7 @@ fun ChatInputLayout(
                 isAudioOnly = isAudioOnly,
                 hasStreamData = hasStreamData,
                 isFullscreen = isFullscreen,
+                isTheaterMode = isTheaterMode,
                 isModerator = isModerator,
                 tourState = tourState,
                 hasAnyConfiguredActions = inputActions.isNotEmpty(),
@@ -509,6 +522,7 @@ fun ChatInputLayout(
                         InputAction.Stream -> onToggleStream()
                         InputAction.ModActions -> onModActions()
                         InputAction.Fullscreen -> onToggleFullscreen()
+                        InputAction.Theater -> onToggleTheater()
                         InputAction.HideInput -> onToggleInput()
                         InputAction.Debug -> onDebugInfoClick()
                     }
@@ -607,12 +621,14 @@ private fun InputActionButton(
     hasLastMessage: Boolean,
     isStreamActive: Boolean,
     isFullscreen: Boolean,
+    isTheaterMode: Boolean,
     onSearchClick: () -> Unit,
     onLastMessageClick: () -> Unit,
     onLastMessageLongClick: () -> Unit,
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
+    onToggleTheater: () -> Unit,
     onToggleInput: () -> Unit,
     modifier: Modifier = Modifier,
     onDebugInfoClick: () -> Unit = {},
@@ -663,6 +679,17 @@ private fun InputActionButton(
             tint = null
         }
 
+        InputAction.Theater -> {
+            icon = Icons.Default.Theaters
+            contentDescription =
+                when {
+                    isTheaterMode -> R.string.menu_exit_theater_mode
+                    else -> R.string.input_action_theater
+                }
+            onClick = onToggleTheater
+            tint = contextualTint
+        }
+
         InputAction.HideInput -> {
             icon = Icons.Default.VisibilityOff
             contentDescription = R.string.menu_hide_input
@@ -683,6 +710,7 @@ private fun InputActionButton(
             InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
             InputAction.LastMessage -> enabled && hasLastMessage
             InputAction.Stream, InputAction.ModActions -> enabled
+            InputAction.Theater -> enabled && isStreamActive
         }
 
     when (action) {
@@ -791,12 +819,16 @@ private fun InputActionsRow(
     enabled: Boolean,
     showQuickActions: Boolean,
     showSendButton: Boolean,
+    showTheaterDockToggle: Boolean,
+    isTheaterChatDocked: Boolean,
+    onToggleTheaterChatMode: () -> Unit,
     tourState: TourOverlayState,
     quickActionsExpanded: Boolean,
     canSend: Boolean,
     hasLastMessage: Boolean,
     isStreamActive: Boolean,
     isFullscreen: Boolean,
+    isTheaterMode: Boolean,
     focusRequester: FocusRequester,
     onEmoteClick: () -> Unit,
     onOverflowExpandedChange: (Boolean) -> Unit,
@@ -807,6 +839,7 @@ private fun InputActionsRow(
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
+    onToggleTheater: () -> Unit,
     onToggleInput: () -> Unit,
     onSend: () -> Unit,
     onVisibleActionsChange: (ImmutableList<InputAction>) -> Unit,
@@ -821,8 +854,8 @@ private fun InputActionsRow(
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
     ) {
         val iconSize = 40.dp
-        // Fixed slots: emote button + conditionally overflow, whisper, send
-        val fixedSlots = 1 + listOf(showQuickActions, onNewWhisper != null, showSendButton).count { it }
+        // Fixed slots: emote button + conditionally dock toggle, overflow, whisper, send
+        val fixedSlots = 1 + listOf(showTheaterDockToggle, showQuickActions, onNewWhisper != null, showSendButton).count { it }
         val availableForActions = maxWidth - iconSize * fixedSlots
         val maxVisibleActions = (availableForActions / iconSize).toInt().coerceAtLeast(0)
         val allActions = inputActions.take(maxVisibleActions).toImmutableList()
@@ -843,6 +876,15 @@ private fun InputActionsRow(
                 modifier = Modifier.size(iconSize),
             )
 
+            if (showTheaterDockToggle) {
+                IconButton(
+                    onClick = onToggleTheaterChatMode,
+                    modifier = Modifier.size(iconSize),
+                ) {
+                    TheaterChatModeIcon(isDocked = isTheaterChatDocked)
+                }
+            }
+
             Spacer(modifier = Modifier.weight(1f))
 
             // End-aligned group: overflow + actions + whisper + send
@@ -860,6 +902,7 @@ private fun InputActionsRow(
                     hasLastMessage = hasLastMessage,
                     isStreamActive = isStreamActive,
                     isFullscreen = isFullscreen,
+                    isTheaterMode = isTheaterMode,
                     onOverflowExpandedChange = onOverflowExpandedChange,
                     onNewWhisper = onNewWhisper,
                     onSearchClick = onSearchClick,
@@ -868,6 +911,7 @@ private fun InputActionsRow(
                     onToggleStream = onToggleStream,
                     onModActions = onModActions,
                     onToggleFullscreen = onToggleFullscreen,
+                    onToggleTheater = onToggleTheater,
                     onToggleInput = onToggleInput,
                     onDebugInfoClick = onDebugInfoClick,
                     onSend = onSend,
@@ -895,6 +939,7 @@ private fun EndAlignedActionGroup(
     hasLastMessage: Boolean,
     isStreamActive: Boolean,
     isFullscreen: Boolean,
+    isTheaterMode: Boolean,
     onOverflowExpandedChange: (Boolean) -> Unit,
     onNewWhisper: (() -> Unit)?,
     onSearchClick: () -> Unit,
@@ -903,6 +948,7 @@ private fun EndAlignedActionGroup(
     onToggleStream: () -> Unit,
     onModActions: () -> Unit,
     onToggleFullscreen: () -> Unit,
+    onToggleTheater: () -> Unit,
     onToggleInput: () -> Unit,
     onSend: () -> Unit,
     onDebugInfoClick: () -> Unit = {},
@@ -952,12 +998,14 @@ private fun EndAlignedActionGroup(
                         hasLastMessage = hasLastMessage,
                         isStreamActive = isStreamActive,
                         isFullscreen = isFullscreen,
+                        isTheaterMode = isTheaterMode,
                         onSearchClick = onSearchClick,
                         onLastMessageClick = onLastMessageClick,
                         onLastMessageLongClick = onLastMessageLongClick,
                         onToggleStream = onToggleStream,
                         onModActions = onModActions,
                         onToggleFullscreen = onToggleFullscreen,
+                        onToggleTheater = onToggleTheater,
                         onToggleInput = onToggleInput,
                         onDebugInfoClick = onDebugInfoClick,
                         modifier = Modifier.size(iconSize),

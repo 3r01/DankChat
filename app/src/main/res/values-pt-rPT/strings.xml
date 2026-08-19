@@ -300,6 +300,12 @@
     <string name="menu_hide_stream">Ocultar transmissão</string>
     <string name="menu_audio_only">Apenas áudio</string>
     <string name="menu_exit_audio_only">Sair do modo áudio</string>
+    <string name="menu_theater_mode">Modo teatro</string>
+    <string name="menu_exit_theater_mode">Sair do modo teatro</string>
+    <string name="menu_show_theater_chat">Mostrar chat</string>
+    <string name="menu_hide_theater_chat">Ocultar chat</string>
+    <string name="menu_theater_chat_side_by_side">Mostrar chat ao lado da transmissão</string>
+    <string name="menu_theater_chat_overlay">Mostrar chat sobre a transmissão</string>
     <string name="menu_fullscreen">Ecrã inteiro</string>
     <string name="menu_exit_fullscreen">Sair do ecrã inteiro</string>
     <string name="menu_hide_input">Ocultar entrada</string>
@@ -325,6 +331,7 @@
     <string name="input_action_stream">Alternar transmissão</string>
     <string name="input_action_mod_actions">Moderação do canal</string>
     <string name="input_action_fullscreen">Ecrã inteiro</string>
+    <string name="input_action_theater">Modo teatro</string>
     <string name="input_action_hide_input">Ocultar entrada</string>
     <string name="input_action_debug">Depuração</string>
     <string name="input_action_configure">Configurar ações</string>

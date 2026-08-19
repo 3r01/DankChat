@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.RemoveCircleOutline
 import androidx.compose.material.icons.outlined.Shield
@@ -77,6 +78,7 @@ fun QuickActionsMenu(
     isAudioOnly: Boolean,
     hasStreamData: Boolean,
     isFullscreen: Boolean,
+    isTheaterMode: Boolean,
     isModerator: Boolean,
     tourState: TourOverlayState,
     hasAnyConfiguredActions: Boolean,
@@ -113,13 +115,18 @@ fun QuickActionsMenu(
                     .verticalScroll(scrollState),
             ) {
                 for (action in InputAction.entries) {
-                    if (action in visibleActions) continue
+                    // Theater mode is already fullscreen, so toggling chat fullscreen makes no sense there
+                    val isHiddenInTheater = isTheaterMode && action == InputAction.Fullscreen
+                    if (action in visibleActions || isHiddenInTheater) {
+                        continue
+                    }
                     val overflowItem =
                         getOverflowItem(
                             action = action,
                             isStreamActive = isStreamActive,
                             hasStreamData = hasStreamData,
                             isFullscreen = isFullscreen,
+                            isTheaterMode = isTheaterMode,
                             isModerator = isModerator,
                         )
                     if (overflowItem != null) {
@@ -250,6 +257,7 @@ private fun getOverflowItem(
     isStreamActive: Boolean,
     hasStreamData: Boolean,
     isFullscreen: Boolean,
+    isTheaterMode: Boolean,
     isModerator: Boolean,
 ): OverflowItem? = when (action) {
     InputAction.Search -> {
@@ -303,6 +311,25 @@ private fun getOverflowItem(
         )
     }
 
+    InputAction.Theater -> {
+        when {
+            isStreamActive -> {
+                OverflowItem(
+                    labelRes =
+                        when {
+                            isTheaterMode -> R.string.menu_exit_theater_mode
+                            else -> R.string.menu_theater_mode
+                        },
+                    icon = Icons.Default.Theaters,
+                )
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+
     InputAction.HideInput -> {
         OverflowItem(
             labelRes = R.string.menu_hide_input,
@@ -325,7 +352,7 @@ private fun isActionEnabled(
 ): Boolean = when (action) {
     InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
     InputAction.LastMessage -> inputEnabled && hasLastMessage
-    InputAction.Stream, InputAction.ModActions -> inputEnabled
+    InputAction.Stream, InputAction.ModActions, InputAction.Theater -> inputEnabled
 }
 
 /**

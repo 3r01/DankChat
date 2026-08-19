@@ -13,6 +13,7 @@ enum class InputAction {
     Stream,
     ModActions,
     Fullscreen,
+    Theater,
     HideInput,
     Debug,
 }

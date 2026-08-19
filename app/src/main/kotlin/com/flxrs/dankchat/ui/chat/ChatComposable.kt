@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TooltipState
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -21,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +60,10 @@ fun ChatComposable(
     fabMenuCallbacks: FabMenuCallbacks? = null,
     showPinnedMessage: Boolean = true,
     isToolbarMenuOpen: Boolean = false,
+    showTheaterChatModeFab: Boolean = false,
+    isTheaterChatDocked: Boolean = false,
+    onToggleTheaterChatMode: () -> Unit = {},
+    containerColor: Color = MaterialTheme.colorScheme.background,
     contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
     onScrollDirectionChange: (Boolean) -> Unit = {},
@@ -171,6 +177,10 @@ fun ChatComposable(
             showFabs = showFabs,
             onRecover = onRecover,
             fabMenuCallbacks = fabMenuCallbacks,
+            showTheaterChatModeFab = showTheaterChatModeFab,
+            isTheaterChatDocked = isTheaterChatDocked,
+            onToggleTheaterChatMode = onToggleTheaterChatMode,
+            containerColor = containerColor,
             contentPadding = contentPadding,
             scrollModifier = scrollModifier,
             onScrollToBottom = onScrollToBottom,

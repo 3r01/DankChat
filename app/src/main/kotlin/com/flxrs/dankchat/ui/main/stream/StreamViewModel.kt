@@ -42,14 +42,28 @@ class StreamViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val _isAudioOnly = MutableStateFlow(false)
+    private val _isTheaterMode = MutableStateFlow(false)
+    private val _isTheaterChatVisible = MutableStateFlow(false)
+    private val _isTheaterChatDocked = MutableStateFlow(false)
+
+    private val theaterState =
+        combine(_isTheaterMode, _isTheaterChatVisible, _isTheaterChatDocked, ::Triple)
 
     val streamState: StateFlow<StreamState> =
         combine(
             _currentStreamedChannel,
             hasStreamData,
             _isAudioOnly,
-        ) { currentStream, hasData, audioOnly ->
-            StreamState(currentStream = currentStream, hasStreamData = hasData, isAudioOnly = audioOnly)
+            theaterState,
+        ) { currentStream, hasData, audioOnly, (theaterMode, theaterChatVisible, theaterChatDocked) ->
+            StreamState(
+                currentStream = currentStream,
+                hasStreamData = hasData,
+                isAudioOnly = audioOnly,
+                isTheaterMode = theaterMode && currentStream != null && !audioOnly,
+                isTheaterChatVisible = theaterChatVisible,
+                isTheaterChatDocked = theaterChatDocked,
+            )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
 
     val shouldEnablePipAutoMode: StateFlow<Boolean> =
@@ -141,15 +155,43 @@ class StreamViewModel(
     fun toggleStream(channel: UserName) {
         _currentStreamedChannel.update { if (it == channel) null else channel }
         _isAudioOnly.value = false
+        if (_currentStreamedChannel.value == null) {
+            _isTheaterMode.value = false
+        }
     }
 
     fun toggleAudioOnly() {
         _isAudioOnly.update { !it }
+        // Otherwise leaving audio only later would abruptly force the theater layout back
+        if (_isAudioOnly.value) {
+            _isTheaterMode.value = false
+        }
+    }
+
+    fun toggleTheaterMode() {
+        _isTheaterMode.update { !it }
+    }
+
+    fun exitTheaterMode() {
+        _isTheaterMode.value = false
+    }
+
+    fun toggleTheaterChat() {
+        _isTheaterChatVisible.update { !it }
+    }
+
+    fun setTheaterChatVisible(visible: Boolean) {
+        _isTheaterChatVisible.value = visible
+    }
+
+    fun toggleTheaterChatMode() {
+        _isTheaterChatDocked.update { !it }
     }
 
     fun closeStream() {
         _currentStreamedChannel.value = null
         _isAudioOnly.value = false
+        _isTheaterMode.value = false
     }
 
     val splitFraction: Float
@@ -175,4 +217,7 @@ data class StreamState(
     val currentStream: UserName? = null,
     val hasStreamData: Boolean = false,
     val isAudioOnly: Boolean = false,
+    val isTheaterMode: Boolean = false,
+    val isTheaterChatVisible: Boolean = false,
+    val isTheaterChatDocked: Boolean = false,
 )

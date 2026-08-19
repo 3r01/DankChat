@@ -2,8 +2,11 @@ package com.flxrs.dankchat.ui.main
 
 import android.app.Activity
 import android.app.PictureInPictureParams
+import android.content.pm.ActivityInfo
 import android.os.Build
 import android.util.Rational
+import android.view.OrientationEventListener
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -22,6 +25,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemGestures
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.VerticalSplit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -29,8 +36,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
@@ -39,12 +53,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.flxrs.dankchat.R
 import com.flxrs.dankchat.ui.chat.emotemenu.EmoteMenu
 import com.flxrs.dankchat.ui.main.stream.StreamViewModel
 import kotlin.math.abs
@@ -101,6 +118,109 @@ internal fun FullscreenSystemBarsEffect(isFullscreen: Boolean) {
             controller.show(WindowInsetsCompat.Type.systemBars())
         }
     }
+}
+
+// Theater mode forces landscape, restoring the sensor orientation on exit. The flag lives in
+// the StreamViewModel, so the effect re-applies after the rotation recreates the activity.
+@Composable
+internal fun TheaterOrientationEffect(isTheaterMode: Boolean) {
+    val activity = LocalActivity.current
+
+    DisposableEffect(isTheaterMode, activity) {
+        when {
+            activity == null || !isTheaterMode -> onDispose { }
+
+            else -> {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                onDispose { activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED }
+            }
+        }
+    }
+}
+
+// Physically rotating the device back to portrait leaves theater mode, matching the video
+// player convention. The latch requires an actual landscape reading first, so entering
+// theater while still holding the device in portrait doesn't exit immediately.
+@Composable
+internal fun TheaterRotationExitEffect(
+    isTheaterMode: Boolean,
+    onExitTheater: () -> Unit,
+) {
+    val context = LocalContext.current
+    val currentOnExitTheater by rememberUpdatedState(onExitTheater)
+
+    DisposableEffect(isTheaterMode, context) {
+        when {
+            !isTheaterMode -> onDispose { }
+
+            else -> {
+                var wasLandscape = false
+                val listener =
+                    object : OrientationEventListener(context) {
+                        override fun onOrientationChanged(orientation: Int) {
+                            if (orientation == ORIENTATION_UNKNOWN) {
+                                return
+                            }
+                            val nearLandscape = orientation in 60..120 || orientation in 240..300
+                            val nearPortrait = orientation <= 30 || orientation >= 330 || orientation in 150..210
+                            when {
+                                nearLandscape -> wasLandscape = true
+                                wasLandscape && nearPortrait -> currentOnExitTheater()
+                            }
+                        }
+                    }
+                listener.enable()
+                onDispose { listener.disable() }
+            }
+        }
+    }
+}
+
+// Modified vertical split icon with an strike-through variant when docked.
+@Composable
+internal fun TheaterChatModeIcon(isDocked: Boolean) {
+    val tint = LocalContentColor.current
+    Icon(
+        imageVector = Icons.Outlined.VerticalSplit,
+        contentDescription =
+            stringResource(
+                when {
+                    isDocked -> R.string.menu_theater_chat_overlay
+                    else -> R.string.menu_theater_chat_side_by_side
+                },
+            ),
+        modifier =
+            when {
+                isDocked ->
+                    Modifier
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            val inset = size.width * 0.12f
+                            val start = Offset(inset, inset)
+                            val end = Offset(size.width - inset, size.height - inset)
+                            val strokeWidth = 2.dp.toPx()
+                            val gapShift = 1.8.dp.toPx()
+                            drawLine(
+                                color = Color.Black,
+                                start = start + Offset(gapShift, -gapShift),
+                                end = end + Offset(gapShift, -gapShift),
+                                strokeWidth = strokeWidth * 1.6f,
+                                cap = StrokeCap.Round,
+                                blendMode = BlendMode.Clear,
+                            )
+                            drawLine(
+                                color = tint,
+                                start = start,
+                                end = end,
+                                strokeWidth = strokeWidth,
+                                cap = StrokeCap.Round,
+                            )
+                        }
+
+                else -> Modifier
+            },
+    )
 }
 
 @Composable

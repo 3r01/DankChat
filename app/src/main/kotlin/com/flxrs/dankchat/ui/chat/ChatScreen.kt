@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Theaters
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.VideocamOff
 import androidx.compose.material.icons.filled.Visibility
@@ -100,6 +101,7 @@ import com.flxrs.dankchat.ui.chat.messages.PrivMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.SystemMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.UserNoticeMessageComposable
 import com.flxrs.dankchat.ui.chat.messages.WhisperMessageComposable
+import com.flxrs.dankchat.ui.main.TheaterChatModeIcon
 import com.flxrs.dankchat.ui.main.input.TourTooltip
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.collections.immutable.ImmutableList
@@ -135,6 +137,9 @@ fun ChatScreen(
     onFabPositionChange: (FabAnchor, Float, Float) -> Unit = { _, _, _ -> },
     onRecover: () -> Unit = {},
     fabMenuCallbacks: FabMenuCallbacks? = null,
+    showTheaterChatModeFab: Boolean = false,
+    isTheaterChatDocked: Boolean = false,
+    onToggleTheaterChatMode: () -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
     onScrollToBottom: () -> Unit = {},
     onScrollDirectionChange: (isScrollingUp: Boolean) -> Unit = {},
@@ -322,6 +327,9 @@ fun ChatScreen(
                         requireConfirmation = requireFullscreenExitConfirmation,
                         onRecover = onRecover,
                         fabMenuCallbacks = fabMenuCallbacks,
+                        showTheaterChatModeFab = showTheaterChatModeFab,
+                        isTheaterChatDocked = isTheaterChatDocked,
+                        onToggleTheaterChatMode = onToggleTheaterChatMode,
                         menuExpanded = fabMenuExpanded,
                         onMenuExpandedChange = { fabMenuExpanded = it },
                         recoveryFabTooltipState = recoveryFabTooltipState,
@@ -363,6 +371,9 @@ private fun RecoveryFabs(
     fullscreenButtonOpacity: Float,
     onRecover: () -> Unit,
     fabMenuCallbacks: FabMenuCallbacks?,
+    showTheaterChatModeFab: Boolean,
+    isTheaterChatDocked: Boolean,
+    onToggleTheaterChatMode: () -> Unit,
     menuExpanded: Boolean,
     onMenuExpandedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -516,6 +527,16 @@ private fun RecoveryFabs(
                         dragElevation = dragElevation,
                     )
                 }
+                if (!showInput && showTheaterChatModeFab) {
+                    SmallFloatingActionButton(
+                        onClick = onToggleTheaterChatMode,
+                        containerColor = animatedContainer,
+                        contentColor = animatedContent,
+                        elevation = FloatingActionButtonDefaults.elevation(dragElevation, dragElevation, dragElevation, dragElevation),
+                    ) {
+                        TheaterChatModeIcon(isDocked = isTheaterChatDocked)
+                    }
+                }
                 escapeFab()
             }
         }
@@ -621,7 +642,7 @@ private fun FabActionsMenu(
                         when (action) {
                             InputAction.Search, InputAction.Fullscreen, InputAction.HideInput, InputAction.Debug -> true
                             InputAction.LastMessage -> callbacks.enabled && callbacks.hasLastMessage
-                            InputAction.Stream, InputAction.ModActions -> callbacks.enabled
+                            InputAction.Stream, InputAction.ModActions, InputAction.Theater -> callbacks.enabled
                         }
 
                     val measureModifier = if (index == 0) {
@@ -741,6 +762,13 @@ private fun getFabMenuItem(
             if (isFullscreen) R.string.menu_exit_fullscreen else R.string.menu_fullscreen,
             if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
         )
+    }
+
+    InputAction.Theater -> {
+        when {
+            isStreamActive -> FabMenuItem(R.string.menu_theater_mode, Icons.Default.Theaters)
+            else -> null
+        }
     }
 
     InputAction.HideInput -> {

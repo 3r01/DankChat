@@ -1,33 +1,27 @@
 package com.flxrs.dankchat.ui.main
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imeAnimationTarget
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
@@ -35,6 +29,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -44,10 +39,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -57,12 +49,9 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import com.flxrs.dankchat.R
@@ -80,7 +69,6 @@ import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.messages.common.launchCustomTab
-import com.flxrs.dankchat.ui.chat.swipeDownToHide
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelManagementViewModel
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
@@ -104,11 +92,10 @@ import com.flxrs.dankchat.ui.tour.FeatureTourUiState
 import com.flxrs.dankchat.ui.tour.FeatureTourViewModel
 import com.flxrs.dankchat.ui.tour.PostOnboardingStep
 import com.flxrs.dankchat.ui.tour.TourStep
-import com.flxrs.dankchat.utils.compose.bottomInsetsPadding
 import com.flxrs.dankchat.utils.compose.rememberRoundedCornerBottomPadding
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -116,10 +103,19 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
-import kotlin.math.roundToInt
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
-private const val MIN_VISIBLE_MESSAGE_LINES = 9
+
+// Per-layout parameters for the movable stream content
+internal data class StreamViewConfig(
+    val channel: UserName,
+    val isInPipMode: Boolean = false,
+    val fillPane: Boolean = false,
+    val isTheaterMode: Boolean = false,
+    val isTheaterChatVisible: Boolean = false,
+    val canDockTheaterChat: Boolean = false,
+    val overlayEndPadding: Dp = 0.dp,
+)
 
 @Suppress("ModifierNotUsedAtRoot")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -212,6 +208,7 @@ fun MainScreen(
     val currentStream = streamVmState.currentStream
     val hasStreamData = streamVmState.hasStreamData
     val isAudioOnly = streamVmState.isAudioOnly
+    val isTheaterMode = streamVmState.isTheaterMode
     val streamState = rememberStreamToolbarState(currentStream)
 
     // PiP state — observe via lifecycle since onPause fires when entering PiP
@@ -223,7 +220,16 @@ fun MainScreen(
         windowSizeClass.isWidthAtLeastBreakpoint(
             WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
         )
-    val useWideSplitLayout = isWideWindow && currentStream != null && !isInPipMode
+    val theaterStream =
+        when {
+            isTheaterMode && !isInPipMode -> currentStream
+            else -> null
+        }
+    val useTheaterLayout = theaterStream != null
+    val useWideSplitLayout = isWideWindow && currentStream != null && !isInPipMode && !useTheaterLayout
+
+    // Registered before the emote menu handler, so an open emote menu closes first
+    BackHandler(enabled = useTheaterLayout) { streamViewModel.exitTheaterMode() }
 
     // Only intercept when menu is visible AND keyboard is fully GONE,
     // so system keyboard close gestures are not intercepted
@@ -354,7 +360,9 @@ fun MainScreen(
 
     val swipeDownThresholdPx = with(density) { (if (inputState.isCompactMode) 24.dp else 56.dp).toPx() }
 
-    FullscreenSystemBarsEffect(isFullscreen)
+    FullscreenSystemBarsEffect(isFullscreen || isTheaterMode)
+    TheaterOrientationEffect(isTheaterMode)
+    TheaterRotationExitEffect(isTheaterMode) { streamViewModel.exitTheaterMode() }
 
     val isInputSheet = fullScreenSheetState is FullScreenSheetState.Replies ||
         fullScreenSheetState is FullScreenSheetState.Mention ||
@@ -420,6 +428,10 @@ fun MainScreen(
         var containerWidthPx by remember { mutableIntStateOf(0) }
         var containerHeightPx by remember { mutableIntStateOf(0) }
         val containerHeightDp = with(density) { containerHeightPx.toDp() }
+        // Docked theater chat gets whatever width remains next to a full-height 16:9 stream,
+        // so the mode only exists on screens where that remainder is usable
+        val theaterDockedChatWidth = with(density) { (containerWidthPx - containerHeightPx * (16f / 9f)).toDp() }
+        val canDockTheaterChat = theaterDockedChatWidth >= MIN_DOCKED_THEATER_CHAT_WIDTH
         val menuMaxHeightDp =
             (containerHeightDp - toolbarBottomDp - inputHeightDp - bottomReserveDp - 8.dp)
                 .coerceAtLeast(0.dp)
@@ -430,7 +442,7 @@ fun MainScreen(
                     .onSizeChanged { size ->
                         containerWidthPx = size.width
                         containerHeightPx = size.height
-                    }.then(if (!isFullscreen && !isInPipMode) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
+                    }.then(if (!isFullscreen && !isInPipMode && !useTheaterLayout) Modifier.windowInsetsPadding(WindowInsets.displayCutout.only(WindowInsetsSides.Horizontal)) else Modifier),
         ) {
             // Menu content height matches keyboard content area (above nav bar)
             val targetMenuHeight =
@@ -509,6 +521,7 @@ fun MainScreen(
                                 }
                             },
                             onAudioOnly = { streamViewModel.toggleAudioOnly() },
+                            onToggleTheater = { streamViewModel.toggleTheaterMode() },
                             onModActions = { inputState.activeChannel?.let { modActionsViewModel.show(it) } },
                             onInputActionsChange = mainScreenViewModel::updateInputActions,
                             onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) } },
@@ -548,7 +561,12 @@ fun MainScreen(
                             is FullScreenSheetState.History,
                             is FullScreenSheetState.Closed,
                             -> {
-                                mainState.inputActions
+                                when {
+                                    // Theater mode is already fullscreen, so toggling chat fullscreen makes no sense there
+                                    useTheaterLayout -> mainState.inputActions.filterNot { it == InputAction.Fullscreen }.toImmutableList()
+
+                                    else -> mainState.inputActions
+                                }
                             }
                         },
                     onInputHeightChange = { inputHeightPx = it },
@@ -569,6 +587,10 @@ fun MainScreen(
                     },
                     onHelperTextHeightChange = { helperTextHeightPx = it },
                     isInSplitLayout = useWideSplitLayout,
+                    isTheaterMode = useTheaterLayout,
+                    showTheaterDockToggle = useTheaterLayout && canDockTheaterChat,
+                    isTheaterChatDocked = streamVmState.isTheaterChatDocked,
+                    onToggleTheaterChatMode = { streamViewModel.toggleTheaterChatMode() },
                     instantHide = isHistorySheet,
                     isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
                     overflowMenuMaxHeightDp = menuMaxHeightDp,
@@ -770,6 +792,10 @@ fun MainScreen(
                                 mainScreenViewModel.toggleFullscreen()
                             }
 
+                            InputAction.Theater -> {
+                                streamViewModel.toggleTheaterMode()
+                            }
+
                             InputAction.HideInput -> {
                                 mainScreenViewModel.toggleInput()
                                 chatInputViewModel.setEmoteMenuOpen(false)
@@ -868,12 +894,125 @@ fun MainScreen(
             }
             val onAudioOnly = { streamViewModel.toggleAudioOnly() }
 
-            if (useWideSplitLayout) {
+            // The theater chat follows the finger during drags and settles to the nearest edge
+            // on release, with the settled position mirrored into the ViewModel. The panel width
+            // is the drag range and depends on the theater chat mode, so the layout reports it.
+            val theaterChatPanelWidthPx = remember { mutableFloatStateOf(with(density) { THEATER_CHAT_WIDTH.toPx() }) }
+            val theaterChatOffset =
+                remember {
+                    Animatable(
+                        when {
+                            streamVmState.isTheaterChatVisible -> 0f
+                            else -> theaterChatPanelWidthPx.floatValue
+                        },
+                    )
+                }
+            LaunchedEffect(streamVmState.isTheaterChatVisible, theaterChatPanelWidthPx.floatValue) {
+                val target =
+                    when {
+                        streamVmState.isTheaterChatVisible -> 0f
+                        else -> theaterChatPanelWidthPx.floatValue
+                    }
+                theaterChatOffset.animateTo(target)
+            }
+            val theaterChatTravelThresholdPx = remember(density) { with(density) { 32.dp.toPx() } }
+            val (onTheaterChatDrag, onTheaterChatDragEnd) =
+                remember {
+                    // A short decisive drag settles in its direction, only ambiguous gestures
+                    // fall back to the nearest edge
+                    var gestureTravel = 0f
+                    val onDrag: (Float) -> Unit = { delta ->
+                        gestureTravel += delta
+                        scope.launch {
+                            theaterChatOffset.snapTo((theaterChatOffset.value + delta).coerceIn(0f, theaterChatPanelWidthPx.floatValue))
+                        }
+                    }
+                    val onDragEnd: () -> Unit = {
+                        val show =
+                            when {
+                                gestureTravel < -theaterChatTravelThresholdPx -> true
+                                gestureTravel > theaterChatTravelThresholdPx -> false
+                                else -> theaterChatOffset.value < theaterChatPanelWidthPx.floatValue / 2f
+                            }
+                        gestureTravel = 0f
+                        scope.launch {
+                            theaterChatOffset.animateTo(
+                                when {
+                                    show -> 0f
+                                    else -> theaterChatPanelWidthPx.floatValue
+                                },
+                            )
+                        }
+                        streamViewModel.setTheaterChatVisible(show)
+                    }
+                    onDrag to onDragEnd
+                }
+
+            // Moving between layouts must not dispose the stream — a disposed StreamView rips
+            // the WebView out of its new parent and kills playback
+            val streamView =
+                remember {
+                    movableContentOf { config: StreamViewConfig, streamModifier: Modifier ->
+                        StreamView(
+                            channel = config.channel,
+                            isInPipMode = config.isInPipMode,
+                            fillPane = config.fillPane,
+                            isTheaterMode = config.isTheaterMode,
+                            isTheaterChatVisible = config.isTheaterChatVisible,
+                            overlayEndPadding = config.overlayEndPadding,
+                            onClose = onStreamClose,
+                            onAudioOnly = onAudioOnly,
+                            onToggleTheater = streamViewModel::toggleTheaterMode,
+                            onToggleTheaterChat = streamViewModel::toggleTheaterChat,
+                            onTheaterChatDrag = onTheaterChatDrag,
+                            onTheaterChatDragEnd = onTheaterChatDragEnd,
+                            onTheaterDoubleTap = {
+                                if (config.canDockTheaterChat && config.isTheaterChatVisible) {
+                                    streamViewModel.toggleTheaterChatMode()
+                                }
+                            },
+                            modifier = streamModifier,
+                        )
+                    }
+                }
+
+            if (theaterStream != null) {
+                TheaterLayout(
+                    currentStream = theaterStream,
+                    isChatVisible = streamVmState.isTheaterChatVisible,
+                    isChatDocked = streamVmState.isTheaterChatDocked,
+                    dockedChatWidth = theaterDockedChatWidth,
+                    canDockChat = canDockTheaterChat,
+                    onToggleChatMode = { streamViewModel.toggleTheaterChatMode() },
+                    onChatPanelWidthChange = { theaterChatPanelWidthPx.floatValue = it },
+                    showInput = showInput,
+                    isKeyboardVisible = isKeyboardVisible,
+                    isSheetOpen = isSheetOpen,
+                    isInputMultiline = isInputMultiline,
+                    isEmoteMenuOpen = inputState.isEmoteMenuOpen,
+                    inputHeightDp = inputHeightDp,
+                    helperTextHeightDp = helperTextHeightDp,
+                    swipeDownThresholdPx = swipeDownThresholdPx,
+                    scaffoldBottomInsets = scaffoldBottomInsets,
+                    chatOffsetX = { theaterChatOffset.value },
+                    onChatDrag = onTheaterChatDrag,
+                    onChatDragEnd = onTheaterChatDragEnd,
+                    onHideInput = { mainScreenViewModel.hideInput() },
+                    onOpenReplies = sheetNavigationViewModel::openReplies,
+                    onRecover = { mainScreenViewModel.recoverInputAndFullscreen() },
+                    streamView = streamView,
+                    bottomBar = bottomBar,
+                    emoteMenuLayer = emoteMenuLayer,
+                    fullScreenSheetOverlay = fullScreenSheetOverlay,
+                    suggestionDropdown = suggestionDropdown,
+                    snackbarHostState = snackbarHostState,
+                    modifier = modifier,
+                )
+            } else if (useWideSplitLayout) {
                 WideSplitLayout(
                     currentStream = currentStream,
                     isAudioOnly = isAudioOnly,
-                    onStreamClose = onStreamClose,
-                    onAudioOnly = onAudioOnly,
+                    streamView = streamView,
                     scaffoldContent = scaffoldContent,
                     floatingToolbar = floatingToolbar,
                     fullScreenSheetOverlay = fullScreenSheetOverlay,
@@ -906,8 +1045,7 @@ fun MainScreen(
                     currentStream = currentStream,
                     isAudioOnly = isAudioOnly,
                     isInputMultiline = isInputMultiline,
-                    onStreamClose = onStreamClose,
-                    onAudioOnly = onAudioOnly,
+                    streamView = streamView,
                     hasWebViewBeenAttached = streamViewModel.hasWebViewBeenAttached,
                     streamState = streamState,
                     scaffoldContent = scaffoldContent,
@@ -942,375 +1080,6 @@ fun MainScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun BoxScope.WideSplitLayout(
-    currentStream: UserName?,
-    isAudioOnly: Boolean,
-    onStreamClose: () -> Unit,
-    onAudioOnly: () -> Unit,
-    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
-    floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
-    fullScreenSheetOverlay: @Composable () -> Unit,
-    bottomBar: @Composable () -> Unit,
-    emoteMenuLayer: @Composable (Modifier) -> Unit,
-    snackbarHostState: SnackbarHostState,
-    scaffoldBottomInsets: WindowInsets,
-    inputHeightDp: Dp,
-    isFullscreen: Boolean,
-    gestureToolbarHidden: Boolean,
-    isKeyboardVisible: Boolean,
-    isEmoteMenuOpen: Boolean,
-    isSheetOpen: Boolean,
-    isToolbarMenuOpen: Boolean,
-    showInput: Boolean,
-    isInputMultiline: Boolean,
-    inputPopupExpanded: Boolean,
-    forceOverflowOpen: Boolean,
-    swipeDownThresholdPx: Float,
-    suggestionDropdown: @Composable (Modifier) -> Unit,
-    onHideInput: () -> Unit,
-    onDismissInputPopup: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val density = LocalDensity.current
-    val streamViewModel: StreamViewModel = koinViewModel()
-    var splitFraction by remember { mutableFloatStateOf(streamViewModel.splitFraction) }
-    var containerWidthPx by remember { mutableIntStateOf(0) }
-
-    Box(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .onSizeChanged { containerWidthPx = it.width },
-    ) {
-        SplitPaneLayout(
-            splitFraction = { splitFraction },
-            isAudioOnly = isAudioOnly,
-            modifier = Modifier.fillMaxSize(),
-            // Left pane: Stream (hidden but composed in audio-only mode to keep audio playing)
-            left = {
-                StreamView(
-                    channel = currentStream ?: return@SplitPaneLayout,
-                    fillPane = true,
-                    onClose = onStreamClose,
-                    onAudioOnly = onAudioOnly,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            },
-            // Right pane: Chat + all overlays
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
-
-                Scaffold(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .bottomInsetsPadding(scaffoldBottomInsets),
-                    contentWindowInsets = WindowInsets(0),
-                    snackbarHost = {
-                        SnackbarHost(
-                            hostState = snackbarHostState,
-                            modifier = Modifier.padding(bottom = inputHeightDp),
-                            snackbar = { data -> DismissibleSnackbar(data) },
-                        )
-                    },
-                ) { paddingValues ->
-                    scaffoldContent(paddingValues, statusBarTop)
-                }
-
-                val showTabsInSplit by remember(density) {
-                    derivedStateOf {
-                        val chatPaneWidthDp = with(density) { (containerWidthPx * (1f - splitFraction)).toInt().toDp() }
-                        chatPaneWidthDp > 250.dp
-                    }
-                }
-
-                floatingToolbar(
-                    Modifier.align(Alignment.TopCenter),
-                    !isKeyboardVisible && !isEmoteMenuOpen && !isSheetOpen,
-                    false,
-                    showTabsInSplit,
-                )
-
-                val statusBarVisible = WindowInsets.statusBars.getTop(density) > 0
-                AnimatedStatusBarScrim(
-                    visible = statusBarVisible && (gestureToolbarHidden || isFullscreen),
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-
-                fullScreenSheetOverlay()
-
-                if (inputPopupExpanded) {
-                    InputDismissScrim(
-                        forceOpen = forceOverflowOpen,
-                        onDismiss = onDismissInputPopup,
-                    )
-                }
-
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.BottomCenter)
-                            .bottomInsetsPadding(scaffoldBottomInsets)
-                            .swipeDownToHide(
-                                enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
-                                thresholdPx = swipeDownThresholdPx,
-                                onHide = onHideInput,
-                            ),
-                ) {
-                    bottomBar()
-                }
-
-                emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-                if (showInput && isKeyboardVisible) {
-                    suggestionDropdown(
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .navigationBarsPadding()
-                            .imePadding()
-                            .padding(bottom = inputHeightDp + 2.dp),
-                    )
-                }
-            }
-        }
-
-        if (!isAudioOnly && !isToolbarMenuOpen) {
-            DraggableHandle(
-                onDrag = { deltaPx ->
-                    if (containerWidthPx > 0) {
-                        splitFraction = (splitFraction + deltaPx / containerWidthPx).coerceIn(0.2f, 0.8f)
-                    }
-                },
-                onDragEnd = { streamViewModel.setSplitFraction(splitFraction) },
-                modifier =
-                    Modifier
-                        .align(Alignment.CenterStart)
-                        .graphicsLayer { translationX = containerWidthPx * splitFraction - 12.dp.toPx() },
-            )
-        }
-    }
-}
-
-// The fraction is read in the measure pass, so drags relayout the panes without recomposing them
-@Composable
-private fun SplitPaneLayout(
-    splitFraction: () -> Float,
-    isAudioOnly: Boolean,
-    left: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    right: @Composable () -> Unit,
-) {
-    Layout(
-        content = {
-            left()
-            right()
-        },
-        modifier = modifier,
-    ) { measurables, constraints ->
-        val width = constraints.maxWidth
-        val height = constraints.maxHeight
-        val leftWidth = when {
-            isAudioOnly -> 0
-            else -> (width * splitFraction()).roundToInt()
-        }
-        val rightWidth = width - leftWidth
-        val leftPlaceable = measurables[0].measure(Constraints.fixed(leftWidth, height))
-        val rightPlaceable = measurables[1].measure(Constraints.fixed(rightWidth, height))
-        layout(width, height) {
-            leftPlaceable.place(0, 0)
-            rightPlaceable.place(leftWidth, 0)
-        }
-    }
-}
-
-@Composable
-private fun BoxScope.NormalStackedLayout(
-    currentStream: UserName?,
-    isAudioOnly: Boolean,
-    isInputMultiline: Boolean,
-    onStreamClose: () -> Unit,
-    onAudioOnly: () -> Unit,
-    hasWebViewBeenAttached: Boolean,
-    streamState: StreamToolbarState,
-    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
-    floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
-    fullScreenSheetOverlay: @Composable () -> Unit,
-    bottomBar: @Composable () -> Unit,
-    emoteMenuLayer: @Composable (Modifier) -> Unit,
-    snackbarHostState: SnackbarHostState,
-    scaffoldBottomInsets: WindowInsets,
-    scaffoldBottomTargetDp: Dp,
-    inputHeightDp: Dp,
-    isFullscreen: Boolean,
-    gestureToolbarHidden: Boolean,
-    isKeyboardVisible: Boolean,
-    isEmoteMenuOpen: Boolean,
-    isSheetOpen: Boolean,
-    isInPipMode: Boolean,
-    containerWidthPx: Int,
-    containerHeightPx: Int,
-    fontSize: Int,
-    showInput: Boolean,
-    inputPopupExpanded: Boolean,
-    forceOverflowOpen: Boolean,
-    swipeDownThresholdPx: Float,
-    suggestionDropdown: @Composable (Modifier) -> Unit,
-    onHideInput: () -> Unit,
-    onDismissInputPopup: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val density = LocalDensity.current
-    val showStream = shouldShowStream(
-        currentStream = currentStream,
-        isAudioOnly = isAudioOnly,
-        isInPipMode = isInPipMode,
-        isKeyboardVisible = isKeyboardVisible,
-        isEmoteMenuOpen = isEmoteMenuOpen,
-        containerWidthPx = containerWidthPx,
-        containerHeightPx = containerHeightPx,
-        scaffoldBottomPadding = scaffoldBottomTargetDp,
-        inputHeightDp = inputHeightDp,
-        fontSize = fontSize,
-        density = density,
-    )
-    val toolbarVisible = shouldShowToolbar(showStream, isKeyboardVisible, isEmoteMenuOpen, isSheetOpen)
-
-    if (!isInPipMode) {
-        Scaffold(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .bottomInsetsPadding(scaffoldBottomInsets),
-            contentWindowInsets = WindowInsets(0),
-            snackbarHost = {
-                SnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier.padding(bottom = inputHeightDp),
-                    snackbar = { data -> DismissibleSnackbar(data) },
-                )
-            },
-        ) { paddingValues ->
-            // The stream fade covers the transition visually, interpolating the padding with the
-            // fade alpha would relayout the whole pager every animation frame
-            val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp)
-            scaffoldContent(paddingValues, chatTopPadding)
-        }
-    }
-
-    // Stream View layer — kept in composition when hidden so the WebView
-    // stays attached and audio/video continues playing without re-buffering.
-    currentStream?.let { channel ->
-        var streamComposed by remember { mutableStateOf(hasWebViewBeenAttached) }
-        LaunchedEffect(showStream) {
-            if (showStream) {
-                delay(100)
-                streamComposed = true
-            }
-        }
-        if (streamComposed) {
-            StreamView(
-                channel = channel,
-                isInPipMode = isInPipMode,
-                onClose = onStreamClose,
-                onAudioOnly = onAudioOnly,
-                modifier =
-                    when {
-                        isInPipMode -> {
-                            Modifier.fillMaxSize()
-                        }
-
-                        showStream -> {
-                            Modifier
-                                .align(Alignment.TopCenter)
-                                .fillMaxWidth()
-                                .graphicsLayer { alpha = streamState.alpha.value }
-                                .onSizeChanged { size ->
-                                    streamState.heightDp = with(density) { size.height.toDp() }
-                                }
-                        }
-
-                        else -> {
-                            Modifier
-                                .align(Alignment.TopCenter)
-                                .fillMaxWidth()
-                                .graphicsLayer { alpha = 0f }
-                        }
-                    },
-            )
-        }
-        if (!showStream) {
-            streamState.heightDp = 0.dp
-        }
-    }
-
-    // Status bar scrim when stream video is visible (not audio-only, not hidden by fallback)
-    if (showStream && !isFullscreen && !isInPipMode) {
-        StatusBarScrim(
-            colorAlpha = 1f,
-            modifier =
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .graphicsLayer { alpha = streamState.alpha.value },
-        )
-    }
-
-    if (!isInPipMode) {
-        floatingToolbar(
-            Modifier.align(Alignment.TopCenter),
-            toolbarVisible,
-            true,
-            true,
-        )
-    }
-
-    val statusBarVisible = WindowInsets.statusBars.getTop(density) > 0
-    AnimatedStatusBarScrim(
-        visible = !isInPipMode && statusBarVisible && (gestureToolbarHidden || isFullscreen),
-        modifier = Modifier.align(Alignment.TopCenter),
-    )
-
-    if (!isInPipMode) {
-        fullScreenSheetOverlay()
-    }
-
-    if (!isInPipMode && inputPopupExpanded) {
-        InputDismissScrim(
-            forceOpen = forceOverflowOpen,
-            onDismiss = onDismissInputPopup,
-        )
-    }
-
-    if (!isInPipMode) {
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .bottomInsetsPadding(scaffoldBottomInsets)
-                    .swipeDownToHide(
-                        enabled = showInput && !isSheetOpen && !isInputMultiline && !isKeyboardVisible && !isEmoteMenuOpen,
-                        thresholdPx = swipeDownThresholdPx,
-                        onHide = onHideInput,
-                    ),
-        ) {
-            bottomBar()
-        }
-    }
-
-    if (!isInPipMode) emoteMenuLayer(Modifier.align(Alignment.BottomCenter))
-
-    if (!isInPipMode && showInput && isKeyboardVisible) {
-        suggestionDropdown(
-            Modifier
-                .align(Alignment.BottomStart)
-                .navigationBarsPadding()
-                .imePadding()
-                .padding(bottom = inputHeightDp + 2.dp),
-        )
     }
 }
 
@@ -1440,44 +1209,4 @@ private fun MainScreenFocusEffects(
             focusManager.clearFocus()
         }
     }
-}
-
-/** Stream stays visible with keyboard/emote open unless there isn't enough space for chat messages. */
-private fun shouldShowStream(
-    currentStream: UserName?,
-    isAudioOnly: Boolean,
-    isInPipMode: Boolean,
-    isKeyboardVisible: Boolean,
-    isEmoteMenuOpen: Boolean,
-    containerWidthPx: Int,
-    containerHeightPx: Int,
-    scaffoldBottomPadding: Dp,
-    inputHeightDp: Dp,
-    fontSize: Int,
-    density: Density,
-): Boolean {
-    val hasStream = currentStream != null && !isAudioOnly
-    if (!hasStream) return false
-    if (isInPipMode) return true
-
-    val isInputActive = isKeyboardVisible || isEmoteMenuOpen
-    if (!isInputActive || containerHeightPx <= 0) return true
-
-    val containerHeightDp = with(density) { containerHeightPx.toDp() }
-    val streamNaturalHeight = with(density) { containerWidthPx.toDp() } * 9 / 16
-    val minMessageArea = with(density) { (fontSize * MIN_VISIBLE_MESSAGE_LINES).sp.toDp() }
-    val available = containerHeightDp - streamNaturalHeight - scaffoldBottomPadding - inputHeightDp
-    return available >= minMessageArea
-}
-
-/** Toolbar hides for keyboard/emote only when stream is visible. Always hidden when a sheet is open. */
-private fun shouldShowToolbar(
-    showStream: Boolean,
-    isKeyboardVisible: Boolean,
-    isEmoteMenuOpen: Boolean,
-    isSheetOpen: Boolean,
-): Boolean {
-    if (isSheetOpen) return false
-    if (!showStream) return true
-    return !isKeyboardVisible && !isEmoteMenuOpen
 }
