@@ -270,7 +270,7 @@ fun PointRedemptionMessageComposable(
         val costTextStyle = TextStyle(fontSize = fontSize.sp, color = textColor)
 
         val annotatedString =
-            remember(message, textColor, nameColor) {
+            remember(message, textColor, nameColor, fontSize) {
                 buildAnnotatedString {
                     // Timestamp
                     if (message.timestamp.isNotEmpty()) {
