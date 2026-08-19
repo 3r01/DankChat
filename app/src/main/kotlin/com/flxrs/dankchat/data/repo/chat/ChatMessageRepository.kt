@@ -174,11 +174,12 @@ class ChatMessageRepository(
             .map { flow ->
                 async {
                     flow.update { items ->
-                        items.map {
-                            it.copy(
-                                tag = it.tag + 1,
-                                message = messageProcessor.reparseEmotesAndBadges(it.message),
-                            )
+                        items.map { item ->
+                            // Unchanged messages keep their tag so mapping caches and compose keys survive
+                            when (val reparsed = messageProcessor.reparseEmotesAndBadges(item.message)) {
+                                item.message -> item
+                                else -> item.copy(tag = item.tag + 1, message = reparsed)
+                            }
                         }
                     }
                 }
