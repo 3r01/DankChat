@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.LayoutDirection
 class EmoteDrawablePainter(
     val drawable: Drawable,
     private val emoteCoordinator: EmoteAnimationCoordinator,
+    private val invalidationsEnabled: Boolean = true,
 ) : Painter(),
     RememberObserver {
     private var invalidateTick by mutableIntStateOf(0)
@@ -44,11 +45,16 @@ class EmoteDrawablePainter(
     }
 
     override fun onRemembered() {
-        emoteCoordinator.registerInvalidationListener(drawable, invalidationListener)
+        // Offscreen pages skip registration, so their animation frames never invalidate a node
+        if (invalidationsEnabled) {
+            emoteCoordinator.registerInvalidationListener(drawable, invalidationListener)
+        }
     }
 
     override fun onForgotten() {
-        emoteCoordinator.unregisterInvalidationListener(drawable, invalidationListener)
+        if (invalidationsEnabled) {
+            emoteCoordinator.unregisterInvalidationListener(drawable, invalidationListener)
+        }
     }
 
     override fun onAbandoned() {

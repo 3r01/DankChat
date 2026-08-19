@@ -67,3 +67,4 @@ Compose:
       - LocalAdaptiveColors
       - LocalContentAlpha
       - LocalInlineMenuItemRegistry
+      - LocalChatPageVisible

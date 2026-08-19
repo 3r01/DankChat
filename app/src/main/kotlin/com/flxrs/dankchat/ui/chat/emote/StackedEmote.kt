@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +30,7 @@ import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.ui.chat.EmoteUi
 import com.flxrs.dankchat.utils.extensions.forEachLayer
 import com.flxrs.dankchat.utils.extensions.setRunning
+import kotlinx.coroutines.CancellationException
 import kotlin.math.roundToInt
 
 private const val BASE_HEIGHT_CONSTANT = 1.173
@@ -89,11 +93,12 @@ fun StackedEmote(
     // Load or create LayerDrawable asynchronously, cache hits resolve synchronously so the
     // first frame already renders the emote. The state is keyed by cacheKey so a composition
     // slot reused for a different emote can never keep the previous emote's drawable.
+    val isPageVisible = LocalChatPageVisible.current
     val layerDrawableState =
         remember(cacheKey) {
             mutableStateOf(emoteCoordinator.getLayerCached(cacheKey)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading)
         }
-    LaunchedEffect(cacheKey) {
+    LaunchedEffect(cacheKey, isPageVisible) {
         if (layerDrawableState.value is EmoteLoadState.Loaded) {
             return@LaunchedEffect
         }
@@ -104,6 +109,10 @@ fun StackedEmote(
             layerDrawableState.value = EmoteLoadState.Loaded(cached)
             // Control animation
             cached.forEachLayer<Animatable> { it.setRunning(animateGifs) }
+            return@LaunchedEffect
+        }
+
+        if (!isPageVisible) {
             return@LaunchedEffect
         }
 
@@ -123,6 +132,8 @@ fun StackedEmote(
                     result.image?.asDrawable(context.resources)?.let { drawable ->
                         transformEmoteDrawable(drawable, scaleFactor, emoteData) to emoteData
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (_: Exception) {
                     null
                 }
@@ -172,7 +183,7 @@ fun StackedEmote(
                     .height()
                     .toDp()
             }
-            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable, emoteCoordinator) }
+            val painter = remember(state.drawable, isPageVisible) { EmoteDrawablePainter(state.drawable, emoteCoordinator, invalidationsEnabled = isPageVisible) }
 
             Image(
                 painter = painter,
@@ -190,6 +201,8 @@ fun StackedEmote(
                 code = emote.code,
                 fontSize = fontSize,
                 alpha = alpha,
+                cacheKey = cacheKey,
+                emoteCoordinator = emoteCoordinator,
                 modifier = modifier,
                 onClick = onClick,
             )
@@ -232,11 +245,12 @@ private fun SingleEmoteDrawable(
     // Load drawable asynchronously, cache hits resolve synchronously so the first frame
     // already renders the emote. The state is keyed by cacheKey so a composition slot reused
     // for a different emote can never keep the previous emote's drawable.
+    val isPageVisible = LocalChatPageVisible.current
     val drawableState =
         remember(cacheKey) {
             mutableStateOf(emoteCoordinator.getCached(cacheKey)?.let(EmoteLoadState::Loaded) ?: EmoteLoadState.Loading)
         }
-    LaunchedEffect(cacheKey) {
+    LaunchedEffect(cacheKey, isPageVisible) {
         if (drawableState.value is EmoteLoadState.Loaded) {
             return@LaunchedEffect
         }
@@ -245,6 +259,10 @@ private fun SingleEmoteDrawable(
         val cached = emoteCoordinator.getCached(cacheKey)
         if (cached != null) {
             drawableState.value = EmoteLoadState.Loaded(cached)
+            return@LaunchedEffect
+        }
+
+        if (!isPageVisible) {
             return@LaunchedEffect
         }
 
@@ -268,6 +286,8 @@ private fun SingleEmoteDrawable(
                         )
                     }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
                 null
             }
@@ -297,7 +317,7 @@ private fun SingleEmoteDrawable(
                     .height()
                     .toDp()
             }
-            val painter = remember(state.drawable) { EmoteDrawablePainter(state.drawable, emoteCoordinator) }
+            val painter = remember(state.drawable, isPageVisible) { EmoteDrawablePainter(state.drawable, emoteCoordinator, invalidationsEnabled = isPageVisible) }
 
             Image(
                 painter = painter,
@@ -315,6 +335,8 @@ private fun SingleEmoteDrawable(
                 code = chatEmote.code,
                 fontSize = fontSize,
                 alpha = alpha,
+                cacheKey = cacheKey,
+                emoteCoordinator = emoteCoordinator,
                 modifier = modifier,
                 onClick = onClick,
             )
@@ -342,9 +364,18 @@ private fun EmoteCodeFallback(
     code: String,
     fontSize: Float,
     alpha: Float,
+    cacheKey: String,
+    emoteCoordinator: EmoteAnimationCoordinator,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
 ) {
+    // Report the fallback text size so waiting rows resize this emote's inline placeholder
+    val textMeasurer = rememberTextMeasurer()
+    val textStyle = LocalTextStyle.current
+    LaunchedEffect(cacheKey, fontSize) {
+        val size = textMeasurer.measure(AnnotatedString(code), textStyle.copy(fontSize = fontSize.sp)).size
+        emoteCoordinator.putDimensions(cacheKey, size.width to size.height)
+    }
     Text(
         text = code,
         fontSize = fontSize.sp,

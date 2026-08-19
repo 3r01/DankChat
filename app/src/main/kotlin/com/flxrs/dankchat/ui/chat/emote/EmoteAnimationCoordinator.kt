@@ -1,21 +1,28 @@
 package com.flxrs.dankchat.ui.chat.emote
 
+import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Handler
 import android.os.Looper
 import android.util.LruCache
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.utils.extensions.forEachLayer
+import com.flxrs.dankchat.utils.extensions.setRunning
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import org.koin.core.annotation.Single
 
+@Single
 @Stable
-class EmoteAnimationCoordinator {
+class EmoteAnimationCoordinator(
+    private val chatSettingsDataStore: ChatSettingsDataStore,
+) {
     private val emoteCache = LruCache<String, Drawable>(512)
     private val layerCache = LruCache<String, LayerDrawable>(256)
     private val dimensionCache = LruCache<String, Pair<Int, Int>>(1024)
@@ -31,8 +38,10 @@ class EmoteAnimationCoordinator {
         key: String,
         dimensions: Pair<Int, Int>,
     ) {
-        dimensionCache.put(key, dimensions)
-        _dimensionUpdates.update { it + 1 }
+        val previous = dimensionCache.put(key, dimensions)
+        if (previous != dimensions) {
+            _dimensionUpdates.update { it + 1 }
+        }
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -70,9 +79,9 @@ class EmoteAnimationCoordinator {
         listeners += listener
         drawable.callback = fanOutCallback
         if (listeners.size == 1) {
-            // Restarting on the first visible occurrence phase-aligns emotes that enter the
+            // Starting on the first visible occurrence phase-aligns emotes that enter the
             // viewport together, additional occurrences must not reset the running animation
-            drawable.setVisible(true, true)
+            drawable.setAnimationsRunning(chatSettingsDataStore.currentSettings.value.animateGifs)
         }
     }
 
@@ -84,8 +93,17 @@ class EmoteAnimationCoordinator {
         listeners -= listener
         if (listeners.isEmpty()) {
             invalidationListeners.remove(drawable)
-            drawable.setVisible(false, false)
+            // AnimatedImageDrawable animates on the RenderThread even when nothing draws it,
+            // an explicit stop is the only thing that halts it while the drawable stays cached
+            drawable.setAnimationsRunning(false)
             drawable.callback = null
+        }
+    }
+
+    private fun Drawable.setAnimationsRunning(running: Boolean) {
+        when (this) {
+            is LayerDrawable -> forEachLayer<Animatable> { it.setRunning(running) }
+            is Animatable -> setRunning(running)
         }
     }
 
@@ -113,5 +131,4 @@ val LocalEmoteAnimationCoordinator =
         error("No EmoteAnimationCoordinator provided. Wrap your chat composables with CompositionLocalProvider.")
     }
 
-@Composable
-fun rememberEmoteAnimationCoordinator(): EmoteAnimationCoordinator = remember { EmoteAnimationCoordinator() }
+val LocalChatPageVisible = compositionLocalOf { true }

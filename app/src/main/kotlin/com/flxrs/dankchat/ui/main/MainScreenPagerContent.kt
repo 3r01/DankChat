@@ -13,7 +13,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -28,6 +32,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatComposable
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
+import com.flxrs.dankchat.ui.chat.emote.LocalChatPageVisible
 import com.flxrs.dankchat.ui.main.channel.ChannelPagerUiState
 import com.flxrs.dankchat.ui.main.channel.ChannelTabUiState
 import com.flxrs.dankchat.ui.tour.TourStep
@@ -75,6 +80,23 @@ private class PagerCrossAxisGestureGuard : NestedScrollConnection {
         verticalDragActive = false
         return Velocity.Zero
     }
+}
+
+// Visible pages render fully, offscreen neighbors upgrade from stubs once the pager settles
+// and stay active while retained, so gestures never tear down an already composed page
+@Composable
+private fun rememberIsPageCollectionActive(
+    page: Int,
+    pagerState: PagerState,
+    visibleNeighbor: Int?,
+): Boolean {
+    val wasActive = remember { mutableStateOf(false) }
+    val isNearCurrentPage = (page - pagerState.currentPage) in -1..1
+    val isActive = page == pagerState.currentPage ||
+        page == visibleNeighbor ||
+        (isNearCurrentPage && (wasActive.value || !pagerState.isScrollInProgress))
+    wasActive.value = isActive
+    return isActive
 }
 
 @Stable
@@ -143,62 +165,76 @@ internal fun MainScreenPagerContent(
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     val crossAxisGestureGuard = remember { PagerCrossAxisGestureGuard() }
+                    val visibleNeighbor by remember(composePagerState) {
+                        derivedStateOf {
+                            val fraction = composePagerState.currentPageOffsetFraction
+                            when {
+                                fraction > 0.01f -> composePagerState.currentPage + 1
+                                fraction < -0.01f -> composePagerState.currentPage - 1
+                                else -> null
+                            }
+                        }
+                    }
                     HorizontalPager(
                         state = composePagerState,
                         modifier = Modifier.fillMaxSize().nestedScroll(crossAxisGestureGuard).edgeGestureGuard(),
                         userScrollEnabled = swipeNavigation,
+                        beyondViewportPageCount = 1,
                         key = { index -> pagerState.channels.getOrNull(index)?.value ?: index },
                     ) { page ->
                         if (page in pagerState.channels.indices) {
                             val channel = pagerState.channels[page]
-                            val isNearCurrentPage = (page - composePagerState.currentPage).let { it in -1..1 }
-                            ChatComposable(
-                                channel = channel,
-                                isCollectionActive = isNearCurrentPage,
-                                onReplyClick = { replyMessageId, replyName ->
-                                    callbacks.onOpenReplies(replyMessageId, replyName)
-                                },
-                                showInput = showInput,
-                                isFullscreen = isFullscreen,
-                                showFabs = !isSheetOpen,
-                                onRecover = callbacks.onRecover,
-                                fabMenuCallbacks = fabMenuCallbacks,
-                                showPinnedMessage = showPinnedMessage,
-                                isToolbarMenuOpen = isToolbarMenuOpen,
-                                contentPadding =
-                                    PaddingValues(
-                                        top = chatTopPadding + if (isFullscreen) 0.dp else 56.dp,
-                                        bottom =
-                                            paddingValues.calculateBottomPadding() +
-                                                when {
-                                                    showInput -> {
-                                                        inputHeightDp
-                                                    }
-
-                                                    !isFullscreen -> {
-                                                        when {
-                                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                                            else -> max(navBarHeightDp, effectiveRoundedCorner)
+                            val isPageVisible = page == composePagerState.currentPage || page == visibleNeighbor
+                            CompositionLocalProvider(LocalChatPageVisible provides isPageVisible) {
+                                ChatComposable(
+                                    channel = channel,
+                                    isCollectionActive = rememberIsPageCollectionActive(page, composePagerState, visibleNeighbor),
+                                    isPageVisible = isPageVisible,
+                                    onReplyClick = { replyMessageId, replyName ->
+                                        callbacks.onOpenReplies(replyMessageId, replyName)
+                                    },
+                                    showInput = showInput,
+                                    isFullscreen = isFullscreen,
+                                    showFabs = !isSheetOpen,
+                                    onRecover = callbacks.onRecover,
+                                    fabMenuCallbacks = fabMenuCallbacks,
+                                    showPinnedMessage = showPinnedMessage,
+                                    isToolbarMenuOpen = isToolbarMenuOpen,
+                                    contentPadding =
+                                        PaddingValues(
+                                            top = chatTopPadding + if (isFullscreen) 0.dp else 56.dp,
+                                            bottom =
+                                                paddingValues.calculateBottomPadding() +
+                                                    when {
+                                                        showInput -> {
+                                                            inputHeightDp
                                                         }
-                                                    }
 
-                                                    else -> {
-                                                        when {
-                                                            helperTextHeightDp > 0.dp -> helperTextHeightDp
-                                                            else -> effectiveRoundedCorner
+                                                        !isFullscreen -> {
+                                                            when {
+                                                                helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                                else -> max(navBarHeightDp, effectiveRoundedCorner)
+                                                            }
                                                         }
-                                                    }
-                                                },
-                                    ),
-                                scrollModifier = if (callbacks.scrollConnection != null) Modifier.nestedScroll(callbacks.scrollConnection) else Modifier,
-                                onScrollToBottom = callbacks.onScrollToBottom,
-                                onScrollDirectionChange = { },
-                                scrollToMessageId = scrollTargets[channel],
-                                onScrollToMessageHandle = { onClearScrollTarget(channel) },
-                                recoveryFabTooltipState = if (currentTourStep == TourStep.RecoveryFab) recoveryFabTooltipState else null,
-                                onTourAdvance = callbacks.onTourAdvance,
-                                onTourSkip = callbacks.onTourSkip,
-                            )
+
+                                                        else -> {
+                                                            when {
+                                                                helperTextHeightDp > 0.dp -> helperTextHeightDp
+                                                                else -> effectiveRoundedCorner
+                                                            }
+                                                        }
+                                                    },
+                                        ),
+                                    scrollModifier = if (callbacks.scrollConnection != null) Modifier.nestedScroll(callbacks.scrollConnection) else Modifier,
+                                    onScrollToBottom = callbacks.onScrollToBottom,
+                                    onScrollDirectionChange = { },
+                                    scrollToMessageId = scrollTargets[channel],
+                                    onScrollToMessageHandle = { onClearScrollTarget(channel) },
+                                    recoveryFabTooltipState = if (currentTourStep == TourStep.RecoveryFab) recoveryFabTooltipState else null,
+                                    onTourAdvance = callbacks.onTourAdvance,
+                                    onTourSkip = callbacks.onTourSkip,
+                                )
+                            }
                         }
                     }
                 }

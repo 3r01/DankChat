@@ -73,9 +73,9 @@ import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.PinnedMessageUiState
 import com.flxrs.dankchat.ui.chat.PinnedMessageViewModel
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
+import com.flxrs.dankchat.ui.chat.emote.EmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.emote.rememberEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
 import com.flxrs.dankchat.ui.chat.mention.MentionViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
@@ -402,7 +402,7 @@ fun MainScreen(
         onShowToolbar = { mainScreenViewModel.setGestureToolbarHidden(false) },
     )
 
-    val emoteCoordinator = rememberEmoteAnimationCoordinator()
+    val emoteCoordinator: EmoteAnimationCoordinator = koinInject()
     val customTabContext = LocalContext.current
     val customTabUriHandler =
         remember(customTabContext) {

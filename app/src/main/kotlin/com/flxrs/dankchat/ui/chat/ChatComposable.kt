@@ -37,7 +37,7 @@ import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
-import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -50,6 +50,7 @@ fun ChatComposable(
     modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
     isCollectionActive: Boolean = true,
+    isPageVisible: Boolean = true,
     showInput: Boolean = true,
     isFullscreen: Boolean = false,
     showFabs: Boolean = true,
@@ -85,7 +86,16 @@ fun ChatComposable(
 
     if (!isCollectionActive) return
 
-    val messages by viewModel.chatUiStates.collectAsStateWithLifecycle(initialValue = persistentListOf())
+    // Offscreen pages keep their last list instead of collecting, so incoming messages on
+    // neighbor channels cost nothing while the page is composed but not visible
+    val frozenMessages = remember { mutableStateOf(viewModel.chatUiStates.value) }
+    val messages: ImmutableList<ChatMessageUiState>
+    if (isPageVisible) {
+        messages = viewModel.chatUiStates.collectAsStateWithLifecycle().value
+        frozenMessages.value = messages
+    } else {
+        messages = frozenMessages.value
+    }
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val userLongClickBehavior by chatSettingsDataStore.userLongClickBehavior.collectAsStateWithLifecycle(initialValue = UserLongClickBehavior.MentionsUser)
     val isLoggedIn = preferenceStore.isLoggedIn
