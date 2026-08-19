@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.utils.extensions
 
+import android.util.LruCache
 import androidx.annotation.ColorInt
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
@@ -18,6 +19,15 @@ fun String.parseColorOrNull(): Int? = runCatching { toColorInt() }.getOrNull()
  */
 @ColorInt
 fun Int.normalizeColor(
+    @ColorInt background: Int,
+): Int {
+    val cacheKey = (toLong() shl 32) or (background.toLong() and 0xFFFFFFFFL)
+    normalizedColorCache[cacheKey]?.let { return it }
+    return computeNormalizedColor(background).also { normalizedColorCache.put(cacheKey, it) }
+}
+
+@ColorInt
+private fun Int.computeNormalizedColor(
     @ColorInt background: Int,
 ): Int {
     // Phase 1: hue-specific correction (matches C2 / old DankChat)
@@ -112,6 +122,8 @@ private fun correctColor(
 
 private const val MIN_CONTRAST_RATIO = 3.5
 private const val MAX_ITERATIONS = 16
+
+private val normalizedColorCache = LruCache<Long, Int>(256)
 
 /** convert int to RGB with zero pad */
 val Int.hexCode: String
