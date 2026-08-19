@@ -70,5 +70,3 @@ fun LinkableText(
         },
     )
 }
-
-private const val INLINE_CONTENT_TAG = "androidx.compose.foundation.text.inlineContent"

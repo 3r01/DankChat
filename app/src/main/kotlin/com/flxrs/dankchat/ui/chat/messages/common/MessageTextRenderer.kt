@@ -89,9 +89,12 @@ fun MessageTextWithInlineContent(
 
     val baseHeightPx = with(density) { badgeSize.toPx().toInt() }
     var dimensionRefresh by remember(badges, emotes, fontSize) { mutableIntStateOf(0) }
-    val knownDimensions =
+    // Unloaded emotes get the loading placeholder size as an estimate so the map is always
+    // complete and rows never fall back to subcompose measuring
+    val (knownDimensions, hasEstimatedDimensions) =
         remember(badges, emotes, fontSize, emoteCoordinator, dimensionRefresh) {
-            buildMap {
+            var hasEstimates = false
+            val dimensions = buildMap {
                 badges.forEach { badge ->
                     put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", baseHeightPx, baseHeightPx))
                 }
@@ -99,17 +102,23 @@ fun MessageTextWithInlineContent(
                 emotes.forEach { emote ->
                     val id = "EMOTE_${emote.position}"
                     val dims = emoteCoordinator.getDimensions(emote.dimensionKey(baseHeightPx))
-                    if (dims != null) {
-                        put(id, EmoteDimensions(id, dims.first, dims.second))
+                    when {
+                        dims != null -> put(id, EmoteDimensions(id, dims.first, dims.second))
+
+                        else -> {
+                            hasEstimates = true
+                            val estimate = baseHeightPx * (emote.emotes.firstOrNull()?.scale ?: 1)
+                            put(id, EmoteDimensions(id, estimate, estimate))
+                        }
                     }
                 }
             }.toImmutableMap()
+            dimensions to hasEstimates
         }
 
     // Rows composed before their emotes loaded wait for the dimensions to land, then upgrade
-    // to the measured text fast path
-    val hasMissingDimensions = emotes.any { "EMOTE_${it.position}" !in knownDimensions }
-    if (hasMissingDimensions) {
+    // from the estimated placeholder sizes
+    if (hasEstimatedDimensions) {
         LaunchedEffect(badges, emotes, fontSize) {
             emoteCoordinator.dimensionUpdates.collect {
                 val allKnown = emotes.all { emote -> emoteCoordinator.getDimensions(emote.dimensionKey(baseHeightPx)) != null }
