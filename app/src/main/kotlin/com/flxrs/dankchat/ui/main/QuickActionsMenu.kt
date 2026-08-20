@@ -117,7 +117,8 @@ fun QuickActionsMenu(
                 for (action in InputAction.entries) {
                     // Theater mode is already fullscreen, so toggling chat fullscreen makes no sense there
                     val isHiddenInTheater = isTheaterMode && action == InputAction.Fullscreen
-                    if (action in visibleActions || isHiddenInTheater) {
+                    // Theater renders below next to the audio only entry, grouping the stream modes
+                    if (action == InputAction.Theater || action in visibleActions || isHiddenInTheater) {
                         continue
                     }
                     val overflowItem =
@@ -143,6 +144,34 @@ fun QuickActionsMenu(
                             },
                         )
                     }
+                }
+
+                val theaterItem =
+                    when {
+                        InputAction.Theater in visibleActions -> null
+
+                        else ->
+                            getOverflowItem(
+                                action = InputAction.Theater,
+                                isStreamActive = isStreamActive,
+                                hasStreamData = hasStreamData,
+                                isFullscreen = isFullscreen,
+                                isTheaterMode = isTheaterMode,
+                                isModerator = isModerator,
+                            )
+                    }
+                if (theaterItem != null) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(theaterItem.labelRes)) },
+                        onClick = { onActionClick(InputAction.Theater) },
+                        enabled = isActionEnabled(InputAction.Theater, enabled, hasLastMessage),
+                        leadingIcon = {
+                            Icon(
+                                imageVector = theaterItem.icon,
+                                contentDescription = null,
+                            )
+                        },
+                    )
                 }
 
                 if (isStreamActive) {
