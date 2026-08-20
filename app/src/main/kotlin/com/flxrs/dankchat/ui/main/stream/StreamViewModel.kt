@@ -43,11 +43,12 @@ class StreamViewModel(
 
     private val _isAudioOnly = MutableStateFlow(false)
     private val _isTheaterMode = MutableStateFlow(false)
+    private val _isTheaterRotationSuspended = MutableStateFlow(false)
     private val _isTheaterChatVisible = MutableStateFlow(false)
     private val _isTheaterChatDocked = MutableStateFlow(false)
 
     private val theaterState =
-        combine(_isTheaterMode, _isTheaterChatVisible, _isTheaterChatDocked, ::Triple)
+        combine(_isTheaterMode, _isTheaterRotationSuspended, _isTheaterChatVisible, _isTheaterChatDocked, ::TheaterState)
 
     val streamState: StateFlow<StreamState> =
         combine(
@@ -55,14 +56,16 @@ class StreamViewModel(
             hasStreamData,
             _isAudioOnly,
             theaterState,
-        ) { currentStream, hasData, audioOnly, (theaterMode, theaterChatVisible, theaterChatDocked) ->
+        ) { currentStream, hasData, audioOnly, theater ->
+            val theaterAvailable = theater.mode && currentStream != null && !audioOnly
             StreamState(
                 currentStream = currentStream,
                 hasStreamData = hasData,
                 isAudioOnly = audioOnly,
-                isTheaterMode = theaterMode && currentStream != null && !audioOnly,
-                isTheaterChatVisible = theaterChatVisible,
-                isTheaterChatDocked = theaterChatDocked,
+                isTheaterMode = theaterAvailable && !theater.rotationSuspended,
+                isTheaterRotationSuspended = theaterAvailable && theater.rotationSuspended,
+                isTheaterChatVisible = theater.chatVisible,
+                isTheaterChatDocked = theater.chatDocked,
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StreamState())
 
@@ -156,7 +159,7 @@ class StreamViewModel(
         _currentStreamedChannel.update { if (it == channel) null else channel }
         _isAudioOnly.value = false
         if (_currentStreamedChannel.value == null) {
-            _isTheaterMode.value = false
+            resetTheaterMode()
         }
     }
 
@@ -164,16 +167,37 @@ class StreamViewModel(
         _isAudioOnly.update { !it }
         // Otherwise leaving audio only later would abruptly force the theater layout back
         if (_isAudioOnly.value) {
-            _isTheaterMode.value = false
+            resetTheaterMode()
         }
     }
 
     fun toggleTheaterMode() {
-        _isTheaterMode.update { !it }
+        when {
+            // Toggling a suspended theater re-enters it instead of turning it off
+            _isTheaterMode.value && _isTheaterRotationSuspended.value -> _isTheaterRotationSuspended.value = false
+
+            else -> {
+                _isTheaterRotationSuspended.value = false
+                _isTheaterMode.update { !it }
+            }
+        }
     }
 
     fun exitTheaterMode() {
+        resetTheaterMode()
+    }
+
+    fun suspendTheaterForRotation() {
+        _isTheaterRotationSuspended.value = true
+    }
+
+    fun resumeTheaterFromRotation() {
+        _isTheaterRotationSuspended.value = false
+    }
+
+    private fun resetTheaterMode() {
         _isTheaterMode.value = false
+        _isTheaterRotationSuspended.value = false
     }
 
     fun toggleTheaterChat() {
@@ -218,6 +242,14 @@ data class StreamState(
     val hasStreamData: Boolean = false,
     val isAudioOnly: Boolean = false,
     val isTheaterMode: Boolean = false,
+    val isTheaterRotationSuspended: Boolean = false,
     val isTheaterChatVisible: Boolean = false,
     val isTheaterChatDocked: Boolean = false,
+)
+
+private data class TheaterState(
+    val mode: Boolean,
+    val rotationSuspended: Boolean,
+    val chatVisible: Boolean,
+    val chatDocked: Boolean,
 )

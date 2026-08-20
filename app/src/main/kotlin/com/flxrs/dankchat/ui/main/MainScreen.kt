@@ -220,9 +220,11 @@ fun MainScreen(
         windowSizeClass.isWidthAtLeastBreakpoint(
             WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
         )
+    // Follows the window, so neither the split layout nor a portrait shaped theater can flash
+    val isTheaterRequested = isTheaterMode || streamVmState.isTheaterRotationSuspended
     val theaterStream =
         when {
-            isTheaterMode && !isInPipMode -> currentStream
+            isTheaterRequested && isLandscape && !isInPipMode -> currentStream
             else -> null
         }
     val useTheaterLayout = theaterStream != null
@@ -360,9 +362,14 @@ fun MainScreen(
 
     val swipeDownThresholdPx = with(density) { (if (inputState.isCompactMode) 24.dp else 56.dp).toPx() }
 
-    FullscreenSystemBarsEffect(isFullscreen || isTheaterMode)
+    FullscreenSystemBarsEffect(isFullscreen || useTheaterLayout)
     TheaterOrientationEffect(isTheaterMode)
-    TheaterRotationExitEffect(isTheaterMode) { streamViewModel.exitTheaterMode() }
+    TheaterRotationEffect(
+        isTheaterMode = isTheaterMode,
+        isRotationSuspended = streamVmState.isTheaterRotationSuspended,
+        onSuspendTheater = { streamViewModel.suspendTheaterForRotation() },
+        onResumeTheater = { streamViewModel.resumeTheaterFromRotation() },
+    )
 
     val isInputSheet = fullScreenSheetState is FullScreenSheetState.Replies ||
         fullScreenSheetState is FullScreenSheetState.Mention ||
