@@ -41,7 +41,7 @@ internal fun BoxScope.WideSplitLayout(
     currentStream: UserName?,
     isAudioOnly: Boolean,
     streamView: @Composable (StreamViewConfig, Modifier) -> Unit,
-    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
+    scaffoldContent: @Composable (PaddingValues, Dp, Boolean) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
     fullScreenSheetOverlay: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
@@ -94,6 +94,7 @@ internal fun BoxScope.WideSplitLayout(
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 val statusBarTop = with(density) { WindowInsets.statusBars.getTop(density).toDp() }
+                val toolbarVisible = !isKeyboardVisible && !isEmoteMenuOpen && !isSheetOpen
 
                 Scaffold(
                     modifier =
@@ -109,7 +110,7 @@ internal fun BoxScope.WideSplitLayout(
                         )
                     },
                 ) { paddingValues ->
-                    scaffoldContent(paddingValues, statusBarTop)
+                    scaffoldContent(paddingValues, statusBarTop, toolbarVisible)
                 }
 
                 val showTabsInSplit by remember(density) {
@@ -121,7 +122,7 @@ internal fun BoxScope.WideSplitLayout(
 
                 floatingToolbar(
                     Modifier.align(Alignment.TopCenter),
-                    !isKeyboardVisible && !isEmoteMenuOpen && !isSheetOpen,
+                    toolbarVisible,
                     false,
                     showTabsInSplit,
                 )

@@ -821,7 +821,7 @@ fun MainScreen(
                     hasLastMessage = inputState.hasLastMessage,
                 )
 
-            val scaffoldContent: @Composable (PaddingValues, Dp) -> Unit = { paddingValues, chatTopPadding ->
+            val scaffoldContent: @Composable (PaddingValues, Dp, Boolean) -> Unit = { paddingValues, chatTopPadding, toolbarVisible ->
                 MainScreenPagerContent(
                     paddingValues = paddingValues,
                     chatTopPadding = chatTopPadding,
@@ -841,7 +841,7 @@ fun MainScreen(
                     onClearScrollTarget = { scrollTargets.remove(it) },
                     callbacks = chatPagerCallbacks,
                     fabMenuCallbacks = fabMenuCallbacks,
-                    showPinnedMessage = !mainState.gestureToolbarHidden,
+                    showPinnedMessage = !mainState.gestureToolbarHidden && toolbarVisible,
                     isToolbarMenuOpen = isToolbarMenuOpen,
                     currentTourStep = featureTourState.currentTourStep,
                     recoveryFabTooltipState = featureTourViewModel.recoveryFabTooltipState,

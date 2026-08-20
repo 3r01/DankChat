@@ -43,7 +43,7 @@ internal fun BoxScope.NormalStackedLayout(
     streamView: @Composable (StreamViewConfig, Modifier) -> Unit,
     hasWebViewBeenAttached: Boolean,
     streamState: StreamToolbarState,
-    scaffoldContent: @Composable (PaddingValues, Dp) -> Unit,
+    scaffoldContent: @Composable (PaddingValues, Dp, Boolean) -> Unit,
     floatingToolbar: @Composable (Modifier, Boolean, Boolean, Boolean) -> Unit,
     fullScreenSheetOverlay: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit,
@@ -104,7 +104,7 @@ internal fun BoxScope.NormalStackedLayout(
             // The stream fade covers the transition visually, interpolating the padding with the
             // fade alpha would relayout the whole pager every animation frame
             val chatTopPadding = maxOf(with(density) { WindowInsets.statusBars.getTop(density).toDp() }, streamState.heightDp)
-            scaffoldContent(paddingValues, chatTopPadding)
+            scaffoldContent(paddingValues, chatTopPadding, toolbarVisible)
         }
     }
 
