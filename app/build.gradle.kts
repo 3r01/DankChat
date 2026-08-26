@@ -27,8 +27,8 @@ android {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = 40043
-        versionName = "4.0.43"
+        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40043
+        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.43"
     }
 
     androidResources { generateLocaleConfig = true }
@@ -72,8 +72,8 @@ android {
         create("dank") {
             initWith(getByName("release"))
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            manifestPlaceholders["applicationLabel"] = "@string/app_name_dank"
-            applicationIdSuffix = ".dank"
+            manifestPlaceholders["applicationLabel"] = "@string/app_name_iore"
+            applicationIdSuffix = ".iore"
             isDefault = true
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += "release"

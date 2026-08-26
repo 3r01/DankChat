@@ -1,0 +1,153 @@
+name: Sync and release 3r01
+
+on:
+  push:
+    branches: [3r01]
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-and-release-3r01
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync-build-release:
+    name: Merge upstream, verify, and publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out 3r01
+        uses: actions/checkout@v7
+        with:
+          ref: 3r01
+          fetch-depth: 0
+
+      - name: Merge upstream into candidate
+        id: candidate
+        run: |
+          git config user.name "3r01"
+          git config user.email "203520021+3r01@users.noreply.github.com"
+          git remote add upstream https://github.com/flex3r/DankChat.git
+          git fetch --no-tags upstream develop
+          git fetch --no-tags origin 3r01
+          echo "base=$(git rev-parse origin/3r01)" >> "$GITHUB_OUTPUT"
+          git merge --no-edit upstream/develop
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short=7 HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Install stable signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.DANKCHAT_3R01_DEBUG_KEYSTORE }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "DANKCHAT_3R01_DEBUG_KEYSTORE is not configured." >&2
+            exit 1
+          fi
+          mkdir -p "$HOME/.android"
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
+          chmod 600 "$HOME/.android/debug.keystore"
+
+      - name: Set build version
+        id: version
+        shell: bash
+        run: |
+          base=$(grep 'versionName = ' app/build.gradle.kts | tail -1 | sed 's/.*?: "\([^"]*\)"/\1/')
+          code=$(($(date +%s) / 60))
+          name="${base}-3r01.${{ steps.candidate.outputs.short_sha }}"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "tag=3r01-v${name}" >> "$GITHUB_OUTPUT"
+
+      - name: Test and build signed 3r01 APK
+        env:
+          DANKCHAT_3R01_VERSION_CODE: ${{ steps.version.outputs.code }}
+          DANKCHAT_3R01_VERSION_NAME: ${{ steps.version.outputs.name }}
+        run: >-
+          ./gradlew
+          :app:spotlessCheck
+          testDebug
+          :app:detektDebug
+          :app:lintDebug
+          :app:assembleDank
+          --stacktrace
+
+      - name: Prepare APK
+        id: apk
+        run: |
+          source="app/build/outputs/apk/dank/DankChat-dank.apk"
+          target="app/build/outputs/apk/dank/DankChat-3r01.apk"
+          cp "$source" "$target"
+          echo "path=$target" >> "$GITHUB_OUTPUT"
+          echo "sha256=$(sha256sum "$target" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Promote verified candidate
+        run: |
+          current=$(git ls-remote origin refs/heads/3r01 | cut -f1)
+          if [ "$current" != "${{ steps.candidate.outputs.base }}" ]; then
+            echo "3r01 changed during verification; refusing to overwrite it." >&2
+            exit 1
+          fi
+          git push origin HEAD:refs/heads/3r01
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: DankChat-3r01-${{ steps.candidate.outputs.short_sha }}
+          path: ${{ steps.apk.outputs.path }}
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          APK: ${{ steps.apk.outputs.path }}
+          VERSION: ${{ steps.version.outputs.name }}
+          SHA256: ${{ steps.apk.outputs.sha256 }}
+        run: |
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+          notes="Automated 3r01 build based on upstream DankChat develop.
+
+          **Version:** \`$VERSION\`
+          **Commit:** [\`${{ steps.candidate.outputs.short_sha }}\`](https://github.com/${{ github.repository }}/commit/${{ steps.candidate.outputs.sha }})
+          **SHA-256:** \`$SHA256\`"
+
+          if gh release view "$TAG" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK#DankChat-3r01.apk" --clobber --repo "${{ github.repository }}"
+          else
+            gh release create "$TAG" "$APK#DankChat-3r01.apk" \
+              --repo "${{ github.repository }}" \
+              --title "DankChat 3r01 $VERSION" \
+              --notes "$notes" \
+              --latest
+          fi
+
+      - name: Report automation failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="3r01 sync/release automation failed"
+          body="The [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed. The existing 3r01 branch and latest successful release were left in place."
+          issue=$(gh issue list --repo "${{ github.repository }}" --state open --search "$title in:title" --json number --jq '.[0].number')
+          if [ -n "$issue" ]; then
+            gh issue comment "$issue" --repo "${{ github.repository }}" --body "$body"
+          else
+            gh issue create --repo "${{ github.repository }}" --title "$title" --body "$body"
+          fi
