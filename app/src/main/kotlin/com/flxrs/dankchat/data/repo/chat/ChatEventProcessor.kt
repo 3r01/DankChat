@@ -151,7 +151,7 @@ class ChatEventProcessor(
         chatConnector.readEvents.collect { event ->
             when (event) {
                 is ChatEvent.Connected -> handleConnected(event.isAnonymous)
-                is ChatEvent.Closed -> handleDisconnect()
+                is ChatEvent.Closed -> handleDisconnect(chatConnector.isRemotePushTransition())
                 is ChatEvent.ChannelNonExistent -> postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
                 is ChatEvent.LoginFailed -> postSystemMessageAndReconnect(SystemMessageType.LoginExpired)
                 is ChatEvent.Message -> onMessage(event.message)
@@ -394,10 +394,12 @@ class ChatEventProcessor(
         }
     }
 
-    private fun handleDisconnect() {
+    private fun handleDisconnect(suppressSystemMessage: Boolean = false) {
         val state = ConnectionState.DISCONNECTED
         chatConnector.setAllConnectionStates(state)
-        postSystemMessageAndReconnect(state.toSystemMessageType())
+        if (!suppressSystemMessage) {
+            postSystemMessageAndReconnect(state.toSystemMessageType())
+        }
     }
 
     private fun handleConnected(isAnonymous: Boolean) {
@@ -414,8 +416,9 @@ class ChatEventProcessor(
 
         chatConnector.setAllConnectionStates(state)
 
-        if (transitioning.isNotEmpty()) {
-            postSystemMessageAndReconnect(state.toSystemMessageType(), transitioning)
+        val visibleTransitions = transitioning - chatConnector.completeRemotePushTransition()
+        if (visibleTransitions.isNotEmpty()) {
+            postSystemMessageAndReconnect(state.toSystemMessageType(), visibleTransitions)
         }
     }
 

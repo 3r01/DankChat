@@ -13,10 +13,15 @@ import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.ForegroundServiceState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
+import kotlin.time.Duration.Companion.minutes
 
 @Single
 class ConnectionCoordinator(
@@ -48,14 +53,20 @@ class ConnectionCoordinator(
         scope.launch {
             startupValidationHolder.awaitResolved()
             var wasInBackground = false
-            appLifecycleListener.appState.collect { state ->
+            var pausedForRemotePush = false
+            appLifecycleListener.appState.collectLatest { state ->
                 when (state) {
                     is AppLifecycle.Background -> {
                         wasInBackground = true
                         if (remotePushCoordinator.isEnabled()) {
-                            foregroundServiceState.setActive(false)
-                            chatConnector.pauseForRemotePush()
-                            dataRepository.pauseForRemotePush()
+                            delay(REMOTE_PUSH_DISCONNECT_GRACE_PERIOD)
+                            if (!remotePushCoordinator.isEnabled()) return@collectLatest
+                            pausedForRemotePush = true
+                            withContext(NonCancellable) {
+                                chatConnector.pauseForRemotePush()
+                                dataRepository.pauseForRemotePush()
+                                foregroundServiceState.setActive(false)
+                            }
                         }
                     }
 
@@ -63,12 +74,14 @@ class ConnectionCoordinator(
                         if (wasInBackground) {
                             wasInBackground = false
                             foregroundServiceState.setActive(true)
-                            if (remotePushCoordinator.isEnabled()) {
+                            if (pausedForRemotePush) {
+                                pausedForRemotePush = false
                                 chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
-                            } else {
+                                dataRepository.reconnectIfNecessary()
+                            } else if (!remotePushCoordinator.isEnabled()) {
                                 chatConnector.reconnectIfNecessary()
+                                dataRepository.reconnectIfNecessary()
                             }
-                            dataRepository.reconnectIfNecessary()
 
                             val loadingState = channelDataCoordinator.globalLoadingState.value
                             if (loadingState is GlobalLoadingState.Failed) {
@@ -79,5 +92,9 @@ class ConnectionCoordinator(
                 }
             }
         }
+    }
+
+    private companion object {
+        val REMOTE_PUSH_DISCONNECT_GRACE_PERIOD = 5.minutes
     }
 }
