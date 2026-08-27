@@ -5,12 +5,15 @@ import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
+import com.flxrs.dankchat.data.repo.chat.ChatEventProcessor
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.battery.BatterySettings
 import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
+import com.flxrs.dankchat.preferences.chat.ChatSettings
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.ForegroundServiceState
@@ -55,6 +58,8 @@ internal class ConnectionCoordinatorTest {
     private val foregroundServiceState: ForegroundServiceState = mockk(relaxed = true)
     private val remotePushCoordinator: RemotePushCoordinator = mockk { every { isEnabled() } returns true }
     private val batterySettingsDataStore: BatterySettingsDataStore = mockk { every { current() } returns BatterySettings() }
+    private val chatSettingsDataStore: ChatSettingsDataStore = mockk { every { settings } returns MutableStateFlow(ChatSettings()) }
+    private val chatEventProcessor: ChatEventProcessor = mockk(relaxed = true)
 
     private lateinit var coordinator: ConnectionCoordinator
 
@@ -72,6 +77,8 @@ internal class ConnectionCoordinatorTest {
                 foregroundServiceState = foregroundServiceState,
                 remotePushCoordinator = remotePushCoordinator,
                 batterySettingsDataStore = batterySettingsDataStore,
+                chatSettingsDataStore = chatSettingsDataStore,
+                chatEventProcessor = chatEventProcessor,
                 dispatchersProvider = dispatchersProvider,
             )
     }
@@ -95,6 +102,7 @@ internal class ConnectionCoordinatorTest {
 
     @Test
     fun `connections pause after grace period and resume on foreground`() = runTest(testDispatcher) {
+        every { chatConnector.resumeAfterRemotePush(channels.value) } returns channels.value.toSet()
         coordinator.initialize()
         runCurrent()
 
@@ -111,6 +119,7 @@ internal class ConnectionCoordinatorTest {
 
         verify { foregroundServiceState.setActive(true) }
         verify { chatConnector.resumeAfterRemotePush(channels.value) }
+        coVerify { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
         coVerify { dataRepository.reconnectIfNecessary() }
     }
 }

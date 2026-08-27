@@ -27,7 +27,8 @@ fun Application.pushServer(config: ServerConfig) {
     val oauthClient = TwitchOAuthClient(config)
     val oauthSession = OAuthSession()
     val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    EventSubSupervisor(config, stateStore, oauthClient, FirebasePushSender(config, stateStore)).start(backgroundScope)
+    val eventSubMonitor = EventSubMonitor()
+    EventSubSupervisor(config, stateStore, oauthClient, FirebasePushSender(config, stateStore), eventSubMonitor).start(backgroundScope)
     monitor.subscribe(ApplicationStopped) { backgroundScope.cancel() }
     install(ContentNegotiation) {
         json(Json { ignoreUnknownKeys = true })
@@ -53,10 +54,25 @@ fun Application.pushServer(config: ServerConfig) {
     routing {
         get("/health") {
             val state = stateStore.state.value
+            val eventSub = eventSubMonitor.snapshot()
+            val setupComplete = state.configuration != null && state.twitchTokens != null && state.devices.isNotEmpty()
             call.respond(
                 HealthResponse(
-                    status = if (state.configuration != null && state.twitchTokens != null && state.devices.isNotEmpty()) "ready" else "setup",
+                    status =
+                        if (!setupComplete) {
+                            "setup"
+                        } else if (eventSub.connected) {
+                            "ready"
+                        } else {
+                            "degraded"
+                        },
                     publicBaseUrl = config.publicBaseUrl,
+                    eventSubConnected = eventSub.connected,
+                    eventSubSubscriptions = eventSub.subscriptionCount,
+                    eventSubLastConnectedAt = eventSub.lastConnectedAt,
+                    eventSubLastActivityAt = eventSub.lastActivityAt,
+                    eventSubLastFailureAt = eventSub.lastFailureAt,
+                    eventSubLastFailure = eventSub.lastFailure,
                 ),
             )
         }
@@ -69,6 +85,12 @@ fun Application.pushServer(config: ServerConfig) {
 data class HealthResponse(
     val status: String,
     val publicBaseUrl: String,
+    val eventSubConnected: Boolean,
+    val eventSubSubscriptions: Int,
+    val eventSubLastConnectedAt: Long?,
+    val eventSubLastActivityAt: Long?,
+    val eventSubLastFailureAt: Long?,
+    val eventSubLastFailure: String?,
 )
 
 @Serializable

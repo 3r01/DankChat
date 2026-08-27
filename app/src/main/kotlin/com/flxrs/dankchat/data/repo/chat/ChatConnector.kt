@@ -99,10 +99,12 @@ class ChatConnector(
         eventSubManager.pause()
     }
 
-    fun resumeAfterRemotePush(channels: List<UserName>) {
+    fun resumeAfterRemotePush(channels: List<UserName>): Set<UserName> {
+        val resumedChannels = remotePushTransition.get().orEmpty()
         connectAndJoin(channels)
         pubSubManager.resume()
         eventSubManager.resume()
+        return resumedChannels
     }
 
     fun isRemotePushTransition(): Boolean = remotePushTransition.get() != null

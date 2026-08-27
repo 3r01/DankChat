@@ -6,10 +6,12 @@ import com.flxrs.dankchat.data.auth.StartupValidationHolder
 import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
+import com.flxrs.dankchat.data.repo.chat.ChatEventProcessor
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.ForegroundServiceState
@@ -35,6 +37,8 @@ class ConnectionCoordinator(
     private val foregroundServiceState: ForegroundServiceState,
     private val remotePushCoordinator: RemotePushCoordinator,
     private val batterySettingsDataStore: BatterySettingsDataStore,
+    private val chatSettingsDataStore: ChatSettingsDataStore,
+    private val chatEventProcessor: ChatEventProcessor,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -77,7 +81,12 @@ class ConnectionCoordinator(
                             foregroundServiceState.setActive(true)
                             if (pausedForRemotePush) {
                                 pausedForRemotePush = false
-                                chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
+                                val resumedChannels = chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
+                                if (chatSettingsDataStore.settings.first().loadMessageHistoryOnReconnect) {
+                                    resumedChannels.forEach { channel ->
+                                        scope.launch { chatEventProcessor.loadRecentMessages(channel, isReconnect = true) }
+                                    }
+                                }
                             } else {
                                 chatConnector.reconnectIfNecessary()
                             }
