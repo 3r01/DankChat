@@ -85,6 +85,19 @@ class ChatConnector(
         eventSubManager.reconnectIfNecessary()
     }
 
+    suspend fun pauseForRemotePush() {
+        readConnection.close()
+        writeConnection.close()
+        pubSubManager.pause()
+        eventSubManager.pause()
+    }
+
+    fun resumeAfterRemotePush(channels: List<UserName>) {
+        connectAndJoin(channels)
+        pubSubManager.resume()
+        eventSubManager.resume()
+    }
+
     fun joinIrcChannel(channel: UserName) {
         readConnection.joinChannel(channel)
     }
