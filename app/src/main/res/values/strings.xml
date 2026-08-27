@@ -679,6 +679,15 @@
     <string name="preference_show_changelogs">Show changelogs after update</string>
     <string name="preference_whats_new_header">What\'s new</string>
     <string name="preference_custom_login_title">Custom login</string>
+    <string name="preference_whisper_history_title">Whisper history</string>
+    <string name="preference_whisper_history_description">Paste Twitch’s auth-token cookie for the current account to load recent whispers when DankChat opens.</string>
+    <string name="preference_whisper_history_token_label">Twitch auth-token cookie</string>
+    <string name="preference_whisper_history_token_empty">Enter a token</string>
+    <string name="preference_whisper_history_login_required">Log in to configure whisper history.</string>
+    <string name="preference_whisper_history_no_token">No web token saved for %1$s.</string>
+    <string name="preference_whisper_history_token_saved">Web token saved for %1$s.</string>
+    <string name="preference_whisper_history_loading">Loading recent whispers…</string>
+    <string name="preference_whisper_history_loaded">Loaded %1$d recent whispers.</string>
     <string name="preference_bypass_command_handling_key" translatable="false">bypass_command_handling_key</string>
     <string name="preference_bypass_command_handling_title">Bypass Twitch command handling</string>
     <string name="preference_bypass_command_handling_summary">Disables intercepting of Twitch commands and sends them to chat instead</string>

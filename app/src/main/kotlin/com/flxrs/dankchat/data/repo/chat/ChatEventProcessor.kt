@@ -1,6 +1,7 @@
 package com.flxrs.dankchat.data.repo.chat
 
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.eventapi.AutomodHeld
 import com.flxrs.dankchat.data.api.eventapi.AutomodUpdate
@@ -96,6 +97,7 @@ class ChatEventProcessor(
     internal val lastMessagesFlow: StateFlow<PersistentMap<UserName, PersistentList<LastMessage>>> = _lastMessages.asStateFlow()
     private val _lastReceivedWhisperUser = MutableStateFlow<UserName?>(null)
     internal val lastReceivedWhisperUser: StateFlow<UserName?> = _lastReceivedWhisperUser.asStateFlow()
+    private var lastReceivedWhisperTimestamp = 0L
     private val knownRewards = ConcurrentHashMap<String, PubSubMessage.PointRedemption>()
     private val knownAutomodHeldIds: MutableSet<String> = ConcurrentHashMap.newKeySet()
     private val rewardMutex = Mutex()
@@ -461,10 +463,38 @@ class ChatEventProcessor(
 
         val item = ChatItem(message, isMentionTab = true)
         _lastReceivedWhisperUser.value = message.name
+        lastReceivedWhisperTimestamp = message.timestamp
         chatNotificationRepository.addWhisper(item)
         chatMessageRepository.broadcastWhisperIfEnabled(item)
         chatNotificationRepository.incrementMentionCount(WhisperMessage.WHISPER_CHANNEL, 1)
         chatNotificationRepository.emitMessages(listOf(item))
+    }
+
+    suspend fun addHistoricalWhispers(
+        messages: List<WhisperMessage>,
+        currentUserId: UserId,
+    ) {
+        val processed =
+            messages.mapNotNull { message ->
+                (messageProcessor.processWhisper(message) as? WhisperMessage)
+                    ?.copy(highlights = emptySet())
+            }
+        val items = processed.map { ChatItem(it, isMentionTab = true) }
+        chatNotificationRepository.addWhispersDeduped(items)
+        chatMessageRepository.replaceHistoricalWhispersInline(items)
+
+        newestReceivedWhisper(processed, currentUserId, lastReceivedWhisperTimestamp)
+            ?.let { message ->
+                _lastReceivedWhisperUser.value = message.name
+                lastReceivedWhisperTimestamp = message.timestamp
+            }
+    }
+
+    fun clearWhisperHistory() {
+        chatNotificationRepository.clearWhispers()
+        chatMessageRepository.clearHistoricalWhispersInline()
+        _lastReceivedWhisperUser.value = null
+        lastReceivedWhisperTimestamp = 0L
     }
 
     private suspend fun handleMessage(ircMessage: IrcMessage) {
@@ -719,3 +749,12 @@ class ChatEventProcessor(
         private val AUTOMOD_NOTICE_MSG_IDS = setOf("msg_rejected", "msg_rejected_mandatory")
     }
 }
+
+internal fun newestReceivedWhisper(
+    messages: List<WhisperMessage>,
+    currentUserId: UserId,
+    afterTimestamp: Long,
+): WhisperMessage? = messages
+    .asSequence()
+    .filter { it.userId != currentUserId && it.timestamp > afterTimestamp }
+    .maxByOrNull(WhisperMessage::timestamp)
