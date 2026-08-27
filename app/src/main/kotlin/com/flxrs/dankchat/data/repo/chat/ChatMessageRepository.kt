@@ -45,6 +45,8 @@ class ChatMessageRepository(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val messages = ConcurrentHashMap<UserName, MutableStateFlow<List<ChatItem>>>()
+    private val historicalWhisperLock = Any()
+    private var historicalInlineWhispers: List<ChatItem> = emptyList()
     private val _chatLoadingFailures = MutableStateFlow(emptySet<ChatLoadingFailure>())
     private val _sessionMessageCount = AtomicInt(0)
     private val _ircSentCount = AtomicInt(0)
@@ -80,9 +82,9 @@ class ChatMessageRepository(
 
     val chatLoadingFailures = _chatLoadingFailures.asStateFlow()
 
-    fun getChat(channel: UserName): StateFlow<List<ChatItem>> = messages.getOrPut(channel) { MutableStateFlow(emptyList()) }.also {
-        updateChannelKeys()
-    }
+    fun getChat(channel: UserName): StateFlow<List<ChatItem>> = synchronized(historicalWhisperLock) {
+        messages.getOrPut(channel) { MutableStateFlow(historicalInlineWhispers) }
+    }.also { updateChannelKeys() }
 
     fun getMessagesFlow(channel: UserName): MutableStateFlow<List<ChatItem>>? = messages[channel]
 
@@ -154,6 +156,40 @@ class ChatMessageRepository(
                 isMentionTab = false,
             )
         broadcastToAllChannels(inlineWhisper)
+    }
+
+    fun replaceHistoricalWhispersInline(items: List<ChatItem>) {
+        val replacements =
+            if (chatSettingsDataStore.current().showWhispersInline) {
+                items.mapNotNull { item ->
+                    val whisper = item.message as? WhisperMessage ?: return@mapNotNull null
+                    item.copy(
+                        message = messageProcessor.processInlineWhisper(whisper),
+                        isMentionTab = false,
+                    )
+                }
+            } else {
+                emptyList()
+            }
+        synchronized(historicalWhisperLock) {
+            val previousIds = historicalInlineWhispers.mapTo(mutableSetOf()) { it.message.id }
+            historicalInlineWhispers = replacements
+            messages.forEach { (_, flow) ->
+                flow.update { current ->
+                    current
+                        .filterNot { it.message.id in previousIds }
+                        .mergeChronologically(replacements, scrollBackLength, messageProcessor::onMessageRemoved)
+                }
+            }
+        }
+    }
+
+    fun mergeHistoricalInlineWhispers(items: List<ChatItem>): List<ChatItem> = synchronized(historicalWhisperLock) {
+        items.mergeChronologically(historicalInlineWhispers, scrollBackLength, messageProcessor::onMessageRemoved)
+    }
+
+    fun clearHistoricalWhispersInline() {
+        replaceHistoricalWhispersInline(emptyList())
     }
 
     fun clearMessages(channel: UserName) {
@@ -231,10 +267,28 @@ class ChatMessageRepository(
     fun clearChatLoadingFailures() = _chatLoadingFailures.update { emptySet() }
 
     fun createMessageFlows(channel: UserName) {
-        messages.putIfAbsent(channel, MutableStateFlow(emptyList()))
+        synchronized(historicalWhisperLock) {
+            messages.putIfAbsent(channel, MutableStateFlow(historicalInlineWhispers))
+        }
     }
 
     fun removeMessageFlows(channel: UserName) {
         messages.remove(channel)
     }
+}
+
+internal fun List<ChatItem>.mergeChronologically(
+    items: List<ChatItem>,
+    limit: Int,
+    onMessageRemoved: (ChatItem) -> Unit,
+): List<ChatItem> {
+    if (items.isEmpty()) return this
+    val updated =
+        (this + items)
+            .distinctBy { it.message.id }
+            .sortedBy { it.message.timestamp }
+            .takeLast(limit)
+    val retainedIds = updated.mapTo(mutableSetOf()) { it.message.id }
+    filterNot { it.message.id in retainedIds }.forEach(onMessageRemoved)
+    return updated
 }
