@@ -20,6 +20,7 @@ data class DankChatVersion(
                 .thenComparingInt(DankChatVersion::patch)
 
         fun fromString(version: String): DankChatVersion? = version
+            .substringBefore('-')
             .split(".")
             .mapNotNull(String::toIntOrNull)
             .takeIf { it.size == 3 }
