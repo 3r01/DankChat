@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
+import com.flxrs.dankchat.preferences.notifications.RemotePushSettingsDataStore
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
@@ -17,12 +18,14 @@ import kotlin.time.Duration.Companion.seconds
 class BatterySettingsViewModel(
     private val dataStore: BatterySettingsDataStore,
     chatSettingsDataStore: ChatSettingsDataStore,
+    remotePushSettingsDataStore: RemotePushSettingsDataStore,
 ) : ViewModel() {
     val state =
-        combine(dataStore.settings, chatSettingsDataStore.settings) { battery, chat ->
+        combine(dataStore.settings, chatSettingsDataStore.settings, remotePushSettingsDataStore.settings) { battery, chat, remotePush ->
             BatterySettingsState(
                 settings = battery,
                 sevenTvLiveUpdatesConfigurable = chat.sevenTVLiveEmoteUpdates && VisibleThirdPartyEmotes.SevenTV in chat.visibleEmotes,
+                remotePushConfigured = remotePush.isConfigured,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -31,6 +34,7 @@ class BatterySettingsViewModel(
                 BatterySettingsState(
                     settings = dataStore.current(),
                     sevenTvLiveUpdatesConfigurable = true,
+                    remotePushConfigured = remotePushSettingsDataStore.current().isConfigured,
                 ),
         )
 
@@ -42,6 +46,7 @@ class BatterySettingsViewModel(
                 is BatterySettingsInteraction.Delay -> dataStore.update { it.copy(backgroundDelay = interaction.value) }
                 is BatterySettingsInteraction.PauseEventConnections -> dataStore.update { it.copy(pauseEventConnections = interaction.value) }
                 is BatterySettingsInteraction.PauseSevenTvLiveUpdates -> dataStore.update { it.copy(pauseSevenTvLiveUpdates = interaction.value) }
+                is BatterySettingsInteraction.RemotePushDelay -> dataStore.update { it.copy(remotePushDisconnectDelay = interaction.value) }
             }
         }
     }
@@ -51,6 +56,7 @@ class BatterySettingsViewModel(
 data class BatterySettingsState(
     val settings: BatterySettings,
     val sevenTvLiveUpdatesConfigurable: Boolean,
+    val remotePushConfigured: Boolean,
 )
 
 sealed interface BatterySettingsInteraction {
@@ -72,5 +78,9 @@ sealed interface BatterySettingsInteraction {
 
     data class PauseSevenTvLiveUpdates(
         val value: Boolean,
+    ) : BatterySettingsInteraction
+
+    data class RemotePushDelay(
+        val value: RemotePushDisconnectDelay,
     ) : BatterySettingsInteraction
 }

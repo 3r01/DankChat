@@ -125,6 +125,26 @@ private fun BatterySettingsContent(
                 selected = settings.backgroundDelay,
                 onChange = { onInteraction(BatterySettingsInteraction.Delay(it)) },
             )
+
+            val remotePushDelayEntries =
+                persistentListOf(
+                    stringResource(R.string.battery_remote_push_delay_entry_one_minute),
+                    stringResource(R.string.battery_delay_entry_five_minutes),
+                    stringResource(R.string.battery_delay_entry_ten_minutes),
+                )
+            PreferenceListDialog(
+                isEnabled = state.remotePushConfigured,
+                title = stringResource(R.string.preference_battery_remote_push_delay_title),
+                summary =
+                    stringResource(
+                        R.string.preference_battery_remote_push_delay_summary,
+                        remotePushDelayEntries[settings.remotePushDisconnectDelay.ordinal],
+                    ),
+                values = RemotePushDisconnectDelay.entries.toImmutableList(),
+                entries = remotePushDelayEntries,
+                selected = settings.remotePushDisconnectDelay,
+                onChange = { onInteraction(BatterySettingsInteraction.RemotePushDelay(it)) },
+            )
             NavigationBarSpacer()
         }
     }

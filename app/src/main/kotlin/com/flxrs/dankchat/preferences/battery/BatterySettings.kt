@@ -11,6 +11,7 @@ data class BatterySettings(
     val backgroundDelay: BatterySaverDelay = BatterySaverDelay.TenMinutes,
     val pauseEventConnections: Boolean = true,
     val pauseSevenTvLiveUpdates: Boolean = true,
+    val remotePushDisconnectDelay: RemotePushDisconnectDelay = RemotePushDisconnectDelay.FiveMinutes,
     val sevenTvBehaviorMigrated: Boolean = false,
 )
 
@@ -28,4 +29,12 @@ enum class BatterySaverDelay(
     FiveMinutes(5.minutes),
     TenMinutes(10.minutes),
     ThirtyMinutes(30.minutes),
+}
+
+enum class RemotePushDisconnectDelay(
+    val duration: Duration,
+) {
+    OneMinute(1.minutes),
+    FiveMinutes(5.minutes),
+    TenMinutes(10.minutes),
 }

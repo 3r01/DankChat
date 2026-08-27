@@ -45,6 +45,7 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -110,6 +111,12 @@ class NotificationService :
         }
         manager.createNotificationChannel(NotificationChannel(CHANNEL_ID_DEFAULT, "Mentions", NotificationManager.IMPORTANCE_DEFAULT))
         manager.createNotificationChannel(channel)
+
+        launch {
+            foregroundServiceState.active.first { active -> !active }
+            ServiceCompat.stopForeground(this@NotificationService, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
 
         launch {
             appLifecycleListener.appState

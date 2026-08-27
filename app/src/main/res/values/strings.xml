@@ -711,6 +711,9 @@
     <string name="preference_battery_pause_7tv_title">Pause live emote updates</string>
     <string name="preference_battery_pause_7tv_summary">Disconnects 7TV live emote updates in the background</string>
     <string name="battery_saver_channel_paused">Chat paused to save battery</string>
+    <string name="preference_battery_remote_push_delay_title">Remote push disconnect delay</string>
+    <string name="preference_battery_remote_push_delay_summary">Keeps Twitch connections active for %1$s after leaving the app</string>
+    <string name="battery_remote_push_delay_entry_one_minute">1 minute</string>
     <string name="reset_media_uploader_dialog_title">Reset Media Uploader Settings</string>
     <string name="reset_media_uploader_dialog_message">Are you sure you want to reset the media uploader settings to default?</string>
     <string name="reset_media_uploader_dialog_positive">Reset</string>

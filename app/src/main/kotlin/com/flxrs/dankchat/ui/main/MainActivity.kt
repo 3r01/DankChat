@@ -52,7 +52,6 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.notification.ChatTTSPlayer
 import com.flxrs.dankchat.data.notification.NotificationService
-import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.notification.RemotePushNotificationManager
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
@@ -84,6 +83,7 @@ import com.flxrs.dankchat.ui.login.LoginScreen
 import com.flxrs.dankchat.ui.onboarding.OnboardingDataStore
 import com.flxrs.dankchat.ui.onboarding.OnboardingScreen
 import com.flxrs.dankchat.ui.theme.DankChatTheme
+import com.flxrs.dankchat.utils.ForegroundServiceState
 import com.flxrs.dankchat.utils.createMediaFile
 import com.flxrs.dankchat.utils.extensions.hasPermission
 import com.flxrs.dankchat.utils.extensions.isAtLeastTiramisu
@@ -111,8 +111,8 @@ class MainActivity : ComponentActivity() {
     private val dataRepository: DataRepository by inject()
     private val chatTTSPlayer: ChatTTSPlayer by inject()
     private val dispatchersProvider: DispatchersProvider by inject()
-    private val remotePushCoordinator: RemotePushCoordinator by inject()
     private val remotePushNotificationManager: RemotePushNotificationManager by inject()
+    private val foregroundServiceState: ForegroundServiceState by inject()
     private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher =
@@ -545,7 +545,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startService() {
-        if (remotePushCoordinator.isEnabled()) return
+        foregroundServiceState.setActive(true)
         if (!isBound) {
             Intent(this, NotificationService::class.java).also {
                 try {
@@ -568,9 +568,6 @@ class MainActivity : ComponentActivity() {
             } catch (t: Throwable) {
                 logger.error(t) { "Failed to unbind service" }
             }
-        }
-        if (remotePushCoordinator.isEnabled()) {
-            stopService(Intent(this, NotificationService::class.java))
         }
     }
 

@@ -9,6 +9,7 @@ import com.flxrs.dankchat.data.repo.chat.ChatConnector
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.ForegroundServiceState
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
-import kotlin.time.Duration.Companion.minutes
 
 @Single
 class ConnectionCoordinator(
@@ -34,6 +34,7 @@ class ConnectionCoordinator(
     private val appLifecycleListener: AppLifecycleListener,
     private val foregroundServiceState: ForegroundServiceState,
     private val remotePushCoordinator: RemotePushCoordinator,
+    private val batterySettingsDataStore: BatterySettingsDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
@@ -59,7 +60,7 @@ class ConnectionCoordinator(
                     is AppLifecycle.Background -> {
                         wasInBackground = true
                         if (remotePushCoordinator.isEnabled()) {
-                            delay(REMOTE_PUSH_DISCONNECT_GRACE_PERIOD)
+                            delay(batterySettingsDataStore.current().remotePushDisconnectDelay.duration)
                             if (!remotePushCoordinator.isEnabled()) return@collectLatest
                             pausedForRemotePush = true
                             withContext(NonCancellable) {
@@ -77,11 +78,10 @@ class ConnectionCoordinator(
                             if (pausedForRemotePush) {
                                 pausedForRemotePush = false
                                 chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
-                                dataRepository.reconnectIfNecessary()
-                            } else if (!remotePushCoordinator.isEnabled()) {
+                            } else {
                                 chatConnector.reconnectIfNecessary()
-                                dataRepository.reconnectIfNecessary()
                             }
+                            dataRepository.reconnectIfNecessary()
 
                             val loadingState = channelDataCoordinator.globalLoadingState.value
                             if (loadingState is GlobalLoadingState.Failed) {
@@ -92,9 +92,5 @@ class ConnectionCoordinator(
                 }
             }
         }
-    }
-
-    private companion object {
-        val REMOTE_PUSH_DISCONNECT_GRACE_PERIOD = 5.minutes
     }
 }
