@@ -2,6 +2,7 @@ package com.flxrs.dankchat.push.server
 
 import com.flxrs.dankchat.push.ConfigurationResponse
 import com.flxrs.dankchat.push.DeviceRegistration
+import com.flxrs.dankchat.push.MentionHistoryResponse
 import com.flxrs.dankchat.push.PUSH_PROTOCOL_VERSION
 import com.flxrs.dankchat.push.PushConfiguration
 import com.flxrs.dankchat.push.PushServerStatus
@@ -18,6 +19,7 @@ import java.security.MessageDigest
 fun Route.apiRoutes(
     config: ServerConfig,
     stateStore: StateStore,
+    mentionHistoryStore: MentionHistoryStore,
 ) {
     get("/api/v1/status") {
         if (!call.isAuthorized(config.enrollmentToken)) return@get
@@ -30,6 +32,14 @@ fun Route.apiRoutes(
                 registeredDevices = state.devices.size,
             ),
         )
+    }
+
+    get("/api/v1/mentions") {
+        if (!call.isAuthorized(config.enrollmentToken)) return@get
+        val twitchUserId =
+            stateStore.state.value.configuration
+                ?.twitchUserId
+        call.respond(MentionHistoryResponse(mentionHistoryStore.getAll(twitchUserId)))
     }
 
     put("/api/v1/config") {

@@ -18,6 +18,7 @@ import com.flxrs.dankchat.push.MessageHighlightRule
 import com.flxrs.dankchat.push.PushChannel
 import com.flxrs.dankchat.push.PushConfiguration
 import com.flxrs.dankchat.push.PushNotificationRules
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import kotlin.math.max
+
+private val logger = KotlinLogging.logger("RemotePushCoordinator")
 
 @Single
 class RemotePushCoordinator(
@@ -38,6 +41,7 @@ class RemotePushCoordinator(
     private val channelRepository: ChannelRepository,
     private val highlightsRepository: HighlightsRepository,
     private val remotePushClient: RemotePushClient,
+    private val remoteMentionHistoryRepository: RemoteMentionHistoryRepository,
     private val remotePushDeviceDataStore: RemotePushDeviceDataStore,
     dispatchersProvider: DispatchersProvider,
 ) {
@@ -46,6 +50,7 @@ class RemotePushCoordinator(
     val status = _status
 
     private var lastRevision = 0L
+    private var restoredHistoryServer: String? = null
 
     fun initialize() {
         scope.launch {
@@ -87,6 +92,7 @@ class RemotePushCoordinator(
     private suspend fun sync(input: ConfigurationInput) {
         val remote = input.base.remote
         if (!remote.isConfigured) {
+            restoredHistoryServer = null
             if (!remote.enabled && remote.serverUrl.isNotBlank() && remote.enrollmentToken.isNotBlank() && input.base.firebaseInstallationId.isNotBlank()) {
                 remotePushClient.unregisterDevice(remote, input.base.firebaseInstallationId)
             }
@@ -143,10 +149,18 @@ class RemotePushCoordinator(
                         blacklistedUsers = input.blacklistedUsers.filter { it.pattern.isNotBlank() },
                     ),
             )
-        remotePushClient
-            .syncConfiguration(remote, configuration)
-            .onSuccess { revision -> _status.value = RemotePushStatus.Synced(revision) }
-            .onFailure { error -> _status.value = RemotePushStatus.Error(error.message ?: "Configuration sync failed") }
+        val revision =
+            remotePushClient.syncConfiguration(remote, configuration).getOrElse { error ->
+                _status.value = RemotePushStatus.Error(error.message ?: "Configuration sync failed")
+                return
+            }
+        _status.value = RemotePushStatus.Synced(revision)
+        if (restoredHistoryServer != remote.serverUrl) {
+            remoteMentionHistoryRepository
+                .restore()
+                .onSuccess { restoredHistoryServer = remote.serverUrl }
+                .onFailure { logger.warn(it) { "Failed to restore remote mention history" } }
+        }
     }
 
     private fun nextRevision(): Long = max(lastRevision + 1, System.currentTimeMillis()).also { lastRevision = it }

@@ -3,10 +3,12 @@ package com.flxrs.dankchat.data.notification
 import com.flxrs.dankchat.preferences.notifications.RemotePushSettings
 import com.flxrs.dankchat.push.ConfigurationResponse
 import com.flxrs.dankchat.push.DeviceRegistration
+import com.flxrs.dankchat.push.MentionHistoryResponse
 import com.flxrs.dankchat.push.PushConfiguration
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -20,6 +22,15 @@ import org.koin.core.annotation.Single
 class RemotePushClient(
     private val httpClient: HttpClient,
 ) {
+    suspend fun getMentionHistory(settings: RemotePushSettings): Result<MentionHistoryResponse> = runCatching {
+        val response =
+            httpClient.get(settings.endpoint("/api/v1/mentions")) {
+                authorize(settings)
+            }
+        check(response.status == HttpStatusCode.OK) { "Push server rejected mention history request: ${response.status}" }
+        response.body()
+    }
+
     suspend fun syncConfiguration(
         settings: RemotePushSettings,
         configuration: PushConfiguration,

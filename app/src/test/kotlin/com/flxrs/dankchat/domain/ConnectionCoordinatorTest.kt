@@ -2,6 +2,7 @@ package com.flxrs.dankchat.domain
 
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
+import com.flxrs.dankchat.data.notification.RemoteMentionHistoryRepository
 import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
@@ -57,6 +58,7 @@ internal class ConnectionCoordinatorTest {
     private val appLifecycleListener: AppLifecycleListener = mockk { every { appState } returns this@ConnectionCoordinatorTest.appState }
     private val foregroundServiceState: ForegroundServiceState = mockk(relaxed = true)
     private val remotePushCoordinator: RemotePushCoordinator = mockk { every { isEnabled() } returns true }
+    private val remoteMentionHistoryRepository: RemoteMentionHistoryRepository = mockk { coEvery { restore() } returns Result.success(0) }
     private val batterySettingsDataStore: BatterySettingsDataStore = mockk { every { current() } returns BatterySettings() }
     private val chatSettingsDataStore: ChatSettingsDataStore = mockk { every { settings } returns MutableStateFlow(ChatSettings()) }
     private val chatEventProcessor: ChatEventProcessor = mockk(relaxed = true)
@@ -76,6 +78,7 @@ internal class ConnectionCoordinatorTest {
                 appLifecycleListener = appLifecycleListener,
                 foregroundServiceState = foregroundServiceState,
                 remotePushCoordinator = remotePushCoordinator,
+                remoteMentionHistoryRepository = remoteMentionHistoryRepository,
                 batterySettingsDataStore = batterySettingsDataStore,
                 chatSettingsDataStore = chatSettingsDataStore,
                 chatEventProcessor = chatEventProcessor,
@@ -120,6 +123,7 @@ internal class ConnectionCoordinatorTest {
         verify { foregroundServiceState.setActive(true) }
         verify { chatConnector.resumeAfterRemotePush(channels.value) }
         coVerify { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
+        coVerify { remoteMentionHistoryRepository.restore() }
         coVerify { dataRepository.reconnectIfNecessary() }
     }
 }

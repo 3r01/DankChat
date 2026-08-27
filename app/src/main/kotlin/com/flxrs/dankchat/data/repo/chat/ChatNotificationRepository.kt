@@ -85,10 +85,15 @@ class ChatNotificationRepository(
     fun addMentionsDeduped(items: List<ChatItem>) {
         if (items.isEmpty()) return
         _mentions.update { current ->
-            (current + items)
-                .distinctBy { it.message.id }
-                .sortedBy { it.message.timestamp }
-                .toImmutableList()
+            val updated =
+                (current + items)
+                    .distinctBy { it.message.id }
+                    .sortedBy { it.message.timestamp }
+                    .takeLast(scrollBackLength)
+                    .toImmutableList()
+            val retainedIds = updated.mapTo(mutableSetOf()) { it.message.id }
+            current.filterNot { it.message.id in retainedIds }.forEach(messageProcessor::onMessageRemoved)
+            updated
         }
     }
 
