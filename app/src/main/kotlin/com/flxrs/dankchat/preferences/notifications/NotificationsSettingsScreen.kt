@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,19 +15,30 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.flxrs.dankchat.BuildConfig
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.notification.RemotePushStatus
 import com.flxrs.dankchat.preferences.components.NavigationBarSpacer
 import com.flxrs.dankchat.preferences.components.PreferenceCategory
 import com.flxrs.dankchat.preferences.components.PreferenceItem
@@ -43,8 +55,12 @@ fun NotificationsSettingsScreen(
 ) {
     val viewModel = koinViewModel<NotificationsSettingsViewModel>()
     val settings = viewModel.settings.collectAsStateWithLifecycle().value
+    val remoteSettings = viewModel.remoteSettings.collectAsStateWithLifecycle().value
+    val remoteStatus = viewModel.remoteStatus.collectAsStateWithLifecycle().value
     NotificationsSettingsScreen(
         settings = settings,
+        remoteSettings = remoteSettings,
+        remoteStatus = remoteStatus,
         onInteraction = { viewModel.onInteraction(it) },
         onNavToHighlights = onNavToHighlights,
         onNavToIgnores = onNavToIgnores,
@@ -55,6 +71,8 @@ fun NotificationsSettingsScreen(
 @Composable
 private fun NotificationsSettingsScreen(
     settings: NotificationsSettings,
+    remoteSettings: RemotePushSettings,
+    remoteStatus: RemotePushStatus,
     onInteraction: (NotificationsSettingsInteraction) -> Unit,
     onNavToHighlights: () -> Unit,
     onNavToIgnores: () -> Unit,
@@ -89,6 +107,10 @@ private fun NotificationsSettingsScreen(
                 showWhisperNotifications = settings.showWhisperNotifications,
                 onInteraction = onInteraction,
             )
+            if (BuildConfig.APPLICATION_ID.endsWith(".iore")) {
+                HorizontalDivider(thickness = Dp.Hairline)
+                RemotePushCategory(remoteSettings, remoteStatus, onInteraction)
+            }
             HorizontalDivider(thickness = Dp.Hairline)
             MentionsCategory(
                 mentionFormat = settings.mentionFormat,
@@ -98,6 +120,59 @@ private fun NotificationsSettingsScreen(
             )
             NavigationBarSpacer()
         }
+    }
+}
+
+@Composable
+private fun RemotePushCategory(
+    settings: RemotePushSettings,
+    status: RemotePushStatus,
+    onInteraction: (NotificationsSettingsInteraction) -> Unit,
+) {
+    var serverUrl by rememberSaveable(settings.serverUrl) { mutableStateOf(settings.serverUrl) }
+    var enrollmentToken by rememberSaveable(settings.enrollmentToken) { mutableStateOf(settings.enrollmentToken) }
+    PreferenceCategory(title = stringResource(R.string.preference_remote_push_header)) {
+        SwitchPreferenceItem(
+            title = stringResource(R.string.preference_remote_push_title),
+            summary = stringResource(R.string.preference_remote_push_summary),
+            isChecked = settings.enabled,
+            onClick = { onInteraction(NotificationsSettingsInteraction.RemoteEnabled(it)) },
+        )
+        OutlinedTextField(
+            value = serverUrl,
+            onValueChange = { serverUrl = it },
+            label = { Text(stringResource(R.string.preference_remote_push_server_url)) },
+            singleLine = true,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .onFocusChanged { if (!it.isFocused) onInteraction(NotificationsSettingsInteraction.RemoteServerUrl(serverUrl)) },
+        )
+        OutlinedTextField(
+            value = enrollmentToken,
+            onValueChange = { enrollmentToken = it },
+            label = { Text(stringResource(R.string.preference_remote_push_enrollment_token)) },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .onFocusChanged { if (!it.isFocused) onInteraction(NotificationsSettingsInteraction.RemoteEnrollmentToken(enrollmentToken)) },
+        )
+        Text(
+            text = when (status) {
+                RemotePushStatus.Disabled -> stringResource(R.string.preference_remote_push_status_disabled)
+                RemotePushStatus.WaitingForLogin -> stringResource(R.string.preference_remote_push_status_waiting_login)
+                RemotePushStatus.WaitingForDevice -> stringResource(R.string.preference_remote_push_status_waiting_device)
+                RemotePushStatus.Syncing -> stringResource(R.string.preference_remote_push_status_syncing)
+                is RemotePushStatus.Synced -> stringResource(R.string.preference_remote_push_status_synced)
+                is RemotePushStatus.Error -> status.message
+            },
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 

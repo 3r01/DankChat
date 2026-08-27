@@ -61,6 +61,17 @@ jobs:
           printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
 
+      - name: Install Firebase configuration
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.DANKCHAT_GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "DANKCHAT_GOOGLE_SERVICES_JSON is not configured." >&2
+            exit 1
+          fi
+          mkdir -p app/src/dank
+          printf '%s' "$GOOGLE_SERVICES_JSON" > app/src/dank/google-services.json
+
       - name: Set build version
         id: version
         shell: bash
@@ -136,18 +147,4 @@ jobs:
               --title "DankChat 3r01 $VERSION" \
               --notes "$notes" \
               --latest
-          fi
-
-      - name: Report automation failure
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          title="3r01 sync/release automation failed"
-          body="The [workflow run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed. The existing 3r01 branch and latest successful release were left in place."
-          issue=$(gh issue list --repo "${{ github.repository }}" --state open --search "$title in:title" --json number --jq '.[0].number')
-          if [ -n "$issue" ]; then
-            gh issue comment "$issue" --repo "${{ github.repository }}" --body "$body"
-          else
-            gh issue create --repo "${{ github.repository }}" --title "$title" --body "$body"
           fi

@@ -52,6 +52,8 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.ApiException
 import com.flxrs.dankchat.data.notification.ChatTTSPlayer
 import com.flxrs.dankchat.data.notification.NotificationService
+import com.flxrs.dankchat.data.notification.RemotePushCoordinator
+import com.flxrs.dankchat.data.notification.RemotePushNotificationManager
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.repo.data.ServiceEvent
 import com.flxrs.dankchat.data.toUserName
@@ -109,6 +111,8 @@ class MainActivity : ComponentActivity() {
     private val dataRepository: DataRepository by inject()
     private val chatTTSPlayer: ChatTTSPlayer by inject()
     private val dispatchersProvider: DispatchersProvider by inject()
+    private val remotePushCoordinator: RemotePushCoordinator by inject()
+    private val remotePushNotificationManager: RemotePushNotificationManager by inject()
     private var currentMediaUri: Uri = Uri.EMPTY
 
     private val requestPermissionLauncher =
@@ -541,6 +545,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startService() {
+        if (remotePushCoordinator.isEnabled()) return
         if (!isBound) {
             Intent(this, NotificationService::class.java).also {
                 try {
@@ -564,6 +569,9 @@ class MainActivity : ComponentActivity() {
                 logger.error(t) { "Failed to unbind service" }
             }
         }
+        if (remotePushCoordinator.isEnabled()) {
+            stopService(Intent(this, NotificationService::class.java))
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -584,6 +592,7 @@ class MainActivity : ComponentActivity() {
 
     fun clearNotificationsOfChannel(channel: UserName) {
         notificationService?.clearNotificationsForChannel(channel)
+        lifecycleScope.launch(dispatchersProvider.io) { remotePushNotificationManager.clear(channel) }
     }
 
     private fun handleShutDown() {
