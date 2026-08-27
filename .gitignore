@@ -4,8 +4,10 @@
 .idea/*
 .DS_Store
 /build
+**/build/
 /app/release
 /app/localized
+/app/src/dank/google-services.json
 /captures
 .externalNativeBuild
 .kotlin
