@@ -3,6 +3,7 @@ package com.flxrs.dankchat.domain
 import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
+import com.flxrs.dankchat.data.notification.RemoteMentionHistoryRepository
 import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatConnector
@@ -36,6 +37,7 @@ class ConnectionCoordinator(
     private val appLifecycleListener: AppLifecycleListener,
     private val foregroundServiceState: ForegroundServiceState,
     private val remotePushCoordinator: RemotePushCoordinator,
+    private val remoteMentionHistoryRepository: RemoteMentionHistoryRepository,
     private val batterySettingsDataStore: BatterySettingsDataStore,
     private val chatSettingsDataStore: ChatSettingsDataStore,
     private val chatEventProcessor: ChatEventProcessor,
@@ -87,6 +89,7 @@ class ConnectionCoordinator(
                                         scope.launch { chatEventProcessor.loadRecentMessages(channel, isReconnect = true) }
                                     }
                                 }
+                                scope.launch { remoteMentionHistoryRepository.restore() }
                             } else {
                                 chatConnector.reconnectIfNecessary()
                             }

@@ -1,6 +1,10 @@
 package com.flxrs.dankchat.push.server
 
 import com.flxrs.dankchat.push.ChatMessageCandidate
+import com.flxrs.dankchat.push.MentionHistoryBadge
+import com.flxrs.dankchat.push.MentionHistoryEmote
+import com.flxrs.dankchat.push.MentionHistoryMessage
+import com.flxrs.dankchat.push.MentionHistoryReply
 import com.flxrs.dankchat.push.PushConfiguration
 import com.flxrs.dankchat.push.PushMessage
 import com.flxrs.dankchat.push.PushMessageKind
@@ -60,6 +64,7 @@ class EventSubSupervisor(
     private val stateStore: StateStore,
     private val oauthClient: TwitchOAuthClient,
     private val pushSender: PushSender,
+    private val mentionHistoryStore: MentionHistoryStore,
     private val monitor: EventSubMonitor = EventSubMonitor(),
     private val client: HttpClient = defaultClient(),
     private val json: Json = Json { ignoreUnknownKeys = true },
@@ -326,10 +331,11 @@ class EventSubSupervisor(
         val senderId = event.string("chatter_user_id")
         val messageId = event.string("message_id")
         val reply = event["reply"]?.takeUnless { it is JsonNull }?.jsonObject
-        val rootId = reply?.optionalString("root_message_id") ?: messageId
+        val rootId = reply?.optionalString("thread_message_id") ?: reply?.optionalString("root_message_id") ?: messageId
         val isCurrentUser = senderId == configuration.twitchUserId
         val replyTargetsCurrentUser =
             reply?.optionalString("parent_user_id") == configuration.twitchUserId ||
+                reply?.optionalString("thread_user_id") == configuration.twitchUserId ||
                 reply?.optionalString("root_user_id") == configuration.twitchUserId
         val participated = participationTracker.participated(rootId, isCurrentUser, replyTargetsCurrentUser)
         val badges =
@@ -349,16 +355,19 @@ class EventSubSupervisor(
             )
         if (!PushRuleEvaluator(configuration).shouldNotify(candidate)) return
 
+        val mention = parseMentionHistoryMessage(event, timestamp, candidate.text)
+        mentionHistoryStore.add(configuration.twitchUserId, mention)
+
         pushSender.send(
             PushMessage(
-                messageId = messageId,
+                messageId = mention.messageId,
                 timestamp = timestamp,
-                channelId = event.string("broadcaster_user_id"),
-                channelName = event.string("broadcaster_user_login"),
+                channelId = mention.channelId,
+                channelName = mention.channelName,
                 senderUserId = senderId,
                 senderUserName = candidate.senderUserName,
-                senderDisplayName = event.string("chatter_user_name"),
-                text = candidate.text,
+                senderDisplayName = mention.senderDisplayName,
+                text = mention.text,
                 kind = PushMessageKind.Mention,
             ),
         )
@@ -432,6 +441,85 @@ internal suspend fun runRestartingWorker(
         delay(restartDelay)
     }
 }
+
+internal fun parseMentionHistoryMessage(
+    event: JsonObject,
+    timestamp: Long,
+    normalizedText: String,
+): MentionHistoryMessage {
+    val message = event.historyObjectAt("message")
+    val reply = event["reply"]?.takeUnless { it is JsonNull }?.jsonObject
+    return MentionHistoryMessage(
+        messageId = event.historyString("message_id"),
+        timestamp = timestamp,
+        channelId = event.historyString("broadcaster_user_id"),
+        channelName = event.historyString("broadcaster_user_login"),
+        senderUserId = event.historyString("chatter_user_id"),
+        senderUserName = event.historyString("chatter_user_login"),
+        senderDisplayName = event.historyString("chatter_user_name"),
+        text = normalizedText,
+        color = event.historyOptionalString("color")?.takeIf(String::isNotBlank),
+        isAction = message.historyString("text") != normalizedText,
+        badges =
+            event["badges"]
+                ?.jsonArray
+                ?.map { badge ->
+                    val value = badge.jsonObject
+                    MentionHistoryBadge(
+                        setId = value.historyString("set_id"),
+                        id = value.historyString("id"),
+                        info = value.historyOptionalString("info")?.takeIf(String::isNotBlank),
+                    )
+                }.orEmpty(),
+        emotes = message.toMentionHistoryEmotes(),
+        reply = reply?.toMentionHistoryReply(),
+    )
+}
+
+private fun JsonObject.toMentionHistoryEmotes(): List<MentionHistoryEmote> {
+    var codePointOffset = 0
+    return get("fragments")
+        ?.jsonArray
+        ?.mapNotNull { element ->
+            val fragment = element.jsonObject
+            val text = fragment.historyString("text")
+            val length = text.codePointCount(0, text.length)
+            val emoteId =
+                fragment["emote"]
+                    ?.takeUnless { it is JsonNull }
+                    ?.jsonObject
+                    ?.historyOptionalString("id")
+            val emote =
+                emoteId?.takeIf { length > 0 }?.let { id ->
+                    MentionHistoryEmote(id = id, start = codePointOffset, end = codePointOffset + length - 1)
+                }
+            codePointOffset += length
+            emote
+        }.orEmpty()
+}
+
+private fun JsonObject.toMentionHistoryReply(): MentionHistoryReply? {
+    val parentMessageId = historyOptionalString("parent_message_id") ?: return null
+    val threadMessageId = historyOptionalString("thread_message_id") ?: historyOptionalString("root_message_id") ?: parentMessageId
+    return MentionHistoryReply(
+        parentMessageId = parentMessageId,
+        parentMessageBody = historyOptionalString("parent_message_body").orEmpty(),
+        parentUserId = historyOptionalString("parent_user_id").orEmpty(),
+        parentUserName = historyOptionalString("parent_user_login").orEmpty(),
+        parentDisplayName = historyOptionalString("parent_user_name").orEmpty(),
+        threadMessageId = threadMessageId,
+        threadMessageBody = historyOptionalString("thread_message_body") ?: historyOptionalString("root_message_body").orEmpty(),
+        threadUserId = historyOptionalString("thread_user_id") ?: historyOptionalString("root_user_id").orEmpty(),
+        threadUserName = historyOptionalString("thread_user_login") ?: historyOptionalString("root_user_login").orEmpty(),
+        threadDisplayName = historyOptionalString("thread_user_name") ?: historyOptionalString("root_user_name").orEmpty(),
+    )
+}
+
+private fun JsonObject.historyObjectAt(key: String) = getValue(key).jsonObject
+
+private fun JsonObject.historyString(key: String) = getValue(key).jsonPrimitive.content
+
+private fun JsonObject.historyOptionalString(key: String) = get(key)?.jsonPrimitive?.contentOrNull
 
 internal fun normalizeEventSubMessageText(text: String): String =
     if (text.startsWith(ACTION_PREFIX) && text.endsWith(ACTION_SUFFIX)) {

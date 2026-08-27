@@ -79,6 +79,56 @@ data class PushMessage(
 )
 
 @Serializable
+data class MentionHistoryResponse(
+    val messages: List<MentionHistoryMessage>,
+)
+
+@Serializable
+data class MentionHistoryMessage(
+    val messageId: String,
+    val timestamp: Long,
+    val channelId: String,
+    val channelName: String,
+    val senderUserId: String,
+    val senderUserName: String,
+    val senderDisplayName: String,
+    val text: String,
+    val color: String? = null,
+    val isAction: Boolean = false,
+    val badges: List<MentionHistoryBadge> = emptyList(),
+    val emotes: List<MentionHistoryEmote> = emptyList(),
+    val reply: MentionHistoryReply? = null,
+)
+
+@Serializable
+data class MentionHistoryBadge(
+    val setId: String,
+    val id: String,
+    val info: String? = null,
+)
+
+@Serializable
+data class MentionHistoryEmote(
+    val id: String,
+    val start: Int,
+    val end: Int,
+)
+
+@Serializable
+data class MentionHistoryReply(
+    val parentMessageId: String,
+    val parentMessageBody: String,
+    val parentUserId: String,
+    val parentUserName: String,
+    val parentDisplayName: String,
+    val threadMessageId: String,
+    val threadMessageBody: String,
+    val threadUserId: String,
+    val threadUserName: String,
+    val threadDisplayName: String,
+)
+
+@Serializable
 enum class PushMessageKind {
     Mention,
     Whisper,

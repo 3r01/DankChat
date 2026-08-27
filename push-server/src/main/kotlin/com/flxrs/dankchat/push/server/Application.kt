@@ -24,11 +24,12 @@ import java.security.MessageDigest
 fun Application.pushServer(config: ServerConfig) {
     val logger = environment.log
     val stateStore = StateStore(config.dataDirectory.resolve("state.json"))
+    val mentionHistoryStore = MentionHistoryStore(config.dataDirectory.resolve("mention-history.json"))
     val oauthClient = TwitchOAuthClient(config)
     val oauthSession = OAuthSession()
     val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     val eventSubMonitor = EventSubMonitor()
-    EventSubSupervisor(config, stateStore, oauthClient, FirebasePushSender(config, stateStore), eventSubMonitor).start(backgroundScope)
+    EventSubSupervisor(config, stateStore, oauthClient, FirebasePushSender(config, stateStore), mentionHistoryStore, eventSubMonitor).start(backgroundScope)
     monitor.subscribe(ApplicationStopped) { backgroundScope.cancel() }
     install(ContentNegotiation) {
         json(Json { ignoreUnknownKeys = true })
@@ -76,7 +77,7 @@ fun Application.pushServer(config: ServerConfig) {
                 ),
             )
         }
-        apiRoutes(config, stateStore)
+        apiRoutes(config, stateStore, mentionHistoryStore)
         oauthRoutes(oauthClient, oauthSession, stateStore)
     }
 }
