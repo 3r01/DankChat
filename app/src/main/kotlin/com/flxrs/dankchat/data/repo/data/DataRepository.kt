@@ -116,6 +116,10 @@ class DataRepository(
         sevenTVEventApiClient.reconnectIfNecessary()
     }
 
+    fun pauseForRemotePush() {
+        sevenTVEventApiClient.close()
+    }
+
     suspend fun removeChannels(removed: List<UserName>) {
         removed.forEach { channel ->
             val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@forEach

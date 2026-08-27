@@ -30,3 +30,5 @@ dependencyResolutionManagement {
 rootProject.name = "DankChat"
 include(":app")
 include(":baselineprofile")
+include(":push-protocol")
+include(":push-server")
