@@ -103,6 +103,28 @@ class ChatNotificationRepository(
         }
     }
 
+    fun addWhispersDeduped(items: List<ChatItem>) {
+        if (items.isEmpty()) return
+        _whispers.update { current ->
+            val updated =
+                (current + items)
+                    .distinctBy { it.message.id }
+                    .sortedBy { it.message.timestamp }
+                    .takeLast(scrollBackLength)
+                    .toImmutableList()
+            val retainedIds = updated.mapTo(mutableSetOf()) { it.message.id }
+            current.filterNot { it.message.id in retainedIds }.forEach(messageProcessor::onMessageRemoved)
+            updated
+        }
+    }
+
+    fun clearWhispers() {
+        _whispers.update { current ->
+            current.forEach(messageProcessor::onMessageRemoved)
+            persistentListOf()
+        }
+    }
+
     fun emitMessages(items: List<ChatItem>) {
         _messageUpdates.tryEmit(items)
     }
