@@ -31,6 +31,7 @@ import com.flxrs.dankchat.data.repo.chat.NotificationClearScope
 import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
+import com.flxrs.dankchat.preferences.notifications.RemotePushSettingsDataStore
 import com.flxrs.dankchat.ui.main.MainActivity
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
@@ -74,6 +75,7 @@ class NotificationService :
     private val channelRepository: ChannelRepository by inject()
     private val dataRepository: DataRepository by inject()
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore by inject()
+    private val remotePushSettingsDataStore: RemotePushSettingsDataStore by inject()
     private val appLifecycleListener: AppLifecycleListener by inject()
     private val dispatchersProvider: DispatchersProvider by inject()
     private val foregroundServiceState: ForegroundServiceState by inject()
@@ -124,7 +126,7 @@ class NotificationService :
                         ) { items, enabled -> items to enabled }
                     }
                 }.collect { (items, enabled) ->
-                    if (!enabled) return@collect
+                    if (!enabled || remotePushSettingsDataStore.current().isConfigured) return@collect
                     items.forEach { (message) ->
                         if (!notifiedMessageIds.add(message.id)) return@forEach
                         if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
