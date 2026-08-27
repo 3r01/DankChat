@@ -29,7 +29,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
@@ -58,6 +60,7 @@ class EventSubSupervisor(
     private val stateStore: StateStore,
     private val oauthClient: TwitchOAuthClient,
     private val pushSender: PushSender,
+    private val monitor: EventSubMonitor = EventSubMonitor(),
     private val client: HttpClient = defaultClient(),
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
@@ -66,10 +69,18 @@ class EventSubSupervisor(
 
     fun start(scope: CoroutineScope) =
         scope.launch {
-            stateStore.state.collectLatest { state ->
-                val configuration = state.configuration ?: return@collectLatest
-                val tokens = state.twitchTokens ?: return@collectLatest
-                runWithReconnect(configuration, tokens)
+            runRestartingWorker(
+                restartDelay = SUPERVISOR_RESTART_DELAY,
+                onFailure = { cause ->
+                    monitor.markDisconnected(cause)
+                    logger.error("EventSub supervisor failed unexpectedly; restarting", cause)
+                },
+            ) {
+                stateStore.state.collectLatest { state ->
+                    val configuration = state.configuration ?: return@collectLatest
+                    val tokens = state.twitchTokens ?: return@collectLatest
+                    runWithReconnect(configuration, tokens)
+                }
             }
         }
 
@@ -81,6 +92,7 @@ class EventSubSupervisor(
         var backoff = 1.seconds
         while (true) {
             try {
+                monitor.markConnecting()
                 runSession(configuration, tokens)
                 backoff = 1.seconds
             } catch (e: TwitchTokenRejectedException) {
@@ -88,13 +100,23 @@ class EventSubSupervisor(
                 stateStore.updateTwitchTokens(tokens)
                 backoff = 1.seconds
             } catch (e: CancellationException) {
-                throw e
+                currentCoroutineContext().ensureActive()
+                reconnectAfterFailure(e, backoff)
+                backoff = (backoff * 2).coerceAtMost(60.seconds)
             } catch (e: Exception) {
-                logger.warn("EventSub connection failed; reconnecting in {}", backoff, e)
-                delay(backoff)
+                reconnectAfterFailure(e, backoff)
                 backoff = (backoff * 2).coerceAtMost(60.seconds)
             }
         }
+    }
+
+    private suspend fun reconnectAfterFailure(
+        cause: Throwable,
+        backoff: Duration,
+    ) {
+        monitor.markDisconnected(cause)
+        logger.warn("EventSub connection failed; reconnecting in {}", backoff, cause)
+        delay(backoff)
     }
 
     private suspend fun runSession(
@@ -112,6 +134,9 @@ class EventSubSupervisor(
         try {
             var welcome = session.awaitWelcome()
             createSubscriptions(welcome.sessionId, configuration, tokens.accessToken)
+            val subscriptionCount = configuration.channels.size + if (configuration.notifyWhispers) 1 else 0
+            monitor.markConnected(subscriptionCount)
+            logger.info("EventSub connected with {} subscriptions", subscriptionCount)
 
             while (true) {
                 val reconnectUrl = consumeSession(session, welcome.keepaliveTimeout, configuration)
@@ -127,6 +152,7 @@ class EventSubSupervisor(
                 oldSession.close()
             }
         } finally {
+            monitor.markDisconnected(null)
             validationJob.cancel()
             session.close()
         }
@@ -202,20 +228,24 @@ class EventSubSupervisor(
     ): String? =
         when (envelope.metadataString("message_type")) {
             "notification" -> {
+                monitor.markActivity()
                 handleNotification(envelope, configuration)
                 null
             }
 
             "session_reconnect" -> {
+                monitor.markActivity()
                 parseEventSubReconnectUrl(envelope)
             }
 
             "revocation" -> {
+                monitor.markActivity()
                 logger.warn("EventSub subscription revoked: {}", envelope)
                 null
             }
 
             "session_keepalive" -> {
+                monitor.markActivity()
                 null
             }
 
@@ -374,12 +404,32 @@ class EventSubSupervisor(
         private const val EVENTSUB_WEBSOCKET_URL = "wss://eventsub.wss.twitch.tv/ws"
         private const val EVENTSUB_SUBSCRIPTIONS_URL = "https://api.twitch.tv/helix/eventsub/subscriptions"
         private val WELCOME_TIMEOUT = 10.seconds
+        private val SUPERVISOR_RESTART_DELAY = 1.seconds
 
         private fun defaultClient() =
             HttpClient(OkHttp) {
                 install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
                 install(WebSockets)
             }
+    }
+}
+
+internal suspend fun runRestartingWorker(
+    restartDelay: Duration,
+    onFailure: (Throwable) -> Unit,
+    worker: suspend () -> Unit,
+) {
+    while (true) {
+        try {
+            worker()
+            error("EventSub worker completed unexpectedly")
+        } catch (e: CancellationException) {
+            currentCoroutineContext().ensureActive()
+            onFailure(e)
+        } catch (e: Exception) {
+            onFailure(e)
+        }
+        delay(restartDelay)
     }
 }
 
