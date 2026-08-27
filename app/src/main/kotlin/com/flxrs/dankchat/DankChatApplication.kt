@@ -11,6 +11,7 @@ import coil3.disk.directory
 import coil3.gif.AnimatedImageDecoder
 import coil3.network.cachecontrol.CacheControlCacheStrategy
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.flxrs.dankchat.data.notification.RemotePushCoordinator
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.IgnoresRepository
 import com.flxrs.dankchat.di.DankChatModule
@@ -48,6 +49,7 @@ class DankChatApplication :
     private val appearanceSettingsDataStore: AppearanceSettingsDataStore by inject()
     private val connectionCoordinator: ConnectionCoordinator by inject()
     private val batterySaverCoordinator: BatterySaverCoordinator by inject()
+    private val remotePushCoordinator: RemotePushCoordinator by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -57,6 +59,7 @@ class DankChatApplication :
 
         connectionCoordinator.initialize()
         batterySaverCoordinator.initialize()
+        remotePushCoordinator.initialize()
 
         setupThemeMode()
 
