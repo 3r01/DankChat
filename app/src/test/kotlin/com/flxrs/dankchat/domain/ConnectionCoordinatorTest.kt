@@ -9,6 +9,8 @@ import com.flxrs.dankchat.data.repo.data.DataRepository
 import com.flxrs.dankchat.data.state.GlobalLoadingState
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.battery.BatterySettings
+import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
 import com.flxrs.dankchat.utils.AppLifecycleListener
 import com.flxrs.dankchat.utils.AppLifecycleListener.AppLifecycle
 import com.flxrs.dankchat.utils.ForegroundServiceState
@@ -52,6 +54,7 @@ internal class ConnectionCoordinatorTest {
     private val appLifecycleListener: AppLifecycleListener = mockk { every { appState } returns this@ConnectionCoordinatorTest.appState }
     private val foregroundServiceState: ForegroundServiceState = mockk(relaxed = true)
     private val remotePushCoordinator: RemotePushCoordinator = mockk { every { isEnabled() } returns true }
+    private val batterySettingsDataStore: BatterySettingsDataStore = mockk { every { current() } returns BatterySettings() }
 
     private lateinit var coordinator: ConnectionCoordinator
 
@@ -68,6 +71,7 @@ internal class ConnectionCoordinatorTest {
                 appLifecycleListener = appLifecycleListener,
                 foregroundServiceState = foregroundServiceState,
                 remotePushCoordinator = remotePushCoordinator,
+                batterySettingsDataStore = batterySettingsDataStore,
                 dispatchersProvider = dispatchersProvider,
             )
     }
@@ -85,6 +89,8 @@ internal class ConnectionCoordinatorTest {
         coVerify(exactly = 0) { chatConnector.pauseForRemotePush() }
         verify(exactly = 0) { dataRepository.pauseForRemotePush() }
         verify(exactly = 0) { foregroundServiceState.setActive(false) }
+        verify { chatConnector.reconnectIfNecessary() }
+        coVerify { dataRepository.reconnectIfNecessary() }
     }
 
     @Test
