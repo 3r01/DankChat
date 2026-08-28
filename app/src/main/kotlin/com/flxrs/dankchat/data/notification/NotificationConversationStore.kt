@@ -6,45 +6,33 @@ internal class NotificationConversationStore(
     private val historyLimit: Int,
 ) {
     private val lock = Any()
-    private val channelNotifications = mutableMapOf<UserName, LinkedHashMap<Int, NotificationData>>()
+    private val channelNotifications = mutableMapOf<UserName, LinkedHashMap<String, NotificationData>>()
     private val whisperNotifications = mutableMapOf<UserName, WhisperNotificationState>()
 
     fun addChannelMessage(
         channel: UserName,
-        notificationId: Int,
         data: NotificationData,
     ) {
         synchronized(lock) {
-            channelNotifications.getOrPut(channel) { linkedMapOf() }[notificationId] = data
-        }
-    }
-
-    fun channelSummary(channel: UserName): List<NotificationData> = synchronized(lock) {
-        channelNotifications[channel]
-            ?.values
-            ?.toList()
-            ?.takeLast(historyLimit)
-            .orEmpty()
-    }
-
-    fun removeChannelMessage(
-        channel: UserName,
-        notificationId: Int,
-    ) {
-        synchronized(lock) {
-            channelNotifications[channel]?.remove(notificationId)
-            if (channelNotifications[channel].isNullOrEmpty()) {
-                channelNotifications.remove(channel)
+            val messages = channelNotifications.getOrPut(channel) { linkedMapOf() }
+            messages[data.id] = data
+            while (messages.size > historyLimit) {
+                messages.remove(messages.keys.first())
             }
         }
     }
 
-    fun clearChannel(channel: UserName): List<Int> = synchronized(lock) {
-        channelNotifications
-            .remove(channel)
-            ?.keys
+    fun channelMessages(channel: UserName): List<NotificationData> = synchronized(lock) {
+        channelNotifications[channel]
+            ?.values
             ?.toList()
             .orEmpty()
+    }
+
+    fun clearChannel(channel: UserName) {
+        synchronized(lock) {
+            channelNotifications.remove(channel)
+        }
     }
 
     fun channelKeys(): List<UserName> = synchronized(lock) { channelNotifications.keys.toList() }

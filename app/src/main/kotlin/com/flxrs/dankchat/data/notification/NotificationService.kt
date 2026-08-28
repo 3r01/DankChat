@@ -169,10 +169,6 @@ class NotificationService :
         when (intent?.action) {
             STOP_COMMAND -> launch { dataRepository.sendShutdownCommand() }
 
-            DISMISS_CHANNEL_MESSAGE_COMMAND -> launch {
-                notificationMutex.withLock { dismissChannelMessage(intent) }
-            }
-
             DISMISS_CHANNEL_COMMAND -> intent.channelExtra()?.let { channel ->
                 launch { notificationMutex.withLock { clearNotificationsForChannelLocked(channel) } }
             }
@@ -207,8 +203,8 @@ class NotificationService :
             conversationStore.whisperKeys().forEach(::clearWhisperNotification)
             return
         }
-        conversationStore.clearChannel(channel).forEach(manager::cancel)
-        manager.cancel(channelSummaryTag(channel), CHANNEL_SUMMARY_NOTIFICATION_ID)
+        conversationStore.clearChannel(channel)
+        manager.cancel(channelTag(channel), CHANNEL_NOTIFICATION_ID)
     }
 
     private fun clearAllMentionNotifications() {
@@ -256,86 +252,54 @@ class NotificationService :
     }
 
     private suspend fun NotificationData.createChannelNotification() {
-        val conversationIcon = conversationIcon()
-        val senderIcon = senderIcon()
-        val sender = senderPerson(senderIcon)
-        val shortcutId = channelShortcutId(channel)
-        publishShortcut(shortcutId, "#$channel", listOf(sender), openChannelIntent(channel), conversationIcon)
-        val id = notificationId.fetchAndAdd(1)
-        conversationStore.addChannelMessage(channel, id, this)
-        val title = when {
-            isNotify -> getString(R.string.notification_notify_mention, channel)
-            else -> getString(R.string.notification_mention, name, channel)
-        }
-        val style = NotificationCompat
-            .MessagingStyle(currentUserPerson())
-            .setConversationTitle("#$channel")
-            .setGroupConversation(true)
-            .addMessage(message, timestamp, sender)
-        val notification = NotificationCompat
-            .Builder(this@NotificationService, CHANNEL_ID_DEFAULT)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setContentIntent(openChannelPendingIntent(this, includeMessage = true))
-            .setDeleteIntent(dismissChannelMessagePendingIntent(channel, id))
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(senderIcon)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setGroup(channelGroup(channel))
-            .setShortcutId(shortcutId)
-            .setLocusId(LocusIdCompat(shortcutId))
-            .setStyle(style)
-            .setAutoCancel(true)
-            .build()
-        manager.notify(id, notification)
-        updateChannelSummary(channel, conversationIcon)
+        conversationStore.addChannelMessage(channel, this)
+        updateChannelNotification(channel)
     }
 
-    private suspend fun updateChannelSummary(
-        channel: UserName,
-        icon: Bitmap? = null,
-    ) {
-        val messages = conversationStore.channelSummary(channel)
+    private suspend fun updateChannelNotification(channel: UserName) {
+        val messages = conversationStore.channelMessages(channel)
         if (messages.isEmpty()) {
-            manager.cancel(channelSummaryTag(channel), CHANNEL_SUMMARY_NOTIFICATION_ID)
+            manager.cancel(channelTag(channel), CHANNEL_NOTIFICATION_ID)
             return
         }
         val latest = messages.last()
-        val conversationIcon = icon ?: latest.conversationIcon()
+        val channelIcon = latest.channelIcon()
         val messagesWithSenders = messages.map { it to it.senderPerson(it.senderIcon()) }
         val shortcutId = channelShortcutId(channel)
-        publishShortcut(shortcutId, "#$channel", messagesWithSenders.map { it.second }.distinctBy { it.key }, openChannelIntent(channel), conversationIcon)
+        publishShortcut(
+            shortcutId,
+            "#$channel",
+            messagesWithSenders.map { it.second }.distinctBy { it.key },
+            openChannelIntent(channel),
+            channelIcon,
+        )
         val style = NotificationCompat
             .MessagingStyle(currentUserPerson())
             .setConversationTitle("#$channel")
             .setGroupConversation(true)
         messagesWithSenders.forEach { (message, sender) -> style.addMessage(message.message, message.timestamp, sender) }
-        val summary = NotificationCompat
+        val notification = NotificationCompat
             .Builder(this, CHANNEL_ID_DEFAULT)
-            .setContentTitle(getString(R.string.notification_channel_mentions, channel))
+            .setContentTitle("#$channel")
             .setContentText(
                 getString(R.string.notification_message_with_sender, latest.sender().name, latest.message),
-            ).setContentIntent(openChannelPendingIntent(latest, includeMessage = false))
+            ).setContentIntent(openChannelPendingIntent(latest, includeMessage = true))
             .setDeleteIntent(dismissChannelPendingIntent(channel))
             .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(conversationIcon)
+            .setLargeIcon(channelIcon)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setGroup(channelGroup(channel))
-            .setGroupSummary(true)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
-            .setOnlyAlertOnce(true)
             .setShortcutId(shortcutId)
             .setLocusId(LocusIdCompat(shortcutId))
             .setStyle(style)
             .setAutoCancel(true)
             .build()
-        manager.notify(channelSummaryTag(channel), CHANNEL_SUMMARY_NOTIFICATION_ID, summary)
+        manager.notify(channelTag(channel), CHANNEL_NOTIFICATION_ID, notification)
     }
 
     private suspend fun NotificationData.createWhisperNotification() {
         val key = name.lowercase()
         conversationStore.addWhisperMessage(key, this, ConversationMessage(message, timestamp, sender()))
-        updateWhisperNotification(key, conversationIcon())
+        updateWhisperNotification(key, senderIcon())
     }
 
     private suspend fun updateWhisperNotification(
@@ -344,13 +308,22 @@ class NotificationService :
     ) {
         val state = conversationStore.whisper(key) ?: return
         val target = state.target
-        val conversationIcon = icon ?: target.conversationIcon()
-        val shortcutId = whisperShortcutId(target)
+        val conversationIcon = icon ?: target.senderIcon()
         val conversationTitle = getString(R.string.notification_whisper_conversation_title, target.displayName.value)
-        publishShortcut(shortcutId, conversationTitle, listOf(target.senderPerson(conversationIcon)), openWhisperIntent(target.name), conversationIcon)
+        val shortcutId = whisperShortcutId(target)
+        publishShortcut(
+            shortcutId,
+            conversationTitle,
+            listOf(target.senderPerson(conversationIcon)),
+            openWhisperIntent(target.name),
+            conversationIcon,
+        )
         val currentUser = currentUserSender()
         val currentUserIcon = currentUserIcon()
-        val style = NotificationCompat.MessagingStyle(currentUser.toPerson(currentUserIcon))
+        val style = NotificationCompat
+            .MessagingStyle(currentUser.toPerson(currentUserIcon))
+            .setConversationTitle(conversationTitle)
+            .setGroupConversation(true)
         val targetKey = target.sender().key
         state.messages.forEach { message ->
             val senderIcon = when (message.sender.key) {
@@ -368,19 +341,12 @@ class NotificationService :
             .setContentIntent(openWhisperPendingIntent(target.name))
             .setDeleteIntent(dismissWhisperPendingIntent(key))
             .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(conversationIcon)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setShortcutId(shortcutId)
             .setLocusId(LocusIdCompat(shortcutId))
             .setStyle(style)
             .setAutoCancel(true)
         manager.notify(whisperTag(key), WHISPER_NOTIFICATION_ID, builder.build())
-    }
-
-    private suspend fun dismissChannelMessage(intent: Intent) {
-        val channel = intent.channelExtra() ?: return
-        conversationStore.removeChannelMessage(channel, intent.getIntExtra(EXTRA_CHILD_NOTIFICATION_ID, -1))
-        updateChannelSummary(channel)
     }
 
     private fun clearWhisperNotification(key: UserName) {
@@ -411,14 +377,13 @@ class NotificationService :
         }.onFailure { logger.warn(it) { "Failed to publish conversation shortcut: $id" } }
     }
 
-    private suspend fun NotificationData.conversationIcon(): Bitmap = when {
-        isWhisper -> senderIcon()
-        else -> loadNotificationIcon("channel:${channel.value}") { channelRepository.getUserDtoByName(channel)?.avatarUrl }
-    }
-
     private suspend fun NotificationData.senderIcon(): Bitmap = loadNotificationIcon("user:${userId?.value ?: name.value}") {
         userId?.let { channelRepository.getUserDto(it) }?.avatarUrl
             ?: channelRepository.getUserDtoByName(name)?.avatarUrl
+    }
+
+    private suspend fun NotificationData.channelIcon(): Bitmap = loadNotificationIcon("channel:${channel.value}") {
+        channelRepository.getUserDtoByName(channel)?.avatarUrl
     }
 
     private suspend fun loadNotificationIcon(
@@ -512,14 +477,6 @@ class NotificationService :
         putExtra(MainActivity.OPEN_WHISPER_TARGET_KEY, target.value)
     }
 
-    private fun dismissChannelMessagePendingIntent(
-        channel: UserName,
-        notificationId: Int,
-    ): PendingIntent = servicePendingIntent(DISMISS_CHANNEL_MESSAGE_COMMAND) {
-        putExtra(EXTRA_CHANNEL, channel)
-        putExtra(EXTRA_CHILD_NOTIFICATION_ID, notificationId)
-    }
-
     private fun dismissChannelPendingIntent(channel: UserName): PendingIntent = servicePendingIntent(DISMISS_CHANNEL_COMMAND) { putExtra(EXTRA_CHANNEL, channel) }
 
     private fun dismissWhisperPendingIntent(key: UserName): PendingIntent = servicePendingIntent(DISMISS_WHISPER_COMMAND) { putExtra(EXTRA_USER_NAME, key) }
@@ -543,9 +500,7 @@ class NotificationService :
     @Suppress("DEPRECATION")
     private fun Intent.userNameExtra(): UserName? = getParcelableExtra(EXTRA_USER_NAME)
 
-    private fun channelGroup(channel: UserName) = "dank_channel_${channel.value}"
-
-    private fun channelSummaryTag(channel: UserName) = "channel_summary_${channel.value}"
+    private fun channelTag(channel: UserName) = "channel_${channel.value}"
 
     private fun whisperTag(key: UserName) = "whisper_${key.value}"
 
@@ -559,23 +514,20 @@ class NotificationService :
         private const val NOTIFICATION_ID = 77777
         private const val NOTIFICATION_START_INTENT_CODE = 66666
         private const val NOTIFICATION_STOP_INTENT_CODE = 55555
-        private const val CHANNEL_SUMMARY_NOTIFICATION_ID = 12345
+        private const val CHANNEL_NOTIFICATION_ID = 12345
         private const val WHISPER_NOTIFICATION_ID = 23456
 
         private const val STOP_COMMAND = "STOP_DANKING"
-        private const val DISMISS_CHANNEL_MESSAGE_COMMAND = "com.flxrs.dankchat.notification.DISMISS_CHANNEL_MESSAGE"
         private const val DISMISS_CHANNEL_COMMAND = "com.flxrs.dankchat.notification.DISMISS_CHANNEL"
         private const val DISMISS_WHISPER_COMMAND = "com.flxrs.dankchat.notification.DISMISS_WHISPER"
 
         private const val EXTRA_CHANNEL = "notification_channel"
         private const val EXTRA_USER_NAME = "notification_user_name"
-        private const val EXTRA_CHILD_NOTIFICATION_ID = "notification_child_id"
 
         private const val MAX_NOTIFIED_IDS = 500
         private const val MAX_NOTIFICATION_ICONS = 100
         private const val CONVERSATION_ICON_SIZE = 128
         private val FOREGROUND_RETRY_DELAY = 5.seconds
-        private val notificationId = AtomicInt(42)
         private val notificationIntentCode = AtomicInt(420)
     }
 }

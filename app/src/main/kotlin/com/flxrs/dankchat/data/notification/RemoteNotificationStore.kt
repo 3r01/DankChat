@@ -32,15 +32,12 @@ class RemoteNotificationStore(
         .forConversation(message)
         .takeLast(MAX_CONVERSATION_MESSAGES)
 
-    suspend fun remove(messageId: String): RemoteNotificationState = dataStore.updateData { state -> RemoteNotificationState(state.messages.filterNot { it.messageId == messageId }) }
-
-    suspend fun clearChannel(channelName: String): List<PushMessage> {
-        var removed = emptyList<PushMessage>()
+    suspend fun clearChannel(channelName: String) {
         dataStore.updateData { state ->
-            removed = state.messages.filter { it.kind == PushMessageKind.Mention && it.channelName.equals(channelName, ignoreCase = true) }
-            RemoteNotificationState(state.messages - removed.toSet())
+            RemoteNotificationState(
+                state.messages.filterNot { it.kind == PushMessageKind.Mention && it.channelName.equals(channelName, ignoreCase = true) },
+            )
         }
-        return removed
     }
 
     suspend fun clearWhispers(senderUserName: String? = null): List<PushMessage> {

@@ -276,7 +276,7 @@
     <string name="replies_title">Reply Thread</string>
     <string name="whispers">Whispers</string>
     <string name="notification_whisper_mention">%1$s sent you a whisper</string>
-    <string name="notification_whisper_conversation_title">Whisper · %1$s</string>
+    <string name="notification_whisper_conversation_title">Whisper from @%1$s</string>
     <string name="mentions">Mentions</string>
     <string name="confirm_channel_removal_title">Confirm channel removal</string>
     <string name="confirm_channel_removal_message">Are you sure you want to remove this channel?</string>

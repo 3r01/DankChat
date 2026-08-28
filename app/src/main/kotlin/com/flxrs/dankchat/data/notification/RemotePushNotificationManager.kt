@@ -67,21 +67,13 @@ class RemotePushNotificationManager(
                 .distinct()
                 .forEach { manager.cancel(whisperTag(it), WHISPER_ID) }
         } else {
-            val removed = store.clearChannel(channel.value)
-            removed.forEach { manager.cancel(messageTag(it.messageId), MESSAGE_ID) }
-            manager.cancel(channelSummaryTag(channel.value), CHANNEL_SUMMARY_ID)
+            store.clearChannel(channel.value)
+            manager.cancel(channelTag(channel.value), CHANNEL_NOTIFICATION_ID)
         }
     }
 
     suspend fun handleDismiss(intent: Intent) {
         when (intent.action) {
-            DISMISS_MESSAGE -> {
-                val messageId = intent.getStringExtra(EXTRA_MESSAGE_ID) ?: return
-                val channel = intent.getStringExtra(EXTRA_CHANNEL) ?: return
-                val state = store.remove(messageId)
-                updateChannelSummary(channel, state.messages.filterMentions(channel))
-            }
-
             DISMISS_CHANNEL -> intent.getStringExtra(EXTRA_CHANNEL)?.let { clear(it.toUserName()) }
 
             DISMISS_WHISPER -> intent.getStringExtra(EXTRA_SENDER)?.let { sender ->
@@ -96,71 +88,41 @@ class RemotePushNotificationManager(
         history: List<PushMessage>,
     ) {
         val channel = message.channelName ?: return
-        val senderBitmap = senderIcon(message)
-        val sender = message.senderPerson(senderBitmap)
-        val conversationIcon = channelIcon(message)
-        val shortcutId = channelShortcutId(channel)
-        publishShortcut(shortcutId, "#$channel", history.map { it.senderPerson() }.distinctBy { it.key }, openChannelIntent(channel), conversationIcon)
-
-        val style = NotificationCompat
-            .MessagingStyle(currentUserPerson(message))
-            .setConversationTitle("#$channel")
-            .setGroupConversation(true)
-            .addMessage(message.text, message.timestamp, sender)
-        val notification = NotificationCompat
-            .Builder(context, CHANNEL_ID)
-            .setContentTitle(context.getString(R.string.notification_mention, message.senderUserName, channel))
-            .setContentText(message.text)
-            .setContentIntent(openChannelPendingIntent(message, includeMessage = true))
-            .setDeleteIntent(dismissMessagePendingIntent(message))
-            .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(senderBitmap)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setGroup(channelGroup(channel))
-            .setShortcutId(shortcutId)
-            .setLocusId(LocusIdCompat(shortcutId))
-            .setStyle(style)
-            .setAutoCancel(true)
-            .build()
-        manager.notify(messageTag(message.messageId), MESSAGE_ID, notification)
-        updateChannelSummary(channel, history, conversationIcon)
+        updateChannelNotification(channel, history)
     }
 
-    private suspend fun updateChannelSummary(
+    private suspend fun updateChannelNotification(
         channel: String,
         history: List<PushMessage>,
-        suppliedIcon: Bitmap? = null,
     ) {
         if (history.isEmpty()) {
-            manager.cancel(channelSummaryTag(channel), CHANNEL_SUMMARY_ID)
+            manager.cancel(channelTag(channel), CHANNEL_NOTIFICATION_ID)
             return
         }
         val latest = history.last()
-        val icon = suppliedIcon ?: channelIcon(latest)
-        val style = NotificationCompat.MessagingStyle(currentUserPerson(latest)).setConversationTitle("#$channel").setGroupConversation(true)
-        history.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES).forEach { message ->
-            style.addMessage(message.text, message.timestamp, message.senderPerson(senderIcon(message)))
-        }
+        val channelIcon = channelIcon(latest)
         val shortcutId = channelShortcutId(channel)
-        val summary = NotificationCompat
+        val people = history.map { it.senderPerson() }.distinctBy { it.key }
+        publishShortcut(shortcutId, "#$channel", people, openChannelIntent(channel), channelIcon)
+        val style = NotificationCompat.MessagingStyle(currentUserPerson(latest)).setConversationTitle("#$channel").setGroupConversation(true)
+        history.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES).forEach { historyMessage ->
+            style.addMessage(historyMessage.text, historyMessage.timestamp, historyMessage.senderPerson(senderIcon(historyMessage)))
+        }
+        val notification = NotificationCompat
             .Builder(context, CHANNEL_ID)
-            .setContentTitle(context.getString(R.string.notification_channel_mentions, channel))
+            .setContentTitle("#$channel")
             .setContentText(context.getString(R.string.notification_message_with_sender, latest.senderLabel(), latest.text))
-            .setContentIntent(openChannelPendingIntent(latest, includeMessage = false))
+            .setContentIntent(openChannelPendingIntent(latest, includeMessage = true))
             .setDeleteIntent(dismissChannelPendingIntent(channel))
             .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(icon)
+            .setLargeIcon(channelIcon)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setGroup(channelGroup(channel))
-            .setGroupSummary(true)
-            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
-            .setOnlyAlertOnce(true)
             .setShortcutId(shortcutId)
             .setLocusId(LocusIdCompat(shortcutId))
             .setStyle(style)
             .setAutoCancel(true)
             .build()
-        manager.notify(channelSummaryTag(channel), CHANNEL_SUMMARY_ID, summary)
+        manager.notify(channelTag(channel), CHANNEL_NOTIFICATION_ID, notification)
     }
 
     private suspend fun showWhisper(
@@ -169,11 +131,13 @@ class RemotePushNotificationManager(
     ) {
         val senderKey = message.senderUserName.lowercase()
         val icon = senderIcon(message)
-        val sender = message.senderPerson(icon)
-        val shortcutId = whisperShortcutId(message)
         val title = context.getString(R.string.notification_whisper_conversation_title, message.senderDisplayName)
-        publishShortcut(shortcutId, title, listOf(sender), openWhisperIntent(message.senderUserName), icon)
-        val style = NotificationCompat.MessagingStyle(currentUserPerson(message))
+        val shortcutId = whisperShortcutId(message)
+        publishShortcut(shortcutId, title, listOf(message.senderPerson(icon)), openWhisperIntent(message.senderUserName), icon)
+        val style = NotificationCompat
+            .MessagingStyle(currentUserPerson(message))
+            .setConversationTitle(title)
+            .setGroupConversation(true)
         history.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES).forEach {
             style.addMessage(it.text, it.timestamp, it.senderPerson(if (it.senderUserId == message.senderUserId) icon else null))
         }
@@ -185,7 +149,6 @@ class RemotePushNotificationManager(
             .setContentIntent(openWhisperPendingIntent(message.senderUserName))
             .setDeleteIntent(dismissWhisperPendingIntent(senderKey))
             .setSmallIcon(R.drawable.ic_notification_icon)
-            .setLargeIcon(icon)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setShortcutId(shortcutId)
             .setLocusId(LocusIdCompat(shortcutId))
@@ -222,17 +185,17 @@ class RemotePushNotificationManager(
         }.onFailure { remoteNotificationLogger.warn(it) { "Failed to publish remote notification shortcut" } }
     }
 
+    private suspend fun senderIcon(message: PushMessage) = loadIcon("user:${message.senderUserId}") {
+        message.senderAvatarUrl
+            ?: channelRepository.getUserDto(message.senderUserId.toUserId())?.avatarUrl
+            ?: channelRepository.getUserDtoByName(message.senderUserName.toUserName())?.avatarUrl
+    }
+
     private suspend fun channelIcon(message: PushMessage): Bitmap {
         val channel = message.channelName.orEmpty()
         return loadIcon("channel:${message.channelId ?: channel}") {
             message.channelAvatarUrl ?: channelRepository.getUserDtoByName(channel.toUserName())?.avatarUrl
         }
-    }
-
-    private suspend fun senderIcon(message: PushMessage) = loadIcon("user:${message.senderUserId}") {
-        message.senderAvatarUrl
-            ?: channelRepository.getUserDto(message.senderUserId.toUserId())?.avatarUrl
-            ?: channelRepository.getUserDtoByName(message.senderUserName.toUserName())?.avatarUrl
     }
 
     private suspend fun loadIcon(
@@ -308,11 +271,6 @@ class RemotePushNotificationManager(
 
     private fun openWhisperIntent(sender: String) = openChannelIntent("").apply { putExtra(MainActivity.OPEN_WHISPER_TARGET_KEY, sender) }
 
-    private fun dismissMessagePendingIntent(message: PushMessage) = dismissPendingIntent(DISMISS_MESSAGE, message.messageId.hashCode()) {
-        putExtra(EXTRA_MESSAGE_ID, message.messageId)
-        putExtra(EXTRA_CHANNEL, message.channelName)
-    }
-
     private fun dismissChannelPendingIntent(channel: String) = dismissPendingIntent(DISMISS_CHANNEL, channel.hashCode()) { putExtra(EXTRA_CHANNEL, channel) }
 
     private fun dismissWhisperPendingIntent(sender: String) = dismissPendingIntent(DISMISS_WHISPER, sender.hashCode()) { putExtra(EXTRA_SENDER, sender) }
@@ -331,17 +289,9 @@ class RemotePushNotificationManager(
         PENDING_INTENT_FLAGS,
     )
 
-    private fun List<PushMessage>.filterMentions(channel: String) = filter {
-        it.kind == PushMessageKind.Mention && it.channelName.equals(channel, ignoreCase = true)
-    }.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES)
-
-    private fun messageTag(id: String) = "remote_message_$id"
-
-    private fun channelSummaryTag(channel: String) = "channel_summary_${channel.lowercase()}"
+    private fun channelTag(channel: String) = "remote_channel_${channel.lowercase()}"
 
     private fun whisperTag(sender: String) = "remote_whisper_${sender.lowercase()}"
-
-    private fun channelGroup(channel: String) = "dank_channel_${channel.lowercase()}"
 
     private fun channelShortcutId(channel: String) = "channel_${channel.lowercase()}"
 
@@ -349,15 +299,12 @@ class RemotePushNotificationManager(
 
     private companion object {
         const val CHANNEL_ID = "com.flxrs.dankchat.very_dank_id"
-        const val MESSAGE_ID = 34567
-        const val CHANNEL_SUMMARY_ID = 12345
+        const val CHANNEL_NOTIFICATION_ID = 12345
         const val WHISPER_ID = 23456
         const val ICON_SIZE = 128
         const val MAX_NOTIFICATION_ICONS = 100
-        const val DISMISS_MESSAGE = "com.flxrs.dankchat.remote.DISMISS_MESSAGE"
         const val DISMISS_CHANNEL = "com.flxrs.dankchat.remote.DISMISS_CHANNEL"
         const val DISMISS_WHISPER = "com.flxrs.dankchat.remote.DISMISS_WHISPER"
-        const val EXTRA_MESSAGE_ID = "message_id"
         const val EXTRA_CHANNEL = "channel"
         const val EXTRA_SENDER = "sender"
         val PENDING_INTENT_FLAGS = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
