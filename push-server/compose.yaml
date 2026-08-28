@@ -1,0 +1,18 @@
+services:
+  push-server:
+    build:
+      context: ..
+      dockerfile: push-server/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      FIREBASE_CREDENTIALS: /run/secrets/firebase.json
+      DATA_DIRECTORY: /data
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - push-data:/data
+      - ./secrets/firebase.json:/run/secrets/firebase.json:ro
+
+volumes:
+  push-data:

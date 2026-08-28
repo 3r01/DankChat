@@ -711,6 +711,9 @@
     <string name="preference_battery_pause_7tv_title">Pause live emote updates</string>
     <string name="preference_battery_pause_7tv_summary">Disconnects 7TV live emote updates in the background</string>
     <string name="battery_saver_channel_paused">Chat paused to save battery</string>
+    <string name="preference_battery_remote_push_delay_title">Remote push disconnect delay</string>
+    <string name="preference_battery_remote_push_delay_summary">Keeps Twitch connections active for %1$s after leaving the app</string>
+    <string name="battery_remote_push_delay_entry_one_minute">1 minute</string>
     <string name="reset_media_uploader_dialog_title">Reset Media Uploader Settings</string>
     <string name="reset_media_uploader_dialog_message">Are you sure you want to reset the media uploader settings to default?</string>
     <string name="reset_media_uploader_dialog_positive">Reset</string>
@@ -1048,4 +1051,14 @@
     <string name="cmd_error_message_too_large">Your message was too long.</string>
     <string name="cmd_error_chat_rate_limited">You are being rate-limited. Try again in a moment.</string>
     <string name="cmd_error_target_default">The target user</string>
+    <string name="preference_remote_push_header">Remote push</string>
+    <string name="preference_remote_push_title">Use remote push notifications</string>
+    <string name="preference_remote_push_summary">Disconnect from Twitch in the background and receive notifications through your push server</string>
+    <string name="preference_remote_push_server_url">Server URL</string>
+    <string name="preference_remote_push_enrollment_token">Enrollment token</string>
+    <string name="preference_remote_push_status_disabled">Disabled</string>
+    <string name="preference_remote_push_status_waiting_login">Waiting for Twitch login</string>
+    <string name="preference_remote_push_status_waiting_device">Waiting for Firebase registration</string>
+    <string name="preference_remote_push_status_syncing">Syncing configuration</string>
+    <string name="preference_remote_push_status_synced">Configuration synced</string>
 </resources>

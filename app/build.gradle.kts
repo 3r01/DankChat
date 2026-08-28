@@ -17,6 +17,7 @@ plugins {
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -77,6 +78,10 @@ android {
             isDefault = true
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += "release"
+            if (System.getenv("DANKCHAT_FAST_BUILD").toBoolean()) {
+                isMinifyEnabled = false
+                isShrinkResources = false
+            }
         }
     }
 
@@ -123,6 +128,10 @@ baselineProfile {
 
 tasks.withType<Test> { useJUnitPlatform() }
 
+tasks.matching { it.name == "processDebugGoogleServices" || it.name == "processReleaseGoogleServices" }.configureEach {
+    enabled = false
+}
+
 kotlin {
     jvmToolchain(jdkVersion = 21)
     compilerOptions {
@@ -143,6 +152,9 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":push-protocol"))
+    "dankImplementation"(libs.firebase.messaging)
+
     // Detekt plugins
     detektPlugins(libs.detekt.compose.rules)
 
