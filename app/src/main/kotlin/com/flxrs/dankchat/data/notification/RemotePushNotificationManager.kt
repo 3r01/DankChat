@@ -98,12 +98,12 @@ class RemotePushNotificationManager(
         val channel = message.channelName ?: return
         val senderBitmap = senderIcon(message)
         val sender = message.senderPerson(senderBitmap)
-        val conversationIcon = channelIcon(channel)
+        val conversationIcon = channelIcon(message)
         val shortcutId = channelShortcutId(channel)
         publishShortcut(shortcutId, "#$channel", history.map { it.senderPerson() }.distinctBy { it.key }, openChannelIntent(channel), conversationIcon)
 
         val style = NotificationCompat
-            .MessagingStyle(currentUserPerson())
+            .MessagingStyle(currentUserPerson(message))
             .setConversationTitle("#$channel")
             .setGroupConversation(true)
             .addMessage(message.text, message.timestamp, sender)
@@ -136,8 +136,8 @@ class RemotePushNotificationManager(
             return
         }
         val latest = history.last()
-        val icon = suppliedIcon ?: channelIcon(channel)
-        val style = NotificationCompat.MessagingStyle(currentUserPerson()).setConversationTitle("#$channel").setGroupConversation(true)
+        val icon = suppliedIcon ?: channelIcon(latest)
+        val style = NotificationCompat.MessagingStyle(currentUserPerson(latest)).setConversationTitle("#$channel").setGroupConversation(true)
         history.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES).forEach { message ->
             style.addMessage(message.text, message.timestamp, message.senderPerson(senderIcon(message)))
         }
@@ -173,7 +173,7 @@ class RemotePushNotificationManager(
         val shortcutId = whisperShortcutId(message)
         val title = context.getString(R.string.notification_whisper_conversation_title, message.senderDisplayName)
         publishShortcut(shortcutId, title, listOf(sender), openWhisperIntent(message.senderUserName), icon)
-        val style = NotificationCompat.MessagingStyle(currentUserPerson())
+        val style = NotificationCompat.MessagingStyle(currentUserPerson(message))
         history.takeLast(NotificationCompat.MessagingStyle.MAXIMUM_RETAINED_MESSAGES).forEach {
             style.addMessage(it.text, it.timestamp, it.senderPerson(if (it.senderUserId == message.senderUserId) icon else null))
         }
@@ -222,12 +222,16 @@ class RemotePushNotificationManager(
         }.onFailure { remoteNotificationLogger.warn(it) { "Failed to publish remote notification shortcut" } }
     }
 
-    private suspend fun channelIcon(channel: String) = loadIcon("channel:$channel") {
-        channelRepository.getUserDtoByName(channel.toUserName())?.avatarUrl
+    private suspend fun channelIcon(message: PushMessage): Bitmap {
+        val channel = message.channelName.orEmpty()
+        return loadIcon("channel:${message.channelId ?: channel}") {
+            message.channelAvatarUrl ?: channelRepository.getUserDtoByName(channel.toUserName())?.avatarUrl
+        }
     }
 
     private suspend fun senderIcon(message: PushMessage) = loadIcon("user:${message.senderUserId}") {
-        channelRepository.getUserDto(message.senderUserId.toUserId())?.avatarUrl
+        message.senderAvatarUrl
+            ?: channelRepository.getUserDto(message.senderUserId.toUserId())?.avatarUrl
             ?: channelRepository.getUserDtoByName(message.senderUserName.toUserName())?.avatarUrl
     }
 
@@ -264,10 +268,10 @@ class RemotePushNotificationManager(
         }
     }
 
-    private suspend fun currentUserPerson(): Person {
+    private suspend fun currentUserPerson(message: PushMessage): Person {
         val id = authDataStore.userIdString?.value
         val name = authDataStore.displayName?.value ?: authDataStore.userName?.value ?: context.getString(R.string.app_name)
-        val icon = id?.let { loadIcon("user:$it") { channelRepository.getUserDto(it.toUserId())?.avatarUrl } }
+        val icon = id?.let { loadIcon("user:$it") { message.currentUserAvatarUrl ?: channelRepository.getUserDto(it.toUserId())?.avatarUrl } }
         return Person
             .Builder()
             .setName(name)

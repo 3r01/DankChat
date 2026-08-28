@@ -68,6 +68,7 @@ class EventSubSupervisor(
     private val pushSender: PushSender,
     private val mentionHistoryStore: MentionHistoryStore,
     private val monitor: EventSubMonitor = EventSubMonitor(),
+    private val profileImageRepository: TwitchProfileImageRepository = TwitchProfileImageRepository(serverConfig.twitchClientId),
     private val client: HttpClient = defaultClient(),
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
@@ -363,6 +364,7 @@ class EventSubSupervisor(
 
         val mention = parseMentionHistoryMessage(event, timestamp, candidate.text)
         mentionHistoryStore.add(configuration.twitchUserId, mention)
+        val avatarUrls = profileImageUrls(listOf(senderId, mention.channelId, configuration.twitchUserId))
 
         pushSender.send(
             PushMessage(
@@ -373,6 +375,9 @@ class EventSubSupervisor(
                 senderUserId = senderId,
                 senderUserName = candidate.senderUserName,
                 senderDisplayName = mention.senderDisplayName,
+                senderAvatarUrl = avatarUrls[senderId],
+                channelAvatarUrl = avatarUrls[mention.channelId],
+                currentUserAvatarUrl = avatarUrls[configuration.twitchUserId],
                 text = mention.text,
                 kind = PushMessageKind.Mention,
             ),
@@ -385,17 +390,28 @@ class EventSubSupervisor(
         configuration: PushConfiguration,
     ) {
         if (!configuration.notifyWhispers) return
+        val senderId = event.string("from_user_id")
+        val avatarUrls = profileImageUrls(listOf(senderId, configuration.twitchUserId))
         pushSender.send(
             PushMessage(
                 messageId = event.string("whisper_id"),
                 timestamp = timestamp,
-                senderUserId = event.string("from_user_id"),
+                senderUserId = senderId,
                 senderUserName = event.string("from_user_login"),
                 senderDisplayName = event.string("from_user_name"),
+                senderAvatarUrl = avatarUrls[senderId],
+                currentUserAvatarUrl = avatarUrls[configuration.twitchUserId],
                 text = event.objectAt("whisper").string("text"),
                 kind = PushMessageKind.Whisper,
             ),
         )
+    }
+
+    private suspend fun profileImageUrls(userIds: Collection<String>): Map<String, String> {
+        val accessToken =
+            stateStore.state.value.twitchTokens
+                ?.accessToken ?: return emptyMap()
+        return profileImageRepository.getProfileImageUrls(userIds, accessToken)
     }
 
     private fun JsonObject.metadataString(key: String) = objectAt("metadata").string(key)
