@@ -84,8 +84,46 @@ internal class ChatMessageRepositoryTest {
         }
     }
 
-    private fun whisperItem() = ChatItem(
+    @Test
+    fun `historical inline whispers merge with channel history by timestamp`() {
+        every { chatSettingsDataStore.current() } returns ChatSettings(showWhispersInline = true)
+        repository.replaceHistoricalWhispersInline(listOf(whisperItem(id = "whisper", timestamp = 200)))
+
+        val merged =
+            repository.mergeHistoricalInlineWhispers(
+                listOf(
+                    whisperItem(id = "before", timestamp = 100),
+                    whisperItem(id = "after", timestamp = 300),
+                ),
+            )
+
+        assertEquals(listOf("before", "whisper", "after"), merged.map { it.message.id })
+    }
+
+    @Test
+    fun `channels created after history loading include historical inline whispers`() {
+        every { chatSettingsDataStore.current() } returns ChatSettings(showWhispersInline = true)
+        repository.replaceHistoricalWhispersInline(listOf(whisperItem(id = "whisper", timestamp = 200)))
+
+        repository.createMessageFlows("channel-three".toUserName())
+
+        assertEquals(
+            "whisper",
+            repository
+                .getChat("channel-three".toUserName())
+                .value
+                .single()
+                .message.id,
+        )
+    }
+
+    private fun whisperItem(
+        id: String = "whisper",
+        timestamp: Long = 0,
+    ) = ChatItem(
         WhisperMessage(
+            timestamp = timestamp,
+            id = id,
             userId = "sender-id".toUserId(),
             name = "sender".toUserName(),
             displayName = "Sender".toDisplayName(),

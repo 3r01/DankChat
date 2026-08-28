@@ -84,6 +84,7 @@ import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.Eve
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsInteraction.EventSubEnabled
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginState
 import com.flxrs.dankchat.preferences.developer.customlogin.CustomLoginViewModel
+import com.flxrs.dankchat.preferences.whispers.WhisperHistorySettingsSheet
 import com.flxrs.dankchat.utils.compose.ConfirmationBottomSheet
 import com.flxrs.dankchat.utils.compose.rememberModalSheetState
 import com.flxrs.dankchat.utils.extensions.truncate
@@ -414,6 +415,9 @@ private fun DeveloperSettingsContent(
                             onInteraction(DeveloperSettingsInteraction.RestartRequired)
                         },
                     )
+                }
+                ExpandablePreferenceItem(title = stringResource(R.string.preference_whisper_history_title)) {
+                    WhisperHistorySettingsSheet(onDismissRequest = ::dismiss)
                 }
                 PreferenceItem(
                     title = stringResource(R.string.preference_revoke_token_title),

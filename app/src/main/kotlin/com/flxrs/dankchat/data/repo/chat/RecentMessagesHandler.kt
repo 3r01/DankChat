@@ -142,7 +142,14 @@ class RecentMessagesHandler(
                     }
                 }
 
-            withIncompleteWarning.addAndLimit(items, chatMessageRepository.scrollBackLength, messageProcessor::onMessageRemoved, checkForDuplications = true)
+            chatMessageRepository.mergeHistoricalInlineWhispers(
+                withIncompleteWarning.addAndLimit(
+                    items,
+                    chatMessageRepository.scrollBackLength,
+                    messageProcessor::onMessageRemoved,
+                    checkForDuplications = true,
+                ),
+            )
         }
 
         val mentionItems = items.filter { it.message.highlights.hasMention() }.toMentionTabItems()

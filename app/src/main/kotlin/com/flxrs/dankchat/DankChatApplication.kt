@@ -18,6 +18,7 @@ import com.flxrs.dankchat.di.DankChatModule
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.domain.BatterySaverCoordinator
 import com.flxrs.dankchat.domain.ConnectionCoordinator
+import com.flxrs.dankchat.domain.WhisperHistoryCoordinator
 import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.Dark
 import com.flxrs.dankchat.preferences.appearance.ThemePreference.System
@@ -50,6 +51,7 @@ class DankChatApplication :
     private val connectionCoordinator: ConnectionCoordinator by inject()
     private val batterySaverCoordinator: BatterySaverCoordinator by inject()
     private val remotePushCoordinator: RemotePushCoordinator by inject()
+    private val whisperHistoryCoordinator: WhisperHistoryCoordinator by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -60,6 +62,7 @@ class DankChatApplication :
         connectionCoordinator.initialize()
         batterySaverCoordinator.initialize()
         remotePushCoordinator.initialize()
+        whisperHistoryCoordinator.initialize()
 
         setupThemeMode()
 
