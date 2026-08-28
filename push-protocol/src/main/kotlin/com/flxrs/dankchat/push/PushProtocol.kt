@@ -74,6 +74,9 @@ data class PushMessage(
     val senderUserId: String,
     val senderUserName: String,
     val senderDisplayName: String,
+    val senderAvatarUrl: String? = null,
+    val channelAvatarUrl: String? = null,
+    val currentUserAvatarUrl: String? = null,
     val text: String,
     val kind: PushMessageKind,
 )

@@ -19,11 +19,12 @@ class RemotePushMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         val payload = message.data[PAYLOAD_KEY] ?: return
-        val pushMessage = runCatching { Json.decodeFromString<PushMessage>(payload) }.getOrNull() ?: return
+        val pushMessage = runCatching { PUSH_JSON.decodeFromString<PushMessage>(payload) }.getOrNull() ?: return
         runBlocking(Dispatchers.IO) { notificationManager.show(pushMessage) }
     }
 
     companion object {
         private const val PAYLOAD_KEY = "dankchat_push"
+        private val PUSH_JSON = Json { ignoreUnknownKeys = true }
     }
 }
