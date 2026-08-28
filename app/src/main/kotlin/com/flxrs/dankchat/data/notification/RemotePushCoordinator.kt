@@ -5,7 +5,6 @@ import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.database.entity.MessageHighlightEntityType
 import com.flxrs.dankchat.data.repo.HighlightsRepository
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
-import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.notifications.NotificationsSettings
@@ -24,10 +23,11 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
 import kotlin.math.max
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger("RemotePushCoordinator")
 
@@ -37,7 +37,6 @@ class RemotePushCoordinator(
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
     private val authDataStore: AuthDataStore,
     private val preferences: DankChatPreferenceStore,
-    private val chatChannelProvider: ChatChannelProvider,
     private val channelRepository: ChannelRepository,
     private val highlightsRepository: HighlightsRepository,
     private val remotePushClient: RemotePushClient,
@@ -66,7 +65,7 @@ class RemotePushCoordinator(
         combine(
             remotePushSettingsDataStore.settings,
             notificationsSettingsDataStore.settings,
-            chatChannelProvider.channels.filterNotNull(),
+            preferences.getChannelsWithRenamesFlow().map { channels -> channels.map { it.channel } },
             preferences.currentUserAndDisplayFlow,
             remotePushDeviceDataStore.device,
         ) { remote, notifications, channels, userAndDisplay, device ->
@@ -120,12 +119,7 @@ class RemotePushCoordinator(
             return
         }
         val notificationsEnabled = input.base.notifications.showNotifications
-        val channels =
-            if (notificationsEnabled) {
-                channelRepository.getChannels(input.base.channels).map { PushChannel(it.id.value, it.name.value) }
-            } else {
-                emptyList()
-            }
+        val channels = if (notificationsEnabled) resolveChannels(input.base.channels) else emptyList()
         val username = input.messageHighlights.find { it.type == MessageHighlightEntityType.Username }
         val reply = input.messageHighlights.find { it.type == MessageHighlightEntityType.Reply }
         val configuration =
@@ -165,6 +159,21 @@ class RemotePushCoordinator(
 
     private fun nextRevision(): Long = max(lastRevision + 1, System.currentTimeMillis()).also { lastRevision = it }
 
+    private suspend fun resolveChannels(channelNames: List<UserName>): List<PushChannel> {
+        while (true) {
+            val channels = channelRepository.getChannels(channelNames)
+            val resolvedNames = channels.mapTo(mutableSetOf()) { it.name }
+            val missing = channelNames.filterNot { it in resolvedNames }
+            if (missing.isEmpty()) {
+                return channels.map { PushChannel(it.id.value, it.name.value) }
+            }
+
+            logger.warn { "Failed to resolve ${missing.size} channel(s) for remote push; preserving the server configuration and retrying" }
+            _status.value = RemotePushStatus.Error("Failed to resolve channels; retrying")
+            kotlinx.coroutines.delay(CHANNEL_RESOLUTION_RETRY_DELAY)
+        }
+    }
+
     private data class BaseInput(
         val remote: RemotePushSettings,
         val notifications: NotificationsSettings,
@@ -189,6 +198,8 @@ class RemotePushCoordinator(
         val blacklistedUsers: List<BlacklistedUserRule>,
     )
 }
+
+private val CHANNEL_RESOLUTION_RETRY_DELAY = 10.seconds
 
 sealed interface RemotePushStatus {
     data object Disabled : RemotePushStatus

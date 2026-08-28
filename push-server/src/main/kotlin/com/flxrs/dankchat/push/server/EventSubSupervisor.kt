@@ -10,7 +10,6 @@ import com.flxrs.dankchat.push.PushMessage
 import com.flxrs.dankchat.push.PushMessageKind
 import com.flxrs.dankchat.push.PushRuleEvaluator
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.websocket.ClientWebSocketSession
@@ -19,6 +18,7 @@ import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -30,6 +30,7 @@ import io.ktor.websocket.readText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -40,6 +41,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -98,8 +100,7 @@ class EventSubSupervisor(
         while (true) {
             try {
                 monitor.markConnecting()
-                runSession(configuration, tokens)
-                backoff = 1.seconds
+                runSession(configuration, tokens) { backoff = 1.seconds }
             } catch (e: TwitchTokenRejectedException) {
                 tokens = oauthClient.refresh(tokens.refreshToken)
                 stateStore.updateTwitchTokens(tokens)
@@ -127,6 +128,7 @@ class EventSubSupervisor(
     private suspend fun runSession(
         configuration: PushConfiguration,
         tokens: TwitchTokens,
+        onConnected: () -> Unit,
     ) = coroutineScope {
         val validationJob =
             launch {
@@ -141,6 +143,7 @@ class EventSubSupervisor(
             createSubscriptions(welcome.sessionId, configuration, tokens.accessToken)
             val subscriptionCount = configuration.channels.size + if (configuration.notifyWhispers) 1 else 0
             monitor.markConnected(subscriptionCount)
+            onConnected()
             logger.info("EventSub connected with {} subscriptions", subscriptionCount)
 
             while (true) {
@@ -159,7 +162,9 @@ class EventSubSupervisor(
         } finally {
             monitor.markDisconnected(null)
             validationJob.cancel()
-            session.close()
+            withContext(NonCancellable) {
+                runCatching { session.close() }
+            }
         }
     }
 
@@ -170,7 +175,7 @@ class EventSubSupervisor(
     ): String {
         while (true) {
             val envelope =
-                withTimeout(keepaliveTimeout) {
+                withTimeout(eventSubReceiveTimeout(keepaliveTimeout)) {
                     session.receiveEnvelope()
                 }
             handleEnvelope(envelope, configuration)?.let { return it }
@@ -200,7 +205,7 @@ class EventSubSupervisor(
                             }
                             null
                         }
-                        onTimeout(keepaliveTimeout) {
+                        onTimeout(eventSubReceiveTimeout(keepaliveTimeout)) {
                             error("EventSub keepalive timed out during reconnect")
                         }
                     }
@@ -307,8 +312,9 @@ class EventSubSupervisor(
                     },
                 )
             }
+        val responseBody = response.bodyAsText()
         if (response.status == HttpStatusCode.Unauthorized) throw TwitchTokenRejectedException()
-        check(response.status.value in 200..299) { "Failed to create ${request.type} subscription: ${response.status} ${response.body<String>()}" }
+        check(response.status.value in 200..299) { "Failed to create ${request.type} subscription: ${response.status} $responseBody" }
     }
 
     private suspend fun handleNotification(
@@ -545,6 +551,8 @@ internal fun parseEventSubWelcome(envelope: JsonObject): SessionWelcome {
                 .seconds,
     )
 }
+
+internal fun eventSubReceiveTimeout(keepaliveTimeout: Duration): Duration = keepaliveTimeout + 5.seconds
 
 internal fun parseEventSubReconnectUrl(envelope: JsonObject): String =
     envelope

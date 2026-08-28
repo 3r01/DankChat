@@ -16,6 +16,11 @@ internal class EventSubSessionTest {
     }
 
     @Test
+    fun `receive timeout allows for keepalive delivery jitter`() {
+        assertEquals(15.seconds, eventSubReceiveTimeout(10.seconds))
+    }
+
+    @Test
     fun `reconnect URL is preserved exactly`() {
         val reconnectUrl = "wss://eventsub.wss.twitch.tv/reconnect?session=abc&token=123"
 
