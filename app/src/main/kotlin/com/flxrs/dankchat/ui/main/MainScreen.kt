@@ -207,6 +207,7 @@ fun MainScreen(
 
     val inputState by chatInputViewModel.uiState(sheetNavigationViewModel.fullScreenSheetState, mentionViewModel.currentTab).collectAsStateWithLifecycle()
     val isKeyboardVisible = isImeVisible || isImeOpening
+    val isKeyboardVisibleState = rememberUpdatedState(isKeyboardVisible)
     var backProgress by remember { mutableFloatStateOf(0f) }
 
     // Stream state
@@ -424,7 +425,7 @@ fun MainScreen(
     var helperTextHeightPx by remember { mutableIntStateOf(0) }
     var inputOverflowExpanded by remember { mutableStateOf(false) }
     var recentMessagesExpanded by remember { mutableStateOf(false) }
-    var isInputMultiline by remember { mutableStateOf(false) }
+    var isInputScrollable by remember { mutableStateOf(false) }
     var toolbarBottomPx by remember { mutableIntStateOf(0) }
     if (!showInput) inputHeightPx = 0
     if (showInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
@@ -573,7 +574,7 @@ fun MainScreen(
                                     null
                                 },
                             onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
-                            onInputMultilineChanged = { isInputMultiline = it },
+                            onInputScrollableChanged = { isInputScrollable = it },
                         ),
                     isUploading = dialogState.isUploading,
                     isLoading = tabState.loading,
@@ -941,6 +942,13 @@ fun MainScreen(
                 streamViewModel.closeStream()
             }
             val onAudioOnly = { streamViewModel.toggleAudioOnly() }
+            val onInputSwipeDown: () -> Unit = {
+                if (isKeyboardVisibleState.value) {
+                    keyboardController?.hide()
+                } else {
+                    mainScreenViewModel.hideInput()
+                }
+            }
 
             // The theater chat follows the finger during drags and settles to the nearest edge
             // on release, with the settled position mirrored into the ViewModel. The panel width
@@ -1036,7 +1044,7 @@ fun MainScreen(
                     showInput = showInput,
                     isKeyboardVisible = isKeyboardVisible,
                     isSheetOpen = isSheetOpen,
-                    isInputMultiline = isInputMultiline,
+                    isInputScrollable = isInputScrollable,
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     inputHeightDp = inputHeightDp,
                     helperTextHeightDp = helperTextHeightDp,
@@ -1045,7 +1053,7 @@ fun MainScreen(
                     chatOffsetX = { theaterChatOffset.value },
                     onChatDrag = onTheaterChatDrag,
                     onChatDragEnd = onTheaterChatDragEnd,
-                    onHideInput = { mainScreenViewModel.hideInput() },
+                    onInputSwipeDown = onInputSwipeDown,
                     onOpenReplies = sheetNavigationViewModel::openReplies,
                     onRecover = { mainScreenViewModel.recoverInputAndFullscreen() },
                     streamView = streamView,
@@ -1076,12 +1084,12 @@ fun MainScreen(
                     isSheetOpen = isSheetOpen,
                     isToolbarMenuOpen = isToolbarMenuOpen,
                     showInput = showInput,
-                    isInputMultiline = isInputMultiline,
+                    isInputScrollable = isInputScrollable,
                     inputPopupExpanded = inputOverflowExpanded || recentMessagesExpanded,
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestionDropdown = suggestionDropdown,
-                    onHideInput = { mainScreenViewModel.hideInput() },
+                    onInputSwipeDown = onInputSwipeDown,
                     onDismissInputPopup = {
                         inputOverflowExpanded = false
                         recentMessagesExpanded = false
@@ -1092,7 +1100,7 @@ fun MainScreen(
                 NormalStackedLayout(
                     currentStream = currentStream,
                     isAudioOnly = isAudioOnly,
-                    isInputMultiline = isInputMultiline,
+                    isInputScrollable = isInputScrollable,
                     streamView = streamView,
                     hasWebViewBeenAttached = streamViewModel.hasWebViewBeenAttached,
                     streamState = streamState,
@@ -1119,7 +1127,7 @@ fun MainScreen(
                     forceOverflowOpen = featureTourState.forceOverflowOpen,
                     swipeDownThresholdPx = swipeDownThresholdPx,
                     suggestionDropdown = suggestionDropdown,
-                    onHideInput = { mainScreenViewModel.hideInput() },
+                    onInputSwipeDown = onInputSwipeDown,
                     onDismissInputPopup = {
                         inputOverflowExpanded = false
                         recentMessagesExpanded = false
