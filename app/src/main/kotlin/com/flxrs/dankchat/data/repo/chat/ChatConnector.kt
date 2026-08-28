@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicReference
 
 @Single
 class ChatConnector(
@@ -27,6 +28,7 @@ class ChatConnector(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private val connectionState = ConcurrentHashMap<UserName, MutableStateFlow<ConnectionState>>()
+    private val remotePushTransition = AtomicReference<Set<UserName>?>(null)
 
     val readEvents get() = readConnection.messages
     val writeEvents get() = writeConnection.messages
@@ -84,6 +86,30 @@ class ChatConnector(
         pubSubManager.reconnectIfNecessary()
         eventSubManager.reconnectIfNecessary()
     }
+
+    suspend fun pauseForRemotePush() {
+        remotePushTransition.set(
+            connectionState
+                .filterValues { it.value != ConnectionState.DISCONNECTED }
+                .keys,
+        )
+        readConnection.close()
+        writeConnection.close()
+        pubSubManager.pause()
+        eventSubManager.pause()
+    }
+
+    fun resumeAfterRemotePush(channels: List<UserName>): Set<UserName> {
+        val resumedChannels = remotePushTransition.get().orEmpty()
+        connectAndJoin(channels)
+        pubSubManager.resume()
+        eventSubManager.resume()
+        return resumedChannels
+    }
+
+    fun isRemotePushTransition(): Boolean = remotePushTransition.get() != null
+
+    fun completeRemotePushTransition(): Set<UserName> = remotePushTransition.getAndSet(null).orEmpty()
 
     fun joinIrcChannel(channel: UserName) {
         readConnection.joinChannel(channel)
