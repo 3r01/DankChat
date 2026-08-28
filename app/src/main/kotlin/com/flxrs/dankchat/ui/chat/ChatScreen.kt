@@ -118,6 +118,7 @@ data class ChatScreenCallbacks(
     },
     val onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit = {},
     val onReplyClick: (rootMessageId: String, replyName: UserName) -> Unit = { _, _ -> },
+    val onMessageTap: ((MessageTapContext) -> Unit)? = null,
     val onWhisperReply: ((userName: UserName) -> Unit)? = null,
     val onAutomodAllow: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
     val onAutomodDeny: (heldMessageId: String, channel: UserName) -> Unit = { _, _ -> },
@@ -927,6 +928,9 @@ private fun ChatMessageItem(
                 onMessageLongClick = callbacks.onMessageLongClick,
                 onEmoteClick = callbacks.onEmoteClick,
                 onReplyClick = callbacks.onReplyClick,
+                onTap = callbacks.onMessageTap?.let { onTap ->
+                    { onTap(message.toMessageTapContext()) }
+                },
             )
         }
 
@@ -958,6 +962,9 @@ private fun ChatMessageItem(
                 },
                 onEmoteClick = callbacks.onEmoteClick,
                 onWhisperReply = callbacks.onWhisperReply,
+                onTap = callbacks.onMessageTap?.let { onTap ->
+                    { onTap(message.toMessageTapContext()) }
+                },
             )
         }
     }

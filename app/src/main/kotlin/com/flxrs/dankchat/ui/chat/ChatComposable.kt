@@ -37,6 +37,7 @@ import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsParams
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageReplyAction
+import com.flxrs.dankchat.ui.chat.message.rememberMessageCopyActions
 import com.flxrs.dankchat.ui.chat.user.UserPopupStateParams
 import com.flxrs.dankchat.ui.chat.user.UserPopupViewModel
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
@@ -107,7 +108,86 @@ fun ChatComposable(
     }
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
     val userLongClickBehavior by chatSettingsDataStore.userLongClickBehavior.collectAsStateWithLifecycle(initialValue = UserLongClickBehavior.MentionsUser)
+    val messageTapAction by
+        chatSettingsDataStore.messageTapAction.collectAsStateWithLifecycle(
+            initialValue = chatSettingsDataStore.current().messageTapAction,
+        )
     val isLoggedIn = preferenceStore.isLoggedIn
+    val messageCopyActions = rememberMessageCopyActions()
+    val openUserCard: (String?, String, String, String?, List<BadgeUi>) -> Unit = { userId, userName, displayName, ch, badges ->
+        userPopupViewModel.show(
+            UserPopupStateParams(
+                targetUserId = userId?.let { UserId(it) },
+                targetUserName = UserName(userName),
+                targetDisplayName = DisplayName(displayName),
+                channel = ch?.let { UserName(it) },
+                badges = badges.map { it.badge },
+            ),
+        )
+    }
+    val openMessageOptions: (String, String?, String) -> Unit = { messageId, ch, fullMessage ->
+        messageOptionsViewModel.show(
+            MessageOptionsParams(
+                messageId = messageId,
+                channel = ch?.let { UserName(it) },
+                fullMessage = fullMessage,
+                canModerate = isLoggedIn,
+                canCopy = true,
+                replyAction = MessageReplyAction.Channel.takeIf { isLoggedIn },
+            ),
+        )
+    }
+    val openWhisperOptions: (String, String, UserName) -> Unit = { messageId, fullMessage, replyTarget ->
+        messageOptionsViewModel.show(
+            MessageOptionsParams(
+                messageId = messageId,
+                channel = null,
+                fullMessage = fullMessage,
+                canModerate = false,
+                canCopy = true,
+                replyAction = MessageReplyAction.Whisper(replyTarget).takeIf { isLoggedIn },
+            ),
+        )
+    }
+    val whisperUser: (MessageTapContext) -> Unit = { message ->
+        sheetNavigationViewModel.openWhispers()
+        chatInputViewModel.setWhisperTarget(message.userName)
+    }
+    val onMessageTap =
+        messageTapHandler(
+            action = messageTapAction,
+            isLoggedIn = isLoggedIn,
+            operations =
+                MessageTapOperations(
+                    reply = { message ->
+                        if (message.isWhisper) {
+                            whisperUser(message)
+                        } else {
+                            chatInputViewModel.setReplying(true, message.messageId, message.userName, message.message)
+                        }
+                    },
+                    mention = { message -> chatInputViewModel.mentionUser(message.userName, message.displayName) },
+                    whisper = whisperUser,
+                    openUserCard = { message ->
+                        openUserCard(
+                            message.userId?.value,
+                            message.userName.value,
+                            message.displayName.value,
+                            message.channel?.value,
+                            message.badges,
+                        )
+                    },
+                    openMessageOptions = { message ->
+                        if (message.isWhisper) {
+                            openWhisperOptions(message.messageId, message.fullMessage, message.userName)
+                        } else {
+                            openMessageOptions(message.messageId, message.channel?.value, message.fullMessage)
+                        }
+                    },
+                    copyMessage = messageCopyActions.copyMessage,
+                    copyFullMessage = messageCopyActions.copyFullMessage,
+                ),
+        )
 
     val callbacks =
         ChatScreenCallbacks(
@@ -118,49 +198,20 @@ fun ChatComposable(
                         UserLongClickBehavior.OpensPopup -> isLongPress
                     }
                 if (shouldOpenPopup) {
-                    userPopupViewModel.show(
-                        UserPopupStateParams(
-                            targetUserId = userId?.let { UserId(it) },
-                            targetUserName = UserName(userName),
-                            targetDisplayName = DisplayName(displayName),
-                            channel = ch?.let { UserName(it) },
-                            badges = badges.map { it.badge },
-                        ),
-                    )
+                    openUserCard(userId, userName, displayName, ch, badges)
                 } else {
                     chatInputViewModel.mentionUser(UserName(userName), DisplayName(displayName))
                 }
             },
-            onMessageLongClick = { messageId, ch, fullMessage ->
-                messageOptionsViewModel.show(
-                    MessageOptionsParams(
-                        messageId = messageId,
-                        channel = ch?.let { UserName(it) },
-                        fullMessage = fullMessage,
-                        canModerate = isLoggedIn,
-                        canCopy = true,
-                        replyAction = MessageReplyAction.Channel.takeIf { isLoggedIn },
-                    ),
-                )
-            },
-            onWhisperLongClick = { messageId, fullMessage, replyTarget ->
-                messageOptionsViewModel.show(
-                    MessageOptionsParams(
-                        messageId = messageId,
-                        channel = null,
-                        fullMessage = fullMessage,
-                        canModerate = false,
-                        canCopy = true,
-                        replyAction = MessageReplyAction.Whisper(replyTarget).takeIf { isLoggedIn },
-                    ),
-                )
-            },
+            onMessageLongClick = openMessageOptions,
+            onWhisperLongClick = openWhisperOptions,
             onEmoteClick = { emoteInfoViewModel.show(it) },
             onReplyClick = onReplyClick,
             onWhisperReply = { target ->
                 sheetNavigationViewModel.openWhispers()
                 chatInputViewModel.setWhisperTarget(target)
             },
+            onMessageTap = onMessageTap,
             onAutomodAllow = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = true) },
             onAutomodDeny = { heldMessageId, ch -> viewModel.manageAutomodMessage(heldMessageId, ch, allow = false) },
             onAutomodBanUser = { messageId, ch, fullMessage ->

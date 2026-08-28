@@ -53,6 +53,7 @@ fun MessageTextWithInlineContent(
     onEmoteClick: (List<EmoteSheetData>) -> Unit,
     modifier: Modifier = Modifier,
     isAsciiArt: Boolean = false,
+    onBackgroundClick: (() -> Unit)? = null,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
 ) {
@@ -143,6 +144,7 @@ fun MessageTextWithInlineContent(
                 .fillMaxWidth(),
         interactionSource = interactionSource,
         onTextClick = onTextClick,
+        onBackgroundClick = onBackgroundClick,
         onTextLongClick = onTextLongClick,
     )
 }
