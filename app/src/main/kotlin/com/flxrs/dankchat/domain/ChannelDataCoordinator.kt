@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,6 +44,7 @@ class ChannelDataCoordinator(
 ) {
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
     private var globalLoadJob: Job? = null
+    private var sevenTVEntitlementsReparseJob: Job? = null
 
     // Track loading state per channel
     private val channelStates = ConcurrentHashMap<UserName, MutableStateFlow<ChannelLoadingState>>()
@@ -64,6 +66,15 @@ class ChannelDataCoordinator(
                         update.added.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteAdded(update.actorName, it.name)) }
                         update.updated.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteRenamed(update.actorName, it.oldName, it.name)) }
                         update.removed.forEach { chatMessageRepository.addSystemMessage(channel, SystemMessageType.ChannelSevenTVEmoteRemoved(update.actorName, it.name)) }
+                    }
+
+                    DataUpdateEventMessage.SevenTVUserEntitlementsUpdated -> {
+                        sevenTVEntitlementsReparseJob?.cancel()
+                        sevenTVEntitlementsReparseJob =
+                            scope.launch {
+                                delay(SEVENTV_ENTITLEMENTS_REPARSE_DEBOUNCE_MILLIS)
+                                chatMessageRepository.reparseAllEmotesAndBadges()
+                            }
                     }
                 }
             }
@@ -295,5 +306,9 @@ class ChannelDataCoordinator(
                     else -> GlobalLoadingState.Failed(failures = remainingDataFailures, chatFailures = remainingChatFailures)
                 }
         }
+    }
+
+    private companion object {
+        const val SEVENTV_ENTITLEMENTS_REPARSE_DEBOUNCE_MILLIS = 250L
     }
 }

@@ -11,6 +11,7 @@ import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.StreamDto
 import com.flxrs.dankchat.data.api.helix.dto.UserFollowsDto
 import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteSetDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventApiClient
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.api.upload.UploadClient
@@ -27,6 +28,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
 import java.io.File
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger("DataRepository")
 
@@ -61,11 +64,25 @@ class DataRepository(
     private val _dataLoadingFailures = MutableStateFlow(emptySet<DataLoadingFailure>())
     private val _dataUpdateEvents = MutableSharedFlow<DataUpdateEventMessage>()
     private val serviceEventChannel = Channel<ServiceEvent>(Channel.BUFFERED)
+    private val pendingSevenTVPersonalEmoteSets = ConcurrentHashMap<String, Set<UserId>>()
 
     init {
         scope.launch {
             sevenTVEventApiClient.messages.collect { event ->
                 when (event) {
+                    is SevenTVEventMessage.PersonalEmoteSetCreated -> {
+                        sevenTVEventApiClient.subscribeEmoteSet(event.emoteSetId)
+                        val users = pendingSevenTVPersonalEmoteSets.remove(event.emoteSetId).orEmpty()
+                        if (users.isEmpty()) return@collect
+                        val emoteSet = loadSevenTVEmoteSetWithRetry(event.emoteSetId)
+                        if (emoteSet == null) {
+                            pendingSevenTVPersonalEmoteSets[event.emoteSetId] = users
+                            return@collect
+                        }
+                        emoteRepository.assignSevenTVPersonalEmoteSet(emoteSet, users)
+                        _dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+                    }
+
                     is SevenTVEventMessage.UserUpdated -> {
                         val channel = emoteRepository.getChannelForSevenTVEmoteSet(event.oldEmoteSetId) ?: return@collect
                         val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@collect
@@ -82,9 +99,59 @@ class DataRepository(
                     }
 
                     is SevenTVEventMessage.EmoteSetUpdated -> {
-                        val channel = emoteRepository.getChannelForSevenTVEmoteSet(event.emoteSetId) ?: return@collect
-                        emoteRepository.updateSevenTVEmotes(channel, event)
-                        _dataUpdateEvents.emit(DataUpdateEventMessage.EmoteSetUpdated(channel, event))
+                        val channel = emoteRepository.getChannelForSevenTVEmoteSet(event.emoteSetId)
+                        when {
+                            channel != null -> {
+                                emoteRepository.updateSevenTVEmotes(channel, event)
+                                _dataUpdateEvents.emit(DataUpdateEventMessage.EmoteSetUpdated(channel, event))
+                            }
+
+                            emoteRepository.hasSevenTVPersonalEmoteSet(event.emoteSetId) -> {
+                                emoteRepository.updateSevenTVPersonalEmoteSet(event.emoteSetId, event)
+                                _dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+                            }
+                        }
+                    }
+
+                    is SevenTVEventMessage.CosmeticCreated.Badge -> {
+                        emoteRepository.registerSevenTVBadge(event.badge)
+                        _dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+                    }
+
+                    is SevenTVEventMessage.CosmeticCreated.Paint -> {
+                        emoteRepository.registerSevenTVPaint(event.paint)
+                        _dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+                    }
+
+                    is SevenTVEventMessage.EntitlementChanged -> {
+                        val userIds = event.users.map { it.id }
+                        when (event.kind) {
+                            SEVENTV_EMOTE_SET_KIND -> {
+                                if (event.added) {
+                                    if (!emoteRepository.assignUsersToSevenTVPersonalEmoteSet(event.refId, userIds)) {
+                                        val emoteSet = loadSevenTVEmoteSetWithRetry(event.refId)
+                                        if (emoteSet == null) {
+                                            pendingSevenTVPersonalEmoteSets.compute(event.refId) { _, current -> current.orEmpty() + userIds }
+                                            return@collect
+                                        }
+                                        emoteRepository.assignSevenTVPersonalEmoteSet(emoteSet, userIds)
+                                    }
+                                    sevenTVEventApiClient.subscribeEmoteSet(event.refId)
+                                } else {
+                                    pendingSevenTVPersonalEmoteSets.computeIfPresent(event.refId) { _, current ->
+                                        (current - userIds.toSet()).takeIf { it.isNotEmpty() }
+                                    }
+                                    emoteRepository.removeSevenTVPersonalEmoteSet(event.refId, userIds)
+                                }
+                            }
+
+                            SEVENTV_BADGE_KIND,
+                            SEVENTV_PAINT_KIND,
+                            -> emoteRepository.updateSevenTVCosmeticEntitlement(event.added, event.kind, event.refId, userIds)
+
+                            else -> return@collect
+                        }
+                        _dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
                     }
                 }
             }
@@ -121,6 +188,7 @@ class DataRepository(
             val details = emoteRepository.getSevenTVUserDetails(channel) ?: return@forEach
             sevenTVEventApiClient.unsubscribeUser(details.id)
             sevenTVEventApiClient.unsubscribeEmoteSet(details.activeEmoteSetId)
+            details.twitchUserId?.let { sevenTVEventApiClient.unsubscribeChannelEntitlements(it.value) }
         }
     }
 
@@ -231,11 +299,20 @@ class DataRepository(
                         sevenTVEventApiClient.subscribeEmoteSet(result.emoteSet.id)
                     }
                     sevenTVEventApiClient.subscribeUser(result.user.id)
+                    sevenTVEventApiClient.subscribeChannelEntitlements(channelId.value)
                     emoteRepository.setSevenTVEmotes(channel, result)
                 },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) } },
             )
         }
+    }
+
+    private suspend fun loadSevenTVEmoteSetWithRetry(emoteSetId: String): SevenTVEmoteSetDto? {
+        repeat(SEVENTV_EMOTE_SET_FETCH_ATTEMPTS) { attempt ->
+            sevenTVApiClient.getSevenTVEmoteSet(emoteSetId).getOrNull()?.let { return it }
+            if (attempt < SEVENTV_EMOTE_SET_FETCH_ATTEMPTS - 1) delay(SEVENTV_EMOTE_SET_FETCH_RETRY_DELAY)
+        }
+        return null
     }
 
     suspend fun loadChannelCheermotes(
@@ -325,6 +402,35 @@ class DataRepository(
         }
     }
 
+    suspend fun loadSevenTVPersonalEmotes(): Result<Unit> = withContext(dispatchersProvider.io) {
+        val settings = chatSettingsDataStore.settings.first()
+        if (VisibleThirdPartyEmotes.SevenTV !in settings.visibleEmotes) {
+            return@withContext Result.success(Unit)
+        }
+        if (!settings.showSevenTVPersonalEmotes && !settings.sendSevenTVActivity) {
+            return@withContext Result.success(Unit)
+        }
+        val userId = authDataStore.userIdString ?: return@withContext Result.success(Unit)
+
+        measureTimeAndLog(logger, "7TV personal emotes") {
+            sevenTVApiClient
+                .getSevenTVChannelEmotes(userId)
+                .mapCatching { user ->
+                    user ?: return@mapCatching
+                    emoteRepository.setOwnSevenTVUserId(user.user.id)
+                    if (!settings.showSevenTVPersonalEmotes) return@mapCatching
+                    val personalSetId = user
+                        .user
+                        .emoteSets
+                        .firstOrNull { it.isPersonal }
+                        ?.id ?: return@mapCatching
+                    val emoteSet = sevenTVApiClient.getSevenTVEmoteSet(personalSetId).getOrThrow()
+                    emoteRepository.setOwnSevenTVPersonalEmoteSet(emoteSet, userId)
+                    sevenTVEventApiClient.subscribeEmoteSet(personalSetId)
+                }.map { }
+        }
+    }
+
     private suspend fun <T : Any> collectCachedEmotes(
         flow: Flow<CachedResult<T?>>,
         onData: suspend (T) -> Unit,
@@ -359,5 +465,10 @@ class DataRepository(
 
     companion object {
         private const val BADGES_SUNSET_MILLIS = 1685637000000L // 2023-06-01 16:30:00
+        private const val SEVENTV_EMOTE_SET_KIND = "EMOTE_SET"
+        private const val SEVENTV_BADGE_KIND = "BADGE"
+        private const val SEVENTV_PAINT_KIND = "PAINT"
+        private const val SEVENTV_EMOTE_SET_FETCH_ATTEMPTS = 3
+        private const val SEVENTV_EMOTE_SET_FETCH_RETRY_DELAY = 250L
     }
 }

@@ -52,6 +52,7 @@ fun MessageTextWithInlineContent(
     modifier: Modifier = Modifier,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
+    backgroundTexts: List<AnnotatedString> = emptyList(),
 ) {
     val emoteCoordinator = LocalEmoteAnimationCoordinator.current
     val density = LocalDensity.current
@@ -138,6 +139,7 @@ fun MessageTextWithInlineContent(
         interactionSource = interactionSource,
         onTextClick = onTextClick,
         onTextLongClick = onTextLongClick,
+        backgroundTexts = backgroundTexts,
     )
 }
 

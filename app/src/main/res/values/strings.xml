@@ -679,6 +679,12 @@
     <string name="preference_7tv_live_updates_key" translatable="false">7tv_live_updates_key</string>
     <string name="preference_7tv_live_updates_title">7TV live emote updates</string>
     <string name="preference_7tv_category_title" translatable="false">7TV</string>
+    <string name="preference_7tv_personal_emotes_title">7TV personal emotes</string>
+    <string name="preference_7tv_badges_title">7TV badges</string>
+    <string name="preference_7tv_paints_title">7TV name paints</string>
+    <string name="preference_7tv_animated_paints_title">Animate 7TV paints</string>
+    <string name="preference_7tv_activity_title">Send activity to 7TV</string>
+    <string name="preference_7tv_activity_summary">Let other 7TV clients see your badges, paints and personal emotes when you chat</string>
     <string name="preference_streams_header">Livestreams</string>
     <string name="preference_retain_webview_new_key" translatable="false">retain_webview_new_key</string>
     <string name="preference_pip_key" translatable="false">pip_key</string>

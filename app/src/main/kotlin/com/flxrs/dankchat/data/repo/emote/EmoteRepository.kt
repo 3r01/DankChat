@@ -17,10 +17,13 @@ import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.dto.ChannelEmoteDto
 import com.flxrs.dankchat.data.api.helix.dto.CheermoteSetDto
 import com.flxrs.dankchat.data.api.helix.dto.UserEmoteDto
+import com.flxrs.dankchat.data.api.seventv.SevenTVPaint
 import com.flxrs.dankchat.data.api.seventv.SevenTVUserDetails
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVBadgeDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteFileDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteSetDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVPaintDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserConnection
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVUserDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
@@ -50,7 +53,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
@@ -74,6 +79,18 @@ class EmoteRepository(
     private val dankChatBadges = CopyOnWriteArrayList<DankChatBadgeDto>()
 
     private val sevenTvChannelDetails = ConcurrentHashMap<UserName, SevenTVUserDetails>()
+    private val sevenTvPersonalEmoteSets = ConcurrentHashMap<String, List<GenericEmote>>()
+    private val sevenTvPersonalEmoteSetIds = ConcurrentHashMap<UserId, Set<String>>()
+    private val sevenTvBadges = ConcurrentHashMap<String, Badge.SevenTVBadge>()
+    private val sevenTvBadgeIds = ConcurrentHashMap<UserId, String>()
+    private val sevenTvPaints = ConcurrentHashMap<String, SevenTVPaint>()
+    private val sevenTvPaintIds = ConcurrentHashMap<UserId, String>()
+
+    @Volatile private var ownSevenTvUserId: String? = null
+
+    @Volatile private var ownTwitchUserId: UserId? = null
+
+    @Volatile private var ownSevenTvPersonalEmoteSetId: String? = null
 
     private val globalEmoteState = MutableStateFlow(GlobalEmoteState())
     private val channelEmoteStates = ConcurrentHashMap<UserName, MutableStateFlow<ChannelEmoteState>>()
@@ -87,8 +104,11 @@ class EmoteRepository(
 
     fun getEmotes(channel: UserName): Flow<Emotes> {
         val channelFlow = channelEmoteStates.getOrPut(channel) { MutableStateFlow(ChannelEmoteState()) }
-        return combine(globalEmoteState, channelFlow) { globalState, channelState ->
-            getOrMergeEmotes(channel, globalState, channelState)
+        val showPersonalEmotes = chatSettingsDataStore.settings.map { it.showSevenTVPersonalEmotes }.distinctUntilChanged()
+        return combine(globalEmoteState, channelFlow, showPersonalEmotes) { globalState, channelState, showPersonal ->
+            val visibleGlobalState =
+                if (showPersonal) globalState else globalState.copy(personalSevenTvEmotes = emptyList())
+            getOrMergeEmotes(channel, visibleGlobalState, channelState)
         }
     }
 
@@ -232,6 +252,7 @@ class EmoteRepository(
         val (thirdPartyEmotes, cheermotes) = parseNonTwitchEmotes(
             message = appendedSpaceAdjustedMessage,
             channel = channel,
+            userId = (message as? PrivMessage)?.userId,
             excludeCodes = twitchEmoteCodes,
             hasBits = hasBits,
         )
@@ -340,6 +361,7 @@ class EmoteRepository(
                 if (badge != null) {
                     add(Badge.DankChatBadge(title = badge.first, badgeTag = null, badgeInfo = null, url = badge.second, type = BadgeType.DankChat))
                 }
+                userId?.let(sevenTvBadgeIds::get)?.let(sevenTvBadges::get)?.let(::add)
             }
 
         return when (message) {
@@ -630,6 +652,7 @@ class EmoteRepository(
                 id = userDto.user.id,
                 activeEmoteSetId = emoteSetId,
                 connectionIndex = userDto.user.connections.indexOfFirst { it.platform == SevenTVUserConnection.twitch },
+                twitchUserId = userDto.user.connections.firstNotNullOfOrNull(SevenTVUserConnection::twitchUserId),
             )
         val sevenTvEmotes =
             emoteList
@@ -711,6 +734,163 @@ class EmoteRepository(
         globalEmoteState.update { it.copy(sevenTvEmotes = sevenTvGlobalEmotes) }
     }
 
+    suspend fun assignSevenTVPersonalEmoteSet(
+        emoteSet: SevenTVEmoteSetDto,
+        userIds: Collection<UserId>,
+    ) = withContext(dispatchersProvider.default) {
+        val emotes =
+            emoteSet.emotes
+                .orEmpty()
+                .mapNotNull { emote ->
+                    parseSevenTVEmote(
+                        emote,
+                        EmoteType.PersonalSevenTVEmote(
+                            creator = emote.data?.owner?.displayName,
+                            baseName = emote.data?.baseName?.takeIf { emote.name != it },
+                        ),
+                    )
+                }
+        sevenTvPersonalEmoteSets[emoteSet.id] = emotes
+        userIds.forEach { userId ->
+            sevenTvPersonalEmoteSetIds.compute(userId) { _, current -> current.orEmpty() + emoteSet.id }
+        }
+    }
+
+    suspend fun setOwnSevenTVPersonalEmoteSet(
+        emoteSet: SevenTVEmoteSetDto,
+        userId: UserId,
+    ) {
+        assignSevenTVPersonalEmoteSet(emoteSet, listOf(userId))
+        ownTwitchUserId = userId
+        ownSevenTvPersonalEmoteSetId = emoteSet.id
+        globalEmoteState.update { state ->
+            state.copy(personalSevenTvEmotes = sevenTvPersonalEmoteSets[emoteSet.id].orEmpty())
+        }
+    }
+
+    fun setOwnSevenTVUserId(userId: String) {
+        ownSevenTvUserId = userId
+    }
+
+    fun getOwnSevenTVUserId(): String? = ownSevenTvUserId
+
+    fun removeSevenTVPersonalEmoteSet(
+        emoteSetId: String,
+        userIds: Collection<UserId>,
+    ) {
+        userIds.forEach { userId ->
+            sevenTvPersonalEmoteSetIds.computeIfPresent(userId) { _, current ->
+                (current - emoteSetId).takeIf { it.isNotEmpty() }
+            }
+        }
+        if (ownTwitchUserId in userIds && ownSevenTvPersonalEmoteSetId == emoteSetId) {
+            ownSevenTvPersonalEmoteSetId = null
+            globalEmoteState.update { it.copy(personalSevenTvEmotes = emptyList()) }
+        }
+    }
+
+    fun assignUsersToSevenTVPersonalEmoteSet(
+        emoteSetId: String,
+        userIds: Collection<UserId>,
+    ): Boolean {
+        if (!sevenTvPersonalEmoteSets.containsKey(emoteSetId)) return false
+        userIds.forEach { userId ->
+            sevenTvPersonalEmoteSetIds.compute(userId) { _, current -> current.orEmpty() + emoteSetId }
+        }
+        if (ownTwitchUserId in userIds) {
+            ownSevenTvPersonalEmoteSetId = emoteSetId
+            globalEmoteState.update { it.copy(personalSevenTvEmotes = sevenTvPersonalEmoteSets[emoteSetId].orEmpty()) }
+        }
+        return true
+    }
+
+    fun registerSevenTVBadge(badge: SevenTVBadgeDto) {
+        val base = "${badge.host.url}/".withLeadingHttps
+        val file = badge.host.files.lastOrNull { it.format == "WEBP" } ?: return
+        sevenTvBadges[badge.id] = Badge.SevenTVBadge(title = badge.tooltip ?: badge.name, url = "$base${file.name}")
+    }
+
+    fun registerSevenTVPaint(paint: SevenTVPaintDto) {
+        sevenTvPaints[paint.id] =
+            SevenTVPaint(
+                id = paint.id,
+                name = paint.name,
+                function = paint.function,
+                color = paint.color,
+                repeat = paint.repeat,
+                angle = paint.angle,
+                stops = paint.stops.map { SevenTVPaint.Stop(it.at, it.color) },
+                imageUrl = paint.imageUrl,
+                shadows = paint.shadows.map { SevenTVPaint.Shadow(it.xOffset, it.yOffset, it.radius, it.color) },
+            )
+    }
+
+    fun updateSevenTVCosmeticEntitlement(
+        added: Boolean,
+        kind: String,
+        refId: String,
+        userIds: Collection<UserId>,
+    ) {
+        val assignments =
+            when (kind) {
+                SEVENTV_BADGE_KIND -> sevenTvBadgeIds
+                SEVENTV_PAINT_KIND -> sevenTvPaintIds
+                else -> return
+            }
+        userIds.forEach { userId ->
+            if (added) {
+                assignments[userId] = refId
+            } else {
+                assignments.remove(userId, refId)
+            }
+        }
+    }
+
+    fun getSevenTVPaint(userId: UserId?): SevenTVPaint? = userId?.let(sevenTvPaintIds::get)?.let(sevenTvPaints::get)
+
+    fun hasSevenTVPersonalEmoteSet(emoteSetId: String): Boolean = sevenTvPersonalEmoteSets.containsKey(emoteSetId)
+
+    suspend fun updateSevenTVPersonalEmoteSet(
+        emoteSetId: String,
+        event: SevenTVEventMessage.EmoteSetUpdated,
+    ) = withContext(dispatchersProvider.default) {
+        sevenTvPersonalEmoteSets.computeIfPresent(emoteSetId) { _, current ->
+            val retained =
+                current
+                    .filterNot { emote -> event.removed.any { it.id == emote.id } }
+                    .map { emote ->
+                        event.updated.find { it.id == emote.id }?.let { update ->
+                            val oldBaseName =
+                                (emote.emoteType as? EmoteType.PersonalSevenTVEmote)
+                                    ?.baseName
+                                    ?: emote.code
+                            emote.copy(
+                                code = update.name,
+                                emoteType =
+                                    (emote.emoteType as? EmoteType.PersonalSevenTVEmote)
+                                        ?.copy(baseName = oldBaseName.takeIf { it != update.name })
+                                        ?: emote.emoteType,
+                            )
+                        } ?: emote
+                    }
+            val added =
+                event.added
+                    .mapNotNull { emote ->
+                        parseSevenTVEmote(
+                            emote,
+                            EmoteType.PersonalSevenTVEmote(
+                                creator = emote.data?.owner?.displayName,
+                                baseName = emote.data?.baseName?.takeIf { emote.name != it },
+                            ),
+                        )
+                    }
+            retained + added
+        }
+        if (ownSevenTvPersonalEmoteSetId == emoteSetId) {
+            globalEmoteState.update { it.copy(personalSevenTvEmotes = sevenTvPersonalEmoteSets[emoteSetId].orEmpty()) }
+        }
+    }
+
     suspend fun setCheermotes(
         channel: UserName,
         cheermoteDtos: List<CheermoteSetDto>,
@@ -750,10 +930,23 @@ class EmoteRepository(
     private fun parseNonTwitchEmotes(
         message: String,
         channel: UserName,
+        userId: UserId?,
         excludeCodes: Set<String>,
         hasBits: Boolean,
     ): Pair<List<ChatMessageEmote>, List<ChatMessageEmote>> {
         val emoteMap = getOrBuildEmoteMap(channel, withTwitch = false)
+        val personalEmoteMap =
+            if (chatSettingsDataStore.current().showSevenTVPersonalEmotes) {
+                userId
+                    ?.let(sevenTvPersonalEmoteSetIds::get)
+                    .orEmpty()
+                    .asSequence()
+                    .mapNotNull(sevenTvPersonalEmoteSets::get)
+                    .flatten()
+                    .associateBy(GenericEmote::code)
+            } else {
+                emptyMap()
+            }
         val cheermoteSets = if (hasBits) {
             channelEmoteStates[channel]?.value?.cheermoteSets.orEmpty()
         } else {
@@ -788,7 +981,7 @@ class EmoteRepository(
                 }
             }
             if (!matchedCheermote && word !in excludeCodes) {
-                emoteMap[word]?.let { emote ->
+                (personalEmoteMap[word] ?: emoteMap[word])?.let { emote ->
                     thirdPartyEmotes +=
                         ChatMessageEmote(
                             position = startIndex..startIndex + word.length,
@@ -1082,6 +1275,8 @@ class EmoteRepository(
         private const val BTTV_EMOTE_TEMPLATE = "https://cdn.betterttv.net/emote/%s/%s"
         private const val BTTV_EMOTE_SIZE = "3x"
         private const val BTTV_LOW_RES_EMOTE_SIZE = "2x"
+        private const val SEVENTV_BADGE_KIND = "BADGE"
+        private const val SEVENTV_PAINT_KIND = "PAINT"
 
         private val EMOTE_REPLACEMENTS =
             mapOf(

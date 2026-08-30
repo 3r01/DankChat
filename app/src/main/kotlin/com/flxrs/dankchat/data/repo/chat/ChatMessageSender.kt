@@ -1,18 +1,24 @@
 package com.flxrs.dankchat.data.repo.chat
 
+import android.os.SystemClock
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.api.helix.HelixApiException
 import com.flxrs.dankchat.data.api.helix.HelixError
 import com.flxrs.dankchat.data.api.helix.dto.SendChatMessageRequestDto
+import com.flxrs.dankchat.data.api.seventv.SevenTVApiClient
 import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.twitch.message.SystemMessageType
+import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import com.flxrs.dankchat.preferences.chat.VisibleThirdPartyEmotes
 import com.flxrs.dankchat.preferences.developer.ChatSendProtocol
 import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
 import com.flxrs.dankchat.utils.extensions.INVISIBLE_CHAR
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.koin.core.annotation.Single
+import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger("ChatMessageSender")
 
@@ -25,7 +31,12 @@ class ChatMessageSender(
     private val chatMessageRepository: ChatMessageRepository,
     private val chatEventProcessor: ChatEventProcessor,
     private val developerSettingsDataStore: DeveloperSettingsDataStore,
+    private val sevenTVApiClient: SevenTVApiClient,
+    private val emoteRepository: EmoteRepository,
+    private val chatSettingsDataStore: ChatSettingsDataStore,
 ) {
+    private val nextSevenTVActivity = ConcurrentHashMap<UserName, Long>()
+
     suspend fun send(
         channel: UserName,
         message: String,
@@ -41,6 +52,38 @@ class ChatMessageSender(
             forceIrc || protocol == ChatSendProtocol.IRC -> sendViaIrc(channel, message, replyId)
             else -> sendViaHelix(channel, message, replyId)
         }
+        updateSevenTVActivity(channel)
+    }
+
+    private suspend fun updateSevenTVActivity(channel: UserName) {
+        val settings = chatSettingsDataStore.current()
+        if (
+            VisibleThirdPartyEmotes.SevenTV !in settings.visibleEmotes ||
+            !settings.sendSevenTVActivity
+        ) {
+            return
+        }
+        val sevenTVUserId = emoteRepository.getOwnSevenTVUserId() ?: return
+        val channelId = channelRepository.getChannel(channel)?.id ?: return
+        val now = SystemClock.elapsedRealtime()
+        val shouldSend =
+            synchronized(nextSevenTVActivity) {
+                if (now < nextSevenTVActivity.getOrDefault(channel, 0L)) {
+                    false
+                } else {
+                    nextSevenTVActivity[channel] = Long.MAX_VALUE
+                    true
+                }
+            }
+        if (!shouldSend) return
+
+        sevenTVApiClient.updatePresence(sevenTVUserId, channelId).fold(
+            onSuccess = { nextSevenTVActivity[channel] = SystemClock.elapsedRealtime() + SEVENTV_ACTIVITY_INTERVAL_MILLIS },
+            onFailure = { error ->
+                nextSevenTVActivity.remove(channel)
+                logger.warn(error) { "7TV activity update failed" }
+            },
+        )
     }
 
     private suspend fun sendViaIrc(
@@ -159,5 +202,9 @@ class ChatMessageSender(
         else -> {
             SystemMessageType.SendFailed(message)
         }
+    }
+
+    companion object {
+        private const val SEVENTV_ACTIVITY_INTERVAL_MILLIS = 60_000L
     }
 }

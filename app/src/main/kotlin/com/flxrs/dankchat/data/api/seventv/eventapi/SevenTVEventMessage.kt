@@ -1,9 +1,15 @@
 package com.flxrs.dankchat.data.api.seventv.eventapi
 
 import com.flxrs.dankchat.data.DisplayName
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVBadgeDto
 import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVPaintDto
 
 sealed interface SevenTVEventMessage {
+    data class PersonalEmoteSetCreated(
+        val emoteSetId: String,
+    ) : SevenTVEventMessage
+
     data class EmoteSetUpdated(
         val emoteSetId: String,
         val actorName: DisplayName,
@@ -29,4 +35,26 @@ sealed interface SevenTVEventMessage {
         val emoteSetId: String,
         val oldEmoteSetId: String,
     ) : SevenTVEventMessage
+
+    sealed interface CosmeticCreated : SevenTVEventMessage {
+        data class Badge(
+            val badge: SevenTVBadgeDto,
+        ) : CosmeticCreated
+
+        data class Paint(
+            val paint: SevenTVPaintDto,
+        ) : CosmeticCreated
+    }
+
+    data class EntitlementChanged(
+        val added: Boolean,
+        val kind: String,
+        val refId: String,
+        val users: List<User>,
+    ) : SevenTVEventMessage {
+        data class User(
+            val id: com.flxrs.dankchat.data.UserId,
+            val name: com.flxrs.dankchat.data.UserName,
+        )
+    }
 }

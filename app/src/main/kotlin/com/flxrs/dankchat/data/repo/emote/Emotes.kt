@@ -8,6 +8,7 @@ data class GlobalEmoteState(
     val ffzEmotes: List<GenericEmote> = emptyList(),
     val bttvEmotes: List<GenericEmote> = emptyList(),
     val sevenTvEmotes: List<GenericEmote> = emptyList(),
+    val personalSevenTvEmotes: List<GenericEmote> = emptyList(),
 )
 
 data class ChannelEmoteState(
@@ -33,6 +34,7 @@ fun mergeEmotes(
         bttvGlobalEmotes = global.bttvEmotes,
         sevenTvChannelEmotes = channel.sevenTvEmotes,
         sevenTvGlobalEmotes = global.sevenTvEmotes,
+        sevenTvPersonalEmotes = global.personalSevenTvEmotes,
     )
 }
 
@@ -44,6 +46,7 @@ data class Emotes(
     val bttvGlobalEmotes: List<GenericEmote> = emptyList(),
     val sevenTvChannelEmotes: List<GenericEmote> = emptyList(),
     val sevenTvGlobalEmotes: List<GenericEmote> = emptyList(),
+    val sevenTvPersonalEmotes: List<GenericEmote> = emptyList(),
 ) {
     val sorted: List<GenericEmote> =
         buildList {
@@ -52,6 +55,7 @@ data class Emotes(
             addAll(ffzChannelEmotes)
             addAll(bttvChannelEmotes)
             addAll(sevenTvChannelEmotes)
+            addAll(sevenTvPersonalEmotes)
 
             addAll(ffzGlobalEmotes)
             addAll(bttvGlobalEmotes)

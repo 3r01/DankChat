@@ -1,8 +1,18 @@
 package com.flxrs.dankchat.data.repo.emote
 
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVBadgeDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteDataDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteFileDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteHostDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteOwnerDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVEmoteSetDto
+import com.flxrs.dankchat.data.api.seventv.eventapi.SevenTVEventMessage
 import com.flxrs.dankchat.data.irc.IrcMessage
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
+import com.flxrs.dankchat.data.toDisplayName
+import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.badge.BadgeSet
@@ -13,11 +23,17 @@ import com.flxrs.dankchat.data.twitch.message.EmoteWithPositions
 import com.flxrs.dankchat.data.twitch.message.Message
 import com.flxrs.dankchat.data.twitch.message.PrivMessage
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import kotlin.test.assertEquals
@@ -39,6 +55,11 @@ internal class EmoteRepositoryTest {
 
     @InjectMockKs
     lateinit var emoteRepository: EmoteRepository
+
+    @BeforeEach
+    fun setupSettings() {
+        every { chatSettings.current() } returns ChatSettings()
+    }
 
     // --- parseTwitchEmotes tests ---
 
@@ -330,4 +351,112 @@ internal class EmoteRepositoryTest {
         assertEquals(expected = "FeelsDankMan", actual = campaignBadge.title)
         assertEquals(expected = "4x", actual = campaignBadge.url)
     }
+
+    @Test
+    fun `personal emotes only parse for assigned sender`() = runBlocking {
+        every { dispatchersProvider.default } returns Dispatchers.Unconfined
+        val settings = ChatSettings(showSevenTVPersonalEmotes = true)
+        every { chatSettings.current() } returns settings
+        every { chatSettings.settings } returns flowOf(settings)
+        val forsenId = "22484632".toUserId()
+        emoteRepository.assignSevenTVPersonalEmoteSet(personalEmoteSet(), listOf(forsenId))
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message(userId = forsenId)))
+        val otherUser = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message(userId = "1".toUserId())))
+
+        assertIs<ChatMessageEmoteType.PersonalSevenTVEmote>(parsed.emotes.single().type)
+        assertEquals(emptyList(), otherUser.emotes)
+    }
+
+    @Test
+    fun `own personal emote update refreshes suggestions`() = runBlocking {
+        every { dispatchersProvider.default } returns Dispatchers.Unconfined
+        every { chatSettings.settings } returns flowOf(ChatSettings(showSevenTVPersonalEmotes = true))
+        val forsenId = "22484632".toUserId()
+        emoteRepository.setOwnSevenTVPersonalEmoteSet(personalEmoteSet(), forsenId)
+
+        emoteRepository.updateSevenTVPersonalEmoteSet(
+            "personal-set",
+            SevenTVEventMessage.EmoteSetUpdated(
+                emoteSetId = "personal-set",
+                actorName = "forsen".toDisplayName(),
+                added = emptyList(),
+                removed = emptyList(),
+                updated =
+                    listOf(
+                        SevenTVEventMessage.EmoteSetUpdated.UpdatedEmote(
+                            id = "personal-emote",
+                            name = "RenamedEmote",
+                            oldName = "PersonalEmote",
+                        ),
+                    ),
+            ),
+        )
+
+        val emotes = emoteRepository.getEmotes("forsen".toUserName()).first()
+        assertEquals(listOf("RenamedEmote"), emotes.sevenTvPersonalEmotes.map { it.code })
+    }
+
+    @Test
+    fun `assigned 7tv badge is appended to sender badges`() = runBlocking {
+        emoteRepository.registerSevenTVBadge(
+            SevenTVBadgeDto(
+                id = "badge-id",
+                name = "Supporter",
+                tooltip = "7TV Supporter",
+                host = SevenTVEmoteHostDto("//cdn.7tv.app/badge", listOf(SevenTVEmoteFileDto("4x.webp", "WEBP"))),
+            ),
+        )
+        val forsenId = "22484632".toUserId()
+        emoteRepository.updateSevenTVCosmeticEntitlement(true, "BADGE", "badge-id", listOf(forsenId))
+
+        val parsed = assertIs<PrivMessage>(emoteRepository.parseEmotesAndBadges(message(userId = forsenId, text = "hello")))
+
+        val badge = assertIs<Badge.SevenTVBadge>(parsed.badges.single())
+        assertEquals("7TV Supporter", badge.title)
+        assertEquals("https://cdn.7tv.app/badge/4x.webp", badge.url)
+    }
+
+    private fun message(
+        userId: com.flxrs.dankchat.data.UserId,
+        text: String = "PersonalEmote",
+    ) = PrivMessage(
+        channel = "forsen".toUserName(),
+        sourceChannel = null,
+        userId = userId,
+        name = "forsen".toUserName(),
+        displayName = "forsen".toDisplayName(),
+        message = text,
+        tags = emptyMap(),
+    )
+
+    private fun personalEmoteSet() = SevenTVEmoteSetDto(
+        id = "personal-set",
+        name = "Personal Emotes",
+        emotes =
+            listOf(
+                SevenTVEmoteDto(
+                    id = "personal-emote",
+                    name = "PersonalEmote",
+                    flags = 0,
+                    data =
+                        SevenTVEmoteDataDto(
+                            listed = true,
+                            animated = false,
+                            flags = 0,
+                            host =
+                                SevenTVEmoteHostDto(
+                                    url = "//cdn.7tv.app/emote/personal-emote",
+                                    files =
+                                        listOf(
+                                            SevenTVEmoteFileDto("2x.webp", "WEBP"),
+                                            SevenTVEmoteFileDto("4x.webp", "WEBP"),
+                                        ),
+                                ),
+                            owner = SevenTVEmoteOwnerDto("forsen".toDisplayName()),
+                            baseName = "PersonalEmote",
+                        ),
+                ),
+            ),
+    )
 }

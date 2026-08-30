@@ -21,7 +21,6 @@ sealed interface DispatchData : Data {
 
 interface ChangeMapData {
     val id: String
-    val actor: Actor
 }
 
 @Serializable
@@ -36,9 +35,35 @@ data class EmoteSetDispatchData(
 ) : DispatchData
 
 @Serializable
+@SerialName("emote_set.create")
+data class EmoteSetCreateDispatchData(
+    override val body: EmoteSetCreateChangeMapData,
+) : DispatchData
+
+@Serializable
+data class EmoteSetCreateChangeMapData(
+    override val id: String,
+    val actor: Actor? = null,
+    val `object`: EmoteSetCreateObject,
+) : ChangeMapData
+
+@Serializable
+data class EmoteSetCreateObject(
+    val id: String,
+    val flags: Int = 0,
+) {
+    val isPersonalOrCommercial: Boolean get() = flags and (PERSONAL_FLAG or COMMERCIAL_FLAG) != 0
+
+    companion object {
+        private const val PERSONAL_FLAG = 1 shl 2
+        private const val COMMERCIAL_FLAG = 1 shl 3
+    }
+}
+
+@Serializable
 data class EmoteSetChangeMapData(
     override val id: String,
-    override val actor: Actor,
+    val actor: Actor? = null,
     val pushed: List<EmoteChangeField>?,
     val pulled: List<EmoteChangeField>?,
     val updated: List<EmoteChangeField>?,
@@ -64,7 +89,7 @@ data class UserDispatchData(
 @Serializable
 data class UserChangeMapData(
     override val id: String,
-    override val actor: Actor,
+    val actor: Actor? = null,
     val updated: List<UserChangeFields>?,
 ) : ChangeMapData
 
@@ -93,4 +118,61 @@ data object EmoteSetIdChangeField : UserChangeField
 @Serializable
 data class EmoteSet(
     val id: String,
+)
+
+@Serializable
+@SerialName("cosmetic.create")
+data class CosmeticCreateDispatchData(
+    override val body: CosmeticChangeMapData,
+) : DispatchData
+
+@Serializable
+data class CosmeticChangeMapData(
+    override val id: String,
+    val actor: Actor? = null,
+    val `object`: CosmeticObject,
+) : ChangeMapData
+
+@Serializable
+data class CosmeticObject(
+    val kind: String,
+    val data: kotlinx.serialization.json.JsonObject,
+)
+
+@Serializable
+@SerialName("entitlement.create")
+data class EntitlementCreateDispatchData(
+    override val body: EntitlementChangeMapData,
+) : DispatchData
+
+@Serializable
+@SerialName("entitlement.delete")
+data class EntitlementDeleteDispatchData(
+    override val body: EntitlementChangeMapData,
+) : DispatchData
+
+@Serializable
+data class EntitlementChangeMapData(
+    override val id: String,
+    val actor: Actor? = null,
+    val `object`: EntitlementObject,
+) : ChangeMapData
+
+@Serializable
+data class EntitlementObject(
+    val kind: String,
+    @SerialName("ref_id") val refId: String,
+    val user: EntitlementUser,
+)
+
+@Serializable
+data class EntitlementUser(
+    val connections: List<EntitlementConnection>,
+)
+
+@Serializable
+data class EntitlementConnection(
+    val id: String,
+    val platform: String,
+    val username: String,
 )
