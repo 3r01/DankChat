@@ -25,6 +25,7 @@ import com.flxrs.dankchat.data.auth.AuthDataStore
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.preferences.notifications.NotificationsSettingsDataStore
 import com.flxrs.dankchat.push.PushMessage
 import com.flxrs.dankchat.push.PushMessageKind
 import com.flxrs.dankchat.ui.main.MainActivity
@@ -42,6 +43,7 @@ class RemotePushNotificationManager(
     private val channelRepository: ChannelRepository,
     private val appLifecycleListener: AppLifecycleListener,
     private val store: RemoteNotificationStore,
+    private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
 ) {
     private val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val icons = LruCache<String, Bitmap>(MAX_NOTIFICATION_ICONS)
@@ -51,6 +53,10 @@ class RemotePushNotificationManager(
 
     suspend fun show(message: PushMessage) {
         if (appLifecycleListener.appState.value == AppLifecycleListener.AppLifecycle.Foreground) return
+        if (message.kind == PushMessageKind.Mention) {
+            val channel = message.channelName?.toUserName()
+            if (channel != null && !notificationsSettingsDataStore.current().areChannelNotificationsEnabled(channel)) return
+        }
         createNotificationChannel()
         val history = store.add(message)
         when (message.kind) {

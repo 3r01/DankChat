@@ -318,6 +318,8 @@ fun MainScreen(
 
     val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
+    val mutedNotificationChannels by channelManagementViewModel.mutedNotificationChannels.collectAsStateWithLifecycle()
+    val channelNotificationsEnabled = activeChannel == null || activeChannel.lowercase() !in mutedNotificationChannels
     val lifecycleOwner = LocalLifecycleOwner.current
     val activity = LocalActivity.current as? MainActivity
 
@@ -715,6 +717,12 @@ fun MainScreen(
                         dialogViewModel.showBlockChannel()
                     }
 
+                    ToolbarAction.ToggleChannelNotifications -> {
+                        activeChannel?.let {
+                            channelManagementViewModel.setChannelNotificationsEnabled(it, !channelNotificationsEnabled)
+                        }
+                    }
+
                     ToolbarAction.CaptureImage -> {
                         if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else dialogViewModel.setPendingUploadAction(onCaptureImage)
                     }
@@ -760,6 +768,7 @@ fun MainScreen(
                     totalMentionCount = tabState.tabs.sumOf { it.mentionCount } + tabState.whisperMentionCount,
                     hasActivePinnedMessage = activePinnedMessageState != PinnedMessageUiState.Hidden,
                     isPinnedMessageShown = activePinnedMessageState is PinnedMessageUiState.Expanded,
+                    channelNotificationsEnabled = channelNotificationsEnabled,
                     onAction = handleToolbarAction,
                     onAudioOnly = { streamViewModel.toggleAudioOnly() },
                     onStreamClose = { streamViewModel.closeStream() },
