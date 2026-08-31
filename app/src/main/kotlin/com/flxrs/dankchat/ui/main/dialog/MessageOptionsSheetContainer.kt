@@ -91,6 +91,7 @@ fun MessageOptionsSheetContainer(onJumpToMessage: (messageId: String, channel: U
                 onTimeout = messageOptionsViewModel::timeoutUser,
                 onBan = messageOptionsViewModel::banUser,
                 onUnban = messageOptionsViewModel::unbanUser,
+                onWarn = messageOptionsViewModel::warnUser,
                 onPinMessage = messageOptionsViewModel::pinMessage,
                 onDismiss = messageOptionsViewModel::dismiss,
             )
@@ -105,6 +106,7 @@ fun MessageOptionsSheetContainer(onJumpToMessage: (messageId: String, channel: U
                 },
                 onBan = messageOptionsViewModel::banUser,
                 onUnban = messageOptionsViewModel::unbanUser,
+                onWarn = messageOptionsViewModel::warnUser,
                 onDismiss = messageOptionsViewModel::dismiss,
             )
         }
