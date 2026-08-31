@@ -3,6 +3,8 @@ package com.flxrs.dankchat.ui.chat.messages.common
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ fun TextWithMeasuredInlineContent(
     onBackgroundClick: (() -> Unit)? = null,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
+    backgroundTexts: List<AnnotatedString> = emptyList(),
 ) {
     val density = LocalDensity.current
     val inlineContent = remember(knownDimensions, text, density, inlineContentProviders) {
@@ -55,6 +58,7 @@ fun TextWithMeasuredInlineContent(
         onBackgroundClick = onBackgroundClick,
         onTextLongClick = onTextLongClick,
         interactionSource = interactionSource,
+        backgroundTexts = backgroundTexts,
     )
 }
 
@@ -67,6 +71,7 @@ private fun ClickableInlineText(
     onBackgroundClick: (() -> Unit)?,
     onTextLongClick: ((Int) -> Unit)?,
     interactionSource: MutableInteractionSource?,
+    backgroundTexts: List<AnnotatedString>,
     modifier: Modifier = Modifier,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -75,56 +80,72 @@ private fun ClickableInlineText(
     val currentOnBackgroundClick = rememberUpdatedState(onBackgroundClick)
     val currentOnTextLongClick = rememberUpdatedState(onTextLongClick)
 
-    BasicText(
-        text = text,
-        style = style,
-        inlineContent = inlineContent,
-        modifier =
-            modifier.pointerInput(text, interactionSource) {
-                detectTapGestures(
-                    onPress = { offset ->
-                        interactionSource?.let { source ->
-                            val press = PressInteraction.Press(offset)
-                            coroutineScope.launch {
-                                source.emit(press)
-                                tryAwaitRelease()
-                                source.emit(PressInteraction.Release(press))
+    val emptyInlineContent = remember(inlineContent) {
+        inlineContent.mapValues { (_, content) ->
+            InlineTextContent(content.placeholder) { }
+        }
+    }
+
+    Box(modifier = modifier) {
+        backgroundTexts.forEach { backgroundText ->
+            BasicText(
+                text = backgroundText,
+                style = style,
+                inlineContent = emptyInlineContent,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+        BasicText(
+            text = text,
+            style = style,
+            inlineContent = inlineContent,
+            modifier =
+                Modifier.pointerInput(text, interactionSource) {
+                    detectTapGestures(
+                        onPress = { offset ->
+                            interactionSource?.let { source ->
+                                val press = PressInteraction.Press(offset)
+                                coroutineScope.launch {
+                                    source.emit(press)
+                                    tryAwaitRelease()
+                                    source.emit(PressInteraction.Release(press))
+                                }
                             }
-                        }
-                    },
-                    onTap = { offset ->
-                        textLayoutResultRef.value?.let { layoutResult ->
-                            val line = layoutResult.getLineForVerticalPosition(offset.y)
-                            val lineLeft = layoutResult.getLineLeft(line)
-                            val lineRight = layoutResult.getLineRight(line)
-                            if (offset.x in lineLeft..lineRight) {
-                                currentOnTextClick.value?.invoke(layoutResult.getOffsetForPosition(offset))
-                            } else {
-                                currentOnBackgroundClick.value?.invoke()
+                        },
+                        onTap = { offset ->
+                            textLayoutResultRef.value?.let { layoutResult ->
+                                val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                val lineLeft = layoutResult.getLineLeft(line)
+                                val lineRight = layoutResult.getLineRight(line)
+                                if (offset.x in lineLeft..lineRight) {
+                                    currentOnTextClick.value?.invoke(layoutResult.getOffsetForPosition(offset))
+                                } else {
+                                    currentOnBackgroundClick.value?.invoke()
+                                }
                             }
-                        }
-                    },
-                    onLongPress = { offset ->
-                        val layoutResult = textLayoutResultRef.value
-                        if (layoutResult != null) {
-                            val line = layoutResult.getLineForVerticalPosition(offset.y)
-                            val lineLeft = layoutResult.getLineLeft(line)
-                            val lineRight = layoutResult.getLineRight(line)
-                            if (offset.x in lineLeft..lineRight) {
-                                currentOnTextLongClick.value?.invoke(layoutResult.getOffsetForPosition(offset))
+                        },
+                        onLongPress = { offset ->
+                            val layoutResult = textLayoutResultRef.value
+                            if (layoutResult != null) {
+                                val line = layoutResult.getLineForVerticalPosition(offset.y)
+                                val lineLeft = layoutResult.getLineLeft(line)
+                                val lineRight = layoutResult.getLineRight(line)
+                                if (offset.x in lineLeft..lineRight) {
+                                    currentOnTextLongClick.value?.invoke(layoutResult.getOffsetForPosition(offset))
+                                } else {
+                                    currentOnTextLongClick.value?.invoke(-1)
+                                }
                             } else {
                                 currentOnTextLongClick.value?.invoke(-1)
                             }
-                        } else {
-                            currentOnTextLongClick.value?.invoke(-1)
-                        }
-                    },
-                )
+                        },
+                    )
+                },
+            onTextLayout = { layoutResult ->
+                textLayoutResultRef.value = layoutResult
             },
-        onTextLayout = { layoutResult ->
-            textLayoutResultRef.value = layoutResult
-        },
-    )
+        )
+    }
 }
 
 private fun buildInlineContentMap(

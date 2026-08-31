@@ -111,12 +111,32 @@ class ChatSettingsViewModel(
                     }
                 }
 
+                is ChatSettingsInteraction.ShowSevenTVPersonalEmotes -> {
+                    chatSettingsDataStore.update { it.copy(showSevenTVPersonalEmotes = interaction.value) }
+                }
+
+                is ChatSettingsInteraction.ShowSevenTVBadges -> {
+                    chatSettingsDataStore.update { it.copy(showSevenTVBadges = interaction.value) }
+                }
+
+                is ChatSettingsInteraction.ShowSevenTVPaints -> {
+                    chatSettingsDataStore.update { it.copy(showSevenTVPaints = interaction.value) }
+                }
+
+                is ChatSettingsInteraction.AnimateSevenTVPaints -> {
+                    chatSettingsDataStore.update { it.copy(animateSevenTVPaints = interaction.value) }
+                }
+
                 is ChatSettingsInteraction.LiveEmoteUpdates -> {
                     chatSettingsDataStore.update { it.copy(sevenTVLiveEmoteUpdates = interaction.value) }
                 }
 
                 is ChatSettingsInteraction.BTTVLiveEmoteUpdates -> {
                     chatSettingsDataStore.update { it.copy(bttvLiveEmoteUpdates = interaction.value) }
+                }
+
+                is ChatSettingsInteraction.SendSevenTVActivity -> {
+                    chatSettingsDataStore.update { it.copy(sendSevenTVActivity = interaction.value) }
                 }
 
                 is ChatSettingsInteraction.MessageHistory -> {
@@ -163,7 +183,12 @@ private fun ChatSettings.toState() = ChatSettingsState(
     visibleEmotes = visibleEmotes.toImmutableList(),
     allowUnlistedSevenTvEmotes = allowUnlistedSevenTvEmotes,
     bttvLiveEmoteUpdates = bttvLiveEmoteUpdates,
+    showSevenTVPersonalEmotes = showSevenTVPersonalEmotes,
+    showSevenTVBadges = showSevenTVBadges,
+    showSevenTVPaints = showSevenTVPaints,
+    animateSevenTVPaints = animateSevenTVPaints,
     sevenTVLiveEmoteUpdates = sevenTVLiveEmoteUpdates,
+    sendSevenTVActivity = sendSevenTVActivity,
     loadMessageHistory = loadMessageHistory,
     loadMessageHistoryAfterReconnect = loadMessageHistoryOnReconnect,
     messageHistoryDashboardUrl = RECENT_MESSAGES_DASHBOARD,

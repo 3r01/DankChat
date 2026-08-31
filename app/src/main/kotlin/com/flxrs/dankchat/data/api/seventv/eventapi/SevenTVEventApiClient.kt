@@ -1,17 +1,26 @@
 package com.flxrs.dankchat.data.api.seventv.eventapi
 
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVBadgeDto
+import com.flxrs.dankchat.data.api.seventv.dto.SevenTVPaintDto
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.AckMessage
+import com.flxrs.dankchat.data.api.seventv.eventapi.dto.CosmeticCreateDispatchData
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.DataMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.DispatchMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EmoteSetChangeField
+import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EmoteSetCreateDispatchData
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EmoteSetDispatchData
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EndOfStreamMessage
+import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EntitlementCreateDispatchData
+import com.flxrs.dankchat.data.api.seventv.eventapi.dto.EntitlementDeleteDispatchData
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.HeartbeatMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.HelloMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.ReconnectMessage
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.SubscribeRequest
+import com.flxrs.dankchat.data.api.seventv.eventapi.dto.SubscriptionType
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UnsubscribeRequest
 import com.flxrs.dankchat.data.api.seventv.eventapi.dto.UserDispatchData
+import com.flxrs.dankchat.data.toUserId
+import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.battery.BatterySettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -43,6 +52,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromJsonElement
 import org.koin.core.annotation.Single
 import kotlin.random.Random
 import kotlin.random.nextLong
@@ -153,6 +163,20 @@ class SevenTVEventApiClient(
 
         val request = UnsubscribeRequest.emoteSetUpdates(emoteSetId)
         removeSubscription(request)
+    }
+
+    suspend fun subscribeChannelEntitlements(channelId: String) {
+        if (!chatSettingsDataStore.settings.first().sevenTVLiveEmoteUpdates) {
+            return
+        }
+        CHANNEL_SUBSCRIPTION_TYPES.forEach { addSubscription(SubscribeRequest.channel(it, channelId)) }
+    }
+
+    suspend fun unsubscribeChannelEntitlements(channelId: String) {
+        if (!chatSettingsDataStore.settings.first().sevenTVLiveEmoteUpdates) {
+            return
+        }
+        CHANNEL_SUBSCRIPTION_TYPES.forEach { removeSubscription(UnsubscribeRequest.channel(it, channelId)) }
     }
 
     suspend fun reconnect() {
@@ -321,12 +345,18 @@ class SevenTVEventApiClient(
 
     private fun randomJitter() = Random.nextLong(range = 0L..MAX_JITTER).milliseconds
 
-    private fun DispatchMessage.handleMessage() {
+    private suspend fun DispatchMessage.handleMessage() {
         when (d) {
+            is EmoteSetCreateDispatchData -> {
+                if (d.body.`object`.isPersonalOrCommercial) {
+                    _messages.emit(SevenTVEventMessage.PersonalEmoteSetCreated(d.body.`object`.id))
+                }
+            }
+
             is EmoteSetDispatchData -> {
                 with(d.body) {
+                    val actorName = actor?.displayName ?: return
                     val emoteSetId = id
-                    val actorName = actor.displayName
                     val added =
                         pushed?.mapNotNull {
                             it.value ?: return@mapNotNull null
@@ -342,43 +372,79 @@ class SevenTVEventApiClient(
                             val oldData = it.oldValue ?: return@mapNotNull null
                             SevenTVEventMessage.EmoteSetUpdated.UpdatedEmote(newData.id, newData.name, oldData.name)
                         }
-                    scope.launch {
+                    _messages.emit(
+                        SevenTVEventMessage.EmoteSetUpdated(
+                            emoteSetId = emoteSetId,
+                            actorName = actorName,
+                            added = added.orEmpty(),
+                            removed = removed.orEmpty(),
+                            updated = updated.orEmpty(),
+                        ),
+                    )
+                }
+            }
+
+            is UserDispatchData -> {
+                with(d.body) {
+                    val actorName = actor?.displayName ?: return
+                    updated?.forEach { change ->
+                        val index = change.index
+                        val emoteSetChange = change.value?.filterIsInstance<EmoteSetChangeField>()?.firstOrNull() ?: return
                         _messages.emit(
-                            SevenTVEventMessage.EmoteSetUpdated(
-                                emoteSetId = emoteSetId,
+                            SevenTVEventMessage.UserUpdated(
                                 actorName = actorName,
-                                added = added.orEmpty(),
-                                removed = removed.orEmpty(),
-                                updated = updated.orEmpty(),
+                                connectionIndex = index,
+                                emoteSetId = emoteSetChange.value.id,
+                                oldEmoteSetId = emoteSetChange.oldValue.id,
                             ),
                         )
                     }
                 }
             }
 
-            is UserDispatchData -> {
-                with(d.body) {
-                    val actorName = actor.displayName
-                    updated?.forEach { change ->
-                        val index = change.index
-                        val emoteSetChange = change.value?.filterIsInstance<EmoteSetChangeField>()?.firstOrNull() ?: return
-                        scope.launch {
-                            _messages.emit(
-                                SevenTVEventMessage.UserUpdated(
-                                    actorName = actorName,
-                                    connectionIndex = index,
-                                    emoteSetId = emoteSetChange.value.id,
-                                    oldEmoteSetId = emoteSetChange.oldValue.id,
-                                ),
-                            )
-                        }
+            is CosmeticCreateDispatchData -> {
+                val event =
+                    when (d.body.`object`.kind) {
+                        SEVENTV_BADGE_KIND -> json.decodeFromJsonElementOrNull<SevenTVBadgeDto>(d.body.`object`.data)?.let(SevenTVEventMessage.CosmeticCreated::Badge)
+                        SEVENTV_PAINT_KIND -> json.decodeFromJsonElementOrNull<SevenTVPaintDto>(d.body.`object`.data)?.let(SevenTVEventMessage.CosmeticCreated::Paint)
+                        else -> null
                     }
+                if (event != null) {
+                    _messages.emit(event)
                 }
             }
+
+            is EntitlementCreateDispatchData -> emitEntitlement(d.body.`object`, added = true)
+
+            is EntitlementDeleteDispatchData -> emitEntitlement(d.body.`object`, added = false)
         }
     }
 
+    private suspend fun emitEntitlement(
+        entitlement: com.flxrs.dankchat.data.api.seventv.eventapi.dto.EntitlementObject,
+        added: Boolean,
+    ) {
+        val users =
+            entitlement.user.connections.mapNotNull { connection ->
+                if (connection.platform != TWITCH_PLATFORM) return@mapNotNull null
+                SevenTVEventMessage.EntitlementChanged.User(connection.id.toUserId(), connection.username.toUserName())
+            }
+        if (users.isEmpty()) return
+        _messages.emit(
+            SevenTVEventMessage.EntitlementChanged(
+                added = added,
+                kind = entitlement.kind,
+                refId = entitlement.refId,
+                users = users,
+            ),
+        )
+    }
+
     private inline fun <reified T> T.encodeOrNull(): String? = runCatching { json.encodeToString(this) }.getOrNull()
+
+    private inline fun <reified T> Json.decodeFromJsonElementOrNull(element: kotlinx.serialization.json.JsonElement): T? = runCatching { decodeFromJsonElement<T>(element) }
+        .onFailure { logger.warn(it) { "Failed to parse 7TV cosmetic" } }
+        .getOrNull()
 
     data class Status(
         val connected: Boolean,
@@ -388,6 +454,16 @@ class SevenTVEventApiClient(
     fun status(): Status = Status(connected = connected, subscriptionCount = subscriptions.size)
 
     companion object {
+        private const val TWITCH_PLATFORM = "TWITCH"
+        private const val SEVENTV_BADGE_KIND = "BADGE"
+        private const val SEVENTV_PAINT_KIND = "PAINT"
+        private val CHANNEL_SUBSCRIPTION_TYPES =
+            setOf(
+                SubscriptionType.EmoteSets,
+                SubscriptionType.CosmeticCreates,
+                SubscriptionType.EntitlementCreates,
+                SubscriptionType.EntitlementDeletes,
+            )
         private const val EVENT_API_URL = "wss://events.7tv.io/v3"
         private const val MAX_JITTER = 250L
         private val RECONNECT_BASE_DELAY = 1.seconds

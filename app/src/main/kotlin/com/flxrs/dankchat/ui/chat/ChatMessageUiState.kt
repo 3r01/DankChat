@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.flxrs.dankchat.data.DisplayName
 import com.flxrs.dankchat.data.UserId
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.seventv.SevenTVPaint
 import com.flxrs.dankchat.data.twitch.badge.Badge
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.message.Message
@@ -46,6 +47,8 @@ sealed interface ChatMessageUiState {
         val displayName: DisplayName,
         val badges: ImmutableList<BadgeUi>,
         val rawNameColor: Int,
+        val namePaint: SevenTVPaint?,
+        val animateNamePaint: Boolean,
         val nameText: String,
         val message: String,
         val links: ImmutableList<LinkUi>,

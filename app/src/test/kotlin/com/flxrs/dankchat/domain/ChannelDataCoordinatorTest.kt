@@ -32,6 +32,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -143,6 +145,19 @@ internal class ChannelDataCoordinatorTest {
         coordinator.loadChannelData(channel)
 
         assertEquals(ChannelLoadingState.Loaded, coordinator.getChannelLoadingState(channel).value)
+    }
+
+    @Test
+    fun `7tv entitlement updates are reparsed once per burst`() = runTest(testDispatcher) {
+        dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+        dataUpdateEvents.emit(DataUpdateEventMessage.SevenTVUserEntitlementsUpdated)
+
+        advanceTimeBy(249)
+        coVerify(exactly = 0) { chatMessageRepository.reparseAllEmotesAndBadges() }
+
+        advanceTimeBy(1)
+        runCurrent()
+        coVerify(exactly = 1) { chatMessageRepository.reparseAllEmotesAndBadges() }
     }
 
     @Test

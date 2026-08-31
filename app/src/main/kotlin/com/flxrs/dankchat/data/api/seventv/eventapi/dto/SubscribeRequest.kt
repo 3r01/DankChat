@@ -18,6 +18,17 @@ data class SubscribeRequest(
         fun emoteSetUpdates(emoteSetId: String) = SubscribeRequest(
             d = SubscriptionData(type = EmoteSetUpdates.type, condition = SubscriptionCondition(objectId = emoteSetId)),
         )
+
+        fun channel(
+            type: SubscriptionType,
+            channelId: String,
+        ) = SubscribeRequest(
+            d =
+                SubscriptionData(
+                    type = type.type,
+                    condition = SubscriptionCondition(context = "channel", platform = "TWITCH", id = channelId),
+                ),
+        )
     }
 }
 
@@ -29,5 +40,8 @@ data class SubscriptionData(
 
 @Serializable
 data class SubscriptionCondition(
-    @SerialName("object_id") val objectId: String,
+    @SerialName("object_id") val objectId: String? = null,
+    @SerialName("ctx") val context: String? = null,
+    val platform: String? = null,
+    val id: String? = null,
 )

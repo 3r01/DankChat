@@ -45,14 +45,14 @@ class EmoteAnimationCoordinator(
     }
 
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val invalidationListeners = HashMap<Drawable, MutableSet<() -> Unit>>()
+    private val invalidationListeners = HashMap<Drawable, MutableMap<() -> Unit, Boolean>>()
 
     // Drawables are shared between all visible occurrences of an emote, but a Drawable only has
     // a single callback slot, so invalidations are fanned out to every registered listener
     private val fanOutCallback =
         object : Drawable.Callback {
             override fun invalidateDrawable(who: Drawable) {
-                invalidationListeners[who]?.forEach { it() }
+                invalidationListeners[who]?.keys?.forEach { it() }
             }
 
             override fun scheduleDrawable(
@@ -74,15 +74,12 @@ class EmoteAnimationCoordinator(
     fun registerInvalidationListener(
         drawable: Drawable,
         listener: () -> Unit,
+        animate: Boolean = chatSettingsDataStore.currentSettings.value.animateGifs,
     ) {
-        val listeners = invalidationListeners.getOrPut(drawable) { mutableSetOf() }
-        listeners += listener
+        val listeners = invalidationListeners.getOrPut(drawable) { mutableMapOf() }
+        listeners[listener] = animate
         drawable.callback = fanOutCallback
-        if (listeners.size == 1) {
-            // Starting on the first visible occurrence phase-aligns emotes that enter the
-            // viewport together, additional occurrences must not reset the running animation
-            drawable.setAnimationsRunning(chatSettingsDataStore.currentSettings.value.animateGifs)
-        }
+        drawable.setAnimationsRunning(listeners.values.any { it })
     }
 
     fun unregisterInvalidationListener(
@@ -97,6 +94,8 @@ class EmoteAnimationCoordinator(
             // an explicit stop is the only thing that halts it while the drawable stays cached
             drawable.setAnimationsRunning(false)
             drawable.callback = null
+        } else {
+            drawable.setAnimationsRunning(listeners.values.any { it })
         }
     }
 

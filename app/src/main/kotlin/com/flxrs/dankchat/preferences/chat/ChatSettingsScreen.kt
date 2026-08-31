@@ -173,7 +173,12 @@ private fun ChatSettingsScreen(
             SevenTVCategory(
                 enabled = VisibleThirdPartyEmotes.SevenTV in settings.visibleEmotes,
                 allowUnlistedSevenTvEmotes = settings.allowUnlistedSevenTvEmotes,
+                showSevenTVPersonalEmotes = settings.showSevenTVPersonalEmotes,
+                showSevenTVBadges = settings.showSevenTVBadges,
+                showSevenTVPaints = settings.showSevenTVPaints,
+                animateSevenTVPaints = settings.animateSevenTVPaints,
                 sevenTVLiveEmoteUpdates = settings.sevenTVLiveEmoteUpdates,
+                sendSevenTVActivity = settings.sendSevenTVActivity,
                 onInteraction = onInteraction,
                 onNavToBattery = onNavToBattery,
             )
@@ -421,7 +426,12 @@ private fun BTTVCategory(
 private fun SevenTVCategory(
     enabled: Boolean,
     allowUnlistedSevenTvEmotes: Boolean,
+    showSevenTVPersonalEmotes: Boolean,
+    showSevenTVBadges: Boolean,
+    showSevenTVPaints: Boolean,
+    animateSevenTVPaints: Boolean,
     sevenTVLiveEmoteUpdates: Boolean,
+    sendSevenTVActivity: Boolean,
     onInteraction: (ChatSettingsInteraction) -> Unit,
     onNavToBattery: () -> Unit,
 ) {
@@ -435,9 +445,40 @@ private fun SevenTVCategory(
         )
         SwitchPreferenceItem(
             isEnabled = enabled,
+            title = stringResource(R.string.preference_7tv_personal_emotes_title),
+            isChecked = showSevenTVPersonalEmotes,
+            onClick = { onInteraction(ChatSettingsInteraction.ShowSevenTVPersonalEmotes(it)) },
+        )
+        SwitchPreferenceItem(
+            isEnabled = enabled,
+            title = stringResource(R.string.preference_7tv_badges_title),
+            isChecked = showSevenTVBadges,
+            onClick = { onInteraction(ChatSettingsInteraction.ShowSevenTVBadges(it)) },
+        )
+        SwitchPreferenceItem(
+            isEnabled = enabled,
+            title = stringResource(R.string.preference_7tv_paints_title),
+            isChecked = showSevenTVPaints,
+            onClick = { onInteraction(ChatSettingsInteraction.ShowSevenTVPaints(it)) },
+        )
+        SwitchPreferenceItem(
+            isEnabled = enabled && showSevenTVPaints,
+            title = stringResource(R.string.preference_7tv_animated_paints_title),
+            isChecked = animateSevenTVPaints,
+            onClick = { onInteraction(ChatSettingsInteraction.AnimateSevenTVPaints(it)) },
+        )
+        SwitchPreferenceItem(
+            isEnabled = enabled,
             title = stringResource(R.string.preference_7tv_live_updates_title),
             isChecked = sevenTVLiveEmoteUpdates,
             onClick = { onInteraction(ChatSettingsInteraction.LiveEmoteUpdates(it)) },
+        )
+        SwitchPreferenceItem(
+            isEnabled = enabled,
+            title = stringResource(R.string.preference_7tv_activity_title),
+            summary = stringResource(R.string.preference_7tv_activity_summary),
+            isChecked = sendSevenTVActivity,
+            onClick = { onInteraction(ChatSettingsInteraction.SendSevenTVActivity(it)) },
         )
         PreferenceItem(
             title = stringResource(R.string.preference_battery_pause_7tv_title),

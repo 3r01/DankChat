@@ -37,4 +37,13 @@ class SevenTVApiClient(
             .emotes
             .orEmpty()
     }
+
+    suspend fun updatePresence(
+        sevenTVUserId: String,
+        channelId: UserId,
+    ): Result<Unit> = runCatching {
+        sevenTVApi
+            .updatePresence(sevenTVUserId, channelId)
+            .throwApiErrorOnFailure(json)
+    }.map { }
 }

@@ -8,9 +8,12 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.chat.ChatImportance
 import com.flxrs.dankchat.data.chat.ChatItem
 import com.flxrs.dankchat.data.repo.chat.UsersRepository
+import com.flxrs.dankchat.data.repo.emote.EmoteRepository
 import com.flxrs.dankchat.data.toDisplayName
 import com.flxrs.dankchat.data.toUserId
 import com.flxrs.dankchat.data.toUserName
+import com.flxrs.dankchat.data.twitch.badge.Badge
+import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmote
 import com.flxrs.dankchat.data.twitch.emote.ChatMessageEmoteType
 import com.flxrs.dankchat.data.twitch.message.AnnouncementColor
 import com.flxrs.dankchat.data.twitch.message.AutomodMessage
@@ -52,6 +55,7 @@ import org.koin.core.annotation.Single
 @Single
 class ChatMessageMapper(
     private val usersRepository: UsersRepository,
+    private val emoteRepository: EmoteRepository,
 ) {
     fun mapToUiState(
         item: ChatItem,
@@ -566,7 +570,7 @@ class ChatMessageMapper(
                 else -> "$aliasOrFormattedName: "
             }
 
-        val allowedBadges = badges.filter { it.type in chatSettings.visibleBadgeTypes }
+        val allowedBadges = badges.filter { it.isVisible(chatSettings) }
         val badgeUis =
             allowedBadges
                 .mapIndexed { index, badge ->
@@ -579,6 +583,7 @@ class ChatMessageMapper(
 
         val emoteUis =
             emotes
+                .filter { it.isVisible(chatSettings) }
                 .groupBy { it.position }
                 .map { (position, emoteGroup) ->
                     // Check if any emote in the group is animated - we need to check the type
@@ -597,6 +602,7 @@ class ChatMessageMapper(
                                 // Assume third-party can be animated
                                 is ChatMessageEmoteType.ChannelSevenTVEmote,
                                 is ChatMessageEmoteType.GlobalSevenTVEmote,
+                                is ChatMessageEmoteType.PersonalSevenTVEmote,
                                 -> true
 
                                 is ChatMessageEmoteType.Cheermote -> true
@@ -704,6 +710,8 @@ class ChatMessageMapper(
             displayName = displayName,
             badges = badgeUis,
             rawNameColor = rawNameColor,
+            namePaint = emoteRepository.getSevenTVPaint(userId).takeIf { chatSettings.showSevenTVPaints },
+            animateNamePaint = chatSettings.animateSevenTVPaints,
             nameText = nameText,
             message = message,
             links = findLinks(message).toImmutableList(),
@@ -776,7 +784,7 @@ class ChatMessageMapper(
                 ""
             }
 
-        val allowedBadges = badges.filter { it.type in chatSettings.visibleBadgeTypes }
+        val allowedBadges = badges.filter { it.isVisible(chatSettings) }
         val badgeUis =
             allowedBadges
                 .mapIndexed { index, badge ->
@@ -789,6 +797,7 @@ class ChatMessageMapper(
 
         val emoteUis =
             emotes
+                .filter { it.isVisible(chatSettings) }
                 .groupBy { it.position }
                 .map { (position, emoteGroup) ->
                     // Check if any emote in the group is animated
@@ -805,6 +814,7 @@ class ChatMessageMapper(
 
                                 is ChatMessageEmoteType.ChannelSevenTVEmote,
                                 is ChatMessageEmoteType.GlobalSevenTVEmote,
+                                is ChatMessageEmoteType.PersonalSevenTVEmote,
                                 -> true
 
                                 is ChatMessageEmoteType.Cheermote -> true
@@ -1107,6 +1117,13 @@ internal fun WhisperMessage.resolveWhisperReplyTarget(currentUserName: UserName?
         isOutgoing = isOutgoing,
     )
 }
+
+private fun Badge.isVisible(settings: ChatSettings): Boolean = when (this) {
+    is Badge.SevenTVBadge -> settings.showSevenTVBadges
+    else -> type in settings.visibleBadgeTypes
+}
+
+private fun ChatMessageEmote.isVisible(settings: ChatSettings): Boolean = settings.showSevenTVPersonalEmotes || type !is ChatMessageEmoteType.PersonalSevenTVEmote
 
 private fun ChatMessageUiState.hasSameHighlightBackground(other: ChatMessageUiState?): Boolean = other != null &&
     other.lightBackgroundColor == lightBackgroundColor &&

@@ -7,11 +7,14 @@ import com.flxrs.dankchat.data.api.bttv.dto.BTTVEmoteDto
 import com.flxrs.dankchat.data.api.helix.HelixApiClient
 import com.flxrs.dankchat.data.repo.channel.ChannelRepository
 import com.flxrs.dankchat.di.DispatchersProvider
+import com.flxrs.dankchat.preferences.chat.ChatSettings
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -27,10 +30,13 @@ internal class BTTVLiveUpdateEmoteRepositoryTest {
             override val main: CoroutineDispatcher = dispatcher
             override val immediate: CoroutineDispatcher = dispatcher
         }
+    private val chatSettingsDataStore = mockk<ChatSettingsDataStore> {
+        every { settings } returns flowOf(ChatSettings())
+    }
     private val repository =
         EmoteRepository(
             helixApiClient = mockk<HelixApiClient>(),
-            chatSettingsDataStore = mockk<ChatSettingsDataStore>(),
+            chatSettingsDataStore = chatSettingsDataStore,
             channelRepository = mockk<ChannelRepository>(),
             dispatchersProvider = dispatchersProvider,
         )
