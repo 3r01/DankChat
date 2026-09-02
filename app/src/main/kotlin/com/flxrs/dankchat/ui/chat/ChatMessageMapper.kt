@@ -659,7 +659,7 @@ class ChatMessageMapper(
 
         val rawNameColor = resolveNameColor(userDisplay?.color, color, userId, chatSettings)
         val links = findLinks(message).toImmutableList()
-        val gifContentParts = buildTwitchGifContentParts(message, gifs, links, emoteUis)
+        val gifContentParts = buildTwitchGifContentParts(message, gifs, links, emoteUis, chatSettings.showTwitchGifs)
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
@@ -1050,8 +1050,9 @@ internal fun buildTwitchGifContentParts(
     gifs: List<TwitchGif>,
     links: ImmutableList<LinkUi>,
     emotes: ImmutableList<EmoteUi>,
+    showTwitchGifs: Boolean = true,
 ): ImmutableList<TwitchGifContentPartUi> {
-    if (gifs.isEmpty()) return persistentListOf()
+    if (!showTwitchGifs || gifs.isEmpty()) return persistentListOf()
 
     val validGifs =
         gifs
