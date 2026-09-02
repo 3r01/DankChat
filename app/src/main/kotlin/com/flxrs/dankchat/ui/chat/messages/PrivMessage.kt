@@ -68,6 +68,7 @@ import com.flxrs.dankchat.data.api.seventv.SevenTVPaint
 import com.flxrs.dankchat.data.toUserName
 import com.flxrs.dankchat.ui.chat.BadgeUi
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
+import com.flxrs.dankchat.ui.chat.TwitchGifContentPartUi
 import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.messages.common.MENTIONED_USER_ANNOTATION_TAG
@@ -83,6 +84,7 @@ import com.flxrs.dankchat.ui.chat.messages.common.rememberBackgroundColor
 import com.flxrs.dankchat.ui.chat.messages.common.rememberNormalizedColor
 import com.flxrs.dankchat.ui.chat.messages.common.timestampSpanStyle
 import com.flxrs.dankchat.utils.resolve
+import kotlinx.collections.immutable.persistentListOf
 import android.graphics.Shader.TileMode as AndroidTileMode
 import coil3.size.Size as CoilSize
 
@@ -227,8 +229,69 @@ fun PrivMessageComposable(
         }
 
         // Main message
+        if (message.gifContentParts.isEmpty()) {
+            PrivMessageText(
+                message = message,
+                fontSize = fontSize,
+                showChannelPrefix = showChannelPrefix,
+                animateGifs = animateGifs,
+                interactionSource = interactionSource,
+                backgroundColor = backgroundColor,
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick,
+                onTap = onTap,
+            )
+        } else {
+            PrivMessageWithTwitchGifs(
+                message = message,
+                fontSize = fontSize,
+                showChannelPrefix = showChannelPrefix,
+                animateGifs = animateGifs,
+                interactionSource = interactionSource,
+                backgroundColor = backgroundColor,
+                onUserClick = onUserClick,
+                onMessageLongClick = onMessageLongClick,
+                onEmoteClick = onEmoteClick,
+                onTap = onTap,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PrivMessageWithTwitchGifs(
+    message: ChatMessageUiState.PrivMessageUi,
+    fontSize: Float,
+    showChannelPrefix: Boolean,
+    animateGifs: Boolean,
+    interactionSource: MutableInteractionSource,
+    backgroundColor: Color,
+    onUserClick: (userId: String?, userName: String, displayName: String, channel: String?, badges: List<BadgeUi>, isLongPress: Boolean) -> Unit,
+    onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
+    onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
+    onTap: (() -> Unit)?,
+) {
+    val context = LocalPlatformContext.current
+    val parts = message.gifContentParts
+    val firstText = parts.firstOrNull() as? TwitchGifContentPartUi.Text
+    val hasVisiblePrefix =
+        showChannelPrefix ||
+            message.timestamp.isNotEmpty() ||
+            message.badges.isNotEmpty() ||
+            message.nameText.isNotEmpty()
+    val gifFallbackColor =
+        if (message.isAction) {
+            rememberNormalizedColor(message.rawNameColor, backgroundColor)
+        } else {
+            rememberAdaptiveTextColor(backgroundColor)
+        }
+
+    if (firstText != null || hasVisiblePrefix) {
         PrivMessageText(
             message = message,
+            part = firstText ?: TwitchGifContentPartUi.Text("", persistentListOf(), persistentListOf()),
+            includeMessagePrefix = true,
             fontSize = fontSize,
             showChannelPrefix = showChannelPrefix,
             animateGifs = animateGifs,
@@ -239,6 +302,38 @@ fun PrivMessageComposable(
             onEmoteClick = onEmoteClick,
             onTap = onTap,
         )
+    }
+
+    parts.drop(if (firstText != null) 1 else 0).forEach { part ->
+        when (part) {
+            is TwitchGifContentPartUi.Gif -> {
+                TwitchGifContent(
+                    gif = part.gif,
+                    fontSize = fontSize,
+                    fallbackColor = gifFallbackColor,
+                    animateGifs = animateGifs,
+                    onClick = { launchCustomTab(context, part.gif.url) },
+                    onLongClick = { onMessageLongClick(message.id, message.channel.value, message.fullMessage) },
+                )
+            }
+
+            is TwitchGifContentPartUi.Text -> {
+                PrivMessageText(
+                    message = message,
+                    part = part,
+                    includeMessagePrefix = false,
+                    fontSize = fontSize,
+                    showChannelPrefix = false,
+                    animateGifs = animateGifs,
+                    interactionSource = interactionSource,
+                    backgroundColor = backgroundColor,
+                    onUserClick = onUserClick,
+                    onMessageLongClick = onMessageLongClick,
+                    onEmoteClick = onEmoteClick,
+                    onTap = onTap,
+                )
+            }
+        }
     }
 }
 
@@ -254,6 +349,8 @@ private fun PrivMessageText(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
     onTap: (() -> Unit)?,
+    part: TwitchGifContentPartUi.Text? = null,
+    includeMessagePrefix: Boolean = true,
 ) {
     val context = LocalPlatformContext.current
     val defaultTextColor = rememberAdaptiveTextColor(backgroundColor)
@@ -261,7 +358,7 @@ private fun PrivMessageText(
     val nameBrush = rememberSevenTVPaintBrush(message.namePaint, nameColor, message.animateNamePaint)
     val linkColor = rememberAdaptiveLinkColor(backgroundColor)
     val usernameMentions =
-        message.usernameMentions.map { mention ->
+        (part?.usernameMentions ?: message.usernameMentions).map { mention ->
             ResolvedUsernameMention(
                 start = mention.start,
                 end = mention.end,
@@ -270,6 +367,9 @@ private fun PrivMessageText(
                 userAnnotation = "|${mention.userName.value}|${mention.displayName.value}|${message.channel.value}",
             )
         }
+    val text = part?.text ?: message.message
+    val links = part?.links ?: message.links
+    val emotes = part?.emotes ?: message.emotes
 
     // Build annotated string with text content. Keyed on the content-affecting fields only,
     // so layout-only copies (rounded corners, divider) don't rebuild the string.
@@ -279,10 +379,12 @@ private fun PrivMessageText(
             message.timestamp,
             message.badges,
             message.nameText,
-            message.message,
-            message.emotes,
+            text,
+            links,
+            emotes,
             usernameMentions,
             message.isAction,
+            includeMessagePrefix,
             defaultTextColor,
             nameColor,
             nameBrush,
@@ -292,7 +394,7 @@ private fun PrivMessageText(
         ) {
             buildAnnotatedString {
                 // Channel prefix (for mention tab)
-                if (showChannelPrefix) {
+                if (includeMessagePrefix && showChannelPrefix) {
                     withStyle(
                         SpanStyle(
                             fontWeight = FontWeight.Bold,
@@ -304,7 +406,7 @@ private fun PrivMessageText(
                 }
 
                 // Timestamp
-                if (message.timestamp.isNotEmpty()) {
+                if (includeMessagePrefix && message.timestamp.isNotEmpty()) {
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
                         append(message.timestamp)
                     }
@@ -312,13 +414,15 @@ private fun PrivMessageText(
                 }
 
                 // Badges (using appendInlineContent for proper rendering)
-                message.badges.forEach { badge ->
-                    appendInlineContent("BADGE_${badge.position}", "[badge]")
-                    append(" ") // Space between badges
+                if (includeMessagePrefix) {
+                    message.badges.forEach { badge ->
+                        appendInlineContent("BADGE_${badge.position}", "[badge]")
+                        append(" ") // Space between badges
+                    }
                 }
 
                 // Username with click annotation (only if nameText is not empty)
-                if (message.nameText.isNotEmpty()) {
+                if (includeMessagePrefix && message.nameText.isNotEmpty()) {
                     val nameStyle =
                         nameBrush?.let { SpanStyle(brush = it, fontWeight = FontWeight.Bold) }
                             ?: SpanStyle(fontWeight = FontWeight.Bold, color = nameColor)
@@ -342,14 +446,14 @@ private fun PrivMessageText(
 
                 withStyle(SpanStyle(color = textColor)) {
                     var currentPos = 0
-                    message.emotes.sortedBy { it.position.first }.forEach { emote ->
+                    emotes.sortedBy { it.position.first }.forEach { emote ->
                         // Text before emote
                         if (currentPos < emote.position.first) {
-                            val segment = message.message.substring(currentPos, emote.position.first)
+                            val segment = text.substring(currentPos, emote.position.first)
                             appendWithLinks(
                                 text = segment,
                                 segmentStart = currentPos,
-                                links = message.links,
+                                links = links,
                                 linkColor = linkColor,
                                 usernameMentions = usernameMentions,
                             )
@@ -372,7 +476,7 @@ private fun PrivMessageText(
 
                         // Add space after emote if next character exists and is not whitespace
                         val nextPos = emote.position.last + 1
-                        if (nextPos < message.message.length && !message.message[nextPos].isWhitespace()) {
+                        if (nextPos < text.length && !text[nextPos].isWhitespace()) {
                             append(" ")
                         }
 
@@ -380,12 +484,12 @@ private fun PrivMessageText(
                     }
 
                     // Remaining text
-                    if (currentPos < message.message.length) {
-                        val segment = message.message.substring(currentPos)
+                    if (currentPos < text.length) {
+                        val segment = text.substring(currentPos)
                         appendWithLinks(
                             text = segment,
                             segmentStart = currentPos,
-                            links = message.links,
+                            links = links,
                             linkColor = linkColor,
                             usernameMentions = usernameMentions,
                         )
@@ -426,8 +530,8 @@ private fun PrivMessageText(
 
     MessageTextWithInlineContent(
         annotatedString = annotatedString,
-        badges = message.badges,
-        emotes = message.emotes,
+        badges = if (includeMessagePrefix) message.badges else persistentListOf(),
+        emotes = emotes,
         fontSize = fontSize,
         animateGifs = animateGifs,
         isAsciiArt = message.isAsciiArt,
