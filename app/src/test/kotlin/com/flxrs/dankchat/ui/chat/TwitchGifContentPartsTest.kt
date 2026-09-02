@@ -12,6 +12,24 @@ import kotlin.test.assertTrue
 
 internal class TwitchGifContentPartsTest {
     @Test
+    fun `disabled Twitch gifs do not create media parts`() {
+        val message = "before [GIF] after"
+        val gifStart = message.indexOf("[GIF]")
+        val gif = TwitchGif("gif", "https://example.com/a.gif", "[GIF]", gifStart..gifStart + 4)
+
+        val parts =
+            buildTwitchGifContentParts(
+                message = message,
+                gifs = listOf(gif),
+                links = persistentListOf(),
+                emotes = persistentListOf(),
+                showTwitchGifs = false,
+            )
+
+        assertTrue(parts.isEmpty())
+    }
+
+    @Test
     fun `splits mixed text and gifs in protocol order without separator rows`() {
         val message = "before [one] [two] after"
         val gifs =

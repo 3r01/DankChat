@@ -698,7 +698,7 @@ class ChatMessageMapper(
                     )
                 }.toImmutableList()
         val links = findLinks(message).toImmutableList()
-        val gifContentParts = buildTwitchGifContentParts(message, gifs, links, emoteUis, usernameMentions)
+        val gifContentParts = buildTwitchGifContentParts(message, gifs, links, emoteUis, usernameMentions, chatSettings.showTwitchGifs)
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
@@ -1137,8 +1137,9 @@ internal fun buildTwitchGifContentParts(
     links: ImmutableList<LinkUi>,
     emotes: ImmutableList<EmoteUi>,
     usernameMentions: ImmutableList<UsernameMentionUi> = persistentListOf(),
+    showTwitchGifs: Boolean = true,
 ): ImmutableList<TwitchGifContentPartUi> {
-    if (gifs.isEmpty()) return persistentListOf()
+    if (!showTwitchGifs || gifs.isEmpty()) return persistentListOf()
 
     val validGifs =
         gifs
