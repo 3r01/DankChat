@@ -24,6 +24,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -125,5 +126,21 @@ internal class ConnectionCoordinatorTest {
         coVerify { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
         coVerify { remoteMentionHistoryRepository.restore() }
         coVerify { dataRepository.reconnectIfNecessary() }
+    }
+
+    @Test
+    fun `foreground launch after remote push startup loads missed messages`() = runTest(testDispatcher) {
+        val startupResolved = CompletableDeferred<Unit>()
+        appState.value = AppLifecycle.Background
+        coEvery { startupValidationHolder.awaitResolved() } coAnswers { startupResolved.await() }
+        coordinator.initialize()
+        runCurrent()
+
+        appState.value = AppLifecycle.Foreground
+        startupResolved.complete(Unit)
+        runCurrent()
+
+        coVerify { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
+        coVerify { remoteMentionHistoryRepository.restore() }
     }
 }

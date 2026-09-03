@@ -1,5 +1,6 @@
 package com.flxrs.dankchat.domain
 
+import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.auth.AuthEvent
 import com.flxrs.dankchat.data.auth.AuthStateCoordinator
 import com.flxrs.dankchat.data.auth.StartupValidationHolder
@@ -58,8 +59,10 @@ class ConnectionCoordinator(
         }
 
         scope.launch {
+            var shouldRecoverStartupGap =
+                remotePushCoordinator.isEnabled() && appLifecycleListener.appState.value is AppLifecycle.Background
             startupValidationHolder.awaitResolved()
-            var wasInBackground = false
+            var wasInBackground = shouldRecoverStartupGap
             var pausedForRemotePush = false
             appLifecycleListener.appState.collectLatest { state ->
                 when (state) {
@@ -81,14 +84,21 @@ class ConnectionCoordinator(
                         if (wasInBackground) {
                             wasInBackground = false
                             foregroundServiceState.setActive(true)
-                            if (pausedForRemotePush) {
-                                pausedForRemotePush = false
-                                val resumedChannels = chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
-                                if (chatSettingsDataStore.settings.first().loadMessageHistoryOnReconnect) {
-                                    resumedChannels.forEach { channel ->
-                                        scope.launch { chatEventProcessor.loadRecentMessages(channel, isReconnect = true) }
-                                    }
+                            val missedChannels =
+                                when {
+                                    pausedForRemotePush -> chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
+
+                                    shouldRecoverStartupGap ->
+                                        chatChannelProvider.channels.value
+                                            .orEmpty()
+                                            .toSet()
+
+                                    else -> emptySet()
                                 }
+                            if (pausedForRemotePush || shouldRecoverStartupGap) {
+                                pausedForRemotePush = false
+                                shouldRecoverStartupGap = false
+                                loadMissedMessages(missedChannels)
                                 scope.launch { remoteMentionHistoryRepository.restore() }
                             } else {
                                 chatConnector.reconnectIfNecessary()
@@ -103,6 +113,14 @@ class ConnectionCoordinator(
                     }
                 }
             }
+        }
+    }
+
+    private suspend fun loadMissedMessages(channels: Set<UserName>) {
+        if (!chatSettingsDataStore.settings.first().loadMessageHistoryOnReconnect) return
+
+        channels.forEach { channel ->
+            scope.launch { chatEventProcessor.loadRecentMessages(channel, isReconnect = true) }
         }
     }
 }
