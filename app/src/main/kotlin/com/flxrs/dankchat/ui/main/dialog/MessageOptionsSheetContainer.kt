@@ -8,6 +8,9 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem
+import com.flxrs.dankchat.data.twitch.message.toTwitchGifLoadUrl
+import com.flxrs.dankchat.ui.chat.emotemenu.GifFavoriteAction
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsState
 import com.flxrs.dankchat.ui.chat.message.MessageOptionsViewModel
 import com.flxrs.dankchat.ui.chat.message.MessageReplyAction
@@ -39,6 +42,15 @@ fun MessageOptionsSheetContainer(onJumpToMessage: (messageId: String, channel: U
     when (found) {
         is MessageOptionsState.Found.RegularMessage -> {
             MessageOptionsDialog(
+                gifActions = {
+                    found.gifs.forEach { gif ->
+                        GifFavoriteAction(
+                            gif = TwitchGifPickerItem(gif.id, gif.altText, gif.url, gif.url.toTwitchGifLoadUrl(), 200, 200, null),
+                            showTitle = found.gifs.size > 1,
+                            onDone = messageOptionsViewModel::dismiss,
+                        )
+                    }
+                },
                 channel = params.channel?.value,
                 canModerate = found.canModerate,
                 canReply = found.replyAction != null,

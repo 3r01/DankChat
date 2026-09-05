@@ -84,6 +84,7 @@ class EmoteMenuViewModel(
                     async { EmoteMenuTabItem(EmoteMenuTab.SUBS, groupedByType[EmoteMenuTab.SUBS].toEmoteItemsWithFront(channel)) },
                     async { EmoteMenuTabItem(EmoteMenuTab.CHANNEL, groupedByType[EmoteMenuTab.CHANNEL].orEmpty().toEmoteItems()) },
                     async { EmoteMenuTabItem(EmoteMenuTab.GLOBAL, groupedByType[EmoteMenuTab.GLOBAL].orEmpty().toEmoteItems()) },
+                    async { EmoteMenuTabItem(EmoteMenuTab.GIFS, emptyList()) },
                 ).awaitAll().toImmutableList()
             }
         }.stateIn(

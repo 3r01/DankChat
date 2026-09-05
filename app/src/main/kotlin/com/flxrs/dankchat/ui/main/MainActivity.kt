@@ -210,6 +210,7 @@ class MainActivity : ComponentActivity() {
                 val onboardingCompleted = onboardingDataStore.current().hasCompletedOnboarding
 
                 Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                    TwitchWebGqlHost()
                     NavHost(
                         navController = navController,
                         startDestination = if (onboardingCompleted) Main else Onboarding,

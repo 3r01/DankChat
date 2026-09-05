@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
@@ -184,6 +185,8 @@ fun MainScreen(
         derivedStateOf { (ime.getBottom(density) - navBars.getBottom(density)).coerceAtLeast(0) }
     }
     val isImeVisible = WindowInsets.isImeVisible
+    var isEmoteMenuInputFocused by remember { mutableStateOf(false) }
+    var isGifPickerVisible by remember { mutableStateOf(false) }
 
     // Keyboard height tracking — VM handles debounce + persistence
     LaunchedEffect(isLandscape) { mainScreenViewModel.initKeyboardHeight(isLandscape) }
@@ -195,8 +198,8 @@ fun MainScreen(
 
     // Close emote menu when keyboard opens, but wait for keyboard to reach
     // persisted height so scaffold padding doesn't jump during the transition
-    LaunchedEffect(isImeVisible) {
-        if (isImeVisible) {
+    LaunchedEffect(isImeVisible, isEmoteMenuInputFocused) {
+        if (isImeVisible && !isEmoteMenuInputFocused) {
             if (keyboardHeightPx > 0) {
                 snapshotFlow { imeHeightState.value }
                     .first { it >= keyboardHeightPx }
@@ -431,8 +434,9 @@ fun MainScreen(
     var toolbarBottomPx by remember { mutableIntStateOf(0) }
     if (!showInput) inputHeightPx = 0
     if (showInput || inputState.helperText.isEmpty) helperTextHeightPx = 0
-    val inputHeightDp = with(density) { inputHeightPx.toDp() }
-    val helperTextHeightDp = with(density) { helperTextHeightPx.toDp() }
+    val hideChatInputForGifPicker = inputState.isEmoteMenuOpen && isGifPickerVisible
+    val inputHeightDp = with(density) { if (hideChatInputForGifPicker) 0.dp else inputHeightPx.toDp() }
+    val helperTextHeightDp = with(density) { if (hideChatInputForGifPicker) 0.dp else helperTextHeightPx.toDp() }
     val toolbarBottomDp = with(density) { toolbarBottomPx.toDp() }
     val bottomReserveDp = with(density) {
         maxOf(imeTarget.getBottom(density), navBars.getBottom(density)).toDp()
@@ -511,10 +515,14 @@ fun MainScreen(
             // dialog owns it. Resolved in the layout phase to avoid per-frame recomposition.
             val hasDialogWithInput = dialogState.showAddChannel || modActionsActive || dialogState.showManageChannels || dialogState.showNewWhisper
             val emoteMenuPadding = if (inputState.isEmoteMenuOpen) targetMenuHeight else 0.dp
-            val scaffoldBottomInsets = remember(ime, navBars, hasDialogWithInput, emoteMenuPadding) {
+            val pickerKeyboardInsets = remember(ime, navBars, isEmoteMenuInputFocused) {
+                if (isEmoteMenuInputFocused) ime.exclude(navBars) else WindowInsets(0)
+            }
+            val scaffoldBottomInsets = remember(ime, navBars, hasDialogWithInput, emoteMenuPadding, isEmoteMenuInputFocused) {
                 val emoteMenuInsets = WindowInsets(bottom = emoteMenuPadding)
                 when {
                     hasDialogWithInput -> emoteMenuInsets
+                    isEmoteMenuInputFocused -> ime.exclude(navBars).add(emoteMenuInsets)
                     else -> ime.exclude(navBars).union(emoteMenuInsets)
                 }
             }
@@ -522,137 +530,140 @@ fun MainScreen(
                 hasDialogWithInput -> 0.dp
                 else -> with(density) { targetImeHeight.toDp() }
             }
-            val scaffoldBottomTargetDp = max(targetImeDp, emoteMenuPadding)
+            val scaffoldBottomTargetDp =
+                if (isEmoteMenuInputFocused) targetImeDp + emoteMenuPadding else max(targetImeDp, emoteMenuPadding)
 
             // Shared bottom bar content
             val bottomBar: @Composable () -> Unit = {
-                ChatBottomBar(
-                    showInput = showInput && !isHistorySheet,
-                    textFieldState = chatInputViewModel.textFieldState,
-                    uiState = inputState,
-                    characterCounter = chatInputViewModel.characterCounter,
-                    callbacks =
-                        ChatInputCallbacks(
-                            onSend = chatInputViewModel::sendMessage,
-                            onLastMessageClick = chatInputViewModel::getLastMessage,
-                            onRecentMessageClick = chatInputViewModel::setInputFromHistory,
-                            onEmoteClick = {
-                                if (!inputState.isEmoteMenuOpen) {
-                                    keyboardController?.hide()
-                                    chatInputViewModel.setEmoteMenuOpen(true)
-                                } else {
-                                    keyboardController?.show()
-                                }
-                            },
-                            onOverlayDismiss = {
-                                when (inputState.overlay) {
-                                    is InputOverlay.Reply -> chatInputViewModel.setReplying(false)
-                                    is InputOverlay.Whisper -> chatInputViewModel.setWhisperTarget(null)
-                                    is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
-                                    InputOverlay.None -> Unit
-                                }
-                            },
-                            onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
-                            onToggleInput = {
-                                mainScreenViewModel.toggleInput()
-                                chatInputViewModel.setEmoteMenuOpen(false)
-                            },
-                            onToggleStream = {
-                                when {
-                                    currentStream != null -> streamViewModel.closeStream()
-                                    else -> activeChannel?.let { streamViewModel.toggleStream(it) }
-                                }
-                            },
-                            onAudioOnly = { streamViewModel.toggleAudioOnly() },
-                            onToggleTheater = { streamViewModel.toggleTheaterMode() },
-                            onModActions = { inputState.activeChannel?.let { modActionsViewModel.show(it) } },
-                            onInputActionsChange = mainScreenViewModel::updateInputActions,
-                            onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) } },
-                            onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
-                            onNewWhisper =
-                                if (inputState.isWhisperTabActive) {
-                                    dialogViewModel::showNewWhisper
-                                } else {
-                                    null
+                if (!hideChatInputForGifPicker) {
+                    ChatBottomBar(
+                        showInput = showInput && !isHistorySheet,
+                        textFieldState = chatInputViewModel.textFieldState,
+                        uiState = inputState,
+                        characterCounter = chatInputViewModel.characterCounter,
+                        callbacks =
+                            ChatInputCallbacks(
+                                onSend = chatInputViewModel::sendMessage,
+                                onLastMessageClick = chatInputViewModel::getLastMessage,
+                                onRecentMessageClick = chatInputViewModel::setInputFromHistory,
+                                onEmoteClick = {
+                                    if (!inputState.isEmoteMenuOpen) {
+                                        keyboardController?.hide()
+                                        chatInputViewModel.setEmoteMenuOpen(true)
+                                    } else {
+                                        keyboardController?.show()
+                                    }
                                 },
-                            onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
-                            onInputScrollableChanged = { isInputScrollable = it },
-                        ),
-                    isUploading = dialogState.isUploading,
-                    isLoading = tabState.loading,
-                    isFullscreen = isFullscreen,
-                    isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
-                    isStreamActive = currentStream != null,
-                    isAudioOnly = isAudioOnly,
-                    hasStreamData = hasStreamData,
-                    isSheetOpen = isSheetOpen,
-                    inputActions =
-                        when (fullScreenSheetState) {
-                            is FullScreenSheetState.Replies -> {
-                                persistentListOf(InputAction.LastMessage)
-                            }
-
-                            is FullScreenSheetState.Whisper,
-                            is FullScreenSheetState.Mention,
-                            -> {
-                                when {
-                                    inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
-                                    else -> persistentListOf()
+                                onOverlayDismiss = {
+                                    when (inputState.overlay) {
+                                        is InputOverlay.Reply -> chatInputViewModel.setReplying(false)
+                                        is InputOverlay.Whisper -> chatInputViewModel.setWhisperTarget(null)
+                                        is InputOverlay.Announce -> chatInputViewModel.setAnnouncing(false)
+                                        InputOverlay.None -> Unit
+                                    }
+                                },
+                                onToggleFullscreen = mainScreenViewModel::toggleFullscreen,
+                                onToggleInput = {
+                                    mainScreenViewModel.toggleInput()
+                                    chatInputViewModel.setEmoteMenuOpen(false)
+                                },
+                                onToggleStream = {
+                                    when {
+                                        currentStream != null -> streamViewModel.closeStream()
+                                        else -> activeChannel?.let { streamViewModel.toggleStream(it) }
+                                    }
+                                },
+                                onAudioOnly = { streamViewModel.toggleAudioOnly() },
+                                onToggleTheater = { streamViewModel.toggleTheaterMode() },
+                                onModActions = { inputState.activeChannel?.let { modActionsViewModel.show(it) } },
+                                onInputActionsChange = mainScreenViewModel::updateInputActions,
+                                onSearchClick = { activeChannel?.let { sheetNavigationViewModel.openHistory(HistoryChannel.Channel(it)) } },
+                                onDebugInfoClick = sheetNavigationViewModel::openDebugInfo,
+                                onNewWhisper =
+                                    if (inputState.isWhisperTabActive) {
+                                        dialogViewModel::showNewWhisper
+                                    } else {
+                                        null
+                                    },
+                                onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
+                                onInputScrollableChanged = { isInputScrollable = it },
+                            ),
+                        isUploading = dialogState.isUploading,
+                        isLoading = tabState.loading,
+                        isFullscreen = isFullscreen,
+                        isModerator = mainScreenViewModel.isModeratorInChannel(inputState.activeChannel),
+                        isStreamActive = currentStream != null,
+                        isAudioOnly = isAudioOnly,
+                        hasStreamData = hasStreamData,
+                        isSheetOpen = isSheetOpen,
+                        inputActions =
+                            when (fullScreenSheetState) {
+                                is FullScreenSheetState.Replies -> {
+                                    persistentListOf(InputAction.LastMessage)
                                 }
-                            }
 
-                            is FullScreenSheetState.History,
-                            is FullScreenSheetState.Closed,
-                            -> {
-                                when {
-                                    // Theater mode is already fullscreen, so toggling chat fullscreen makes no sense there
-                                    useTheaterLayout -> mainState.inputActions.filterNot { it == InputAction.Fullscreen }.toImmutableList()
-
-                                    else -> mainState.inputActions
+                                is FullScreenSheetState.Whisper,
+                                is FullScreenSheetState.Mention,
+                                -> {
+                                    when {
+                                        inputState.isWhisperTabActive && inputState.overlay is InputOverlay.Whisper -> persistentListOf(InputAction.LastMessage)
+                                        else -> persistentListOf()
+                                    }
                                 }
+
+                                is FullScreenSheetState.History,
+                                is FullScreenSheetState.Closed,
+                                -> {
+                                    when {
+                                        // Theater mode is already fullscreen, so toggling chat fullscreen makes no sense there
+                                        useTheaterLayout -> mainState.inputActions.filterNot { it == InputAction.Fullscreen }.toImmutableList()
+
+                                        else -> mainState.inputActions
+                                    }
+                                }
+                            },
+                        onInputHeightChange = { inputHeightPx = it },
+                        debugMode = mainState.debugMode,
+                        overflowExpanded = inputOverflowExpanded,
+                        onOverflowExpandedChange = {
+                            inputOverflowExpanded = it
+                            if (it) {
+                                recentMessagesExpanded = false
                             }
                         },
-                    onInputHeightChange = { inputHeightPx = it },
-                    debugMode = mainState.debugMode,
-                    overflowExpanded = inputOverflowExpanded,
-                    onOverflowExpandedChange = {
-                        inputOverflowExpanded = it
-                        if (it) {
-                            recentMessagesExpanded = false
-                        }
-                    },
-                    recentMessagesExpanded = recentMessagesExpanded,
-                    onRecentMessagesExpandedChange = {
-                        recentMessagesExpanded = it
-                        if (it) {
-                            inputOverflowExpanded = false
-                        }
-                    },
-                    onHelperTextHeightChange = { helperTextHeightPx = it },
-                    isInSplitLayout = useWideSplitLayout,
-                    isTheaterMode = useTheaterLayout,
-                    showTheaterDockToggle = useTheaterLayout && canDockTheaterChat,
-                    isTheaterChatDocked = streamVmState.isTheaterChatDocked,
-                    onToggleTheaterChatMode = { streamViewModel.toggleTheaterChatMode() },
-                    instantHide = isHistorySheet,
-                    isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
-                    overflowMenuMaxHeightDp = menuMaxHeightDp,
-                    tourState =
-                        remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
-                            TourOverlayState(
-                                inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
-                                overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
-                                configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
-                                swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
-                                forceOverflowOpen = featureTourState.forceOverflowOpen,
-                                isTourActive =
-                                    featureTourState.isTourActive ||
-                                        featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
-                                onAdvance = featureTourViewModel::advance,
-                                onSkip = featureTourViewModel::skipTour,
-                            )
+                        recentMessagesExpanded = recentMessagesExpanded,
+                        onRecentMessagesExpandedChange = {
+                            recentMessagesExpanded = it
+                            if (it) {
+                                inputOverflowExpanded = false
+                            }
                         },
-                )
+                        onHelperTextHeightChange = { helperTextHeightPx = it },
+                        isInSplitLayout = useWideSplitLayout,
+                        isTheaterMode = useTheaterLayout,
+                        showTheaterDockToggle = useTheaterLayout && canDockTheaterChat,
+                        isTheaterChatDocked = streamVmState.isTheaterChatDocked,
+                        onToggleTheaterChatMode = { streamViewModel.toggleTheaterChatMode() },
+                        instantHide = isHistorySheet,
+                        isRepeatedSendEnabled = mainState.isRepeatedSendEnabled,
+                        overflowMenuMaxHeightDp = menuMaxHeightDp,
+                        tourState =
+                            remember(featureTourState.currentTourStep, featureTourState.forceOverflowOpen, featureTourState.isTourActive) {
+                                TourOverlayState(
+                                    inputActionsTooltipState = if (featureTourState.currentTourStep == TourStep.InputActions) featureTourViewModel.inputActionsTooltipState else null,
+                                    overflowMenuTooltipState = if (featureTourState.currentTourStep == TourStep.OverflowMenu) featureTourViewModel.overflowMenuTooltipState else null,
+                                    configureActionsTooltipState = if (featureTourState.currentTourStep == TourStep.ConfigureActions) featureTourViewModel.configureActionsTooltipState else null,
+                                    swipeGestureTooltipState = if (featureTourState.currentTourStep == TourStep.SwipeGesture) featureTourViewModel.swipeGestureTooltipState else null,
+                                    forceOverflowOpen = featureTourState.forceOverflowOpen,
+                                    isTourActive =
+                                        featureTourState.isTourActive ||
+                                            featureTourState.postOnboardingStep is PostOnboardingStep.ToolbarPlusHint,
+                                    onAdvance = featureTourViewModel::advance,
+                                    onSkip = featureTourViewModel::skipTour,
+                                )
+                            },
+                    )
+                }
             }
 
             // Shared toolbar action handler
@@ -797,8 +808,12 @@ fun MainScreen(
                         chatInputViewModel.insertEmote(code)
                         chatInputViewModel.addEmoteUsage(id)
                     },
+                    allowGifs = inputState.inputState == InputState.Default,
+                    onMenuInputFocusChanged = { isEmoteMenuInputFocused = it },
+                    onGifPickerVisibleChanged = { isGifPickerVisible = it },
+                    onGifSent = { chatInputViewModel.setEmoteMenuOpen(false) },
                     onBackspace = chatInputViewModel::deleteLastWord,
-                    modifier = menuModifier,
+                    modifier = menuModifier.windowInsetsPadding(pickerKeyboardInsets),
                 )
             }
 

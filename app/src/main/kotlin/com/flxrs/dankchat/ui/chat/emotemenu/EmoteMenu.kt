@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -22,29 +24,43 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.data.repo.emote.GifPickerLibrary
 import com.flxrs.dankchat.data.twitch.emote.GenericEmote
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
@@ -57,22 +73,42 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun EmoteMenu(
     onEmoteClick: (String, String) -> Unit,
+    allowGifs: Boolean,
+    onMenuInputFocusChanged: (Boolean) -> Unit,
+    onGifPickerVisibleChanged: (Boolean) -> Unit,
+    onGifSent: () -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EmoteMenuViewModel = koinViewModel(),
     emoteInfoViewModel: EmoteInfoViewModel = koinViewModel(),
+    gifPickerViewModel: GifPickerViewModel = koinViewModel(),
 ) {
-    val tabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
+    val allTabItems by viewModel.emoteTabItems.collectAsStateWithLifecycle()
+    val gifsAvailable by gifPickerViewModel.isAvailable.collectAsStateWithLifecycle()
+    val tabItems = remember(allTabItems, gifsAvailable, allowGifs) {
+        if (gifsAvailable && allowGifs) allTabItems else allTabItems.filterNot { it.type == EmoteMenuTab.GIFS }
+    }
     val selectedTabIndex by viewModel.selectedTabIndex.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val pagerState =
         rememberPagerState(
-            initialPage = selectedTabIndex,
+            initialPage = selectedTabIndex.coerceIn(0, tabItems.lastIndex.coerceAtLeast(0)),
             pageCount = { tabItems.size },
         )
 
-    LaunchedEffect(pagerState.currentPage) {
-        viewModel.selectTab(pagerState.currentPage)
+    val currentTabIndex = pagerState.currentPage.coerceIn(0, tabItems.lastIndex.coerceAtLeast(0))
+    val isGifPickerVisible = tabItems.getOrNull(currentTabIndex)?.type == EmoteMenuTab.GIFS
+    DisposableEffect(isGifPickerVisible) {
+        onGifPickerVisibleChanged(isGifPickerVisible)
+        onDispose { onGifPickerVisibleChanged(false) }
+    }
+    LaunchedEffect(currentTabIndex) {
+        viewModel.selectTab(currentTabIndex)
+    }
+    LaunchedEffect(tabItems.size) {
+        if (pagerState.currentPage > tabItems.lastIndex) {
+            pagerState.scrollToPage(tabItems.lastIndex.coerceAtLeast(0))
+        }
     }
     val subsGridState = rememberLazyGridState()
     val subsFirstHeader =
@@ -92,12 +128,12 @@ fun EmoteMenu(
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             PrimaryTabRow(
-                selectedTabIndex = pagerState.currentPage,
+                selectedTabIndex = currentTabIndex,
                 containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             ) {
                 tabItems.forEachIndexed { index, tabItem ->
                     Tab(
-                        selected = pagerState.currentPage == index,
+                        selected = currentTabIndex == index,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         text = {
                             Text(
@@ -107,6 +143,7 @@ fun EmoteMenu(
                                         EmoteMenuTab.SUBS -> stringResource(R.string.emote_menu_tab_subs)
                                         EmoteMenuTab.CHANNEL -> stringResource(R.string.emote_menu_tab_channel)
                                         EmoteMenuTab.GLOBAL -> stringResource(R.string.emote_menu_tab_global)
+                                        EmoteMenuTab.GIFS -> stringResource(R.string.emote_menu_tab_gifs)
                                     },
                             )
                         },
@@ -123,34 +160,240 @@ fun EmoteMenu(
                     modifier = Modifier.fillMaxSize(),
                     beyondViewportPageCount = 1,
                 ) { page ->
-                    val tab = tabItems[page]
-                    EmoteGridPage(
-                        tab = tab,
-                        subsGridState = subsGridState,
-                        navBarBottomDp = navBarBottomDp,
-                        onEmoteClick = onEmoteClick,
-                        onEmoteLongClick = { emote -> emoteInfoViewModel.show(listOf(emote.toEmoteSheetData())) },
-                    )
+                    val tab = tabItems.getOrNull(page) ?: return@HorizontalPager
+                    if (tab.type == EmoteMenuTab.GIFS) {
+                        GifPickerPage(
+                            isVisible = isGifPickerVisible,
+                            viewModel = gifPickerViewModel,
+                            navBarBottomDp = navBarBottomDp,
+                            onSearchFocusChanged = onMenuInputFocusChanged,
+                            onGifSent = onGifSent,
+                        )
+                    } else {
+                        EmoteGridPage(
+                            tab = tab,
+                            subsGridState = subsGridState,
+                            navBarBottomDp = navBarBottomDp,
+                            onEmoteClick = onEmoteClick,
+                            onEmoteLongClick = { emote -> emoteInfoViewModel.show(listOf(emote.toEmoteSheetData())) },
+                        )
+                    }
                 }
 
-                // Floating backspace button at bottom-end, matching keyboard position
-                IconButton(
-                    onClick = onBackspace,
-                    colors =
-                        IconButtonDefaults.iconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        ),
+                if (tabItems.getOrNull(pagerState.currentPage)?.type != EmoteMenuTab.GIFS) {
+                    // Floating backspace button at bottom-end, matching keyboard position
+                    IconButton(
+                        onClick = onBackspace,
+                        colors =
+                            IconButtonDefaults.iconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            ),
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 8.dp, bottom = 8.dp + navBarBottomDp)
+                                .size(48.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Backspace,
+                            contentDescription = stringResource(R.string.backspace),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GifPickerPage(
+    isVisible: Boolean,
+    viewModel: GifPickerViewModel,
+    navBarBottomDp: Dp,
+    onSearchFocusChanged: (Boolean) -> Unit,
+    onGifSent: () -> Unit,
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val library by viewModel.library.collectAsStateWithLifecycle(GifPickerLibrary())
+    val favoriteIds = remember(library.favorites) { library.favorites.map { it.id }.toSet() }
+    var section by remember { mutableStateOf(GifPickerSection.Browse) }
+    var query by remember { mutableStateOf("") }
+    DisposableEffect(Unit) {
+        onDispose { onSearchFocusChanged(false) }
+    }
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            GifPickerSection.entries.forEach { item ->
+                FilterChip(
+                    selected = section == item,
+                    onClick = { section = item },
+                    label = { Text(stringResource(item.title)) },
+                )
+            }
+        }
+        OutlinedTextField(
+            enabled = state !is GifPickerState.Sending,
+            value = query,
+            onValueChange = {
+                query = it
+                viewModel.search(it)
+            },
+            singleLine = true,
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            placeholder = { Text(stringResource(R.string.gif_search)) },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .onFocusChanged { onSearchFocusChanged(it.isFocused) }
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+        )
+        Text(
+            text = stringResource(R.string.gif_powered_by_giphy),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.End).padding(horizontal = 12.dp),
+        )
+        if (section != GifPickerSection.Browse) {
+            val savedGifs = when (section) {
+                GifPickerSection.Favorites -> library.favorites
+                else -> library.recent
+            }.filter { query.isBlank() || it.title.contains(query.trim(), ignoreCase = true) }
+            if (savedGifs.isEmpty()) {
+                GifPickerMessage(stringResource(R.string.gif_no_saved_results))
+            } else {
+                GifGrid(
+                    gifs = savedGifs,
+                    navBarBottomDp = navBarBottomDp,
+                    enabled = state !is GifPickerState.Sending,
+                    nextOffset = null,
+                    isLoadingMore = false,
+                    pageError = null,
+                    isVisible = isVisible,
+                    onLoadMore = {},
+                    favoriteIds = favoriteIds,
+                ) { viewModel.send(it.copy(searchTerm = null), onGifSent) }
+            }
+        } else {
+            when (val current = state) {
+                GifPickerState.Loading ->
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        androidx.compose.material3.CircularProgressIndicator()
+                    }
+
+                GifPickerState.Unavailable ->
+                    GifPickerMessage(stringResource(R.string.gif_unavailable))
+
+                is GifPickerState.Error -> GifPickerMessage(current.message)
+
+                is GifPickerState.Ready, is GifPickerState.Sending -> {
+                    val ready = current as? GifPickerState.Ready
+                    GifGrid(
+                        gifs = ready?.gifs ?: (current as GifPickerState.Sending).gifs,
+                        navBarBottomDp = navBarBottomDp,
+                        enabled = ready != null,
+                        nextOffset = ready?.nextOffset,
+                        isLoadingMore = ready?.isLoadingMore == true,
+                        pageError = ready?.pageError,
+                        isVisible = isVisible,
+                        onLoadMore = viewModel::loadMore,
+                        favoriteIds = favoriteIds,
+                    ) { viewModel.send(it, onGifSent) }
+                }
+            }
+        }
+    }
+}
+
+private enum class GifPickerSection(
+    val title: Int,
+) {
+    Browse(R.string.gif_browse),
+    Favorites(R.string.gif_favorites),
+    Recent(R.string.emote_menu_tab_recent),
+}
+
+@Composable
+private fun GifPickerMessage(message: String) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(message, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(24.dp))
+    }
+}
+
+@Composable
+private fun GifGrid(
+    gifs: List<com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem>,
+    navBarBottomDp: Dp,
+    enabled: Boolean = true,
+    nextOffset: Int?,
+    isLoadingMore: Boolean,
+    pageError: String?,
+    isVisible: Boolean,
+    onLoadMore: () -> Unit,
+    favoriteIds: Set<String>,
+    onClick: (com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem) -> Unit,
+) {
+    var selectedGif by remember { mutableStateOf<com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem?>(null) }
+    val gridState = rememberLazyGridState()
+    LaunchedEffect(gridState, nextOffset, isLoadingMore, pageError, isVisible) {
+        if (!isVisible || nextOffset == null || isLoadingMore || pageError != null) return@LaunchedEffect
+        snapshotFlow {
+            val layout = gridState.layoutInfo
+            layout.viewportEndOffset > 0 && (gifs.isEmpty() || (layout.visibleItemsInfo.lastOrNull()?.index ?: -1) >= gifs.lastIndex)
+        }.collect { reachedEnd ->
+            if (reachedEnd) onLoadMore()
+        }
+    }
+    LazyVerticalGrid(
+        state = gridState,
+        columns = GridCells.Adaptive(112.dp),
+        contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 56.dp + navBarBottomDp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        items(gifs, key = { it.id }) { gif ->
+            Box {
+                DropdownMenu(
+                    expanded = selectedGif?.id == gif.id,
+                    onDismissRequest = { selectedGif = null },
+                    properties = PopupProperties(focusable = false),
+                ) {
+                    GifFavoriteAction(gif, onDone = { selectedGif = null })
+                }
+                AsyncImage(
+                    model = gif.previewUrl,
+                    contentDescription = gif.title,
                     modifier =
                         Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 8.dp, bottom = 8.dp + navBarBottomDp)
-                            .size(48.dp),
-                ) {
+                            .fillMaxWidth()
+                            .widthIn(min = 80.dp)
+                            .aspectRatio((gif.width.toFloat() / gif.height.coerceAtLeast(1)).coerceIn(0.5f, 2f))
+                            .pointerInput(gif, enabled) {
+                                if (enabled) detectTapGestures(onTap = { onClick(gif) }, onLongPress = { selectedGif = gif })
+                            },
+                )
+                if (gif.id in favoriteIds) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Backspace,
-                        contentDescription = stringResource(R.string.backspace),
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        imageVector = Icons.Default.Star,
+                        contentDescription = stringResource(R.string.gif_favorites),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(18.dp),
                     )
+                }
+            }
+        }
+        if (isLoadingMore || pageError != null) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Box(Modifier.fillMaxWidth().padding(12.dp), contentAlignment = Alignment.Center) {
+                    if (isLoadingMore) {
+                        androidx.compose.material3.CircularProgressIndicator(Modifier.size(24.dp))
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(pageError.orEmpty(), style = MaterialTheme.typography.bodySmall)
+                            TextButton(onClick = onLoadMore) { Text(stringResource(R.string.snackbar_retry)) }
+                        }
+                    }
                 }
             }
         }

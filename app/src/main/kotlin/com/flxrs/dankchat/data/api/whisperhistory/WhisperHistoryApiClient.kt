@@ -1,18 +1,12 @@
 package com.flxrs.dankchat.data.api.whisperhistory
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
+import com.flxrs.dankchat.data.api.twitchgql.TwitchWebGqlClient
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.encodeToJsonElement
 import org.koin.core.annotation.Single
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
@@ -20,35 +14,34 @@ import kotlin.time.Instant
 
 @Single
 class WhisperHistoryApiClient(
-    private val client: HttpClient,
+    private val gqlClient: TwitchWebGqlClient,
+    private val json: Json,
 ) {
     suspend fun getRecentWhispers(
         userId: String,
         webOAuthToken: String,
     ): Result<List<WhisperHistoryEntry>> = try {
         Result.success(
-            client
-                .post(GQL_URL) {
-                    header("Client-ID", TWITCH_WEB_CLIENT_ID)
-                    header(HttpHeaders.Authorization, "OAuth $webOAuthToken")
-                    header(HttpHeaders.Accept, ContentType.Application.Json)
-                    contentType(ContentType.Application.Json)
-                    setBody(
-                        WhisperHistoryRequest(
-                            operationName = "DankChatWhisperThreads",
-                            query = WHISPER_THREADS_QUERY,
-                            variables = WhisperHistoryVariables(THREADS_PER_REQUEST, MESSAGES_PER_THREAD),
-                        ),
-                    )
-                }.let { response ->
-                    if (response.status == HttpStatusCode.Unauthorized) {
+            gqlClient
+                .execute(
+                    webOAuthToken = webOAuthToken,
+                    body =
+                        json.encodeToJsonElement(
+                            WhisperHistoryRequest(
+                                operationName = "DankChatWhisperThreads",
+                                query = WHISPER_THREADS_QUERY,
+                                variables = WhisperHistoryVariables(THREADS_PER_REQUEST, MESSAGES_PER_THREAD),
+                            ),
+                        ) as JsonObject,
+                ).let { response ->
+                    if (response.status == 401) {
                         throw WhisperHistoryException.TokenExpired
                     }
-                    if (!response.status.isSuccess()) {
-                        throw WhisperHistoryException.RequestFailed("Twitch returned ${response.status.value}")
+                    if (response.status !in 200..299) {
+                        throw WhisperHistoryException.RequestFailed("Twitch returned ${response.status}")
                     }
                     parseWhisperHistoryResponse(
-                        response = response.body(),
+                        response = json.decodeFromString(response.body),
                         expectedUserId = userId,
                         cutoff = Clock.System.now() - HISTORY_WINDOW,
                     )
@@ -61,8 +54,6 @@ class WhisperHistoryApiClient(
     }
 
     private companion object {
-        const val GQL_URL = "https://gql.twitch.tv/gql"
-        const val TWITCH_WEB_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko"
         const val THREADS_PER_REQUEST = 100
         const val MESSAGES_PER_THREAD = 100
         val HISTORY_WINDOW = 24.hours

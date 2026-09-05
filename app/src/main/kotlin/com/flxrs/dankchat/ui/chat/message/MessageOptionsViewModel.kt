@@ -113,6 +113,12 @@ class MessageOptionsViewModel(
                             urls = extractUrls(originalMessage).toImmutableList(),
                             hasReplyThread = replyAction == MessageReplyAction.Channel && rootId != null && repliesRepository.hasMessageThread(rootId),
                             replyAction = replyAction,
+                            gifs = asPrivMessage
+                                ?.gifData
+                                ?.gifs
+                                .orEmpty()
+                                .distinctBy { it.id }
+                                .toImmutableList(),
                         )
                     }
                 }

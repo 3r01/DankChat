@@ -3,6 +3,7 @@ package com.flxrs.dankchat.ui.login
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -128,7 +129,12 @@ fun LoginScreen(
                                     request: WebResourceRequest?,
                                 ): Boolean {
                                     val fragment = request?.url?.fragment ?: return false
-                                    viewModel.parseToken(fragment)
+                                    val webOAuthToken =
+                                        CookieManager
+                                            .getInstance()
+                                            .getCookie(TWITCH_ORIGIN)
+                                            ?.extractCookieValue("auth-token")
+                                    viewModel.parseToken(fragment, webOAuthToken)
                                     return true // Consume
                                 }
 
@@ -154,3 +160,12 @@ fun LoginScreen(
         onCancel()
     }
 }
+
+internal fun String.extractCookieValue(name: String): String? = split(';')
+    .asSequence()
+    .map(String::trim)
+    .firstOrNull { it.substringBefore('=') == name }
+    ?.substringAfter('=', missingDelimiterValue = "")
+    ?.takeIf(String::isNotBlank)
+
+private const val TWITCH_ORIGIN = "https://www.twitch.tv/"

@@ -92,6 +92,7 @@ fun MessageOptionsDialog(
     onWarn: (String) -> Unit,
     onPinMessage: (index: Int) -> Unit,
     onDismiss: () -> Unit,
+    gifActions: @Composable () -> Unit = {},
 ) {
     var subView by remember { mutableStateOf<MessageOptionsSubView?>(null) }
 
@@ -107,6 +108,7 @@ fun MessageOptionsDialog(
             when (currentView) {
                 null -> {
                     MessageOptionsMainView(
+                        gifActions = gifActions,
                         canReply = canReply,
                         canJump = canJump,
                         canCopy = canCopy,
@@ -218,6 +220,7 @@ fun MessageOptionsDialog(
 
 @Composable
 private fun MessageOptionsMainView(
+    gifActions: @Composable () -> Unit,
     canReply: Boolean,
     canJump: Boolean,
     canCopy: Boolean,
@@ -262,6 +265,7 @@ private fun MessageOptionsMainView(
         if (canJump && channel != null) {
             MessageOptionItem(Icons.AutoMirrored.Filled.OpenInNew, stringResource(R.string.message_jump_to), onJumpToMessage)
         }
+        gifActions()
         if (canCopy) {
             MessageOptionItem(Icons.Default.ContentCopy, stringResource(R.string.message_copy), onCopy)
             ListItem(

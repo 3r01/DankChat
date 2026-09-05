@@ -131,6 +131,15 @@
     <string name="emote_menu_tab_subs">Subs</string>
     <string name="emote_menu_tab_channel">Channel</string>
     <string name="emote_menu_tab_global">Global</string>
+    <string name="emote_menu_tab_gifs">GIFs</string>
+    <string name="gif_search">Search GIFs</string>
+    <string name="gif_browse">Browse</string>
+    <string name="gif_favorites">Favourites</string>
+    <string name="gif_add_favorite">Add GIF to favourites</string>
+    <string name="gif_remove_favorite">Remove GIF from favourites</string>
+    <string name="gif_no_saved_results">No matching saved GIFs</string>
+    <string name="gif_powered_by_giphy" translatable="false">Powered by GIPHY</string>
+    <string name="gif_unavailable">GIFs are unavailable. Sign in again to enable Twitch web features.</string>
     <string name="system_message_connected">Connected</string>
     <string name="system_message_reconnected">Reconnected</string>
     <string name="system_message_channel_non_existent">This channel does not exist</string>

@@ -368,6 +368,10 @@ internal fun EmoteMenuOverlay(
     totalMenuHeight: Dp,
     backProgress: Float,
     onEmoteClick: (code: String, id: String) -> Unit,
+    allowGifs: Boolean,
+    onMenuInputFocusChanged: (Boolean) -> Unit,
+    onGifPickerVisibleChanged: (Boolean) -> Unit,
+    onGifSent: () -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -392,6 +396,10 @@ internal fun EmoteMenuOverlay(
         ) {
             EmoteMenu(
                 onEmoteClick = onEmoteClick,
+                allowGifs = allowGifs,
+                onMenuInputFocusChanged = onMenuInputFocusChanged,
+                onGifPickerVisibleChanged = onGifPickerVisibleChanged,
+                onGifSent = onGifSent,
                 onBackspace = onBackspace,
                 modifier = Modifier.fillMaxSize(),
             )

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.api.auth.AuthApiClient
 import com.flxrs.dankchat.data.api.auth.dto.ValidateDto
 import com.flxrs.dankchat.data.auth.AuthDataStore
+import com.flxrs.dankchat.preferences.whispers.WhisperHistorySettingsDataStore
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -17,6 +18,7 @@ private val logger = KotlinLogging.logger("LoginViewModel")
 class LoginViewModel(
     private val authApiClient: AuthApiClient,
     private val authDataStore: AuthDataStore,
+    private val whisperHistorySettingsDataStore: WhisperHistorySettingsDataStore,
 ) : ViewModel() {
     data class TokenParseEvent(
         val successful: Boolean,
@@ -27,7 +29,10 @@ class LoginViewModel(
 
     val loginUrl = AuthApiClient.LOGIN_URL
 
-    fun parseToken(fragment: String) = viewModelScope.launch {
+    fun parseToken(
+        fragment: String,
+        webOAuthToken: String? = null,
+    ) = viewModelScope.launch {
         if (!fragment.startsWith("access_token")) {
             eventChannel.send(TokenParseEvent(successful = false))
             return@launch
@@ -40,7 +45,7 @@ class LoginViewModel(
 
         val result =
             authApiClient.validateUser(token).fold(
-                onSuccess = { saveLoginDetails(token, it) },
+                onSuccess = { saveLoginDetails(token, webOAuthToken, it) },
                 onFailure = {
                     logger.error { "Failed to validate token: ${it.message}" }
                     TokenParseEvent(successful = false)
@@ -51,6 +56,7 @@ class LoginViewModel(
 
     private suspend fun saveLoginDetails(
         oAuth: String,
+        webOAuthToken: String?,
         validateDto: ValidateDto,
     ): TokenParseEvent {
         authDataStore.login(
@@ -59,6 +65,9 @@ class LoginViewModel(
             userId = validateDto.userId.value,
             clientId = validateDto.clientId,
         )
+        if (!webOAuthToken.isNullOrBlank()) {
+            whisperHistorySettingsDataStore.saveToken(validateDto.userId.value, webOAuthToken)
+        }
         return TokenParseEvent(successful = true)
     }
 }
