@@ -102,11 +102,13 @@ internal class ConnectionCoordinatorTest {
         verify(exactly = 0) { foregroundServiceState.setActive(false) }
         verify { chatConnector.reconnectIfNecessary() }
         coVerify { dataRepository.reconnectIfNecessary() }
+        coVerify(exactly = 1) { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
     }
 
     @Test
     fun `connections pause after grace period and resume on foreground`() = runTest(testDispatcher) {
-        every { chatConnector.resumeAfterRemotePush(channels.value) } returns channels.value.toSet()
+        // No channels were recorded as connected before suspension.
+        every { chatConnector.resumeAfterRemotePush(channels.value) } returns emptySet()
         coordinator.initialize()
         runCurrent()
 
@@ -142,5 +144,44 @@ internal class ConnectionCoordinatorTest {
 
         coVerify { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
         coVerify { remoteMentionHistoryRepository.restore() }
+    }
+
+    @Test
+    fun `foreground before coordinator coroutine starts still recovers history`() = runTest(testDispatcher) {
+        appState.value = AppLifecycle.Background
+        coordinator.initialize()
+        appState.value = AppLifecycle.Foreground
+        runCurrent()
+
+        coVerify(exactly = 1) { chatEventProcessor.loadRecentMessages(channels.value.single(), isReconnect = true) }
+        verify { chatConnector.reconnectIfNecessary() }
+    }
+
+    @Test
+    fun `foreground recovery respects disabled reconnect history`() = runTest(testDispatcher) {
+        every { chatSettingsDataStore.settings } returns MutableStateFlow(ChatSettings(loadMessageHistoryOnReconnect = false))
+        coordinator.initialize()
+        runCurrent()
+        appState.value = AppLifecycle.Background
+        runCurrent()
+        appState.value = AppLifecycle.Foreground
+        runCurrent()
+
+        coVerify(exactly = 0) { chatEventProcessor.loadRecentMessages(any(), any()) }
+        verify { chatConnector.reconnectIfNecessary() }
+    }
+
+    @Test
+    fun `foreground without remote push does not force history reload`() = runTest(testDispatcher) {
+        every { remotePushCoordinator.isEnabled() } returns false
+        coordinator.initialize()
+        runCurrent()
+        appState.value = AppLifecycle.Background
+        runCurrent()
+        appState.value = AppLifecycle.Foreground
+        runCurrent()
+
+        coVerify(exactly = 0) { chatEventProcessor.loadRecentMessages(any(), any()) }
+        verify { chatConnector.reconnectIfNecessary() }
     }
 }
