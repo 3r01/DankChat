@@ -25,10 +25,14 @@ import com.flxrs.dankchat.utils.extensions.replaceOrAddHistoryModerationMessage
 import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.util.collections.ConcurrentSet
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import org.koin.core.annotation.Single
+import java.io.IOException
 import kotlin.system.measureTimeMillis
+import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger("RecentMessagesHandler")
 
@@ -56,9 +60,10 @@ class RecentMessagesHandler(
             return@withContext Result(emptyList(), emptyList())
         }
 
-        val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
         val result =
-            recentMessagesApiClient.getRecentMessages(channel, limit).getOrElse { throwable ->
+            fetchHistory(channel, isReconnect).getOrElse { throwable ->
+                if (throwable is CancellationException) throw throwable
+                logger.warn(throwable) { "Failed to load message history for #$channel (reconnect=$isReconnect)" }
                 if (!isReconnect) {
                     handleFailure(throwable, channel)
                 }
@@ -156,6 +161,29 @@ class RecentMessagesHandler(
         Result(mentionItems, userSuggestions)
     }
 
+    private suspend fun fetchHistory(
+        channel: UserName,
+        isReconnect: Boolean,
+    ): kotlin.Result<RecentMessagesDto> {
+        val limit = if (isReconnect) RECENT_MESSAGES_LIMIT_AFTER_RECONNECT else null
+        var result = recentMessagesApiClient.getRecentMessages(channel, limit)
+        if (!isReconnect) return result
+
+        for (retry in 1..HISTORY_RETRIES) {
+            val failure = result.exceptionOrNull() ?: return result
+            val retryable = when (failure) {
+                is RecentMessagesApiException -> failure.status.value == 408 || failure.status.value in 500..599
+                is IOException -> true
+                else -> false
+            }
+            if (!retryable) return result
+            logger.info { "Retrying message history for #$channel after transient failure ($retry/$HISTORY_RETRIES)" }
+            delay((retry * 2).seconds)
+            result = recentMessagesApiClient.getRecentMessages(channel, limit)
+        }
+        return result
+    }
+
     private fun handleFailure(
         throwable: Throwable,
         channel: UserName,
@@ -188,6 +216,7 @@ class RecentMessagesHandler(
     }
 
     companion object {
+        private const val HISTORY_RETRIES = 2
         private const val RECENT_MESSAGES_LIMIT_AFTER_RECONNECT = 100
     }
 }

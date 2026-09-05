@@ -47,6 +47,7 @@ class ConnectionCoordinator(
     private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.default)
 
     fun initialize() {
+        val startedInBackground = remotePushCoordinator.isEnabled() && appLifecycleListener.appState.value is AppLifecycle.Background
         scope.launch {
             if (remotePushCoordinator.isEnabled() && appLifecycleListener.appState.value is AppLifecycle.Background) {
                 appLifecycleListener.appState.first { it is AppLifecycle.Foreground }
@@ -59,10 +60,8 @@ class ConnectionCoordinator(
         }
 
         scope.launch {
-            var shouldRecoverStartupGap =
-                remotePushCoordinator.isEnabled() && appLifecycleListener.appState.value is AppLifecycle.Background
             startupValidationHolder.awaitResolved()
-            var wasInBackground = shouldRecoverStartupGap
+            var wasInBackground = startedInBackground
             var pausedForRemotePush = false
             appLifecycleListener.appState.collectLatest { state ->
                 when (state) {
@@ -84,24 +83,22 @@ class ConnectionCoordinator(
                         if (wasInBackground) {
                             wasInBackground = false
                             foregroundServiceState.setActive(true)
-                            val missedChannels =
-                                when {
-                                    pausedForRemotePush -> chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
-
-                                    shouldRecoverStartupGap ->
-                                        chatChannelProvider.channels.value
-                                            .orEmpty()
-                                            .toSet()
-
-                                    else -> emptySet()
-                                }
-                            if (pausedForRemotePush || shouldRecoverStartupGap) {
+                            val recoverHistory = pausedForRemotePush || remotePushCoordinator.isEnabled()
+                            if (pausedForRemotePush) {
                                 pausedForRemotePush = false
-                                shouldRecoverStartupGap = false
-                                loadMissedMessages(missedChannels)
-                                scope.launch { remoteMentionHistoryRepository.restore() }
+                                chatConnector.resumeAfterRemotePush(chatChannelProvider.channels.value.orEmpty())
                             } else {
                                 chatConnector.reconnectIfNecessary()
+                            }
+                            if (recoverHistory) {
+                                // Android can suspend the process before the grace-period timer fires.
+                                // Socket state alone cannot tell us whether background messages were missed.
+                                loadMissedMessages(
+                                    chatChannelProvider.channels.value
+                                        .orEmpty()
+                                        .toSet(),
+                                )
+                                scope.launch { remoteMentionHistoryRepository.restore() }
                             }
                             dataRepository.reconnectIfNecessary()
 
