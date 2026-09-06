@@ -809,9 +809,9 @@ fun MainScreen(
                         chatInputViewModel.addEmoteUsage(id)
                     },
                     allowGifs = inputState.inputState == InputState.Default,
-                    onMenuInputFocusChanged = { isEmoteMenuInputFocused = it },
-                    onGifPickerVisibleChanged = { isGifPickerVisible = it },
-                    onGifSent = { chatInputViewModel.setEmoteMenuOpen(false) },
+                    onMenuInputFocusChange = { isEmoteMenuInputFocused = it },
+                    onGifPickerVisibleChange = { isGifPickerVisible = it },
+                    onGifSendSuccess = { chatInputViewModel.setEmoteMenuOpen(false) },
                     onBackspace = chatInputViewModel::deleteLastWord,
                     modifier = menuModifier.windowInsetsPadding(pickerKeyboardInsets),
                 )

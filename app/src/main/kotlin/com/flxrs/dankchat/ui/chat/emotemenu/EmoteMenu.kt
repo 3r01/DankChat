@@ -74,9 +74,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun EmoteMenu(
     onEmoteClick: (String, String) -> Unit,
     allowGifs: Boolean,
-    onMenuInputFocusChanged: (Boolean) -> Unit,
-    onGifPickerVisibleChanged: (Boolean) -> Unit,
-    onGifSent: () -> Unit,
+    onMenuInputFocusChange: (Boolean) -> Unit,
+    onGifPickerVisibleChange: (Boolean) -> Unit,
+    onGifSendSuccess: () -> Unit,
     onBackspace: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: EmoteMenuViewModel = koinViewModel(),
@@ -99,8 +99,8 @@ fun EmoteMenu(
     val currentTabIndex = pagerState.currentPage.coerceIn(0, tabItems.lastIndex.coerceAtLeast(0))
     val isGifPickerVisible = tabItems.getOrNull(currentTabIndex)?.type == EmoteMenuTab.GIFS
     DisposableEffect(isGifPickerVisible) {
-        onGifPickerVisibleChanged(isGifPickerVisible)
-        onDispose { onGifPickerVisibleChanged(false) }
+        onGifPickerVisibleChange(isGifPickerVisible)
+        onDispose { onGifPickerVisibleChange(false) }
     }
     LaunchedEffect(currentTabIndex) {
         viewModel.selectTab(currentTabIndex)
@@ -162,12 +162,17 @@ fun EmoteMenu(
                 ) { page ->
                     val tab = tabItems.getOrNull(page) ?: return@HorizontalPager
                     if (tab.type == EmoteMenuTab.GIFS) {
+                        val gifState by gifPickerViewModel.state.collectAsStateWithLifecycle()
+                        val library by gifPickerViewModel.library.collectAsStateWithLifecycle(GifPickerLibrary())
                         GifPickerPage(
                             isVisible = isGifPickerVisible,
-                            viewModel = gifPickerViewModel,
+                            state = gifState,
+                            library = library,
                             navBarBottomDp = navBarBottomDp,
-                            onSearchFocusChanged = onMenuInputFocusChanged,
-                            onGifSent = onGifSent,
+                            onSearchFocusChange = onMenuInputFocusChange,
+                            onSearch = gifPickerViewModel::search,
+                            onLoadMore = gifPickerViewModel::loadMore,
+                            onGifClick = { gifPickerViewModel.send(it, onGifSendSuccess) },
                         )
                     } else {
                         EmoteGridPage(
@@ -209,18 +214,19 @@ fun EmoteMenu(
 @Composable
 private fun GifPickerPage(
     isVisible: Boolean,
-    viewModel: GifPickerViewModel,
+    state: GifPickerState,
+    library: GifPickerLibrary,
     navBarBottomDp: Dp,
-    onSearchFocusChanged: (Boolean) -> Unit,
-    onGifSent: () -> Unit,
+    onSearchFocusChange: (Boolean) -> Unit,
+    onSearch: (String) -> Unit,
+    onLoadMore: () -> Unit,
+    onGifClick: (com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem) -> Unit,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val library by viewModel.library.collectAsStateWithLifecycle(GifPickerLibrary())
     val favoriteIds = remember(library.favorites) { library.favorites.map { it.id }.toSet() }
     var section by remember { mutableStateOf(GifPickerSection.Browse) }
     var query by remember { mutableStateOf("") }
     DisposableEffect(Unit) {
-        onDispose { onSearchFocusChanged(false) }
+        onDispose { onSearchFocusChange(false) }
     }
     Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -237,7 +243,7 @@ private fun GifPickerPage(
             value = query,
             onValueChange = {
                 query = it
-                viewModel.search(it)
+                onSearch(it)
             },
             singleLine = true,
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
@@ -245,7 +251,7 @@ private fun GifPickerPage(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .onFocusChanged { onSearchFocusChanged(it.isFocused) }
+                    .onFocusChanged { onSearchFocusChange(it.isFocused) }
                     .padding(horizontal = 8.dp, vertical = 6.dp),
         )
         Text(
@@ -272,7 +278,7 @@ private fun GifPickerPage(
                     isVisible = isVisible,
                     onLoadMore = {},
                     favoriteIds = favoriteIds,
-                ) { viewModel.send(it.copy(searchTerm = null), onGifSent) }
+                ) { onGifClick(it.copy(searchTerm = null)) }
             }
         } else {
             when (val current = state) {
@@ -296,9 +302,9 @@ private fun GifPickerPage(
                         isLoadingMore = ready?.isLoadingMore == true,
                         pageError = ready?.pageError,
                         isVisible = isVisible,
-                        onLoadMore = viewModel::loadMore,
+                        onLoadMore = onLoadMore,
                         favoriteIds = favoriteIds,
-                    ) { viewModel.send(it, onGifSent) }
+                    ) { onGifClick(it) }
                 }
             }
         }
@@ -324,13 +330,13 @@ private fun GifPickerMessage(message: String) {
 private fun GifGrid(
     gifs: List<com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem>,
     navBarBottomDp: Dp,
-    enabled: Boolean = true,
     nextOffset: Int?,
     isLoadingMore: Boolean,
     pageError: String?,
     isVisible: Boolean,
     onLoadMore: () -> Unit,
     favoriteIds: Set<String>,
+    enabled: Boolean = true,
     onClick: (com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem) -> Unit,
 ) {
     var selectedGif by remember { mutableStateOf<com.flxrs.dankchat.data.api.twitchgql.TwitchGifPickerItem?>(null) }
