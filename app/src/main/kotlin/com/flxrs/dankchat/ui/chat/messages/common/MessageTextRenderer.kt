@@ -152,7 +152,7 @@ fun MessageTextWithInlineContent(
 }
 
 // Compose's density-independent pixels match the logical CSS-pixel chat width.
-private val ASCII_ART_MAX_WIDTH = 340.dp
+private val ASCII_ART_MAX_WIDTH = 300.dp
 
 private fun EmoteUi.dimensionKey(baseHeightPx: Int): String = when {
     urls.size == 1 -> singleEmoteCacheKey(urls.first(), baseHeightPx)
