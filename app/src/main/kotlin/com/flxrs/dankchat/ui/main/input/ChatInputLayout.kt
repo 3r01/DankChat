@@ -103,6 +103,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
@@ -158,6 +159,7 @@ fun ChatInputLayout(
     overflowMenuMaxHeightDp: Dp = Dp.Unspecified,
 ) {
     val inputState = uiState.inputState
+    val popupMaxWidthPx = LocalWindowInfo.current.containerSize.width
     val enabled = uiState.enabled
     val hasLastMessage = uiState.hasLastMessage
     val canSend = uiState.canSend
@@ -281,7 +283,7 @@ fun ChatInputLayout(
                 val textFieldScrollState = rememberScrollState()
                 val isInputScrollable = textFieldScrollState.maxValue != Int.MAX_VALUE && textFieldScrollState.maxValue > 0
                 val textFieldEnabled = enabled && !tourState.isTourActive
-                LaunchedEffect(isInputScrollable) {
+                SideEffect(isInputScrollable) {
                     callbacks.onInputScrollableChanged(isInputScrollable)
                 }
                 val onKeyboardSend: (() -> Unit) -> Unit = {
@@ -442,7 +444,7 @@ fun ChatInputLayout(
         }
 
         // Recent messages popup — overlays above input, end-aligned
-        LaunchedEffect(uiState.recentMessages) {
+        SideEffect(uiState.recentMessages) {
             if (recentMessagesExpanded && uiState.recentMessages.isEmpty()) {
                 onRecentMessagesExpandedChange(false)
             }
@@ -497,9 +499,11 @@ fun ChatInputLayout(
                 Modifier
                     .align(Alignment.TopEnd)
                     .layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, 0) {
-                            placeable.placeRelative(0, -placeable.height)
+                        // Measures up to the window width so the menu can overlay the stream next to a narrow pane
+                        val placeable = measurable.measure(constraints.copy(minWidth = 0, maxWidth = popupMaxWidthPx))
+                        val width = placeable.width.coerceAtMost(constraints.maxWidth)
+                        layout(width, 0) {
+                            placeable.placeRelative(width - placeable.width, -placeable.height)
                         }
                     },
         ) {

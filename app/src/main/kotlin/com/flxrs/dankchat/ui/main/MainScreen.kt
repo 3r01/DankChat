@@ -29,6 +29,7 @@ import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -111,6 +112,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
+private const val QUICK_SWITCH_HEIGHT_FRACTION = 0.5f
 
 // Per-layout parameters for the movable stream content
 internal data class StreamViewConfig(
@@ -189,10 +191,10 @@ fun MainScreen(
     var isGifPickerVisible by remember { mutableStateOf(false) }
 
     // Keyboard height tracking — VM handles debounce + persistence
-    LaunchedEffect(isLandscape) { mainScreenViewModel.initKeyboardHeight(isLandscape) }
+    SideEffect(isLandscape) { mainScreenViewModel.initKeyboardHeight(isLandscape) }
     val keyboardHeightPx by mainScreenViewModel.keyboardHeightPx.collectAsStateWithLifecycle()
     val minKeyboardHeightPx = with(density) { 100.dp.toPx() }
-    LaunchedEffect(targetImeHeight, isLandscape) {
+    SideEffect(targetImeHeight, isLandscape) {
         mainScreenViewModel.trackKeyboardHeight(targetImeHeight, isLandscape, minKeyboardHeightPx)
     }
 
@@ -334,6 +336,13 @@ fun MainScreen(
         }
     }
 
+    // The theater chat shows the streamed channel, so the input has to target it as well
+    SideEffect(theaterStream, activeChannel) {
+        if (theaterStream != null && theaterStream != activeChannel) {
+            channelTabViewModel.selectTab(preferenceStore.channels.indexOf(theaterStream))
+        }
+    }
+
     // Same key as in ChatComposable, so this resolves the active page's instance
     val activePinnedMessageViewModel =
         activeChannel?.let { channel ->
@@ -413,7 +422,7 @@ fun MainScreen(
     val isInputSheet = fullScreenSheetState is FullScreenSheetState.Replies ||
         fullScreenSheetState is FullScreenSheetState.Mention ||
         fullScreenSheetState is FullScreenSheetState.Whisper
-    LaunchedEffect(isInputSheet) {
+    SideEffect(isInputSheet) {
         if (isInputSheet && !showInput) {
             mainScreenViewModel.toggleInput()
         }
@@ -482,6 +491,12 @@ fun MainScreen(
         val menuMaxHeightDp =
             (containerHeightDp - toolbarBottomDp - inputHeightDp - bottomReserveDp - 8.dp)
                 .coerceAtLeast(0.dp)
+        // Half of the chat area in portrait, landscape has little height to give up
+        val quickSwitchMaxHeightDp =
+            when {
+                isLandscape -> menuMaxHeightDp
+                else -> menuMaxHeightDp * QUICK_SWITCH_HEIGHT_FRACTION
+            }
         Box(
             modifier =
                 Modifier
@@ -789,6 +804,7 @@ fun MainScreen(
                     onAddChannelTooltipDismiss = featureTourViewModel::onToolbarHintDismissed,
                     onSkipTour = featureTourViewModel::skipTour,
                     menuMaxHeightDp = menuMaxHeightDp,
+                    quickSwitchMaxHeightDp = quickSwitchMaxHeightDp,
                     onToolbarBottomChange = { toolbarBottomPx = it },
                     isEmoteMenuOpen = inputState.isEmoteMenuOpen,
                     onCloseEmoteMenu = { chatInputViewModel.setEmoteMenuOpen(false) },
@@ -1191,7 +1207,7 @@ private fun MainScreenPagerEffects(
     }
 
     // Eagerly update active channel on page change for snappy UI (room state, stream info)
-    LaunchedEffect(composePagerState.currentPage, pagerState.channels.size) {
+    SideEffect(composePagerState.currentPage) {
         val channelIndex = circularPageToChannelIndex(composePagerState.currentPage, pagerState.channels.size)
         if (channelIndex != pagerState.currentPage) {
             onSetActivePage(channelIndex)
@@ -1199,12 +1215,12 @@ private fun MainScreenPagerEffects(
     }
 
     // Clear unread/mention indicators when page settles
-    LaunchedEffect(composePagerState.settledPage, pagerState.channels.size) {
+    SideEffect(composePagerState.settledPage) {
         onClearNotifications(circularPageToChannelIndex(composePagerState.settledPage, pagerState.channels.size))
     }
 
     // Pager swipe reveals toolbar
-    LaunchedEffect(composePagerState.isScrollInProgress) {
+    SideEffect(composePagerState.isScrollInProgress) {
         if (composePagerState.isScrollInProgress) {
             onShowToolbar()
         }
@@ -1221,12 +1237,12 @@ private fun MainScreenTourEffects(
     channelsEmpty: Boolean,
 ) {
     // Notify tour VM when channel state changes
-    LaunchedEffect(channelsReady, channelsEmpty) {
+    SideEffect(channelsReady, channelsEmpty) {
         featureTourViewModel.onChannelsChanged(empty = channelsEmpty, ready = channelsReady)
     }
 
     // Drive tooltip dismissals and tour start from the typed step
-    LaunchedEffect(featureTourState.postOnboardingStep) {
+    SideEffect(featureTourState.postOnboardingStep) {
         when (featureTourState.postOnboardingStep) {
             PostOnboardingStep.FeatureTour -> {
                 featureTourViewModel.addChannelTooltipState.dismiss()
@@ -1242,7 +1258,7 @@ private fun MainScreenTourEffects(
     }
 
     // Sync tour's input hidden state with MainScreenViewModel
-    LaunchedEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
+    SideEffect(featureTourState.gestureInputHidden, featureTourState.isTourActive) {
         if (featureTourState.isTourActive) {
             when {
                 featureTourState.gestureInputHidden -> mainScreenViewModel.hideInput()
@@ -1252,14 +1268,14 @@ private fun MainScreenTourEffects(
     }
 
     // Auto-advance tour when input is hidden during the SwipeGesture step
-    LaunchedEffect(mainState.showInput, featureTourState.currentTourStep) {
+    SideEffect(mainState.showInput, featureTourState.currentTourStep) {
         if (!mainState.showInput && featureTourState.currentTourStep == TourStep.SwipeGesture) {
             featureTourViewModel.advance()
         }
     }
 
     // Keep toolbar visible during tour
-    LaunchedEffect(featureTourState.isTourActive, mainState.gestureToolbarHidden) {
+    SideEffect(featureTourState.isTourActive, mainState.gestureToolbarHidden) {
         if (featureTourState.isTourActive && mainState.gestureToolbarHidden) {
             mainScreenViewModel.setGestureToolbarHidden(false)
         }
@@ -1292,7 +1308,7 @@ private fun MainScreenFocusEffects(
 
     // Clear focus after stream closes — the layout shift from removing StreamView
     // can cause the TextField to regain focus and open the keyboard.
-    LaunchedEffect(currentStream) {
+    SideEffect(currentStream) {
         if (currentStream == null) {
             keyboardController?.hide()
             focusManager.clearFocus()

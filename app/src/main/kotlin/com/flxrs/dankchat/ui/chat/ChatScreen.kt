@@ -63,6 +63,7 @@ import androidx.compose.material3.TooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -229,7 +230,7 @@ fun ChatScreen(
     }
 
     // Disable auto-scroll when user scrolls up, re-enable when they return to bottom
-    LaunchedEffect(listState.isScrollInProgress) {
+    SideEffect(listState.isScrollInProgress) {
         if (listState.lastScrolledForward && shouldAutoScroll) {
             shouldAutoScroll = false
         }
@@ -465,7 +466,7 @@ private fun RecoveryFabs(
 
     var confirmPending by remember { mutableStateOf(false) }
     var pendingLabel by remember { mutableStateOf("") }
-    LaunchedEffect(visible, requireConfirmation) {
+    SideEffect(visible, requireConfirmation) {
         if (!visible || !requireConfirmation) confirmPending = false
     }
     LaunchedEffect(confirmPending) {

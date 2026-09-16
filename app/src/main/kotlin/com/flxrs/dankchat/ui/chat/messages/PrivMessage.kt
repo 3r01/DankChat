@@ -111,6 +111,7 @@ fun PrivMessageComposable(
     highlightShape: Shape = RectangleShape,
     showChannelPrefix: Boolean = false,
     animateGifs: Boolean = true,
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val backgroundColor = rememberBackgroundColor(message.lightBackgroundColor, message.darkBackgroundColor)
@@ -229,7 +230,7 @@ fun PrivMessageComposable(
         }
 
         // Main message
-        if (message.gifContentParts.isEmpty()) {
+        if (message.gifContentParts.isEmpty() || maxLines != Int.MAX_VALUE) {
             PrivMessageText(
                 message = message,
                 fontSize = fontSize,
@@ -241,6 +242,7 @@ fun PrivMessageComposable(
                 onMessageLongClick = onMessageLongClick,
                 onEmoteClick = onEmoteClick,
                 onTap = onTap,
+                maxLines = maxLines,
             )
         } else {
             PrivMessageWithTwitchGifs(
@@ -301,6 +303,7 @@ private fun PrivMessageWithTwitchGifs(
             onMessageLongClick = onMessageLongClick,
             onEmoteClick = onEmoteClick,
             onTap = onTap,
+            maxLines = Int.MAX_VALUE,
         )
     }
 
@@ -331,6 +334,7 @@ private fun PrivMessageWithTwitchGifs(
                     onMessageLongClick = onMessageLongClick,
                     onEmoteClick = onEmoteClick,
                     onTap = onTap,
+                    maxLines = Int.MAX_VALUE,
                 )
             }
         }
@@ -349,6 +353,7 @@ private fun PrivMessageText(
     onMessageLongClick: (messageId: String, channel: String?, fullMessage: String) -> Unit,
     onEmoteClick: (emotes: List<EmoteSheetData>) -> Unit,
     onTap: (() -> Unit)?,
+    maxLines: Int,
     part: TwitchGifContentPartUi.Text? = null,
     includeMessagePrefix: Boolean = true,
 ) {
@@ -537,6 +542,8 @@ private fun PrivMessageText(
         isAsciiArt = message.isAsciiArt,
         interactionSource = interactionSource,
         backgroundTexts = paintShadowTexts,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
         onEmoteClick = onEmoteClick,
         onBackgroundClick = {
             onTap?.invoke()
