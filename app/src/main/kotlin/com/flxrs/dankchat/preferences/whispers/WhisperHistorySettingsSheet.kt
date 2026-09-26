@@ -29,6 +29,7 @@ import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,6 +130,7 @@ fun WhisperHistorySettingsSheet(onDismissRequest: () -> Unit) {
 }
 
 @Composable
+@ReadOnlyComposable
 private fun whisperHistoryStatusText(state: WhisperHistorySettingsState): String = when {
     state.userName == null ->
         stringResource(R.string.preference_whisper_history_login_required)
