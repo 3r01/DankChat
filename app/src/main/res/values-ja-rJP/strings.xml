@@ -26,6 +26,9 @@
     <string name="channel_blocked_message">チャンネルをブロックしました</string>
     <string name="no_channels_added">チャンネルが追加されていません</string>
     <string name="no_channels_added_body">チャンネルを追加してチャットを始めましょう</string>
+    <string name="enable_channel_notifications">%1$s のバックグラウンド通知を有効にする</string>
+    <string name="disable_channel_notifications">%1$s のバックグラウンド通知を無効にする</string>
+    <string name="channel_background_notifications">バックグラウンド通知</string>
     <string name="confirm_logout_title">ログアウトを確認</string>
     <string name="confirm_logout_message">ログアウトしてもよろしいですか？</string>
     <string name="confirm_logout_question">ログアウトしますか？</string>
@@ -557,6 +560,10 @@
     <string name="preference_user_long_click_summary_off">通常のクリックでメンション、長押しでポップアップを開く</string>
     <string name="preference_colorize_nicknames_title">ニックネームに色を付ける</string>
     <string name="preference_colorize_nicknames_summary">色が設定されていないユーザーにランダムな色を割り当てる</string>
+    <string name="preference_bold_username_mentions_title">ユーザー名を太字にする</string>
+    <string name="preference_bold_username_mentions_summary">メンションされたユーザー名を目立たせる</string>
+    <string name="preference_color_username_mentions_title">ユーザー名に色を付ける</string>
+    <string name="preference_color_username_mentions_summary">利用可能な場合、メンションされたユーザー名にユーザーのTwitchカラーを使用する</string>
     <string name="preference_tts_force_english_title">強制的に言語を英語にする</string>
     <string name="preference_tts_force_english_summary">システムのデフォルトの代わりにTTS音声言語を英語にする</string>
     <string name="preference_visible_emotes_title">サードパーティのエモートの表示</string>

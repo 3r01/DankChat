@@ -62,14 +62,7 @@ fun AnnotatedString.Builder.appendWithLinks(
     segmentStart: Int,
     links: ImmutableList<LinkUi>,
     linkColor: Color,
-) = appendWithLinks(text, segmentStart, links, linkColor, emptyList())
-
-internal fun AnnotatedString.Builder.appendWithLinks(
-    text: String,
-    segmentStart: Int,
-    links: ImmutableList<LinkUi>,
-    linkColor: Color,
-    usernameMentions: List<ResolvedUsernameMention>,
+    usernameMentions: List<ResolvedUsernameMention> = emptyList(),
 ) {
     val segmentEnd = segmentStart + text.length
     val ranges =

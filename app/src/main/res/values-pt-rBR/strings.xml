@@ -26,6 +26,9 @@
     <string name="channel_blocked_message">Canal bloqueado</string>
     <string name="no_channels_added">Nenhum canal adicionado</string>
     <string name="no_channels_added_body">Adicione um canal para começar a conversar</string>
+    <string name="enable_channel_notifications">Ativar notificações em segundo plano para %1$s</string>
+    <string name="disable_channel_notifications">Desativar notificações em segundo plano para %1$s</string>
+    <string name="channel_background_notifications">Notificações em segundo plano</string>
     <string name="confirm_logout_title">Confirmar término da sessão</string>
     <string name="confirm_logout_message">Tem certeza que quer terminar a sessão?</string>
     <string name="confirm_logout_question">Sair?</string>
@@ -565,6 +568,10 @@
     <string name="preference_user_long_click_summary_off">Clique regular menciona, clique longo abre janela</string>
     <string name="preference_colorize_nicknames_title">Colorir apelidos</string>
     <string name="preference_colorize_nicknames_summary">Atribuir uma cor aleatória a usuários sem uma cor definida</string>
+    <string name="preference_bold_username_mentions_title">Nomes de usuário em negrito</string>
+    <string name="preference_bold_username_mentions_summary">Deixar os nomes de usuário mencionados mais visíveis</string>
+    <string name="preference_color_username_mentions_title">Colorir nomes de usuário</string>
+    <string name="preference_color_username_mentions_summary">Usar a cor da Twitch do usuário nos nomes de usuário mencionados quando disponível</string>
     <string name="preference_tts_force_english_title">Forçar idioma para Inglês</string>
     <string name="preference_tts_force_english_summary">Força o idioma do Texto-para-voz para inglês invés do padrão do sistema</string>
     <string name="preference_visible_emotes_title">Emotes de terceiros visíveis</string>

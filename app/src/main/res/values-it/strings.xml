@@ -26,6 +26,9 @@
     <string name="channel_blocked_message">Canale bloccato</string>
     <string name="no_channels_added">Nessun canale aggiunto</string>
     <string name="no_channels_added_body">Aggiungi un canale per iniziare a chattare</string>
+    <string name="enable_channel_notifications">Attiva le notifiche in background per %1$s</string>
+    <string name="disable_channel_notifications">Disattiva le notifiche in background per %1$s</string>
+    <string name="channel_background_notifications">Notifiche in background</string>
     <string name="confirm_logout_title">Conferma la disconnessione</string>
     <string name="confirm_logout_message">Sei sicuro di volerti disconnettere?</string>
     <string name="confirm_logout_question">Disconnettersi?</string>
@@ -565,6 +568,10 @@
     <string name="preference_user_long_click_summary_off">Click regolare menziona, click prolungato apre popup</string>
     <string name="preference_colorize_nicknames_title">Colora i soprannomi</string>
     <string name="preference_colorize_nicknames_summary">Assegna un colore casuale agli utenti senza un colore impostato</string>
+    <string name="preference_bold_username_mentions_title">Nomi utente in grassetto</string>
+    <string name="preference_bold_username_mentions_summary">Rendi più evidenti i nomi utente menzionati</string>
+    <string name="preference_color_username_mentions_title">Colora i nomi utente</string>
+    <string name="preference_color_username_mentions_summary">Usa il colore Twitch dell\'utente per i nomi utente menzionati quando disponibile</string>
     <string name="preference_tts_force_english_title">Forza lingua in inglese</string>
     <string name="preference_tts_force_english_summary">Forza lingua TTS all\'inglese, invece della lingua predefinita di sistema</string>
     <string name="preference_visible_emotes_title">Emote di terze parti visibili</string>

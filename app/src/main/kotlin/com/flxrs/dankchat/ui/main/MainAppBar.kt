@@ -47,6 +47,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -287,6 +288,7 @@ private fun InlineMenuItem(
     modifier: Modifier = Modifier,
     maxLines: Int = 1,
     hasSubMenu: Boolean = false,
+    checked: Boolean? = null,
 ) {
     val registry = LocalInlineMenuItemRegistry.current
     val isPressed = registry?.pressedKey == text
@@ -328,6 +330,12 @@ private fun InlineMenuItem(
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp),
+            )
+        }
+        if (checked != null) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = null,
             )
         }
     }

@@ -323,8 +323,7 @@ fun MainScreen(
 
     val tabState = channelTabViewModel.uiState.collectAsStateWithLifecycle().value
     val activeChannel = tabState.tabs.getOrNull(tabState.selectedIndex)?.channel
-    val mutedNotificationChannels by channelManagementViewModel.mutedNotificationChannels.collectAsStateWithLifecycle()
-    val channelNotificationsEnabled = activeChannel == null || activeChannel.lowercase() !in mutedNotificationChannels
+    val channelNotificationsEnabled by channelManagementViewModel.activeChannelNotificationsEnabled.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
     val activity = LocalActivity.current as? MainActivity
 
@@ -744,9 +743,7 @@ fun MainScreen(
                     }
 
                     ToolbarAction.ToggleChannelNotifications -> {
-                        activeChannel?.let {
-                            channelManagementViewModel.setChannelNotificationsEnabled(it, !channelNotificationsEnabled)
-                        }
+                        activeChannel?.let { channelManagementViewModel.toggleChannelNotifications(it) }
                     }
 
                     ToolbarAction.CaptureImage -> {

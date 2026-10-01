@@ -142,9 +142,10 @@ private fun WhisperMessageText(
     val linkColor = rememberAdaptiveLinkColor(backgroundColor)
 
     // Build annotated string with text content
-    val annotatedString =
+    val (annotatedString, messageStart) =
         remember(message, defaultTextColor, senderColor, recipientColor, linkColor) {
-            buildAnnotatedString {
+            var messageStart = 0
+            val text = buildAnnotatedString {
                 // Timestamp
                 if (message.timestamp.isNotEmpty()) {
                     withStyle(timestampSpanStyle(fontSize, defaultTextColor)) {
@@ -196,6 +197,7 @@ private fun WhisperMessageText(
                 }
 
                 // Message text with emotes
+                messageStart = length
                 withStyle(SpanStyle(color = defaultTextColor)) {
                     var currentPos = 0
                     message.emotes.sortedBy { it.position.first }.forEach { emote ->
@@ -224,6 +226,7 @@ private fun WhisperMessageText(
                     }
                 }
             }
+            text to messageStart
         }
 
     MessageTextWithInlineContent(
@@ -232,7 +235,7 @@ private fun WhisperMessageText(
         emotes = message.emotes,
         fontSize = fontSize,
         animateGifs = animateGifs,
-        isAsciiArt = message.isAsciiArt,
+        asciiArtStart = messageStart.takeIf { message.isAsciiArt },
         onEmoteClick = onEmoteClick,
         onBackgroundClick = { onTap?.invoke() },
         onTextClick = { offset ->

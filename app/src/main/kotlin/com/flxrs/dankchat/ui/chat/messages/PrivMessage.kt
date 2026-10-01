@@ -378,7 +378,7 @@ private fun PrivMessageText(
 
     // Build annotated string with text content. Keyed on the content-affecting fields only,
     // so layout-only copies (rounded corners, divider) don't rebuild the string.
-    val annotatedString =
+    val (annotatedString, messageStart) =
         remember(
             message.id,
             message.timestamp,
@@ -397,7 +397,8 @@ private fun PrivMessageText(
             linkColor,
             fontSize,
         ) {
-            buildAnnotatedString {
+            var messageStart = 0
+            val text = buildAnnotatedString {
                 // Channel prefix (for mention tab)
                 if (includeMessagePrefix && showChannelPrefix) {
                     withStyle(
@@ -442,6 +443,7 @@ private fun PrivMessageText(
                 }
 
                 // Message text with emotes
+                messageStart = length
                 val textColor =
                     if (message.isAction) {
                         nameColor
@@ -501,6 +503,7 @@ private fun PrivMessageText(
                     }
                 }
             }
+            text to messageStart
         }
 
     val density = LocalDensity.current
@@ -539,7 +542,7 @@ private fun PrivMessageText(
         emotes = emotes,
         fontSize = fontSize,
         animateGifs = animateGifs,
-        isAsciiArt = message.isAsciiArt,
+        asciiArtStart = messageStart.takeIf { message.isAsciiArt },
         interactionSource = interactionSource,
         backgroundTexts = paintShadowTexts,
         maxLines = maxLines,

@@ -679,8 +679,9 @@ class ChatMessageMapper(
             }
 
         val rawNameColor = resolveNameColor(userDisplay?.color, color, userId, chatSettings)
+        val matchUnprefixedNames = chatSettings.boldUsernameMentions || chatSettings.colorUsernameMentions
         val usernameMentions =
-            findUsernameMentions(message)
+            findUsernameMentions(message) { name -> matchUnprefixedNames && usersRepository.findDisplayName(channel, name) != null }
                 .map { mention ->
                     val userName = mention.userName.lowercase()
                     UsernameMentionUi(
