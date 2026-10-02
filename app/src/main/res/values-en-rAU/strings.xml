@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Not logged in</string>
     <string name="hint_replying">Reply</string>
     <string name="hint_announcing">Send announcement</string>
-    <string name="notification_new_mentions">You have new mentions</string>
-    <string name="notification_mention">%1$s just mentioned you in #%2$s</string>
-    <string name="notification_notify_mention">You were mentioned in #%1$s</string>
     <string name="snackbar_login">Logging in as %1$s</string>
     <string name="snackbar_login_failed">Failed to login</string>
     <string name="snackbar_image_uploaded">Copied: %1$s</string>
@@ -272,6 +269,7 @@ The service temporarily stores messages for channels you (and others) visit to p
     <string name="replies_title">Reply Thread</string>
     <string name="whispers">Whispers</string>
     <string name="notification_whisper_mention">%1$s sent you a whisper</string>
+    <string name="notification_whisper_conversation_title">Whisper from @%1$s</string>
     <string name="mentions">Mentions</string>
     <string name="confirm_channel_removal_title">Confirm channel removal</string>
     <string name="confirm_channel_removal_message">Are you sure you want to remove this channel?</string>
@@ -447,6 +445,10 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_general_header">General</string>
     <string name="preference_suggestions_header">Suggestions</string>
     <string name="preference_messages_header">Messages</string>
+    <string name="preference_message_tap_action_title">Message tap action</string>
+    <string name="preference_message_tap_action_do_nothing">Do nothing</string>
+    <string name="preference_message_tap_action_open_user_card">Open user card</string>
+    <string name="preference_message_tap_action_open_message_options">Open message options</string>
     <string name="preference_users_header">Users</string>
     <string name="preference_emotes_badges_header">Emotes &amp; Badges</string>
     <string name="preference_suggestion_mode_title">Suggestion mode</string>
@@ -500,6 +502,7 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_show_timed_out_messages_title">Show timed out messages</string>
     <string name="preference_show_whispers_inline_title">Show whispers inline</string>
     <string name="preference_show_whispers_inline_summary">Display sent and received whispers in every open chat</string>
+    <string name="preference_show_twitch_gifs_title">Show Twitch GIFs</string>
     <string name="preference_animate_gifs_title">Animate gifs</string>
     <string name="preference_line_separator_title">Separate messages with lines</string>
     <string name="preference_keep_screen_on_title">Keep screen on</string>
@@ -570,6 +573,8 @@ Check this guide for help: https://wiki.chatterino.com/Image%20Uploader/</string
     <string name="preference_show_chip_actions_summary">Displays chips for toggling fullscreen, streams and adjusting chat modes</string>
     <string name="preference_show_character_counter_title">Show character counter</string>
     <string name="preference_show_character_counter_summary">Displays code point count in the input field</string>
+    <string name="preference_show_send_wait_timer_title">Show slow mode and timeout countdown</string>
+    <string name="preference_show_send_wait_timer_summary">Shows how long until you can send again</string>
     <string name="preference_show_clear_input_button_title">Show clear input button</string>
     <string name="preference_show_send_button_title">Show send button</string>
     <string name="preference_input_group_title">Input</string>

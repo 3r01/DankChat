@@ -285,12 +285,11 @@ data class TwitchGifUi(
 
 @Immutable
 sealed interface TwitchGifContentPartUi {
+    /** A range of the message text, links, emotes and mentions keep their message positions. */
     @Immutable
     data class Text(
-        val text: String,
-        val links: ImmutableList<LinkUi>,
-        val emotes: ImmutableList<EmoteUi>,
-        val usernameMentions: ImmutableList<UsernameMentionUi> = persistentListOf(),
+        val start: Int,
+        val endExclusive: Int,
     ) : TwitchGifContentPartUi
 
     @Immutable

@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Ei kirjautuneena</string>
     <string name="hint_replying">Vastaa</string>
     <string name="hint_announcing">Lähetä ilmoitus</string>
-    <string name="notification_new_mentions">Sinulla on uusia mainintoja</string>
-    <string name="notification_mention">%1$s mainitsi sinut kanavalla #%2$s</string>
-    <string name="notification_notify_mention">Sinut mainittiin kanavalla #%1$s</string>
     <string name="snackbar_login">Sisäänkirjautuminen nimellä %1$s</string>
     <string name="snackbar_login_failed">Sisäänkirjautuminen epäonnistui</string>
     <string name="snackbar_image_uploaded">Kopioitu: %1$s</string>
@@ -272,6 +269,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="replies_title">Vastausketju</string>
     <string name="whispers">Kuiskaukset</string>
     <string name="notification_whisper_mention">%1$s lähetti sinulle kuiskauksen</string>
+    <string name="notification_whisper_conversation_title">Kuiskaus käyttäjältä @%1$s</string>
     <string name="mentions">Maininnat</string>
     <string name="confirm_channel_removal_title">Vahvista kanavan poistaminen</string>
     <string name="confirm_channel_removal_message">Haluatko varmasti poistaa tämän kanavan?</string>
@@ -455,6 +453,10 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_general_header">Yleinen</string>
     <string name="preference_suggestions_header">Ehdotukset</string>
     <string name="preference_messages_header">Viestit</string>
+    <string name="preference_message_tap_action_title">Viestin napautustoiminto</string>
+    <string name="preference_message_tap_action_do_nothing">Älä tee mitään</string>
+    <string name="preference_message_tap_action_open_user_card">Avaa käyttäjäkortti</string>
+    <string name="preference_message_tap_action_open_message_options">Avaa viestin asetukset</string>
     <string name="preference_users_header">Käyttäjät</string>
     <string name="preference_emotes_badges_header">Emotet ja merkit</string>
     <string name="preference_suggestion_mode_title">Ehdotustila</string>
@@ -509,6 +511,7 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_show_timed_out_messages_title">Näytä jäähyviestit</string>
     <string name="preference_show_whispers_inline_title">Näytä kuiskaukset chatissa</string>
     <string name="preference_show_whispers_inline_summary">Näyttää lähetetyt ja vastaanotetut kuiskaukset kaikilla avoimilla kanavilla</string>
+    <string name="preference_show_twitch_gifs_title">Näytä Twitch-GIFit</string>
     <string name="preference_animate_gifs_title">Animoi gifit</string>
     <string name="preference_line_separator_title">Erota viestit riveillä</string>
     <string name="preference_keep_screen_on_title">Pidä näyttö päällä</string>
@@ -576,6 +579,8 @@ Voit oppia lisää palvelusta ja poistaa viestihistorian käytöstä omalla kana
     <string name="preference_visible_emotes_title">Näkyvät kolmannen osapuolen hymiöt</string>
     <string name="preference_show_character_counter_title">Näytä merkkimäärälaskuri</string>
     <string name="preference_show_character_counter_summary">Näyttää koodipisteiden määrän syöttökentässä</string>
+    <string name="preference_show_send_wait_timer_title">Näytä hitaan tilan ja jäähyn ajastin</string>
+    <string name="preference_show_send_wait_timer_summary">Näyttää, milloin voit lähettää taas</string>
     <string name="preference_show_clear_input_button_title">Näytä syötteen tyhjennys -painike</string>
     <string name="preference_show_send_button_title">Näytä lähetyspainike</string>
     <string name="preference_input_group_title">Syöte</string>

@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Giriş yapılmadı</string>
     <string name="hint_replying">Yanıt</string>
     <string name="hint_announcing">Duyuru gönder</string>
-    <string name="notification_new_mentions">Yeni bahsetmeleriniz var</string>
-    <string name="notification_mention">%1$s sizden #%2$s\'de bahsetti</string>
-    <string name="notification_notify_mention">#%1$s\'de sizden bahsedildi</string>
     <string name="snackbar_login">%1$s olarak giriş yapıldı</string>
     <string name="snackbar_login_failed">Giriş yapılamadı</string>
     <string name="snackbar_image_uploaded">Kopyalandı: %1$s</string>
@@ -272,6 +269,7 @@ Servis bu hizmeti verebilmek için sizin (ve başkalarının) ziyaret ettiği ka
     <string name="replies_title">Yanıt Akışı</string>
     <string name="whispers">Fısıltılar</string>
     <string name="notification_whisper_mention">%1$s size bir fısıltı gönderdi</string>
+    <string name="notification_whisper_conversation_title">@%1$s kullanıcısından fısıltı</string>
     <string name="mentions">Bahsetmeler</string>
     <string name="confirm_channel_removal_title">Kanalı kaldırmayı onayla</string>
     <string name="confirm_channel_removal_message">Bu kanalı kaldırmak istediğinizden emin misiniz?</string>
@@ -459,6 +457,10 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_general_header">Genel</string>
     <string name="preference_suggestions_header">Öneriler</string>
     <string name="preference_messages_header">Mesajlar</string>
+    <string name="preference_message_tap_action_title">Mesaja dokunma eylemi</string>
+    <string name="preference_message_tap_action_do_nothing">Hiçbir şey yapma</string>
+    <string name="preference_message_tap_action_open_user_card">Kullanıcı kartını aç</string>
+    <string name="preference_message_tap_action_open_message_options">Mesaj seçeneklerini aç</string>
     <string name="preference_users_header">Kullanıcılar</string>
     <string name="preference_emotes_badges_header">İfadeler ve Rozetler</string>
     <string name="preference_suggestion_mode_title">Öneri modu</string>
@@ -513,6 +515,7 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_show_timed_out_messages_title">Zaman aşımına uğrayan mesajları göster</string>
     <string name="preference_show_whispers_inline_title">Fısıltıları sohbette göster</string>
     <string name="preference_show_whispers_inline_summary">Gönderilen ve alınan fısıltıları tüm açık kanallarda gösterir</string>
+    <string name="preference_show_twitch_gifs_title">Twitch GIF\'lerini göster</string>
     <string name="preference_animate_gifs_title">GIF\'leri hareketlendir</string>
     <string name="preference_line_separator_title">Mesajları çizgiler ile ayır</string>
     <string name="preference_keep_screen_on_title">Ekranı açık tut</string>
@@ -587,6 +590,8 @@ Yardım için bu kılavuza bakın: https://wiki.chatterino.com/Image%20Uploader/
     <string name="preference_show_chip_actions_summary">Tam ekranı açıp kapamak, yayınlar ve sohbet modlarını ayarlamak için çipler gösterir</string>
     <string name="preference_show_character_counter_title">Karakter sayacını göster</string>
     <string name="preference_show_character_counter_summary">Giriş alanında kod noktası sayısını görüntüler</string>
+    <string name="preference_show_send_wait_timer_title">Yavaş mod ve zaman aşımı geri sayımını göster</string>
+    <string name="preference_show_send_wait_timer_summary">Tekrar ne zaman gönderebileceğini gösterir</string>
     <string name="preference_show_clear_input_button_title">Girdiyi temizle düğmesini göster</string>
     <string name="preference_show_send_button_title">Gönder düğmesini göster</string>
     <string name="preference_input_group_title">Girdi</string>

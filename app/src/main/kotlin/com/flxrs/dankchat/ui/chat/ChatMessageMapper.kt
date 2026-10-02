@@ -41,7 +41,6 @@ import com.flxrs.dankchat.data.twitch.message.recipientAliasOrFormattedName
 import com.flxrs.dankchat.data.twitch.message.senderAliasOrFormattedName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.chat.ChatSettings
-import com.flxrs.dankchat.ui.chat.messages.common.LinkUi
 import com.flxrs.dankchat.ui.chat.messages.common.findLinks
 import com.flxrs.dankchat.utils.DateTimeUtils
 import com.flxrs.dankchat.utils.TextResource
@@ -698,8 +697,7 @@ class ChatMessageMapper(
                         isBold = chatSettings.boldUsernameMentions,
                     )
                 }.toImmutableList()
-        val links = findLinks(message).toImmutableList()
-        val gifContentParts = buildTwitchGifContentParts(message, gifs, links, emoteUis, usernameMentions, chatSettings.showTwitchGifs)
+        val gifContentParts = buildTwitchGifContentParts(message, gifs, chatSettings.showTwitchGifs)
 
         return ChatMessageUiState.PrivMessageUi(
             id = id,
@@ -720,7 +718,7 @@ class ChatMessageMapper(
             animateNamePaint = chatSettings.animateSevenTVPaints,
             nameText = nameText,
             message = message,
-            links = links,
+            links = findLinks(message).toImmutableList(),
             usernameMentions = usernameMentions,
             emotes = emoteUis,
             gifContentParts = gifContentParts,
@@ -1132,94 +1130,46 @@ private fun Badge.isVisible(settings: ChatSettings): Boolean = when (this) {
 
 private fun ChatMessageEmote.isVisible(settings: ChatSettings): Boolean = settings.showSevenTVPersonalEmotes || type !is ChatMessageEmoteType.PersonalSevenTVEmote
 
+/**
+ * Splits a message around its GIFs, so GIFs render as blocks between the surrounding text. Text parts drop the
+ * spaces that separated them from a GIF.
+ */
 internal fun buildTwitchGifContentParts(
     message: String,
     gifs: List<TwitchGif>,
-    links: ImmutableList<LinkUi>,
-    emotes: ImmutableList<EmoteUi>,
-    usernameMentions: ImmutableList<UsernameMentionUi> = persistentListOf(),
-    showTwitchGifs: Boolean = true,
+    showTwitchGifs: Boolean,
 ): ImmutableList<TwitchGifContentPartUi> {
-    if (!showTwitchGifs || gifs.isEmpty()) return persistentListOf()
-
-    val validGifs =
-        gifs
-            .sortedBy { it.position.first }
-            .filter { it.position.first >= 0 && it.position.last < message.length }
-    if (validGifs.isEmpty()) return persistentListOf()
+    if (!showTwitchGifs || gifs.isEmpty()) {
+        return persistentListOf()
+    }
 
     return buildList {
         var cursor = 0
-        validGifs.forEach { gif ->
-            if (gif.position.first < cursor) return@forEach
-            makeTwitchGifTextPart(
-                message = message,
-                start = cursor,
-                endExclusive = gif.position.first,
-                links = links,
-                emotes = emotes,
-                usernameMentions = usernameMentions,
-                trimStart = cursor > 0,
-                trimEnd = true,
-            )?.let(::add)
-            add(
-                TwitchGifContentPartUi.Gif(
-                    TwitchGifUi(gif.id, gif.url, gif.altText),
-                ),
-            )
+        gifs.forEach { gif ->
+            addTextPart(message, cursor, gif.position.first)
+            add(TwitchGifContentPartUi.Gif(TwitchGifUi(gif.id, gif.url, gif.altText)))
             cursor = gif.position.last + 1
         }
-        makeTwitchGifTextPart(
-            message = message,
-            start = cursor,
-            endExclusive = message.length,
-            links = links,
-            emotes = emotes,
-            usernameMentions = usernameMentions,
-            trimStart = cursor > 0,
-            trimEnd = false,
-        )?.let(::add)
+        addTextPart(message, cursor, message.length)
     }.toImmutableList()
 }
 
-private fun makeTwitchGifTextPart(
+private fun MutableList<TwitchGifContentPartUi>.addTextPart(
     message: String,
     start: Int,
     endExclusive: Int,
-    links: List<LinkUi>,
-    emotes: List<EmoteUi>,
-    usernameMentions: List<UsernameMentionUi>,
-    trimStart: Boolean,
-    trimEnd: Boolean,
-): TwitchGifContentPartUi.Text? {
+) {
     var contentStart = start
-    var contentEndExclusive = endExclusive
-    if (trimStart) {
-        while (contentStart < contentEndExclusive && message[contentStart] == ' ') contentStart++
+    var contentEnd = endExclusive
+    while (contentStart < contentEnd && message[contentStart].isWhitespace()) {
+        contentStart++
     }
-    if (trimEnd) {
-        while (contentEndExclusive > contentStart && message[contentEndExclusive - 1] == ' ') contentEndExclusive--
+    while (contentEnd > contentStart && message[contentEnd - 1].isWhitespace()) {
+        contentEnd--
     }
-    if (contentStart >= contentEndExclusive) return null
-
-    return TwitchGifContentPartUi.Text(
-        text = message.substring(contentStart, contentEndExclusive),
-        links =
-            links
-                .filter { it.start >= contentStart && it.end <= contentEndExclusive }
-                .map { it.copy(start = it.start - contentStart, end = it.end - contentStart) }
-                .toImmutableList(),
-        emotes =
-            emotes
-                .filter { it.position.first >= contentStart && it.position.last <= contentEndExclusive }
-                .map { it.copy(position = it.position.first - contentStart..it.position.last - contentStart) }
-                .toImmutableList(),
-        usernameMentions =
-            usernameMentions
-                .filter { it.start >= contentStart && it.end <= contentEndExclusive }
-                .map { it.copy(start = it.start - contentStart, end = it.end - contentStart) }
-                .toImmutableList(),
-    )
+    if (contentStart < contentEnd) {
+        add(TwitchGifContentPartUi.Text(contentStart, contentEnd))
+    }
 }
 
 private fun ChatMessageUiState.hasSameHighlightBackground(other: ChatMessageUiState?): Boolean = other != null &&

@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">尚未登入</string>
     <string name="hint_replying">回覆</string>
     <string name="hint_announcing">發送公告</string>
-    <string name="notification_new_mentions">您有新的提及訊息</string>
-    <string name="notification_mention">%1$s 剛於 #%2$s 提及了您</string>
-    <string name="notification_notify_mention">您剛在 #%1$s 中被提及</string>
     <string name="snackbar_login">已登入為 %1$s</string>
     <string name="snackbar_login_failed">登入失敗</string>
     <string name="snackbar_image_uploaded">已複製: %1$s</string>
@@ -265,6 +262,7 @@
     <string name="replies_title">回覆串</string>
     <string name="whispers">悄悄話</string>
     <string name="notification_whisper_mention">%1$s 傳送了一則悄悄話給您</string>
+    <string name="notification_whisper_conversation_title">來自 @%1$s 的悄悄話</string>
     <string name="mentions">提及</string>
     <string name="confirm_channel_removal_title">確認移除頻道</string>
     <string name="confirm_channel_removal_message">您確定要將此頻道移除嗎？</string>
@@ -450,6 +448,10 @@
     <string name="preference_general_header">一般</string>
     <string name="preference_suggestions_header">建議</string>
     <string name="preference_messages_header">訊息</string>
+    <string name="preference_message_tap_action_title">點擊訊息動作</string>
+    <string name="preference_message_tap_action_do_nothing">不執行任何動作</string>
+    <string name="preference_message_tap_action_open_user_card">開啟用戶資訊卡</string>
+    <string name="preference_message_tap_action_open_message_options">開啟訊息選項</string>
     <string name="preference_users_header">用戶</string>
     <string name="preference_emotes_badges_header">表情與徽章</string>
     <string name="preference_suggestion_mode_title">建議模式</string>
@@ -504,6 +506,7 @@
     <string name="preference_show_timed_out_messages_title">顯示被靜音的訊息</string>
     <string name="preference_show_whispers_inline_title">在聊天室中顯示悄悄話</string>
     <string name="preference_show_whispers_inline_summary">在所有開啟的頻道中顯示傳送和接收的悄悄話</string>
+    <string name="preference_show_twitch_gifs_title">顯示 Twitch 動圖 (GIF)</string>
     <string name="preference_animate_gifs_title">顯示動圖 (GIF)</string>
     <string name="preference_line_separator_title">透過格線分隔訊息</string>
     <string name="preference_keep_screen_on_title">保持螢幕恆開</string>
@@ -578,6 +581,8 @@
     <string name="preference_show_chip_actions_summary">顯示用於切換全螢幕、實況與聊天模式的快捷操作</string>
     <string name="preference_show_character_counter_title">顯示字元計數器</string>
     <string name="preference_show_character_counter_summary">在輸入框中顯示字碼數</string>
+    <string name="preference_show_send_wait_timer_title">顯示低速模式與禁言倒數</string>
+    <string name="preference_show_send_wait_timer_summary">顯示距離可再次傳送訊息的時間</string>
     <string name="preference_show_clear_input_button_title">顯示清除輸入按鈕</string>
     <string name="preference_show_send_button_title">顯示傳送按鈕</string>
     <string name="preference_input_group_title">輸入</string>

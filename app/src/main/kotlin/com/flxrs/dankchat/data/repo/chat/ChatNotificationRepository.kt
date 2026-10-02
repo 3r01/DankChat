@@ -2,6 +2,7 @@ package com.flxrs.dankchat.data.repo.chat
 
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.data.chat.ChatItem
+import com.flxrs.dankchat.data.twitch.message.ModerationMessage
 import com.flxrs.dankchat.data.twitch.message.WhisperMessage
 import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
@@ -10,6 +11,7 @@ import com.flxrs.dankchat.utils.extensions.assign
 import com.flxrs.dankchat.utils.extensions.clear
 import com.flxrs.dankchat.utils.extensions.firstValue
 import com.flxrs.dankchat.utils.extensions.increment
+import com.flxrs.dankchat.utils.extensions.markModeratedMessages
 import com.flxrs.dankchat.utils.extensions.mutableSharedFlowOf
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -97,6 +99,10 @@ class ChatNotificationRepository(
         }
     }
 
+    fun applyModerationMessage(message: ModerationMessage) {
+        _mentions.update { current -> current.markModeratedMessages(message).toImmutableList() }
+    }
+
     fun addWhisper(item: ChatItem) {
         _whispers.update { current ->
             current.addAndLimit(item, scrollBackLength, messageProcessor::onMessageRemoved).toImmutableList()
@@ -175,10 +181,26 @@ class ChatNotificationRepository(
     fun markWhispersRead() {
         _notificationClearRequests.tryEmit(NotificationClearScope.Whispers)
     }
+
+    fun markChannelRead(channel: UserName) {
+        _notificationClearRequests.tryEmit(NotificationClearScope.Channel(channel))
+    }
+
+    fun removeChannelNotifications(channel: UserName) {
+        _notificationClearRequests.tryEmit(NotificationClearScope.ChannelRemoved(channel))
+    }
 }
 
 sealed interface NotificationClearScope {
     data object Mentions : NotificationClearScope
 
     data object Whispers : NotificationClearScope
+
+    data class Channel(
+        val channel: UserName,
+    ) : NotificationClearScope
+
+    data class ChannelRemoved(
+        val channel: UserName,
+    ) : NotificationClearScope
 }

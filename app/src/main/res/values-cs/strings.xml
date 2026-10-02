@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Nejste přihlášen</string>
     <string name="hint_replying">Odpovědět</string>
     <string name="hint_announcing">Odeslat oznámení</string>
-    <string name="notification_new_mentions">Máte nové zmínky</string>
-    <string name="notification_mention">%1$s vás právě zmínil v #%2$s</string>
-    <string name="notification_notify_mention">Byli jste zmíněni v #%1$s</string>
     <string name="snackbar_login">Přihlašování jako %1$s</string>
     <string name="snackbar_login_failed">Přihlášení se nezdařilo</string>
     <string name="snackbar_image_uploaded">Zkopírováno: %1$s</string>
@@ -286,6 +283,7 @@ Služba dočasně ukládá zprávy pro kanály, které vy (a další) navštív�
     <string name="replies_title">Vlákno odpovědí</string>
     <string name="whispers">Šepot</string>
     <string name="notification_whisper_mention">%1$s vám odeslal soukromou zprávu</string>
+    <string name="notification_whisper_conversation_title">Soukromá zpráva od @%1$s</string>
     <string name="mentions">Zmínky</string>
     <string name="confirm_channel_removal_title">Potvrdit odebrání kanálu</string>
     <string name="confirm_channel_removal_message">Jste si jistí, že chcete tento kanál odebrat?</string>
@@ -475,6 +473,10 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_general_header">Obecné</string>
     <string name="preference_suggestions_header">Návrhy</string>
     <string name="preference_messages_header">Zprávy</string>
+    <string name="preference_message_tap_action_title">Akce po klepnutí na zprávu</string>
+    <string name="preference_message_tap_action_do_nothing">Nic nedělat</string>
+    <string name="preference_message_tap_action_open_user_card">Otevřít kartu uživatele</string>
+    <string name="preference_message_tap_action_open_message_options">Otevřít možnosti zprávy</string>
     <string name="preference_users_header">Uživatelé</string>
     <string name="preference_emotes_badges_header">Emotikony a odznaky</string>
     <string name="preference_suggestion_mode_title">Režim návrhů</string>
@@ -529,6 +531,7 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_show_timed_out_messages_title">Zobrazit smazané zprávy</string>
     <string name="preference_show_whispers_inline_title">Zobrazit šepoty v chatu</string>
     <string name="preference_show_whispers_inline_summary">Zobrazí odeslané a přijaté šepoty ve všech otevřených kanálech</string>
+    <string name="preference_show_twitch_gifs_title">Zobrazit Twitch GIFy</string>
     <string name="preference_animate_gifs_title">Animované gify</string>
     <string name="preference_line_separator_title">Oddělit zprávy řádky</string>
     <string name="preference_keep_screen_on_title">Udržovat obrazovku zapnutou</string>
@@ -603,6 +606,8 @@ Koukněte na tento návod pro pomoc: https://wiki.chatterino.com/Image%20Uploade
     <string name="preference_show_chip_actions_summary">Zobrazí šipku s nastavením pro zobrazení chatu na celou obrazovku, zobrazení streamu nebo úpravy režimů v chatu</string>
     <string name="preference_show_character_counter_title">Zobrazit počítadlo znaků</string>
     <string name="preference_show_character_counter_summary">Zobrazuje počet kódových bodů ve vstupním poli</string>
+    <string name="preference_show_send_wait_timer_title">Zobrazit odpočet pomalého režimu a timeoutu</string>
+    <string name="preference_show_send_wait_timer_summary">Zobrazuje, za jak dlouho můžete znovu psát</string>
     <string name="preference_show_clear_input_button_title">Zobrazit tlačítko vymazání vstupu</string>
     <string name="preference_show_send_button_title">Zobrazit tlačítko odeslání</string>
     <string name="preference_input_group_title">Vstup</string>

@@ -25,7 +25,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -227,7 +227,7 @@ fun MainScreen(
     val isInPipMode = observePipMode(streamViewModel)
 
     // Wide split layout: side-by-side stream + chat on medium+ width windows
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
     val isWideWindow =
         windowSizeClass.isWidthAtLeastBreakpoint(
             WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND,
@@ -307,6 +307,14 @@ fun MainScreen(
             }
         }
         target != null
+    }
+
+    // Replying from outside the channel jumps there first, which needs the message to still be repliable
+    val replyToMessage: (String, UserName, UserName, String) -> Unit = { messageId, channel, userName, message ->
+        if (channelPagerViewModel.canReplyTo(channel, messageId) && jumpToMessage(messageId, channel)) {
+            sheetNavigationViewModel.closeFullScreenSheet()
+            chatInputViewModel.setReplying(true, messageId, userName, message)
+        }
     }
 
     MainScreenEventHandler(
@@ -390,6 +398,7 @@ fun MainScreen(
                 }
             }
         },
+        onReplyToMessage = replyToMessage,
     )
 
     val isFullscreen = mainState.isFullscreen
@@ -958,6 +967,9 @@ fun MainScreen(
                         chatInputViewModel.setReplying(false)
                     },
                     onWhisperReply = chatInputViewModel::setWhisperTarget,
+                    onReplyToMessage = { message ->
+                        message.channel?.let { channel -> replyToMessage(message.messageId, channel, message.userName, message.message) }
+                    },
                     bottomContentPadding = effectiveBottomPadding,
                 )
             }

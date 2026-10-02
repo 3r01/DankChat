@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.flxrs.dankchat.data.UserName
+import com.flxrs.dankchat.data.chat.canReplyTo
 import com.flxrs.dankchat.data.repo.chat.ChatChannelProvider
 import com.flxrs.dankchat.data.repo.chat.ChatMessageRepository
 import com.flxrs.dankchat.data.repo.chat.ChatNotificationRepository
@@ -57,6 +58,11 @@ class ChannelPagerViewModel(
             chatNotificationRepository.clearMentionCount(channels[page])
         }
     }
+
+    fun canReplyTo(
+        channel: UserName,
+        messageId: String,
+    ): Boolean = chatMessageRepository.getChat(channel).value.canReplyTo(messageId)
 
     /**
      * Validates that the message exists in the channel's chat and returns the jump target,

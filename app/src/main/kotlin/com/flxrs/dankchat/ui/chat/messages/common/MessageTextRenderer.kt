@@ -58,8 +58,8 @@ fun MessageTextWithInlineContent(
     onTextClick: (Int) -> Unit,
     onEmoteClick: (List<EmoteSheetData>) -> Unit,
     modifier: Modifier = Modifier,
-    asciiArtStart: Int? = null,
     onBackgroundClick: (() -> Unit)? = null,
+    asciiArtStart: Int? = null,
     onTextLongClick: ((Int) -> Unit)? = null,
     interactionSource: MutableInteractionSource? = null,
     backgroundTexts: List<AnnotatedString> = emptyList(),
@@ -168,8 +168,8 @@ fun MessageTextWithInlineContent(
                         knownDimensions = knownDimensions,
                         modifier = Modifier.fillMaxWidth(),
                         interactionSource = interactionSource,
-                        onTextClick = onTextClick,
                         onBackgroundClick = onBackgroundClick,
+                        onTextClick = onTextClick,
                         onTextLongClick = onTextLongClick,
                         backgroundTexts = prefixBackgroundTexts,
                     )
@@ -181,8 +181,8 @@ fun MessageTextWithInlineContent(
                     knownDimensions = knownDimensions,
                     modifier = Modifier.asciiArtLayout(fontSize),
                     interactionSource = interactionSource,
-                    onTextClick = { onTextClick(toFullOffset(it)) },
                     onBackgroundClick = onBackgroundClick,
+                    onTextClick = { onTextClick(toFullOffset(it)) },
                     onTextLongClick = onTextLongClick?.let { onLongClick -> { onLongClick(toFullOffset(it)) } },
                 )
             }
@@ -198,8 +198,8 @@ fun MessageTextWithInlineContent(
                 overflow = overflow,
                 modifier = modifier.fillMaxWidth(),
                 interactionSource = interactionSource,
-                onTextClick = onTextClick,
                 onBackgroundClick = onBackgroundClick,
+                onTextClick = onTextClick,
                 onTextLongClick = onTextLongClick,
                 backgroundTexts = backgroundTexts,
             )

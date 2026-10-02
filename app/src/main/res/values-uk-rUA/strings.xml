@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Ви не ввійшли</string>
     <string name="hint_replying">Відповісти</string>
     <string name="hint_announcing">Надіслати оголошення</string>
-    <string name="notification_new_mentions">У Вас є нові згадки</string>
-    <string name="notification_mention">%1$s згадав Вас у #%2$s</string>
-    <string name="notification_notify_mention">Вас згадали у #%1$s</string>
     <string name="snackbar_login">Ви увійшли під ім\'ям %1$s</string>
     <string name="snackbar_login_failed">Помилка входу</string>
     <string name="snackbar_image_uploaded">Скопійовано: %1$s</string>
@@ -286,6 +283,7 @@
     <string name="replies_title">Тема для відповіді</string>
     <string name="whispers">Особисті повідомлення</string>
     <string name="notification_whisper_mention">%1$s надіслав особисте повідомлення</string>
+    <string name="notification_whisper_conversation_title">Особисте повідомлення від @%1$s</string>
     <string name="mentions">Згадки</string>
     <string name="confirm_channel_removal_title">Підтвердити видалення каналу</string>
     <string name="confirm_channel_removal_message">Ви дійсно хочете видалити канал?</string>
@@ -475,6 +473,10 @@
     <string name="preference_general_header">Загальні</string>
     <string name="preference_suggestions_header">Підказки</string>
     <string name="preference_messages_header">Повідомлення</string>
+    <string name="preference_message_tap_action_title">Дія при натисканні на повідомлення</string>
+    <string name="preference_message_tap_action_do_nothing">Нічого не робити</string>
+    <string name="preference_message_tap_action_open_user_card">Відкрити картку користувача</string>
+    <string name="preference_message_tap_action_open_message_options">Відкрити параметри повідомлення</string>
     <string name="preference_users_header">Користувачі</string>
     <string name="preference_emotes_badges_header">Емоції та значки</string>
     <string name="preference_suggestion_mode_title">Режим підказок</string>
@@ -529,6 +531,7 @@
     <string name="preference_show_timed_out_messages_title">Показувати видалені повідомлення</string>
     <string name="preference_show_whispers_inline_title">Показувати особисті повідомлення в чаті</string>
     <string name="preference_show_whispers_inline_summary">Показує надіслані та отримані особисті повідомлення в усіх відкритих каналах</string>
+    <string name="preference_show_twitch_gifs_title">Показувати GIF з Twitch</string>
     <string name="preference_animate_gifs_title">Анімовані смайли</string>
     <string name="preference_line_separator_title">Відокремити повідомлення лініями</string>
     <string name="preference_keep_screen_on_title">Не вимикати екран</string>
@@ -603,6 +606,8 @@
     <string name="preference_show_chip_actions_summary">Показує кнопки для перемикання повноекранного режиму та плеєру і змінення режимів чату</string>
     <string name="preference_show_character_counter_title">Показувати лічильник символів</string>
     <string name="preference_show_character_counter_summary">Відображає кількість кодових точок у полі введення</string>
+    <string name="preference_show_send_wait_timer_title">Показувати відлік повільного режиму та тимчасового бану</string>
+    <string name="preference_show_send_wait_timer_summary">Показує, через скільки можна знову надсилати повідомлення</string>
     <string name="preference_show_clear_input_button_title">Показувати кнопку очищення введення</string>
     <string name="preference_show_send_button_title">Показувати кнопку надсилання</string>
     <string name="preference_input_group_title">Введення</string>

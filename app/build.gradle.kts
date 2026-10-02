@@ -28,8 +28,8 @@ android {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40043
-        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.43"
+        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40044
+        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.44"
     }
 
     androidResources { generateLocaleConfig = true }

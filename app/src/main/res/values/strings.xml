@@ -60,11 +60,7 @@
     <string name="hint_not_logged_int">Not logged in</string>
     <string name="hint_replying">Reply</string>
     <string name="hint_announcing">Send announcement</string>
-    <string name="notification_new_mentions">You have new mentions</string>
-    <string name="notification_channel_mentions">Mentions in #%1$s</string>
-    <string name="notification_message_with_sender">%1$s: %2$s</string>
-    <string name="notification_mention">%1$s just mentioned you in #%2$s</string>
-    <string name="notification_notify_mention">You were mentioned in #%1$s</string>
+    <string name="notification_message_with_sender" translatable="false">%1$s: %2$s</string>
     <string name="snackbar_login">Logging in as %1$s</string>
     <string name="snackbar_login_failed">Failed to login</string>
     <string name="snackbar_image_uploaded">Copied: %1$s</string>
@@ -487,13 +483,8 @@
     <string name="preference_messages_header">Messages</string>
     <string name="preference_message_tap_action_title">Message tap action</string>
     <string name="preference_message_tap_action_do_nothing">Do nothing</string>
-    <string name="preference_message_tap_action_reply">Reply to message</string>
-    <string name="preference_message_tap_action_mention">Mention user</string>
-    <string name="preference_message_tap_action_whisper">Whisper user</string>
     <string name="preference_message_tap_action_open_user_card">Open user card</string>
     <string name="preference_message_tap_action_open_message_options">Open message options</string>
-    <string name="preference_message_tap_action_copy_message">Copy message</string>
-    <string name="preference_message_tap_action_copy_full_message">Copy full message</string>
     <string name="preference_users_header">Users</string>
     <string name="preference_emotes_badges_header">Emotes &amp; Badges</string>
     <string name="preference_suggestion_mode_title">Suggestion mode</string>
@@ -654,8 +645,8 @@
     <string name="preference_show_chip_actions_summary">Displays chips for toggling fullscreen, streams and adjusting chat modes</string>
     <string name="preference_show_character_counter_title">Show character counter</string>
     <string name="preference_show_character_counter_summary">Displays code point count in the input field</string>
-    <string name="preference_show_send_wait_timer_title">Show countdown on slow mode or when timed out</string>
-    <string name="preference_show_send_wait_timer_summary">Shows a countdown during slow mode or a timeout</string>
+    <string name="preference_show_send_wait_timer_title">Show slow mode and timeout countdown</string>
+    <string name="preference_show_send_wait_timer_summary">Shows how long until you can send again</string>
     <string name="preference_show_clear_input_button_title">Show clear input button</string>
     <string name="preference_show_send_button_title">Show send button</string>
     <string name="preference_input_group_title">Input</string>

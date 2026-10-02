@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Nicht angemeldet</string>
     <string name="hint_replying">Antworten</string>
     <string name="hint_announcing">Ankündigung senden</string>
-    <string name="notification_new_mentions">Du hast neue Erwähnungen</string>
-    <string name="notification_mention">%1$s hat dich in #%2$s erwähnt</string>
-    <string name="notification_notify_mention">Du wurdest in #%1$s erwähnt</string>
     <string name="snackbar_login">Anmelden als %1$s</string>
     <string name="snackbar_login_failed">Anmelden fehlgeschlagen</string>
     <string name="snackbar_image_uploaded">Kopiert: %1$s</string>
@@ -272,6 +269,7 @@
     <string name="replies_title">Antwortverlauf</string>
     <string name="whispers">Private Nachrichten</string>
     <string name="notification_whisper_mention">%1$s hat dir eine private Nachricht geschickt</string>
+    <string name="notification_whisper_conversation_title">Private Nachricht von @%1$s</string>
     <string name="mentions">Erwähnungen</string>
     <string name="confirm_channel_removal_title">Entfernen des Kanals bestätigen</string>
     <string name="confirm_channel_removal_message">Willst du diesen Kanal wirklich entfernen?</string>
@@ -459,6 +457,10 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_general_header">Allgemein</string>
     <string name="preference_suggestions_header">Vorschläge</string>
     <string name="preference_messages_header">Nachrichten</string>
+    <string name="preference_message_tap_action_title">Aktion beim Tippen auf Nachrichten</string>
+    <string name="preference_message_tap_action_do_nothing">Nichts tun</string>
+    <string name="preference_message_tap_action_open_user_card">Nutzerpopup öffnen</string>
+    <string name="preference_message_tap_action_open_message_options">Nachrichtenoptionen öffnen</string>
     <string name="preference_users_header">Benutzer</string>
     <string name="preference_emotes_badges_header">Emotes &amp; Abzeichen</string>
     <string name="preference_suggestion_mode_title">Vorschlagsmodus</string>
@@ -513,6 +515,7 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_show_timed_out_messages_title">Entfernte Nachrichten anzeigen</string>
     <string name="preference_show_whispers_inline_title">Private Nachrichten im Chat anzeigen</string>
     <string name="preference_show_whispers_inline_summary">Zeigt gesendete und empfangene private Nachrichten in allen geöffneten Kanälen an</string>
+    <string name="preference_show_twitch_gifs_title">Twitch-GIFs anzeigen</string>
     <string name="preference_animate_gifs_title">GIFs animieren</string>
     <string name="preference_line_separator_title">Nachrichten durch Striche trennen</string>
     <string name="preference_keep_screen_on_title">Bildschirm eingeschaltet lassen</string>
@@ -587,6 +590,8 @@ Für Hilfe, siehe: https://wiki.chatterino.com/Image%20Uploader/</string>
     <string name="preference_show_chip_actions_summary">Zeigt Chips zum Wechseln von Vollbild-, Stream- und Chatmodus an</string>
     <string name="preference_show_character_counter_title">Zeichenzähler anzeigen</string>
     <string name="preference_show_character_counter_summary">Zeigt die Anzahl der Codepunkte im Eingabefeld an</string>
+    <string name="preference_show_send_wait_timer_title">Countdown für langsamen Modus und Timeout anzeigen</string>
+    <string name="preference_show_send_wait_timer_summary">Zeigt, wann du wieder senden kannst</string>
     <string name="preference_show_clear_input_button_title">Schaltfläche zum Leeren der Eingabe anzeigen</string>
     <string name="preference_show_send_button_title">Schaltfläche zum Senden anzeigen</string>
     <string name="preference_input_group_title">Eingabe</string>

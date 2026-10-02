@@ -57,9 +57,6 @@
     <string name="hint_not_logged_int">Sessió no iniciada</string>
     <string name="hint_replying">Resposta</string>
     <string name="hint_announcing">Envia un anunci</string>
-    <string name="notification_new_mentions">Tens noves mencions</string>
-    <string name="notification_mention">%1$s t\'acaba de mencionar en #%2$s</string>
-    <string name="notification_notify_mention">Has estat mencionat a #%1$s</string>
     <string name="snackbar_login">Iniciant sessió com %1$s</string>
     <string name="snackbar_login_failed">Error en iniciar sessió</string>
     <string name="snackbar_image_uploaded">Copiat: %1$s</string>
@@ -271,6 +268,7 @@ El servei emmagatzema temporalment missatges per a canals que tu (i altres) visi
     <string name="replies_title">Fil de respostes</string>
     <string name="whispers">Missatges privats</string>
     <string name="notification_whisper_mention">%1$s t\'ha enviat un missatge privat</string>
+    <string name="notification_whisper_conversation_title">Missatge privat de @%1$s</string>
     <string name="mentions">Mencions</string>
     <string name="confirm_channel_removal_title">Confirmar eliminació del canal</string>
     <string name="confirm_channel_removal_message">Estàs segur que vols eliminar aquest canal?</string>
@@ -453,6 +451,10 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_general_header">General</string>
     <string name="preference_suggestions_header">Suggeriments</string>
     <string name="preference_messages_header">Missatges</string>
+    <string name="preference_message_tap_action_title">Acció en tocar un missatge</string>
+    <string name="preference_message_tap_action_do_nothing">No fer res</string>
+    <string name="preference_message_tap_action_open_user_card">Obrir la targeta d\'usuari</string>
+    <string name="preference_message_tap_action_open_message_options">Obrir les opcions del missatge</string>
     <string name="preference_users_header">Usuaris</string>
     <string name="preference_emotes_badges_header">Emotes i insígnies</string>
     <string name="preference_suggestion_mode_title">Mode de suggeriment</string>
@@ -506,6 +508,7 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_show_timed_out_messages_title">Mostrar missatges eliminats</string>
     <string name="preference_show_whispers_inline_title">Mostrar missatges privats al xat</string>
     <string name="preference_show_whispers_inline_summary">Mostra els missatges privats enviats i rebuts a tots els canals oberts</string>
+    <string name="preference_show_twitch_gifs_title">Mostra els GIF de Twitch</string>
     <string name="preference_animate_gifs_title">Animar gifs</string>
     <string name="preference_line_separator_title">Separar missatges amb línies</string>
     <string name="preference_keep_screen_on_title">Mantenir pantalla encesa</string>
@@ -579,6 +582,8 @@ Mira aquesta guia per a més ajuda: https://wiki.chatterino.com/Image%20Uploader
     <string name="preference_show_chip_actions_summary">Mostrar chips per alternar pantalla completa, streams i ajustar modes de xat</string>
     <string name="preference_show_character_counter_title">Mostra el comptador de caràcters</string>
     <string name="preference_show_character_counter_summary">Mostra el recompte de punts de codi al camp d\'entrada</string>
+    <string name="preference_show_send_wait_timer_title">Mostra el compte enrere del mode lent i de la suspensió</string>
+    <string name="preference_show_send_wait_timer_summary">Mostra quant falta per poder tornar a enviar</string>
     <string name="preference_show_clear_input_button_title">Mostra el botó d\'esborrar l\'entrada</string>
     <string name="preference_show_send_button_title">Mostra el botó d\'enviar</string>
     <string name="preference_input_group_title">Entrada</string>
