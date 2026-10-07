@@ -110,9 +110,11 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.abs
 
 private val ROUNDED_CORNER_THRESHOLD = 8.dp
 private const val QUICK_SWITCH_HEIGHT_FRACTION = 0.5f
+private const val PAGE_MOVING_THRESHOLD = 0.01f
 
 // Per-layout parameters for the movable stream content
 internal data class StreamViewConfig(
@@ -340,13 +342,6 @@ fun MainScreen(
             if (fullScreenSheetState is FullScreenSheetState.Closed) {
                 activeChannel?.let { activity?.clearNotificationsOfChannel(it) }
             }
-        }
-    }
-
-    // The theater chat shows the streamed channel, so the input has to target it as well
-    SideEffect(theaterStream, activeChannel) {
-        if (theaterStream != null && theaterStream != activeChannel) {
-            channelTabViewModel.selectTab(preferenceStore.channels.indexOf(theaterStream))
         }
     }
 
@@ -1197,7 +1192,8 @@ private fun MainScreenPagerEffects(
     onClearNotifications: (Int) -> Unit,
     onShowToolbar: () -> Unit,
 ) {
-    // Sync Compose pager with ViewModel state
+    // The ViewModel owns the active page, the pager follows it
+    var isFollowingViewModel by remember { mutableStateOf(false) }
     LaunchedEffect(pagerState.currentPage, pagerState.channels.size) {
         val channelCount = pagerState.channels.size
         val currentChannelIndex = circularPageToChannelIndex(composePagerState.currentPage, channelCount)
@@ -1205,20 +1201,26 @@ private fun MainScreenPagerEffects(
             currentChannelIndex != pagerState.currentPage &&
             pagerState.currentPage in pagerState.channels.indices
         ) {
-            composePagerState.scrollToPage(
-                closestCircularPagerPage(
-                    currentPage = composePagerState.currentPage,
-                    channelIndex = pagerState.currentPage,
-                    channelCount = channelCount,
-                ),
-            )
+            isFollowingViewModel = true
+            try {
+                composePagerState.scrollToPage(
+                    closestCircularPagerPage(
+                        currentPage = composePagerState.currentPage,
+                        channelIndex = pagerState.currentPage,
+                        channelCount = channelCount,
+                    ),
+                )
+            } finally {
+                isFollowingViewModel = false
+            }
         }
     }
 
-    // Eagerly update active channel on page change for snappy UI (room state, stream info)
+    // Only swipes update the active channel, eagerly for snappy UI (room state, stream info).
+    // A restored or not yet synced page must never overwrite the ViewModel.
     SideEffect(composePagerState.currentPage) {
         val channelIndex = circularPageToChannelIndex(composePagerState.currentPage, pagerState.channels.size)
-        if (channelIndex != pagerState.currentPage) {
+        if (composePagerState.isScrollInProgress && !isFollowingViewModel && channelIndex != pagerState.currentPage) {
             onSetActivePage(channelIndex)
         }
     }
@@ -1228,9 +1230,10 @@ private fun MainScreenPagerEffects(
         onClearNotifications(circularPageToChannelIndex(composePagerState.settledPage, pagerState.channels.size))
     }
 
-    // Pager swipe reveals toolbar
-    SideEffect(composePagerState.isScrollInProgress) {
-        if (composePagerState.isScrollInProgress) {
+    // Pager swipe reveals toolbar. Vertical chat scrolls can start a pager scroll that never moves the page.
+    val isPageMoving by remember { derivedStateOf { abs(composePagerState.currentPageOffsetFraction) > PAGE_MOVING_THRESHOLD } }
+    SideEffect(isPageMoving) {
+        if (isPageMoving) {
             onShowToolbar()
         }
     }
