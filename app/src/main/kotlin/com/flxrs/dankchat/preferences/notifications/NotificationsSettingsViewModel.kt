@@ -32,6 +32,7 @@ class NotificationsSettingsViewModel(
             when (interaction) {
                 is NotificationsSettingsInteraction.Notifications -> notificationsSettingsDataStore.update { it.copy(showNotifications = interaction.value) }
                 is NotificationsSettingsInteraction.WhisperNotifications -> notificationsSettingsDataStore.update { it.copy(showWhisperNotifications = interaction.value) }
+                is NotificationsSettingsInteraction.ProfilePictures -> notificationsSettingsDataStore.update { it.copy(showProfilePictures = interaction.value) }
                 is NotificationsSettingsInteraction.Mention -> notificationsSettingsDataStore.update { it.copy(mentionFormat = interaction.value) }
                 is NotificationsSettingsInteraction.RemoteEnabled -> remotePushSettingsDataStore.update { it.copy(enabled = interaction.value) }
                 is NotificationsSettingsInteraction.RemoteServerUrl -> remotePushSettingsDataStore.update { it.copy(serverUrl = interaction.value.trim()) }
@@ -47,6 +48,10 @@ sealed interface NotificationsSettingsInteraction {
     ) : NotificationsSettingsInteraction
 
     data class WhisperNotifications(
+        val value: Boolean,
+    ) : NotificationsSettingsInteraction
+
+    data class ProfilePictures(
         val value: Boolean,
     ) : NotificationsSettingsInteraction
 

@@ -22,14 +22,19 @@ plugins {
 
 android {
     namespace = "com.flxrs.dankchat"
-    compileSdk = 37
+    compileSdk {
+        version =
+            release(37) {
+                minorApiLevel = 2
+            }
+    }
 
     defaultConfig {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40044
-        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.44"
+        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40045
+        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.45"
     }
 
     androidResources { generateLocaleConfig = true }
