@@ -314,6 +314,7 @@ fun ChatInputLayout(
                         textFieldColors = textFieldColors,
                         onKeyboardAction = onKeyboardSend,
                         scrollState = textFieldScrollState,
+                        onTabComplete = callbacks.onTabComplete,
                         contentPadding = contentPadding,
                         modifier = textFieldModifier.then(sizeTrackingModifier),
                     )
@@ -1066,6 +1067,7 @@ private fun ChatTextField(
     textFieldColors: TextFieldColors,
     onKeyboardAction: (() -> Unit) -> Unit,
     scrollState: ScrollState,
+    onTabComplete: () -> Boolean,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues? = null,
 ) {
@@ -1084,6 +1086,9 @@ private fun ChatTextField(
                             }
                             true
                         }
+
+                        // Hardware keyboard Tab completes the first suggestion, falls through when there is none
+                        event.key == Key.Tab && !event.isShiftPressed && event.type == KeyEventType.KeyDown -> onTabComplete()
 
                         else -> false
                     }

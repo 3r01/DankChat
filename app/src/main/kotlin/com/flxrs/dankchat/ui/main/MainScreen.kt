@@ -605,6 +605,7 @@ fun MainScreen(
                                     },
                                 onRepeatedSendChange = chatInputViewModel::setRepeatedSend,
                                 onInputScrollableChanged = { isInputScrollable = it },
+                                onTabComplete = chatInputViewModel::applyFirstSuggestion,
                             ),
                         isUploading = dialogState.isUploading,
                         isLoading = tabState.loading,

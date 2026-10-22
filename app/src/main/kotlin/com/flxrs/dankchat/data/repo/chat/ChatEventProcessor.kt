@@ -738,8 +738,6 @@ class ChatEventProcessor(
                     loadRecentMessages(channel, isReconnect = true)
                 }
             }
-            // PubSub doesn't replay missed pin events, so re-sync after reconnects
-            scope.launch { pinnedMessageRepository.fetch(channel) }
         }
     }
 
