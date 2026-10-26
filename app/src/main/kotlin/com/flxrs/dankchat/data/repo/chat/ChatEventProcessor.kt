@@ -155,7 +155,7 @@ class ChatEventProcessor(
             when (event) {
                 is ChatEvent.Connected -> handleConnected(event.isAnonymous)
                 is ChatEvent.Closed -> handleDisconnect(chatConnector.isRemotePushTransition())
-                is ChatEvent.ChannelNonExistent -> postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
+                is ChatEvent.JoinTimedOut -> handleJoinTimedOut(event)
                 is ChatEvent.LoginFailed -> postSystemMessageAndReconnect(SystemMessageType.LoginExpired)
                 is ChatEvent.Message -> onMessage(event.message)
                 is ChatEvent.Error -> handleDisconnect()
@@ -181,10 +181,12 @@ class ChatEventProcessor(
         }
     }
 
-    private suspend fun handlePubSubPinnedChatUpdate(pubSubMessage: PubSubMessage.PinnedChatUpdate) {
+    private fun handlePubSubPinnedChatUpdate(pubSubMessage: PubSubMessage.PinnedChatUpdate) {
         when {
             pubSubMessage.removed -> pinnedMessageRepository.clear(pubSubMessage.channelName)
-            else -> pinnedMessageRepository.fetch(pubSubMessage.channelName)
+
+            // Fetch off the collector so Helix calls never hold up redemptions and moderation events
+            else -> scope.launch { pinnedMessageRepository.fetch(pubSubMessage.channelName) }
         }
     }
 
@@ -722,6 +724,15 @@ class ChatEventProcessor(
         channels.forEach { channel ->
             chatMessageRepository.addMessages(channel, listOf(chatItem))
         }
+    }
+
+    private fun handleJoinTimedOut(event: ChatEvent.JoinTimedOut) = scope.launch {
+        // Slow connections can exceed the join timeout, so logged in users confirm the channel is gone first
+        if (!event.isAnonymous && !channelRepository.isChannelMissing(event.channel)) {
+            logger.info { "Join of #${event.channel} timed out, but the channel exists" }
+            return@launch
+        }
+        postSystemMessageAndReconnect(SystemMessageType.ChannelNonExistent(event.channel), setOf(event.channel))
     }
 
     private fun postSystemMessageAndReconnect(

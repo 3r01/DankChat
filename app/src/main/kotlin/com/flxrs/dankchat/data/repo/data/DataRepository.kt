@@ -300,6 +300,7 @@ class DataRepository(
                 flow = cachedEmoteProvider.getFFZChannelEmotes(channelId, forceNetwork),
                 onData = { emoteRepository.setFFZEmotes(channel, it) },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelFFZEmotes(channel, channelId) } },
+                onMissing = { emoteRepository.clearFFZEmotes(channel) },
             )
         }
     }
@@ -323,6 +324,7 @@ class DataRepository(
                     bttvLiveUpdateClient.subscribeChannel(channelId)
                 },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelBTTVEmotes(channel, channelDisplayName, channelId) } },
+                onMissing = { emoteRepository.clearBTTVEmotes(channel) },
             )
         }
     }
@@ -348,6 +350,7 @@ class DataRepository(
                     emoteRepository.setSevenTVEmotes(channel, result)
                 },
                 onFailure = { getOrEmitFailure { DataLoadingStep.ChannelSevenTVEmotes(channel, channelId) } },
+                onMissing = { emoteRepository.clearSevenTVEmotes(channel) },
             )
         }
     }
@@ -480,12 +483,16 @@ class DataRepository(
         flow: Flow<CachedResult<T?>>,
         onData: suspend (T) -> Unit,
         onFailure: Result<EmoteLoadResult>.() -> Unit,
+        onMissing: suspend () -> Unit = {},
     ): Result<EmoteLoadResult> {
         var loadResult: Result<EmoteLoadResult> = Result.success(EmoteLoadResult.Loaded)
         flow.collect { result ->
             when (result) {
                 is CachedResult.Success -> {
-                    result.data?.let { onData(it) }
+                    when (val data = result.data) {
+                        null -> onMissing()
+                        else -> onData(data)
+                    }
                 }
 
                 is CachedResult.CachedFallback -> {

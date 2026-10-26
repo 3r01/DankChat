@@ -65,6 +65,7 @@ import com.flxrs.dankchat.R
 import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.DankChatPreferenceStore
 import com.flxrs.dankchat.preferences.appearance.InputAction
+import com.flxrs.dankchat.ui.chat.ChannelViewModelStores
 import com.flxrs.dankchat.ui.chat.FabMenuCallbacks
 import com.flxrs.dankchat.ui.chat.PinnedMessageUiState
 import com.flxrs.dankchat.ui.chat.PinnedMessageViewModel
@@ -84,6 +85,7 @@ import com.flxrs.dankchat.ui.main.channel.ChannelTabViewModel
 import com.flxrs.dankchat.ui.main.dialog.DialogStateViewModel
 import com.flxrs.dankchat.ui.main.dialog.MainScreenDialogs
 import com.flxrs.dankchat.ui.main.dialog.ModActionsViewModel
+import com.flxrs.dankchat.ui.main.dialog.UploadAction
 import com.flxrs.dankchat.ui.main.input.ChatBottomBar
 import com.flxrs.dankchat.ui.main.input.ChatInputCallbacks
 import com.flxrs.dankchat.ui.main.input.ChatInputViewModel
@@ -345,11 +347,12 @@ fun MainScreen(
         }
     }
 
-    // Same key as in ChatComposable, so this resolves the active page's instance
+    // Same per-channel store as in ChatComposable, so this resolves the active page's instance
+    val channelViewModelStores: ChannelViewModelStores = koinViewModel()
     val activePinnedMessageViewModel =
         activeChannel?.let { channel ->
             koinViewModel<PinnedMessageViewModel>(
-                key = "pinned-${channel.value}",
+                viewModelStoreOwner = channelViewModelStores.ownerFor(channel),
                 parameters = { parametersOf(channel) },
             )
         }
@@ -368,6 +371,21 @@ fun MainScreen(
         channelsEmpty = tabState.tabs.isEmpty() && !tabState.loading,
     )
 
+    // Resolved at call time so a confirmed disclaimer uses the current Activity's launchers
+    val startUpload: (UploadAction) -> Unit = { action ->
+        when (action) {
+            UploadAction.CaptureImage -> onCaptureImage()
+            UploadAction.CaptureVideo -> onCaptureVideo()
+            UploadAction.ChooseMedia -> onChooseMedia()
+        }
+    }
+    val requestUpload: (UploadAction) -> Unit = { action ->
+        when {
+            preferenceStore.hasExternalHostingAcknowledged -> startUpload(action)
+            else -> dialogViewModel.setPendingUploadAction(action)
+        }
+    }
+
     MainScreenDialogs(
         dialogViewModel = dialogViewModel,
         isLoggedIn = isLoggedIn,
@@ -382,6 +400,7 @@ fun MainScreen(
         onLogout = onLogout,
         onLogin = onLogin,
         onOpenUrl = onOpenUrl,
+        onUploadAction = startUpload,
         onOpenLogViewer = onOpenLogViewer,
         onJumpToMessage = { messageId, channel ->
             if (jumpToMessage(messageId, channel)) {
@@ -752,15 +771,15 @@ fun MainScreen(
                     }
 
                     ToolbarAction.CaptureImage -> {
-                        if (preferenceStore.hasExternalHostingAcknowledged) onCaptureImage() else dialogViewModel.setPendingUploadAction(onCaptureImage)
+                        requestUpload(UploadAction.CaptureImage)
                     }
 
                     ToolbarAction.CaptureVideo -> {
-                        if (preferenceStore.hasExternalHostingAcknowledged) onCaptureVideo() else dialogViewModel.setPendingUploadAction(onCaptureVideo)
+                        requestUpload(UploadAction.CaptureVideo)
                     }
 
                     ToolbarAction.ChooseMedia -> {
-                        if (preferenceStore.hasExternalHostingAcknowledged) onChooseMedia() else dialogViewModel.setPendingUploadAction(onChooseMedia)
+                        requestUpload(UploadAction.ChooseMedia)
                     }
 
                     ToolbarAction.ReloadEmotes -> {

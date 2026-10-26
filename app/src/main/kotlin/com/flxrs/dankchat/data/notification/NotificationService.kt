@@ -42,8 +42,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -51,7 +52,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.koin.android.ext.android.inject
-import kotlin.concurrent.atomics.AtomicInt
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 
@@ -128,14 +128,17 @@ class NotificationService :
                         }
 
                         AppLifecycle.Background -> {
-                            combine(
-                                chatNotificationRepository.messageUpdates,
-                                notificationsSettingsDataStore.settings,
-                            ) { items, settings -> items to settings }
+                            chatNotificationRepository.messageUpdates
                         }
                     }
-                }.collect { (items, settings) ->
-                    if (!settings.showNotifications || remotePushSettingsDataStore.current().isConfigured) return@collect
+                }
+                // Message updates are events, so never conflate them or stall the emitter while icons load
+                .buffer(Channel.UNLIMITED)
+                .collect { items ->
+                    val settings = notificationsSettingsDataStore.current()
+                    if (!settings.showNotifications || remotePushSettingsDataStore.current().isConfigured) {
+                        return@collect
+                    }
                     items.forEach { (message) ->
                         if (!notifiedMessageIds.add(message.id)) return@forEach
                         if (notifiedMessageIds.size > MAX_NOTIFIED_IDS) {
@@ -474,17 +477,20 @@ class NotificationService :
         .apply { icon?.let { setIcon(IconCompat.createWithBitmap(it)) } }
         .build()
 
+    // Identifiers keep pending intents of different targets apart, equal ones would overwrite each other's extras
     private fun openChannelPendingIntent(data: NotificationData): PendingIntent = PendingIntent.getActivity(
         this,
-        notificationIntentCode.fetchAndAdd(1),
-        openChannelIntent(data.channel).putExtra(MainActivity.OPEN_MESSAGE_KEY, data.id),
+        0,
+        openChannelIntent(data.channel)
+            .putExtra(MainActivity.OPEN_MESSAGE_KEY, data.id)
+            .setIdentifier("open_message_${data.channel.value}_${data.id}"),
         immutablePendingIntentFlag,
     )
 
     private fun openWhisperPendingIntent(target: UserName): PendingIntent = PendingIntent.getActivity(
         this,
-        notificationIntentCode.fetchAndAdd(1),
-        openWhisperIntent(target),
+        0,
+        openWhisperIntent(target).setIdentifier("open_whisper_${target.value}"),
         immutablePendingIntentFlag,
     )
 
@@ -497,18 +503,20 @@ class NotificationService :
         putExtra(MainActivity.OPEN_WHISPER_TARGET_KEY, target.value)
     }
 
-    private fun dismissChannelPendingIntent(channel: UserName): PendingIntent = servicePendingIntent(DISMISS_CHANNEL_COMMAND) { putExtra(EXTRA_CHANNEL, channel) }
+    private fun dismissChannelPendingIntent(channel: UserName): PendingIntent = servicePendingIntent(DISMISS_CHANNEL_COMMAND, channel) { putExtra(EXTRA_CHANNEL, channel) }
 
-    private fun dismissWhisperPendingIntent(key: UserName): PendingIntent = servicePendingIntent(DISMISS_WHISPER_COMMAND) { putExtra(EXTRA_USER_NAME, key) }
+    private fun dismissWhisperPendingIntent(key: UserName): PendingIntent = servicePendingIntent(DISMISS_WHISPER_COMMAND, key) { putExtra(EXTRA_USER_NAME, key) }
 
     private fun servicePendingIntent(
         command: String,
+        target: UserName,
         configure: Intent.() -> Unit,
     ): PendingIntent = PendingIntent.getService(
         this,
-        notificationIntentCode.fetchAndAdd(1),
+        0,
         Intent(this, NotificationService::class.java).apply {
             action = command
+            identifier = "${command}_${target.value}"
             configure()
         },
         immutablePendingIntentFlag,
@@ -548,6 +556,5 @@ class NotificationService :
         private const val MAX_NOTIFICATION_ICONS = 100
         private const val CONVERSATION_ICON_SIZE = 128
         private val FOREGROUND_RETRY_DELAY = 5.seconds
-        private val notificationIntentCode = AtomicInt(420)
     }
 }
