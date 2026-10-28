@@ -9,7 +9,6 @@ import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -37,14 +36,11 @@ import com.flxrs.dankchat.ui.chat.EmoteUi
 import com.flxrs.dankchat.ui.chat.emote.EmoteAnimationCoordinator
 import com.flxrs.dankchat.ui.chat.emote.EmoteSheetData
 import com.flxrs.dankchat.ui.chat.emote.LocalEmoteAnimationCoordinator
-import com.flxrs.dankchat.ui.chat.emote.StackedEmote
+import com.flxrs.dankchat.ui.chat.emote.cacheKey
 import com.flxrs.dankchat.ui.chat.emote.emoteBaseHeight
-import com.flxrs.dankchat.ui.chat.emote.singleEmoteCacheKey
-import com.flxrs.dankchat.ui.chat.emote.stackedCacheKey
 import com.flxrs.dankchat.ui.chat.emote.toEmoteSheetData
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.toImmutableMap
 import kotlin.math.ceil
 
@@ -56,7 +52,6 @@ fun MessageTextWithInlineContent(
     badges: ImmutableList<BadgeUi>,
     emotes: ImmutableList<EmoteUi>,
     fontSize: Float,
-    animateGifs: Boolean,
     onTextClick: (Int) -> Unit,
     onEmoteClick: (List<EmoteSheetData>) -> Unit,
     modifier: Modifier = Modifier,
@@ -72,51 +67,23 @@ fun MessageTextWithInlineContent(
     val density = LocalDensity.current
 
     val badgeSize = emoteBaseHeight(fontSize)
-    val inlineContentProviders: ImmutableMap<String, @Composable () -> Unit> =
-        remember(badges, emotes, fontSize, animateGifs) {
-            buildMap<String, @Composable () -> Unit> {
-                badges.forEach { badge ->
-                    put("BADGE_${badge.position}") {
-                        // BasicText composes inline children positionally, so an explicit key
-                        // prevents a slot reused for a different item from inheriting its state
-                        key(badge.position, badge.url) {
-                            BadgeInlineContent(badge = badge, size = badgeSize)
-                        }
-                    }
-                }
-
-                emotes.forEach { emote ->
-                    put("EMOTE_${emote.position}") {
-                        key(emote.position, emote.urls) {
-                            StackedEmote(
-                                emote = emote,
-                                fontSize = fontSize,
-                                emoteCoordinator = emoteCoordinator,
-                                animateGifs = animateGifs,
-                                modifier = Modifier,
-                                onClick = { onEmoteClick(emote.emotes.map { it.toEmoteSheetData() }) },
-                            )
-                        }
-                    }
-                }
-            }.toImmutableMap()
-        }
-
     val baseHeightPx = with(density) { badgeSize.toPx().toInt() }
-    var dimensionRefresh by remember(badges, emotes, fontSize) { mutableIntStateOf(0) }
-    // Unloaded emotes get the loading placeholder size as an estimate so the map is always
-    // complete and rows never fall back to subcompose measuring
+    val inlineImages = rememberInlineImages(badges, emotes, fontSize)
+    val onInlineEmoteClick = { emote: EmoteUi -> onEmoteClick(emote.emotes.map { it.toEmoteSheetData() }) }
+    var dimensionRefresh by remember(badges, emotes, baseHeightPx) { mutableIntStateOf(0) }
+    // Unloaded emotes get the loading placeholder size as an estimate, so every emote has a placeholder
     val (knownDimensions, hasEstimatedDimensions) =
-        remember(badges, emotes, fontSize, emoteCoordinator, dimensionRefresh) {
+        remember(badges, emotes, baseHeightPx, emoteCoordinator, dimensionRefresh) {
             var hasEstimates = false
             val dimensions = buildMap {
                 badges.forEach { badge ->
-                    put("BADGE_${badge.position}", EmoteDimensions("BADGE_${badge.position}", baseHeightPx, baseHeightPx))
+                    val id = badgeInlineId(badge)
+                    put(id, EmoteDimensions(id, baseHeightPx, baseHeightPx))
                 }
 
                 emotes.forEach { emote ->
-                    val id = "EMOTE_${emote.position}"
-                    val key = emote.dimensionKey(baseHeightPx)
+                    val id = emoteInlineId(emote)
+                    val key = emote.cacheKey(baseHeightPx)
                     val dims = emoteCoordinator.getDimensions(key)
                     when {
                         dims != null -> put(id, EmoteDimensions(id, dims.first, dims.second))
@@ -137,12 +104,13 @@ fun MessageTextWithInlineContent(
     // from the estimated placeholder sizes. Partial stacks keep the row waiting for the complete stack.
     if (hasEstimatedDimensions) {
         val currentDimensions by rememberUpdatedState(knownDimensions)
-        LaunchedEffect(badges, emotes, fontSize) {
-            emoteCoordinator.dimensionUpdates.collect {
+        LaunchedEffect(badges, emotes, baseHeightPx) {
+            val keys = emotes.map { it.cacheKey(baseHeightPx) }.toSet()
+            emoteCoordinator.dimensionChanges(keys).collect {
                 val resolved = emotes.map { emote -> emote to emoteCoordinator.resolvedDimensions(emote, baseHeightPx) }
                 val allResolved = resolved.all { (_, dims) -> dims != null }
                 val changed = resolved.any { (emote, dims) ->
-                    val current = currentDimensions["EMOTE_${emote.position}"]
+                    val current = currentDimensions[emoteInlineId(emote)]
                     dims != null && (current == null || dims.first != current.widthPx || dims.second != current.heightPx)
                 }
                 if (allResolved && changed) {
@@ -173,7 +141,8 @@ fun MessageTextWithInlineContent(
                 if (prefix.isNotEmpty()) {
                     TextWithMeasuredInlineContent(
                         text = prefix,
-                        inlineContentProviders = inlineContentProviders,
+                        inlineImages = inlineImages,
+                        onEmoteClick = onInlineEmoteClick,
                         style = style,
                         knownDimensions = knownDimensions,
                         modifier = Modifier.fillMaxWidth(),
@@ -186,7 +155,8 @@ fun MessageTextWithInlineContent(
                 }
                 TextWithMeasuredInlineContent(
                     text = art,
-                    inlineContentProviders = inlineContentProviders,
+                    inlineImages = inlineImages,
+                    onEmoteClick = onInlineEmoteClick,
                     style = style,
                     knownDimensions = knownDimensions,
                     modifier = Modifier.asciiArtLayout(fontSize),
@@ -201,7 +171,8 @@ fun MessageTextWithInlineContent(
         else -> {
             TextWithMeasuredInlineContent(
                 text = annotatedString,
-                inlineContentProviders = inlineContentProviders,
+                inlineImages = inlineImages,
+                onEmoteClick = onInlineEmoteClick,
                 style = style,
                 knownDimensions = knownDimensions,
                 maxLines = maxLines,
@@ -248,16 +219,11 @@ private fun Modifier.asciiArtLayout(fontSize: Float): Modifier = layout { measur
     }
 }
 
-private fun EmoteUi.dimensionKey(baseHeightPx: Int): String = when {
-    urls.size == 1 -> singleEmoteCacheKey(urls.first(), baseHeightPx)
-    else -> stackedCacheKey(baseHeightPx)
-}
-
 private fun EmoteAnimationCoordinator.resolvedDimensions(
     emote: EmoteUi,
     baseHeightPx: Int,
 ): Pair<Int, Int>? {
-    val key = emote.dimensionKey(baseHeightPx)
+    val key = emote.cacheKey(baseHeightPx)
     return getDimensions(key) ?: getPartialDimensions(key)
 }
 

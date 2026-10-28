@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Named
 import org.koin.core.annotation.Single
@@ -36,7 +37,12 @@ class ChatConnector(
     val pubSubConnected get() = pubSubManager.connected
     val eventSubEvents get() = eventSubManager.events
 
-    fun getConnectionState(channel: UserName): StateFlow<ConnectionState> = connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }
+    fun getConnectionState(channel: UserName): StateFlow<ConnectionState> = connectionStateFlow(channel)
+
+    fun setConnectionState(
+        channel: UserName,
+        state: ConnectionState,
+    ): ConnectionState = connectionStateFlow(channel).getAndUpdate { state }
 
     fun setAllConnectionStates(state: ConnectionState) {
         connectionState.forEach { (_, flow) ->
@@ -51,6 +57,8 @@ class ChatConnector(
     fun removeConnectionState(channel: UserName) {
         connectionState.remove(channel)
     }
+
+    private fun connectionStateFlow(channel: UserName) = connectionState.getOrPut(channel) { MutableStateFlow(ConnectionState.DISCONNECTED) }
 
     fun connectAndJoin(channels: List<UserName>) {
         if (!readConnection.connected.value) {
@@ -112,6 +120,11 @@ class ChatConnector(
     fun isRemotePushTransition(): Boolean = remotePushTransition.get() != null
 
     fun completeRemotePushTransition(): Set<UserName> = remotePushTransition.getAndSet(null).orEmpty()
+
+    fun completeRemotePushTransition(channel: UserName): Boolean {
+        val pending = remotePushTransition.getAndUpdate { channels -> channels?.minus(channel)?.takeIf { it.isNotEmpty() } }
+        return channel in pending.orEmpty()
+    }
 
     fun joinIrcChannel(channel: UserName) {
         readConnection.joinChannel(channel)

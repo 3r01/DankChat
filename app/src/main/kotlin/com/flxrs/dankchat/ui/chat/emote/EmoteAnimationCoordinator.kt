@@ -9,32 +9,49 @@ import android.util.LruCache
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.flxrs.dankchat.di.DispatchersProvider
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
-import com.flxrs.dankchat.utils.extensions.forEachLayer
-import com.flxrs.dankchat.utils.extensions.setRunning
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import com.flxrs.dankchat.preferences.developer.DeveloperSettingsDataStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import org.koin.core.annotation.Single
+
+private const val EMOTE_CACHE_SIZE_KIB = 64 * 1024
+private const val EMOTE_CACHE_MAX_ENTRIES = 512
+private const val LAYER_CACHE_SIZE_KIB = 32 * 1024
+private const val LAYER_CACHE_MAX_ENTRIES = 256
+private const val ANIMATED_DRAWABLE_BUFFER_COUNT = 4L
+private const val BYTES_PER_PIXEL = 4L
+private const val BYTES_PER_KIB = 1024L
 
 @Single
 @Stable
 class EmoteAnimationCoordinator(
     private val chatSettingsDataStore: ChatSettingsDataStore,
+    dispatchersProvider: DispatchersProvider,
+    developerSettingsDataStore: DeveloperSettingsDataStore,
 ) {
-    private val emoteCache = LruCache<String, Drawable>(512)
-    private val layerCache = LruCache<String, LayerDrawable>(256)
+    private val emoteCache = drawableCache<Drawable>(EMOTE_CACHE_SIZE_KIB, EMOTE_CACHE_MAX_ENTRIES)
+    private val layerCache = drawableCache<Drawable>(LAYER_CACHE_SIZE_KIB, LAYER_CACHE_MAX_ENTRIES)
     private val dimensionCache = LruCache<String, Pair<Int, Int>>(1024)
 
     // Stacks with failed layers render only what loaded and retry on their next occurrence,
     // rows size them by these until the complete stack replaces them
     private val partialDimensionCache = LruCache<String, Pair<Int, Int>>(256)
 
-    // Bumped on every put so rows waiting for emote dimensions can re-check and upgrade
-    // to the measured text fast path
-    private val _dimensionUpdates = MutableStateFlow(0L)
-    val dimensionUpdates: StateFlow<Long> = _dimensionUpdates.asStateFlow()
+    // Rows waiting for emote dimensions listen per key, so a put only wakes the rows showing that emote
+    private val dimensionListeners = HashMap<String, MutableSet<() -> Unit>>()
 
     // Cache hits never publish dimensions again, so an entry evicted while its drawable is still
     // cached is restored from the drawable bounds instead of leaving rows on the estimated size
@@ -53,7 +70,7 @@ class EmoteAnimationCoordinator(
         partialDimensionCache.remove(key)
         val previous = dimensionCache.put(key, dimensions)
         if (previous != dimensions) {
-            _dimensionUpdates.update { it + 1 }
+            dimensionListeners[key]?.forEach { it() }
         }
     }
 
@@ -65,12 +82,36 @@ class EmoteAnimationCoordinator(
     ) {
         val previous = partialDimensionCache.put(key, dimensions)
         if (previous != dimensions) {
-            _dimensionUpdates.update { it + 1 }
+            dimensionListeners[key]?.forEach { it() }
         }
     }
 
+    // Emits once right away, dimensions put between composition and collection would otherwise be missed
+    fun dimensionChanges(keys: Set<String>): Flow<Unit> = callbackFlow {
+        val listener: () -> Unit = { trySend(Unit) }
+        keys.forEach { dimensionListeners.getOrPut(it, ::HashSet).add(listener) }
+        trySend(Unit)
+        awaitClose {
+            keys.forEach { key ->
+                val listeners = dimensionListeners[key] ?: return@forEach
+                listeners.remove(listener)
+                if (listeners.isEmpty()) {
+                    dimensionListeners.remove(key)
+                }
+            }
+        }
+    }.conflate()
+
+    private val scope = CoroutineScope(SupervisorJob() + dispatchersProvider.immediate)
+    private val animationClock = EmoteAnimationClock(scope, dispatchersProvider.default.limitedParallelism(1))
+
+    // Read once, cached drawables are created for one renderer
+    private val useAnimationClock = developerSettingsDataStore.current().emoteAnimationClock
+    private val pendingLoads = HashMap<String, Deferred<Drawable?>>()
+
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val invalidationListeners = HashMap<Drawable, MutableMap<() -> Unit, Boolean>>()
+    private val invalidationListeners = HashMap<Drawable, MutableMap<() -> Unit, Boolean?>>()
+    private val pendingStops = HashMap<Drawable, Runnable>()
 
     // Drawables are shared between all visible occurrences of an emote, but a Drawable only has
     // a single callback slot, so invalidations are fanned out to every registered listener
@@ -96,15 +137,50 @@ class EmoteAnimationCoordinator(
             }
         }
 
+    // Only drawables with a visible occurrence run, so a settings change only touches the registered ones
+    init {
+        chatSettingsDataStore.currentSettings
+            .map { it.animateGifs }
+            .distinctUntilChanged()
+            .onEach { animateGifs ->
+                invalidationListeners.forEach { (drawable, listeners) ->
+                    drawable.setAnimationsRunning(listeners.values.any { it ?: animateGifs })
+                }
+            }.launchIn(scope)
+    }
+
+    // Occurrences composed together share one load per key. The load outlives the occurrence that
+    // started it, so the remaining occurrences still get its result.
+    suspend fun loadShared(
+        key: String,
+        load: suspend () -> Drawable?,
+    ): Drawable? {
+        val pending =
+            pendingLoads[key] ?: scope
+                .async(start = CoroutineStart.LAZY) {
+                    try {
+                        load()
+                    } finally {
+                        pendingLoads.remove(key)
+                    }
+                }.also {
+                    // Registered before starting, a load that completes immediately must still remove itself
+                    pendingLoads[key] = it
+                    it.start()
+                }
+        return pending.await()
+    }
+
     fun registerInvalidationListener(
         drawable: Drawable,
         listener: () -> Unit,
-        animate: Boolean = chatSettingsDataStore.currentSettings.value.animateGifs,
+        animate: Boolean? = null,
     ) {
+        pendingStops.remove(drawable)?.let(mainHandler::removeCallbacks)
         val listeners = invalidationListeners.getOrPut(drawable) { mutableMapOf() }
         listeners[listener] = animate
         drawable.callback = fanOutCallback
-        drawable.setAnimationsRunning(listeners.values.any { it })
+        drawable.setAnimationsRunning(listeners.values.any { it ?: chatSettingsDataStore.currentSettings.value.animateGifs })
     }
 
     fun unregisterInvalidationListener(
@@ -116,19 +192,28 @@ class EmoteAnimationCoordinator(
         if (listeners.isEmpty()) {
             invalidationListeners.remove(drawable)
             // AnimatedImageDrawable animates on the RenderThread even when nothing draws it,
-            // an explicit stop is the only thing that halts it while the drawable stays cached
-            drawable.setAnimationsRunning(false)
-            drawable.callback = null
+            // Deferred so a replacement in the same frame keeps the running animation.
+            val stop =
+                Runnable {
+                    pendingStops.remove(drawable)
+                    drawable.setAnimationsRunning(false)
+                    drawable.callback = null
+                }
+            pendingStops[drawable] = stop
+            mainHandler.post(stop)
         } else {
-            drawable.setAnimationsRunning(listeners.values.any { it })
+            drawable.setAnimationsRunning(listeners.values.any { it ?: chatSettingsDataStore.currentSettings.value.animateGifs })
         }
     }
 
-    private fun Drawable.setAnimationsRunning(running: Boolean) {
-        when (this) {
-            is LayerDrawable -> forEachLayer<Animatable> { it.setRunning(running) }
-            is Animatable -> setRunning(running)
-        }
+    fun setAnimationsPaused(paused: Boolean) {
+        animationClock.setPaused(paused)
+    }
+
+    // With the clock enabled, animated emotes advance on it, everything else is drawn as it is
+    fun clockedIfAnimated(drawable: Drawable): Drawable = when {
+        useAnimationClock && drawable.isAnimated -> ClockedAnimationDrawable(drawable, animationClock)
+        else -> drawable
     }
 
     fun getCached(url: String): Drawable? = emoteCache.get(url)
@@ -140,13 +225,44 @@ class EmoteAnimationCoordinator(
         emoteCache.put(url, drawable)
     }
 
-    fun getLayerCached(cacheKey: String): LayerDrawable? = layerCache.get(cacheKey)
+    fun getLayerCached(cacheKey: String): Drawable? = layerCache.get(cacheKey)
 
     fun putLayerInCache(
         cacheKey: String,
-        layerDrawable: LayerDrawable,
+        drawable: Drawable,
     ) {
-        layerCache.put(cacheKey, layerDrawable)
+        layerCache.put(cacheKey, drawable)
+    }
+}
+
+// Sized by the decoded pixels the drawables hold, the minimum charge keeps small drawables like badges
+// within the entry limit
+private fun <T : Drawable> drawableCache(
+    sizeKib: Int,
+    maxEntries: Int,
+): LruCache<String, T> = object : LruCache<String, T>(sizeKib) {
+    override fun sizeOf(
+        key: String,
+        value: T,
+    ): Int {
+        val minimumEntryCharge = (sizeKib / maxEntries).toLong()
+        return (value.estimatedBytes() / BYTES_PER_KIB).coerceIn(minimumEntryCharge, Int.MAX_VALUE.toLong()).toInt()
+    }
+}
+
+private fun Drawable.estimatedBytes(): Long = when (this) {
+    is ClockedAnimationDrawable -> source.estimatedBytes() + frameBufferBytes
+
+    is LayerDrawable -> (0 until numberOfLayers).sumOf { getDrawable(it).estimatedBytes() }
+
+    else -> {
+        val pixels = intrinsicWidth.coerceAtLeast(1).toLong() * intrinsicHeight.coerceAtLeast(1)
+        val buffers =
+            when (this) {
+                is Animatable -> ANIMATED_DRAWABLE_BUFFER_COUNT
+                else -> 1L
+            }
+        pixels * BYTES_PER_PIXEL * buffers
     }
 }
 

@@ -30,7 +30,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -73,7 +72,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -110,10 +108,8 @@ import com.flxrs.dankchat.ui.main.TheaterChatModeIcon
 import com.flxrs.dankchat.ui.main.input.TourTooltip
 import com.flxrs.dankchat.utils.compose.predictiveBackScale
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.takeWhile
@@ -135,37 +131,15 @@ data class ChatScreenCallbacks(
     val onAutomodBanUser: (messageId: String, channel: String?, fullMessage: String) -> Unit = { _, _, _ -> },
 )
 
-@Immutable
-data class ChatScrollPosition(
-    val firstVisibleItemId: String? = null,
-    val firstVisibleItemIndex: Int = 0,
-    val firstVisibleItemScrollOffset: Int = 0,
-    val shouldAutoScroll: Boolean = true,
-)
-
-internal fun <T> ChatScrollPosition.resolveFirstVisibleItemIndex(
-    items: List<T>,
-    itemId: (T) -> String,
-): Int {
-    val anchoredIndex = firstVisibleItemId?.let { anchor -> items.indexOfFirst { itemId(it) == anchor } } ?: -1
-    return when {
-        anchoredIndex >= 0 -> anchoredIndex
-        items.isEmpty() -> 0
-        else -> firstVisibleItemIndex.coerceIn(items.indices)
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     messages: ImmutableList<ChatMessageUiState>,
     fontSize: Float,
     callbacks: ChatScreenCallbacks,
+    scrollState: ChatScrollState,
     modifier: Modifier = Modifier,
     scrollModifier: Modifier = Modifier,
-    initialScrollPosition: ChatScrollPosition = ChatScrollPosition(),
-    trackScrollPosition: Boolean = false,
-    onScrollPositionChange: (ChatScrollPosition) -> Unit = {},
     showChannelPrefix: Boolean = false,
     animateGifs: Boolean = true,
     showInput: Boolean = true,
@@ -192,70 +166,46 @@ fun ChatScreen(
     onTourAdvance: (() -> Unit)? = null,
     onTourSkip: (() -> Unit)? = null,
 ) {
-    val reversedMessages = messages.asReversed()
-    val currentReversedMessages by rememberUpdatedState(reversedMessages)
-    val initialFirstVisibleItemIndex =
-        remember {
-            initialScrollPosition.resolveFirstVisibleItemIndex(
-                items = reversedMessages,
-                itemId = ChatMessageUiState::id,
-            )
-        }
-    val listState =
-        rememberLazyListState(
-            initialFirstVisibleItemIndex = initialFirstVisibleItemIndex,
-            initialFirstVisibleItemScrollOffset = initialScrollPosition.firstVisibleItemScrollOffset,
-        )
-
-    // Track if we should auto-scroll to bottom (sticky state)
-    var shouldAutoScroll by rememberSaveable { mutableStateOf(initialScrollPosition.shouldAutoScroll) }
-
-    LaunchedEffect(trackScrollPosition, listState) {
-        if (!trackScrollPosition) return@LaunchedEffect
-        snapshotFlow {
-            if (listState.isScrollInProgress) {
-                null
-            } else {
-                ChatScrollPosition(
-                    firstVisibleItemId = currentReversedMessages.getOrNull(listState.firstVisibleItemIndex)?.id,
-                    firstVisibleItemIndex = listState.firstVisibleItemIndex,
-                    firstVisibleItemScrollOffset = listState.firstVisibleItemScrollOffset,
-                    shouldAutoScroll = shouldAutoScroll,
-                )
-            }
-        }.filterNotNull()
-            .distinctUntilChanged()
-            .collect(onScrollPositionChange)
-    }
+    val listState = scrollState.listState
 
     // Detect if we're showing the newest messages (with reverseLayout, index 0 = newest).
     // Require zero scroll offset so items scrolled into the bottom content padding
     // (behind the input bar) don't count as "at bottom".
-    val isAtBottom by remember {
+    val isAtBottom by remember(listState) {
         derivedStateOf {
             listState.firstVisibleItemIndex == 0 &&
                 listState.firstVisibleItemScrollOffset == 0
         }
     }
 
-    // Disable auto-scroll when user scrolls up, re-enable when they return to bottom
+    // Disable auto-scroll when user scrolls up, re-enable when they return to bottom.
+    // A list state shown in a previous layout keeps its last scroll direction, so only scrolls seen here count.
+    var hasScrolledHere by remember(listState) { mutableStateOf(false) }
     SideEffect(listState.isScrollInProgress) {
-        if (listState.lastScrolledForward && shouldAutoScroll) {
-            shouldAutoScroll = false
+        if (listState.isScrollInProgress) {
+            hasScrolledHere = true
         }
-        if (!listState.isScrollInProgress && isAtBottom && !shouldAutoScroll) {
-            shouldAutoScroll = true
+        if (!hasScrolledHere) {
+            return@SideEffect
+        }
+        if (listState.lastScrolledForward && scrollState.shouldAutoScroll) {
+            scrollState.shouldAutoScroll = false
+        }
+        if (!listState.isScrollInProgress && isAtBottom && !scrollState.shouldAutoScroll) {
+            scrollState.shouldAutoScroll = true
         }
         onScrollDirectionChange(listState.lastScrolledForward)
     }
 
     // Auto-scroll when new messages arrive or when re-enabled, keyed on the newest message id
     // so emissions that only rewrite or prepend messages don't restart the effect
-    LaunchedEffect(shouldAutoScroll, messages.lastOrNull()?.id) {
-        if (shouldAutoScroll) {
+    LaunchedEffect(scrollState.shouldAutoScroll, messages.lastOrNull()?.id) {
+        if (scrollState.shouldAutoScroll) {
             listState.scrollToItem(0)
         }
     }
+
+    val reversedMessages = messages.asReversed()
 
     // Handle scroll-to-message requests — keyed on both scrollToMessageId and whether messages
     // are available, so the scroll retries after ViewModel recreation (which briefly empties messages).
@@ -266,7 +216,7 @@ fun ChatScreen(
         if (!hasMessages) return@LaunchedEffect
         val index = reversedMessages.indexOfFirst { it.id == targetId }
         if (index >= 0) {
-            shouldAutoScroll = false
+            scrollState.shouldAutoScroll = false
             listState.scrollToCentered(index)
             settlingMessageId = targetId
         }
@@ -275,6 +225,7 @@ fun ChatScreen(
 
     // A jump that starts a reply opens the keyboard, which shrinks the reversed list from the bottom and pushes the
     // message up. It is centered again while the visible area settles, unless the user drags the list meanwhile.
+    val currentReversedMessages by rememberUpdatedState(reversedMessages)
     LaunchedEffect(settlingMessageId) {
         val targetId = settlingMessageId ?: return@LaunchedEffect
         withTimeoutOrNull(JUMP_SETTLE_WINDOW) {
@@ -351,7 +302,7 @@ fun ChatScreen(
 
             // FABs at bottom-end with coordinated position animation
             if (showFabs) {
-                val showScrollFab = !shouldAutoScroll && messages.isNotEmpty()
+                val showScrollFab = !scrollState.shouldAutoScroll && messages.isNotEmpty()
                 // Scaffold padding already animates with input show/hide; extra spring would double up.
                 val fabBottomPadding = contentPadding.calculateBottomPadding()
                 val recoveryBottomPadding by animateDpAsState(
@@ -387,7 +338,7 @@ fun ChatScreen(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                shouldAutoScroll = true
+                                scrollState.shouldAutoScroll = true
                                 onScrollDirectionChange(false)
                                 onScrollToBottom()
                             },
@@ -917,7 +868,6 @@ private fun ChatMessageItem(
                 message = message,
                 highlightShape = highlightShape,
                 fontSize = fontSize,
-                animateGifs = animateGifs,
                 onUserClick = callbacks.onUserClick,
                 onMessageLongClick = callbacks.onMessageLongClick,
             )
@@ -927,7 +877,6 @@ private fun ChatMessageItem(
             ModerationMessageComposable(
                 message = message,
                 fontSize = fontSize,
-                animateGifs = animateGifs,
                 onUserClick = callbacks.onUserClick,
                 showChannelPrefix = showChannelPrefix,
             )
@@ -984,7 +933,6 @@ private fun ChatMessageItem(
             WhisperMessageComposable(
                 message = message,
                 fontSize = fontSize,
-                animateGifs = animateGifs,
                 onUserClick = { userId, userName, displayName, badges, isLongPress ->
                     callbacks.onUserClick(userId, userName, displayName, null, badges, isLongPress)
                 },

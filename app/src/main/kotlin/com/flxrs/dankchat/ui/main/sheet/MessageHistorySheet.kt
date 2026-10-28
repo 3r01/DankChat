@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -58,7 +59,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +83,7 @@ import com.flxrs.dankchat.data.UserName
 import com.flxrs.dankchat.preferences.components.DankBackground
 import com.flxrs.dankchat.ui.chat.ChatScreen
 import com.flxrs.dankchat.ui.chat.ChatScreenCallbacks
+import com.flxrs.dankchat.ui.chat.ChatScrollState
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.emote.EmoteInfoViewModel
 import com.flxrs.dankchat.ui.chat.history.HistoryChannel
@@ -105,18 +106,17 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MessageHistorySheet(
     viewModel: MessageHistoryViewModel,
     initialFilter: String,
+    openId: Long,
+    scrollStateFor: (HistoryChannel) -> ChatScrollState,
     onDismiss: () -> Unit,
+    backEnabled: Boolean,
 ) {
     val emoteInfoViewModel: EmoteInfoViewModel = koinViewModel()
     val userPopupViewModel: UserPopupViewModel = koinViewModel()
     val messageOptionsViewModel: MessageOptionsViewModel = koinViewModel()
 
-    var lastAppliedFilter by rememberSaveable { mutableStateOf<String?>(null) }
-    SideEffect(initialFilter) {
-        if (lastAppliedFilter != initialFilter) {
-            viewModel.setInitialQuery(initialFilter)
-            lastAppliedFilter = initialFilter
-        }
+    SideEffect(openId) {
+        viewModel.setInitialQuery(openId, initialFilter)
     }
 
     val displaySettings by viewModel.chatDisplaySettings.collectAsStateWithLifecycle()
@@ -151,7 +151,7 @@ fun MessageHistorySheet(
     var sheetHeightPx by remember { mutableIntStateOf(0) }
     val sheetHeightDp = with(density) { sheetHeightPx.toDp() }
 
-    PredictiveBackHandler { progress ->
+    PredictiveBackHandler(enabled = backEnabled) { progress ->
         try {
             progress.collect { event ->
                 backProgress = event.progress
@@ -180,12 +180,15 @@ fun MessageHistorySheet(
             Modifier
                 .fillMaxSize()
                 .onSizeChanged { sheetHeightPx = it.height }
-                .background(sheetBackgroundColor)
                 .graphicsLayer {
-                    scaleX = 1f - (backProgress * 0.1f)
-                    scaleY = 1f - (backProgress * 0.1f)
+                    val scale = 1f - (backProgress * 0.1f)
+                    scaleX = scale
+                    scaleY = scale
                     alpha = 1f - (backProgress * 0.5f)
-                },
+                    translationY = backProgress * 48.dp.toPx()
+                    shape = RoundedCornerShape(36.dp * (backProgress * 4f).coerceAtMost(1f))
+                    clip = backProgress > 0f
+                }.background(sheetBackgroundColor),
     ) {
         AnimatedContent(
             targetState = selectedChannel,
@@ -231,6 +234,7 @@ fun MessageHistorySheet(
                             },
                             onEmoteClick = { emoteInfoViewModel.show(it) },
                         ),
+                    scrollState = scrollStateFor(channel),
                     animateGifs = displaySettings.animateGifs,
                     showChannelPrefix = channel is HistoryChannel.Global,
                     modifier = Modifier.fillMaxSize(),

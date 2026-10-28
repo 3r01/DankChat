@@ -115,7 +115,7 @@ class GifPickerViewModel(
             val secondsRemaining =
                 ceil(((cooldowns[activeChannelId] ?: 0L) - System.currentTimeMillis()).coerceAtLeast(0L) / 1000.0).toInt()
             if (secondsRemaining > 0) {
-                mainEventBus.emitEvent(MainEvent.Error(IllegalStateException("You cannot send another GIF for $secondsRemaining seconds")))
+                mainEventBus.emitEvent(MainEvent.GifFailed("You cannot send another GIF for $secondsRemaining seconds"))
                 return@launch
             }
             val currentState = _state.value
@@ -151,7 +151,7 @@ class GifPickerViewModel(
                         config = null
                         _isAvailable.value = false
                     }
-                    mainEventBus.emitEvent(MainEvent.Error(error))
+                    mainEventBus.emitEvent(MainEvent.GifFailed(error.message ?: "Unable to send GIF"))
                 },
             )
         }

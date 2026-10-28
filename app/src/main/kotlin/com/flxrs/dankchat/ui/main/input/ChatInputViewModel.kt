@@ -35,12 +35,12 @@ import com.flxrs.dankchat.preferences.stream.StreamsSettingsDataStore
 import com.flxrs.dankchat.ui.chat.suggestion.Suggestion
 import com.flxrs.dankchat.ui.chat.suggestion.SuggestionProvider
 import com.flxrs.dankchat.ui.main.InputState
-import com.flxrs.dankchat.ui.main.MainEvent
-import com.flxrs.dankchat.ui.main.MainEventBus
 import com.flxrs.dankchat.ui.main.RepeatedSendData
 import com.flxrs.dankchat.ui.main.sheet.FullScreenSheetState
 import com.flxrs.dankchat.utils.TextResource
 import com.flxrs.dankchat.utils.extensions.combine
+import com.flxrs.dankchat.utils.extensions.runCatchingCancellable
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -58,11 +58,14 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
+
+private val logger = KotlinLogging.logger("ChatInputViewModel")
 
 @OptIn(FlowPreview::class)
 @KoinViewModel
@@ -80,7 +83,6 @@ class ChatInputViewModel(
     private val notificationsSettingsDataStore: NotificationsSettingsDataStore,
     private val emoteRepository: EmoteRepository,
     private val emoteUsageRepository: EmoteUsageRepository,
-    private val mainEventBus: MainEventBus,
     streamsSettingsDataStore: StreamsSettingsDataStore,
     streamDataRepository: StreamDataRepository,
     dispatchersProvider: DispatchersProvider,
@@ -158,7 +160,14 @@ class ChatInputViewModel(
             if (!showModes || channel == null) {
                 flowOf(emptyList())
             } else {
-                channelRepository.getRoomStateFlow(channel).map { it.toDisplayTextResources() }
+                val roomStateFlow = channelRepository.getRoomStateFlow(channel)
+                roomStateFlow
+                    .map { it.toDisplayTextResources() }
+                    .onStart {
+                        if (roomStateFlow.replayCache.isEmpty()) {
+                            emit(persistentListOf())
+                        }
+                    }
             }
         }.distinctUntilChanged()
             .map { it.toImmutableList() }
@@ -425,9 +434,9 @@ class ChatInputViewModel(
             }
 
         val commandResult =
-            runCatching {
+            runCatchingCancellable {
                 when (chatState) {
-                    FullScreenSheetState.Whisper -> {
+                    is FullScreenSheetState.Whisper -> {
                         commandRepository.checkForWhisperCommand(message, skipSuspendingCommands)
                     }
 
@@ -443,7 +452,8 @@ class ChatInputViewModel(
                     }
                 }
             }.getOrElse {
-                mainEventBus.emitEvent(MainEvent.Error(it))
+                logger.error(it) { "Failed to check for commands" }
+                chatRepository.makeAndPostCustomSystemMessage(TextResource.Res(R.string.cmd_error_unknown), channel)
                 return@launch
             }
 
@@ -494,7 +504,7 @@ class ChatInputViewModel(
         }
 
         if (commandResult != CommandResult.NotFound && commandResult != CommandResult.IrcCommand) {
-            chatRepository.appendLastMessage(channel, message)
+            chatRepository.addMessageToHistory(channel, message)
         }
     }
 

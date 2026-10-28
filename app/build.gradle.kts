@@ -33,8 +33,8 @@ android {
         applicationId = "com.flxrs.dankchat"
         minSdk = 30
         targetSdk = 36
-        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40045
-        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.45"
+        versionCode = System.getenv("DANKCHAT_3R01_VERSION_CODE")?.toIntOrNull() ?: 40046
+        versionName = System.getenv("DANKCHAT_3R01_VERSION_NAME") ?: "4.0.46"
     }
 
     androidResources { generateLocaleConfig = true }
@@ -61,7 +61,12 @@ android {
         }
     }
 
-    testOptions { unitTests.isReturnDefaultValues = true }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+        // Robolectric reaches into FileDescriptor internals that newer JDKs no longer open by default
+        unitTests.all { it.jvmArgs("--add-opens=java.base/jdk.internal.access=ALL-UNNAMED") }
+    }
 
     buildTypes {
         getByName("release") {
@@ -262,6 +267,11 @@ dependencies {
     testImplementation(libs.ktor.client.okhttp)
     testImplementation(libs.ktor.client.websockets)
     testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
+    testImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
 }
 
 junitPlatform {

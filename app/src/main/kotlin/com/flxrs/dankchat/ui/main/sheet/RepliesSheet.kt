@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.flxrs.dankchat.R
+import com.flxrs.dankchat.ui.chat.ChatScrollState
 import com.flxrs.dankchat.ui.chat.ScrollDirectionTracker
 import com.flxrs.dankchat.ui.chat.replies.RepliesComposable
 import com.flxrs.dankchat.ui.chat.replies.RepliesViewModel
@@ -37,7 +39,9 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun RepliesSheet(
     rootMessageId: String,
+    scrollState: ChatScrollState,
     onDismiss: () -> Unit,
+    backEnabled: Boolean,
     bottomContentPadding: Dp = 0.dp,
 ) {
     val viewModel: RepliesViewModel =
@@ -69,7 +73,7 @@ fun RepliesSheet(
         }
     val scrollModifier = Modifier.nestedScroll(scrollTracker)
 
-    PredictiveBackHandler { progress ->
+    PredictiveBackHandler(enabled = backEnabled) { progress ->
         try {
             progress.collect { event ->
                 backProgress = event.progress
@@ -84,18 +88,20 @@ fun RepliesSheet(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(sheetBackgroundColor)
                 .graphicsLayer {
                     val scale = 1f - (backProgress * 0.1f)
                     scaleX = scale
                     scaleY = scale
-                    alpha = 1f - backProgress
-                    translationY = backProgress * 100f
-                },
+                    alpha = 1f - (backProgress * 0.5f)
+                    translationY = backProgress * 48.dp.toPx()
+                    shape = RoundedCornerShape(36.dp * (backProgress * 4f).coerceAtMost(1f))
+                    clip = backProgress > 0f
+                }.background(sheetBackgroundColor),
     ) {
         RepliesComposable(
             repliesViewModel = viewModel,
             onMissing = onDismiss,
+            scrollState = scrollState,
             containerColor = sheetBackgroundColor,
             contentPadding = PaddingValues(top = toolbarTopPadding, bottom = bottomContentPadding),
             scrollModifier = scrollModifier,

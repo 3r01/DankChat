@@ -51,4 +51,21 @@ internal class ChatConnectorRemotePushTest {
         assertEquals(setOf(connected), connector.completeRemotePushTransition())
         assertFalse(connector.isRemotePushTransition())
     }
+
+    @Test
+    fun `remote push transitions complete separately for each joined channel`() = runTest(testDispatcher) {
+        val first = "forsen".toUserName()
+        val second = "Iore".toUserName()
+        connector.createConnectionState(first)
+        connector.createConnectionState(second)
+        connector.setAllConnectionStates(ConnectionState.CONNECTED)
+        connector.pauseForRemotePush()
+
+        assertFalse(connector.completeRemotePushTransition("other".toUserName()))
+        assertTrue(connector.completeRemotePushTransition(first))
+        assertTrue(connector.isRemotePushTransition())
+        assertFalse(connector.completeRemotePushTransition(first))
+        assertTrue(connector.completeRemotePushTransition(second))
+        assertFalse(connector.isRemotePushTransition())
+    }
 }

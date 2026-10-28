@@ -54,7 +54,7 @@ internal fun GifFavoriteAction(
                 } catch (error: CancellationException) {
                     throw error
                 } catch (error: Exception) {
-                    eventBus.emitEvent(MainEvent.Error(error))
+                    eventBus.emitEvent(MainEvent.GifFailed(error.message ?: "Unable to save GIF favorite"))
                 }
             }
         },

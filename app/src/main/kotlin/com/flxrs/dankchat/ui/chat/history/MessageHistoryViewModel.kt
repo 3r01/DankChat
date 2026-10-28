@@ -19,6 +19,7 @@ import com.flxrs.dankchat.preferences.appearance.AppearanceSettingsDataStore
 import com.flxrs.dankchat.preferences.chat.ChatSettingsDataStore
 import com.flxrs.dankchat.ui.chat.ChatDisplaySettings
 import com.flxrs.dankchat.ui.chat.ChatMessageMapper
+import com.flxrs.dankchat.ui.chat.ChatMessageMappingCache
 import com.flxrs.dankchat.ui.chat.ChatMessageUiState
 import com.flxrs.dankchat.ui.chat.CheckeredMessageTracker
 import com.flxrs.dankchat.ui.chat.search.ChatItemFilter
@@ -76,6 +77,7 @@ class MessageHistoryViewModel(
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ChatDisplaySettings())
 
     private val checkeredTracker = CheckeredMessageTracker()
+    private val mappingCache = ChatMessageMappingCache()
     private val _selectedChannel = MutableStateFlow(initialChannel)
     val selectedChannel: StateFlow<HistoryChannel> = _selectedChannel
 
@@ -102,6 +104,7 @@ class MessageHistoryViewModel(
     }
 
     val searchFieldState = TextFieldState()
+    private var appliedOpenId: Long? = null
 
     private val searchQuery =
         snapshotFlow { searchFieldState.text.toString() }
@@ -131,20 +134,21 @@ class MessageHistoryViewModel(
             appearanceSettingsDataStore.settings,
             chatSettingsDataStore.settings,
         ) { messages, activeFilters, appearanceSettings, chatSettings ->
-            chatMessageMapper
-                .run {
-                    messages
-                        .filter { it.message !is SystemMessage }
-                        .filter { ChatItemFilter.matches(it, activeFilters) }
-                        .map { item ->
-                            val altBg = appearanceSettings.checkeredMessages && checkeredTracker.isAlternate(item.message.id)
-                            mapToUiState(
-                                item = item,
-                                chatSettings = chatSettings,
-                                preferenceStore = preferenceStore,
-                                isAlternateBackground = altBg,
-                            )
-                        }.withHighlightLayout(showLineSeparator = appearanceSettings.lineSeparator)
+            mappingCache
+                .mapWithHighlightLayout(
+                    items = messages.filter { it.message !is SystemMessage && ChatItemFilter.matches(it, activeFilters) },
+                    chatSettings = chatSettings,
+                    showLineSeparator = appearanceSettings.lineSeparator,
+                    isAlternateBackground = { appearanceSettings.checkeredMessages && checkeredTracker.isAlternate(it.message.id) },
+                    // Sized to every message, so changing the filter maps only messages that were never shown
+                    cacheSize = messages.size,
+                ) { item, altBg ->
+                    chatMessageMapper.mapToUiState(
+                        item = item,
+                        chatSettings = chatSettings,
+                        preferenceStore = preferenceStore,
+                        isAlternateBackground = altBg,
+                    )
                 }.toImmutableList()
         }.flowOn(dispatchersProvider.default)
 
@@ -167,16 +171,25 @@ class MessageHistoryViewModel(
             }.map { it.toImmutableSet() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
+    // Collected only while a badge filter is typed, otherwise every message would walk all badges
     private val badgeNames: StateFlow<ImmutableSet<String>> =
-        messagesFlow
-            .map { items ->
-                items
-                    .asSequence()
-                    .map { it.message }
-                    .filterIsInstance<PrivMessage>()
-                    .flatMap { it.badges }
-                    .mapNotNull { it.badgeTag?.substringBefore('/') }
-                    .toImmutableSet()
+        searchQuery
+            .map { SearchFilterSuggestions.needsBadgeNames(it) }
+            .distinctUntilChanged()
+            .flatMapLatest { needed ->
+                when {
+                    needed -> messagesFlow.map { items ->
+                        items
+                            .asSequence()
+                            .map { it.message }
+                            .filterIsInstance<PrivMessage>()
+                            .flatMap { it.badges }
+                            .mapNotNull { it.badgeTag?.substringBefore('/') }
+                            .toImmutableSet()
+                    }
+
+                    else -> flowOf(persistentSetOf())
+                }
             }.flowOn(dispatchersProvider.default)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentSetOf())
 
@@ -189,7 +202,15 @@ class MessageHistoryViewModel(
             SearchFilterSuggestions.filter(query, users = userSet, badgeNames = badges).toImmutableList()
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), persistentListOf())
 
-    fun setInitialQuery(query: String) {
+    fun setInitialQuery(
+        openId: Long,
+        query: String,
+    ) {
+        if (openId == appliedOpenId) {
+            return
+        }
+        appliedOpenId = openId
+
         if (query.isNotEmpty()) {
             val normalizedQuery = if (query.endsWith(' ')) query else "$query "
             searchFieldState.edit {
